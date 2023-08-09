@@ -85,6 +85,41 @@
   "drivers": [
     {
       "name": {
+        "en": "Button Display"
+      },
+      "class": "button",
+      "capabilities": [
+        "onoff.left",
+        "onoff.right"
+      ],
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
+      "pair": [
+        {
+          "id": "list_my_devices",
+          "template": "list_devices",
+          "navigation": {
+            "next": "add_my_devices"
+          }
+        },
+        {
+          "id": "add_my_devices",
+          "template": "add_devices"
+        }
+      ],
+      "images": {
+        "small": "/drivers/display/assets/images/small.png",
+        "large": "/drivers/display/assets/images/large.png",
+        "xlarge": "/drivers/display/assets/images/xlarge.png"
+      },
+      "id": "display"
+    },
+    {
+      "name": {
         "en": "Button Panel"
       },
       "class": "button",

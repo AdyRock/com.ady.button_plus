@@ -8,7 +8,6 @@ if (process.env.DEBUG === '1')
 
 const Homey = require('homey');
 
-const https = require('https');
 const http = require('http');
 const nodemailer = require('nodemailer');
 const aedes = require('aedes')();
@@ -29,6 +28,8 @@ class MyApp extends Homey.App
     async onInit()
     {
         this.serverReady = false;
+        this.autoConfigGateway = true;
+        this.homey.settings.set('autoConfig', this.autoConfigGateway);
         try
         {
             // Setup the local access method if possible
@@ -36,7 +37,7 @@ class MyApp extends Homey.App
             {
                 this.setupMQTTServer();
             }
-            this.setupmDNS();
+            this.setupMDNS();
             this.setupMQTTClient();
         }
         catch (err)
@@ -47,7 +48,7 @@ class MyApp extends Homey.App
         this.log('MyApp has been initialized');
     }
 
-    async setupmDNS()
+    async setupMDNS()
     {
         const homeyLocalURL = await this.homey.cloud.getLocalAddress();
         this.homeyIP = homeyLocalURL.split(':')[0];
@@ -139,7 +140,7 @@ class MyApp extends Homey.App
             try
             {
                 const mqttMessage = JSON.parse(message.toString());
-                this.homey.app.updateLog(`MQTTDeviceValues: ${this.homey.app.varToString(mqttMessage)}`);
+                this.updateLog(`MQTTDeviceValues: ${this.varToString(mqttMessage)}`);
 
                 // Find the device that handles this message
                 if (mqttMessage.connector)
@@ -158,7 +159,7 @@ class MyApp extends Homey.App
                                 }
                                 catch (error)
                                 {
-                                    this.logInformation('Sync Devices error', error.message);
+                                    this.updateLog(`Sync Devices error: ${error.message}`);
                                 }
                             }
 
@@ -166,15 +167,22 @@ class MyApp extends Homey.App
                         }
                         devices = null;
                     }
-                        }
+                }
             }
             catch (err)
             {
-                this.homey.app.updateLog(`MQTT Client error: ${topic}: ${err.message}`);
+                this.updateLog(`MQTT Client error: ${topic}: ${err.message}`);
             }
         });
 
         return true;
+    }
+
+    async publishMQTTMessage(topic, message)
+    {
+        const data = JSON.stringify(message);
+        this.updateLog(`publishMQTTMessage: ${data} to topic ${topic}}`);
+        this.MQTTclient.publish(topic, data);
     }
 
     // Build a list of gateways detected by mDNS
@@ -199,7 +207,6 @@ class MyApp extends Homey.App
                     gatewayId: discoveryResult.id,
                     address: discoveryResult.address,
                     model: discoveryResult.txt.model,
-                    taplinker: [],
                 };
 
                 this.mDNSGateways.push(gateway);
@@ -216,15 +223,192 @@ class MyApp extends Homey.App
         }
         catch (err)
         {
-            this.homey.app.updateLog(`mDNSGatewaysUpdate error: ${err.message}`);
+            this.updateLog(`mDNSGatewaysUpdate error: ${err.message}`);
         }
     }
 
-    async publishMQTTMessage(topic, message)
+    async checkGatewayConfiguration(gateway)
     {
-        const data = JSON.stringify(message);
-        this.homey.app.updateLog(`publishMQTTMessage: ${data} to topic ${topic}}`);
-        this.MQTTclient.publish(topic, data);
+        try
+        {
+            let config = await this.getURL(gateway.address, 'config');
+            if (config)
+            {
+                try
+                {
+                    config = JSON.parse(config);
+
+                    // Process it
+
+                    const response = await this.postURL(gateway.address, 'config', config);
+                    if (response)
+                    {
+                        try
+                        {
+                            const responseJson = JSON.parse(response);
+                            if (responseJson.success)
+                            {
+                                this.updateLog(`checkGatewayConfiguration: ${gateway.gatewayId} configured`);
+                            }
+                            else
+                            {
+                                this.updateLog(`checkGatewayConfiguration: ${gateway.gatewayId} configuration failed`);
+                            }
+                        }
+                        catch (err)
+                        {
+                            this.updateLog(`checkGatewayConfiguration error: ${err.message}`);
+                        }
+                    }
+                }
+                catch (err)
+                {
+                    this.updateLog(`checkGatewayConfiguration error: ${err.message}`);
+                }
+            }
+        }
+        catch (err)
+        {
+            this.updateLog(`checkGatewayConfiguration error: ${err.message}`);
+        }
+    }
+
+    async postURL(host, url, body, logBody = true)
+    {
+        this.updateLog(`Post to: ${url}`);
+        if (logBody)
+        {
+            this.updateLog(this.varToString(body));
+        }
+
+        const bodyText = JSON.stringify(body);
+
+        return new Promise((resolve, reject) =>
+        {
+            try
+            {
+                const safeUrl = encodeURI(url);
+
+                const httpOptions = {
+                    host,
+                    path: `/api/${safeUrl}`,
+                    method: 'POST',
+                    headers:
+                    {
+                        'Content-type': 'application/json',
+                        'Content-Length': bodyText.length,
+                    },
+                };
+
+                const req = http.request(httpOptions, (res) =>
+                {
+                    const body = [];
+                    res.on('data', (chunk) =>
+                    {
+                        body.push(chunk);
+                    });
+
+                    res.on('end', () =>
+                    {
+                        if (res.statusCode === 200)
+                        {
+                            let returnData = Buffer.concat(body);
+                            returnData = JSON.parse(returnData);
+                            resolve(returnData);
+                        }
+                        else
+                        {
+                            reject(new Error(`HTTP Error - ${res.statusCode}`));
+                        }
+                    });
+                });
+
+                req.on('error', (err) =>
+                {
+                    reject(new Error(`HTTP Catch: ${err}`), 0);
+                });
+
+                req.setTimeout(5000, () =>
+                {
+                    req.destroy();
+                    reject(new Error('HTTP Catch: Timeout'));
+                });
+
+                req.write(bodyText);
+                req.end();
+            }
+            catch (err)
+            {
+                this.updateLog(`HTTP Catch: ${this.varToString(err)}`);
+                const stack = this.varToString(err.stack);
+                reject(new Error(`HTTP Catch: ${err.message}\n${stack}`));
+            }
+        });
+    }
+
+    async getURL(host, url)
+    {
+        this.updateLog(`Get from: ${url}`);
+
+        return new Promise((resolve, reject) =>
+        {
+            try
+            {
+                const safeUrl = encodeURI(url);
+
+                const httpOptions = {
+                    host,
+                    path: `/api/${safeUrl}`,
+                    method: 'GET',
+                    headers:
+                    {
+                        'Content-type': 'application/json',
+                    },
+                };
+
+                const req = http.fetch(httpOptions, (res) =>
+                {
+                    const body = [];
+                    res.on('data', (chunk) =>
+                    {
+                        body.push(chunk);
+                    });
+
+                    res.on('end', () =>
+                    {
+                        if (res.statusCode === 200)
+                        {
+                            let returnData = Buffer.concat(body);
+                            returnData = JSON.parse(returnData);
+                            resolve(returnData);
+                        }
+                        else
+                        {
+                            reject(new Error(`HTTP Error - ${res.statusCode}`));
+                        }
+                    });
+                });
+
+                req.on('error', (err) =>
+                {
+                    reject(new Error(`HTTP Catch: ${err}`), 0);
+                });
+
+                req.setTimeout(5000, () =>
+                {
+                    req.destroy();
+                    reject(new Error('HTTP Catch: Timeout'));
+                });
+
+                req.end();
+            }
+            catch (err)
+            {
+                this.updateLog(`HTTP Catch: ${this.varToString(err)}`);
+                const stack = this.varToString(err.stack);
+                reject(new Error(`HTTP Catch: ${err.message}\n${stack}`));
+            }
+        });
     }
 
     // Convert a variable of any type (almost) to a string
@@ -307,7 +491,7 @@ class MyApp extends Homey.App
 
                 if (!this.cloudOnly)
                 {
-                    this.homey.api.realtime('com.linktap.logupdated', { log: this.diagLog });
+                    this.homey.api.realtime('com.ady.button_plus.logupdated', { log: this.diagLog });
                 }
             }
             catch (err)
@@ -330,24 +514,7 @@ class MyApp extends Homey.App
         else
         {
             logData = JSON.parse(this.detectedDevices);
-            if (logData)
-            {
-                let gNum = 1;
-                for (const gateway of logData)
-                {
-                    // rename the gateway ID
-                    gateway.gatewayId = `GateWay ${gNum}`;
-                    gNum++;
-
-                    let vNum = 1;
-                    for (const tapLinker of gateway.taplinker)
-                    {
-                        tapLinker.taplinkerId = `tapLinker ${vNum}`;
-                        vNum++;
-                    }
-                }
-            }
-            else
+            if (!logData)
             {
                 throw (new Error('No data to send'));
             }
@@ -361,33 +528,33 @@ class MyApp extends Homey.App
             {
                 // create reusable transporter object using the default SMTP transport
                 const transporter = nodemailer.createTransport(
-                {
-                    host: Homey.env.MAIL_HOST, // Homey.env.MAIL_HOST,
-                    port: 465,
-                    ignoreTLS: false,
-                    secure: true, // true for 465, false for other ports
-                    auth:
                     {
-                        user: Homey.env.MAIL_USER, // generated ethereal user
-                        pass: Homey.env.MAIL_SECRET, // generated ethereal password
+                        host: Homey.env.MAIL_HOST, // Homey.env.MAIL_HOST,
+                        port: 465,
+                        ignoreTLS: false,
+                        secure: true, // true for 465, false for other ports
+                        auth:
+                        {
+                            user: Homey.env.MAIL_USER, // generated ethereal user
+                            pass: Homey.env.MAIL_SECRET, // generated ethereal password
+                        },
+                        tls:
+                        {
+                            // do not fail on invalid certs
+                            rejectUnauthorized: false,
+                        },
                     },
-                    tls:
-                    {
-                        // do not fail on invalid certs
-                        rejectUnauthorized: false,
-                    },
-                },
-);
+                );
 
                 // send mail with defined transport object
                 const info = await transporter.sendMail(
-                {
-                    from: `"Homey User" <${Homey.env.MAIL_USER}>`, // sender address
-                    to: Homey.env.MAIL_RECIPIENT, // list of receivers
-                    subject: `LinkTap ${body.logType} log (${Homey.manifest.version})`, // Subject line
-                    text: logData, // plain text body
-                },
-);
+                    {
+                        from: `"Homey User" <${Homey.env.MAIL_USER}>`, // sender address
+                        to: Homey.env.MAIL_RECIPIENT, // list of receivers
+                        subject: `Button + ${body.logType} log (${Homey.manifest.version})`, // Subject line
+                        text: logData, // plain text body
+                    },
+                );
 
                 this.updateLog(`Message sent: ${info.messageId}`);
                 // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>

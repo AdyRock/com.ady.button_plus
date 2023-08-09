@@ -2,7 +2,7 @@
 
 const BasePanelDevice = require('../base_panel_device');
 
-class PanelDevice extends BasePanelDevice
+class DisplayDevice extends BasePanelDevice
 {
 
     /**
@@ -11,7 +11,7 @@ class PanelDevice extends BasePanelDevice
     async onInit()
     {
         super.onInit();
-        this.log('PanelDevice has been initialized');
+        this.log('DisplayDevice has been initialized');
     }
 
     /**
@@ -20,7 +20,7 @@ class PanelDevice extends BasePanelDevice
     async onAdded()
     {
         super.onAdded();
-        this.log('PanelDevice has been added');
+        this.log('DisplayDevice has been added');
     }
 
     /**
@@ -34,7 +34,7 @@ class PanelDevice extends BasePanelDevice
     async onSettings({ oldSettings, newSettings, changedKeys })
     {
         super.onSettings({ oldSettings, newSettings, changedKeys });
-        this.log('PanelDevice settings where changed');
+        this.log('DisplayDevice settings where changed');
     }
 
     /**
@@ -45,7 +45,7 @@ class PanelDevice extends BasePanelDevice
     async onRenamed(name)
     {
         super.onRenamed(name);
-        this.log('PanelDevice was renamed');
+        this.log('DisplayDevice was renamed');
     }
 
     /**
@@ -54,9 +54,9 @@ class PanelDevice extends BasePanelDevice
     async onDeleted()
     {
         super.onDeleted();
-        this.log('PanelDevice has been deleted');
+        this.log('DisplayDevice has been deleted');
     }
 
 }
 
-module.exports = PanelDevice;
+module.exports = DisplayDevice;

@@ -1,1 +1,13 @@
-{}
+{
+    "settings": {
+        "detected": "Detected",
+        "diagnosticsLog": "Diagnostics Log",
+        "clearLog": "Clear Log",
+        "sendLog": "Send Log",
+        "detectedDescription": "** Do not share this information publicly **",
+        "logEnabled": "Log Enabled",
+        "confirmSend": "Send the log contents to the developer?\n** All identifiers will be removed **",
+        "logSent": "The log has been sent.",
+        "logSendFailed": "Failed to send after 5 attempts.\nThe error messages are at the end of the log."
+    }
+}

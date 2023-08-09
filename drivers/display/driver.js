@@ -2,7 +2,7 @@
 
 const { Driver } = require('homey');
 
-class PanelDriver extends Driver
+class DisplayDriver extends Driver
 {
 
     /**
@@ -10,7 +10,7 @@ class PanelDriver extends Driver
      */
     async onInit()
     {
-        this.log('PanelDriver has been initialized');
+        this.log('DisplayDriver has been initialized');
     }
 
     /**
@@ -23,7 +23,7 @@ class PanelDriver extends Driver
         return [
             // Example device data, note that `store` is optional
             {
-                name: 'Panel 4',
+                name: 'Panel 3',
                 data:
                 {
                     connector: 4,
@@ -38,4 +38,4 @@ class PanelDriver extends Driver
 
 }
 
-module.exports = PanelDriver;
+module.exports = DisplayDriver;
