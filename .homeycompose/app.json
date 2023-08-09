@@ -1,0 +1,28 @@
+{
+  "id": "com.ady.button_plus",
+  "version": "0.0.1",
+  "compatibility": ">=5.0.0",
+  "sdk": 3,
+  "platforms": [
+    "local"
+  ],
+  "name": {
+    "en": "Button +"
+  },
+  "description": {
+    "en": "Control Button + panels"
+  },
+  "category": [
+    "appliances"
+  ],
+  "permissions": [],
+  "images": {
+    "small": "/assets/images/small.png",
+    "large": "/assets/images/large.png",
+    "xlarge": "/assets/images/xlarge.png"
+  },
+  "author": {
+    "name": "Adrian Rockall",
+    "email": "ady@rockalls.uk"
+  }
+}
