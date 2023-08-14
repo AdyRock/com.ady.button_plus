@@ -1,3 +1,5 @@
+/* eslint-disable max-len */
+
 'use strict';
 
 if (process.env.DEBUG === '1')
@@ -9,15 +11,21 @@ if (process.env.DEBUG === '1')
 const Homey = require('homey');
 
 const http = require('http');
+const net = require('net');
 const nodemailer = require('nodemailer');
 const aedes = require('aedes')();
-const net = require('net');
 const mqtt = require('mqtt');
+const { HomeyAPI } = require('athom-api');
+const HttpHelper = require('./lib/HttpHelper');
+const DeviceManager = require('./lib/DeviceManager');
+const DeviceDispatcher = require('./lib/DeviceStateChangedDispatcher');
 
 const PORT = 49876;
 // const MQTT_SERVER = 'mqtt://localhost:49876';
 const MQTT_SERVER = 'mqtt://mqtt.button.plus:1883';
 const USE_LOCAL_MQTT = false;
+
+const MAX_CONFIGURATIONS = 20;
 
 class MyApp extends Homey.App
 {
@@ -30,6 +38,21 @@ class MyApp extends Homey.App
         this.serverReady = false;
         this.autoConfigGateway = true;
         this.homey.settings.set('autoConfig', this.autoConfigGateway);
+        this.virtualID = 109;
+
+        this.panelConfigurations = this.homey.settings.get('panelConfigurations');
+        if (!this.panelConfigurations || this.panelConfigurations.length < MAX_CONFIGURATIONS)
+        {
+            this.createPanelConfigurations();
+        }
+
+        this.displayConfigurations = this.homey.settings.get('displayConfigurations');
+        if (!this.displayConfigurations || this.displayConfigurations.length < MAX_CONFIGURATIONS)
+        {
+            this.createDisplayConfigurations();
+        }
+
+        this.settings = this.homey.settings.get('settings') || {};
         try
         {
             // Setup the local access method if possible
@@ -38,14 +61,472 @@ class MyApp extends Homey.App
                 this.setupMQTTServer();
             }
             this.setupMDNS();
-            this.setupMQTTClient();
+            this.homeyID = await this.homey.cloud.getHomeyId();
+            this.setupMQTTClient(this.homeyID);
         }
         catch (err)
         {
             this.updateLog(`Error setting up local access: ${err.message}`);
         }
 
-        this.log('MyApp has been initialized');
+        this.api = await HomeyAPI.forCurrentHomey(this.homey);
+        try
+        {
+            this.system = await this._getSystemInfo();
+        }
+        catch (e)
+        {
+            this.updateLog('[boot] Failed to fetch system info');
+            this.updateLog(e);
+            this.system = {};
+        }
+
+        this.api.devices.setMaxListeners(9999); // HACK
+        this.initSettings();
+
+        // devices
+        this.updateLog('Initialize DeviceManager');
+        this.deviceManager = new DeviceManager(this);
+
+        this.updateLog('Register DeviceManager');
+        await this.deviceManager.register();
+
+        this.getHomeyDevices();
+        this.deviceDispather = new DeviceDispatcher(this);
+
+        try
+        {
+            this.httpHelper = new HttpHelper();
+            await this.loginToSimulator(Homey.env.API_USER, Homey.env.API_PASS);
+        }
+        catch (err)
+        {
+            this.updateLog(`Error logging into simulator: ${err.message}`);
+        }
+
+        this.homey.settings.on('set', async (setting) =>
+        {
+            if (setting === 'panelConfigurations')
+            {
+                this.panelConfigurations = this.homey.settings.get('panelConfigurations');
+
+                // Get devices to upload their configurations that might have changed
+                this.refreshConfigurations();
+            }
+        });
+
+        this.updateLog('MyApp has been initialized');
+    }
+
+    // Make all the device upload their configurations to the panels
+    async refreshConfigurations()
+    {
+        // Get devices to upload their configurations
+        const drivers = this.homey.drivers.getDrivers();
+        for (const driver of Object.values(drivers))
+        {
+            let devices = driver.getDevices();
+            for (let device of Object.values(devices))
+            {
+                if (device.uploadConfigurations)
+                {
+                    try
+                    {
+                        await device.uploadConfigurations();
+                    }
+                    catch (error)
+                    {
+                        this.updateLog(`Sync Devices error: ${error.message}`);
+                    }
+                }
+
+                device = null;
+            }
+            devices = null;
+        }
+    }
+
+    createPanelConfigurations()
+    {
+        if (!this.panelConfigurations)
+        {
+            this.panelConfigurations = [];
+        }
+
+        for (let i = this.panelConfigurations.length; i < MAX_CONFIGURATIONS; i++)
+        {
+            const panelConfiguration = {
+                leftTopText: '',
+                leftText: '',
+                leftDevice: 'none',
+                leftCapability: '',
+                rightTopText: '',
+                rightText: '',
+                rightDevice: 'none',
+                rightCapability: '',
+            };
+            this.panelConfigurations.push(panelConfiguration);
+        }
+        this.homey.settings.set('panelConfigurations', this.panelConfigurations);
+    }
+
+    createDisplayConfigurations()
+    {
+        if (!this.displayConfigurations)
+        {
+            this.displayConfigurations = [];
+        }
+
+        for (let i = this.displayConfigurations.length; i < MAX_CONFIGURATIONS; i++)
+        {
+            const displayConfiguration = {
+                items: [],
+            };
+
+            this.displayConfigurations.push(displayConfiguration);
+        }
+        this.homey.settings.set('displayConfigurations', this.displayConfigurations);
+    }
+
+    async uploadPanelConfiguration(ip, connectorNo, configurationNo)
+    {
+        try
+        {
+            // download the current configuration from the device
+            const deviceConfiguration = await this.readDeviceConfiguration(ip, this.virtualID);
+            this.updateLog(`Current Config: ${deviceConfiguration}`);
+
+            // apply the new configuration
+            this.applyPanelConfiguration(deviceConfiguration, connectorNo, configurationNo);
+
+            // write the updated configuration back to the device
+            await this.writeDeviceConfiguration(ip, deviceConfiguration, this.virtualID);
+        }
+        catch (err)
+        {
+            this.updateLog(`Error uploading panel configuration: ${err.message}`);
+            throw err;
+        }
+    }
+
+    async applyPanelConfiguration(deviceConfiguration, connectorNo, configurationNo)
+    {
+        if (deviceConfiguration)
+        {
+            // Get the specified user configuration
+            const panelConfiguration = this.panelConfigurations[configurationNo];
+
+            // Update the device configuration for the selected connectorNo
+            if (deviceConfiguration.info && deviceConfiguration.info.connectors)
+            {
+                const connectorIdx = deviceConfiguration.info.connectors.findIndex((connector) => connector.id === connectorNo);
+                if (connectorIdx < 0)
+                {
+                    this.updateLog(`Invalid connector number: ${connectorNo}`);
+                    throw new Error(`Invalid connector number: ${connectorNo}`);
+                }
+
+                // Make sure it's a panel
+                if (deviceConfiguration.info.connectors[connectorIdx].type === 1)
+                {
+                    // This device has a valid panel at the specified location so get that panels properties
+                    if (deviceConfiguration.mqttbuttons)
+                    {
+                        // Configure the left panel
+                        let buttonIdx = connectorNo * 2;
+                        let capability = await this.setupClickTopic(buttonIdx, deviceConfiguration.mqttbuttons[buttonIdx], panelConfiguration.leftDevice, panelConfiguration.leftCapability, connectorNo, 'left');
+                        await this.setupStatusTopic(buttonIdx, deviceConfiguration.mqttbuttons[buttonIdx], panelConfiguration.leftTopText, panelConfiguration.leftText, panelConfiguration.leftDevice, panelConfiguration.leftCapability, capability);
+
+                        // Configure the right panel
+                        buttonIdx++;
+                        capability = await this.setupClickTopic(buttonIdx, deviceConfiguration.mqttbuttons[buttonIdx], panelConfiguration.rightDevice, panelConfiguration.rightCapability, connectorNo, 'right');
+                        await this.setupStatusTopic(buttonIdx, deviceConfiguration.mqttbuttons[buttonIdx], panelConfiguration.rightTopText, panelConfiguration.rightText, panelConfiguration.leftDevice, panelConfiguration.leftCapability, capability);
+                    }
+                }
+            }
+        }
+    }
+
+    async setupClickTopic(buttonIdx, mqttButtons, configDevice, configCapability, connectorNo, side)
+    {
+        let readOnly = false;
+        let capability = null;
+        let type = '';
+
+        try
+        {
+            if (configDevice !== 'none')
+            {
+                const device = await this.deviceManager.getDeviceById(configDevice);
+                if (device)
+                {
+                    // Check if this device capability id read only
+                    capability = await this.deviceManager.getCapability(device, configCapability);
+                    if (capability)
+                    {
+                        readOnly = (capability.setable === false);
+                        type = capability.type;
+                    }
+                }
+            }
+
+            let payload = {
+                connector: connectorNo, side, device: configDevice, capability: configCapability, type,
+            };
+            payload = JSON.stringify(payload);
+
+            // Find the click event entry
+            const clickIdx = mqttButtons.topics.findIndex((topic) => topic.eventtype === 0);
+            if (readOnly)
+            {
+                // Remove the click event entry
+                mqttButtons.topics.splice(clickIdx, 1);
+            }
+            else if (clickIdx >= 0)
+            {
+                // Update the click event entry
+                mqttButtons.topics[clickIdx].brokerid = 'buttonplus';
+                mqttButtons.topics[clickIdx].topic = 'homey/click';
+                mqttButtons.topics[clickIdx].payload = payload;
+            }
+            else
+            {
+                // Add the click event entry
+                mqttButtons.topics.push(
+                    {
+                        brokerid: 'buttonplus',
+                        eventtype: 0,
+                        topic: 'homey/click',
+                        payload,
+                    },
+                );
+            }
+        }
+        catch (err)
+        {
+            this.updateLog(`Error setting up click topic: ${err.message}`);
+        }
+
+        return capability;
+    }
+
+    async setupStatusTopic(buttonIdx, mqttButtons, topLabel, label, configDevice, configCapability, capability)
+    {
+        mqttButtons.toplabel = topLabel;
+        mqttButtons.label = label;
+
+        try
+        {
+            let payload = '';
+            if ((configDevice === 'none') || (capability && capability.type === 'boolean'))
+            {
+                // User and Boolean capabilities are always 'ON' or 'OFF' and have a click event
+                payload = '"ON"';
+
+                // Find the LED event entry
+                const clickIdx = mqttButtons.topics.findIndex((topic) => topic.eventtype === 14);
+                if (clickIdx >= 0)
+                {
+                    // Update the LED event entry
+                    mqttButtons.topics[clickIdx].topic = `homey/${configDevice}/${configCapability}/onoff`;
+                    mqttButtons.topics[clickIdx].brokerid = 'buttonplus';
+                    mqttButtons.topics[clickIdx].payload = payload;
+                }
+                else
+                {
+                    // Add the LED event entry
+                    mqttButtons.topics.push(
+                        {
+                            brokerid: 'buttonplus',
+                            eventtype: 0,
+                            topic: `homey/${configDevice}/${configCapability}/onoff`,
+                            payload,
+                        },
+                    );
+                }
+            }
+            else if (capability)
+            {
+                // For other types of capabilities we need to get the current value
+                // Find the Value event entry
+                const clickIdx = mqttButtons.topics.findIndex((topic) => topic.eventtype === 15);
+                if (clickIdx >= 0)
+                {
+                    // Update the Value event entry
+                    mqttButtons.topics[clickIdx].topic = `homey/${configDevice}/${configCapability}/value`;
+                    mqttButtons.topics[clickIdx].brokerid = 'buttonplus';
+                    mqttButtons.topics[clickIdx].payload = payload;
+                }
+                else
+                {
+                    // Add the Value event entry
+                    mqttButtons.topics.push(
+                        {
+                            brokerid: 'buttonplus',
+                            eventtype: 15,
+                            topic: `homey/${configDevice}/${configCapability}/value`,
+                            payload,
+                        },
+                    );
+                }
+            }
+            else
+            {
+                //
+            }
+        }
+        catch (err)
+        {
+            this.updateLog(`Error setting up status topic: ${err.message}`);
+        }
+    }
+
+    async readDeviceConfiguration(ip, virtualID)
+    {
+        // Read the device configuration from the specified device
+        try
+        {
+            // TODO change to use IP for real hardware
+            return this.httpHelper.get(`button/config/${virtualID}`);
+        }
+        catch (err)
+        {
+            this.updateLog(`readDeviceConfiguration error: ${err.message}`);
+        }
+
+        return null;
+    }
+
+    async writeDeviceConfiguration(ip, deviceConfiguration, virtualID)
+    {
+        // Write the device configuration to the specified device
+        try
+        {
+            this.updateLog(`writeDeviceConfiguration: ${this.varToString(deviceConfiguration)}`);
+
+            // TODO change to use IP for real hardware
+            const options = {
+                json: true,
+            };
+
+            return this.httpHelper.post(`/button/postbutton?id=${virtualID}`, options, deviceConfiguration);
+        }
+        catch (err)
+        {
+            this.updateLog(`writeDeviceConfiguration error: ${err.message}`);
+        }
+        return null;
+    }
+
+    async getHomeyDevices()
+    {
+        if (this.deviceManager)
+        {
+            try
+            {
+                if (this.deviceManager && this.deviceManager.devices)
+                {
+                    return this.deviceManager.devices;
+                }
+
+                const api = await HomeyAPI.forCurrentHomey(this.homey);
+                return await api.devices.getDevices();
+            }
+            catch (e)
+            {
+                this.updateLog(`Error getting devices: ${e.message}`);
+            }
+        }
+        return [];
+    }
+
+    async getHomeyDeviceById(id)
+    {
+        if (this.deviceManager)
+        {
+            try
+            {
+                if (this.deviceManager.devices)
+                {
+                    return this.deviceManager.getDeviceById(id);
+                }
+            }
+            catch (e)
+            {
+                this.updateLog(`Error getting devices: ${e.message}`);
+            }
+        }
+        return [];
+    }
+
+    async getHomeyCapabilityByName(device, name)
+    {
+        if (this.deviceManager && device)
+        {
+            try
+            {
+                return this.deviceManager.getCapability(device, name);
+            }
+            catch (e)
+            {
+                this.updateLog(`Error getting capability: ${e.message}`);
+            }
+        }
+        return [];
+    }
+
+    async getHomeyDeviceCapabilities(device)
+    {
+        if (this.deviceManager)
+        {
+            try
+            {
+                if (this.deviceManager && this.deviceManager.devices)
+                {
+                    return this.deviceManager.getCapabilities(device);
+                }
+            }
+            catch (e)
+            {
+                this.updateLog(`Error getting devices: ${e.message}`);
+            }
+        }
+        return [];
+    }
+
+    async _getSystemInfo()
+    {
+        this.updateLog('get system info');
+        const info = await this.api.system.getInfo();
+        return {
+            name: info.hostname,
+            version: info.homey_version,
+        };
+    }
+
+    initSettings()
+    {
+        const systemName = this.system.name || 'Homey';
+        if (this.settings.deviceId === undefined || this.settings.systemName !== systemName || this.settings.topicRoot)
+        {
+            // Backwards compatibility
+            if (this.settings.topicRoot && !this.settings.homieTopic)
+            {
+                this.settings.homieTopic = `${this.settings.topicRoot}/${this.settings.deviceId || systemName}`;
+                delete this.settings.topicRoot;
+            }
+
+            this.settings.systemName = systemName;
+            if (!this.settings.deviceId)
+            {
+                const idx = systemName.lastIndexOf('-');
+                this.settings.deviceId = idx === -1 ? systemName : systemName.substr(0, idx);
+            }
+
+            this.updateLog(`Settings initial deviceId: ${this.settings.deviceId}`);
+            this.homey.settings.set('settings', this.settings);
+            this.updateLog('Settings updated');
+        }
     }
 
     async setupMDNS()
@@ -91,7 +572,7 @@ class MyApp extends Homey.App
         });
     }
 
-    setupMQTTClient()
+    setupMQTTClient(homeyID)
     {
         aedes.authenticate = function aedesAuthenticate(client, username, password, callback)
         {
@@ -99,7 +580,7 @@ class MyApp extends Homey.App
         };
 
         // Connect to the MQTT server and subscribe to the required topics
-        this.MQTTclient = mqtt.connect(MQTT_SERVER, { clientId: 'homeyButtonPlusApp', username: Homey.env.MQTT_USER_NAME, password: Homey.env.MQTT_PASSWORD });
+        this.MQTTclient = mqtt.connect(MQTT_SERVER, { clientId: `HomeyButtonApp-${homeyID}`, username: Homey.env.MQTT_USER_NAME, password: Homey.env.MQTT_PASSWORD });
         this.MQTTclient.on('connect', () =>
         {
             this.updateLog(`setupLocalAccess.onConnect: connected to ${MQTT_SERVER}`);
@@ -198,7 +679,9 @@ class MyApp extends Homey.App
             if (index >= 0)
             {
                 // Already cached so just make sure the address is up to date
+                const oldAddress = this.mDNSGateways[index].address;
                 this.mDNSGateways[index].address = discoveryResult.address;
+                this.updateDeviceIPAddress(oldAddress, discoveryResult.address);
             }
             else
             {
@@ -214,12 +697,6 @@ class MyApp extends Homey.App
             }
 
             this.homey.settings.set('gateways', this.mDNSGateways);
-
-            if (this.autoConfigGateway)
-            {
-                // Make sure the gateway is configure for local access
-                this.checkGatewayConfiguration(this.mDNSGateways[index]);
-            }
         }
         catch (err)
         {
@@ -227,188 +704,32 @@ class MyApp extends Homey.App
         }
     }
 
-    async checkGatewayConfiguration(gateway)
+    async updateDeviceIPAddress(oldIp, newIp)
     {
         try
         {
-            let config = await this.getURL(gateway.address, 'config');
-            if (config)
+            // Find the device that uses this gateway
+            const drivers = this.homey.drivers.getDrivers();
+            for (const driver of Object.values(drivers))
             {
-                try
+                let devices = driver.getDevices();
+                for (let device of Object.values(devices))
                 {
-                    config = JSON.parse(config);
-
-                    // Process it
-
-                    const response = await this.postURL(gateway.address, 'config', config);
-                    if (response)
+                    if (device.updateGatewayConfig)
                     {
-                        try
-                        {
-                            const responseJson = JSON.parse(response);
-                            if (responseJson.success)
-                            {
-                                this.updateLog(`checkGatewayConfiguration: ${gateway.gatewayId} configured`);
-                            }
-                            else
-                            {
-                                this.updateLog(`checkGatewayConfiguration: ${gateway.gatewayId} configuration failed`);
-                            }
-                        }
-                        catch (err)
-                        {
-                            this.updateLog(`checkGatewayConfiguration error: ${err.message}`);
-                        }
+                        // Update the device IP address
+                        device.updateGatewayConfig(oldIp, newIp);
                     }
+
+                    device = null;
                 }
-                catch (err)
-                {
-                    this.updateLog(`checkGatewayConfiguration error: ${err.message}`);
-                }
+                devices = null;
             }
         }
         catch (err)
         {
-            this.updateLog(`checkGatewayConfiguration error: ${err.message}`);
+            this.updateLog(`updateDeviceIPAddress error: ${err.message}`);
         }
-    }
-
-    async postURL(host, url, body, logBody = true)
-    {
-        this.updateLog(`Post to: ${url}`);
-        if (logBody)
-        {
-            this.updateLog(this.varToString(body));
-        }
-
-        const bodyText = JSON.stringify(body);
-
-        return new Promise((resolve, reject) =>
-        {
-            try
-            {
-                const safeUrl = encodeURI(url);
-
-                const httpOptions = {
-                    host,
-                    path: `/api/${safeUrl}`,
-                    method: 'POST',
-                    headers:
-                    {
-                        'Content-type': 'application/json',
-                        'Content-Length': bodyText.length,
-                    },
-                };
-
-                const req = http.request(httpOptions, (res) =>
-                {
-                    const body = [];
-                    res.on('data', (chunk) =>
-                    {
-                        body.push(chunk);
-                    });
-
-                    res.on('end', () =>
-                    {
-                        if (res.statusCode === 200)
-                        {
-                            let returnData = Buffer.concat(body);
-                            returnData = JSON.parse(returnData);
-                            resolve(returnData);
-                        }
-                        else
-                        {
-                            reject(new Error(`HTTP Error - ${res.statusCode}`));
-                        }
-                    });
-                });
-
-                req.on('error', (err) =>
-                {
-                    reject(new Error(`HTTP Catch: ${err}`), 0);
-                });
-
-                req.setTimeout(5000, () =>
-                {
-                    req.destroy();
-                    reject(new Error('HTTP Catch: Timeout'));
-                });
-
-                req.write(bodyText);
-                req.end();
-            }
-            catch (err)
-            {
-                this.updateLog(`HTTP Catch: ${this.varToString(err)}`);
-                const stack = this.varToString(err.stack);
-                reject(new Error(`HTTP Catch: ${err.message}\n${stack}`));
-            }
-        });
-    }
-
-    async getURL(host, url)
-    {
-        this.updateLog(`Get from: ${url}`);
-
-        return new Promise((resolve, reject) =>
-        {
-            try
-            {
-                const safeUrl = encodeURI(url);
-
-                const httpOptions = {
-                    host,
-                    path: `/api/${safeUrl}`,
-                    method: 'GET',
-                    headers:
-                    {
-                        'Content-type': 'application/json',
-                    },
-                };
-
-                const req = http.fetch(httpOptions, (res) =>
-                {
-                    const body = [];
-                    res.on('data', (chunk) =>
-                    {
-                        body.push(chunk);
-                    });
-
-                    res.on('end', () =>
-                    {
-                        if (res.statusCode === 200)
-                        {
-                            let returnData = Buffer.concat(body);
-                            returnData = JSON.parse(returnData);
-                            resolve(returnData);
-                        }
-                        else
-                        {
-                            reject(new Error(`HTTP Error - ${res.statusCode}`));
-                        }
-                    });
-                });
-
-                req.on('error', (err) =>
-                {
-                    reject(new Error(`HTTP Catch: ${err}`), 0);
-                });
-
-                req.setTimeout(5000, () =>
-                {
-                    req.destroy();
-                    reject(new Error('HTTP Catch: Timeout'));
-                });
-
-                req.end();
-            }
-            catch (err)
-            {
-                this.updateLog(`HTTP Catch: ${this.varToString(err)}`);
-                const stack = this.varToString(err.stack);
-                reject(new Error(`HTTP Catch: ${err.message}\n${stack}`));
-            }
-        });
     }
 
     // Convert a variable of any type (almost) to a string
@@ -528,33 +849,33 @@ class MyApp extends Homey.App
             {
                 // create reusable transporter object using the default SMTP transport
                 const transporter = nodemailer.createTransport(
+                {
+                    host: Homey.env.MAIL_HOST, // Homey.env.MAIL_HOST,
+                    port: 465,
+                    ignoreTLS: false,
+                    secure: true, // true for 465, false for other ports
+                    auth:
                     {
-                        host: Homey.env.MAIL_HOST, // Homey.env.MAIL_HOST,
-                        port: 465,
-                        ignoreTLS: false,
-                        secure: true, // true for 465, false for other ports
-                        auth:
-                        {
-                            user: Homey.env.MAIL_USER, // generated ethereal user
-                            pass: Homey.env.MAIL_SECRET, // generated ethereal password
-                        },
-                        tls:
-                        {
-                            // do not fail on invalid certs
-                            rejectUnauthorized: false,
-                        },
+                        user: Homey.env.MAIL_USER, // generated ethereal user
+                        pass: Homey.env.MAIL_SECRET, // generated ethereal password
                     },
-                );
+                    tls:
+                    {
+                        // do not fail on invalid certs
+                        rejectUnauthorized: false,
+                    },
+                },
+);
 
                 // send mail with defined transport object
                 const info = await transporter.sendMail(
-                    {
-                        from: `"Homey User" <${Homey.env.MAIL_USER}>`, // sender address
-                        to: Homey.env.MAIL_RECIPIENT, // list of receivers
-                        subject: `Button + ${body.logType} log (${Homey.manifest.version})`, // Subject line
-                        text: logData, // plain text body
-                    },
-                );
+                {
+                    from: `"Homey User" <${Homey.env.MAIL_USER}>`, // sender address
+                    to: Homey.env.MAIL_RECIPIENT, // list of receivers
+                    subject: `Button + ${body.logType} log (${Homey.manifest.version})`, // Subject line
+                    text: logData, // plain text body
+                },
+);
 
                 this.updateLog(`Message sent: ${info.messageId}`);
                 // Message sent: <b658f8ca-6296-ccf4-8306-87d57a0b4321@example.com>
@@ -570,6 +891,18 @@ class MyApp extends Homey.App
         }
 
         return (this.homey.__('settings.logSendFailed'));
+    }
+
+    async loginToSimulator(username, password)
+    {
+        this.httpHelper.setBaseURL('cloud');
+        this.httpHelper.setDefaultHeaders({}, true);
+
+        const login = { email: username, password };
+
+        const result = await this.httpHelper.post('account/login', {}, login);
+        this.updateLog(`Login result: ${JSON.stringify(result)}`);
+        return result;
     }
 
 }

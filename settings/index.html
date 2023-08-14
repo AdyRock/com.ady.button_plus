@@ -4,14 +4,8 @@
 <head>
     <!-- The '/homey.js' script must be included in your settings view to work -->
     <script type="text/javascript" src="/homey.js" data-origin="settings"></script>
-    <style>
-        label.a {
-            display: inline-block;
-            width: 225px;
-            height: 15px;
-            padding: 5px;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" href="extraStyles.css">
+    <link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css'>
 </head>
 
 <body>
@@ -19,219 +13,728 @@
         <legend class="homey-form-legend"><span data-i18n="settings.Settings"></span></legend>
 
         <label class="homey-form-checkbox">
-            <input class="homey-form-checkbox-input" id="autoNotify" type="checkbox" value="notify" />
+            <input class="homey-form-checkbox-input" id="autoConfig" type="checkbox" value="auto" />
             <span class="homey-form-checkbox-checkmark"></span>
-            <span class="homey-form-checkbox-text"><span data-i18n="settings.autoNotify"></span></span>
+            <span class="homey-form-checkbox-text"><span data-i18n="settings.autoConfig"></span></span>
         </label>
+        <span data-i18n="settings.autoConfigWarning1"></span><br>
+        <span data-i18n="settings.autoConfigWarning2"></span>
+    </fieldset>
 
-        <div class="homey-form-group">
-            <div style="padding: 0px 15px 15px 15px; border: 1px solid lightblue; border-radius: 10px">
-                <fieldset class="homey-form-radio-set">
-                    <legend class="homey-form-radio-set-title"><span data-i18n="settings.updateTime"></span></legend>
-                    <div style="display: inline-block">
-                        <label class="homey-form-label" for="UpdateHr"><span data-i18n="settings.updateTimeHr"></span></label>
-                        <select class="homey-form-select" id="UpdateHr">
-                            <option value=0>00</option>
-                            <option value=1>01</option>
-                            <option value=2>02</option>
-                            <option value=3>03</option>
-                            <option value=4>04</option>
-                            <option value=5>05</option>
-                            <option value=6>06</option>
-                            <option value=7>07</option>
-                            <option value=8>08</option>
-                            <option value=9>09</option>
-                            <option value=10>10</option>
-                            <option value=11>11</option>
-                            <option value=12>12</option>
-                            <option value=13>13</option>
-                            <option value=14>14</option>
-                            <option value=15>15</option>
-                            <option value=16>16</option>
-                            <option value=17>17</option>
-                            <option value=18>18</option>
-                            <option value=19>19</option>
-                            <option value=20>20</option>
-                            <option value=21>21</option>
-                            <option value=22>22</option>
-                            <option value=23>23</option>
-                        </select>
+    <fieldset class="homey-form-fieldset">
+        <select class="homey-form-select" id="configType">
+            <option value="panelConfig">Panel Configurations</option>
+            <option value="displayConfig">Display Configurations</option>
+        </select>
+
+        <!-- Panel Configuration -->
+
+        <div id="panelConfig" class="tabcontent">
+            <div class="homey-form-group">
+                <div style="padding: 10px 10px 10px 10px; border: 1px solid lightblue; border-radius: 10px">
+                    <select class="homey-form-select" id="panelConfigurationNo">
+                        <option value=0>Configuration 1</option>
+                        <option value=1>Configuration 2</option>
+                        <option value=2>Configuration 3</option>
+                        <option value=3>Configuration 4</option>
+                        <option value=4>Configuration 5</option>
+                        <option value=5>Configuration 6</option>
+                        <option value=6>Configuration 7</option>
+                        <option value=7>Configuration 8</option>
+                        <option value=8>Configuration 9</option>
+                        <option value=9>Configuration 10</option>
+                        <option value=10>Configuration 11</option>
+                        <option value=11>Configuration 12</option>
+                        <option value=12>Configuration 13</option>
+                        <option value=13>Configuration 14</option>
+                        <option value=14>Configuration 15</option>
+                        <option value=15>Configuration 16</option>
+                        <option value=16>Configuration 17</option>
+                        <option value=17>Configuration 18</option>
+                        <option value=18>Configuration 19</option>
+                        <option value=19>Configuration 20</option>
+                    </select>
+                    <div class="horizontalcontainer">
+                        <div class="horizontalgroup">
+                            <legend class="homey-subtitle"><span data-i18n="settings.leftPanel"></span></legend>
+
+                            <label class="homey-form-label" for="leftDevice"><span data-i18n="settings.device"></span></label>
+                            <select class="homey-form-select" id="leftDevice">
+                            </select>
+
+                            <label class="homey-form-label" for="leftCapability"><span data-i18n="settings.capability"></span></label>
+                            <select class="homey-form-select" id="leftCapability">
+                            </select>
+
+                            <label class="homey-form-label" for="leftTopText"><span data-i18n="settings.topLabel"></span></label>
+                            <input class="homey-form-input" id="leftTopText" type="text" value="" />
+                            <label class="homey-form-label" for="leftText"><span data-i18n="settings.label"></span></label>
+                            <input class="homey-form-input" id="leftText" type="text" value="" />
+                        </div>
+                        <div class="horizontalgroup">
+                            <legend class="homey-subtitle"><span data-i18n="settings.rightPanel"></span></legend>
+
+                            <select class="homey-form-select" id="rightDevice">
+                            </select>
+                            <label class="homey-form-label" for="rightCapability"><span data-i18n="settings.capability"></span></label>
+
+                            <select class="homey-form-select" id="rightCapability">
+                            </select>
+
+                            <label class="homey-form-label" for="rightTopText"><span data-i18n="settings.topLabel"></span></label>
+                            <input class="homey-form-input" id="rightTopText" type="text" value="" />
+                            <label class="homey-form-label" for="rightText"><span data-i18n="settings.label"></span></label>
+                            <input class="homey-form-input" id="rightText" type="text" value="" />
+                            <label class="homey-form-label" for="rightDevice"><span data-i18n="settings.device"></span></label>
+                        </div>
                     </div>
-                    <div style="display: inline-block; margin-left: 10px;">
-                        <label class="homey-form-label" for="UpdateMin"><span data-i18n="settings.updateTimeMin"></span></label>
-                        <select class="homey-form-select" id="UpdateMin">
-                            <option value=0>00</option>
-                            <option value=5>05</option>
-                            <option value=10>10</option>
-                            <option value=15>15</option>
-                            <option value=20>20</option>
-                            <option value=25>25</option>
-                            <option value=30>30</option>
-                            <option value=35>35</option>
-                            <option value=40>40</option>
-                            <option value=45>45</option>
-                            <option value=50>50</option>
-                            <option value=55>55</option>
-                        </select>
-                    </div>
-                </fieldset>
+                </div>
             </div>
         </div>
-        <p><button class="homey-button-primary-full" id="saveTime"><span data-i18n="settings.SaveTime"></span></button></p>
-    </fieldset>
 
-    <fieldset class="homey-form-fieldset">
-        <legend class="homey-form-legend"><span data-i18n="settings.actions"></span></legend>
-        <div class="homey-form-group">
-            <p><button class="homey-button-primary-full" id="viewC"><span data-i18n="settings.ViewCommunity"></span></button></p>
-            <p><button class="homey-button-primary-full" id="viewA"><span data-i18n="settings.ViewAthom"></span></button></p>
-            <p><button class="homey-button-primary-full" id="check"><span data-i18n="settings.CheckForUpdates"></span></button></p>
+        <!-- Display Configuration -->
+
+        <div id="displayConfig" class="tabcontent">
+            <div class="homey-form-group">
+                <div style="padding: 10px 10px 10px 10px; border: 1px solid lightblue; border-radius: 10px">
+                    <select class="homey-form-select" id="displayConfigurationNo">
+                        <option value=0>Configuration 1</option>
+                        <option value=1>Configuration 2</option>
+                        <option value=2>Configuration 3</option>
+                        <option value=3>Configuration 4</option>
+                        <option value=4>Configuration 5</option>
+                        <option value=5>Configuration 6</option>
+                        <option value=6>Configuration 7</option>
+                        <option value=7>Configuration 8</option>
+                        <option value=8>Configuration 9</option>
+                        <option value=9>Configuration 10</option>
+                        <option value=10>Configuration 11</option>
+                        <option value=11>Configuration 12</option>
+                        <option value=12>Configuration 13</option>
+                        <option value=13>Configuration 14</option>
+                        <option value=14>Configuration 15</option>
+                        <option value=15>Configuration 16</option>
+                        <option value=16>Configuration 17</option>
+                        <option value=17>Configuration 18</option>
+                        <option value=18>Configuration 19</option>
+                        <option value=19>Configuration 20</option>
+                    </select>
+                </div>
+                <div id="displayItemsSection"></div>
+            </div>
+            <p><button class="homey-button-secondary-shadow" id="newDisplayItem"><span data-i18n="settings.newDisplayItem"></span></button></p>
         </div>
+
     </fieldset>
 
-    <fieldset class="homey-form-fieldset">
-        <legend class="homey-form-legend">Available Updates</legend>
-        <div id="appSection"></div>
-    </fieldset>
+    <!-- Save Configuration button -->
+
+    <p><button class="homey-button-primary-full" id="save"><span data-i18n="settings.save"></span></button></p>
+
+    <!-- Code to handle page life -->
 
     <script type="text/javascript">
-        var viewAButton = document.getElementById('viewA');
-        var viewCButton = document.getElementById('viewC');
-        var checkButton = document.getElementById('check');
-        var autoNotifyElement = document.getElementById('autoNotify');
-        var updateHrElement = document.getElementById('UpdateHr');
-        var updateMinElement = document.getElementById('UpdateMin');
-        var saveTimeButton = document.getElementById('saveTime');
+
+        // General declarations
+        var devicesArray = [];
+        var devicesFetched = false;
+        var autoConfigElement = document.getElementById('autoConfig');
+        var ConfigTypeElement = document.getElementById('configType');
+        var saveButton = document.getElementById('save');
+
+        // Declarations for the Panel Config page
+
+        var panelConfigurationNoElement = document.getElementById('panelConfigurationNo');
+        var leftTopTextElement = document.getElementById('leftTopText');
+        var leftTextElement = document.getElementById('leftText');
+        var leftDeviceElement = document.getElementById('leftDevice');
+        var leftCapabilityElement = document.getElementById('leftCapability');
+        var rightTopTextElement = document.getElementById('rightTopText');
+        var rightTextElement = document.getElementById('rightText');
+        var rightDeviceElement = document.getElementById('rightDevice');
+        var rightCapabilityElement = document.getElementById('rightCapability');
+
+        var panelConfigurationsFetched = false;
+        var localPanelConfigurations = [];
+        var currentPanelConfigurationNo = 0;
+
+        // Declarations for the Display Config page
+
+        var displayConfigurationNoElement = document.getElementById('displayConfigurationNo');
+        var newDisplayItemButton = document.getElementById('newDisplayItem');
+
+        var displayConfigurationsFetched = false;
+        var localDisplayConfigurations = [];
+        var currentDisplayConfigurationNo = 0;
+        var displayCapabilityItems = [];
 
         // a method named 'onHomeyReady' must be present in your code
         function onHomeyReady(Homey)
         {
+            // General code
 
-            Homey.get('autoNotify', function(err, autoNotify)
+            getDeivices();
+            configTypeChanged('panelConfig');
+
+            Homey.get('autoConfig', function(err, autoConfig)
             {
                 if (err) return Homey.alert(err);
-                autoNotifyElement.checked = autoNotify;
+                autoConfigElement.checked = autoConfig;
+                autoConfigChanged();
             });
 
-            Homey.get('updateHr', function(err, updateHr)
+            autoConfigElement.addEventListener('click', function(e)
+            {
+                Homey.set('autoConfig', autoConfigElement.checked);
+                autoConfigChanged();
+            });
+
+            ConfigTypeElement.addEventListener('change', function(e)
+            {
+                configTypeChanged( ConfigTypeElement.value);
+            });
+
+            saveButton.addEventListener('click', function(e)
+            {
+                var panelConfigurationNo = panelConfigurationNoElement.value;
+
+                var panelConfiguration = {
+                    leftTopText: leftTopTextElement.value,
+                    leftText: leftTextElement.value,
+                    leftDevice: leftDeviceElement.value,
+                    leftCapability: leftCapabilityElement.value,
+                    rightTopText: rightTopTextElement.value,
+                    rightText: rightTextElement.value,
+                    rightDevice: rightDeviceElement.value,
+                    rightCapability: rightCapabilityElement.value
+                };
+
+                localPanelConfigurations[panelConfigurationNo] = panelConfiguration;
+                Homey.set('panelConfigurations', localPanelConfigurations);
+
+                storeDevicesSettings();
+                Homey.set('displayConfigurations', localDisplayConfigurations);
+            });
+
+            // Panel Config code
+
+            Homey.get('panelConfigurations', function(err, panelConfigurations)
             {
                 if (err) return Homey.alert(err);
-                updateHrElement.value = updateHr;
+                localPanelConfigurations = panelConfigurations;
+                panelConfigurationsFetched = true;
+                console.log('panelConfigurations: ' + JSON.stringify(panelConfigurations));
+                updatePanelConfiguration();
             });
 
-            Homey.get('updateMin', function(err, updateMin)
+            panelConfigurationNo.addEventListener('change', function(e)
+            {
+                // Store the current configuration
+                var panelConfiguration = localPanelConfigurations[currentPanelConfigurationNo];
+
+                panelConfiguration.leftTopText = leftTopTextElement.value;
+                panelConfiguration.leftText = leftTextElement.value;
+                panelConfiguration.leftDevice = leftDeviceElement.value;
+                panelConfiguration.leftCapability = leftCapabilityElement.value;
+                panelConfiguration.rightTopText = rightTopTextElement.value;
+                panelConfiguration.rightText = rightTextElement.value;
+                panelConfiguration.rightDevice = rightDeviceElement.value;
+                panelConfiguration.rightCapability = rightCapabilityElement.value;
+
+                // Fetch the new configuration
+                updatePanelConfiguration();
+            });
+
+            leftTopTextElement.addEventListener('change', function(e)
+            {
+                var panelConfiguration = localPanelConfigurations[currentPanelConfigurationNo];
+                panelConfiguration.leftTopText = leftTextTopElement.value;
+            });
+
+            leftTextElement.addEventListener('change', function(e)
+            {
+                var panelConfiguration = localPanelConfigurations[currentPanelConfigurationNo];
+                panelConfiguration.leftText = leftTextElement.value;
+            });
+
+            rightTopTextElement.addEventListener('change', function(e)
+            {
+                var panelConfiguration = localPanelConfigurations[currentPanelConfigurationNo];
+                panelConfiguration.rightTopText = rightTopTextElement.value;
+            });
+
+            rightTextElement.addEventListener('change', function(e)
+            {
+                var panelConfiguration = localPanelConfigurations[currentPanelConfigurationNo];
+                panelConfiguration.rightText = rightTextElement.value;
+            });
+
+            leftDeviceElement.addEventListener('change', function(e)
+            {
+                var panelConfiguration = localPanelConfigurations[currentPanelConfigurationNo];
+                panelConfiguration.leftDevice = leftDeviceElement.value;
+                getCapabilities(leftDeviceElement.value, leftCapabilityElement, panelConfiguration.leftDevice);
+            });
+
+            rightDeviceElement.addEventListener('change', function(e)
+            {
+                var panelConfiguration = localPanelConfigurations[currentPanelConfigurationNo];
+                panelConfiguration.rightDevice = rightDeviceElement.value;
+                getCapabilities(rightDeviceElement.value, rightCapabilityElement, panelConfiguration.rightDevice);
+            });
+
+            leftCapabilityElement.addEventListener('change', function(e)
+            {
+                var panelConfiguration = localPanelConfigurations[currentPanelConfigurationNo];
+                panelConfiguration.leftCapability = leftCapabilityElement.value;
+            });
+
+            rightCapabilityElement.addEventListener('change', function(e)
+            {
+                var panelConfiguration = localPanelConfigurations[currentPanelConfigurationNo];
+                panelConfiguration.rightCapability = rightCapabilityElement.value;
+            });
+
+            // Display Config code
+
+            displayConfigurationNoElement.addEventListener('change', function(e)
+            {
+                // Store the current configuration
+                storeDevicesSettings();
+
+                // Fetch the new configuration
+                updateDisplayConfiguration();
+            });
+
+            newDisplayItemButton.addEventListener('click', function(e)
+            {
+                if (displayConfigurationsFetched)
+                {
+                    displayConfigurationNo = displayConfigurationNoElement.value;
+                    var displayConfiguration = localDisplayConfigurations[displayConfigurationNo];
+                    if (displayConfiguration)
+                    {
+                        var displayItem = {
+                            device: "none",
+                            capability: "",
+                            label: "",
+                            units: "",
+                            numberRounding: 0,
+                            xPos: 0,
+                            yPos: 0,
+                            width: 100,
+                            fontSize: 1,
+                            alignment: 0,
+                        };
+
+                        displayConfiguration.items.push(displayItem);
+
+                        localDisplayConfigurations[displayConfigurationNo] = displayConfiguration;
+                        Homey.set('displayConfigurations', localDisplayConfigurations);
+                        drawDisplayConfiguration(displayConfiguration);
+                    }
+                }
+            });
+
+            Homey.get('displayConfigurations', function(err, displayConfigurations)
             {
                 if (err) return Homey.alert(err);
-                updateMinElement.value = updateMin;
-            });
-
-            getUpdates();
-
-            Homey.on('com.community.store.showUpdates', function(data)
-            {
-                if (data.status)
-                {
-                    checkButton.classList.remove('is-loading');
-                    Homey.alert(data.status);
-                    return;
-                }
-                if (data.checking)
-                {
-                    checkButton.classList.add('is-loading');
-                    document.getElementById('appSection').innerHTML = `Checking: ${data.checking}`;
-                    return;
-                }
-                if (data.fetching)
-                {
-                    document.getElementById('appSection').innerHTML = `Fetching: ${data.fetching}`;
-                    return;
-                }
-                checkButton.classList.remove('is-loading');
-                getUpdates();
-            });
-
-            autoNotifyElement.addEventListener('click', function(e)
-            {
-                Homey.set('autoNotify', autoNotifyElement.checked);
-            });
-
-            viewAButton.addEventListener('click', function(e)
-            {
-                Homey.openURL('https://homey.app/en-gb/apps/');
-            });
-
-            viewCButton.addEventListener('click', function(e)
-            {
-                Homey.openURL('https://store.homey.community/');
-            });
-
-            saveTimeButton.addEventListener('click', function(e)
-            {
-                Homey.set('updateHr', updateHrElement.value);
-                Homey.set('updateMin', updateMinElement.value);
-                Homey.api('POST', '/SetTime/', {}, function(err, result)
-                {
-                    if (err)
-                    {
-                        return Homey.alert(err);
-                    }
-                    else
-                    {
-                        return Homey.alert(result);
-                    }
-                });
-            });
-
-            checkButton.addEventListener('click', function(e)
-            {
-                checkButton.classList.add('is-loading');
-                document.getElementById('appSection').innerHTML = "Checking, please wait...";
-                Homey.api('POST', '/CheckNow/',
-                {
-                    notify: true
-                }, function(err, result)
-                {
-                    if (err)
-                    {
-                        return Homey.alert(err);
-                    }
-                });
+                localDisplayConfigurations = displayConfigurations;
+                displayConfigurationsFetched = (localDisplayConfigurations.length > 0);
+                updateDisplayConfiguration();
             });
 
             // Tell Homey we're ready to be displayed
             Homey.ready();
         }
 
-        function addApp(url, appName)
+        function getDeivices()
         {
-            //console.log("addApp");
-            var section = document.getElementById('appSection').innerHTML;
-
-            document.getElementById('appSection').innerHTML = section +
-                '<div class="field row"><p><label class="a">' +
-                appName + '</label><button onClick="Homey.openURL(' + "'" + url + "'" + ')">View</button></p></div>';
-
-        }
-
-        function getUpdates()
-        {
-            document.getElementById('appSection').innerHTML = "";
-            Homey.get('updateList', function(err, updateList)
+            Homey.api('POST', '/Devices/', {}, function(err, devices)
             {
                 if (err) return Homey.alert(err);
-                if (updateList.length == 0)
+
+                devicesArray = Object.values(devices);
+                devicesFetched = true;
+                fillPanelDevices();
+                fillDisplayDevices();
+            });
+        } 
+
+        function fillPanelDevices()
+        {
+            //fill the device lists with devices
+            if (devicesFetched)
+            {
+                fillDevicesElement(leftDeviceElement);
+                fillDevicesElement(rightDeviceElement);
+                updatePanelConfiguration();
+            };
+        }
+
+        function fillDevicesElement( element )
+        {
+            if (devicesFetched && element)
+            {
+                //fill the device lists with devices
+                element.innerHTML = "";
+
+                var option = document.createElement("option");
+                option.text = "none";
+                option.value = "none";
+                element.add(option);
+
+                for (const device of devicesArray)
                 {
-                    document.getElementById('appSection').innerHTML = "No updates";
+                    var option = document.createElement("option");
+                    option.text = device.name;
+                    option.value = device.id;
+                    element.add(option);
+                }
+            }
+        }
+
+        function getCapabilities(deviceId, element, selectedCapability)
+        {
+            if (deviceId == "none")
+            {
+                element.innerHTML = "";
+                element.style.visibility = "visible";
+                return;
+            }
+            Homey.api('POST', '/device_capabilities/', { deviceId }, function(err, capabilities)
+            {
+                if (err) return Homey.alert(err);
+                element.innerHTML = "";
+                if (capabilities)
+                {
+                    const capabilitiesArray = Object.values(capabilities);
+                    for (const capability of capabilitiesArray)
+                    {
+                        var option = document.createElement("option");
+                        option.text = capability.title;
+                        option.value = capability.id;
+                        element.add(option);
+                    }
+                    element.style.visibility = "visible";
+                    element.value = selectedCapability;
+                }
+            });
+        }
+
+        function updatePanelConfiguration()
+        {
+            if ((panelConfigurationsFetched == false) || (devicesFetched == false)) return;
+
+            if (currentPanelConfigurationNo < 0 || currentPanelConfigurationNo >= localPanelConfigurations.length)
+            {
+                currentPanelConfigurationNo = 0;
+                panelConfigurationNoElement.value = currentPanelConfigurationNo;
+            }
+
+            if (panelConfigurationNoElement.value == "")
+            {
+                leftTopTextElement.value = "";
+                leftTextElement.value = "";
+                leftDeviceElement.value = "";
+                leftCapabilityElement.value = "";
+
+                rightTopTextElement.value = "";
+                rightTextElement.value = "";
+                rightDeviceElement.value = "";
+                rightCapabilityElement.value = "";
+            }
+            else
+            {
+                currentPanelConfigurationNo = panelConfigurationNoElement.value;
+                let panelConfiguration = localPanelConfigurations[currentPanelConfigurationNo];
+
+                leftTopTextElement.value = panelConfiguration.leftTopText;
+                leftTextElement.value = panelConfiguration.leftText;
+                leftDeviceElement.value = panelConfiguration.leftDevice;
+
+                if ((panelConfiguration.leftDevice != "") && (panelConfiguration.leftDevice != "none"))
+                {
+                    getCapabilities(leftDeviceElement.value, leftCapabilityElement, panelConfiguration.leftCapability);
                 }
                 else
                 {
-                    document.getElementById('appSection').innerHTML = "";
-                    updateList.forEach(element =>
-                    {
-                        addApp(element.url, element.name);
-                    });
+                    leftDeviceElement.value = "none";
+                    leftCapabilityElement.value = "none";
+                    leftCapabilityElement.innerHTML = "";
+                    leftCapabilityElement.style.visibility = "hidden";
                 }
-            });
+
+                rightTopTextElement.value = panelConfiguration.rightTopText;
+                rightTextElement.value = panelConfiguration.rightText;
+                rightDeviceElement.value = panelConfiguration.rightDevice;
+                rightCapabilityElement.value = panelConfiguration.rightCapability;
+
+                if ((panelConfiguration.rightDevice != "") && (panelConfiguration.rightDevice != "none"))
+                {
+                    getCapabilities(rightDeviceElement.value, rightCapabilityElement, panelConfiguration.rightCapability);
+                }
+                else
+                {
+                    rightDeviceElement.value = "none";
+                    rightCapabilityElement.value = "none";
+                    rightCapabilityElement.innerHTML = "";
+                    rightCapabilityElement.style.visibility = "hidden";
+                }
+            }
+        }
+
+        function autoConfigChanged()
+        {
+            if (!autoConfigElement.checked)
+            {
+                configTypeChanged("");
+            }
+            else
+            {
+                configTypeChanged( ConfigTypeElement.value);
+            }
+        }
+
+        function configTypeChanged(configSelected)
+        {
+            var i, tabcontent, tablinks;
+
+            // Get all elements with class="tabcontent" and hide them
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++)
+            {
+                tabcontent[i].style.display = "none";
+            }
+            document.getElementById(configSelected).style.display = "block";
+        }
+
+        // Code for Displaypanel configuration
+
+        function updateDisplayConfiguration()
+        {
+            if (displayConfigurationsFetched)
+            {
+                currentDisplayConfigurationNo = displayConfigurationNoElement.value;
+
+                var displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+
+                if (displayConfiguration == null)
+                {
+                    displayConfiguration = {};
+                    displayConfiguration.items = [];
+                }
+
+                displayCapabilityItems = [];
+
+                drawDisplayConfiguration(displayConfiguration);
+            }
+        }
+
+        function drawDisplayConfiguration(displayConfiguration)
+        {
+            document.getElementById('displayItemsSection').innerHTML = "";
+            for (var itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
+            {
+                const item = displayConfiguration.items[itemNo];
+                const capabilities = {}
+                displayCapabilityItems.push(capabilities);
+                insertDisplayItemSection(item, itemNo);
+            }
+
+            fillDisplayDevices();
+        }
+
+        function insertDisplayItemSection(item, itemNo)
+        {
+            var section = document.getElementById('displayItemsSection').innerHTML;
+            const ctrlLabels = {
+                device: Homey.__("settings.device"),
+                capability: Homey.__("settings.capability"),
+                label: Homey.__("settings.label"),
+                units: Homey.__("settings.units"),
+                xPos: Homey.__("settings.xPos"),
+                yPos: Homey.__("settings.yPos"),
+                width: Homey.__("settings.width"),
+                rounding: Homey.__("settings.rounding"),
+                fontSize: Homey.__("settings.fontSize"),
+                topLeft: Homey.__("settings.topLeft"),
+                topCenter: Homey.__("settings.topCenter"),
+                topRight: Homey.__("settings.topRight"),
+                centerLeft: Homey.__("settings.centerLeft"),
+                centerCenter: Homey.__("settings.centerCenter"),
+                centerRight: Homey.__("settings.centerRight"),
+                bottomLeft: Homey.__("settings.bottomLeft"),
+                bottomCenter: Homey.__("settings.bottomCenter"),
+                bottomRight: Homey.__("settings.bottomRight"),
+                deleteDisplayItem: Homey.__("settings.deleteDisplayItem"),
+            }
+            const itemLegend =  Homey.__("settings.displayItemlegend", {itemNo: itemNo + 1});
+
+            section = section +
+                `<div class="horizontalcontainer">
+                    <div class="horizontalgroup">
+                        <legend class="homey-subtitle">${itemLegend}</legend>
+
+                        <label class="homey-form-label" for="display${itemNo}Device">${ctrlLabels.device}</label>
+                        <select class="homey-form-select" id="display${itemNo}Device" onChange="getDisplayCapabilities(${itemNo})">
+                        </select>
+
+                        <label class="homey-form-label" for="display${itemNo}Capability">${ctrlLabels.capability}</label>
+                        <select class="homey-form-select" id="display${itemNo}Capability" onChange="selectDisplayCapabilities(${itemNo})">
+                        </select>
+
+                        <label class="homey-form-label" for="display${itemNo}Label">${ctrlLabels.label}</label>
+                        <input class="homey-form-input" id="display${itemNo}Label" type="text" value="${item.label}" />
+
+                        <label class="homey-form-label" for="display${itemNo}Units">${ctrlLabels.units}</label>
+                        <input class="homey-form-input" id="display${itemNo}Units" type="text" value="${item.units}" />
+
+                        <label class="homey-form-label" for="display${itemNo}X">${ctrlLabels.xPos}</label>
+                        <input class="homey-form-input" id="display${itemNo}X" type="number" value="${item.xPos}" />
+
+                        <label class="homey-form-label" for="display${itemNo}Y">${ctrlLabels.yPos}</label>
+                        <input class="homey-form-input" id="display${itemNo}Y" type="number" value="${item.yPos}" />
+
+                        <label class="homey-form-label" for="display${itemNo}Width">${ctrlLabels.width}</label>
+                        <input class="homey-form-input" id="display${itemNo}Width" type="number" value="${item.width}" />
+
+                        <label class="homey-form-label" for="display${itemNo}Rounding">${ctrlLabels.rounding}</label>
+                        <input class="homey-form-input" id="display${itemNo}Rounding" type="number" value="${item.rounding}" />
+
+                        <label class="homey-form-label" for="display${itemNo}FontSize">${ctrlLabels.fontSize}</label>
+                        <select class="homey-form-select" id="display${itemNo}FontSize">
+                            <option value=1>1</option>
+                            <option value=2>2</option>
+                            <option value=3>3</option>
+                            <option value=4>4</option>
+                        </select>
+
+                        <label class="homey-form-label" for="display${itemNo}Alignment">${ctrlLabels.alignment}</label>
+                        <select class="homey-form-select" id="display${itemNo}Alignment">
+                            <option value=0>${ctrlLabels.topLeft}</option>
+                            <option value=1>${ctrlLabels.topCenter}</option>
+                            <option value=2>${ctrlLabels.topRight}</option>
+                            <option value=3>${ctrlLabels.centerLeft}</option>
+                            <option value=4>${ctrlLabels.center}</option>
+                            <option value=5>${ctrlLabels.centerRight}</option>
+                            <option value=6>${ctrlLabels.bottomLeft}</option>
+                            <option value=7>${ctrlLabels.bottomCenter}</option>
+                            <option value=8>${ctrlLabels.bottomRight}</option>
+                        </select><br>
+                        <p><button class="homey-button-secondary-shadow" id="deleteDisplayItem" onClick="deleteItem(${itemNo})" style="font-size: 30px;"><i class="fi fi-rr-trash"></i> </button></p>
+                    </div>
+                </div>`;
+
+            document.getElementById('displayItemsSection').innerHTML = section;
+            // fillDevicesElement(document.getElementById(`display${itemNo}Device`));
+        }
+
+        function fillDisplayDevices()
+        {
+            // Get the current display configuration
+            var displayConfig = localDisplayConfigurations[displayConfigurationNoElement.value];
+
+            if (displayConfig)
+            {
+                for (var itemNo = 0; itemNo < displayConfig.items.length; itemNo++)
+                {
+                    fillDevicesElement(document.getElementById(`display${itemNo}Device`));
+                    document.getElementById(`display${itemNo}Device`).value = displayConfig.items[itemNo].device;
+                    getDisplayCapabilities(itemNo);
+                }
+            }
+        }
+
+        function getDisplayCapabilities(item)
+        {
+            var deviceId = document.getElementById(`display${item}Device`).value;
+            var capabilitiesElement = document.getElementById(`display${item}Capability`);
+            capabilitiesElement.innerHTML = "";
+            if ((deviceId != "") && (deviceId != 'none'))
+            {
+                Homey.api('POST', '/device_capabilities/', { deviceId }, function(err, capabilities)
+                {
+                    if (err) return Homey.alert(err);
+
+                    if (capabilities)
+                    {
+                        displayCapabilityItems[item].capabilities = capabilities;
+                        const capabilitiesArray = Object.values(capabilities);
+                        for (const capability of capabilitiesArray)
+                        {
+                            var option = document.createElement("option");
+                            option.text = capability.title;
+                            option.value = capability.id;
+                            capabilitiesElement.add(option);
+                        }
+                        capabilitiesElement.style.visibility = "visible";
+
+                        var displayConfig = localDisplayConfigurations[displayConfigurationNoElement.value];
+                        if (displayConfig)
+                        {
+                            const capabilityID = displayConfig.items[item].capability;
+                            if (capabilities[capabilityID])
+                            {
+                                capabilitiesElement.value = capabilityID;
+                                document.getElementById(`display${item}Label`).value = capabilities[capabilityID].title;
+                                document.getElementById(`display${item}Units`).value = capabilities[capabilityID].units ? capabilities[capabilityID].units : "";
+                            }
+                            else
+                            {
+                                capabilitiesElement.value = "";
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function selectDisplayCapabilities(item)
+        {
+            const capabilities = displayCapabilityItems[item].capabilities
+            var capabilityID = document.getElementById(`display${item}Capability`).value;
+            if (capabilityID != "" && capabilities[capabilityID])
+            {
+                document.getElementById(`display${item}Label`).value = capabilities[capabilityID].title
+                document.getElementById(`display${item}Units`).value = capabilities[capabilityID].units ? capabilities[capabilityID].units : "";
+            }
+        }
+
+        function deleteItem(itemNo)
+        {
+            // Save all the settings so they don't get lost when the controls are redawn
+            storeDevicesSettings();
+
+            var displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+
+            if (displayConfiguration != null)
+            {
+                displayConfiguration.items.splice(itemNo, 1);
+                drawDisplayConfiguration(displayConfiguration);
+            }
+        }
+
+        function storeDevicesSettings()
+        {
+            var displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+
+            if (displayConfiguration != null)
+            {
+                for (var itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
+                {
+                    displayConfiguration.items[itemNo].device = document.getElementById(`display${itemNo}Device`).value;
+                    displayConfiguration.items[itemNo].capability = document.getElementById(`display${itemNo}Capability`).value;
+                    displayConfiguration.items[itemNo].label = document.getElementById(`display${itemNo}Label`).value;
+                    displayConfiguration.items[itemNo].units = document.getElementById(`display${itemNo}Units`).value;
+                    displayConfiguration.items[itemNo].xPos = document.getElementById(`display${itemNo}X`).value;
+                    displayConfiguration.items[itemNo].yPos = document.getElementById(`display${itemNo}Y`).value;
+                    displayConfiguration.items[itemNo].width = document.getElementById(`display${itemNo}Width`).value;
+                    displayConfiguration.items[itemNo].rounding = document.getElementById(`display${itemNo}Rounding`).value;
+                    displayConfiguration.items[itemNo].fontSize = document.getElementById(`display${itemNo}FontSize`).value;
+                    displayConfiguration.items[itemNo].alignment = document.getElementById(`display${itemNo}Alignment`).value;
+                }
+            }
         }
     </script>
 </body>

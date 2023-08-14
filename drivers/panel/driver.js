@@ -21,14 +21,14 @@ class PanelDriver extends Driver
     async onPairListDevices()
     {
         return [
-            // Example device data, note that `store` is optional
+            // Example device data
             {
                 name: 'Panel 4',
                 data:
                 {
                     connector: 4,
                 },
-                store:
+                settings:
                 {
                     address: '127.0.0.1',
                 },

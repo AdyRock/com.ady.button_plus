@@ -26,7 +26,7 @@ class DisplayDriver extends Driver
                 name: 'Panel 3',
                 data:
                 {
-                    connector: 4,
+                    connector: 3,
                 },
                 store:
                 {

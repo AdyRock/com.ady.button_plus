@@ -16,7 +16,9 @@
   "category": [
     "appliances"
   ],
-  "permissions": [],
+  "permissions": [
+    "homey:manager:api"
+  ],
   "images": {
     "small": "/assets/images/small.png",
     "large": "/assets/images/large.png",
@@ -25,6 +27,63 @@
   "author": {
     "name": "Adrian Rockall",
     "email": "ady@rockalls.uk"
+  },
+  "api": {
+    "getDevices": {
+      "method": "post",
+      "path": "/devices",
+      "public": false
+    },
+    "getDevicesCapabilities": {
+      "method": "post",
+      "path": "/device_capabilities",
+      "public": false
+    },
+    "getZones": {
+      "method": "get",
+      "path": "/zones",
+      "public": false
+    },
+    "getRunning": {
+      "method": "get",
+      "path": "/running",
+      "public": true
+    },
+    "setRunning": {
+      "method": "post",
+      "path": "/running",
+      "public": false
+    },
+    "refresh": {
+      "method": "get",
+      "path": "/refresh",
+      "public": false
+    },
+    "getSettingsChanged": {
+      "method": "get",
+      "path": "/settings_changed",
+      "public": false
+    },
+    "getLog": {
+      "method": "get",
+      "path": "/log",
+      "public": false
+    },
+    "getLogLevel": {
+      "method": "get",
+      "path": "/loglevel",
+      "public": false
+    },
+    "setLogLevel": {
+      "method": "post",
+      "path": "/loglevel",
+      "public": false
+    },
+    "getState": {
+      "method": "get",
+      "path": "/state",
+      "public": false
+    }
   },
   "flow": {
     "triggers": [
@@ -39,7 +98,7 @@
             "filter": "driver_id=panel"
           }
         ],
-        "id": "onoff.left_false"
+        "id": "left_button_false"
       },
       {
         "title": {
@@ -52,7 +111,7 @@
             "filter": "driver_id=panel"
           }
         ],
-        "id": "onoff.left_true"
+        "id": "left_button_true"
       },
       {
         "title": {
@@ -65,7 +124,7 @@
             "filter": "driver_id=panel"
           }
         ],
-        "id": "onoff.right_false"
+        "id": "right_button_false"
       },
       {
         "title": {
@@ -78,7 +137,7 @@
             "filter": "driver_id=panel"
           }
         ],
-        "id": "onoff.right_true"
+        "id": "right_button_true"
       }
     ]
   },
@@ -124,9 +183,81 @@
       },
       "class": "button",
       "capabilities": [
-        "onoff.left",
-        "onoff.right"
+        "configuration.connector1",
+        "configuration.connector2",
+        "configuration.connector3",
+        "configuration.connector4",
+        "left_button.connector1",
+        "right_button.connector1",
+        "left_button.connector2",
+        "right_button.connector2",
+        "left_button.connector3",
+        "right_button.connector3",
+        "left_button.connector4",
+        "right_button.connector4"
       ],
+      "capabilitiesOptions": {
+        "configuration.connector1": {
+          "title": {
+            "en": "Connector 1"
+          }
+        },
+        "configuration.connector2": {
+          "title": {
+            "en": "Connector 2"
+          }
+        },
+        "configuration.connector3": {
+          "title": {
+            "en": "Connector 3"
+          }
+        },
+        "configuration.connector4": {
+          "title": {
+            "en": "Connector 4"
+          }
+        },
+        "left_button.connector1": {
+          "title": {
+            "en": "Connector 1"
+          }
+        },
+        "left_button.connector2": {
+          "title": {
+            "en": "Connector 2"
+          }
+        },
+        "left_button.connector3": {
+          "title": {
+            "en": "Connector 3"
+          }
+        },
+        "left_button.connector4": {
+          "title": {
+            "en": "Connector 4"
+          }
+        },
+        "right_button.connector1": {
+          "title": {
+            "en": "Connector 1"
+          }
+        },
+        "right_button.connector2": {
+          "title": {
+            "en": "Connector 2"
+          }
+        },
+        "right_button.connector3": {
+          "title": {
+            "en": "Connector 3"
+          }
+        },
+        "right_button.connector4": {
+          "title": {
+            "en": "Connector 4"
+          }
+        }
+      },
       "platforms": [
         "local"
       ],
@@ -154,6 +285,159 @@
       "id": "panel"
     }
   ],
+  "capabilities": {
+    "configuration": {
+      "type": "enum",
+      "title": {
+        "en": "Configuration"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "0",
+          "title": {
+            "en": "Configuration 1"
+          }
+        },
+        {
+          "id": "1",
+          "title": {
+            "en": "Configuration 2"
+          }
+        },
+        {
+          "id": "2",
+          "title": {
+            "en": "Configuration 3"
+          }
+        },
+        {
+          "id": "3",
+          "title": {
+            "en": "Configuration 4"
+          }
+        },
+        {
+          "id": "4",
+          "title": {
+            "en": "Configuration 5"
+          }
+        },
+        {
+          "id": "5",
+          "title": {
+            "en": "Configuration 6"
+          }
+        },
+        {
+          "id": "6",
+          "title": {
+            "en": "Configuration 7"
+          }
+        },
+        {
+          "id": "7",
+          "title": {
+            "en": "Configuration 8"
+          }
+        },
+        {
+          "id": "8",
+          "title": {
+            "en": "Configuration 9"
+          }
+        },
+        {
+          "id": "9",
+          "title": {
+            "en": "Configuration 10"
+          }
+        },
+        {
+          "id": "10",
+          "title": {
+            "en": "Configuration 11"
+          }
+        },
+        {
+          "id": "11",
+          "title": {
+            "en": "Configuration 12"
+          }
+        },
+        {
+          "id": "12",
+          "title": {
+            "en": "Configuration 13"
+          }
+        },
+        {
+          "id": "13",
+          "title": {
+            "en": "Configuration 14"
+          }
+        },
+        {
+          "id": "14",
+          "title": {
+            "en": "Configuration 15"
+          }
+        },
+        {
+          "id": "15",
+          "title": {
+            "en": "Configuration 16"
+          }
+        },
+        {
+          "id": "16",
+          "title": {
+            "en": "Configuration 17"
+          }
+        },
+        {
+          "id": "17",
+          "title": {
+            "en": "Configuration 18"
+          }
+        },
+        {
+          "id": "18",
+          "title": {
+            "en": "Configuration 19"
+          }
+        },
+        {
+          "id": "19",
+          "title": {
+            "en": "Configuration 20"
+          }
+        }
+      ]
+    },
+    "left_button": {
+      "type": "boolean",
+      "getable": true,
+      "setable": true,
+      "uiComponent": "button",
+      "title": {
+        "en": "Left Button"
+      },
+      "icon": "/assets/left_arrow.svg"
+    },
+    "right_button": {
+      "type": "boolean",
+      "getable": true,
+      "setable": true,
+      "uiComponent": "button",
+      "title": {
+        "en": "Right Button"
+      },
+      "icon": "/assets/right_arrow.svg"
+    }
+  },
   "discovery": {
     "panel": {
       "type": "mdns-sd",

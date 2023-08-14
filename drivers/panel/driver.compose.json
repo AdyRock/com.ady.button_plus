@@ -1,34 +1,106 @@
 {
-  "name": {
-    "en": "Button Panel"
-  },
-  "class": "button",
-  "capabilities": [
-    "onoff.left",
-    "onoff.right"
-  ],
-  "platforms": [
-    "local"
-  ],
-  "connectivity": [
-    "lan"
-  ],
-  "pair": [
-      {
-          "id": "list_my_devices",
-          "template": "list_devices",
-          "navigation": {
-              "next": "add_my_devices"
-          }
-      },
-      {
-          "id": "add_my_devices",
-          "template": "add_devices"
-      }
-  ],
-  "images": {
-    "small": "{{driverAssetsPath}}/images/small.png",
-    "large": "{{driverAssetsPath}}/images/large.png",
-    "xlarge": "{{driverAssetsPath}}/images/xlarge.png"
-  }
+    "name": {
+        "en": "Button Panel"
+    },
+    "class": "button",
+    "capabilities": [
+        "configuration.connector1",
+        "configuration.connector2",
+        "configuration.connector3",
+        "configuration.connector4",
+        "left_button.connector1",
+        "right_button.connector1",
+        "left_button.connector2",
+        "right_button.connector2",
+        "left_button.connector3",
+        "right_button.connector3",
+        "left_button.connector4",
+        "right_button.connector4"
+    ],
+    "capabilitiesOptions": {
+        "configuration.connector1": {
+            "title": {
+                "en": "Connector 1"
+            }
+        },
+        "configuration.connector2": {
+            "title": {
+                "en": "Connector 2"
+            }
+        },
+        "configuration.connector3": {
+            "title": {
+                "en": "Connector 3"
+            }
+        },
+        "configuration.connector4": {
+            "title": {
+                "en": "Connector 4"
+            }
+        },
+        "left_button.connector1": {
+            "title": {
+                "en": "Connector 1"
+            }
+        },
+        "left_button.connector2": {
+            "title": {
+                "en": "Connector 2"
+            }
+        },
+        "left_button.connector3": {
+            "title": {
+                "en": "Connector 3"
+            }
+        },
+        "left_button.connector4": {
+            "title": {
+                "en": "Connector 4"
+            }
+        },
+        "right_button.connector1": {
+            "title": {
+                "en": "Connector 1"
+            }
+        },
+        "right_button.connector2": {
+            "title": {
+                "en": "Connector 2"
+            }
+        },
+        "right_button.connector3": {
+            "title": {
+                "en": "Connector 3"
+            }
+        },
+        "right_button.connector4": {
+            "title": {
+                "en": "Connector 4"
+            }
+        }
+    },
+    "platforms": [
+        "local"
+    ],
+    "connectivity": [
+        "lan"
+    ],
+    "pair": [
+        {
+            "id": "list_my_devices",
+            "template": "list_devices",
+            "navigation": {
+                "next": "add_my_devices"
+            }
+        },
+        {
+            "id": "add_my_devices",
+            "template": "add_devices"
+        }
+    ],
+    "images": {
+        "small": "{{driverAssetsPath}}/images/small.png",
+        "large": "{{driverAssetsPath}}/images/large.png",
+        "xlarge": "{{driverAssetsPath}}/images/xlarge.png"
+    }
 }
