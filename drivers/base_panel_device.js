@@ -10,6 +10,7 @@ class BasePanelDevice extends Device
      */
     async onInit()
     {
+        this.registerCapabilityListener('configuration.display', this.onCapabilityDisplayConfiguration.bind(this));
         this.registerCapabilityListener('configuration.connector1', this.onCapabilityConfiguration.bind(this, 1));
         this.registerCapabilityListener('configuration.connector2', this.onCapabilityConfiguration.bind(this, 2));
         this.registerCapabilityListener('configuration.connector3', this.onCapabilityConfiguration.bind(this, 3));
@@ -25,7 +26,8 @@ class BasePanelDevice extends Device
         this.registerCapabilityListener('right_button.connector3', this.onCapabilityRightButton.bind(this, 3));
         this.registerCapabilityListener('right_button.connector4', this.onCapabilityRightButton.bind(this, 4));
 
-        this.uploadConfigurations();
+        this.uploadPanelConfigurations();
+        this.uploadDisplayConfigurations();
 
         this.log('MyDevice has been initialized');
     }
@@ -67,6 +69,13 @@ class BasePanelDevice extends Device
     async onDeleted()
     {
         this.log('MyDevice has been deleted');
+    }
+
+    onCapabilityDisplayConfiguration(value, opts)
+    {
+        this.log('onCapabilityConfiguration', value, opts);
+        const ip = this.getSetting('address');
+        this.homey.app.uploadDisplayConfiguration(ip, value);
     }
 
     onCapabilityConfiguration(connector, value, opts)
@@ -143,7 +152,7 @@ class BasePanelDevice extends Device
         }
     }
 
-    async uploadConfigurations()
+    async uploadPanelConfigurations()
     {
         const ip = this.getSetting('address');
 
@@ -156,7 +165,10 @@ class BasePanelDevice extends Device
             const configNo = this.getCapabilityValue('configuration.connector1');
             try
             {
-                await this.homey.app.applyPanelConfiguration(deviceConfiguration, 1, configNo);
+                if (configNo)
+                {
+                    await this.homey.app.applyPanelConfiguration(deviceConfiguration, 1, configNo);
+                }
             }
             catch (error)
             {
@@ -169,7 +181,10 @@ class BasePanelDevice extends Device
             const configNo = this.getCapabilityValue('configuration.connector2');
             try
             {
-                await this.homey.app.applyPanelConfiguration(deviceConfiguration, 2, configNo);
+                if (configNo)
+                {
+                    await this.homey.app.applyPanelConfiguration(deviceConfiguration, 2, configNo);
+                }
             }
             catch (error)
             {
@@ -182,7 +197,10 @@ class BasePanelDevice extends Device
             const configNo = this.getCapabilityValue('configuration.connector3');
             try
             {
-                await this.homey.app.applyPanelConfiguration(deviceConfiguration, 3, configNo);
+                if (configNo)
+                {
+                    await this.homey.app.applyPanelConfiguration(deviceConfiguration, 3, configNo);
+                }
             }
             catch (error)
             {
@@ -195,7 +213,10 @@ class BasePanelDevice extends Device
             const configNo = this.getCapabilityValue('configuration.connector4');
             try
             {
-                await this.homey.app.applyPanelConfiguration(deviceConfiguration, 4, configNo);
+                if (configNo)
+                {
+                    await this.homey.app.applyPanelConfiguration(deviceConfiguration, 4, configNo);
+                }
             }
             catch (error)
             {
@@ -213,6 +234,47 @@ class BasePanelDevice extends Device
         catch (error)
         {
             this.log(error);
+        }
+    }
+
+    async uploadDisplayConfigurations()
+    {
+        const ip = this.getSetting('address');
+
+        // apply the new display configuration to this unit
+        const configNo = this.getCapabilityValue('configuration.display');
+        try
+        {
+            await this.homey.app.uploadDisplayConfiguration(ip, configNo);
+            // Send each of the display values referenced in the config to the device
+            const displayConfiguration = this.homey.app.displayConfigurations[configNo];
+            for (let itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
+            {
+                const item = displayConfiguration.items[itemNo];
+                if (item !== undefined)
+                {
+                    if (item.device !== 'none')
+                    {
+                        const homeyDeviceObject = await this.homey.app.getHomeyDeviceById(item.device);
+                        try
+                        {
+                            if (homeyDeviceObject)
+                            {
+                                const capability = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObject, item.capability);
+                                this.homey.app.publishMQTTMessage(`homey/${item.device}/${item.capability}/value`, capability.value);
+                            }
+                        }
+                        catch (error)
+                        {
+                            this.homey.app.updateLog(error.message);
+                        }
+                    }
+                }
+            }
+        }
+        catch (error)
+        {
+            this.homey.app.updateLog(error);
         }
     }
 

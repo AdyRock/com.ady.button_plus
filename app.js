@@ -10,7 +10,6 @@ if (process.env.DEBUG === '1')
 
 const Homey = require('homey');
 
-const http = require('http');
 const net = require('net');
 const nodemailer = require('nodemailer');
 const aedes = require('aedes')();
@@ -111,15 +110,22 @@ class MyApp extends Homey.App
                 this.panelConfigurations = this.homey.settings.get('panelConfigurations');
 
                 // Get devices to upload their configurations that might have changed
-                this.refreshConfigurations();
+                this.refreshPanelConfigurations();
+            }
+            if (setting === 'displayConfigurations')
+            {
+                this.displayConfigurations = this.homey.settings.get('displayConfigurations');
+
+                // Get devices to upload their configurations that might have changed
+                this.refreshDisplayConfigurations();
             }
         });
 
         this.updateLog('MyApp has been initialized');
     }
 
-    // Make all the device upload their configurations to the panels
-    async refreshConfigurations()
+    // Make all the device upload their panel configurations to the panels
+    async refreshPanelConfigurations()
     {
         // Get devices to upload their configurations
         const drivers = this.homey.drivers.getDrivers();
@@ -128,11 +134,39 @@ class MyApp extends Homey.App
             let devices = driver.getDevices();
             for (let device of Object.values(devices))
             {
-                if (device.uploadConfigurations)
+                if (device.uploadPanelConfigurations)
                 {
                     try
                     {
-                        await device.uploadConfigurations();
+                        await device.uploadPanelConfigurations();
+                    }
+                    catch (error)
+                    {
+                        this.updateLog(`Sync Devices error: ${error.message}`);
+                    }
+                }
+
+                device = null;
+            }
+            devices = null;
+        }
+    }
+
+    // Make all the device upload their panel configurations to the panels
+    async refreshDisplayConfigurations()
+    {
+        // Get devices to upload their configurations
+        const drivers = this.homey.drivers.getDrivers();
+        for (const driver of Object.values(drivers))
+        {
+            let devices = driver.getDevices();
+            for (let device of Object.values(devices))
+            {
+                if (device.uploadPanelConfigurations)
+                {
+                    try
+                    {
+                        await device.uploadDisplayConfigurations();
                     }
                     catch (error)
                     {
@@ -188,6 +222,65 @@ class MyApp extends Homey.App
         this.homey.settings.set('displayConfigurations', this.displayConfigurations);
     }
 
+    async uploadDisplayConfiguration(ip, configurationNo)
+    {
+        try
+        {
+            // download the current configuration from the device
+            const deviceConfiguration = await this.readDeviceConfiguration(ip, this.virtualID);
+//            this.updateLog(`Current Config: ${deviceConfiguration}`);
+
+            // apply the new configuration
+            this.applyDisplayConfiguration(deviceConfiguration, configurationNo);
+            this.updateLog(`Current Config: ${deviceConfiguration}`);
+
+            // write the updated configuration back to the device
+            await this.writeDeviceConfiguration(ip, deviceConfiguration, this.virtualID);
+        }
+        catch (err)
+        {
+            this.updateLog(`Error uploading display configuration: ${err.message}`);
+            throw err;
+        }
+    }
+
+    async applyDisplayConfiguration(deviceConfiguration, configurationNo)
+    {
+        if (deviceConfiguration)
+        {
+            // Get the specified user configuration
+            const displayConfiguration = this.displayConfigurations[configurationNo];
+
+            // Update the device configuration
+            if (displayConfiguration)
+            {
+                deviceConfiguration.mqttdisplays = [];
+                for (let itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
+                {
+                    const item = displayConfiguration.items[itemNo];
+                    const capabilities = {
+                        x: parseInt(item.xPos, 10),
+                        y: parseInt(item.yPos, 10),
+                        fontsize: parseInt(item.fontSize, 10),
+                        align: parseInt(item.alignment, 10),
+                        width: parseInt(item.width, 10),
+                        label: item.label,
+                        units: item.units,
+                        round: parseInt(item.rounding, 10),
+                        topics: [
+                        {
+                            brokerid: 'buttonplus',
+                            topic: `homey/${item.device}/${item.capability}/value`,
+                            eventtype: 15,
+                        }],
+                    };
+
+                    deviceConfiguration.mqttdisplays.push(capabilities);
+                }
+            }
+        }
+    }
+
     async uploadPanelConfiguration(ip, connectorNo, configurationNo)
     {
         try
@@ -240,7 +333,7 @@ class MyApp extends Homey.App
                         // Configure the right panel
                         buttonIdx++;
                         capability = await this.setupClickTopic(buttonIdx, deviceConfiguration.mqttbuttons[buttonIdx], panelConfiguration.rightDevice, panelConfiguration.rightCapability, connectorNo, 'right');
-                        await this.setupStatusTopic(buttonIdx, deviceConfiguration.mqttbuttons[buttonIdx], panelConfiguration.rightTopText, panelConfiguration.rightText, panelConfiguration.leftDevice, panelConfiguration.leftCapability, capability);
+                        await this.setupStatusTopic(buttonIdx, deviceConfiguration.mqttbuttons[buttonIdx], panelConfiguration.rightTopText, panelConfiguration.rightText, panelConfiguration.rightDevice, panelConfiguration.rightCapability, capability);
                     }
                 }
             }
@@ -663,7 +756,7 @@ class MyApp extends Homey.App
     {
         const data = JSON.stringify(message);
         this.updateLog(`publishMQTTMessage: ${data} to topic ${topic}}`);
-        this.MQTTclient.publish(topic, data);
+        this.MQTTclient.publish(topic, data, { qos: 1, retain: true });
     }
 
     // Build a list of gateways detected by mDNS

@@ -4,6 +4,7 @@
     },
     "class": "button",
     "capabilities": [
+        "configuration.display",
         "configuration.connector1",
         "configuration.connector2",
         "configuration.connector3",
@@ -76,6 +77,11 @@
         "right_button.connector4": {
             "title": {
                 "en": "Connector 4"
+            }
+        },
+        "configuration.display": {
+            "title": {
+                "en": "Display"
             }
         }
     },
