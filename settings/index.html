@@ -23,11 +23,11 @@
 
     <fieldset class="homey-form-fieldset">
         <select class="homey-form-select" id="configType">
-            <option value="panelConfig">Panel Configurations</option>
+            <option value="panelConfig">Button Bar Configurations</option>
             <option value="displayConfig">Display Configurations</option>
         </select>
 
-        <!-- Panel Configuration -->
+        <!-- Button Bar Configuration -->
 
         <div id="panelConfig" class="tabcontent">
             <div class="homey-form-group">
@@ -77,7 +77,7 @@
                             <label class="homey-form-label" for="rightDevice"><span data-i18n="settings.device"></span></label>
                             <select class="homey-form-select" id="rightDevice">
                             </select>
-                            
+
                             <label class="homey-form-label" for="rightCapability"><span data-i18n="settings.capability"></span></label>
                             <select class="homey-form-select" id="rightCapability">
                             </select>
@@ -142,7 +142,7 @@
         var ConfigTypeElement = document.getElementById('configType');
         var saveButton = document.getElementById('save');
 
-        // Declarations for the Panel Config page
+        // Declarations for the Button Bar Config page
 
         var panelConfigurationNoElement = document.getElementById('panelConfigurationNo');
         var leftTopTextElement = document.getElementById('leftTopText');
@@ -216,7 +216,7 @@
                 Homey.set('displayConfigurations', localDisplayConfigurations);
             });
 
-            // Panel Config code
+            // Button Bar Config code
 
             Homey.get('panelConfigurations', function(err, panelConfigurations)
             {

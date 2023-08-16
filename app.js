@@ -42,7 +42,7 @@ class MyApp extends Homey.App
         this.panelConfigurations = this.homey.settings.get('panelConfigurations');
         if (!this.panelConfigurations || this.panelConfigurations.length < MAX_CONFIGURATIONS)
         {
-            // Create the default panel configurations
+            // Create the default button bar configurations
             this.createPanelConfigurations();
         }
 
@@ -135,7 +135,7 @@ class MyApp extends Homey.App
         this.updateLog('MyApp has been initialized');
     }
 
-    // Make all the device upload their panel configurations to the panels
+    // Make all the device upload their button bar configurations to the panels
     async refreshPanelConfigurations()
     {
         if (this.cloudConnected)
@@ -166,7 +166,7 @@ class MyApp extends Homey.App
         }
     }
 
-    // Make all the device upload their panel configurations to the panels
+    // Make all the device upload their button bar configurations to the panels
     async refreshDisplayConfigurations()
     {
         if (this.cloudConnected)
@@ -319,7 +319,7 @@ class MyApp extends Homey.App
         }
         catch (err)
         {
-            this.updateLog(`Error uploading panel configuration: ${err.message}`);
+            this.updateLog(`Error uploading button bar configuration: ${err.message}`);
             throw err;
         }
     }
@@ -341,18 +341,18 @@ class MyApp extends Homey.App
                     throw new Error(`Invalid connector number: ${connectorNo}`);
                 }
 
-                // Make sure it's a panel
+                // Make sure it's a button bar
                 if (deviceConfiguration.info.connectors[connectorIdx].type === 1)
                 {
-                    // This device has a valid panel at the specified location so get that panels properties
+                    // This device has a valid button bar at the specified location so get that panels properties
                     if (deviceConfiguration.mqttbuttons)
                     {
-                        // Configure the left panel
+                        // Configure the left button bar
                         let buttonIdx = connectorNo * 2;
                         let capability = await this.setupClickTopic(buttonIdx, deviceConfiguration.mqttbuttons[buttonIdx], panelConfiguration.leftDevice, panelConfiguration.leftCapability, connectorNo, 'left');
                         await this.setupStatusTopic(buttonIdx, deviceConfiguration.mqttbuttons[buttonIdx], panelConfiguration.leftTopText, panelConfiguration.leftText, panelConfiguration.leftDevice, panelConfiguration.leftCapability, capability);
 
-                        // Configure the right panel
+                        // Configure the right button bar
                         buttonIdx++;
                         capability = await this.setupClickTopic(buttonIdx, deviceConfiguration.mqttbuttons[buttonIdx], panelConfiguration.rightDevice, panelConfiguration.rightCapability, connectorNo, 'right');
                         await this.setupStatusTopic(buttonIdx, deviceConfiguration.mqttbuttons[buttonIdx], panelConfiguration.rightTopText, panelConfiguration.rightText, panelConfiguration.rightDevice, panelConfiguration.rightCapability, capability);
@@ -702,11 +702,13 @@ class MyApp extends Homey.App
     {
         aedes.authenticate = function aedesAuthenticate(client, username, password, callback)
         {
-            callback(null, (username === Homey.env.MQTT_USER_NAME) && (password.toString() === Homey.env.MQTT_PASSWORD));
+            // callback(null, (username === Homey.env.MQTT_USER_NAME) && (password.toString() === Homey.env.MQTT_PASSWORD));
+            callback(null, true);
         };
 
         // Connect to the MQTT server and subscribe to the required topics
-        this.MQTTclient = mqtt.connect(MQTT_SERVER, { clientId: `HomeyButtonApp-${homeyID}`, username: Homey.env.MQTT_USER_NAME, password: Homey.env.MQTT_PASSWORD });
+        // this.MQTTclient = mqtt.connect(MQTT_SERVER, { clientId: `HomeyButtonApp-${homeyID}`, username: Homey.env.MQTT_USER_NAME, password: Homey.env.MQTT_PASSWORD });
+        this.MQTTclient = mqtt.connect(MQTT_SERVER, { clientId: `HomeyButtonApp-${homeyID}`, username: '', password: '' });
         this.MQTTclient.on('connect', () =>
         {
             this.updateLog(`setupLocalAccess.onConnect: connected to ${MQTT_SERVER}`);

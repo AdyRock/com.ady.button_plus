@@ -67,6 +67,7 @@ class PanelDriver extends Driver
     async pairListDevices(virtualID, address)
     {
         const deviceConfiguration = await this.homey.app.readDeviceConfiguration(address, virtualID);
+        this.homey.app.updateLog(`Device configuration: ${this.homey.app.varToString(deviceConfiguration)}`);
 
         if (!deviceConfiguration)
         {

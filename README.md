@@ -29,19 +29,19 @@ Control Button + panels
 4. Open the Button + App settings / Configuration page in Homey.
 5. Make sure the Allow update of Button+ configuration is ticked.
 
-There are two types of configurations, Panel and Display, and each currently has 20 slots.
-The Panel configurations are shown when the first drop list shows Panel Configurations and the Display configurations are shown by changing the drop list to Display Configurations.
+There are two types of configurations, button bar and Display, and each currently has 20 slots.
+The button bar configurations are shown when the first drop list shows button bar Configurations and the Display configurations are shown by changing the drop list to Display Configurations.
 
-## Setting up Panel Configurations
+## Setting up button bar Configurations
 
-1. Select Panel Configurations from the first drop list.
+1. Select button bar Configurations from the first drop list.
 2. Select a configuration number to edit (we can assign any of the configurations to Button+ Panels later).
-3. Under Left Panel are the options for the button on the left side of the Button+ panel.
+3. Under Left button bar are the options for the button on the left side of the Button+ button bar.
 4. Select a Homey device that you want to control from the drop list (The panels only support boolean capabilities but filtering the lists is still to be implemented)
 5. Select a capability from the drop list.
 6. Enter a Top Label (optional). This is displayed in green on the buttons display.
 7. Enter a Label. This is shown in white and a bigger font on the buttons display, just below the Top Text.
-8. Repeat the steps for the Right Panel.
+8. Repeat the steps for the Right button bar.
 9. Click on the Save Configurations button. Still to do is add a prompt if you forget to save and close the window.
 
 ## Setting up Display Configurations
@@ -64,11 +64,11 @@ The Panel configurations are shown when the first drop list shows Panel Configur
 ## Adding a device to Homey
 
 1. Select the New Device option in Homey.
-2. Select Button Panel (name might change later).
+2. Select Button button bar (name might change later).
 3. Click on Connect.
 4. If this is the first time, enter the username and password you use to log into Button+.
 5. Enter the Pincode. This is the Virtual Id you made a note of in step 12 of setting up the simulator. enter 0 at the start if you Id is less than 4 digets (e.g. 0295).
-6. You should then see the virtual device listed, so select it and continue. (The app currently uses the Name found under the General settings to identify the panel).
+6. You should then see the virtual device listed, so select it and continue. (The app currently uses the Name found under the General settings to identify the button bar).
 7. The device will be added to Homey.
 
 ## Using the Homey device
@@ -76,9 +76,9 @@ The Panel configurations are shown when the first drop list shows Panel Configur
 1. Open the device in Homey.
 2. Open the second tab to view a list of configurations for the display and each connector.
 3. Select the Display or a Connector number from the top drop list (Homey currently draws the Configuration list over the drop list, so it can be a pain to select what you want).
-4. Select a Configuration number to apply to the Display / Panel connector.
+4. Select a Configuration number to apply to the Display / button bar connector.
 5. The configuration is uploaded to the simulator, but you need to refresh the simulator to make it take affect. There is a button to the right of the Virtual Id to refresh the page.
-6. You should now see the information you selected in the configuration displayed on the Panel.
+6. You should now see the information you selected in the configuration displayed on the button bar.
 7. You can click on the button displays in the simulator to toggle the capability in Homey.
 
 ## Still to do

@@ -221,7 +221,7 @@ class BasePanelDevice extends Device
         {
             if (this.hasCapability('configuration.connector1'))
             {
-                // apply the new configuration to this panel section
+                // apply the new configuration to this button bar section
                 const configNo = this.getCapabilityValue('configuration.connector1');
                 try
                 {
@@ -237,7 +237,7 @@ class BasePanelDevice extends Device
             }
             if (this.hasCapability('configuration.connector2'))
             {
-                // apply the new configuration to this panel section
+                // apply the new configuration to this button bar section
                 const configNo = this.getCapabilityValue('configuration.connector2');
                 try
                 {
@@ -253,7 +253,7 @@ class BasePanelDevice extends Device
             }
             if (this.hasCapability('configuration.connector3'))
             {
-                // apply the new configuration to this panel section
+                // apply the new configuration to this button bar section
                 const configNo = this.getCapabilityValue('configuration.connector3');
                 try
                 {
