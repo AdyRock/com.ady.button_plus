@@ -75,4 +75,8 @@ Still to do:
 * Filter lists.
 * Fix bugs.
 
+SECURITY NOTE:
+The app is currently using the Button+ MQTTT server, so any configured Homey data is made public, but only the parameters you add to an active configuration are published.
+In the proper release, the app will use a built n MQTT server, so no setup will be required. However, I can add settings to the app to allow an external MQTT server if feedback suggests it is required.
+
 All feedback welcome.
