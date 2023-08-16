@@ -5,7 +5,7 @@
 if (process.env.DEBUG === '1')
 {
     // eslint-disable-next-line node/no-unsupported-features/node-builtins, global-require
-    require('inspector').open(9223, '0.0.0.0', true);
+    require('inspector').open(9223, '0.0.0.0', false);
 }
 
 const Homey = require('homey');
@@ -39,11 +39,11 @@ class MyApp extends Homey.App
         this.homey.settings.set('autoConfig', this.autoConfigGateway);
         this.virtualID = 109;
 
-        this.panelConfigurations = this.homey.settings.get('panelConfigurations');
-        if (!this.panelConfigurations || this.panelConfigurations.length < MAX_CONFIGURATIONS)
+        this.buttonConfigurations = this.homey.settings.get('buttonConfigurations');
+        if (!this.buttonConfigurations || this.buttonConfigurations.length < MAX_CONFIGURATIONS)
         {
             // Create the default button bar configurations
-            this.createPanelConfigurations();
+            this.createbuttonConfigurations();
         }
 
         this.displayConfigurations = this.homey.settings.get('displayConfigurations');
@@ -116,12 +116,12 @@ class MyApp extends Homey.App
 
         this.homey.settings.on('set', async (setting) =>
         {
-            if (setting === 'panelConfigurations')
+            if (setting === 'buttonConfigurations')
             {
-                this.panelConfigurations = this.homey.settings.get('panelConfigurations');
+                this.buttonConfigurations = this.homey.settings.get('buttonConfigurations');
 
                 // Get devices to upload their configurations that might have changed
-                this.refreshPanelConfigurations();
+                this.refreshbuttonConfigurations();
             }
             if (setting === 'displayConfigurations')
             {
@@ -136,7 +136,7 @@ class MyApp extends Homey.App
     }
 
     // Make all the device upload their button bar configurations to the panels
-    async refreshPanelConfigurations()
+    async refreshbuttonConfigurations()
     {
         if (this.cloudConnected)
         {
@@ -147,11 +147,11 @@ class MyApp extends Homey.App
                 let devices = driver.getDevices();
                 for (let device of Object.values(devices))
                 {
-                    if (device.uploadPanelConfigurations)
+                    if (device.uploadButtonConfigurations)
                     {
                         try
                         {
-                            await device.uploadPanelConfigurations();
+                            await device.uploadButtonConfigurations();
                         }
                         catch (error)
                         {
@@ -178,7 +178,7 @@ class MyApp extends Homey.App
                 let devices = driver.getDevices();
                 for (let device of Object.values(devices))
                 {
-                    if (device.uploadPanelConfigurations)
+                    if (device.uploadbuttonConfigurations)
                     {
                         try
                         {
@@ -197,28 +197,29 @@ class MyApp extends Homey.App
         }
     }
 
-    createPanelConfigurations()
+    createbuttonConfigurations()
     {
-        if (!this.panelConfigurations)
+        if (!this.buttonConfigurations)
         {
-            this.panelConfigurations = [];
+            this.buttonConfigurations = [];
         }
 
-        for (let i = this.panelConfigurations.length; i < MAX_CONFIGURATIONS; i++)
+        for (let i = this.buttonConfigurations.length; i < MAX_CONFIGURATIONS; i++)
         {
-            const panelConfiguration = {
+            const ButtonPanelConfiguration = {
                 leftTopText: '',
                 leftText: '',
                 leftDevice: 'none',
                 leftCapability: '',
                 rightTopText: '',
-                rightText: '',
+                rightOnText: '',
+                rightOffText: '',
                 rightDevice: 'none',
                 rightCapability: '',
             };
-            this.panelConfigurations.push(panelConfiguration);
+            this.buttonConfigurations.push(ButtonPanelConfiguration);
         }
-        this.homey.settings.set('panelConfigurations', this.panelConfigurations);
+        this.homey.settings.set('buttonConfigurations', this.buttonConfigurations);
     }
 
     createDisplayConfigurations()
@@ -300,7 +301,7 @@ class MyApp extends Homey.App
         }
     }
 
-    async uploadPanelConfiguration(ip, connectorNo, configurationNo)
+    async uploadButtonPanelConfiguration(ip, connectorNo, configurationNo)
     {
         try
         {
@@ -311,7 +312,7 @@ class MyApp extends Homey.App
             if (deviceConfiguration)
             {
                 // apply the new configuration
-                this.applyPanelConfiguration(deviceConfiguration, connectorNo, configurationNo);
+                this.applyButtonConfiguration(deviceConfiguration, connectorNo, configurationNo);
 
                 // write the updated configuration back to the device
                 await this.writeDeviceConfiguration(ip, deviceConfiguration, this.virtualID);
@@ -324,12 +325,12 @@ class MyApp extends Homey.App
         }
     }
 
-    async applyPanelConfiguration(deviceConfiguration, connectorNo, configurationNo)
+    async applyButtonConfiguration(deviceConfiguration, connectorNo, configurationNo)
     {
         if (deviceConfiguration)
         {
             // Get the specified user configuration
-            const panelConfiguration = this.panelConfigurations[configurationNo];
+            const ButtonPanelConfiguration = this.buttonConfigurations[configurationNo];
 
             // Update the device configuration for the selected connectorNo
             if (deviceConfiguration.info && deviceConfiguration.info.connectors)
@@ -349,13 +350,13 @@ class MyApp extends Homey.App
                     {
                         // Configure the left button bar
                         let buttonIdx = connectorNo * 2;
-                        let capability = await this.setupClickTopic(buttonIdx, deviceConfiguration.mqttbuttons[buttonIdx], panelConfiguration.leftDevice, panelConfiguration.leftCapability, connectorNo, 'left');
-                        await this.setupStatusTopic(buttonIdx, deviceConfiguration.mqttbuttons[buttonIdx], panelConfiguration.leftTopText, panelConfiguration.leftText, panelConfiguration.leftDevice, panelConfiguration.leftCapability, capability);
+                        let capability = await this.setupClickTopic(buttonIdx, deviceConfiguration.mqttbuttons[buttonIdx], ButtonPanelConfiguration.leftDevice, ButtonPanelConfiguration.leftCapability, connectorNo, 'left');
+                        await this.setupStatusTopic(buttonIdx, deviceConfiguration.mqttbuttons[buttonIdx], ButtonPanelConfiguration.leftTopText, ButtonPanelConfiguration.leftText, ButtonPanelConfiguration.leftDevice, ButtonPanelConfiguration.leftCapability, capability);
 
                         // Configure the right button bar
                         buttonIdx++;
-                        capability = await this.setupClickTopic(buttonIdx, deviceConfiguration.mqttbuttons[buttonIdx], panelConfiguration.rightDevice, panelConfiguration.rightCapability, connectorNo, 'right');
-                        await this.setupStatusTopic(buttonIdx, deviceConfiguration.mqttbuttons[buttonIdx], panelConfiguration.rightTopText, panelConfiguration.rightText, panelConfiguration.rightDevice, panelConfiguration.rightCapability, capability);
+                        capability = await this.setupClickTopic(buttonIdx, deviceConfiguration.mqttbuttons[buttonIdx], ButtonPanelConfiguration.rightDevice, ButtonPanelConfiguration.rightCapability, connectorNo, 'right');
+                        await this.setupStatusTopic(buttonIdx, deviceConfiguration.mqttbuttons[buttonIdx], ButtonPanelConfiguration.rightTopText, ButtonPanelConfiguration.rightOnText, ButtonPanelConfiguration.rightDevice, ButtonPanelConfiguration.rightCapability, capability);
                     }
                 }
             }
@@ -370,6 +371,7 @@ class MyApp extends Homey.App
 
         try
         {
+            mqttButtons.topics = [];
             if (configDevice !== 'none')
             {
                 const device = await this.deviceManager.getDeviceById(configDevice);
@@ -391,21 +393,7 @@ class MyApp extends Homey.App
             };
             payload = JSON.stringify(payload);
 
-            // Find the click event entry
-            const clickIdx = mqttButtons.topics.findIndex((topic) => topic.eventtype === 0);
-            if (readOnly)
-            {
-                // Remove the click event entry
-                mqttButtons.topics.splice(clickIdx, 1);
-            }
-            else if (clickIdx >= 0)
-            {
-                // Update the click event entry
-                mqttButtons.topics[clickIdx].brokerid = 'buttonplus';
-                mqttButtons.topics[clickIdx].topic = 'homey/click';
-                mqttButtons.topics[clickIdx].payload = payload;
-            }
-            else
+            if (!readOnly)
             {
                 // Add the click event entry
                 mqttButtons.topics.push(
@@ -439,27 +427,25 @@ class MyApp extends Homey.App
                 // User capabilities are always 'ON' or 'OFF' and have a click event
                 payload = true;
 
-                // Find the LED event entry
-                const clickIdx = mqttButtons.topics.findIndex((topic) => topic.eventtype === 14);
-                if (clickIdx >= 0)
-                {
-                    // Update the LED event entry
-                    mqttButtons.topics[clickIdx].topic = `homey/${configDevice}/${configCapability}/value`;
-                    mqttButtons.topics[clickIdx].brokerid = 'buttonplus';
-                    mqttButtons.topics[clickIdx].payload = payload;
-                }
-                else
-                {
-                    // Add the LED event entry
-                    mqttButtons.topics.push(
-                        {
-                            brokerid: 'buttonplus',
-                            eventtype: 0,
-                            topic: `homey/${configDevice}/${configCapability}/value`,
-                            payload,
-                        },
-                    );
-                }
+                // Add the LED event entry
+                mqttButtons.topics.push(
+                    {
+                        brokerid: 'buttonplus',
+                        eventtype: 14,
+                        topic: `homey/button/${buttonIdx}/value`,
+                        payload,
+                    },
+                );
+
+                // Add the Label event entry
+                mqttButtons.topics.push(
+                    {
+                        brokerid: 'buttonplus',
+                        eventtype: 16,
+                        topic: `homey/button/${buttonIdx}/label`,
+                        payload,
+                    },
+                );
             }
             else if (capability)
             {
@@ -467,33 +453,31 @@ class MyApp extends Homey.App
                 {
                     // Boolean capabilities are always 'true' or 'false'
                     payload = true;
-                }
 
-                // Find the Value event entry
-                const clickIdx = mqttButtons.topics.findIndex((topic) => topic.eventtype === 15);
-                if (clickIdx >= 0)
-                {
-                    // Update the Value event entry
-                    mqttButtons.topics[clickIdx].topic = `homey/${configDevice}/${configCapability}/value`;
-                    mqttButtons.topics[clickIdx].brokerid = 'buttonplus';
-                    mqttButtons.topics[clickIdx].payload = payload;
-                }
-                else
-                {
-                    // Add the Value event entry
+                    // Add the LED event entry
                     mqttButtons.topics.push(
                         {
                             brokerid: 'buttonplus',
-                            eventtype: 15,
+                            eventtype: 14,
                             topic: `homey/${configDevice}/${configCapability}/value`,
                             payload,
                         },
                     );
                 }
+
+                // Add the Label event entry
+                mqttButtons.topics.push(
+                    {
+                        brokerid: 'buttonplus',
+                        eventtype: 16,
+                        topic: `homey/${configDevice}/${configCapability}/label`,
+                        payload,
+                    },
+                );
             }
             else
             {
-                //
+                // Oops
             }
         }
         catch (err)
@@ -510,6 +494,7 @@ class MyApp extends Homey.App
             try
             {
                 // TODO change to use IP for real hardware
+                this.updateLog(`readDeviceConfiguration for ${virtualID}`);
                 return this.httpHelper.get(`button/config/${virtualID}`);
             }
             catch (err)
@@ -517,6 +502,7 @@ class MyApp extends Homey.App
                 this.updateLog(`readDeviceConfiguration error: ${err.message}`);
             }
         }
+        this.updateLog('readDeviceConfiguration: not connected to cloud');
         return null;
     }
 

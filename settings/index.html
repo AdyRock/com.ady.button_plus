@@ -23,7 +23,7 @@
 
     <fieldset class="homey-form-fieldset">
         <select class="homey-form-select" id="configType">
-            <option value="panelConfig">Button Bar Configurations</option>
+            <option value="panelConfig">Button Configurations</option>
             <option value="displayConfig">Display Configurations</option>
         </select>
 
@@ -32,27 +32,27 @@
         <div id="panelConfig" class="tabcontent">
             <div class="homey-form-group">
                 <div style="padding: 10px 10px 10px 10px; border: 1px solid lightblue; border-radius: 10px">
-                    <select class="homey-form-select" id="panelConfigurationNo">
-                        <option value=0>Configuration 1</option>
-                        <option value=1>Configuration 2</option>
-                        <option value=2>Configuration 3</option>
-                        <option value=3>Configuration 4</option>
-                        <option value=4>Configuration 5</option>
-                        <option value=5>Configuration 6</option>
-                        <option value=6>Configuration 7</option>
-                        <option value=7>Configuration 8</option>
-                        <option value=8>Configuration 9</option>
-                        <option value=9>Configuration 10</option>
-                        <option value=10>Configuration 11</option>
-                        <option value=11>Configuration 12</option>
-                        <option value=12>Configuration 13</option>
-                        <option value=13>Configuration 14</option>
-                        <option value=14>Configuration 15</option>
-                        <option value=15>Configuration 16</option>
-                        <option value=16>Configuration 17</option>
-                        <option value=17>Configuration 18</option>
-                        <option value=18>Configuration 19</option>
-                        <option value=19>Configuration 20</option>
+                    <select class="homey-form-select" id="ButtonPanelConfigurationNo">
+                        <option value=0>Button Configuration 1</option>
+                        <option value=1>Button Configuration 2</option>
+                        <option value=2>Button Configuration 3</option>
+                        <option value=3>Button Configuration 4</option>
+                        <option value=4>Button Configuration 5</option>
+                        <option value=5>Button Configuration 6</option>
+                        <option value=6>Button Configuration 7</option>
+                        <option value=7>Button Configuration 8</option>
+                        <option value=8>Button Configuration 9</option>
+                        <option value=9>Button Configuration 10</option>
+                        <option value=10>Button Configuration 11</option>
+                        <option value=11>Button Configuration 12</option>
+                        <option value=12>Button Configuration 13</option>
+                        <option value=13>Button Configuration 14</option>
+                        <option value=14>Button Configuration 15</option>
+                        <option value=15>Button Configuration 16</option>
+                        <option value=16>Button Configuration 17</option>
+                        <option value=17>Button Configuration 18</option>
+                        <option value=18>Button Configuration 19</option>
+                        <option value=19>Button Configuration 20</option>
                     </select>
                     <div class="horizontalcontainer">
                         <div class="horizontalgroup">
@@ -62,14 +62,18 @@
                             <select class="homey-form-select" id="leftDevice">
                             </select>
 
-                            <label class="homey-form-label" for="leftCapability"><span data-i18n="settings.capability"></span></label>
+                            <label class="homey-form-label" id="leftCapabilityLabel" for="leftCapability"><span data-i18n="settings.capability"></span></label>
                             <select class="homey-form-select" id="leftCapability">
                             </select>
 
                             <label class="homey-form-label" for="leftTopText"><span data-i18n="settings.topLabel"></span></label>
                             <input class="homey-form-input" id="leftTopText" type="text" value="" />
-                            <label class="homey-form-label" for="leftText"><span data-i18n="settings.label"></span></label>
-                            <input class="homey-form-input" id="leftText" type="text" value="" />
+                            
+                            <label class="homey-form-label" for="leftOnText"><span data-i18n="settings.labelOn"></span></label>
+                            <input class="homey-form-input" id="leftOnText" type="text" value="" />
+
+                            <label class="homey-form-label" for="leftOffText"><span data-i18n="settings.labelOff"></span></label>
+                            <input class="homey-form-input" id="leftOffText" type="text" value="" />
                         </div>
                         <div class="horizontalgroup">
                             <legend class="homey-subtitle"><span data-i18n="settings.rightPanel"></span></legend>
@@ -78,14 +82,18 @@
                             <select class="homey-form-select" id="rightDevice">
                             </select>
 
-                            <label class="homey-form-label" for="rightCapability"><span data-i18n="settings.capability"></span></label>
+                            <label class="homey-form-label" id="rightCapabilityLabel" for="rightCapability"><span data-i18n="settings.capability"></span></label>
                             <select class="homey-form-select" id="rightCapability">
                             </select>
 
                             <label class="homey-form-label" for="rightTopText"><span data-i18n="settings.topLabel"></span></label>
                             <input class="homey-form-input" id="rightTopText" type="text" value="" />
-                            <label class="homey-form-label" for="rightText"><span data-i18n="settings.label"></span></label>
-                            <input class="homey-form-input" id="rightText" type="text" value="" />
+
+                            <label class="homey-form-label" for="rightOnText"><span data-i18n="settings.labelOn"></span></label>
+                            <input class="homey-form-input" id="rightOnText" type="text" value="" />
+
+                            <label class="homey-form-label" for="rightOffText"><span data-i18n="settings.labelOff"></span></label>
+                            <input class="homey-form-input" id="rightOffText" type="text" value="" />
                         </div>
                     </div>
                 </div>
@@ -98,26 +106,26 @@
             <div class="homey-form-group">
                 <div style="padding: 10px 10px 10px 10px; border: 1px solid lightblue; border-radius: 10px">
                     <select class="homey-form-select" id="displayConfigurationNo">
-                        <option value=0>Configuration 1</option>
-                        <option value=1>Configuration 2</option>
-                        <option value=2>Configuration 3</option>
-                        <option value=3>Configuration 4</option>
-                        <option value=4>Configuration 5</option>
-                        <option value=5>Configuration 6</option>
-                        <option value=6>Configuration 7</option>
-                        <option value=7>Configuration 8</option>
-                        <option value=8>Configuration 9</option>
-                        <option value=9>Configuration 10</option>
-                        <option value=10>Configuration 11</option>
-                        <option value=11>Configuration 12</option>
-                        <option value=12>Configuration 13</option>
-                        <option value=13>Configuration 14</option>
-                        <option value=14>Configuration 15</option>
-                        <option value=15>Configuration 16</option>
-                        <option value=16>Configuration 17</option>
-                        <option value=17>Configuration 18</option>
-                        <option value=18>Configuration 19</option>
-                        <option value=19>Configuration 20</option>
+                        <option value=0>Display Configuration 1</option>
+                        <option value=1>Display Configuration 2</option>
+                        <option value=2>Display Configuration 3</option>
+                        <option value=3>Display Configuration 4</option>
+                        <option value=4>Display Configuration 5</option>
+                        <option value=5>Display Configuration 6</option>
+                        <option value=6>Display Configuration 7</option>
+                        <option value=7>Display Configuration 8</option>
+                        <option value=8>Display Configuration 9</option>
+                        <option value=9>Display Configuration 10</option>
+                        <option value=10>Display Configuration 11</option>
+                        <option value=11>Display Configuration 12</option>
+                        <option value=12>Display Configuration 13</option>
+                        <option value=13>Display Configuration 14</option>
+                        <option value=14>Display Configuration 15</option>
+                        <option value=15>Display Configuration 16</option>
+                        <option value=16>Display Configuration 17</option>
+                        <option value=17>Display Configuration 18</option>
+                        <option value=18>Display Configuration 19</option>
+                        <option value=19>Display Configuration 20</option>
                     </select>
                 </div>
                 <div id="displayItemsSection"></div>
@@ -144,19 +152,23 @@
 
         // Declarations for the Button Bar Config page
 
-        var panelConfigurationNoElement = document.getElementById('panelConfigurationNo');
+        var ButtonConfigurationNoElement = document.getElementById('ButtonPanelConfigurationNo');
+
         var leftTopTextElement = document.getElementById('leftTopText');
-        var leftTextElement = document.getElementById('leftText');
+        var leftOnTextElement = document.getElementById('leftOnText');
+        var leftOffTextElement = document.getElementById('leftOffText');
         var leftDeviceElement = document.getElementById('leftDevice');
         var leftCapabilityElement = document.getElementById('leftCapability');
+
         var rightTopTextElement = document.getElementById('rightTopText');
-        var rightTextElement = document.getElementById('rightText');
+        var rightOnTextElement = document.getElementById('rightOnText');
+        var rightOffTextElement = document.getElementById('rightOffText');
         var rightDeviceElement = document.getElementById('rightDevice');
         var rightCapabilityElement = document.getElementById('rightCapability');
 
-        var panelConfigurationsFetched = false;
-        var localPanelConfigurations = [];
-        var currentPanelConfigurationNo = 0;
+        var buttonConfigurationsFetched = false;
+        var localbuttonConfigurations = [];
+        var currentButtonConfigurationNo = 0;
 
         // Declarations for the Display Config page
 
@@ -196,103 +208,120 @@
 
             saveButton.addEventListener('click', function(e)
             {
-                var panelConfigurationNo = panelConfigurationNoElement.value;
+                var ButtonPanelConfigurationNo = ButtonConfigurationNoElement.value;
 
-                var panelConfiguration = {
+                var ButtonPanelConfiguration = {
                     leftTopText: leftTopTextElement.value,
-                    leftText: leftTextElement.value,
+                    leftOnText: leftOnTextElement.value,
+                    leftOffText: leftOffTextElement.value,
                     leftDevice: leftDeviceElement.value,
                     leftCapability: leftCapabilityElement.value,
                     rightTopText: rightTopTextElement.value,
-                    rightText: rightTextElement.value,
+                    rightOnText: rightOnTextElement.value,
+                    rightOffText: rightOffTextElement.value,
                     rightDevice: rightDeviceElement.value,
                     rightCapability: rightCapabilityElement.value
                 };
 
-                localPanelConfigurations[panelConfigurationNo] = panelConfiguration;
-                Homey.set('panelConfigurations', localPanelConfigurations);
+                localbuttonConfigurations[ButtonPanelConfigurationNo] = ButtonPanelConfiguration;
+                Homey.set('buttonConfigurations', localbuttonConfigurations);
 
                 storeDevicesSettings();
                 Homey.set('displayConfigurations', localDisplayConfigurations);
+                Homey.alert(Homey.__("settings.saved"));
             });
 
             // Button Bar Config code
 
-            Homey.get('panelConfigurations', function(err, panelConfigurations)
+            Homey.get('buttonConfigurations', function(err, buttonConfigurations)
             {
                 if (err) return Homey.alert(err);
-                localPanelConfigurations = panelConfigurations;
-                panelConfigurationsFetched = true;
-                console.log('panelConfigurations: ' + JSON.stringify(panelConfigurations));
-                updatePanelConfiguration();
+                localbuttonConfigurations = buttonConfigurations;
+                buttonConfigurationsFetched = true;
+                console.log('buttonConfigurations: ' + JSON.stringify(buttonConfigurations));
+                updateButtonPanelConfiguration();
             });
 
-            panelConfigurationNo.addEventListener('change', function(e)
+            ButtonPanelConfigurationNo.addEventListener('change', function(e)
             {
                 // Store the current configuration
-                var panelConfiguration = localPanelConfigurations[currentPanelConfigurationNo];
+                var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
 
-                panelConfiguration.leftTopText = leftTopTextElement.value;
-                panelConfiguration.leftText = leftTextElement.value;
-                panelConfiguration.leftDevice = leftDeviceElement.value;
-                panelConfiguration.leftCapability = leftCapabilityElement.value;
-                panelConfiguration.rightTopText = rightTopTextElement.value;
-                panelConfiguration.rightText = rightTextElement.value;
-                panelConfiguration.rightDevice = rightDeviceElement.value;
-                panelConfiguration.rightCapability = rightCapabilityElement.value;
+                ButtonPanelConfiguration.leftTopText = leftTopTextElement.value;
+                ButtonPanelConfiguration.leftOnText = leftOnTextElement.value;
+                ButtonPanelConfiguration.leftOffText = leftOffTextElement.value;
+                ButtonPanelConfiguration.leftDevice = leftDeviceElement.value;
+                ButtonPanelConfiguration.leftCapability = leftCapabilityElement.value;
+                ButtonPanelConfiguration.rightTopText = rightTopTextElement.value;
+                ButtonPanelConfiguration.rightOnText = rightOnTextElement.value;
+                ButtonPanelConfiguration.rightOffText = rightOffTextElement.value;
+                ButtonPanelConfiguration.rightDevice = rightDeviceElement.value;
+                ButtonPanelConfiguration.rightCapability = rightCapabilityElement.value;
 
                 // Fetch the new configuration
-                updatePanelConfiguration();
+                updateButtonPanelConfiguration();
             });
 
             leftTopTextElement.addEventListener('change', function(e)
             {
-                var panelConfiguration = localPanelConfigurations[currentPanelConfigurationNo];
-                panelConfiguration.leftTopText = leftTextTopElement.value;
+                var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
+                ButtonPanelConfiguration.leftTopText = leftTextTopElement.value;
             });
 
-            leftTextElement.addEventListener('change', function(e)
+            leftOnTextElement.addEventListener('change', function(e)
             {
-                var panelConfiguration = localPanelConfigurations[currentPanelConfigurationNo];
-                panelConfiguration.leftText = leftTextElement.value;
+                var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
+                ButtonPanelConfiguration.leftOnText = leftOnTextElement.value;
+            });
+
+            leftOffTextElement.addEventListener('change', function(e)
+            {
+                var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
+                ButtonPanelConfiguration.leftOffText = leftOffTextElement.value;
             });
 
             rightTopTextElement.addEventListener('change', function(e)
             {
-                var panelConfiguration = localPanelConfigurations[currentPanelConfigurationNo];
-                panelConfiguration.rightTopText = rightTopTextElement.value;
+                var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
+                ButtonPanelConfiguration.rightTopText = rightTopTextElement.value;
             });
 
-            rightTextElement.addEventListener('change', function(e)
+            rightOnTextElement.addEventListener('change', function(e)
             {
-                var panelConfiguration = localPanelConfigurations[currentPanelConfigurationNo];
-                panelConfiguration.rightText = rightTextElement.value;
+                var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
+                ButtonPanelConfiguration.rightOnText = rightOnTextElement.value;
+            });
+
+            rightOffTextElement.addEventListener('change', function(e)
+            {
+                var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
+                ButtonPanelConfiguration.rightOffText = rightOffTextElement.value;
             });
 
             leftDeviceElement.addEventListener('change', function(e)
             {
-                var panelConfiguration = localPanelConfigurations[currentPanelConfigurationNo];
-                panelConfiguration.leftDevice = leftDeviceElement.value;
-                getCapabilities(leftDeviceElement.value, leftCapabilityElement, panelConfiguration.leftDevice);
+                var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
+                ButtonPanelConfiguration.leftDevice = leftDeviceElement.value;
+                getCapabilities(leftDeviceElement.value, leftCapabilityElement, ButtonPanelConfiguration.leftDevice);
             });
 
             rightDeviceElement.addEventListener('change', function(e)
             {
-                var panelConfiguration = localPanelConfigurations[currentPanelConfigurationNo];
-                panelConfiguration.rightDevice = rightDeviceElement.value;
-                getCapabilities(rightDeviceElement.value, rightCapabilityElement, panelConfiguration.rightDevice);
+                var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
+                ButtonPanelConfiguration.rightDevice = rightDeviceElement.value;
+                getCapabilities(rightDeviceElement.value, rightCapabilityElement, ButtonPanelConfiguration.rightDevice);
             });
 
             leftCapabilityElement.addEventListener('change', function(e)
             {
-                var panelConfiguration = localPanelConfigurations[currentPanelConfigurationNo];
-                panelConfiguration.leftCapability = leftCapabilityElement.value;
+                var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
+                ButtonPanelConfiguration.leftCapability = leftCapabilityElement.value;
             });
 
             rightCapabilityElement.addEventListener('change', function(e)
             {
-                var panelConfiguration = localPanelConfigurations[currentPanelConfigurationNo];
-                panelConfiguration.rightCapability = rightCapabilityElement.value;
+                var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
+                ButtonPanelConfiguration.rightCapability = rightCapabilityElement.value;
             });
 
             // Display Config code
@@ -368,7 +397,7 @@
             {
                 fillDevicesElement(leftDeviceElement);
                 fillDevicesElement(rightDeviceElement);
-                updatePanelConfiguration();
+                updateButtonPanelConfiguration();
             };
         }
 
@@ -396,10 +425,11 @@
 
         function getCapabilities(deviceId, element, selectedCapability)
         {
-            if (deviceId == "none")
+            if (deviceId === "none")
             {
                 element.innerHTML = "";
-                element.style.visibility = "visible";
+                element.style.visibility = "hidden";
+                document.getElementById(`${element.id}Label`).style.visibility = "hidden";
                 return;
             }
             Homey.api('POST', '/device_capabilities/', { deviceId }, function(err, capabilities)
@@ -417,70 +447,53 @@
                         element.add(option);
                     }
                     element.style.visibility = "visible";
+                    document.getElementById(`${element.id}Label`).style.visibility = "visible";
                     element.value = selectedCapability;
                 }
             });
         }
 
-        function updatePanelConfiguration()
+        function updateButtonPanelConfiguration()
         {
-            if ((panelConfigurationsFetched == false) || (devicesFetched == false)) return;
+            if ((buttonConfigurationsFetched == false) || (devicesFetched == false)) return;
 
-            if (currentPanelConfigurationNo < 0 || currentPanelConfigurationNo >= localPanelConfigurations.length)
+            if (currentButtonConfigurationNo < 0 || currentButtonConfigurationNo >= localbuttonConfigurations.length)
             {
-                currentPanelConfigurationNo = 0;
-                panelConfigurationNoElement.value = currentPanelConfigurationNo;
+                currentButtonConfigurationNo = 0;
+                ButtonConfigurationNoElement.value = currentButtonConfigurationNo;
             }
 
-            if (panelConfigurationNoElement.value == "")
+            if (ButtonConfigurationNoElement.value == "")
             {
                 leftTopTextElement.value = "";
-                leftTextElement.value = "";
+                leftOnTextElement.value = "";
+                leftOffTextElement.value = "";
                 leftDeviceElement.value = "";
                 leftCapabilityElement.value = "";
 
                 rightTopTextElement.value = "";
-                rightTextElement.value = "";
+                rightOnTextElement.value = "";
+                rightOffTextElement.value = "";
                 rightDeviceElement.value = "";
                 rightCapabilityElement.value = "";
             }
             else
             {
-                currentPanelConfigurationNo = panelConfigurationNoElement.value;
-                let panelConfiguration = localPanelConfigurations[currentPanelConfigurationNo];
+                currentButtonConfigurationNo = ButtonConfigurationNoElement.value;
+                let ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
 
-                leftTopTextElement.value = panelConfiguration.leftTopText;
-                leftTextElement.value = panelConfiguration.leftText;
-                leftDeviceElement.value = panelConfiguration.leftDevice;
+                leftTopTextElement.value = ButtonPanelConfiguration.leftTopText;
+                leftOnTextElement.value = ButtonPanelConfiguration.leftOnText;
+                leftOffTextElement.value = ButtonPanelConfiguration.leftOffText;
+                leftDeviceElement.value = ButtonPanelConfiguration.leftDevice;
+                getCapabilities(leftDeviceElement.value, leftCapabilityElement, ButtonPanelConfiguration.leftCapability);
 
-                if ((panelConfiguration.leftDevice != "") && (panelConfiguration.leftDevice != "none"))
-                {
-                    getCapabilities(leftDeviceElement.value, leftCapabilityElement, panelConfiguration.leftCapability);
-                }
-                else
-                {
-                    leftDeviceElement.value = "none";
-                    leftCapabilityElement.value = "none";
-                    leftCapabilityElement.innerHTML = "";
-                    leftCapabilityElement.style.visibility = "hidden";
-                }
-
-                rightTopTextElement.value = panelConfiguration.rightTopText;
-                rightTextElement.value = panelConfiguration.rightText;
-                rightDeviceElement.value = panelConfiguration.rightDevice;
-                rightCapabilityElement.value = panelConfiguration.rightCapability;
-
-                if ((panelConfiguration.rightDevice != "") && (panelConfiguration.rightDevice != "none"))
-                {
-                    getCapabilities(rightDeviceElement.value, rightCapabilityElement, panelConfiguration.rightCapability);
-                }
-                else
-                {
-                    rightDeviceElement.value = "none";
-                    rightCapabilityElement.value = "none";
-                    rightCapabilityElement.innerHTML = "";
-                    rightCapabilityElement.style.visibility = "hidden";
-                }
+                rightTopTextElement.value = ButtonPanelConfiguration.rightTopText;
+                rightOnTextElement.value = ButtonPanelConfiguration.rightOnText;
+                rightOffTextElement.value = ButtonPanelConfiguration.rightOffText;
+                rightDeviceElement.value = ButtonPanelConfiguration.rightDevice;
+                rightCapabilityElement.value = ButtonPanelConfiguration.rightCapability;
+                getCapabilities(rightDeviceElement.value, rightCapabilityElement, ButtonPanelConfiguration.rightCapability);
             }
         }
 
