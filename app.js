@@ -42,16 +42,19 @@ class MyApp extends Homey.App
         this.panelConfigurations = this.homey.settings.get('panelConfigurations');
         if (!this.panelConfigurations || this.panelConfigurations.length < MAX_CONFIGURATIONS)
         {
+            // Create the default panel configurations
             this.createPanelConfigurations();
         }
 
         this.displayConfigurations = this.homey.settings.get('displayConfigurations');
         if (!this.displayConfigurations || this.displayConfigurations.length < MAX_CONFIGURATIONS)
         {
+            // Create the default display configurations
             this.createDisplayConfigurations();
         }
 
         this.settings = this.homey.settings.get('settings') || {};
+
         try
         {
             // Setup the local access method if possible
@@ -95,8 +98,16 @@ class MyApp extends Homey.App
 
         try
         {
+            this.cloudConnected = false;
             this.httpHelper = new HttpHelper();
-            await this.loginToSimulator(Homey.env.API_USER, Homey.env.API_PASS);
+            const username = this.homey.settings.get('username');
+            const password = this.homey.settings.get('password');
+
+            if (username && password)
+            {
+                await this.loginToSimulator(username, password);
+                this.cloudConnected = true;
+            }
         }
         catch (err)
         {
@@ -127,56 +138,62 @@ class MyApp extends Homey.App
     // Make all the device upload their panel configurations to the panels
     async refreshPanelConfigurations()
     {
-        // Get devices to upload their configurations
-        const drivers = this.homey.drivers.getDrivers();
-        for (const driver of Object.values(drivers))
+        if (this.cloudConnected)
         {
-            let devices = driver.getDevices();
-            for (let device of Object.values(devices))
+            // Get devices to upload their configurations
+            const drivers = this.homey.drivers.getDrivers();
+            for (const driver of Object.values(drivers))
             {
-                if (device.uploadPanelConfigurations)
+                let devices = driver.getDevices();
+                for (let device of Object.values(devices))
                 {
-                    try
+                    if (device.uploadPanelConfigurations)
                     {
-                        await device.uploadPanelConfigurations();
+                        try
+                        {
+                            await device.uploadPanelConfigurations();
+                        }
+                        catch (error)
+                        {
+                            this.updateLog(`Sync Devices error: ${error.message}`);
+                        }
                     }
-                    catch (error)
-                    {
-                        this.updateLog(`Sync Devices error: ${error.message}`);
-                    }
-                }
 
-                device = null;
+                    device = null;
+                }
+                devices = null;
             }
-            devices = null;
         }
     }
 
     // Make all the device upload their panel configurations to the panels
     async refreshDisplayConfigurations()
     {
-        // Get devices to upload their configurations
-        const drivers = this.homey.drivers.getDrivers();
-        for (const driver of Object.values(drivers))
+        if (this.cloudConnected)
         {
-            let devices = driver.getDevices();
-            for (let device of Object.values(devices))
+            // Get devices to upload their configurations
+            const drivers = this.homey.drivers.getDrivers();
+            for (const driver of Object.values(drivers))
             {
-                if (device.uploadPanelConfigurations)
+                let devices = driver.getDevices();
+                for (let device of Object.values(devices))
                 {
-                    try
+                    if (device.uploadPanelConfigurations)
                     {
-                        await device.uploadDisplayConfigurations();
+                        try
+                        {
+                            await device.uploadDisplayConfigurations();
+                        }
+                        catch (error)
+                        {
+                            this.updateLog(`Sync Devices error: ${error.message}`);
+                        }
                     }
-                    catch (error)
-                    {
-                        this.updateLog(`Sync Devices error: ${error.message}`);
-                    }
-                }
 
-                device = null;
+                    device = null;
+                }
+                devices = null;
             }
-            devices = null;
         }
     }
 
@@ -228,14 +245,16 @@ class MyApp extends Homey.App
         {
             // download the current configuration from the device
             const deviceConfiguration = await this.readDeviceConfiguration(ip, this.virtualID);
-//            this.updateLog(`Current Config: ${deviceConfiguration}`);
 
-            // apply the new configuration
-            this.applyDisplayConfiguration(deviceConfiguration, configurationNo);
-            this.updateLog(`Current Config: ${deviceConfiguration}`);
+            if (deviceConfiguration)
+            {
+                // apply the new configuration
+                this.applyDisplayConfiguration(deviceConfiguration, configurationNo);
+                this.updateLog(`Current Config: ${deviceConfiguration}`);
 
-            // write the updated configuration back to the device
-            await this.writeDeviceConfiguration(ip, deviceConfiguration, this.virtualID);
+                // write the updated configuration back to the device
+                await this.writeDeviceConfiguration(ip, deviceConfiguration, this.virtualID);
+            }
         }
         catch (err)
         {
@@ -289,11 +308,14 @@ class MyApp extends Homey.App
             const deviceConfiguration = await this.readDeviceConfiguration(ip, this.virtualID);
             this.updateLog(`Current Config: ${deviceConfiguration}`);
 
-            // apply the new configuration
-            this.applyPanelConfiguration(deviceConfiguration, connectorNo, configurationNo);
+            if (deviceConfiguration)
+            {
+                // apply the new configuration
+                this.applyPanelConfiguration(deviceConfiguration, connectorNo, configurationNo);
 
-            // write the updated configuration back to the device
-            await this.writeDeviceConfiguration(ip, deviceConfiguration, this.virtualID);
+                // write the updated configuration back to the device
+                await this.writeDeviceConfiguration(ip, deviceConfiguration, this.virtualID);
+            }
         }
         catch (err)
         {
@@ -359,6 +381,7 @@ class MyApp extends Homey.App
                     {
                         readOnly = (capability.setable === false);
                         type = capability.type;
+                        this.registerDeviceCapabilityStateChange(device, configCapability);
                     }
                 }
             }
@@ -411,17 +434,17 @@ class MyApp extends Homey.App
         try
         {
             let payload = '';
-            if ((configDevice === 'none') || (capability && capability.type === 'boolean'))
+            if (configDevice === 'none')
             {
-                // User and Boolean capabilities are always 'ON' or 'OFF' and have a click event
-                payload = '"ON"';
+                // User capabilities are always 'ON' or 'OFF' and have a click event
+                payload = true;
 
                 // Find the LED event entry
                 const clickIdx = mqttButtons.topics.findIndex((topic) => topic.eventtype === 14);
                 if (clickIdx >= 0)
                 {
                     // Update the LED event entry
-                    mqttButtons.topics[clickIdx].topic = `homey/${configDevice}/${configCapability}/onoff`;
+                    mqttButtons.topics[clickIdx].topic = `homey/${configDevice}/${configCapability}/value`;
                     mqttButtons.topics[clickIdx].brokerid = 'buttonplus';
                     mqttButtons.topics[clickIdx].payload = payload;
                 }
@@ -432,7 +455,7 @@ class MyApp extends Homey.App
                         {
                             brokerid: 'buttonplus',
                             eventtype: 0,
-                            topic: `homey/${configDevice}/${configCapability}/onoff`,
+                            topic: `homey/${configDevice}/${configCapability}/value`,
                             payload,
                         },
                     );
@@ -440,7 +463,12 @@ class MyApp extends Homey.App
             }
             else if (capability)
             {
-                // For other types of capabilities we need to get the current value
+                if (capability && capability.type === 'boolean')
+                {
+                    // Boolean capabilities are always 'true' or 'false'
+                    payload = true;
+                }
+
                 // Find the Value event entry
                 const clickIdx = mqttButtons.topics.findIndex((topic) => topic.eventtype === 15);
                 if (clickIdx >= 0)
@@ -477,36 +505,41 @@ class MyApp extends Homey.App
     async readDeviceConfiguration(ip, virtualID)
     {
         // Read the device configuration from the specified device
-        try
+        if (this.cloudConnected)
         {
-            // TODO change to use IP for real hardware
-            return this.httpHelper.get(`button/config/${virtualID}`);
+            try
+            {
+                // TODO change to use IP for real hardware
+                return this.httpHelper.get(`button/config/${virtualID}`);
+            }
+            catch (err)
+            {
+                this.updateLog(`readDeviceConfiguration error: ${err.message}`);
+            }
         }
-        catch (err)
-        {
-            this.updateLog(`readDeviceConfiguration error: ${err.message}`);
-        }
-
         return null;
     }
 
     async writeDeviceConfiguration(ip, deviceConfiguration, virtualID)
     {
-        // Write the device configuration to the specified device
-        try
+        if (this.cloudConnected)
         {
-            this.updateLog(`writeDeviceConfiguration: ${this.varToString(deviceConfiguration)}`);
+            // Write the device configuration to the specified device
+            try
+            {
+                this.updateLog(`writeDeviceConfiguration: ${this.varToString(deviceConfiguration)}`);
 
-            // TODO change to use IP for real hardware
-            const options = {
-                json: true,
-            };
+                // TODO change to use IP for real hardware
+                const options = {
+                    json: true,
+                };
 
-            return this.httpHelper.post(`/button/postbutton?id=${virtualID}`, options, deviceConfiguration);
-        }
-        catch (err)
-        {
-            this.updateLog(`writeDeviceConfiguration error: ${err.message}`);
+                return this.httpHelper.post(`/button/postbutton?id=${virtualID}`, options, deviceConfiguration);
+            }
+            catch (err)
+            {
+                this.updateLog(`writeDeviceConfiguration error: ${err.message}`);
+            }
         }
         return null;
     }
@@ -996,6 +1029,12 @@ class MyApp extends Homey.App
         const result = await this.httpHelper.post('account/login', {}, login);
         this.updateLog(`Login result: ${JSON.stringify(result)}`);
         return result;
+    }
+
+    // Register a device so we receive state change events that are posted to the MQTT server
+    registerDeviceCapabilityStateChange(device, capabilityId)
+    {
+        this.deviceDispather.registerDeviceCapability(device, capabilityId);
     }
 
 }

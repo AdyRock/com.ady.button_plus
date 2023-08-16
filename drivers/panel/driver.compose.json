@@ -93,6 +93,19 @@
     ],
     "pair": [
         {
+            "id": "login_credentials",
+            "template": "login_credentials",
+            "options": {
+                "title": {
+                    "en": "Button + Login Credentials"
+                }
+            }
+        },
+        {
+            "id": "pincode",
+            "template": "pincode"
+        },
+        {
             "id": "list_my_devices",
             "template": "list_devices",
             "navigation": {
