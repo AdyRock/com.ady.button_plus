@@ -15,9 +15,12 @@ To setup with the simulator:
 12. This is the simulator that the app will use, so make a note of the Virtual Id ready to be entered into the app.
 
 To Setup the app:
-1. Install the app via the CLI. (instruction can be found at https://tools.developer.homey.app/)
-2. Open the Button + App settings / Configuration page in Homey.
-3. Make sure the Allow update of Button+ configuration is ticked.
+* instruction for seting up and installing apps from a desktop can be found at https://tools.developer.homey.app/.
+1. Download the app to a folder on your desktop.
+2. run 'npm update' to install the libraries.
+3. Install the app via the CLI. 
+4. Open the Button + App settings / Configuration page in Homey.
+5. Make sure the Allow update of Button+ configuration is ticked.
 
 There are two types of configurations, Panel and Display, and each currently has 20 slots.
 The Panel configurations are shown when the first drop list shows Panel Configurations and the Display configurations are shown by changing the drop list to Display Configurations.
