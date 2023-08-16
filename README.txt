@@ -1,6 +1,9 @@
 Control Button + panels
 
+Demo Version for use with the Button+ simulator.
+
 To setup with the simulator:
+
 1. Go to the Button + web site and login / create an account https://button.plus/account.
 2. Open the button plus simulator http://virtual.button.plus/virtual.html?config=16
 3. Open the Configuration management section.
@@ -15,6 +18,7 @@ To setup with the simulator:
 12. This is the simulator that the app will use, so make a note of the Virtual Id ready to be entered into the app.
 
 To Setup the app:
+
 * instruction for seting up and installing apps from a desktop can be found at https://tools.developer.homey.app/.
 1. Download the app to a folder on your desktop.
 2. run 'npm update' to install the libraries.
@@ -26,6 +30,7 @@ There are two types of configurations, Panel and Display, and each currently has
 The Panel configurations are shown when the first drop list shows Panel Configurations and the Display configurations are shown by changing the drop list to Display Configurations.
 
 Setting up Panel Configurations:
+
 1. Select Panel Configurations from the first drop list.
 2. Select a configuration number to edit (we can assign any of the configurations to Button+ Panels later).
 3. Under Left Panel are the options for the button on the left side of the Button+ panel.
@@ -37,6 +42,7 @@ Setting up Panel Configurations:
 9. Click on the Save Configurations button. Still to do is add a prompt if you forget to save and close the window.
 
 Setting up Display Configurations:
+
 1. Select Display Configurations from the first drop list.
 2. Select a configuration number to edit (we can assign any of the configurations to Button+ Display later).
 3. Click on New Display Item.
@@ -53,6 +59,7 @@ Setting up Display Configurations:
 14. Click on Save Configurations.
 
 Adding a device to Homey:
+
 1. Select the New Device option in Homey.
 2. Select Button Panel (name might change later).
 3. Click on Connect.
@@ -62,6 +69,7 @@ Adding a device to Homey:
 7. The device will be added to Homey.
 
 Using the Homey device:
+
 1. Open the device in Homey.
 2. Open the second tab to view a list of configurations for the display and each connector.
 3. Select the Display or a Connector number from the top drop list (Homey currently draws the Configuration list over the drop list, so it can be a pain to select what you want).
@@ -71,11 +79,13 @@ Using the Homey device:
 7. You can click on the button displays in the simulator to toggle the capability in Homey.
 
 Still to do:
+
 * Add Flow cards.
 * Filter lists.
 * Fix bugs.
 
 SECURITY NOTE:
+
 The app is currently using the Button+ MQTTT server, so any configured Homey data is made public, but only the parameters you add to an active configuration are published.
 In the proper release, the app will use a built n MQTT server, so no setup will be required. However, I can add settings to the app to allow an external MQTT server if feedback suggests it is required.
 
