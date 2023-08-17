@@ -25,6 +25,8 @@ class BasePanelDevice extends Device
                 await this.registerCapabilityListener('configuration.connector1', this.onCapabilityConfiguration.bind(this, 1));
                 await this.registerCapabilityListener('left_button.connector1', this.onCapabilityLeftButton.bind(this, 1));
                 await this.registerCapabilityListener('right_button.connector1', this.onCapabilityRightButton.bind(this, 1));
+
+                await this.syncCapability(1);
             }
         }
 
@@ -41,6 +43,8 @@ class BasePanelDevice extends Device
                 await this.registerCapabilityListener('configuration.connector2', this.onCapabilityConfiguration.bind(this, 2));
                 await this.registerCapabilityListener('left_button.connector2', this.onCapabilityLeftButton.bind(this, 2));
                 await this.registerCapabilityListener('right_button.connector2', this.onCapabilityRightButton.bind(this, 2));
+
+                await this.syncCapability(2);
             }
         }
 
@@ -57,6 +61,8 @@ class BasePanelDevice extends Device
                 await this.registerCapabilityListener('configuration.connector3', this.onCapabilityConfiguration.bind(this, 3));
                 await this.registerCapabilityListener('left_button.connector3', this.onCapabilityLeftButton.bind(this, 3));
                 await this.registerCapabilityListener('right_button.connector3', this.onCapabilityRightButton.bind(this, 3));
+
+                await this.syncCapability(3);
             }
         }
 
@@ -73,6 +79,8 @@ class BasePanelDevice extends Device
                 await this.registerCapabilityListener('configuration.connector4', this.onCapabilityConfiguration.bind(this, 4));
                 await this.registerCapabilityListener('left_button.connector4', this.onCapabilityLeftButton.bind(this, 4));
                 await this.registerCapabilityListener('right_button.connector4', this.onCapabilityRightButton.bind(this, 4));
+
+                await this.syncCapability(4);
             }
         }
 
@@ -81,6 +89,44 @@ class BasePanelDevice extends Device
 
         this.log('MyDevice has been initialized');
     }
+
+    async syncCapability(connector)
+    {
+        const configNo = this.getCapabilityValue(`configuration.connector${connector}`);
+        if (configNo === null)
+        {
+            return;
+        }
+        const ButtonPanelConfiguration = this.homey.app.buttonConfigurations[configNo];
+
+        let value = 0;
+
+        const homeyDeviceObjectLeft = await this.homey.app.getHomeyDeviceById(ButtonPanelConfiguration.leftDevice);
+        if (homeyDeviceObjectLeft)
+        {
+            const capability = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObjectLeft, ButtonPanelConfiguration.leftCapability);
+            value = capability.value;
+            this.setCapabilityValue(`left_button.connector${connector}`, value);
+        }
+
+        this.homey.app.publishMQTTMessage(`homey/${ButtonPanelConfiguration.leftDevice}/${ButtonPanelConfiguration.leftCapability}/value`, value);
+        this.homey.app.publishMQTTMessage(`homey/${ButtonPanelConfiguration.leftDevice}/${ButtonPanelConfiguration.leftCapability}/label`,
+             value ? ButtonPanelConfiguration.leftOnText : ButtonPanelConfiguration.leftOffText);
+
+        value = 0;
+
+        const homeyDeviceObjectRight = await this.homey.app.getHomeyDeviceById(ButtonPanelConfiguration.rightDevice);
+        if (homeyDeviceObjectRight)
+        {
+            const capability = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObjectRight, ButtonPanelConfiguration.rightCapability);
+            value = capability.value;
+            this.setCapabilityValue(`right_button.connector${connector}`, value);
+        }
+
+        this.homey.app.publishMQTTMessage(`homey/${ButtonPanelConfiguration.rightDevice}/${ButtonPanelConfiguration.rightCapability}/value`, value);
+        this.homey.app.publishMQTTMessage(`homey/${ButtonPanelConfiguration.rightDevice}/${ButtonPanelConfiguration.rightCapability}/label`,
+            value ? ButtonPanelConfiguration.leftOnText : ButtonPanelConfiguration.leftOffText);
+         }
 
     /**
      * onAdded is called when the user adds the device, called just after pairing.
@@ -177,7 +223,7 @@ class BasePanelDevice extends Device
         this.homey.app.uploadButtonPanelConfiguration(ip, virtualID, connector, value);
     }
 
-    onCapabilityLeftButton(connector, value, opts)
+    async onCapabilityLeftButton(connector, value, opts)
     {
         this.log('onCapabilityLeftButton', connector, value, opts);
         const configNo = this.getCapabilityValue(`configuration.connector${connector}`);
@@ -186,13 +232,23 @@ class BasePanelDevice extends Device
             throw new Error(`Connector ${connector} needs a Configuration assigned to it on the next page`);
         }
         const ButtonPanelConfiguration = this.homey.app.buttonConfigurations[configNo];
+
+        const homeyDeviceObject = await this.homey.app.getHomeyDeviceById(ButtonPanelConfiguration.rightDevice);
+        if (homeyDeviceObject)
+        {
+            const capability = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObject, ButtonPanelConfiguration.rightCapability);
+            if (capability.value !== value)
+            {
+                homeyDeviceObject.setCapabilityValue(ButtonPanelConfiguration.leftCapability, value).catch(this.error);
+            }
+        }
 
         this.homey.app.publishMQTTMessage(`homey/${ButtonPanelConfiguration.leftDevice}/${ButtonPanelConfiguration.leftCapability}/value`, value);
         this.homey.app.publishMQTTMessage(`homey/${ButtonPanelConfiguration.leftDevice}/${ButtonPanelConfiguration.leftCapability}/label`,
              value ? ButtonPanelConfiguration.leftOnText : ButtonPanelConfiguration.leftOffText);
     }
 
-    onCapabilityRightButton(connector, value, opts)
+    async onCapabilityRightButton(connector, value, opts)
     {
         this.log('onCapabilityLeftButton', connector, value, opts);
         const configNo = this.getCapabilityValue(`configuration.connector${connector}`);
@@ -201,6 +257,17 @@ class BasePanelDevice extends Device
             throw new Error(`Connector ${connector} needs a Configuration assigned to it on the next page`);
         }
         const ButtonPanelConfiguration = this.homey.app.buttonConfigurations[configNo];
+
+        const homeyDeviceObject = await this.homey.app.getHomeyDeviceById(ButtonPanelConfiguration.rightDevice);
+        if (homeyDeviceObject)
+        {
+            const capability = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObject, ButtonPanelConfiguration.rightCapability);
+            if (capability.value !== value)
+            {
+                homeyDeviceObject.setCapabilityValue(ButtonPanelConfiguration.rightCapability, value).catch(this.error);
+            }
+        }
+
         this.homey.app.publishMQTTMessage(`homey/${ButtonPanelConfiguration.rightDevice}/${ButtonPanelConfiguration.rightCapability}/value`, value);
         this.homey.app.publishMQTTMessage(`homey/${ButtonPanelConfiguration.rightDevice}/${ButtonPanelConfiguration.rightCapability}/label`,
              value ? ButtonPanelConfiguration.rightOnText : ButtonPanelConfiguration.rightOffText);
