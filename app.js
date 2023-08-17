@@ -5,7 +5,7 @@
 if (process.env.DEBUG === '1')
 {
     // eslint-disable-next-line node/no-unsupported-features/node-builtins, global-require
-    require('inspector').open(9223, '0.0.0.0', false);
+    require('inspector').open(9223, '0.0.0.0', true);
 }
 
 const Homey = require('homey');
@@ -106,7 +106,6 @@ class MyApp extends Homey.App
             if (username && password)
             {
                 await this.loginToSimulator(username, password);
-                this.cloudConnected = true;
             }
         }
         catch (err)
@@ -208,7 +207,8 @@ class MyApp extends Homey.App
         {
             const ButtonPanelConfiguration = {
                 leftTopText: '',
-                leftText: '',
+                leftOnText: '',
+                leftOffText: '',
                 leftDevice: 'none',
                 leftCapability: '',
                 rightTopText: '',
@@ -1016,6 +1016,9 @@ class MyApp extends Homey.App
 
         const result = await this.httpHelper.post('account/login', {}, login);
         this.updateLog(`Login result: ${JSON.stringify(result)}`);
+
+        this.cloudConnected = true;
+
         return result;
     }
 

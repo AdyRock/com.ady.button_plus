@@ -16,15 +16,15 @@ class BasePanelDevice extends Device
         {
             if (this.getSetting('connect1Type') !== 1) // 1 = button panel
             {
-                this.removeCapability('configuration.connector1');
-                this.removeCapability('left_button.connector1');
-                this.removeCapability('right_button.connector1');
+                await this.removeCapability('configuration.connector1');
+                await this.removeCapability('left_button.connector1');
+                await this.removeCapability('right_button.connector1');
             }
             else
             {
-                this.registerCapabilityListener('configuration.connector1', this.onCapabilityConfiguration.bind(this, 1));
-                this.registerCapabilityListener('left_button.connector1', this.onCapabilityLeftButton.bind(this, 1));
-                this.registerCapabilityListener('right_button.connector1', this.onCapabilityRightButton.bind(this, 1));
+                await this.registerCapabilityListener('configuration.connector1', this.onCapabilityConfiguration.bind(this, 1));
+                await this.registerCapabilityListener('left_button.connector1', this.onCapabilityLeftButton.bind(this, 1));
+                await this.registerCapabilityListener('right_button.connector1', this.onCapabilityRightButton.bind(this, 1));
             }
         }
 
@@ -32,15 +32,15 @@ class BasePanelDevice extends Device
         {
             if (this.getSetting('connect2Type') !== 1) // 1 = button panel
             {
-                this.removeCapability('configuration.connector2');
-                this.removeCapability('left_button.connector2');
-                this.removeCapability('right_button.connector2');
+                await this.removeCapability('configuration.connector2');
+                await this.removeCapability('left_button.connector2');
+                await this.removeCapability('right_button.connector2');
             }
             else
             {
-                this.registerCapabilityListener('configuration.connector2', this.onCapabilityConfiguration.bind(this, 2));
-                this.registerCapabilityListener('left_button.connector2', this.onCapabilityLeftButton.bind(this, 2));
-                this.registerCapabilityListener('right_button.connector2', this.onCapabilityRightButton.bind(this, 2));
+                await this.registerCapabilityListener('configuration.connector2', this.onCapabilityConfiguration.bind(this, 2));
+                await this.registerCapabilityListener('left_button.connector2', this.onCapabilityLeftButton.bind(this, 2));
+                await this.registerCapabilityListener('right_button.connector2', this.onCapabilityRightButton.bind(this, 2));
             }
         }
 
@@ -48,15 +48,15 @@ class BasePanelDevice extends Device
         {
             if (this.getSetting('connect3Type') !== 1) // 1 = button panel
             {
-                this.removeCapability('configuration.connector3');
-                this.removeCapability('left_button.connector3');
-                this.removeCapability('right_button.connector3');
+                await this.removeCapability('configuration.connector3');
+                await this.removeCapability('left_button.connector3');
+                await this.removeCapability('right_button.connector3');
             }
             else
             {
-                this.registerCapabilityListener('configuration.connector3', this.onCapabilityConfiguration.bind(this, 3));
-                this.registerCapabilityListener('left_button.connector3', this.onCapabilityLeftButton.bind(this, 3));
-                this.registerCapabilityListener('right_button.connector3', this.onCapabilityRightButton.bind(this, 3));
+                await this.registerCapabilityListener('configuration.connector3', this.onCapabilityConfiguration.bind(this, 3));
+                await this.registerCapabilityListener('left_button.connector3', this.onCapabilityLeftButton.bind(this, 3));
+                await this.registerCapabilityListener('right_button.connector3', this.onCapabilityRightButton.bind(this, 3));
             }
         }
 
@@ -64,20 +64,20 @@ class BasePanelDevice extends Device
         {
             if (this.getSetting('connect4Type') !== 1) // 1 = button panel
             {
-                this.removeCapability('configuration.connector4');
-                this.removeCapability('left_button.connector4');
-                this.removeCapability('right_button.connector4');
+                await this.removeCapability('configuration.connector4');
+                await this.removeCapability('left_button.connector4');
+                await this.removeCapability('right_button.connector4');
             }
             else
             {
-                this.registerCapabilityListener('configuration.connector4', this.onCapabilityConfiguration.bind(this, 4));
-                this.registerCapabilityListener('left_button.connector4', this.onCapabilityLeftButton.bind(this, 4));
-                this.registerCapabilityListener('right_button.connector4', this.onCapabilityRightButton.bind(this, 4));
+                await this.registerCapabilityListener('configuration.connector4', this.onCapabilityConfiguration.bind(this, 4));
+                await this.registerCapabilityListener('left_button.connector4', this.onCapabilityLeftButton.bind(this, 4));
+                await this.registerCapabilityListener('right_button.connector4', this.onCapabilityRightButton.bind(this, 4));
             }
         }
 
-        this.uploadButtonConfigurations();
-        this.uploadDisplayConfigurations();
+        await this.uploadButtonConfigurations();
+        await this.uploadDisplayConfigurations();
 
         this.log('MyDevice has been initialized');
     }
@@ -87,6 +87,46 @@ class BasePanelDevice extends Device
      */
     async onAdded()
     {
+        // if (this.hasCapability('configuration.connector1'))
+        // {
+        //     if (this.getSetting('connect1Type') !== 1) // 1 = button panel
+        //     {
+        //         await this.removeCapability('configuration.connector1');
+        //         await this.removeCapability('left_button.connector1');
+        //         await this.removeCapability('right_button.connector1');
+        //     }
+        // }
+
+        // if (this.hasCapability('configuration.connector2'))
+        // {
+        //     if (this.getSetting('connect2Type') !== 1) // 1 = button panel
+        //     {
+        //         await this.removeCapability('configuration.connector2');
+        //         await this.removeCapability('left_button.connector2');
+        //         await this.removeCapability('right_button.connector2');
+        //     }
+        // }
+
+        // if (this.hasCapability('configuration.connector3'))
+        // {
+        //     if (this.getSetting('connect3Type') !== 1) // 1 = button panel
+        //     {
+        //         await this.removeCapability('configuration.connector3');
+        //         await this.removeCapability('left_button.connector3');
+        //         await this.removeCapability('right_button.connector3');
+        //     }
+        // }
+
+        // if (this.hasCapability('configuration.connector4'))
+        // {
+        //     if (this.getSetting('connect4Type') !== 1) // 1 = button panel
+        //     {
+        //         await this.removeCapability('configuration.connector4');
+        //         await this.removeCapability('left_button.connector4');
+        //         await this.removeCapability('right_button.connector4');
+        //     }
+        // }
+
         this.log('MyDevice has been added');
     }
 
