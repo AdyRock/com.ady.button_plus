@@ -5,7 +5,7 @@
 if (process.env.DEBUG === '1')
 {
     // eslint-disable-next-line node/no-unsupported-features/node-builtins, global-require
-    require('inspector').open(9223, '0.0.0.0', true);
+    require('inspector').open(9223, '0.0.0.0', false);
 }
 
 const Homey = require('homey');
@@ -37,7 +37,6 @@ class MyApp extends Homey.App
         this.serverReady = false;
         this.autoConfigGateway = true;
         this.homey.settings.set('autoConfig', this.autoConfigGateway);
-        this.virtualID = 109;
 
         this.buttonConfigurations = this.homey.settings.get('buttonConfigurations');
         if (!this.buttonConfigurations || this.buttonConfigurations.length < MAX_CONFIGURATIONS)
@@ -240,12 +239,12 @@ class MyApp extends Homey.App
         this.homey.settings.set('displayConfigurations', this.displayConfigurations);
     }
 
-    async uploadDisplayConfiguration(ip, configurationNo)
+    async uploadDisplayConfiguration(ip, virtualID, configurationNo)
     {
         try
         {
             // download the current configuration from the device
-            const deviceConfiguration = await this.readDeviceConfiguration(ip, this.virtualID);
+            const deviceConfiguration = await this.readDeviceConfiguration(ip, virtualID);
 
             if (deviceConfiguration)
             {
@@ -254,7 +253,7 @@ class MyApp extends Homey.App
                 this.updateLog(`Current Config: ${deviceConfiguration}`);
 
                 // write the updated configuration back to the device
-                await this.writeDeviceConfiguration(ip, deviceConfiguration, this.virtualID);
+                await this.writeDeviceConfiguration(ip, deviceConfiguration, virtualID);
             }
         }
         catch (err)
@@ -301,21 +300,21 @@ class MyApp extends Homey.App
         }
     }
 
-    async uploadButtonPanelConfiguration(ip, connectorNo, configurationNo)
+    async uploadButtonPanelConfiguration(ip, virtualID, connectorNo, configurationNo)
     {
         try
         {
             // download the current configuration from the device
-            const deviceConfiguration = await this.readDeviceConfiguration(ip, this.virtualID);
+            const deviceConfiguration = await this.readDeviceConfiguration(ip, virtualID);
             this.updateLog(`Current Config: ${deviceConfiguration}`);
 
             if (deviceConfiguration)
             {
                 // apply the new configuration
-                this.applyButtonConfiguration(deviceConfiguration, connectorNo, configurationNo);
+                await this.applyButtonConfiguration(deviceConfiguration, connectorNo, configurationNo);
 
                 // write the updated configuration back to the device
-                await this.writeDeviceConfiguration(ip, deviceConfiguration, this.virtualID);
+                await this.writeDeviceConfiguration(ip, deviceConfiguration, virtualID);
             }
         }
         catch (err)
@@ -351,12 +350,12 @@ class MyApp extends Homey.App
                         // Configure the left button bar
                         let buttonIdx = connectorNo * 2;
                         let capability = await this.setupClickTopic(buttonIdx, deviceConfiguration.mqttbuttons[buttonIdx], ButtonPanelConfiguration.leftDevice, ButtonPanelConfiguration.leftCapability, connectorNo, 'left');
-                        await this.setupStatusTopic(buttonIdx, deviceConfiguration.mqttbuttons[buttonIdx], ButtonPanelConfiguration.leftTopText, ButtonPanelConfiguration.leftText, ButtonPanelConfiguration.leftDevice, ButtonPanelConfiguration.leftCapability, capability);
+                        await this.setupStatusTopic(buttonIdx, deviceConfiguration.mqttbuttons[buttonIdx], ButtonPanelConfiguration.leftTopText, ButtonPanelConfiguration.leftOffText, ButtonPanelConfiguration.leftOnText, ButtonPanelConfiguration.leftDevice, ButtonPanelConfiguration.leftCapability, capability);
 
                         // Configure the right button bar
                         buttonIdx++;
                         capability = await this.setupClickTopic(buttonIdx, deviceConfiguration.mqttbuttons[buttonIdx], ButtonPanelConfiguration.rightDevice, ButtonPanelConfiguration.rightCapability, connectorNo, 'right');
-                        await this.setupStatusTopic(buttonIdx, deviceConfiguration.mqttbuttons[buttonIdx], ButtonPanelConfiguration.rightTopText, ButtonPanelConfiguration.rightOnText, ButtonPanelConfiguration.rightDevice, ButtonPanelConfiguration.rightCapability, capability);
+                        await this.setupStatusTopic(buttonIdx, deviceConfiguration.mqttbuttons[buttonIdx], ButtonPanelConfiguration.rightTopText, ButtonPanelConfiguration.rightOnText, ButtonPanelConfiguration.rightOffText, ButtonPanelConfiguration.rightDevice, ButtonPanelConfiguration.rightCapability, capability);
                     }
                 }
             }
@@ -414,10 +413,10 @@ class MyApp extends Homey.App
         return capability;
     }
 
-    async setupStatusTopic(buttonIdx, mqttButtons, topLabel, label, configDevice, configCapability, capability)
+    async setupStatusTopic(buttonIdx, mqttButtons, topLabel, labelOn, labelOff, configDevice, configCapability, capability)
     {
         mqttButtons.toplabel = topLabel;
-        mqttButtons.label = label;
+        mqttButtons.label = labelOn;
 
         try
         {
@@ -451,6 +450,10 @@ class MyApp extends Homey.App
             {
                 if (capability && capability.type === 'boolean')
                 {
+                    if (capability.value === false)
+                    {
+                        mqttButtons.label = labelOff;
+                    }
                     // Boolean capabilities are always 'true' or 'false'
                     payload = true;
 

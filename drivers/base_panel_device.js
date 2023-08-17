@@ -165,14 +165,16 @@ class BasePanelDevice extends Device
     {
         this.log('onCapabilityConfiguration', value, opts);
         const ip = this.getSetting('address');
-        this.homey.app.uploadDisplayConfiguration(ip, value);
+        const virtualID = this.getSetting('virtualID');
+        this.homey.app.uploadDisplayConfiguration(ip, virtualID, value);
     }
 
     onCapabilityConfiguration(connector, value, opts)
     {
         this.log('onCapabilityConfiguration', connector, value, opts);
         const ip = this.getSetting('address');
-        this.homey.app.uploadButtonPanelConfiguration(ip, connector, value);
+        const virtualID = this.getSetting('virtualID');
+        this.homey.app.uploadButtonPanelConfiguration(ip, virtualID, connector, value);
     }
 
     onCapabilityLeftButton(connector, value, opts)
@@ -274,9 +276,10 @@ class BasePanelDevice extends Device
     async uploadButtonConfigurations()
     {
         const ip = this.getSetting('address');
+        const virtualID = this.getSetting('virtualID');
 
         // download the current configuration from the device
-        const deviceConfigurations = await this.homey.app.readDeviceConfiguration(ip, this.homey.app.virtualID);
+        const deviceConfigurations = await this.homey.app.readDeviceConfiguration(ip, virtualID);
 
         if (deviceConfigurations)
         {
@@ -366,12 +369,13 @@ class BasePanelDevice extends Device
     async uploadDisplayConfigurations()
     {
         const ip = this.getSetting('address');
+        const virtualID = this.getSetting('virtualID');
 
         // apply the new display configuration to this unit
         const configNo = this.getCapabilityValue('configuration.display');
         try
         {
-            if (await this.homey.app.uploadDisplayConfiguration(ip, configNo))
+            if (await this.homey.app.uploadDisplayConfiguration(ip, virtualID, configNo))
             {
                 // Send each of the display values referenced in the config to the device
                 const displayConfiguration = this.homey.app.displayConfigurations[configNo];

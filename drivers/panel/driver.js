@@ -52,7 +52,7 @@ class PanelDriver extends Driver
 
         session.setHandler('list_devices', async () =>
         {
-            const devices = await this.pairListDevices(virtualID, 0);
+            const devices = await this.pairListDevices(0, virtualID);
             if (!devices || devices.length === 0)
             {
                 throw new Error('no_devices_found');
@@ -64,9 +64,9 @@ class PanelDriver extends Driver
         });
     }
 
-    async pairListDevices(virtualID, address)
+    async pairListDevices(ip, virtualID)
     {
-        const deviceConfiguration = await this.homey.app.readDeviceConfiguration(address, virtualID);
+        const deviceConfiguration = await this.homey.app.readDeviceConfiguration(ip, virtualID);
         this.homey.app.updateLog(`Device configuration: ${this.homey.app.varToString(deviceConfiguration)}`);
 
         if (!deviceConfiguration)
@@ -120,7 +120,7 @@ class PanelDriver extends Driver
                 },
                 settings:
                 {
-                    address,
+                    address: ip,
                     connect0Type,
                     connect1Type,
                     connect2Type,
