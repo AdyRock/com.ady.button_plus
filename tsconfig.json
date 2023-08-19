@@ -3,5 +3,6 @@
   "compilerOptions": {
     "allowJs": true,
     "outDir": ".homeybuild/"
-  }
+  },
+  "include": ["./drivers/**/*", "./lib/**/*", "./*.js"]
 }

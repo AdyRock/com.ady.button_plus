@@ -101,32 +101,49 @@ class BasePanelDevice extends Device
 
         let value = 0;
 
-        const homeyDeviceObjectLeft = await this.homey.app.getHomeyDeviceById(ButtonPanelConfiguration.leftDevice);
-        if (homeyDeviceObjectLeft)
+        if (ButtonPanelConfiguration.leftDevice !== 'none')
         {
-            const capability = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObjectLeft, ButtonPanelConfiguration.leftCapability);
-            value = capability.value;
-            this.setCapabilityValue(`left_button.connector${connector}`, value);
+            const homeyDeviceObjectLeft = await this.homey.app.getHomeyDeviceById(ButtonPanelConfiguration.leftDevice);
+            if (homeyDeviceObjectLeft)
+            {
+                const capability = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObjectLeft, ButtonPanelConfiguration.leftCapability);
+                value = capability.value;
+                this.setCapabilityValue(`left_button.connector${connector}`, value);
+            }
+
+            this.homey.app.publishMQTTMessage(`homey/${ButtonPanelConfiguration.leftDevice}/${ButtonPanelConfiguration.leftCapability}/value`, value);
+            this.homey.app.publishMQTTMessage(`homey/${ButtonPanelConfiguration.leftDevice}/${ButtonPanelConfiguration.leftCapability}/label`,
+                value ? ButtonPanelConfiguration.leftOnText : ButtonPanelConfiguration.leftOffText);
         }
-
-        this.homey.app.publishMQTTMessage(`homey/${ButtonPanelConfiguration.leftDevice}/${ButtonPanelConfiguration.leftCapability}/value`, value);
-        this.homey.app.publishMQTTMessage(`homey/${ButtonPanelConfiguration.leftDevice}/${ButtonPanelConfiguration.leftCapability}/label`,
-             value ? ButtonPanelConfiguration.leftOnText : ButtonPanelConfiguration.leftOffText);
-
+        else
+        {
+            this.homey.app.publishMQTTMessage(`homey/button/${connector * 2}/value`, value);
+            this.homey.app.publishMQTTMessage(`homey/button/${connector * 2}/label`,
+                value ? ButtonPanelConfiguration.leftOnText : ButtonPanelConfiguration.leftOffText);
+        }
         value = 0;
 
-        const homeyDeviceObjectRight = await this.homey.app.getHomeyDeviceById(ButtonPanelConfiguration.rightDevice);
-        if (homeyDeviceObjectRight)
+        if (ButtonPanelConfiguration.rightDevice !== 'none')
         {
-            const capability = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObjectRight, ButtonPanelConfiguration.rightCapability);
-            value = capability.value;
-            this.setCapabilityValue(`right_button.connector${connector}`, value);
-        }
+            const homeyDeviceObjectRight = await this.homey.app.getHomeyDeviceById(ButtonPanelConfiguration.rightDevice);
+            if (homeyDeviceObjectRight)
+            {
+                const capability = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObjectRight, ButtonPanelConfiguration.rightCapability);
+                value = capability.value;
+                this.setCapabilityValue(`right_button.connector${connector}`, value);
+            }
 
-        this.homey.app.publishMQTTMessage(`homey/${ButtonPanelConfiguration.rightDevice}/${ButtonPanelConfiguration.rightCapability}/value`, value);
-        this.homey.app.publishMQTTMessage(`homey/${ButtonPanelConfiguration.rightDevice}/${ButtonPanelConfiguration.rightCapability}/label`,
-            value ? ButtonPanelConfiguration.leftOnText : ButtonPanelConfiguration.leftOffText);
-         }
+            this.homey.app.publishMQTTMessage(`homey/${ButtonPanelConfiguration.rightDevice}/${ButtonPanelConfiguration.rightCapability}/value`, value);
+            this.homey.app.publishMQTTMessage(`homey/${ButtonPanelConfiguration.rightDevice}/${ButtonPanelConfiguration.rightCapability}/label`,
+                value ? ButtonPanelConfiguration.leftOnText : ButtonPanelConfiguration.leftOffText);
+        }
+        else
+        {
+            this.homey.app.publishMQTTMessage(`homey/button/${connector * 2 + 1}/value`, value);
+            this.homey.app.publishMQTTMessage(`homey/button/${connector * 2 + 1}/label`,
+                value ? ButtonPanelConfiguration.leftOnText : ButtonPanelConfiguration.leftOffText);
+        }
+    }
 
     /**
      * onAdded is called when the user adds the device, called just after pairing.
@@ -233,19 +250,32 @@ class BasePanelDevice extends Device
         }
         const ButtonPanelConfiguration = this.homey.app.buttonConfigurations[configNo];
 
-        const homeyDeviceObject = await this.homey.app.getHomeyDeviceById(ButtonPanelConfiguration.rightDevice);
-        if (homeyDeviceObject)
+        if (ButtonPanelConfiguration.leftDevice !== 'none')
         {
-            const capability = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObject, ButtonPanelConfiguration.rightCapability);
-            if (capability.value !== value)
+            const homeyDeviceObject = await this.homey.app.getHomeyDeviceById(ButtonPanelConfiguration.leftDevice);
+            if (homeyDeviceObject)
             {
-                homeyDeviceObject.setCapabilityValue(ButtonPanelConfiguration.leftCapability, value).catch(this.error);
+                const capability = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObject, ButtonPanelConfiguration.leftCapability);
+                if (!capability.setable)
+                {
+                    // Not allowed to change this capability
+                    throw new Error(`The capability ${ButtonPanelConfiguration.leftCapability} is not setable`);
+                }
+                if (capability.value !== value)
+                {
+                    homeyDeviceObject.setCapabilityValue(ButtonPanelConfiguration.leftCapability, value).catch(this.error);
+                }
             }
+            this.homey.app.publishMQTTMessage(`homey/${ButtonPanelConfiguration.leftDevice}/${ButtonPanelConfiguration.leftCapability}/value`, value);
+            this.homey.app.publishMQTTMessage(`homey/${ButtonPanelConfiguration.leftDevice}/${ButtonPanelConfiguration.leftCapability}/label`,
+                 value ? ButtonPanelConfiguration.leftOnText : ButtonPanelConfiguration.leftOffText);
         }
-
-        this.homey.app.publishMQTTMessage(`homey/${ButtonPanelConfiguration.leftDevice}/${ButtonPanelConfiguration.leftCapability}/value`, value);
-        this.homey.app.publishMQTTMessage(`homey/${ButtonPanelConfiguration.leftDevice}/${ButtonPanelConfiguration.leftCapability}/label`,
-             value ? ButtonPanelConfiguration.leftOnText : ButtonPanelConfiguration.leftOffText);
+        else
+        {
+            this.homey.app.publishMQTTMessage(`homey/button/${connector * 2}/value`, value);
+            this.homey.app.publishMQTTMessage(`homey/button/${connector * 2}/label`,
+                 value ? ButtonPanelConfiguration.leftOnText : ButtonPanelConfiguration.leftOffText);
+        }
     }
 
     async onCapabilityRightButton(connector, value, opts)
@@ -257,20 +287,32 @@ class BasePanelDevice extends Device
             throw new Error(`Connector ${connector} needs a Configuration assigned to it on the next page`);
         }
         const ButtonPanelConfiguration = this.homey.app.buttonConfigurations[configNo];
-
-        const homeyDeviceObject = await this.homey.app.getHomeyDeviceById(ButtonPanelConfiguration.rightDevice);
-        if (homeyDeviceObject)
+        if (ButtonPanelConfiguration.rightDevice !== 'none')
         {
-            const capability = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObject, ButtonPanelConfiguration.rightCapability);
-            if (capability.value !== value)
+            const homeyDeviceObject = await this.homey.app.getHomeyDeviceById(ButtonPanelConfiguration.rightDevice);
+            if (homeyDeviceObject)
             {
-                homeyDeviceObject.setCapabilityValue(ButtonPanelConfiguration.rightCapability, value).catch(this.error);
+                const capability = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObject, ButtonPanelConfiguration.rightCapability);
+                if (!capability.setable)
+                {
+                    // Not allowed to change this capability
+                    throw new Error(`The capability ${ButtonPanelConfiguration.rightCapability} is not setable`);
+                }
+                if (capability.value !== value)
+                {
+                    homeyDeviceObject.setCapabilityValue(ButtonPanelConfiguration.rightCapability, value).catch(this.error);
+                }
             }
+            this.homey.app.publishMQTTMessage(`homey/${ButtonPanelConfiguration.rightDevice}/${ButtonPanelConfiguration.rightCapability}/value`, value);
+            this.homey.app.publishMQTTMessage(`homey/${ButtonPanelConfiguration.rightDevice}/${ButtonPanelConfiguration.rightCapability}/label`,
+                value ? ButtonPanelConfiguration.rightOnText : ButtonPanelConfiguration.rightOffText);
         }
-
-        this.homey.app.publishMQTTMessage(`homey/${ButtonPanelConfiguration.rightDevice}/${ButtonPanelConfiguration.rightCapability}/value`, value);
-        this.homey.app.publishMQTTMessage(`homey/${ButtonPanelConfiguration.rightDevice}/${ButtonPanelConfiguration.rightCapability}/label`,
-             value ? ButtonPanelConfiguration.rightOnText : ButtonPanelConfiguration.rightOffText);
+        else
+        {
+            this.homey.app.publishMQTTMessage(`homey/button/${connector * 2 + 1}/value`, value);
+            this.homey.app.publishMQTTMessage(`homey/button/${connector * 2 + 1}/label`,
+                value ? ButtonPanelConfiguration.rightOnText : ButtonPanelConfiguration.rightOffText);
+        }
     }
 
     async processMQTTMessage(topic, MQTTMessage)
@@ -359,7 +401,7 @@ class BasePanelDevice extends Device
                     if (configNo)
                     {
                         await this.homey.app.applyButtonConfiguration(deviceConfigurations, 1, configNo);
-                        await this.publishButtonCapabilities(configNo);
+                        await this.publishButtonCapabilities(configNo, 1);
                     }
                 }
                 catch (error)
@@ -376,7 +418,7 @@ class BasePanelDevice extends Device
                     if (configNo)
                     {
                         await this.homey.app.applyButtonConfiguration(deviceConfigurations, 2, configNo);
-                        await this.publishButtonCapabilities(configNo);
+                        await this.publishButtonCapabilities(configNo, 2);
                     }
                 }
                 catch (error)
@@ -393,7 +435,7 @@ class BasePanelDevice extends Device
                     if (configNo)
                     {
                         await this.homey.app.applyButtonConfiguration(deviceConfigurations, 3, configNo);
-                        await this.publishButtonCapabilities(configNo);
+                        await this.publishButtonCapabilities(configNo, 3);
                     }
                 }
                 catch (error)
@@ -410,7 +452,7 @@ class BasePanelDevice extends Device
                     if (configNo)
                     {
                         await this.homey.app.applyButtonConfiguration(deviceConfigurations, 4, configNo);
-                        await this.publishButtonCapabilities(configNo);
+                        await this.publishButtonCapabilities(configNo, 4);
                     }
                 }
                 catch (error)
@@ -477,17 +519,26 @@ class BasePanelDevice extends Device
         }
     }
 
-    async publishButtonCapabilities(configNo)
+    async publishButtonCapabilities(configNo, connector)
     {
         const item = this.homey.app.buttonConfigurations[configNo];
         try
         {
-            const homeyDeviceObject = await this.homey.app.getHomeyDeviceById(item.leftDevice);
-            if (homeyDeviceObject)
+            if (item.leftDevice !== 'none')
             {
-                const capability = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObject, item.leftCapability);
-                this.homey.app.publishMQTTMessage(`homey/${item.leftDevice}/${item.leftCapability}/label`, capability.value ? item.leftOnText : item.leftOffText);
-                this.homey.app.publishMQTTMessage(`homey/${item.leftDevice}/${item.leftCapability}/value`, capability.value);
+                const homeyDeviceObject = await this.homey.app.getHomeyDeviceById(item.leftDevice);
+                if (homeyDeviceObject)
+                {
+                    const capability = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObject, item.leftCapability);
+                    this.homey.app.publishMQTTMessage(`homey/${item.leftDevice}/${item.leftCapability}/label`, capability.value ? item.leftOnText : item.leftOffText);
+                    this.homey.app.publishMQTTMessage(`homey/${item.leftDevice}/${item.leftCapability}/value`, capability.value);
+                }
+            }
+            else
+            {
+                const value = this.getCapabilityValue(`left_button.connector${connector}`);
+                this.homey.app.publishMQTTMessage(`homey/button/${connector * 2}/label`, value ? item.leftOnText : item.leftOffText);
+                this.homey.app.publishMQTTMessage(`homey/button/${connector * 2}/value`, value);
             }
         }
         catch (error)
@@ -496,17 +547,68 @@ class BasePanelDevice extends Device
         }
         try
         {
-            const homeyDeviceObject = await this.homey.app.getHomeyDeviceById(item.rightDevice);
-            if (homeyDeviceObject)
+            if (item.leftDevice !== 'none')
             {
-                const capability = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObject, item.rightCapability);
-                this.homey.app.publishMQTTMessage(`homey/${item.rightDevice}/${item.rightCapability}/label`, capability.value ? item.rightOnText : item.rightOffText);
-                this.homey.app.publishMQTTMessage(`homey/${item.rightDevice}/${item.rightCapability}/value`, capability.value);
+                const homeyDeviceObject = await this.homey.app.getHomeyDeviceById(item.rightDevice);
+                if (homeyDeviceObject)
+                {
+                    const capability = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObject, item.rightCapability);
+                    this.homey.app.publishMQTTMessage(`homey/${item.rightDevice}/${item.rightCapability}/label`, capability.value ? item.rightOnText : item.rightOffText);
+                    this.homey.app.publishMQTTMessage(`homey/${item.rightDevice}/${item.rightCapability}/value`, capability.value);
+                }
+            }
+            else
+            {
+                const value = this.getCapabilityValue(`right_button.connector${connector}`);
+                this.homey.app.publishMQTTMessage(`homey/button/${connector * 2 + 1}/label`, value ? item.rightOnText : item.rightOffText);
+                this.homey.app.publishMQTTMessage(`homey/button/${connector * 2 + 1}/value`, value);
             }
         }
         catch (error)
         {
             this.homey.app.updateLog(error.message);
+        }
+    }
+
+    checkStateChange(deviceId, capability, value)
+    {
+        // check the configuration to see if this capability is being monitored by one of the buttons
+
+        if (this.hasCapability('configuration.connector1'))
+        {
+            const configNo = this.getCapabilityValue('configuration.connector1');
+            this.checkStateChangeForConnector(configNo, 1, deviceId, capability, value);
+        }
+        if (this.hasCapability('configuration.connector2'))
+        {
+            const configNo = this.getCapabilityValue('configuration.connector2');
+            this.checkStateChangeForConnector(configNo, 2, deviceId, capability, value);
+        }
+        if (this.hasCapability('configuration.connector3'))
+        {
+            const configNo = this.getCapabilityValue('configuration.connector3');
+            this.checkStateChangeForConnector(configNo, 3, deviceId, capability, value);
+        }
+        if (this.hasCapability('configuration.connector4'))
+        {
+            const configNo = this.getCapabilityValue('configuration.connector4');
+            this.checkStateChangeForConnector(configNo, 4, deviceId, capability, value);
+        }
+    }
+
+    checkStateChangeForConnector(configNo, connector, deviceId, capability, value)
+    {
+        // Check the left and right devices and capabilities for this connector
+
+        const item = this.homey.app.buttonConfigurations[configNo];
+        if ((item.leftDevice === deviceId) && (item.leftCapability === capability))
+        {
+            this.setCapabilityValue(`left_button.connector${connector}`, value);
+        }
+
+        if ((item.rightDevice === deviceId) && (item.rightCapability === capability))
+        {
+            this.setCapabilityValue(`right_button.connector${connector}`, value);
         }
     }
 
