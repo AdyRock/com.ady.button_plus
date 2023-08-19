@@ -14,14 +14,9 @@
     },
     "dependencies": {
         "@types/tough-cookie": "^4.0.2",
-        "aedes": "^0.50.0",
         "athom-api": "^3.9.0",
         "axios": "^0.21.0",
         "axios-cookiejar-support": "^1.0.1",
-        "form-data": "^4.0.0",
-        "mqtt": "^5.0.2",
-        "net": "^1.0.2",
-        "nodemailer": "^6.9.4",
         "tough-cookie": "^4.1.3"
     }
 }

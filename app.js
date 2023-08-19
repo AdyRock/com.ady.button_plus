@@ -10,11 +10,11 @@ if (process.env.DEBUG === '1')
 
 const Homey = require('homey');
 
-const net = require('net');
-const nodemailer = require('nodemailer');
-const aedes = require('aedes')();
-const mqtt = require('mqtt');
 const { HomeyAPI } = require('athom-api');
+const net = require('./net');
+const nodemailer = require('./nodemailer');
+const aedes = require('./aedes')();
+const mqtt = require('./mqtt');
 const HttpHelper = require('./lib/HttpHelper');
 const DeviceManager = require('./lib/DeviceManager');
 const DeviceDispatcher = require('./lib/DeviceStateChangedDispatcher');
@@ -129,6 +129,23 @@ class MyApp extends Homey.App
                 this.refreshDisplayConfigurations();
             }
         });
+
+        this.homey.flow.getActionCard('switch-button-configuration')
+            .registerRunListener(async (args, state) =>
+            {
+                const config = args.configurationId - 1;
+                this.log('switch-button-configuration', config);
+                return args.device.triggerCapabilityListener(`configuration.connector${args.connector}`, config.toString());
+            });
+
+
+        this.homey.flow.getActionCard('switch-display-configuration')
+            .registerRunListener(async (args, state) =>
+            {
+                const config = args.configurationId - 1;
+                this.log('switch-display-configuration', config);
+                return args.device.triggerCapabilityListener('configuration.display', config.toString());
+            });
 
         this.updateLog('MyApp has been initialized');
     }
