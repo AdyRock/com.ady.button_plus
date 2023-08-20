@@ -156,7 +156,7 @@
             "type": "number",
             "name": "connector",
             "placeholder": {
-              "en": "connector"
+              "en": "Connector number"
             },
             "min": 1,
             "max": 4,
@@ -166,7 +166,7 @@
             "type": "number",
             "name": "configurationId",
             "placeholder": {
-              "en": "Configuration"
+              "en": "Configuration number"
             },
             "min": 1,
             "max": 20,
@@ -178,7 +178,7 @@
             "filter": "driver_id=panel"
           }
         ],
-        "id": "switch-button-configuration"
+        "id": "switch_button_configuration"
       },
       {
         "title": {
@@ -195,7 +195,7 @@
             "type": "number",
             "name": "configurationId",
             "placeholder": {
-              "en": "Configuration"
+              "en": "Configuration number"
             },
             "min": 1,
             "max": 20,
@@ -207,7 +207,113 @@
             "filter": "driver_id=panel"
           }
         ],
-        "id": "switch-display-configuration"
+        "id": "switch_display_configuration"
+      },
+      {
+        "title": {
+          "en": "Turn Button off"
+        },
+        "titleFormatted": {
+          "en": "Turn Off [[left_right]] button on connector [[connector]]"
+        },
+        "hint": {
+          "en": "Turn Off the specified button"
+        },
+        "args": [
+          {
+            "type": "dropdown",
+            "name": "left_right",
+            "title": {
+              "en": "Left / Right"
+            },
+            "placeholder": {
+              "en": "Left / Right"
+            },
+            "values": [
+              {
+                "id": "left",
+                "title": {
+                  "en": "Left"
+                }
+              },
+              {
+                "id": "right",
+                "title": {
+                  "en": "Right"
+                }
+              }
+            ]
+          },
+          {
+            "type": "number",
+            "name": "connector",
+            "placeholder": {
+              "en": "Connector number"
+            },
+            "min": 1,
+            "max": 4,
+            "step": 1
+          },
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=panel"
+          }
+        ],
+        "id": "turn_off_button"
+      },
+      {
+        "title": {
+          "en": "Turn Button On"
+        },
+        "titleFormatted": {
+          "en": "Turn On [[left_right]] button on connector [[connector]]"
+        },
+        "hint": {
+          "en": "Turn On the specified button"
+        },
+        "args": [
+          {
+            "type": "dropdown",
+            "name": "left_right",
+            "title": {
+              "en": "Left / Right"
+            },
+            "placeholder": {
+              "en": "Left / Right"
+            },
+            "values": [
+              {
+                "id": "left",
+                "title": {
+                  "en": "Left"
+                }
+              },
+              {
+                "id": "right",
+                "title": {
+                  "en": "Right"
+                }
+              }
+            ]
+          },
+          {
+            "type": "number",
+            "name": "connector",
+            "placeholder": {
+              "en": "Connector number"
+            },
+            "min": 1,
+            "max": 4,
+            "step": 1
+          },
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=panel"
+          }
+        ],
+        "id": "turn_on_button"
       }
     ]
   },

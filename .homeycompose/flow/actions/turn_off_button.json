@@ -1,0 +1,48 @@
+{
+    "title": {
+        "en": "Turn Button off"
+    },
+    "titleFormatted": {
+        "en": "Turn Off [[left_right]] button on connector [[connector]]"
+    },
+    "hint": {
+        "en": "Turn Off the specified button"
+    },
+    "args": [
+        {
+            "type": "dropdown",
+            "name": "left_right",
+            "title": {
+                "en": "Left / Right"
+            },
+            "placeholder": {
+                "en": "Left / Right"
+            },
+            "values": [
+                {
+                    "id": "left",
+                    "title": {"en": "Left"}
+                },
+                {
+                    "id": "right",
+                    "title": {"en": "Right"}
+                }
+            ]
+        },
+        {
+            "type": "number",
+            "name": "connector",
+            "placeholder": {
+                "en": "Connector number"
+            },
+            "min": 1,
+            "max": 4,
+            "step": 1
+        },
+        {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=panel"
+        }
+    ]
+}

@@ -13,7 +13,7 @@
             "type": "number",
             "name": "configurationId",
             "placeholder": {
-                "en": "Configuration"
+                "en": "Configuration number"
             },
             "min": 1,
             "max": 20,
