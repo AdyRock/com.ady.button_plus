@@ -276,6 +276,15 @@ class BasePanelDevice extends Device
             this.homey.app.publishMQTTMessage(`homey/button/${connector * 2}/label`,
                  value ? ButtonPanelConfiguration.leftOnText : ButtonPanelConfiguration.leftOffText);
         }
+
+        if (value)
+        {
+            this.driver.triggerButtonOn(this, true, connector);
+        }
+        else
+        {
+            this.driver.triggerButtonOff(this, true, connector);
+        }
     }
 
     async onCapabilityRightButton(connector, value, opts)
@@ -313,7 +322,16 @@ class BasePanelDevice extends Device
             this.homey.app.publishMQTTMessage(`homey/button/${connector * 2 + 1}/label`,
                 value ? ButtonPanelConfiguration.rightOnText : ButtonPanelConfiguration.rightOffText);
         }
-    }
+
+        if (value)
+        {
+            this.driver.triggerButtonOn(this, false, connector);
+        }
+        else
+        {
+            this.driver.triggerButtonOff(this, false, connector);
+        }
+}
 
     async processMQTTMessage(topic, MQTTMessage)
     {

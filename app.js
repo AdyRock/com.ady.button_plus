@@ -160,6 +160,13 @@ class MyApp extends Homey.App
                 return args.device.triggerCapabilityListener(`${args.left_right}_button.connector${args.connector}`, false);
             });
 
+        /** * CONDITIONS ** */
+        this._conditionIsButtonOn = this.homey.flow.getConditionCard('is_button_on');
+        this._conditionIsButtonOn.registerRunListener(async (args, state) =>
+        {
+            return args.device.getCapabilityValue(`${args.left_right}_button.connector${args.connector}`);
+        });
+
         this.updateLog('MyApp has been initialized');
     }
 
