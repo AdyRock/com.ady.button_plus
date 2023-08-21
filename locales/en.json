@@ -35,6 +35,8 @@
         "centerRight": "Center Right",
         "bottomLeft": "Bottom Left",
         "bottomCenter": "Bottom Center",
-        "bottomRight": "Bottom Right"
+        "bottomRight": "Bottom Right",
+        "saveError1": "Error saving configurations",
+        "dimValue": "Dim Value (0 to ±100)"
     }
 }

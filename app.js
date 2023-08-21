@@ -92,7 +92,7 @@ class MyApp extends Homey.App
         this.updateLog('Register DeviceManager');
         await this.deviceManager.register();
 
-        this.getHomeyDevices();
+        this.getHomeyDevices({});
         this.deviceDispather = new DeviceDispatcher(this);
 
         try
@@ -387,7 +387,7 @@ class MyApp extends Homey.App
                         // Configure the left button bar
                         let buttonIdx = connectorNo * 2;
                         let capability = await this.setupClickTopic(buttonIdx, deviceConfiguration.mqttbuttons[buttonIdx], ButtonPanelConfiguration.leftDevice, ButtonPanelConfiguration.leftCapability, connectorNo, 'left');
-                        await this.setupStatusTopic(buttonIdx, deviceConfiguration.mqttbuttons[buttonIdx], ButtonPanelConfiguration.leftTopText, ButtonPanelConfiguration.leftOffText, ButtonPanelConfiguration.leftOnText, ButtonPanelConfiguration.leftDevice, ButtonPanelConfiguration.leftCapability, capability);
+                        await this.setupStatusTopic(buttonIdx, deviceConfiguration.mqttbuttons[buttonIdx], ButtonPanelConfiguration.leftTopText, ButtonPanelConfiguration.leftOnText, ButtonPanelConfiguration.leftOffText, ButtonPanelConfiguration.leftDevice, ButtonPanelConfiguration.leftCapability, capability);
 
                         // Configure the right button bar
                         buttonIdx++;
@@ -570,19 +570,54 @@ class MyApp extends Homey.App
         return null;
     }
 
-    async getHomeyDevices()
+    async getHomeyDevices({ type = '', id = '' })
     {
         if (this.deviceManager)
         {
             try
             {
+                let devices = {};
                 if (this.deviceManager && this.deviceManager.devices)
                 {
-                    return this.deviceManager.devices;
+                    devices = this.deviceManager.devices;
+                }
+                else
+                {
+                    const api = await HomeyAPI.forCurrentHomey(this.homey);
+                    devices = await api.devices.getDevices();
                 }
 
-                const api = await HomeyAPI.forCurrentHomey(this.homey);
-                return await api.devices.getDevices();
+                if (type || id)
+                {
+                    // Filter the object on type or id
+                    const filteredDevices = [];
+                    // Turn the devices object into an array, filter on type or id and turn it back into an object
+                    const deviceArray = Object.values(devices);
+                    for (const device of deviceArray)
+                    {
+                        const capabilities = await this.deviceManager.getCapabilities(device);
+                        const capabilitiesArray = Object.values(capabilities);
+                        for (const capability of capabilitiesArray)
+                        {
+                            if ((type && capability.type === type) || (id && capability.id === id))
+                            {
+                                filteredDevices.push(device);
+                                break;
+                            }
+                        }
+                    }
+
+                    // return the filtered devices as an object
+                    devices = {};
+                    for (const device of filteredDevices)
+                    {
+                        devices[device.id] = device;
+                    }
+
+                    return devices;
+                }
+
+                return devices;
             }
             catch (e)
             {

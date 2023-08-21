@@ -3,8 +3,8 @@
 module.exports = {
 
     // Retrieve all devices with their information
-    async getDevices({ homey }) {
-        return homey.app.getHomeyDevices();
+    async getDevices({ homey, body }) {
+        return homey.app.getHomeyDevices(body);
     },
 
     // Retrieve all capabilities for a device

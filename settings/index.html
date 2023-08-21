@@ -11,14 +11,13 @@
 <body>
     <fieldset class="homey-form-fieldset">
         <legend class="homey-form-legend"><span data-i18n="settings.Settings"></span></legend>
-
         <label class="homey-form-checkbox">
             <input class="homey-form-checkbox-input" id="autoConfig" type="checkbox" value="auto" />
             <span class="homey-form-checkbox-checkmark"></span>
             <span class="homey-form-checkbox-text"><span data-i18n="settings.autoConfig"></span></span>
         </label>
-        <span data-i18n="settings.autoConfigWarning1"></span><br>
-        <span data-i18n="settings.autoConfigWarning2"></span>
+        <div id="AutoConfigWarnOff"><span data-i18n="settings.autoConfigWarning1"></span></div>
+        <div id="AutoConfigWarnOn"><span data-i18n="settings.autoConfigWarning2"></span></div>
     </fieldset>
 
     <fieldset class="homey-form-fieldset">
@@ -69,10 +68,10 @@
                             <label class="homey-form-label" for="leftTopText"><span data-i18n="settings.topLabel"></span></label>
                             <input class="homey-form-input" id="leftTopText" type="text" value="" />
                             
-                            <label class="homey-form-label" for="leftOnText"><span data-i18n="settings.labelOn"></span></label>
+                            <label class="homey-form-label" id="leftOnTextLabel" for="leftOnText"><span data-i18n="settings.labelOn"></span></label>
                             <input class="homey-form-input" id="leftOnText" type="text" value="" />
 
-                            <label class="homey-form-label" for="leftOffText"><span data-i18n="settings.labelOff"></span></label>
+                            <label class="homey-form-label" id="leftOffTextLabel" for="leftOffText"><span data-i18n="settings.labelOff"></span></label>
                             <input class="homey-form-input" id="leftOffText" type="text" value="" />
                         </div>
                         <div class="horizontalgroup">
@@ -89,10 +88,10 @@
                             <label class="homey-form-label" for="rightTopText"><span data-i18n="settings.topLabel"></span></label>
                             <input class="homey-form-input" id="rightTopText" type="text" value="" />
 
-                            <label class="homey-form-label" for="rightOnText"><span data-i18n="settings.labelOn"></span></label>
+                            <label class="homey-form-label" id="rightOnTextLabel" for="rightOnText"><span data-i18n="settings.labelOn"></span></label>
                             <input class="homey-form-input" id="rightOnText" type="text" value="" />
 
-                            <label class="homey-form-label" for="rightOffText"><span data-i18n="settings.labelOff"></span></label>
+                            <label class="homey-form-label" id="rightOffTextLabel" for="rightOffText"><span data-i18n="settings.labelOff"></span></label>
                             <input class="homey-form-input" id="rightOffText" type="text" value="" />
                         </div>
                     </div>
@@ -208,27 +207,34 @@
 
             saveButton.addEventListener('click', function(e)
             {
-                var ButtonPanelConfigurationNo = ButtonConfigurationNoElement.value;
+                if (autoConfigElement.checked)
+                {
+                    var ButtonPanelConfigurationNo = ButtonConfigurationNoElement.value;
 
-                var ButtonPanelConfiguration = {
-                    leftTopText: leftTopTextElement.value,
-                    leftOnText: leftOnTextElement.value,
-                    leftOffText: leftOffTextElement.value,
-                    leftDevice: leftDeviceElement.value,
-                    leftCapability: leftCapabilityElement.value,
-                    rightTopText: rightTopTextElement.value,
-                    rightOnText: rightOnTextElement.value,
-                    rightOffText: rightOffTextElement.value,
-                    rightDevice: rightDeviceElement.value,
-                    rightCapability: rightCapabilityElement.value
-                };
+                    var ButtonPanelConfiguration = {
+                        leftTopText: leftTopTextElement.value,
+                        leftOnText: leftOnTextElement.value,
+                        leftOffText: leftOffTextElement.value,
+                        leftDevice: leftDeviceElement.value,
+                        leftCapability: leftCapabilityElement.value,
+                        rightTopText: rightTopTextElement.value,
+                        rightOnText: rightOnTextElement.value,
+                        rightOffText: rightOffTextElement.value,
+                        rightDevice: rightDeviceElement.value,
+                        rightCapability: rightCapabilityElement.value
+                    };
 
-                localbuttonConfigurations[ButtonPanelConfigurationNo] = ButtonPanelConfiguration;
-                Homey.set('buttonConfigurations', localbuttonConfigurations);
+                    localbuttonConfigurations[ButtonPanelConfigurationNo] = ButtonPanelConfiguration;
+                    Homey.set('buttonConfigurations', localbuttonConfigurations);
 
-                storeDevicesSettings();
-                Homey.set('displayConfigurations', localDisplayConfigurations);
-                Homey.alert(Homey.__("settings.saved"));
+                    storeDevicesSettings();
+                    Homey.set('displayConfigurations', localDisplayConfigurations);
+                    Homey.alert(Homey.__("settings.saved"));
+                }
+                else
+                {
+                    Homey.alert(Homey.__("settings.saveError1"));
+                }
             });
 
             // Button Bar Config code
@@ -302,26 +308,51 @@
             {
                 var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
                 ButtonPanelConfiguration.leftDevice = leftDeviceElement.value;
-                getCapabilities(leftDeviceElement.value, leftCapabilityElement, ButtonPanelConfiguration.leftDevice);
+                getCapabilities(leftDeviceElement.value, leftCapabilityElement, ButtonPanelConfiguration.leftDevice, leftOnTextElement, leftOffTextElement);
             });
 
             rightDeviceElement.addEventListener('change', function(e)
             {
                 var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
                 ButtonPanelConfiguration.rightDevice = rightDeviceElement.value;
-                getCapabilities(rightDeviceElement.value, rightCapabilityElement, ButtonPanelConfiguration.rightDevice);
+                getCapabilities(rightDeviceElement.value, rightCapabilityElement, ButtonPanelConfiguration.rightDevice, rightOnTextElement, rightOffTextElement);
             });
 
             leftCapabilityElement.addEventListener('change', function(e)
             {
                 var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
                 ButtonPanelConfiguration.leftCapability = leftCapabilityElement.value;
+                if (leftCapabilityElement.value === "dim")
+                {
+                    document.getElementById('leftOnTextLabel').innerHTML = Homey.__("settings.dimValue");
+                    document.getElementById('leftOffText').style.visibility = "hidden";
+                    document.getElementById('leftOffTextLabel').style.visibility = "hidden";
+                }
+                else
+                {
+                    document.getElementById('leftOnTextLabel').innerHTML = Homey.__("settings.labelOn");
+                    document.getElementById('leftOffText').style.visibility = "visible";
+                    document.getElementById('leftOffTextLabel').style.visibility = "visible";
+                }
+
             });
 
             rightCapabilityElement.addEventListener('change', function(e)
             {
                 var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
                 ButtonPanelConfiguration.rightCapability = rightCapabilityElement.value;
+                if (leftCapabilityElement.value === "dim")
+                {
+                    document.getElementById('rightOnTextLabel').innerHTML = Homey.__("settings.dimValue");
+                    document.getElementById('rightOffText').style.visibility = "hidden";
+                    document.getElementById('rightOffTextLabel').style.visibility = "hidden";
+                }
+                else
+                {
+                    document.getElementById('rightOnTextLabel').innerHTML = Homey.__("settings.labelOn");
+                    document.getElementById('rightOffText').style.visibility = "visible";
+                    document.getElementById('rightOffTextLabel').style.visibility = "visible";
+                }
             });
 
             // Display Config code
@@ -379,7 +410,7 @@
 
         function getDeivices()
         {
-            Homey.api('POST', '/Devices/', {}, function(err, devices)
+            Homey.api('POST', '/Devices/', {type: 'boolean', id: 'dim'}, function(err, devices)
             {
                 if (err) return Homey.alert(err);
 
@@ -423,7 +454,7 @@
             }
         }
 
-        function getCapabilities(deviceId, element, selectedCapability)
+        function getCapabilities(deviceId, element, selectedCapability, onTextElement, offTextElement)
         {
             if (deviceId === "none")
             {
@@ -441,14 +472,29 @@
                     const capabilitiesArray = Object.values(capabilities);
                     for (const capability of capabilitiesArray)
                     {
-                        var option = document.createElement("option");
-                        option.text = capability.title;
-                        option.value = capability.id;
-                        element.add(option);
+                        if (capability.type === "boolean" || capability.id === "dim")
+                        {
+                            var option = document.createElement("option");
+                            option.text = capability.title;
+                            option.value = capability.id;
+                            element.add(option);
+                        }
                     }
                     element.style.visibility = "visible";
                     document.getElementById(`${element.id}Label`).style.visibility = "visible";
                     element.value = selectedCapability;
+                    if (selectedCapability === "dim")
+                    {
+                        document.getElementById(`${onTextElement.id}Label`).innerHTML = Homey.__("settings.dimValue");
+                        document.getElementById(`${offTextElement.id}`).style.visibility = "hidden";
+                        document.getElementById(`${offTextElement.id}Label`).style.visibility = "hidden";
+                    }
+                    else
+                    {
+                        document.getElementById(`${onTextElement.id}Label`).innerHTML = Homey.__("settings.labelOn");
+                        document.getElementById(`${offTextElement.id}`).style.visibility = "visible";
+                        document.getElementById(`${offTextElement.id}Label`).style.visibility = "visible";
+                    }
                 }
             });
         }
@@ -486,14 +532,14 @@
                 leftOnTextElement.value = ButtonPanelConfiguration.leftOnText;
                 leftOffTextElement.value = ButtonPanelConfiguration.leftOffText;
                 leftDeviceElement.value = ButtonPanelConfiguration.leftDevice;
-                getCapabilities(leftDeviceElement.value, leftCapabilityElement, ButtonPanelConfiguration.leftCapability);
+                getCapabilities(leftDeviceElement.value, leftCapabilityElement, ButtonPanelConfiguration.leftCapability, leftOnTextElement, leftOffTextElement);
 
                 rightTopTextElement.value = ButtonPanelConfiguration.rightTopText;
                 rightOnTextElement.value = ButtonPanelConfiguration.rightOnText;
                 rightOffTextElement.value = ButtonPanelConfiguration.rightOffText;
                 rightDeviceElement.value = ButtonPanelConfiguration.rightDevice;
                 rightCapabilityElement.value = ButtonPanelConfiguration.rightCapability;
-                getCapabilities(rightDeviceElement.value, rightCapabilityElement, ButtonPanelConfiguration.rightCapability);
+                getCapabilities(rightDeviceElement.value, rightCapabilityElement, ButtonPanelConfiguration.rightCapability, rightOnTextElement, rightOffTextElement);
             }
         }
 
@@ -502,10 +548,18 @@
             if (!autoConfigElement.checked)
             {
                 configTypeChanged("");
+                document.getElementById('AutoConfigWarnOff').style.display = "block";
+                document.getElementById('AutoConfigWarnOn').style.display = "none";
+                saveButton.style.display = "none";
+                ConfigTypeElement.style.display = "none";
             }
             else
             {
                 configTypeChanged( ConfigTypeElement.value);
+                document.getElementById('AutoConfigWarnOff').style.display = "none";
+                document.getElementById('AutoConfigWarnOn').style.display = "block";
+                saveButton.style.display = "block";
+                ConfigTypeElement.style.display = "block";
             }
         }
 
@@ -519,7 +573,10 @@
             {
                 tabcontent[i].style.display = "none";
             }
-            document.getElementById(configSelected).style.display = "block";
+            if (configSelected !== "")
+            {
+                document.getElementById(configSelected).style.display = "block";
+            }
         }
 
         // Code for Displaypanel configuration
