@@ -37,6 +37,7 @@
         "bottomCenter": "Bottom Center",
         "bottomRight": "Bottom Right",
         "saveError1": "Error saving configurations",
-        "dimValue": "Dim Value (0 to ±100)"
+        "dimValue": "Dim Change (±1 to ±100)",
+        "dimError": "Dim __leftRight__ Change must be between ±1 and ±100. Please correct and try again."
     }
 }

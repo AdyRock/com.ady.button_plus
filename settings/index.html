@@ -66,13 +66,13 @@
                             </select>
 
                             <label class="homey-form-label" for="leftTopText"><span data-i18n="settings.topLabel"></span></label>
-                            <input class="homey-form-input" id="leftTopText" type="text" value="" />
+                            <input class="homey-form-input" id="leftTopText" type="text" maxlength="20" value="" />
                             
                             <label class="homey-form-label" id="leftOnTextLabel" for="leftOnText"><span data-i18n="settings.labelOn"></span></label>
-                            <input class="homey-form-input" id="leftOnText" type="text" value="" />
+                            <input class="homey-form-input" id="leftOnText" type="text" maxlength="20" value="" />
 
                             <label class="homey-form-label" id="leftOffTextLabel" for="leftOffText"><span data-i18n="settings.labelOff"></span></label>
-                            <input class="homey-form-input" id="leftOffText" type="text" value="" />
+                            <input class="homey-form-input" id="leftOffText" type="text" maxlength="20" value="" />
                         </div>
                         <div class="horizontalgroup">
                             <legend class="homey-subtitle"><span data-i18n="settings.rightPanel"></span></legend>
@@ -86,13 +86,13 @@
                             </select>
 
                             <label class="homey-form-label" for="rightTopText"><span data-i18n="settings.topLabel"></span></label>
-                            <input class="homey-form-input" id="rightTopText" type="text" value="" />
+                            <input class="homey-form-input" id="rightTopText" type="text" maxlength="20" value="" />
 
                             <label class="homey-form-label" id="rightOnTextLabel" for="rightOnText"><span data-i18n="settings.labelOn"></span></label>
-                            <input class="homey-form-input" id="rightOnText" type="text" value="" />
+                            <input class="homey-form-input" id="rightOnText" type="text" maxlength="20" value="" />
 
                             <label class="homey-form-label" id="rightOffTextLabel" for="rightOffText"><span data-i18n="settings.labelOff"></span></label>
-                            <input class="homey-form-input" id="rightOffText" type="text" value="" />
+                            <input class="homey-form-input" id="rightOffText" type="text" maxlength="20" value="" />
                         </div>
                     </div>
                 </div>
@@ -209,6 +209,26 @@
             {
                 if (autoConfigElement.checked)
                 {
+                    if (leftCapabilityElement.value === 'dim')
+                    {
+                        const dimVal = parseInt(leftOnTextElement.value, 10);
+                        if (dimVal < -100 || dimVal > 100 || dimVal === 0)
+                        {
+                            Homey.alert(Homey.__("settings.dimError", {leftRight: 'Left'}));
+                            return;
+                        }
+                    }
+
+                    if (rightCapabilityElement.value === 'dim')
+                    {
+                        const dimVal = parseInt(rightOnTextElement.value, 10);
+                        if (dimVal < -100 || dimVal > 100 || dimVal === 0)
+                        {
+                            Homey.alert(Homey.__("settings.dimError", {leftRight: 'Right'}));
+                            return;
+                        }
+                    }
+
                     var ButtonPanelConfigurationNo = ButtonConfigurationNoElement.value;
 
                     var ButtonPanelConfiguration = {
