@@ -6,6 +6,7 @@
     "platforms": [
         "local"
     ],
+    "brandColor": "#444444",
     "name": {
         "en": "Button +"
     },
@@ -15,7 +16,9 @@
     "category": [
         "appliances"
     ],
-    "permissions": ["homey:manager:api"],
+    "permissions": [
+        "homey:manager:api"
+    ],
     "images": {
         "small": "/assets/images/small.png",
         "large": "/assets/images/large.png",
@@ -25,6 +28,11 @@
         "name": "Adrian Rockall",
         "email": "ady@rockalls.uk"
     },
+    "bugs": {
+        "url": "https://github.com/AdyRock/com.ady.button_plus/issues"
+    },
+    "homepage": "https://button.plus/",
+    "support": "https://github.com/AdyRock/com.ady.button_plus/issues",
     "api": {
         "getDevices": {
             "method": "post",

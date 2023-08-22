@@ -7,6 +7,7 @@
   "platforms": [
     "local"
   ],
+  "brandColor": "#444444",
   "name": {
     "en": "Button +"
   },
@@ -28,6 +29,11 @@
     "name": "Adrian Rockall",
     "email": "ady@rockalls.uk"
   },
+  "bugs": {
+    "url": "https://github.com/AdyRock/com.ady.button_plus/issues"
+  },
+  "homepage": "https://button.plus/",
+  "support": "https://github.com/AdyRock/com.ady.button_plus/issues",
   "api": {
     "getDevices": {
       "method": "post",
