@@ -67,7 +67,7 @@
 
                             <label class="homey-form-label" for="leftTopText"><span data-i18n="settings.topLabel"></span></label>
                             <input class="homey-form-input" id="leftTopText" type="text" maxlength="20" value="" />
-                            
+
                             <label class="homey-form-label" id="leftOnTextLabel" for="leftOnText"><span data-i18n="settings.labelOn"></span></label>
                             <input class="homey-form-input" id="leftOnText" type="text" maxlength="20" value="" />
 
@@ -141,7 +141,6 @@
     <!-- Code to handle page life -->
 
     <script type="text/javascript">
-
         // General declarations
         var devicesArray = [];
         var devicesFetched = false;
@@ -202,7 +201,7 @@
 
             ConfigTypeElement.addEventListener('change', function(e)
             {
-                configTypeChanged( ConfigTypeElement.value);
+                configTypeChanged(ConfigTypeElement.value);
             });
 
             saveButton.addEventListener('click', function(e)
@@ -214,7 +213,7 @@
                         const dimVal = parseInt(leftOnTextElement.value, 10);
                         if (dimVal < -100 || dimVal > 100 || dimVal === 0)
                         {
-                            Homey.alert(Homey.__("settings.dimError", {leftRight: 'Left'}));
+                            Homey.alert(Homey.__("settings.dimError", { leftRight: 'Left' }));
                             return;
                         }
                     }
@@ -224,7 +223,7 @@
                         const dimVal = parseInt(rightOnTextElement.value, 10);
                         if (dimVal < -100 || dimVal > 100 || dimVal === 0)
                         {
-                            Homey.alert(Homey.__("settings.dimError", {leftRight: 'Right'}));
+                            Homey.alert(Homey.__("settings.dimError", { leftRight: 'Right' }));
                             return;
                         }
                     }
@@ -430,7 +429,7 @@
 
         function getDeivices()
         {
-            Homey.api('POST', '/Devices/', {type: 'boolean', id: 'dim'}, function(err, devices)
+            Homey.api('POST', '/Devices/', { type: 'boolean', id: 'dim' }, function(err, devices)
             {
                 if (err) return Homey.alert(err);
 
@@ -439,7 +438,7 @@
                 fillPanelDevices();
                 fillDisplayDevices();
             });
-        } 
+        }
 
         function fillPanelDevices()
         {
@@ -452,7 +451,7 @@
             };
         }
 
-        function fillDevicesElement( element )
+        function fillDevicesElement(element)
         {
             if (devicesFetched && element)
             {
@@ -575,7 +574,7 @@
             }
             else
             {
-                configTypeChanged( ConfigTypeElement.value);
+                configTypeChanged(ConfigTypeElement.value);
                 document.getElementById('AutoConfigWarnOff').style.display = "none";
                 document.getElementById('AutoConfigWarnOn').style.display = "block";
                 saveButton.style.display = "block";
@@ -659,7 +658,7 @@
                 bottomRight: Homey.__("settings.bottomRight"),
                 deleteDisplayItem: Homey.__("settings.deleteDisplayItem"),
             }
-            const itemLegend =  Homey.__("settings.displayItemlegend", {itemNo: itemNo + 1});
+            const itemLegend = Homey.__("settings.displayItemlegend", { itemNo: itemNo + 1 });
 
             section = section +
                 `<div class="horizontalcontainer">
