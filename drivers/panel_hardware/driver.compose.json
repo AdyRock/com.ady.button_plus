@@ -5,10 +5,16 @@
     "class": "button",
     "capabilities": [
         "configuration.display",
+        "configuration.connector0",
         "configuration.connector1",
         "configuration.connector2",
         "configuration.connector3",
         "configuration.connector4",
+        "configuration.connector5",
+        "configuration.connector6",
+        "configuration.connector7",
+        "left_button.connector0",
+        "right_button.connector0",
         "left_button.connector1",
         "right_button.connector1",
         "left_button.connector2",
@@ -16,9 +22,20 @@
         "left_button.connector3",
         "right_button.connector3",
         "left_button.connector4",
-        "right_button.connector4"
+        "right_button.connector4",
+        "left_button.connector5",
+        "right_button.connector5",
+        "left_button.connector6",
+        "right_button.connector6",
+        "left_button.connector7",
+        "right_button.connector7"
     ],
     "capabilitiesOptions": {
+        "configuration.connector0": {
+            "title": {
+                "en": "Connector 0"
+            }
+        },
         "configuration.connector1": {
             "title": {
                 "en": "Connector 1"
@@ -37,6 +54,26 @@
         "configuration.connector4": {
             "title": {
                 "en": "Connector 4"
+            }
+        },
+        "configuration.connector5": {
+            "title": {
+                "en": "Connector 5"
+            }
+        },
+        "configuration.connector6": {
+            "title": {
+                "en": "Connector 6"
+            }
+        },
+        "configuration.connector7": {
+            "title": {
+                "en": "Connector 7"
+            }
+        },
+        "left_button.connector0": {
+            "title": {
+                "en": "Connector 0"
             }
         },
         "left_button.connector1": {
@@ -59,6 +96,26 @@
                 "en": "Connector 4"
             }
         },
+        "left_button.connector5": {
+            "title": {
+                "en": "Connector 5"
+            }
+        },
+        "left_button.connector6": {
+            "title": {
+                "en": "Connector 6"
+            }
+        },
+        "left_button.connector7": {
+            "title": {
+                "en": "Connector 7"
+            }
+        },
+        "right_button.connector0": {
+            "title": {
+                "en": "Connector 0"
+            }
+        },
         "right_button.connector1": {
             "title": {
                 "en": "Connector 1"
@@ -79,6 +136,21 @@
                 "en": "Connector 4"
             }
         },
+        "right_button.connector5": {
+            "title": {
+                "en": "Connector 5"
+            }
+        },
+        "right_button.connector6": {
+            "title": {
+                "en": "Connector 5"
+            }
+        },
+        "right_button.connector7": {
+            "title": {
+                "en": "Connector 7"
+            }
+        },
         "configuration.display": {
             "title": {
                 "en": "Display"
@@ -93,17 +165,7 @@
     ],
     "pair": [
         {
-            "id": "login_credentials",
-            "template": "login_credentials",
-            "options": {
-                "title": {
-                    "en": "Button + Login Credentials"
-                }
-            }
-        },
-        {
-            "id": "pincode",
-            "template": "pincode"
+            "id": "my_connect"
         },
         {
             "id": "list_my_devices",

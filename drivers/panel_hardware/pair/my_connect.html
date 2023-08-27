@@ -1,0 +1,78 @@
+</br>
+<p data-i18n="pair.manual_add.intro" style="text-align:center;"></p>
+
+<form id="form" name="form" onsubmit="return getForm()" action="javascript:void(0);" method="post" style="text-align:left;">
+    <div class="form-group">
+        <label class="homey-form-label" for="ip_address" data-i18n="pair.manual_add.ip_address"></label>
+        <input class="homey-form-input" type="text" name="ip_address" id="ip_address" style="margin-top: 3px;" />
+        </br>
+        <input class="homey-button-secondary-shadow" type="submit" id="submit" value="Login" />
+        </br>
+        </br>
+        <input type="text" id="status" readonly />
+    </div>
+</form>
+
+<script type="text/javascript">
+    Homey.setTitle(__('pair.manual_add.title'));
+    document.getElementById('submit').value = __('pair.manual_add.connect');
+
+    function getForm()
+    {
+
+        // Mark as authenticating
+        document.getElementById('submit').disabled = 'disabled';
+        document.getElementById('submit').value = __('pair.manual_add.checking');
+
+        Homey.emit('manual_connection',
+            {
+                ip: document.forms["form"]["ip_address"].value,
+            },
+            function(err, result)
+            {
+                if (err)
+                {
+                    console.log('connection failed');
+                    document.getElementById('submit').disabled = false;
+                    document.getElementById('submit').value = __('pair.manual_add.try_again');
+                    document.getElementById('status').value = err;
+                    document.getElementById('status').style.color = 'red';
+                }
+                else
+                {
+                    console.log('connection succeeded');
+                    document.getElementById('submit').value = __('pair.manual_add.correct');
+                    document.getElementById('status').value = __('pair.manual_add.adding');
+                    document.getElementById('status').style.color = 'green';
+                    if (!result)
+                    {
+                        Homey.showView("list_devices");
+                    }
+                    else if (result === true)
+                    {
+                        console.log(addResult);
+                        Homey.done();
+                    }
+                    else
+                    {
+                        Homey.addDevice(result, function(addErr, addResult)
+                        {
+                            if (addErr)
+                            {
+                                console.error(addErr);
+                                document.getElementById('submit').disabled = false;
+                                document.getElementById('submit').value = __('pair.manual_add.try_again');
+                                document.getElementById('status').value = addErr;
+                                document.getElementById('status').style.color = 'red';
+                            }
+                            else
+                            {
+                                console.log(addResult);
+                                Homey.done();
+                            }
+                        });
+                    }
+                }
+            });
+    }
+</script>

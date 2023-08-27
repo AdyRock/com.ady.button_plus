@@ -21,9 +21,11 @@
     </fieldset>
 
     <fieldset class="homey-form-fieldset">
+        <label class="homey-form-label" for="configType"><span data-i18n="settings.view"></span></label>
         <select class="homey-form-select" id="configType">
-            <option value="panelConfig">Button Configurations</option>
-            <option value="displayConfig">Display Configurations</option>
+            <option value="panelConfig" data-i18n="settings.buttonConfigs"></option>
+            <option value="displayConfig" data-i18n="settings.displayConfigs"></option>
+            <option value="brokerConfig" data-i18n="settings.brokerConfigs"></option>
         </select>
 
         <!-- Button Bar Configuration -->
@@ -31,38 +33,32 @@
         <div id="panelConfig" class="tabcontent">
             <div class="homey-form-group">
                 <div style="padding: 10px 10px 10px 10px; border: 1px solid lightblue; border-radius: 10px">
+                    <div class="tooltip"><i class="fi fi-rr-info"></i>
+                        <span class="tooltiptext" data-i18n="settings.buttonExplanation"></span>
+                      </div>
+
                     <select class="homey-form-select" id="ButtonPanelConfigurationNo">
-                        <option value=0>Button Configuration 1</option>
-                        <option value=1>Button Configuration 2</option>
-                        <option value=2>Button Configuration 3</option>
-                        <option value=3>Button Configuration 4</option>
-                        <option value=4>Button Configuration 5</option>
-                        <option value=5>Button Configuration 6</option>
-                        <option value=6>Button Configuration 7</option>
-                        <option value=7>Button Configuration 8</option>
-                        <option value=8>Button Configuration 9</option>
-                        <option value=9>Button Configuration 10</option>
-                        <option value=10>Button Configuration 11</option>
-                        <option value=11>Button Configuration 12</option>
-                        <option value=12>Button Configuration 13</option>
-                        <option value=13>Button Configuration 14</option>
-                        <option value=14>Button Configuration 15</option>
-                        <option value=15>Button Configuration 16</option>
-                        <option value=16>Button Configuration 17</option>
-                        <option value=17>Button Configuration 18</option>
-                        <option value=18>Button Configuration 19</option>
-                        <option value=19>Button Configuration 20</option>
                     </select>
                     <div class="horizontalcontainer">
                         <div class="horizontalgroup">
                             <legend class="homey-subtitle"><span data-i18n="settings.leftPanel"></span></legend>
 
-                            <label class="homey-form-label" for="leftDevice"><span data-i18n="settings.device"></span></label>
+                            <label class="homey-form-label" for="leftDevice"><span data-i18n="settings.device"></span>
+                                <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                    <span class="tooltiptext" data-i18n="settings.deviceExplanation"></span>
+                                </div>
+                            </label>
                             <select class="homey-form-select" id="leftDevice">
+                                <option value="" selected disabled hidden><span data-i18n="settings.device"></option>
                             </select>
 
-                            <label class="homey-form-label" id="leftCapabilityLabel" for="leftCapability"><span data-i18n="settings.capability"></span></label>
+                            <label class="homey-form-label" id="leftCapabilityLabel" for="leftCapability"><span data-i18n="settings.capability"></span>
+                                <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                    <span class="tooltiptext" data-i18n="settings.topLabelExplanation"></span>
+                                </div>
+                            </label>
                             <select class="homey-form-select" id="leftCapability">
+                                <option value="" selected disabled hidden><span data-i18n="settings.selectCapability"></span></option>
                             </select>
 
                             <label class="homey-form-label" for="leftTopText"><span data-i18n="settings.topLabel"></span></label>
@@ -73,16 +69,26 @@
 
                             <label class="homey-form-label" id="leftOffTextLabel" for="leftOffText"><span data-i18n="settings.labelOff"></span></label>
                             <input class="homey-form-input" id="leftOffText" type="text" maxlength="20" value="" />
+
+                            <label class="homey-form-label" for="leftBrokerId"><span data-i18n="settings.brokerId"></span>
+                                <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                    <span class="tooltiptext" data-i18n="settings.brokerIdExplanation"></span>
+                                </div>
+                            </label>
+                            <select class="homey-form-select" id="leftBrokerId">
+                            </select>
                         </div>
                         <div class="horizontalgroup">
                             <legend class="homey-subtitle"><span data-i18n="settings.rightPanel"></span></legend>
 
                             <label class="homey-form-label" for="rightDevice"><span data-i18n="settings.device"></span></label>
                             <select class="homey-form-select" id="rightDevice">
+                                <option value="" selected disabled hidden><span data-i18n="settings.selectDevice"></span></option>
                             </select>
 
                             <label class="homey-form-label" id="rightCapabilityLabel" for="rightCapability"><span data-i18n="settings.capability"></span></label>
                             <select class="homey-form-select" id="rightCapability">
+                                <option value="" selected disabled hidden><span data-i18n="settings.selectCapability"></span></option>
                             </select>
 
                             <label class="homey-form-label" for="rightTopText"><span data-i18n="settings.topLabel"></span></label>
@@ -93,6 +99,10 @@
 
                             <label class="homey-form-label" id="rightOffTextLabel" for="rightOffText"><span data-i18n="settings.labelOff"></span></label>
                             <input class="homey-form-input" id="rightOffText" type="text" maxlength="20" value="" />
+
+                            <label class="homey-form-label" for="rightBrokerId"><span data-i18n="settings.brokerId"></span></label>
+                            <select class="homey-form-select" id="rightBrokerId">
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -104,32 +114,29 @@
         <div id="displayConfig" class="tabcontent">
             <div class="homey-form-group">
                 <div style="padding: 10px 10px 10px 10px; border: 1px solid lightblue; border-radius: 10px">
+                    <div class="tooltip"><i class="fi fi-rr-info"></i>
+                        <span class="tooltiptext" data-i18n="settings.displayExplanation"></span>
+                    </div>
+
                     <select class="homey-form-select" id="displayConfigurationNo">
-                        <option value=0>Display Configuration 1</option>
-                        <option value=1>Display Configuration 2</option>
-                        <option value=2>Display Configuration 3</option>
-                        <option value=3>Display Configuration 4</option>
-                        <option value=4>Display Configuration 5</option>
-                        <option value=5>Display Configuration 6</option>
-                        <option value=6>Display Configuration 7</option>
-                        <option value=7>Display Configuration 8</option>
-                        <option value=8>Display Configuration 9</option>
-                        <option value=9>Display Configuration 10</option>
-                        <option value=10>Display Configuration 11</option>
-                        <option value=11>Display Configuration 12</option>
-                        <option value=12>Display Configuration 13</option>
-                        <option value=13>Display Configuration 14</option>
-                        <option value=14>Display Configuration 15</option>
-                        <option value=15>Display Configuration 16</option>
-                        <option value=16>Display Configuration 17</option>
-                        <option value=17>Display Configuration 18</option>
-                        <option value=18>Display Configuration 19</option>
-                        <option value=19>Display Configuration 20</option>
                     </select>
                 </div>
                 <div id="displayItemsSection"></div>
             </div>
             <p><button class="homey-button-secondary-shadow" id="newDisplayItem"><span data-i18n="settings.newDisplayItem"></span></button></p>
+        </div>
+
+        <!-- Broker Configuration -->
+
+        <div id="brokerConfig" class="tabcontent">
+            <div class="homey-form-group">
+                <div class="tooltip"><i class="fi fi-rr-info"></i>
+                    <span class="tooltiptext" data-i18n="settings.brokerExplanation"></span>
+                </div>
+
+                <div id="brokerItemsSection"></div>
+            </div>
+            <p><button class="homey-button-secondary-shadow" id="newBrokerItem"><span data-i18n="settings.newBrokerItem"></span></button></p>
         </div>
 
     </fieldset>
@@ -145,24 +152,26 @@
         var devicesArray = [];
         var devicesFetched = false;
         var autoConfigElement = document.getElementById('autoConfig');
-        var ConfigTypeElement = document.getElementById('configType');
+        var configTypeElement = document.getElementById('configType');
         var saveButton = document.getElementById('save');
 
         // Declarations for the Button Bar Config page
 
-        var ButtonConfigurationNoElement = document.getElementById('ButtonPanelConfigurationNo');
+        var buttonConfigurationNoElement = document.getElementById('ButtonPanelConfigurationNo');
 
         var leftTopTextElement = document.getElementById('leftTopText');
         var leftOnTextElement = document.getElementById('leftOnText');
         var leftOffTextElement = document.getElementById('leftOffText');
         var leftDeviceElement = document.getElementById('leftDevice');
         var leftCapabilityElement = document.getElementById('leftCapability');
+        var leftBrokerIdElement = document.getElementById('leftBrokerId');
 
         var rightTopTextElement = document.getElementById('rightTopText');
         var rightOnTextElement = document.getElementById('rightOnText');
         var rightOffTextElement = document.getElementById('rightOffText');
         var rightDeviceElement = document.getElementById('rightDevice');
         var rightCapabilityElement = document.getElementById('rightCapability');
+        var rightBrokerIdElement = document.getElementById('rightBrokerId');
 
         var buttonConfigurationsFetched = false;
         var localbuttonConfigurations = [];
@@ -178,10 +187,17 @@
         var currentDisplayConfigurationNo = 0;
         var displayCapabilityItems = [];
 
+        // Declarations for the Broker Config page
+        var newBrokerItemButton = document.getElementById('newBrokerItem');
+        var localBrokerItems = [];
+
         // a method named 'onHomeyReady' must be present in your code
         function onHomeyReady(Homey)
         {
             // General code
+
+            fillConfigElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"));
+            fillConfigElement(displayConfigurationNoElement, Homey.__("settings.displayConfig"));
 
             getDeivices();
             configTypeChanged('panelConfig');
@@ -199,9 +215,9 @@
                 autoConfigChanged();
             });
 
-            ConfigTypeElement.addEventListener('change', function(e)
+            configTypeElement.addEventListener('change', function(e)
             {
-                configTypeChanged(ConfigTypeElement.value);
+                configTypeChanged(configTypeElement.value);
             });
 
             saveButton.addEventListener('click', function(e)
@@ -213,7 +229,7 @@
                         const dimVal = parseInt(leftOnTextElement.value, 10);
                         if (dimVal < -100 || dimVal > 100 || dimVal === 0)
                         {
-                            Homey.alert(Homey.__("settings.dimError", { leftRight: 'Left' }));
+                            Homey.alert(Homey.__("settings.dimError", { leftRight: Homey.__("settings.leftPanel")}));
                             return;
                         }
                     }
@@ -223,32 +239,42 @@
                         const dimVal = parseInt(rightOnTextElement.value, 10);
                         if (dimVal < -100 || dimVal > 100 || dimVal === 0)
                         {
-                            Homey.alert(Homey.__("settings.dimError", { leftRight: 'Right' }));
+                            // Get the translated string and insert the Right text
+                            Homey.alert(Homey.__("settings.dimError", { leftRight: Homey.__("settings.rightPanel") }));
                             return;
                         }
                     }
 
-                    var ButtonPanelConfigurationNo = ButtonConfigurationNoElement.value;
+                    var ButtonPanelConfigurationNo = buttonConfigurationNoElement.value;
 
+                    // Copy the values from the controls to the buttonConfiguration
                     var ButtonPanelConfiguration = {
                         leftTopText: leftTopTextElement.value,
                         leftOnText: leftOnTextElement.value,
                         leftOffText: leftOffTextElement.value,
                         leftDevice: leftDeviceElement.value,
                         leftCapability: leftCapabilityElement.value,
+                        leftBrokerId: leftBrokerIdElement.value,
                         rightTopText: rightTopTextElement.value,
                         rightOnText: rightOnTextElement.value,
                         rightOffText: rightOffTextElement.value,
                         rightDevice: rightDeviceElement.value,
-                        rightCapability: rightCapabilityElement.value
+                        rightCapability: rightCapabilityElement.value,
+                        rightBrokerId: rightBrokerIdElement.value
                     };
 
                     localbuttonConfigurations[ButtonPanelConfigurationNo] = ButtonPanelConfiguration;
                     Homey.set('buttonConfigurations', localbuttonConfigurations);
 
-                    storeDevicesSettings();
+                    //Copy the values from the controls to the displayConfiguration
+                    storeDisplaySettings();
                     Homey.set('displayConfigurations', localDisplayConfigurations);
-                    Homey.alert(Homey.__("settings.saved"));
+
+                    if (storeBrokerSettings())
+                    {
+                        Homey.set('brokerConfigurationItems', localBrokerItems);
+                        Homey.alert(Homey.__("settings.saved"));
+                    }
                 }
                 else
                 {
@@ -267,7 +293,7 @@
                 updateButtonPanelConfiguration();
             });
 
-            ButtonPanelConfigurationNo.addEventListener('change', function(e)
+            buttonConfigurationNoElement.addEventListener('change', function(e)
             {
                 // Store the current configuration
                 var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
@@ -277,11 +303,14 @@
                 ButtonPanelConfiguration.leftOffText = leftOffTextElement.value;
                 ButtonPanelConfiguration.leftDevice = leftDeviceElement.value;
                 ButtonPanelConfiguration.leftCapability = leftCapabilityElement.value;
+                ButtonPanelConfiguration.leftbrokerId = leftBrokerIdElement.value;
+
                 ButtonPanelConfiguration.rightTopText = rightTopTextElement.value;
                 ButtonPanelConfiguration.rightOnText = rightOnTextElement.value;
                 ButtonPanelConfiguration.rightOffText = rightOffTextElement.value;
                 ButtonPanelConfiguration.rightDevice = rightDeviceElement.value;
                 ButtonPanelConfiguration.rightCapability = rightCapabilityElement.value;
+                ButtonPanelConfiguration.rightbrokerId = rightBrokerIdElement.value;
 
                 // Fetch the new configuration
                 updateButtonPanelConfiguration();
@@ -374,12 +403,25 @@
                 }
             });
 
+            leftBrokerIdElement.addEventListener('change', function(e)
+            {
+                var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
+                ButtonPanelConfiguration.leftBrokerId = leftBrokerIdElement.value;
+            });
+
+            rightBrokerIdElement.addEventListener('change', function(e)
+            {
+                var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
+                ButtonPanelConfiguration.rightBrokerId = rightBrokerIdElement.value;
+            });
+
+
             // Display Config code
 
             displayConfigurationNoElement.addEventListener('change', function(e)
             {
                 // Store the current configuration
-                storeDevicesSettings();
+                storeDisplaySettings();
 
                 // Fetch the new configuration
                 updateDisplayConfiguration();
@@ -404,6 +446,7 @@
                             width: 100,
                             fontSize: 1,
                             alignment: 0,
+                            brokerId: 'homey',
                         };
 
                         displayConfiguration.items.push(displayItem);
@@ -423,8 +466,91 @@
                 updateDisplayConfiguration();
             });
 
+
+            Homey.get('brokerConfigurationItems', function(err, brokerItems)
+            {
+                if (err) return Homey.alert(err);
+                localBrokerItems = brokerItems;
+
+                // Setup the list items for brokers in the panel config
+                for (let i = 0; i < localBrokerItems.length; i++)
+                {
+                    const brokerItem = localBrokerItems[i];
+                    var option = document.createElement("option");
+                    option.value = brokerItem.brokerid;
+                    option.text = brokerItem.brokerid;
+                    leftBrokerIdElement.add(option);
+
+                    var option = document.createElement("option");
+                    option.value = brokerItem.brokerid;
+                    option.text = brokerItem.brokerid;
+                    rightBrokerIdElement.add(option);
+                }
+
+                drawBrokerItems();
+            });
+
+            newBrokerItemButton.addEventListener('click', function(e)
+            {
+                // Create a new broker item
+                var brokerItem = {
+                    brokerid: "Unnamed",
+                    url: "",
+                    port: 1883,
+                    wsPort: 9001,
+                    enabled: true,
+                    protected: false,
+                };
+
+                // Add the new broker to the local broker list
+                localBrokerItems.push(brokerItem);
+
+                // Add the new broker to the panel config broker lists
+                var optionLeft = document.createElement("option");
+                optionLeft.value = brokerItem.brokerid;
+                optionLeft.text = brokerItem.brokerid;
+                leftBrokerIdElement.add(optionLeft);
+
+                var optionRight= document.createElement("option");
+                optionRight.value = brokerItem.brokerid;
+                optionRight.text = brokerItem.brokerid;
+                rightBrokerIdElement.add(optionRight);
+
+                // Add the new broker to the display config broker lists
+                for (let i = 0; i < localDisplayConfigurations.length; i++)
+                {
+                    const displayConfiguration = localDisplayConfigurations[i];
+                    for (let j = 0; j < displayConfiguration.items.length; j++)
+                    {
+                        const displayItem = displayConfiguration.items[j];
+                        var optionLeft = document.createElement("option");
+                        optionLeft.value = brokerItem.brokerid;
+                        optionLeft.text = brokerItem.brokerid;
+                        document.getElementById(`display${j}BrokerId`).add(optionLeft);
+                    }
+                }
+
+                // Redraw the broker items
+                drawBrokerItems();
+            });
+
             // Tell Homey we're ready to be displayed
             Homey.ready();
+        }
+
+        function fillConfigElement(element, txt)
+        {
+            //fill the device lists with devices
+            element.innerHTML = "";
+
+            var option = document.createElement("option");
+            for (let i = 0; i < 20; i++)
+            {
+                var option = document.createElement("option");
+                option.value = i;
+                option.text = `${txt} ${i + 1}`;
+                element.add(option);
+            }
         }
 
         function getDeivices()
@@ -525,26 +651,28 @@
             if (currentButtonConfigurationNo < 0 || currentButtonConfigurationNo >= localbuttonConfigurations.length)
             {
                 currentButtonConfigurationNo = 0;
-                ButtonConfigurationNoElement.value = currentButtonConfigurationNo;
+                buttonConfigurationNoElement.value = currentButtonConfigurationNo;
             }
 
-            if (ButtonConfigurationNoElement.value == "")
+            if (buttonConfigurationNoElement.value == "")
             {
                 leftTopTextElement.value = "";
                 leftOnTextElement.value = "";
                 leftOffTextElement.value = "";
                 leftDeviceElement.value = "";
                 leftCapabilityElement.value = "";
+                leftBrokerIdElement.value = "homey";
 
                 rightTopTextElement.value = "";
                 rightOnTextElement.value = "";
                 rightOffTextElement.value = "";
                 rightDeviceElement.value = "";
                 rightCapabilityElement.value = "";
+                rightBrokerIdElement.value = "homey";
             }
             else
             {
-                currentButtonConfigurationNo = ButtonConfigurationNoElement.value;
+                currentButtonConfigurationNo = buttonConfigurationNoElement.value;
                 let ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
 
                 leftTopTextElement.value = ButtonPanelConfiguration.leftTopText;
@@ -552,6 +680,7 @@
                 leftOffTextElement.value = ButtonPanelConfiguration.leftOffText;
                 leftDeviceElement.value = ButtonPanelConfiguration.leftDevice;
                 getCapabilities(leftDeviceElement.value, leftCapabilityElement, ButtonPanelConfiguration.leftCapability, leftOnTextElement, leftOffTextElement);
+                leftBrokerIdElement.value =ButtonPanelConfiguration.leftBrokerId;
 
                 rightTopTextElement.value = ButtonPanelConfiguration.rightTopText;
                 rightOnTextElement.value = ButtonPanelConfiguration.rightOnText;
@@ -559,6 +688,7 @@
                 rightDeviceElement.value = ButtonPanelConfiguration.rightDevice;
                 rightCapabilityElement.value = ButtonPanelConfiguration.rightCapability;
                 getCapabilities(rightDeviceElement.value, rightCapabilityElement, ButtonPanelConfiguration.rightCapability, rightOnTextElement, rightOffTextElement);
+                rightBrokerIdElement.value = ButtonPanelConfiguration.rightBrokerId;
             }
         }
 
@@ -570,15 +700,15 @@
                 document.getElementById('AutoConfigWarnOff').style.display = "block";
                 document.getElementById('AutoConfigWarnOn').style.display = "none";
                 saveButton.style.display = "none";
-                ConfigTypeElement.style.display = "none";
+                configTypeElement.style.display = "none";
             }
             else
             {
-                configTypeChanged(ConfigTypeElement.value);
+                configTypeChanged(configTypeElement.value);
                 document.getElementById('AutoConfigWarnOff').style.display = "none";
                 document.getElementById('AutoConfigWarnOn').style.display = "block";
                 saveButton.style.display = "block";
-                ConfigTypeElement.style.display = "block";
+                configTypeElement.style.display = "block";
             }
         }
 
@@ -647,6 +777,7 @@
                 width: Homey.__("settings.width"),
                 rounding: Homey.__("settings.rounding"),
                 fontSize: Homey.__("settings.fontSize"),
+                alignment: Homey.__("settings.alignment"),
                 topLeft: Homey.__("settings.topLeft"),
                 topCenter: Homey.__("settings.topCenter"),
                 topRight: Homey.__("settings.topRight"),
@@ -657,6 +788,7 @@
                 bottomCenter: Homey.__("settings.bottomCenter"),
                 bottomRight: Homey.__("settings.bottomRight"),
                 deleteDisplayItem: Homey.__("settings.deleteDisplayItem"),
+                brokerId: Homey.__("settings.brokerId"),
             }
             const itemLegend = Homey.__("settings.displayItemlegend", { itemNo: itemNo + 1 });
 
@@ -711,12 +843,22 @@
                             <option value=7>${ctrlLabels.bottomCenter}</option>
                             <option value=8>${ctrlLabels.bottomRight}</option>
                         </select><br>
+
+                        <label class="homey-form-label" for="display${itemNo}BrokerId">${ctrlLabels.brokerId}</label>
+                            <select class="homey-form-select" id="display${itemNo}BrokerId">
+                                <option value='homey'>Homey</option>
+                                <option value='buttonplus'>Button+</option>
+                            </select>
+                            <br>
                         <p><button class="homey-button-secondary-shadow" id="deleteDisplayItem" onClick="deleteItem(${itemNo})" style="font-size: 30px;"><i class="fi fi-rr-trash"></i> </button></p>
                     </div>
                 </div>`;
 
             document.getElementById('displayItemsSection').innerHTML = section;
-            // fillDevicesElement(document.getElementById(`display${itemNo}Device`));
+
+            document.getElementById(`display${itemNo}FontSize`).value = item.fontSize;
+            document.getElementById(`display${itemNo}Alignment`).value =  item.alignment;
+            document.getElementById(`display${itemNo}BrokerId`).value = item.brokerId;
         }
 
         function fillDisplayDevices()
@@ -793,7 +935,7 @@
         function deleteItem(itemNo)
         {
             // Save all the settings so they don't get lost when the controls are redawn
-            storeDevicesSettings();
+            storeDisplaySettings();
 
             var displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
 
@@ -804,7 +946,7 @@
             }
         }
 
-        function storeDevicesSettings()
+        function storeDisplaySettings()
         {
             var displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
 
@@ -822,9 +964,163 @@
                     displayConfiguration.items[itemNo].rounding = document.getElementById(`display${itemNo}Rounding`).value;
                     displayConfiguration.items[itemNo].fontSize = document.getElementById(`display${itemNo}FontSize`).value;
                     displayConfiguration.items[itemNo].alignment = document.getElementById(`display${itemNo}Alignment`).value;
+                    displayConfiguration.items[itemNo].brokerId = document.getElementById(`display${itemNo}BrokerId`).value;
                 }
             }
         }
+
+        function drawBrokerItems()
+        {
+            document.getElementById('brokerItemsSection').innerHTML = "";
+            for (var itemNo = 0; itemNo < localBrokerItems.length; itemNo++)
+            {
+                const item = localBrokerItems[itemNo];
+                insertBrokerItemSection(item, itemNo);
+            }
+        }
+
+        function insertBrokerItemSection(item, itemNo)
+        {
+            const ctrlLabels = {
+                id: Homey.__("settings.id"),
+                address: Homey.__("settings.address"),
+                port: Homey.__("settings.port"),
+                wsPort: Homey.__("settings.wsPort"),
+                enabled: Homey.__("settings.enabled"),
+            };
+            const itemLegend = Homey.__("settings.brokerItemlegend", { itemNo: itemNo + 1 });
+            const protected = item.protected ? "disabled" : "";
+            const enableOption = item.enabled ? "checked" : "";
+            let deleteButton = "";
+            if (!item.protected)
+            {
+                deleteButton = `<p><button class="homey-button-secondary-shadow" id="deleteBrokerItem${itemNo}" onClick="deleteBrokerItem(${itemNo})" style="font-size: 30px;"><i class="fi fi-rr-trash"></i> </button></p>`;
+            }
+
+            let brokerDescription = "";
+            if (item.brokerid === "homey")
+            {
+                brokerDescription = Homey.__("settings.brokerHomey");
+            }
+            else if (item.brokerid === "buttonplus")
+            {
+                brokerDescription = Homey.__("settings.brokerButtonPlus");
+            }
+            else
+            {
+                brokerDescription = Homey.__("settings.brokerUser");
+            }
+
+            var section = document.getElementById('brokerItemsSection').innerHTML;
+            section = section +
+                `<div class="horizontalcontainer">
+                    <div class="horizontalgroup">
+                        <legend class="homey-subtitle">${itemLegend}</legend>
+                        <p>${brokerDescription}</p>
+
+                        <label class="homey-form-label" for="broker${itemNo}Id">${ctrlLabels.id}</label>
+                        <input class="homey-form-input" id="broker${itemNo}Id" type="text" value="${item.brokerid}" ${protected} onChange="updateBrokerLists(${itemNo})"/>
+
+                        <label class="homey-form-label" for="broker${itemNo}Address">${ctrlLabels.address}</label>
+                        <input class="homey-form-input" id="broker${itemNo}Address" type="text" value="${item.url}" ${protected} />
+
+                        <label class="homey-form-label" for="broker${itemNo}Port">${ctrlLabels.port}</label>
+                        <input class="homey-form-input" id="broker${itemNo}Port" type="number" value="${item.port}" />
+
+                        <label class="homey-form-label" for="broker${itemNo}WSPort">${ctrlLabels.wsPort}</label>
+                        <input class="homey-form-input" id="broker${itemNo}WSPort" type="number" value="${item.wsport}" />
+
+                        <label class="homey-form-checkbox">
+                            <input class="homey-form-checkbox-input" id="broker${itemNo}Enabled" type="checkbox" ${enableOption}/>
+                            <span class="homey-form-checkbox-checkmark"></span>
+                            <span class="homey-form-checkbox-text">${ctrlLabels.enabled}</span>
+                        </label>
+
+                        ${deleteButton}
+                    </div>
+                </div>`;
+
+                document.getElementById('brokerItemsSection').innerHTML = section;
+        }
+
+        function updateBrokerLists(itmeNo)
+        {
+            // Update the broker in the left and right broker list in the panel config
+            const leftBrokerIdElement = document.getElementById('leftBrokerId');
+            leftBrokerIdElement.options[itmeNo].text = document.getElementById(`broker${itmeNo}Id`).value;
+            const rightBrokerIdElement = document.getElementById('rightBrokerId');
+            rightBrokerIdElement.options[itmeNo].text = document.getElementById(`broker${itmeNo}Id`).value;
+
+            // Update the broker lists in the display config items
+            for (var displayItemNo = 0; displayItemNo < localDisplayConfigurations.length; displayItemNo++)
+            {
+                const displayItem = localDisplayConfigurations[displayItemNo];
+                for (var itemNo = 0; itemNo < displayItem.items.length; itemNo++)
+                {
+                    const item = displayItem.items[itemNo];
+                    const brokerIdElement = document.getElementById(`display${itemNo}BrokerId`);
+                    brokerIdElement.options[itmeNo].text = document.getElementById(`broker${itmeNo}Id`).value;
+                }
+            }
+        }
+
+        function deleteBrokerItem(itemNo)
+        {
+            if (localBrokerItems.length > 2 && !localBrokerItems[itemNo].protected)
+            {
+                localBrokerItems.splice(itemNo, 1);
+                drawBrokerItems();
+
+                // Remove the broker from the left and right broker list in the panel config
+                const leftBrokerIdElement = document.getElementById('leftBrokerId');
+                leftBrokerIdElement.remove(itemNo);
+
+                const rightBrokerIdElement = document.getElementById('rightBrokerId');
+                rightBrokerIdElement.remove(itemNo);
+
+                // Remove the broker from the broker all the lists in the display config items
+                for (var displayItemNo = 0; displayItemNo < localDisplayConfigurations.length; displayItemNo++)
+                {
+                    const displayItem = localDisplayConfigurations[displayItemNo];
+                    for (var itemNo = 0; itemNo < displayItem.items.length; itemNo++)
+                    {
+                        const item = displayItem.items[itemNo];
+                        const brokerIdElement = document.getElementById(`display${itemNo}BrokerId`);
+                        brokerIdElement.remove(itemNo);
+                    }
+                }
+            }
+            else
+            {
+                Homey.alert(Homey.__("settings.deleteBrokerItemError"));
+            }
+        }
+
+        function storeBrokerSettings()
+        {
+            for (var itemNo = 0; itemNo < localBrokerItems.length; itemNo++)
+            {
+                // Make sure there isn't already a broker with this id
+                newBrokerid = document.getElementById(`broker${itemNo}Id`).value;
+
+                for (var itemNo2 = 0; itemNo2 < itemNo; itemNo2++)
+                {
+                    if (newBrokerid.toUpperCase() === localBrokerItems[itemNo2].brokerid.toUpperCase())
+                    {
+                        Homey.alert(Homey.__("settings.duplicateBrokerIdError", { brokerId: newBrokerid }));
+                        return false;
+                    }
+                }
+                localBrokerItems[itemNo].enabled = document.getElementById(`broker${itemNo}Enabled`).checked;
+                localBrokerItems[itemNo].brokerid = newBrokerid;
+                localBrokerItems[itemNo].url = document.getElementById(`broker${itemNo}Address`).value;
+                localBrokerItems[itemNo].port = document.getElementById(`broker${itemNo}Port`).value;
+                localBrokerItems[itemNo].wsport = document.getElementById(`broker${itemNo}WSPort`).value;
+            }
+
+            return true;
+        }
+
     </script>
 </body>
 

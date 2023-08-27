@@ -1,13 +1,44 @@
 .horizontalcontainer {
-  display: flex;
-  width: 100%;
-  margin-top: 10px;
+    display: flex;
+    width: 100%;
+    margin-top: 10px;
 }
 
 .horizontalgroup {
-  flex: 1; /* Each group takes equal space */
-  padding: 5px; /* Add some padding for spacing */
-  border: 1px solid lightblue; /* Add a border for visualization */
-  border-radius: 10px;
-  box-sizing: border-box;
+    flex: 1;
+    /* Each group takes equal space */
+    padding: 5px;
+    /* Add some padding for spacing */
+    border: 1px solid lightblue;
+    /* Add a border for visualization */
+    border-radius: 10px;
+    box-sizing: border-box;
+}
+
+/* Tooltip container */
+.tooltip {
+    position: relative;
+    display: inline-block;
+    color: #2f4fef;
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 75vw;
+    background-color: rgb(249, 248, 236);
+    color: #121010;
+    text-align: left;
+    padding: 5px 5px;
+    border-radius: 10px;
+    box-shadow: 10px 10px 5px lightblue;
+    position: absolute;
+    top: 100%;
+    left: -100%;
+    z-index: 1;
+}
+
+/* Show the tooltip text when you mouse over the tooltip container */
+.tooltip:hover .tooltiptext {
+    visibility: visible;
 }

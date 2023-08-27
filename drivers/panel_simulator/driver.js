@@ -10,76 +10,7 @@ class PanelDriver extends Driver
      */
     async onInit()
     {
-        this._triggerButtonOn = this.homey.flow.getDeviceTriggerCard('button_on');
-        this._triggerButtonOn.registerRunListener((args, state) =>
-        {
-            return (args.left_right === state.left_right && args.connector === state.connector);
-        });
-
-        this._triggerButtonOff = this.homey.flow.getDeviceTriggerCard('button_off');
-        this._triggerButtonOff.registerRunListener((args, state) =>
-        {
-            return (args.left_right === state.left_right && args.connector === state.connector);
-        });
-
-        this._triggerButtonChange = this.homey.flow.getDeviceTriggerCard('button_change');
-        this._triggerButtonChange.registerRunListener((args, state) =>
-        {
-            return (args.left_right === state.left_right && args.connector === state.connector);
-        });
-
         this.log('PanelDriver has been initialized');
-    }
-
-    triggerButtonOn(device, leftright, connector)
-    {
-        const tokens = { left_right: leftright, connector };
-        const state = { left_right: leftright ? 'left' : 'right', connector };
-        this.triggerFlow(this._triggerButtonOn, device, tokens, state);
-        this.triggerButtonChange(device, leftright, connector, true);
-        return this;
-    }
-
-    triggerButtonOff(device, leftright, connector)
-    {
-        const tokens = { left_right: leftright, connector };
-        const state = { left_right: leftright ? 'left' : 'right', connector };
-        this.triggerFlow(this._triggerButtonOff, device, tokens, state);
-        this.triggerButtonChange(device, leftright, connector, false);
-        return this;
-    }
-
-    triggerButtonChange(device, leftright, connector, value)
-    {
-        const tokens = { left_right: leftright, connector, state: value };
-        const state = { left_right: leftright ? 'left' : 'right', connector };
-        this.triggerFlow(this._triggerButtonChange, device, tokens, state);
-        return this;
-    }
-
-    /**
-     * Triggers a flow
-     * @param {this.homey.flow.getDeviceTriggerCard} trigger - A this.homey.flow.getDeviceTriggerCard instance
-     * @param {Device} device - A Device instance
-     * @param {Object} tokens - An object with tokens and their typed values, as defined in the app.json
-     */
-    triggerFlow(trigger, device, tokens, state)
-    {
-        if (trigger)
-        {
-            trigger.trigger(device, tokens, state)
-                .then((result) =>
-                {
-                    if (result)
-                    {
-                        this.log(result);
-                    }
-                })
-                .catch((error) =>
-                {
-                    this.homey.app.logInformation(`triggerFlow (${trigger.id})`, error);
-                });
-        }
     }
 
     onPair(session)
@@ -121,7 +52,7 @@ class PanelDriver extends Driver
 
         session.setHandler('list_devices', async () =>
         {
-            const devices = await this.pairListDevices(0, virtualID);
+            const devices = await this.pairListDevices('', virtualID);
             if (!devices || devices.length === 0)
             {
                 throw new Error('no_devices_found');
