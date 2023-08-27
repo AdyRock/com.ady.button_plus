@@ -28,7 +28,8 @@
         "left_button.connector6",
         "right_button.connector6",
         "left_button.connector7",
-        "right_button.connector7"
+        "right_button.connector7",
+        "info"
     ],
     "capabilitiesOptions": {
         "configuration.connector0": {

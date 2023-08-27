@@ -240,6 +240,13 @@ class MyApp extends Homey.App
                 return args.device.triggerCapabilityListener(`${args.left_right}_button.connector${args.connector}`, true);
             });
 
+        this.homey.flow.getActionCard('set_info')
+            .registerRunListener(async (args, state) =>
+            {
+                this.log(`${args.info}`, args);
+                return args.device.triggerCapabilityListener('info', args.info);
+            });
+
         this.homey.flow.getActionCard('turn_off_button')
             .registerRunListener(async (args, state) =>
             {
@@ -798,7 +805,7 @@ class MyApp extends Homey.App
         return null;
     }
 
-    async getHomeyDevices({ type = '', id = '' })
+    async getHomeyDevices({ type = '', ids = null })
     {
         if (this.deviceManager)
         {
@@ -815,7 +822,7 @@ class MyApp extends Homey.App
                     devices = await api.devices.getDevices();
                 }
 
-                if (type || id)
+                if (type || ids)
                 {
                     // Filter the object on type or id
                     const filteredDevices = [];
@@ -827,7 +834,7 @@ class MyApp extends Homey.App
                         const capabilitiesArray = Object.values(capabilities);
                         for (const capability of capabilitiesArray)
                         {
-                            if ((type && capability.type === type) || (id && capability.id === id))
+                            if ((type && capability.type === type) || (ids && this.id.findIndex((id) => capability.id === id) >= 0))
                             {
                                 filteredDevices.push(device);
                                 break;

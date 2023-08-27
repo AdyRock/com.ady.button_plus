@@ -164,7 +164,7 @@
           {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=panel"
+            "filter": "driver_id=panel_hardware|panel_simulator"
           }
         ],
         "id": "button_change"
@@ -232,7 +232,7 @@
           {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=panel"
+            "filter": "driver_id=panel_hardware|panel_simulator"
           }
         ],
         "id": "button_off"
@@ -300,7 +300,7 @@
           {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=panel"
+            "filter": "driver_id=panel_hardware|panel_simulator"
           }
         ],
         "id": "button_on"
@@ -352,13 +352,39 @@
           {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=panel"
+            "filter": "driver_id=panel_hardware|panel_simulator"
           }
         ],
         "id": "is_button_on"
       }
     ],
     "actions": [
+      {
+        "title": {
+          "en": "Set Information Text"
+        },
+        "titleFormatted": {
+          "en": "Set the Information text to [[info]]"
+        },
+        "hint": {
+          "en": "Sets the information text so it can be displayed on a panel"
+        },
+        "args": [
+          {
+            "type": "text",
+            "name": "info",
+            "placeholder": {
+              "en": "Information Text"
+            }
+          },
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=panel_hardware|panel_simulator"
+          }
+        ],
+        "id": "set_info"
+      },
       {
         "title": {
           "en": "Switch Button Configuration"
@@ -393,7 +419,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=panel"
+            "filter": "driver_id=panel_hardware|panel_simulator"
           }
         ],
         "id": "switch_button_configuration"
@@ -422,7 +448,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=panel"
+            "filter": "driver_id=panel_hardware|panel_simulator"
           }
         ],
         "id": "switch_display_configuration"
@@ -475,7 +501,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=panel"
+            "filter": "driver_id=panel_hardware|panel_simulator"
           }
         ],
         "id": "turn_off_button"
@@ -528,7 +554,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=panel"
+            "filter": "driver_id=panel_hardware|panel_simulator"
           }
         ],
         "id": "turn_on_button"
@@ -566,7 +592,8 @@
         "left_button.connector6",
         "right_button.connector6",
         "left_button.connector7",
-        "right_button.connector7"
+        "right_button.connector7",
+        "info"
       ],
       "capabilitiesOptions": {
         "configuration.connector0": {
@@ -754,7 +781,8 @@
         "left_button.connector6",
         "right_button.connector6",
         "left_button.connector7",
-        "right_button.connector7"
+        "right_button.connector7",
+        "info"
       ],
       "capabilitiesOptions": {
         "configuration.connector0": {
@@ -1054,6 +1082,15 @@
           }
         }
       ]
+    },
+    "info": {
+      "type": "string",
+      "title": {
+        "en": "Information"
+      },
+      "getable": true,
+      "setable": false,
+      "icon": "/assets/info.svg"
     },
     "left_button": {
       "type": "boolean",

@@ -1,0 +1,9 @@
+{
+    "type": "string",
+    "title": {
+        "en": "Information"
+    },
+    "getable": true,
+    "setable": false,
+    "icon": "/assets/info.svg"
+}

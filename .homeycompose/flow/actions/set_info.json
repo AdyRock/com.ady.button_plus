@@ -1,0 +1,25 @@
+{
+    "title": {
+        "en": "Set Information Text"
+    },
+    "titleFormatted": {
+        "en": "Set the Information text to [[info]]"
+    },
+    "hint": {
+        "en": "Sets the information text so it can be displayed on a panel"
+    },
+    "args": [
+        {
+            "type": "text",
+            "name": "info",
+            "placeholder": {
+                "en": "Information Text"
+            }
+        },
+        {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=panel_hardware|panel_simulator"
+        }
+    ]
+}

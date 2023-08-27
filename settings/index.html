@@ -555,7 +555,7 @@
 
         function getDeivices()
         {
-            Homey.api('POST', '/Devices/', { type: 'boolean', id: 'dim' }, function(err, devices)
+            Homey.api('POST', '/Devices/', { type: 'boolean', id: ['dim'] }, function(err, devices)
             {
                 if (err) return Homey.alert(err);
 

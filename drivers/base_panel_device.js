@@ -22,6 +22,13 @@ class BasePanelDevice extends Device
         await this.configureConnetctor(settings.connect6Type, 6);
         await this.configureConnetctor(settings.connect7Type, 7);
 
+        if (!this.hasCapability('info'))
+        {
+            await this.addCapability('info');
+        }
+
+        await this.registerCapabilityListener('info', this.onCapabilityInfo.bind(this));
+
         const deviceConfiguration = await this.uploadButtonConfigurations(null, false);
         await this.uploadDisplayConfigurations(deviceConfiguration, true);
 
@@ -312,6 +319,11 @@ class BasePanelDevice extends Device
         }
     }
 
+    async onCapabilityInfo(value, opts)
+    {
+        this.setCapabilityValue('info', value);
+    }
+
     async processMQTTMessage(topic, MQTTMessage)
     {
         this.homey.app.updateLog(`MQTT message received: ${topic}, ${this.homey.app.varToString(MQTTMessage)}`);
@@ -511,7 +523,7 @@ class BasePanelDevice extends Device
         {
             try
             {
-                await this.homey.app.uploadDisplayConfiguration(ip, virtualID, configNo, deviceConfigurations, writeConfiguration);
+                deviceConfigurations = await this.homey.app.uploadDisplayConfiguration(ip, virtualID, configNo, deviceConfigurations, writeConfiguration);
 
                 // Send each of the display values referenced in the config to the MQTT broker
                 const displayConfiguration = this.homey.app.displayConfigurations[configNo];
@@ -650,6 +662,9 @@ class BasePanelDevice extends Device
             const configNo = this.getCapabilityValue('configuration.connector4');
             this.checkStateChangeForConnector(configNo, 4, deviceId, capability, value);
         }
+
+        const configNo = this.getCapabilityValue('configuration.display');
+        this.checkStateChangeForDisplay(configNo, deviceId, capability, value);
     }
 
     checkStateChangeForConnector(configNo, connector, deviceId, capability, value)
@@ -660,7 +675,7 @@ class BasePanelDevice extends Device
         if ((item.leftDevice === deviceId) && (item.leftCapability === capability))
         {
             // Publish to MQTT
-            this.app.publishMQTTMessage(item.leftBrokerId, `homey/${deviceId}/${capability}/value`, value);
+            this.homey.app.publishMQTTMessage(item.leftBrokerId, `homey/${deviceId}/${capability}/value`, value);
 
             if (item.leftCapability === 'dim')
             {
@@ -671,12 +686,27 @@ class BasePanelDevice extends Device
 
         if ((item.rightDevice === deviceId) && (item.rightCapability === capability))
         {
-            this.app.publishMQTTMessage(item.rightBrokerId, `homey/${deviceId}/${capability}/value`, value);
+            this.homey.app.publishMQTTMessage(item.rightBrokerId, `homey/${deviceId}/${capability}/value`, value);
             if (item.rightCapability === 'dim')
             {
                 value = false;
             }
             this.setCapabilityValue(`right_button.connector${connector}`, value).catch(this.error);
+        }
+    }
+
+    checkStateChangeForDisplay(configNo, deviceId, capability, value)
+    {
+        // Check the display devices and capabilities for this panel
+        const item = this.homey.app.displayConfigurations[configNo];
+        for (let itemNo = 0; itemNo < item.items.length; itemNo++)
+        {
+            const displayItem = item.items[itemNo];
+            if ((displayItem.device === deviceId) && (displayItem.capability === capability))
+            {
+                // Publish to MQTT
+                this.homey.app.publishMQTTMessage(displayItem.brokerId, `homey/${deviceId}/${capability}/value`, value);
+            }
         }
     }
 
