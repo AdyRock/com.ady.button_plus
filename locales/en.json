@@ -19,7 +19,9 @@
         "topLabelExplanation": "The Top Label is shown along the top of the small display. It can be used to show the name of the device or flow that is controlled by the button.",
         "label": "Label",
         "labelOn": "Label for On state",
+        "labelOnExplantion": "The labels to show when the button is in the On state.",
         "labelOff": "Label for Off state",
+        "labelOffExplantion": "The labels to show when the button is in the Off state.",
         "device": "Device",
         "deviceExplanation": "Select the device to control when you press the Button+ button.<br>Only devices with On/Off or Dim capabilities will be shown.<br>If you select none, then the nothing is directly controlled but you will still get the button pressed Flow trigger",
         "capability": "Capability",
@@ -46,7 +48,7 @@
         "bottomCenter": "Bottom Center",
         "bottomRight": "Bottom Right",
         "saveError1": "Error saving configurations",
-        "dimValue": "Dim Change (±1 to ±100)",
+        "dimValue": "Dim Change",
         "dimError": "Dim __leftRight__ Change must be between ±1 and ±100. Please correct and try again.",
         "brokerId": "Broker ID",
         "brokerIdExplanation": "Select the Broker ID that you wan to send and receive messages from.",
@@ -63,7 +65,10 @@
         "brokerHomey": "This is the apps own broker. It can not be deleted but can be disabled if you don't want to use it.",
         "brokerButtonPlus": "This is the Button+ broker. It can not be deleted but can be disabled if you don't want to use it.",
         "brokerUser": "This is a user defined broker. It can be deleted or disabled.",
-        "duplicateBrokerIdError": "Broker ID '__brokerId__' already exists. Please correct and try again."
+        "duplicateBrokerIdError": "Broker ID '__brokerId__' already exists. Please correct and try again.",
+        "MQTTTopic": "MQTT Topic",
+        "MQTTTopicExplanation": "This is an optional custom MQTT topic that will be published when the button is pressed. Leave blank to toggle the Homey device button and trigger a Homey Flow.",
+        "dimChangeExplanation": "The amount to change the dim level when the button is pressed.<br>This can be a positive or negative number to either brighten or darken the device.<br>Example +10 to increase the dim level bu 10% each time the button is pressed, or -10 to decrease the dim level.<br>If you omit the + or - then the dim value will be set to the specified level."
     },
     "pair": {
         "manual_add":{

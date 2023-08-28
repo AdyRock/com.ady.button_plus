@@ -24,7 +24,7 @@
 
 /* Tooltip text */
 .tooltip .tooltiptext {
-    visibility: hidden;
+    display: none;
     width: 75vw;
     background-color: rgb(249, 248, 236);
     color: #121010;
@@ -40,5 +40,5 @@
 
 /* Show the tooltip text when you mouse over the tooltip container */
 .tooltip:hover .tooltiptext {
-    visibility: visible;
+    display: inherit;
 }

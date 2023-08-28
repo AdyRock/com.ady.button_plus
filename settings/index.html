@@ -35,7 +35,7 @@
                 <div style="padding: 10px 10px 10px 10px; border: 1px solid lightblue; border-radius: 10px">
                     <div class="tooltip"><i class="fi fi-rr-info"></i>
                         <span class="tooltiptext" data-i18n="settings.buttonExplanation"></span>
-                      </div>
+                    </div>
 
                     <select class="homey-form-select" id="ButtonPanelConfigurationNo">
                     </select>
@@ -52,22 +52,61 @@
                                 <option value="" selected disabled hidden><span data-i18n="settings.device"></option>
                             </select>
 
-                            <label class="homey-form-label" id="leftCapabilityLabel" for="leftCapability"><span data-i18n="settings.capability"></span>
+                            <span>
+                                <div id="leftCapabilityDiv">
+                                    <label class="homey-form-label" id="leftCapabilityLabel" for="leftCapability"><span data-i18n="settings.capability"></span>
+                                    </label>
+                                    <select class="homey-form-select" id="leftCapability">
+                                        <option value="" selected disabled hidden><span data-i18n="settings.selectCapability"></span></option>
+                                    </select>
+                                </div>
+                            </span>
+
+                            <span>
+                                <div id="leftMQTTopicDiv">
+                                    <label class="homey-form-label" for="leftMQTTTopic"><span data-i18n="settings.MQTTTopic"></span>
+                                        <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                            <span class="tooltiptext" data-i18n="settings.MQTTTopicExplanation"></span>
+                                        </div>
+                                    </label>
+                                    <input class="homey-form-input" id="leftMQTTTopic" type="text" maxlength="50" value="" />
+                                </div>
+                            </span>
+
+                            <label class="homey-form-label" for="leftTopText"><span data-i18n="settings.topLabel"></span>
                                 <div class="tooltip"><i class="fi fi-rr-info"></i>
                                     <span class="tooltiptext" data-i18n="settings.topLabelExplanation"></span>
                                 </div>
                             </label>
-                            <select class="homey-form-select" id="leftCapability">
-                                <option value="" selected disabled hidden><span data-i18n="settings.selectCapability"></span></option>
-                            </select>
-
-                            <label class="homey-form-label" for="leftTopText"><span data-i18n="settings.topLabel"></span></label>
                             <input class="homey-form-input" id="leftTopText" type="text" maxlength="20" value="" />
 
-                            <label class="homey-form-label" id="leftOnTextLabel" for="leftOnText"><span data-i18n="settings.labelOn"></span></label>
-                            <input class="homey-form-input" id="leftOnText" type="text" maxlength="20" value="" />
+                            <span>
+                                <div id="leftOnTextDiv">
+                                    <label class="homey-form-label" id="leftOnTextLabel" for="leftOnText"><span data-i18n="settings.labelOn"></span>
+                                        <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                            <span class="tooltiptext" data-i18n="settings.labelOnExplantion"></span>
+                                        </div>
+                                    </label>
+                                    <input class="homey-form-input" id="leftOnText" type="text" maxlength="20" value="" />
+                                </div>
+                            </span>
 
-                            <label class="homey-form-label" id="leftOffTextLabel" for="leftOffText"><span data-i18n="settings.labelOff"></span></label>
+                            <span>
+                                <div id="leftDimChangeDiv">
+                                    <label class="homey-form-label" id="leftDimChangeLabel" for="leftDimChange"><span data-i18n="settings.dimValue"></span>
+                                        <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                            <span class="tooltiptext" data-i18n="settings.dimChangeExplanation"></span>
+                                        </div>
+                                    </label>
+                                    <input class="homey-form-input" id="leftDimChange" type="text" maxlength="20" value="" />
+                                </div>
+                            </span>
+
+                            <label class="homey-form-label" id="leftOffTextLabel" for="leftOffText"><span data-i18n="settings.labelOff"></span>
+                                <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                    <span class="tooltiptext" data-i18n="settings.labelOffExplantion"></span>
+                                </div>
+                            </label>
                             <input class="homey-form-input" id="leftOffText" type="text" maxlength="20" value="" />
 
                             <label class="homey-form-label" for="leftBrokerId"><span data-i18n="settings.brokerId"></span>
@@ -86,21 +125,67 @@
                                 <option value="" selected disabled hidden><span data-i18n="settings.selectDevice"></span></option>
                             </select>
 
-                            <label class="homey-form-label" id="rightCapabilityLabel" for="rightCapability"><span data-i18n="settings.capability"></span></label>
-                            <select class="homey-form-select" id="rightCapability">
-                                <option value="" selected disabled hidden><span data-i18n="settings.selectCapability"></span></option>
-                            </select>
+                            <span>
+                                <div id="rightCapabilityDiv">
+                                    <label class="homey-form-label" id="rightCapabilityLabel" for="rightCapability"><span data-i18n="settings.capability"></span></label>
+                                    <select class="homey-form-select" id="rightCapability">
+                                        <option value="" selected disabled hidden><span data-i18n="settings.selectCapability"></span></option>
+                                    </select>
+                                </div>
+                            </span>
 
-                            <label class="homey-form-label" for="rightTopText"><span data-i18n="settings.topLabel"></span></label>
+                            <span>
+                                <div id="rightMQTTopicDiv">
+                                    <label class="homey-form-label" for="rightMQTTTopic"><span data-i18n="settings.MQTTTopic"></span>
+                                        <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                            <span class="tooltiptext" data-i18n="settings.MQTTTopicExplanation"></span>
+                                        </div>
+                                    </label>
+                                    <input class="homey-form-input" id="rightMQTTTopic" type="text" maxlength="50" value="" />
+                                </div>
+                            </span>
+
+                            <label class="homey-form-label" for="rightTopText"><span data-i18n="settings.topLabel"></span>
+                                <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                    <span class="tooltiptext" data-i18n="settings.topLabelExplanation"></span>
+                                </div>
+                            </label>
                             <input class="homey-form-input" id="rightTopText" type="text" maxlength="20" value="" />
 
-                            <label class="homey-form-label" id="rightOnTextLabel" for="rightOnText"><span data-i18n="settings.labelOn"></span></label>
-                            <input class="homey-form-input" id="rightOnText" type="text" maxlength="20" value="" />
+                            <span>
+                                <div id="rightOnTextDiv">
+                                    <label class="homey-form-label" id="rightOnTextLabel" for="rightOnText"><span data-i18n="settings.labelOn"></span>
+                                        <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                            <span class="tooltiptext" data-i18n="settings.labelOnExplantion"></span>
+                                        </div>
+                                    </label>
+                                    <input class="homey-form-input" id="rightOnText" type="text" maxlength="20" value="" />
+                                </div>
+                            </span>
 
-                            <label class="homey-form-label" id="rightOffTextLabel" for="rightOffText"><span data-i18n="settings.labelOff"></span></label>
+                            <span>
+                                <div id="rightDimChangeDiv">
+                                    <label class="homey-form-label" id="rightDimChangeLabel" for="rightDimChange"><span data-i18n="settings.dimValue"></span>
+                                        <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                            <span class="tooltiptext" data-i18n="settings.dimChangeExplanation"></span>
+                                        </div>
+                                    </label>
+                                    <input class="homey-form-input" id="rightDimChange" type="text" maxlength="20" value="" />
+                                </div>
+                            </span>
+
+                            <label class="homey-form-label" id="rightOffTextLabel" for="rightOffText"><span data-i18n="settings.labelOff"></span>
+                                <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                    <span class="tooltiptext" data-i18n="settings.labelOffExplantion"></span>
+                                </div>
+                            </label>
                             <input class="homey-form-input" id="rightOffText" type="text" maxlength="20" value="" />
 
-                            <label class="homey-form-label" for="rightBrokerId"><span data-i18n="settings.brokerId"></span></label>
+                            <label class="homey-form-label" for="rightBrokerId"><span data-i18n="settings.brokerId"></span>
+                                <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                    <span class="tooltiptext" data-i18n="settings.brokerIdExplanation"></span>
+                                </div>
+                            </label>
                             <select class="homey-form-select" id="rightBrokerId">
                             </select>
                         </div>
@@ -159,16 +244,20 @@
 
         var buttonConfigurationNoElement = document.getElementById('ButtonPanelConfigurationNo');
 
+        var leftMQTTTopicElement = document.getElementById('leftMQTTTopic');
         var leftTopTextElement = document.getElementById('leftTopText');
         var leftOnTextElement = document.getElementById('leftOnText');
         var leftOffTextElement = document.getElementById('leftOffText');
+        var leftDimChangeElement = document.getElementById('leftDimChange');
         var leftDeviceElement = document.getElementById('leftDevice');
         var leftCapabilityElement = document.getElementById('leftCapability');
         var leftBrokerIdElement = document.getElementById('leftBrokerId');
 
+        var rightMQTTTopicElement = document.getElementById('rightMQTTTopic');
         var rightTopTextElement = document.getElementById('rightTopText');
         var rightOnTextElement = document.getElementById('rightOnText');
         var rightOffTextElement = document.getElementById('rightOffText');
+        var rightDimChangeElement = document.getElementById('rightDimChange');
         var rightDeviceElement = document.getElementById('rightDevice');
         var rightCapabilityElement = document.getElementById('rightCapability');
         var rightBrokerIdElement = document.getElementById('rightBrokerId');
@@ -191,10 +280,13 @@
         var newBrokerItemButton = document.getElementById('newBrokerItem');
         var localBrokerItems = [];
 
+        var itemDisplyType = "flex";
+
         // a method named 'onHomeyReady' must be present in your code
         function onHomeyReady(Homey)
         {
             // General code
+            itemDisplyType = document.getElementById('leftCapabilityDiv').style.display;
 
             fillConfigElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"));
             fillConfigElement(displayConfigurationNoElement, Homey.__("settings.displayConfig"));
@@ -226,17 +318,17 @@
                 {
                     if (leftCapabilityElement.value === 'dim')
                     {
-                        const dimVal = parseInt(leftOnTextElement.value, 10);
+                        const dimVal = parseInt(leftDimChangeElement.value, 10);
                         if (dimVal < -100 || dimVal > 100 || dimVal === 0)
                         {
-                            Homey.alert(Homey.__("settings.dimError", { leftRight: Homey.__("settings.leftPanel")}));
+                            Homey.alert(Homey.__("settings.dimError", { leftRight: Homey.__("settings.leftPanel") }));
                             return;
                         }
                     }
 
                     if (rightCapabilityElement.value === 'dim')
                     {
-                        const dimVal = parseInt(rightOnTextElement.value, 10);
+                        const dimVal = parseInt(rightDimChangeElement.value, 10);
                         if (dimVal < -100 || dimVal > 100 || dimVal === 0)
                         {
                             // Get the translated string and insert the Right text
@@ -255,12 +347,16 @@
                         leftDevice: leftDeviceElement.value,
                         leftCapability: leftCapabilityElement.value,
                         leftBrokerId: leftBrokerIdElement.value,
+                        leftMQTTTopic: leftMQTTTopicElement.value,
+                        leftDimChange: leftDimChangeElement.value,
                         rightTopText: rightTopTextElement.value,
                         rightOnText: rightOnTextElement.value,
                         rightOffText: rightOffTextElement.value,
                         rightDevice: rightDeviceElement.value,
                         rightCapability: rightCapabilityElement.value,
-                        rightBrokerId: rightBrokerIdElement.value
+                        rightBrokerId: rightBrokerIdElement.value,
+                        rightMQTTTopic: rightMQTTTopicElement.value,
+                        rightDimChange: rightDimChangeElement.value,
                     };
 
                     localbuttonConfigurations[ButtonPanelConfigurationNo] = ButtonPanelConfiguration;
@@ -304,6 +400,8 @@
                 ButtonPanelConfiguration.leftDevice = leftDeviceElement.value;
                 ButtonPanelConfiguration.leftCapability = leftCapabilityElement.value;
                 ButtonPanelConfiguration.leftbrokerId = leftBrokerIdElement.value;
+                ButtonPanelConfiguration.leftMQTTTopic = leftMQTTTopicElement.value;
+                ButtonPanelConfiguration.leftDimChange = leftDimChangeElement.value;
 
                 ButtonPanelConfiguration.rightTopText = rightTopTextElement.value;
                 ButtonPanelConfiguration.rightOnText = rightOnTextElement.value;
@@ -311,6 +409,8 @@
                 ButtonPanelConfiguration.rightDevice = rightDeviceElement.value;
                 ButtonPanelConfiguration.rightCapability = rightCapabilityElement.value;
                 ButtonPanelConfiguration.rightbrokerId = rightBrokerIdElement.value;
+                ButtonPanelConfiguration.rightMQTTTopic = rightMQTTTopicElement.value;
+                ButtonPanelConfiguration.rightDimChange = rightDimChangeElement.value;
 
                 // Fetch the new configuration
                 updateButtonPanelConfiguration();
@@ -334,6 +434,12 @@
                 ButtonPanelConfiguration.leftOffText = leftOffTextElement.value;
             });
 
+            leftDimChangeElement.addEventListener('change', function(e)
+            {
+                var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
+                ButtonPanelConfiguration.leftDimChange = leftDimChangelement.value;
+            });
+
             rightTopTextElement.addEventListener('change', function(e)
             {
                 var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
@@ -352,55 +458,50 @@
                 ButtonPanelConfiguration.rightOffText = rightOffTextElement.value;
             });
 
-            leftDeviceElement.addEventListener('change', function(e)
+            rightDimChangeElement.addEventListener('change', function(e)
             {
                 var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
+                ButtonPanelConfiguration.rightDimChange = rightDimChangelement.value;
+            });
+
+            leftDeviceElement.addEventListener('change', function(e)
+            {
+                // Get the current button configuration
+                var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
+
+                // Update the device in the local configuration
                 ButtonPanelConfiguration.leftDevice = leftDeviceElement.value;
-                getCapabilities(leftDeviceElement.value, leftCapabilityElement, ButtonPanelConfiguration.leftDevice, leftOnTextElement, leftOffTextElement);
+
+                // Update the capabilities
+                getCapabilities("left", leftDeviceElement.value, ButtonPanelConfiguration.leftCapability);
             });
 
             rightDeviceElement.addEventListener('change', function(e)
             {
+                // Get the current button configuration
                 var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
+
+                // Update the device in the local configuration
                 ButtonPanelConfiguration.rightDevice = rightDeviceElement.value;
-                getCapabilities(rightDeviceElement.value, rightCapabilityElement, ButtonPanelConfiguration.rightDevice, rightOnTextElement, rightOffTextElement);
+
+                // Update the capabilities
+                getCapabilities("right", rightDeviceElement.value, ButtonPanelConfiguration.rightCapability);
             });
 
             leftCapabilityElement.addEventListener('change', function(e)
             {
                 var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
                 ButtonPanelConfiguration.leftCapability = leftCapabilityElement.value;
-                if (leftCapabilityElement.value === "dim")
-                {
-                    document.getElementById('leftOnTextLabel').innerHTML = Homey.__("settings.dimValue");
-                    document.getElementById('leftOffText').style.visibility = "hidden";
-                    document.getElementById('leftOffTextLabel').style.visibility = "hidden";
-                }
-                else
-                {
-                    document.getElementById('leftOnTextLabel').innerHTML = Homey.__("settings.labelOn");
-                    document.getElementById('leftOffText').style.visibility = "visible";
-                    document.getElementById('leftOffTextLabel').style.visibility = "visible";
-                }
 
+                capabilityChanged("left", leftCapabilityElement.value);
             });
 
             rightCapabilityElement.addEventListener('change', function(e)
             {
                 var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
                 ButtonPanelConfiguration.rightCapability = rightCapabilityElement.value;
-                if (leftCapabilityElement.value === "dim")
-                {
-                    document.getElementById('rightOnTextLabel').innerHTML = Homey.__("settings.dimValue");
-                    document.getElementById('rightOffText').style.visibility = "hidden";
-                    document.getElementById('rightOffTextLabel').style.visibility = "hidden";
-                }
-                else
-                {
-                    document.getElementById('rightOnTextLabel').innerHTML = Homey.__("settings.labelOn");
-                    document.getElementById('rightOffText').style.visibility = "visible";
-                    document.getElementById('rightOffTextLabel').style.visibility = "visible";
-                }
+
+                capabilityChanged("right", rightCapabilityElement.value);
             });
 
             leftBrokerIdElement.addEventListener('change', function(e)
@@ -414,7 +515,6 @@
                 var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
                 ButtonPanelConfiguration.rightBrokerId = rightBrokerIdElement.value;
             });
-
 
             // Display Config code
 
@@ -466,7 +566,6 @@
                 updateDisplayConfiguration();
             });
 
-
             Homey.get('brokerConfigurationItems', function(err, brokerItems)
             {
                 if (err) return Homey.alert(err);
@@ -511,7 +610,7 @@
                 optionLeft.text = brokerItem.brokerid;
                 leftBrokerIdElement.add(optionLeft);
 
-                var optionRight= document.createElement("option");
+                var optionRight = document.createElement("option");
                 optionRight.value = brokerItem.brokerid;
                 optionRight.text = brokerItem.brokerid;
                 rightBrokerIdElement.add(optionRight);
@@ -534,8 +633,43 @@
                 drawBrokerItems();
             });
 
+            var tooltips = document.querySelectorAll(".tooltip");
+            tooltips.forEach(function(tooltip, index)
+            {
+                // Set a mouse over function for each tooltop element
+                tooltip.addEventListener("mouseover", position_tooltip); // On hover, launch the function below
+            })
+
             // Tell Homey we're ready to be displayed
             Homey.ready();
+        }
+
+        function position_tooltip()
+        {
+            // Get .tooltiptext sibling
+            var tooltip = this.parentNode.querySelector(".tooltiptext");
+
+            // Get tooltip coordinates and size
+            var tooltip_rect = tooltip.getBoundingClientRect();
+
+            // Corrections if out of window
+            var maxRight = window.innerWidth - 50;
+            var tipRight = tooltip_rect.x + tooltip_rect.width;
+
+            if (tipRight > maxRight)
+            {
+                tipX = maxRight - tipRight;
+
+                // Apply corrected position
+                if (tooltip.style.left === "")
+                {
+                    tooltip.style.left = tipX + 'px';
+                }
+                else
+                {
+                    tooltip.style.left -= tipX + 'px';
+                }
+            }
         }
 
         function fillConfigElement(element, txt)
@@ -599,21 +733,36 @@
             }
         }
 
-        function getCapabilities(deviceId, element, selectedCapability, onTextElement, offTextElement)
+        function getCapabilities(side, deviceId, selectedCapability)
         {
+            // Clear the list options
+            let capabilityElement = document.getElementById(`${side}Capability`);
+            capabilityElement.innerHTML = "";
+
+            let capabilityDivElement = document.getElementById(`${side}CapabilityDiv`);
+            let MQTTTopicDivElement = document.getElementById(`${side}MQTTopicDiv`);
+
             if (deviceId === "none")
             {
-                element.innerHTML = "";
-                element.style.visibility = "hidden";
-                document.getElementById(`${element.id}Label`).style.visibility = "hidden";
+                // Hide the capability element items using the div
+                capabilityDivElement.style.display = "none";
+
+                // We don't want to show Dim Change value
+                document.getElementById(`${side}DimChangeDiv`).style.display = "none";
+
+                // Show the MQTT Topic element using the div
+                MQTTTopicDivElement.style.display = itemDisplyType;
                 return;
             }
+
+            // Request the capabilities for the selected device
             Homey.api('POST', '/device_capabilities/', { deviceId }, function(err, capabilities)
             {
                 if (err) return Homey.alert(err);
-                element.innerHTML = "";
+
                 if (capabilities)
                 {
+                    // Add each of the capabilities to the item drop list
                     const capabilitiesArray = Object.values(capabilities);
                     for (const capability of capabilitiesArray)
                     {
@@ -622,26 +771,45 @@
                             var option = document.createElement("option");
                             option.text = capability.title;
                             option.value = capability.id;
-                            element.add(option);
+                            capabilityElement.add(option);
                         }
                     }
-                    element.style.visibility = "visible";
-                    document.getElementById(`${element.id}Label`).style.visibility = "visible";
-                    element.value = selectedCapability;
-                    if (selectedCapability === "dim")
-                    {
-                        document.getElementById(`${onTextElement.id}Label`).innerHTML = Homey.__("settings.dimValue");
-                        document.getElementById(`${offTextElement.id}`).style.visibility = "hidden";
-                        document.getElementById(`${offTextElement.id}Label`).style.visibility = "hidden";
-                    }
-                    else
-                    {
-                        document.getElementById(`${onTextElement.id}Label`).innerHTML = Homey.__("settings.labelOn");
-                        document.getElementById(`${offTextElement.id}`).style.visibility = "visible";
-                        document.getElementById(`${offTextElement.id}Label`).style.visibility = "visible";
-                    }
+
+                    // Show the capability section
+                    capabilityDivElement.style.display = itemDisplyType;
+
+                    // Hide the MQTT topic section using the div
+                    MQTTTopicDivElement.style.display = "none";
+
+                    // Restore the previous capability selection
+                    capabilityElement.value = selectedCapability;
+                    capabilityChanged(side, selectedCapability);
                 }
             });
+        }
+
+        function capabilityChanged(side, value)
+        {
+            if (value === "dim")
+            {
+                // For dim type capabilities we want to show the dim change value
+                document.getElementById(`${side}DimChangeDiv`).style.display = itemDisplyType;
+
+                // And we don't want to show the On or Off text
+                document.getElementById(`${side}OnTextDiv`).style.display = "none";
+                document.getElementById(`${side}OffText`).style.display = "none";
+                document.getElementById(`${side}OffTextLabel`).style.display = "none";
+            }
+            else
+            {
+                // For Boolean types we don't want to show Dim Change value
+                document.getElementById(`${side}DimChangeDiv`).style.display = "none";
+
+                // And we want to show the On and Off text
+                document.getElementById(`${side}OnTextDiv`).style.display = itemDisplyType;
+                document.getElementById(`${side}OffText`).style.display = itemDisplyType;
+                document.getElementById(`${side}OffTextLabel`).style.display = itemDisplyType;
+            }
         }
 
         function updateButtonPanelConfiguration()
@@ -662,6 +830,8 @@
                 leftDeviceElement.value = "";
                 leftCapabilityElement.value = "";
                 leftBrokerIdElement.value = "homey";
+                leftMQTTTopicElement.value = "";
+                leftDimChangeElement.value = "+10";
 
                 rightTopTextElement.value = "";
                 rightOnTextElement.value = "";
@@ -669,6 +839,8 @@
                 rightDeviceElement.value = "";
                 rightCapabilityElement.value = "";
                 rightBrokerIdElement.value = "homey";
+                rightMQTTTopicElement.value = "";
+                rightDimChangeElement.value = "-10";
             }
             else
             {
@@ -679,16 +851,20 @@
                 leftOnTextElement.value = ButtonPanelConfiguration.leftOnText;
                 leftOffTextElement.value = ButtonPanelConfiguration.leftOffText;
                 leftDeviceElement.value = ButtonPanelConfiguration.leftDevice;
-                getCapabilities(leftDeviceElement.value, leftCapabilityElement, ButtonPanelConfiguration.leftCapability, leftOnTextElement, leftOffTextElement);
-                leftBrokerIdElement.value =ButtonPanelConfiguration.leftBrokerId;
+                getCapabilities("left", leftDeviceElement.value, ButtonPanelConfiguration.leftCapability);
+                leftBrokerIdElement.value = ButtonPanelConfiguration.leftBrokerId;
+                leftMQTTTopicElement.value = ButtonPanelConfiguration.leftMQTTTopic;
+                leftDimChangeElement.value = ButtonPanelConfiguration.leftDimChange;
 
                 rightTopTextElement.value = ButtonPanelConfiguration.rightTopText;
                 rightOnTextElement.value = ButtonPanelConfiguration.rightOnText;
                 rightOffTextElement.value = ButtonPanelConfiguration.rightOffText;
                 rightDeviceElement.value = ButtonPanelConfiguration.rightDevice;
                 rightCapabilityElement.value = ButtonPanelConfiguration.rightCapability;
-                getCapabilities(rightDeviceElement.value, rightCapabilityElement, ButtonPanelConfiguration.rightCapability, rightOnTextElement, rightOffTextElement);
+                getCapabilities("right", rightDeviceElement.value, ButtonPanelConfiguration.rightCapability);
                 rightBrokerIdElement.value = ButtonPanelConfiguration.rightBrokerId;
+                rightMQTTTopicElement.value = ButtonPanelConfiguration.rightMQTTTopic;
+                rightDimChangeElement.value = ButtonPanelConfiguration.rightDimChange;
             }
         }
 
@@ -857,7 +1033,7 @@
             document.getElementById('displayItemsSection').innerHTML = section;
 
             document.getElementById(`display${itemNo}FontSize`).value = item.fontSize;
-            document.getElementById(`display${itemNo}Alignment`).value =  item.alignment;
+            document.getElementById(`display${itemNo}Alignment`).value = item.alignment;
             document.getElementById(`display${itemNo}BrokerId`).value = item.brokerId;
         }
 
@@ -899,7 +1075,7 @@
                             option.value = capability.id;
                             capabilitiesElement.add(option);
                         }
-                        capabilitiesElement.style.visibility = "visible";
+                        capabilitiesElement.style.display = itemDisplyType;
 
                         var displayConfig = localDisplayConfigurations[displayConfigurationNoElement.value];
                         if (displayConfig)
@@ -1040,7 +1216,7 @@
                     </div>
                 </div>`;
 
-                document.getElementById('brokerItemsSection').innerHTML = section;
+            document.getElementById('brokerItemsSection').innerHTML = section;
         }
 
         function updateBrokerLists(itmeNo)
@@ -1120,7 +1296,6 @@
 
             return true;
         }
-
     </script>
 </body>
 

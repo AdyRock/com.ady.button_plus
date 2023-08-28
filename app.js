@@ -74,6 +74,45 @@ class MyApp extends Homey.App
             // Create the default button bar configurations
             this.createbuttonConfigurations();
         }
+        else
+        {
+            // Validate new configuration items
+            for (let i = 0; i < this.buttonConfigurations.length; i++)
+            {
+                const buttonConfiguration = this.buttonConfigurations[i];
+                if (!buttonConfiguration.leftBrokerId)
+                {
+                    buttonConfiguration.leftBrokerId = 'homey';
+                }
+
+                if (!buttonConfiguration.rightBrokerId)
+                {
+                    buttonConfiguration.rightBrokerId = 'homey';
+                }
+
+                if (!buttonConfiguration.leftDimChange)
+                {
+                    buttonConfiguration.leftDimChange = '-10';
+                }
+
+                if (!buttonConfiguration.rightDimChange)
+                {
+                    buttonConfiguration.rightDimChange = '+10';
+                }
+
+                if (!buttonConfiguration.leftMQTTTopic)
+                {
+                    buttonConfiguration.leftMQTTTopic = '';
+                }
+
+                if (!buttonConfiguration.rightMQTTTopic)
+                {
+                    buttonConfiguration.rightMQTTTopic = '';
+                }
+            }
+
+            this.homey.settings.set('buttonConfigurations', this.buttonConfigurations);
+        }
 
         this.displayConfigurations = this.homey.settings.get('displayConfigurations');
         if (!this.displayConfigurations || this.displayConfigurations.length < MAX_CONFIGURATIONS)
@@ -338,12 +377,15 @@ class MyApp extends Homey.App
                 leftOffText: '',
                 leftDevice: 'none',
                 leftCapability: '',
+                leftbrokerid: 'homey',
+                leftDimChange: '-10',
                 rightTopText: '',
                 rightOnText: '',
                 rightOffText: '',
                 rightDevice: 'none',
                 rightCapability: '',
-                brokerid: 'homey',
+                rightbrokerid: 'homey',
+                rightDimChange: '+10',
             };
             this.buttonConfigurations.push(ButtonPanelConfiguration);
         }
@@ -528,7 +570,7 @@ class MyApp extends Homey.App
                             buttonIdx,
                             deviceConfiguration.mqttbuttons[buttonIdx],
                             ButtonPanelConfiguration.leftTopText,
-                            ButtonPanelConfiguration.leftOnText,
+                            ButtonPanelConfiguration.leftCapability === 'dim' ? ButtonPanelConfiguration.leftDimChange : ButtonPanelConfiguration.leftOnText,
                             ButtonPanelConfiguration.leftOffText,
                             ButtonPanelConfiguration.leftDevice,
                             ButtonPanelConfiguration.leftCapability,
@@ -546,19 +588,19 @@ class MyApp extends Homey.App
                             connectorNo,
                             'right',
                             ButtonPanelConfiguration.rightBrokerId,
-);
+                        );
 
                         await this.setupStatusTopic(
                             buttonIdx,
                             deviceConfiguration.mqttbuttons[buttonIdx],
                             ButtonPanelConfiguration.rightTopText,
-                            ButtonPanelConfiguration.rightOnText,
+                            ButtonPanelConfiguration.rightCapability === 'dim' ? ButtonPanelConfiguration.rightDimChange : ButtonPanelConfiguration.rightOnText,
                             ButtonPanelConfiguration.rightOffText,
                             ButtonPanelConfiguration.rightDevice,
                             ButtonPanelConfiguration.rightCapability,
                             capability,
                             ButtonPanelConfiguration.rightBrokerId,
-);
+                        );
                     }
                 }
             }

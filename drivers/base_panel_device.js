@@ -272,8 +272,8 @@ class BasePanelDevice extends Device
                 }
                 if (capability.id === 'dim')
                 {
-                    const change = parseInt(ButtonPanelConfiguration.rightOnText, 10) / 100;
-                    if ((ButtonPanelConfiguration.rightOnText.indexOf('+') >= 0) || (ButtonPanelConfiguration.rightOnText.indexOf('-') >= 0))
+                    const change = parseInt(ButtonPanelConfiguration.rightDimChange, 10) / 100;
+                    if ((ButtonPanelConfiguration.rightDimChange.indexOf('+') >= 0) || (ButtonPanelConfiguration.rightDimChange.indexOf('-') >= 0))
                     {
                         value = capability.value + change;
                         if (value > 1)
