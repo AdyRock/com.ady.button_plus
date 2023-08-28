@@ -23,7 +23,7 @@
         "labelOff": "Label for Off state",
         "labelOffExplantion": "The labels to show when the button is in the Off state.",
         "device": "Device",
-        "deviceExplanation": "Select the device to control when you press the Button+ button.<br>Only devices with On/Off or Dim capabilities will be shown.<br>If you select none, then the nothing is directly controlled but you will still get the button pressed Flow trigger",
+        "deviceExplanation": "Select the device to control when you press the Button+ button.<br>Only devices with On/Off or Dim capabilities will be shown.<br>If you select none, then nothing is directly controlled but you will still get the button pressed Flow trigger",
         "capability": "Capability",
         "save": "Save Configurations",
         "saved": "Configurations have been saved",

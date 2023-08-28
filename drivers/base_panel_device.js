@@ -344,6 +344,7 @@ class BasePanelDevice extends Device
             let onMessage = '';
             let offMessage = '';
             let brokerId = '';
+            let dimChange = '';
 
             if (MQTTMessage.side === 'left')
             {
@@ -354,6 +355,7 @@ class BasePanelDevice extends Device
                 onMessage = ButtonPanelConfiguration.leftOnText;
                 offMessage = ButtonPanelConfiguration.leftOffText;
                 brokerId = ButtonPanelConfiguration.leftBrokerId;
+                dimChange = ButtonPanelConfiguration.leftDimChange;
             }
             else if (MQTTMessage.side === 'right')
             {
@@ -364,6 +366,7 @@ class BasePanelDevice extends Device
                 onMessage = ButtonPanelConfiguration.rightOnText;
                 offMessage = ButtonPanelConfiguration.rightOffText;
                 brokerId = ButtonPanelConfiguration.rightBrokerId;
+                dimChange = ButtonPanelConfiguration.rightDimChange;
             }
 
             if ((homeyDeviceID === MQTTMessage.device) && (homeyCapabilityName === MQTTMessage.capability))
@@ -386,8 +389,8 @@ class BasePanelDevice extends Device
                     {
                         const capability = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObject, homeyCapabilityName);
 
-                        const change = parseInt(onMessage, 10) / 100;
-                        if ((onMessage.indexOf('+') >= 0) || (onMessage.indexOf('-') >= 0))
+                        const change = parseInt(dimChange, 10) / 100;
+                        if ((dimChange.indexOf('+') >= 0) || (dimChange.indexOf('-') >= 0))
                         {
                             value = capability.value + change;
                             if (value > 1)
@@ -500,7 +503,7 @@ class BasePanelDevice extends Device
                 try
                 {
                     // write the updated configuration back to the device
-                    await this.homey.app.writeDeviceConfiguration(ip, deviceConfigurations, this.homey.app.virtualID);
+                    await this.homey.app.writeDeviceConfiguration(ip, deviceConfigurations, virtualID);
                 }
                 catch (error)
                 {
@@ -615,7 +618,7 @@ class BasePanelDevice extends Device
         }
         try
         {
-            if (item.leftDevice !== 'none')
+            if (item.rightDevice !== 'none')
             {
                 const homeyDeviceObject = await this.homey.app.getHomeyDeviceById(item.rightDevice);
                 if (homeyDeviceObject)

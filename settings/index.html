@@ -301,6 +301,29 @@
                 autoConfigChanged();
             });
 
+            Homey.get('brokerConfigurationItems', function(err, brokerItems)
+            {
+                if (err) return Homey.alert(err);
+                localBrokerItems = brokerItems;
+
+                // Setup the list items for brokers in the panel config
+                for (let i = 0; i < localBrokerItems.length; i++)
+                {
+                    const brokerItem = localBrokerItems[i];
+                    var option = document.createElement("option");
+                    option.value = brokerItem.brokerid;
+                    option.text = brokerItem.brokerid;
+                    leftBrokerIdElement.add(option);
+
+                    var option = document.createElement("option");
+                    option.value = brokerItem.brokerid;
+                    option.text = brokerItem.brokerid;
+                    rightBrokerIdElement.add(option);
+                }
+
+                drawBrokerItems();
+            });
+
             autoConfigElement.addEventListener('click', function(e)
             {
                 Homey.set('autoConfig', autoConfigElement.checked);
@@ -316,6 +339,11 @@
             {
                 if (autoConfigElement.checked)
                 {
+                    if (storeBrokerSettings())
+                    {
+                        Homey.set('brokerConfigurationItems', localBrokerItems);
+                    }
+
                     if (leftCapabilityElement.value === 'dim')
                     {
                         const dimVal = parseInt(leftDimChangeElement.value, 10);
@@ -365,12 +393,6 @@
                     //Copy the values from the controls to the displayConfiguration
                     storeDisplaySettings();
                     Homey.set('displayConfigurations', localDisplayConfigurations);
-
-                    if (storeBrokerSettings())
-                    {
-                        Homey.set('brokerConfigurationItems', localBrokerItems);
-                        Homey.alert(Homey.__("settings.saved"));
-                    }
                 }
                 else
                 {
@@ -564,29 +586,6 @@
                 localDisplayConfigurations = displayConfigurations;
                 displayConfigurationsFetched = (localDisplayConfigurations.length > 0);
                 updateDisplayConfiguration();
-            });
-
-            Homey.get('brokerConfigurationItems', function(err, brokerItems)
-            {
-                if (err) return Homey.alert(err);
-                localBrokerItems = brokerItems;
-
-                // Setup the list items for brokers in the panel config
-                for (let i = 0; i < localBrokerItems.length; i++)
-                {
-                    const brokerItem = localBrokerItems[i];
-                    var option = document.createElement("option");
-                    option.value = brokerItem.brokerid;
-                    option.text = brokerItem.brokerid;
-                    leftBrokerIdElement.add(option);
-
-                    var option = document.createElement("option");
-                    option.value = brokerItem.brokerid;
-                    option.text = brokerItem.brokerid;
-                    rightBrokerIdElement.add(option);
-                }
-
-                drawBrokerItems();
             });
 
             newBrokerItemButton.addEventListener('click', function(e)

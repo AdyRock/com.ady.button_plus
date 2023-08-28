@@ -564,7 +564,7 @@ class MyApp extends Homey.App
                             connectorNo,
                             'left',
                             ButtonPanelConfiguration.leftBrokerId,
-);
+                        );
 
                         await this.setupStatusTopic(
                             buttonIdx,
