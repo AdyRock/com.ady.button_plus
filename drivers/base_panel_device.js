@@ -326,7 +326,7 @@ class BasePanelDevice extends Device
 
     async processMQTTMessage(topic, MQTTMessage)
     {
-        this.homey.app.updateLog(`MQTT message received: ${topic}, ${this.homey.app.varToString(MQTTMessage)}`);
+        this.homey.app.updateLog(`Panel processing MQTT message: ${topic}, ${this.homey.app.varToString(MQTTMessage)}`);
         if (topic === 'homey/click')
         {
             const capabilityNo = MQTTMessage.connector;
@@ -345,6 +345,7 @@ class BasePanelDevice extends Device
             let offMessage = '';
             let brokerId = '';
             let dimChange = '';
+            let postCapabilityValue = true;
 
             if (MQTTMessage.side === 'left')
             {
@@ -424,10 +425,23 @@ class BasePanelDevice extends Device
                     }
                     else
                     {
-                        homeyDeviceObject.setCapabilityValue(homeyCapabilityName, value).catch(this.error);
+                        try
+                        {
+                            // Setting the capability value will trigger the MQTT message to be sent
+                            postCapabilityValue = false;
+                            await homeyDeviceObject.setCapabilityValue(homeyCapabilityName, value);
+                        }
+                        catch (error)
+                        {
+                            this.homey.app.updateLog(`Device ${homeyDeviceObject.name}: Capability ${homeyCapabilityName}, ${error.message}`);
+                            this.setCapabilityValue('info', error.message).catch(this.error);
+                        }
                     }
 
-                    this.homey.app.publishMQTTMessage(brokerId, `homey/${homeyDeviceID}/${homeyCapabilityName}/value`, value);
+                    if (postCapabilityValue)
+                    {
+                        this.homey.app.publishMQTTMessage(brokerId, `homey/${homeyDeviceID}/${homeyCapabilityName}/value`, value);
+                    }
                     this.homey.app.publishMQTTMessage(brokerId, `homey/${homeyDeviceID}/${homeyCapabilityName}/label`, value ? onMessage : offMessage);
 
                     // TODO - check if getable and if not set a timer to set it back to the previous value

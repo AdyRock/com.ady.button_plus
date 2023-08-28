@@ -1056,13 +1056,13 @@ class MyApp extends Homey.App
 
         MQTTclient.on('connect', () =>
         {
-            this.updateLog(`setupLocalAccess.onConnect: connected to ${MQTTServerAddress}`);
+            this.updateLog(`setupMQTTClient.onConnect: connected to ${MQTTServerAddress}`);
 
             MQTTclient.subscribe('homey/click', (err) =>
             {
                 if (err)
                 {
-                    this.updateLog("setupLocalAccess.onConnect 'homey/toggle' error: " * this.varToString(err), 0);
+                    this.updateLog("setupMQTTClient.onConnect 'homey/toggle' error: " * this.varToString(err), 0);
                 }
             });
 
@@ -1070,7 +1070,7 @@ class MyApp extends Homey.App
             {
                 if (err)
                 {
-                    this.updateLog("setupLocalAccess.onConnect 'homey/longpress' error: " * this.varToString(err), 0);
+                    this.updateLog("setupMQTTClient.onConnect 'homey/longpress' error: " * this.varToString(err), 0);
                 }
             });
 
@@ -1078,14 +1078,14 @@ class MyApp extends Homey.App
             {
                 if (err)
                 {
-                    this.updateLog("setupLocalAccess.onConnect 'homey/sensorvalue' error: " * this.varToString(err), 0);
+                    this.updateLog("setupMQTTClient.onConnect 'homey/sensorvalue' error: " * this.varToString(err), 0);
                 }
             });
         });
 
         MQTTclient.on('error', (err) =>
         {
-            this.updateLog(`setupLocalAccess.onError: ${this.varToString(err)}`);
+            this.updateLog(`setupMQTTClient.onError: ${this.varToString(err)}`);
         });
 
         MQTTclient.on('message', async (topic, message) =>
@@ -1094,7 +1094,7 @@ class MyApp extends Homey.App
             try
             {
                 const mqttMessage = JSON.parse(message.toString());
-                this.updateLog(`MQTTDeviceValues: ${this.varToString(mqttMessage)}`);
+                this.updateLog(`MQTTclient.on message: ${this.varToString(mqttMessage)}`);
 
                 // Find the device that handles this message
                 if (mqttMessage.connector)

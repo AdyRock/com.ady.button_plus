@@ -306,19 +306,37 @@
                 if (err) return Homey.alert(err);
                 localBrokerItems = brokerItems;
 
-                // Setup the list items for brokers in the panel config
+                // Setup the list items for enabled brokers in the panel config
                 for (let i = 0; i < localBrokerItems.length; i++)
                 {
                     const brokerItem = localBrokerItems[i];
-                    var option = document.createElement("option");
-                    option.value = brokerItem.brokerid;
-                    option.text = brokerItem.brokerid;
-                    leftBrokerIdElement.add(option);
+                    if (brokerItem.enabled)
+                    {
+                        var option = document.createElement("option");
+                        option.value = brokerItem.brokerid;
+                        option.text = brokerItem.brokerid;
+                        leftBrokerIdElement.add(option);
 
-                    var option = document.createElement("option");
-                    option.value = brokerItem.brokerid;
-                    option.text = brokerItem.brokerid;
-                    rightBrokerIdElement.add(option);
+                        var option = document.createElement("option");
+                        option.value = brokerItem.brokerid;
+                        option.text = brokerItem.brokerid;
+                        rightBrokerIdElement.add(option);
+
+
+                        // Add the broker to the display config broker lists
+                        for (let i = 0; i < localDisplayConfigurations.length; i++)
+                        {
+                            const displayConfiguration = localDisplayConfigurations[i];
+                            for (let j = 0; j < displayConfiguration.items.length; j++)
+                            {
+                                const displayItem = displayConfiguration.items[j];
+                                var optionLeft = document.createElement("option");
+                                optionLeft.value = brokerItem.brokerid;
+                                optionLeft.text = brokerItem.brokerid;
+                                document.getElementById(`display${j}BrokerId`).add(optionLeft);
+                            }
+                        }
+                    }
                 }
 
                 drawBrokerItems();
@@ -768,7 +786,7 @@
                         if (capability.type === "boolean" || capability.id === "dim")
                         {
                             var option = document.createElement("option");
-                            option.text = capability.title;
+                            option.text = `${capability.title} (${capability.id}})`;
                             option.value = capability.id;
                             capabilityElement.add(option);
                         }
@@ -1070,7 +1088,7 @@
                         for (const capability of capabilitiesArray)
                         {
                             var option = document.createElement("option");
-                            option.text = capability.title;
+                            option.text = `${capability.title} (${capability.id}})`;
                             option.value = capability.id;
                             capabilitiesElement.add(option);
                         }
@@ -1206,7 +1224,7 @@
                         <input class="homey-form-input" id="broker${itemNo}WSPort" type="number" value="${item.wsport}" />
 
                         <label class="homey-form-checkbox">
-                            <input class="homey-form-checkbox-input" id="broker${itemNo}Enabled" type="checkbox" ${enableOption}/>
+                            <input class="homey-form-checkbox-input" id="broker${itemNo}Enabled" onClick="removeBrokerFromConfig(${itemNo})" type="checkbox" ${enableOption}/>
                             <span class="homey-form-checkbox-checkmark"></span>
                             <span class="homey-form-checkbox-text">${ctrlLabels.enabled}</span>
                         </label>
@@ -1246,28 +1264,34 @@
                 localBrokerItems.splice(itemNo, 1);
                 drawBrokerItems();
 
-                // Remove the broker from the left and right broker list in the panel config
-                const leftBrokerIdElement = document.getElementById('leftBrokerId');
-                leftBrokerIdElement.remove(itemNo);
-
-                const rightBrokerIdElement = document.getElementById('rightBrokerId');
-                rightBrokerIdElement.remove(itemNo);
-
-                // Remove the broker from the broker all the lists in the display config items
-                for (var displayItemNo = 0; displayItemNo < localDisplayConfigurations.length; displayItemNo++)
-                {
-                    const displayItem = localDisplayConfigurations[displayItemNo];
-                    for (var itemNo = 0; itemNo < displayItem.items.length; itemNo++)
-                    {
-                        const item = displayItem.items[itemNo];
-                        const brokerIdElement = document.getElementById(`display${itemNo}BrokerId`);
-                        brokerIdElement.remove(itemNo);
-                    }
-                }
+                // Remove the broker from the broker list in the panel and display config
+                removeBrokerFromConfig(itemNo);
             }
             else
             {
                 Homey.alert(Homey.__("settings.deleteBrokerItemError"));
+            }
+        }
+
+        function removeBrokerFromConfig(itemNo)
+        {
+            // Remove the broker from the left and right broker list in the panel config
+            const leftBrokerIdElement = document.getElementById('leftBrokerId');
+            leftBrokerIdElement.remove(itemNo);
+
+            const rightBrokerIdElement = document.getElementById('rightBrokerId');
+            rightBrokerIdElement.remove(itemNo);
+
+            // Remove the broker from the broker all the lists in the display config items
+            for (var displayItemNo = 0; displayItemNo < localDisplayConfigurations.length; displayItemNo++)
+            {
+                const displayItem = localDisplayConfigurations[displayItemNo];
+                for (var itemNo = 0; itemNo < displayItem.items.length; itemNo++)
+                {
+                    const item = displayItem.items[itemNo];
+                    const brokerIdElement = document.getElementById(`display${itemNo}BrokerId`);
+                    brokerIdElement.remove(itemNo);
+                }
             }
         }
 
