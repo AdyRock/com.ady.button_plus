@@ -140,7 +140,7 @@ class MyApp extends Homey.App
             {
                 if (brokerItem.enabled && brokerItem.brokerid !== 'homey')
                 {
-                    this.setupMQTTClient(brokerItem.brokerid, brokerItem.url, this.homeyID);
+                    this.setupMQTTClient(brokerItem, this.homeyID);
                 }
             }
         }
@@ -221,7 +221,7 @@ class MyApp extends Homey.App
                     {
                         if (brokerItem.brokerid !== 'homey')
                         {
-                            this.setupMQTTClient(brokerItem.brokerid, brokerItem.url, this.homeyID);
+                            this.setupMQTTClient(brokerItem, this.homeyID);
                         }
                     }
                     else
@@ -1031,7 +1031,7 @@ class MyApp extends Homey.App
             this.mqttServerReady = true;
 
             // Start the MQTT client
-            this.setupMQTTClient('homey', this.brokerItems[0].url, this.homeyID);
+            this.setupMQTTClient(this.brokerItems[0], this.homeyID);
         });
 
         server.on('error', (err) =>
@@ -1040,23 +1040,35 @@ class MyApp extends Homey.App
         });
 
         // Create a websocket server for the MQTT server
-        ws.createServer({ server: httpServer }, aedes.handle);
+        const wsServer = ws.createServer({ server: httpServer }, aedes.handle);
 
         httpServer.listen(this.brokerItems[0].wsport, () => {
             this.updateLog(`websocket server listening on port ${this.brokerItems[0].wsport}`);
         });
+
+        wsServer.on('error', (err) => {
+            this.updateLog(`websocket server error: ${this.varToString(err)}`);
+        });
+
+        wsServer.on('connection', (socket) => {
+            this.updateLog(`websocket server connection: ${this.varToString(socket)}`);
+        });
+
+        wsServer.on('message', (message) => {
+            this.updateLog(`websocket server message: ${this.varToString(message)}`);
+        });
     }
 
-    setupMQTTClient(MQTTClintID, MQTTServerAddress, homeyID)
+    setupMQTTClient(brokerConfig, homeyID)
     {
         // Connect to the MQTT server and subscribe to the required topics
         // this.MQTTclient = mqtt.connect(MQTT_SERVER, { clientId: `HomeyButtonApp-${homeyID}`, username: Homey.env.MQTT_USER_NAME, password: Homey.env.MQTT_PASSWORD });
-        const MQTTclient = mqtt.connect(MQTTServerAddress, { clientId: `HomeyButtonApp-${homeyID}`, username: '', password: '' });
-        this.MQTTClients.set(MQTTClintID, MQTTclient);
+        const MQTTclient = mqtt.connect(`${brokerConfig.url}:${brokerConfig.port}`, { clientId: `HomeyButtonApp-${homeyID}`, username: '', password: '' });
+        this.MQTTClients.set(brokerConfig.brokerid, MQTTclient);
 
         MQTTclient.on('connect', () =>
         {
-            this.updateLog(`setupMQTTClient.onConnect: connected to ${MQTTServerAddress}`);
+            this.updateLog(`setupMQTTClient.onConnect: connected to ${brokerConfig.url}:${brokerConfig.port} as ${brokerConfig.brokerid}`);
 
             MQTTclient.subscribe('homey/click', (err) =>
             {

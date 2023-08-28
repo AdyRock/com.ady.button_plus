@@ -714,15 +714,25 @@ class BasePanelDevice extends Device
 
     checkStateChangeForDisplay(configNo, deviceId, capability, value)
     {
+        // Check if configNo is undefined
+        if (configNo === undefined)
+        {
+            // Display not configured
+            return;
+        }
+
         // Check the display devices and capabilities for this panel
         const item = this.homey.app.displayConfigurations[configNo];
-        for (let itemNo = 0; itemNo < item.items.length; itemNo++)
+        if (item)
         {
-            const displayItem = item.items[itemNo];
-            if ((displayItem.device === deviceId) && (displayItem.capability === capability))
+            for (let itemNo = 0; itemNo < item.items.length; itemNo++)
             {
-                // Publish to MQTT
-                this.homey.app.publishMQTTMessage(displayItem.brokerId, `homey/${deviceId}/${capability}/value`, value);
+                const displayItem = item.items[itemNo];
+                if ((displayItem.device === deviceId) && (displayItem.capability === capability))
+                {
+                    // Publish to MQTT
+                    this.homey.app.publishMQTTMessage(displayItem.brokerId, `homey/${deviceId}/${capability}/value`, value);
+                }
             }
         }
     }
