@@ -62,17 +62,6 @@
                                 </div>
                             </span>
 
-                            <span>
-                                <div id="leftMQTTopicDiv">
-                                    <label class="homey-form-label" for="leftMQTTTopic"><span data-i18n="settings.MQTTTopic"></span>
-                                        <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                            <span class="tooltiptext" data-i18n="settings.MQTTTopicExplanation"></span>
-                                        </div>
-                                    </label>
-                                    <input class="homey-form-input" id="leftMQTTTopic" type="text" maxlength="50" value="" />
-                                </div>
-                            </span>
-
                             <label class="homey-form-label" for="leftTopText"><span data-i18n="settings.topLabel"></span>
                                 <div class="tooltip"><i class="fi fi-rr-info"></i>
                                     <span class="tooltiptext" data-i18n="settings.topLabelExplanation"></span>
@@ -131,17 +120,6 @@
                                     <select class="homey-form-select" id="rightCapability">
                                         <option value="" selected disabled hidden><span data-i18n="settings.selectCapability"></span></option>
                                     </select>
-                                </div>
-                            </span>
-
-                            <span>
-                                <div id="rightMQTTopicDiv">
-                                    <label class="homey-form-label" for="rightMQTTTopic"><span data-i18n="settings.MQTTTopic"></span>
-                                        <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                            <span class="tooltiptext" data-i18n="settings.MQTTTopicExplanation"></span>
-                                        </div>
-                                    </label>
-                                    <input class="homey-form-input" id="rightMQTTTopic" type="text" maxlength="50" value="" />
                                 </div>
                             </span>
 
@@ -244,7 +222,6 @@
 
         var buttonConfigurationNoElement = document.getElementById('ButtonPanelConfigurationNo');
 
-        var leftMQTTTopicElement = document.getElementById('leftMQTTTopic');
         var leftTopTextElement = document.getElementById('leftTopText');
         var leftOnTextElement = document.getElementById('leftOnText');
         var leftOffTextElement = document.getElementById('leftOffText');
@@ -253,7 +230,6 @@
         var leftCapabilityElement = document.getElementById('leftCapability');
         var leftBrokerIdElement = document.getElementById('leftBrokerId');
 
-        var rightMQTTTopicElement = document.getElementById('rightMQTTTopic');
         var rightTopTextElement = document.getElementById('rightTopText');
         var rightOnTextElement = document.getElementById('rightOnText');
         var rightOffTextElement = document.getElementById('rightOffText');
@@ -393,15 +369,14 @@
                         leftDevice: leftDeviceElement.value,
                         leftCapability: leftCapabilityElement.value,
                         leftBrokerId: leftBrokerIdElement.value,
-                        leftMQTTTopic: leftMQTTTopicElement.value,
                         leftDimChange: leftDimChangeElement.value,
+
                         rightTopText: rightTopTextElement.value,
                         rightOnText: rightOnTextElement.value,
                         rightOffText: rightOffTextElement.value,
                         rightDevice: rightDeviceElement.value,
                         rightCapability: rightCapabilityElement.value,
                         rightBrokerId: rightBrokerIdElement.value,
-                        rightMQTTTopic: rightMQTTTopicElement.value,
                         rightDimChange: rightDimChangeElement.value,
                     };
 
@@ -440,7 +415,6 @@
                 ButtonPanelConfiguration.leftDevice = leftDeviceElement.value;
                 ButtonPanelConfiguration.leftCapability = leftCapabilityElement.value;
                 ButtonPanelConfiguration.leftbrokerId = leftBrokerIdElement.value;
-                ButtonPanelConfiguration.leftMQTTTopic = leftMQTTTopicElement.value;
                 ButtonPanelConfiguration.leftDimChange = leftDimChangeElement.value;
 
                 ButtonPanelConfiguration.rightTopText = rightTopTextElement.value;
@@ -449,7 +423,6 @@
                 ButtonPanelConfiguration.rightDevice = rightDeviceElement.value;
                 ButtonPanelConfiguration.rightCapability = rightCapabilityElement.value;
                 ButtonPanelConfiguration.rightbrokerId = rightBrokerIdElement.value;
-                ButtonPanelConfiguration.rightMQTTTopic = rightMQTTTopicElement.value;
                 ButtonPanelConfiguration.rightDimChange = rightDimChangeElement.value;
 
                 // Fetch the new configuration
@@ -757,7 +730,6 @@
             capabilityElement.innerHTML = "";
 
             let capabilityDivElement = document.getElementById(`${side}CapabilityDiv`);
-            let MQTTTopicDivElement = document.getElementById(`${side}MQTTopicDiv`);
 
             if (deviceId === "none")
             {
@@ -766,9 +738,6 @@
 
                 // We don't want to show Dim Change value
                 document.getElementById(`${side}DimChangeDiv`).style.display = "none";
-
-                // Show the MQTT Topic element using the div
-                MQTTTopicDivElement.style.display = itemDisplyType;
                 return;
             }
 
@@ -794,9 +763,6 @@
 
                     // Show the capability section
                     capabilityDivElement.style.display = itemDisplyType;
-
-                    // Hide the MQTT topic section using the div
-                    MQTTTopicDivElement.style.display = "none";
 
                     // Restore the previous capability selection
                     capabilityElement.value = selectedCapability;
@@ -847,7 +813,6 @@
                 leftDeviceElement.value = "";
                 leftCapabilityElement.value = "";
                 leftBrokerIdElement.value = "homey";
-                leftMQTTTopicElement.value = "";
                 leftDimChangeElement.value = "+10";
 
                 rightTopTextElement.value = "";
@@ -856,7 +821,6 @@
                 rightDeviceElement.value = "";
                 rightCapabilityElement.value = "";
                 rightBrokerIdElement.value = "homey";
-                rightMQTTTopicElement.value = "";
                 rightDimChangeElement.value = "-10";
             }
             else
@@ -870,7 +834,6 @@
                 leftDeviceElement.value = ButtonPanelConfiguration.leftDevice;
                 getCapabilities("left", leftDeviceElement.value, ButtonPanelConfiguration.leftCapability);
                 leftBrokerIdElement.value = ButtonPanelConfiguration.leftBrokerId;
-                leftMQTTTopicElement.value = ButtonPanelConfiguration.leftMQTTTopic;
                 leftDimChangeElement.value = ButtonPanelConfiguration.leftDimChange;
 
                 rightTopTextElement.value = ButtonPanelConfiguration.rightTopText;
@@ -880,7 +843,6 @@
                 rightCapabilityElement.value = ButtonPanelConfiguration.rightCapability;
                 getCapabilities("right", rightDeviceElement.value, ButtonPanelConfiguration.rightCapability);
                 rightBrokerIdElement.value = ButtonPanelConfiguration.rightBrokerId;
-                rightMQTTTopicElement.value = ButtonPanelConfiguration.rightMQTTTopic;
                 rightDimChangeElement.value = ButtonPanelConfiguration.rightDimChange;
             }
         }

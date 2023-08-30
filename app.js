@@ -100,14 +100,15 @@ class MyApp extends Homey.App
                     buttonConfiguration.rightDimChange = '+10';
                 }
 
-                if (!buttonConfiguration.leftMQTTTopic)
+                // Ensure the left and right MQTT topics are arrays
+                if (!Array.isArray(buttonConfiguration.leftCustomMQTTTopics))
                 {
-                    buttonConfiguration.leftMQTTTopic = '';
+                    buttonConfiguration.leftCustomMQTTTopics = [];
                 }
 
-                if (!buttonConfiguration.rightMQTTTopic)
+                if (!Array.isArray(buttonConfiguration.rightCustomMQTTTopics))
                 {
-                    buttonConfiguration.rightMQTTTopic = '';
+                    buttonConfiguration.rightCustomMQTTTopics = [];
                 }
             }
 
@@ -557,49 +558,35 @@ class MyApp extends Homey.App
                         // Configure the left button bar
                         let buttonIdx = connectorNo * 2;
                         let capability = await this.setupClickTopic(
-                            buttonIdx,
                             deviceConfiguration.mqttbuttons[buttonIdx],
-                            ButtonPanelConfiguration.leftDevice,
-                            ButtonPanelConfiguration.leftCapability,
+                            ButtonPanelConfiguration,
                             connectorNo,
                             'left',
-                            ButtonPanelConfiguration.leftBrokerId,
                         );
 
                         await this.setupStatusTopic(
                             buttonIdx,
                             deviceConfiguration.mqttbuttons[buttonIdx],
-                            ButtonPanelConfiguration.leftTopText,
-                            ButtonPanelConfiguration.leftCapability === 'dim' ? ButtonPanelConfiguration.leftDimChange : ButtonPanelConfiguration.leftOnText,
-                            ButtonPanelConfiguration.leftOffText,
-                            ButtonPanelConfiguration.leftDevice,
-                            ButtonPanelConfiguration.leftCapability,
+                            ButtonPanelConfiguration,
+                            'left',
                             capability,
-                            ButtonPanelConfiguration.leftBrokerId,
                         );
 
                         // Configure the right button bar
                         buttonIdx++;
                         capability = await this.setupClickTopic(
-                            buttonIdx,
                             deviceConfiguration.mqttbuttons[buttonIdx],
-                            ButtonPanelConfiguration.rightDevice,
-                            ButtonPanelConfiguration.rightCapability,
+                            ButtonPanelConfiguration,
                             connectorNo,
                             'right',
-                            ButtonPanelConfiguration.rightBrokerId,
                         );
 
                         await this.setupStatusTopic(
                             buttonIdx,
                             deviceConfiguration.mqttbuttons[buttonIdx],
-                            ButtonPanelConfiguration.rightTopText,
-                            ButtonPanelConfiguration.rightCapability === 'dim' ? ButtonPanelConfiguration.rightDimChange : ButtonPanelConfiguration.rightOnText,
-                            ButtonPanelConfiguration.rightOffText,
-                            ButtonPanelConfiguration.rightDevice,
-                            ButtonPanelConfiguration.rightCapability,
+                            ButtonPanelConfiguration,
+                            'right',
                             capability,
-                            ButtonPanelConfiguration.rightBrokerId,
                         );
                     }
                 }
@@ -607,12 +594,15 @@ class MyApp extends Homey.App
         }
     }
 
-    async setupClickTopic(buttonIdx, mqttButtons, configDevice, configCapability, connectorNo, side, brokerId)
+    async setupClickTopic(mqttButtons, ButtonPanelConfiguration, connectorNo, side)
     {
         let readOnly = false;
         let capability = null;
         let type = '';
 
+        const configDevice = ButtonPanelConfiguration[`${side}Device`];
+        const configCapability = ButtonPanelConfiguration[`${side}Capability`];
+        const brokerId = ButtonPanelConfiguration[`${side}BrokerId`];
         try
         {
             mqttButtons.topics = [];
@@ -645,13 +635,13 @@ class MyApp extends Homey.App
             {
                 // Add the click event entry
                 mqttButtons.topics.push(
-                {
-                    brokerid: brokerId,
-                    eventtype: 0,
-                    topic: 'homey/click',
-                    payload,
-                },
-);
+                    {
+                        brokerid: brokerId,
+                        eventtype: 0,
+                        topic: 'homey/click',
+                        payload,
+                    },
+                );
             }
         }
         catch (err)
@@ -662,8 +652,15 @@ class MyApp extends Homey.App
         return capability;
     }
 
-    async setupStatusTopic(buttonIdx, mqttButtons, topLabel, labelOn, labelOff, configDevice, configCapability, capability, brokerId)
+    async setupStatusTopic(buttonIdx, mqttButtons, ButtonPanelConfiguration, side, capability)
     {
+        const configCapability = ButtonPanelConfiguration[`${side}Capability`];
+        const topLabel = ButtonPanelConfiguration[`${side}TopText`];
+        const labelOn = configCapability === 'dim' ? ButtonPanelConfiguration[`${side}leftDimChange`] : ButtonPanelConfiguration[`${side}OnText`];
+        const labelOff = ButtonPanelConfiguration[`${side}OffText`];
+        const configDevice = ButtonPanelConfiguration[`${side}Device`];
+        const brokerId = ButtonPanelConfiguration[`${side}BrokerId`];
+
         mqttButtons.toplabel = topLabel;
         mqttButtons.label = labelOn;
 
