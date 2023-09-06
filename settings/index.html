@@ -98,13 +98,40 @@
                             </label>
                             <input class="homey-form-input" id="leftOffText" type="text" maxlength="20" value="" />
 
-                            <label class="homey-form-label" for="leftBrokerId"><span data-i18n="settings.brokerId"></span>
+                            <label class="homey-form-label" id="leftFrontLEDColorLabel" for="leftFrontLEDColor"><span data-i18n="settings.frontLEDColor"></span>
                                 <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                    <span class="tooltiptext" data-i18n="settings.brokerIdExplanation"></span>
+                                    <span class="tooltiptext" data-i18n="settings.frontLEDColorExplanation"></span>
                                 </div>
                             </label>
-                            <select class="homey-form-select" id="leftBrokerId">
-                            </select>
+                            <input class="homey-form-input" id="leftFrontLEDColor" type="color" value="" />
+
+                            <label class="homey-form-label" id="leftWallLEDColorLabel" for="leftFrontLEDColor"><span data-i18n="settings.wallLEDColor"></span>
+                                <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                    <span class="tooltiptext" data-i18n="settings.wallLEDColorExplanation"></span>
+                                </div>
+                            </label>
+                            <input class="homey-form-input" id="leftWallLEDColor" type="color" value="" />
+
+                            <span>
+                                <div id="leftBrokerIdDiv">
+                                    <label class="homey-form-label" for="leftBrokerId"><span data-i18n="settings.brokerId"></span>
+                                        <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                            <span class="tooltiptext" data-i18n="settings.brokerIdExplanation"></span>
+                                        </div>
+                                    </label>
+                                    <select class="homey-form-select" id="leftBrokerId">
+                                    </select>
+                                </div>
+                            </span>
+
+                            <span>
+                                <div id="leftCustomMQTTDiv">
+                                    <br>
+                                    <div id="leftCustomMQTTTopicsSection"></div>
+                                    <p><button class="homey-button-secondary-shadow" id="newLeftCustomMQTTItem"><span data-i18n="settings.newCustomMQTTItem"></span></button></p>
+                                </div>
+                            </span>
+
                         </div>
                         <div class="horizontalgroup">
                             <legend class="homey-subtitle"><span data-i18n="settings.rightPanel"></span></legend>
@@ -159,13 +186,38 @@
                             </label>
                             <input class="homey-form-input" id="rightOffText" type="text" maxlength="20" value="" />
 
-                            <label class="homey-form-label" for="rightBrokerId"><span data-i18n="settings.brokerId"></span>
+                            <label class="homey-form-label" id="rightFrontLEDColorLabel" for="rightFrontLEDColor"><span data-i18n="settings.frontLEDColor"></span>
                                 <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                    <span class="tooltiptext" data-i18n="settings.brokerIdExplanation"></span>
+                                    <span class="tooltiptext" data-i18n="settings.frontLEDColorExplanation"></span>
                                 </div>
                             </label>
-                            <select class="homey-form-select" id="rightBrokerId">
-                            </select>
+                            <input class="homey-form-input" id="rightFrontLEDColor" type="color" value="" />
+
+                            <label class="homey-form-label" id="rightWallLEDColorLabel" for="rightFrontLEDColor"><span data-i18n="settings.wallLEDColor"></span>
+                                <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                    <span class="tooltiptext" data-i18n="settings.wallLEDColorExplanation"></span>
+                                </div>
+                            </label>
+                            <input class="homey-form-input" id="rightWallLEDColor" type="color" value="" />
+
+                            <span>
+                                <div id="rightBrokerIdDiv">
+                                    <label class="homey-form-label" for="rightBrokerId"><span data-i18n="settings.brokerId"></span>
+                                        <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                            <span class="tooltiptext" data-i18n="settings.brokerIdExplanation"></span>
+                                        </div>
+                                    </label>
+                                    <select class="homey-form-select" id="rightBrokerId">
+                                    </select>
+                                </div>
+                            </span>
+                            <span>
+                                <div id="rightCustomMQTTDiv">
+                                    <br>
+                                    <div id="rightCustomMQTTTopicsSection"></div>
+                                    <p><button class="homey-button-secondary-shadow" id="newRightCustomMQTTItem"><span data-i18n="settings.newCustomMQTTItem"></span></button></p>
+                                </div>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -229,6 +281,9 @@
         var leftDeviceElement = document.getElementById('leftDevice');
         var leftCapabilityElement = document.getElementById('leftCapability');
         var leftBrokerIdElement = document.getElementById('leftBrokerId');
+        var newLeftCustomMQTTItemButton = document.getElementById('newLeftCustomMQTTItem');
+        var leftFrontLEDColorElement = document.getElementById('leftFrontLEDColor');
+        var leftWallLEDColorElement = document.getElementById('leftWallLEDColor');
 
         var rightTopTextElement = document.getElementById('rightTopText');
         var rightOnTextElement = document.getElementById('rightOnText');
@@ -237,10 +292,14 @@
         var rightDeviceElement = document.getElementById('rightDevice');
         var rightCapabilityElement = document.getElementById('rightCapability');
         var rightBrokerIdElement = document.getElementById('rightBrokerId');
+        var newRightCustomMQTTItemButton = document.getElementById('newRightCustomMQTTItem');
+        var rightFrontLEDColorElement = document.getElementById('rightFrontLEDColor');
+        var rightWallLEDColorElement = document.getElementById('rightWallLEDColor');
 
         var buttonConfigurationsFetched = false;
         var localbuttonConfigurations = [];
         var currentButtonConfigurationNo = 0;
+        var customMQTTItemsElements = [];
 
         // Declarations for the Display Config page
 
@@ -298,6 +357,14 @@
                         option.text = brokerItem.brokerid;
                         rightBrokerIdElement.add(option);
 
+                        // Add the broker to the custom MQTT topic broker lists
+                        for (let k = 0; k < customMQTTItemsElements.length; k++)
+                        {
+                            var option = document.createElement("option");
+                            option.value = brokerItem.brokerid;
+                            option.text = brokerItem.brokerid;
+                            customMQTTItemsElements[k].add(option);
+                        }
 
                         // Add the broker to the display config broker lists
                         for (let i = 0; i < localDisplayConfigurations.length; i++)
@@ -360,32 +427,39 @@
                     }
 
                     var ButtonPanelConfigurationNo = buttonConfigurationNoElement.value;
+                    const ButtonPanelConfiguration = localbuttonConfigurations[ButtonPanelConfigurationNo]
+
+                    storeCustomMQTTItems("left", ButtonPanelConfiguration);
+                    storeCustomMQTTItems("right", ButtonPanelConfiguration);
 
                     // Copy the values from the controls to the buttonConfiguration
-                    var ButtonPanelConfiguration = {
-                        leftTopText: leftTopTextElement.value,
-                        leftOnText: leftOnTextElement.value,
-                        leftOffText: leftOffTextElement.value,
-                        leftDevice: leftDeviceElement.value,
-                        leftCapability: leftCapabilityElement.value,
-                        leftBrokerId: leftBrokerIdElement.value,
-                        leftDimChange: leftDimChangeElement.value,
+                    ButtonPanelConfiguration.leftTopText = leftTopTextElement.value,
+                    ButtonPanelConfiguration.leftOnText = leftOnTextElement.value,
+                    ButtonPanelConfiguration.leftOffText = leftOffTextElement.value,
+                    ButtonPanelConfiguration.leftDevice = leftDeviceElement.value,
+                    ButtonPanelConfiguration.leftCapability = leftCapabilityElement.value,
+                    ButtonPanelConfiguration.leftBrokerId = leftBrokerIdElement.value,
+                    ButtonPanelConfiguration.leftDimChange = leftDimChangeElement.value,
+                    ButtonPanelConfiguration.leftFrontLEDColor = leftFrontLEDColorElement.value,
+                    ButtonPanelConfiguration.leftWallLEDColor = leftWallLEDColorElement.value,
 
-                        rightTopText: rightTopTextElement.value,
-                        rightOnText: rightOnTextElement.value,
-                        rightOffText: rightOffTextElement.value,
-                        rightDevice: rightDeviceElement.value,
-                        rightCapability: rightCapabilityElement.value,
-                        rightBrokerId: rightBrokerIdElement.value,
-                        rightDimChange: rightDimChangeElement.value,
-                    };
+                    ButtonPanelConfiguration.rightTopText = rightTopTextElement.value,
+                    ButtonPanelConfiguration.rightOnText = rightOnTextElement.value,
+                    ButtonPanelConfiguration.rightOffText = rightOffTextElement.value,
+                    ButtonPanelConfiguration.rightDevice = rightDeviceElement.value,
+                    ButtonPanelConfiguration.rightCapability = rightCapabilityElement.value,
+                    ButtonPanelConfiguration.rightBrokerId = rightBrokerIdElement.value,
+                    ButtonPanelConfiguration.rightDimChange = rightDimChangeElement.value,
+                    ButtonPanelConfiguration.rightFrontLEDColor = rightFrontLEDColorElement.value,
+                    ButtonPanelConfiguration.rightWallLEDColor = rightWallLEDColorElement.value,
 
-                    localbuttonConfigurations[ButtonPanelConfigurationNo] = ButtonPanelConfiguration;
                     Homey.set('buttonConfigurations', localbuttonConfigurations);
 
                     //Copy the values from the controls to the displayConfiguration
                     storeDisplaySettings();
                     Homey.set('displayConfigurations', localDisplayConfigurations);
+
+                    Homey.alert(Homey.__("settings.saved"));
                 }
                 else
                 {
@@ -407,23 +481,30 @@
             buttonConfigurationNoElement.addEventListener('change', function(e)
             {
                 // Store the current configuration
-                var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
+                var buttonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
 
-                ButtonPanelConfiguration.leftTopText = leftTopTextElement.value;
-                ButtonPanelConfiguration.leftOnText = leftOnTextElement.value;
-                ButtonPanelConfiguration.leftOffText = leftOffTextElement.value;
-                ButtonPanelConfiguration.leftDevice = leftDeviceElement.value;
-                ButtonPanelConfiguration.leftCapability = leftCapabilityElement.value;
-                ButtonPanelConfiguration.leftbrokerId = leftBrokerIdElement.value;
-                ButtonPanelConfiguration.leftDimChange = leftDimChangeElement.value;
+                buttonPanelConfiguration.leftTopText = leftTopTextElement.value;
+                buttonPanelConfiguration.leftOnText = leftOnTextElement.value;
+                buttonPanelConfiguration.leftOffText = leftOffTextElement.value;
+                buttonPanelConfiguration.leftDevice = leftDeviceElement.value;
+                buttonPanelConfiguration.leftCapability = leftCapabilityElement.value;
+                buttonPanelConfiguration.leftBrokerId = leftBrokerIdElement.value;
+                buttonPanelConfiguration.leftDimChange = leftDimChangeElement.value;
+                buttonPanelConfiguration.leftFrontLEDColor = leftFrontLEDColorElement.value;
+                buttonPanelConfiguration.leftWallLEDColor = leftWallLEDColorElement.value;
+                buttonPanelConfiguration.leftCustomMQTTTopics = buttonPanelConfiguration.leftCustomMQTTTopics;
 
-                ButtonPanelConfiguration.rightTopText = rightTopTextElement.value;
-                ButtonPanelConfiguration.rightOnText = rightOnTextElement.value;
-                ButtonPanelConfiguration.rightOffText = rightOffTextElement.value;
-                ButtonPanelConfiguration.rightDevice = rightDeviceElement.value;
-                ButtonPanelConfiguration.rightCapability = rightCapabilityElement.value;
-                ButtonPanelConfiguration.rightbrokerId = rightBrokerIdElement.value;
-                ButtonPanelConfiguration.rightDimChange = rightDimChangeElement.value;
+
+                buttonPanelConfiguration.rightTopText = rightTopTextElement.value;
+                buttonPanelConfiguration.rightOnText = rightOnTextElement.value;
+                buttonPanelConfiguration.rightOffText = rightOffTextElement.value;
+                buttonPanelConfiguration.rightDevice = rightDeviceElement.value;
+                buttonPanelConfiguration.rightCapability = rightCapabilityElement.value;
+                buttonPanelConfiguration.rightBrokerId = rightBrokerIdElement.value;
+                buttonPanelConfiguration.rightDimChange = rightDimChangeElement.value;
+                buttonPanelConfiguration.rightFrontLEDColor = rightFrontLEDColorElement.value;
+                buttonPanelConfiguration.rightWallLEDColor = rightWallLEDColorElement.value;
+                buttonPanelConfiguration.rightCustomMQTTTopics = buttonPanelConfiguration.rightCustomMQTTTopics;
 
                 // Fetch the new configuration
                 updateButtonPanelConfiguration();
@@ -432,7 +513,7 @@
             leftTopTextElement.addEventListener('change', function(e)
             {
                 var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
-                ButtonPanelConfiguration.leftTopText = leftTextTopElement.value;
+                ButtonPanelConfiguration.leftTopText = leftTopTextElement.value;
             });
 
             leftOnTextElement.addEventListener('change', function(e)
@@ -451,6 +532,18 @@
             {
                 var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
                 ButtonPanelConfiguration.leftDimChange = leftDimChangelement.value;
+            });
+
+            leftFrontLEDColorElement.addEventListener('change', function(e)
+            {
+                var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
+                ButtonPanelConfiguration.leftFrontLEDColor = leftFrontLEDColorElement.value;
+            });
+
+            leftWallLEDColorElement.addEventListener('change', function(e)
+            {
+                var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
+                ButtonPanelConfiguration.leftWallLEDColor = leftWallLEDColorElement.value;
             });
 
             rightTopTextElement.addEventListener('change', function(e)
@@ -475,6 +568,18 @@
             {
                 var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
                 ButtonPanelConfiguration.rightDimChange = rightDimChangelement.value;
+            });
+
+            rightFrontLEDColorElement.addEventListener('change', function(e)
+            {
+                var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
+                ButtonPanelConfiguration.rightFrontLEDColor = rightFrontLEDColorElement.value;
+            });
+
+            rightWallLEDColorElement.addEventListener('change', function(e)
+            {
+                var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
+                ButtonPanelConfiguration.rightWallLEDColor = rightWallLEDColorElement.value;
             });
 
             leftDeviceElement.addEventListener('change', function(e)
@@ -571,6 +676,44 @@
                 }
             });
 
+            newLeftCustomMQTTItemButton.addEventListener('click', function(e)
+            {
+                var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
+                if (ButtonPanelConfiguration)
+                {
+                    var customMQTTItem = {
+                        id: '',
+                        type: 0,
+                        topic: "",
+                        payload: "",
+                        brokerId: 'homey',
+                        enable: true,
+                    };
+
+                    ButtonPanelConfiguration.leftCustomMQTTTopics.push(customMQTTItem);
+                    drawCustomMQTTTopics("left", ButtonPanelConfiguration);
+                }
+            });
+
+            newRightCustomMQTTItemButton.addEventListener('click', function(e)
+            {
+                var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
+                if (ButtonPanelConfiguration)
+                {
+                    var customMQTTItem = {
+                        id: '',
+                        type: 0,
+                        topic: "",
+                        payload: "",
+                        brokerId: 'homey',
+                        enable: true,
+                    };
+
+                    ButtonPanelConfiguration.rightCustomMQTTTopics.push(customMQTTItem);
+                    drawCustomMQTTTopics("right", ButtonPanelConfiguration);
+                }
+            });
+
             Homey.get('displayConfigurations', function(err, displayConfigurations)
             {
                 if (err) return Homey.alert(err);
@@ -604,6 +747,15 @@
                 optionRight.value = brokerItem.brokerid;
                 optionRight.text = brokerItem.brokerid;
                 rightBrokerIdElement.add(optionRight);
+
+                // Add the new broker to the custom MQTT topic broker lists
+                for (let k = 0; k < customMQTTItemsElements.length; k++)
+                {
+                    var option = document.createElement("option");
+                    option.value = brokerItem.brokerid;
+                    option.text = brokerItem.brokerid;
+                    customMQTTItemsElements[k].add(option);
+                }
 
                 // Add the new broker to the display config broker lists
                 for (let i = 0; i < localDisplayConfigurations.length; i++)
@@ -709,8 +861,13 @@
                 element.innerHTML = "";
 
                 var option = document.createElement("option");
-                option.text = "none";
+                option.text = Homey.__("settings.none");
                 option.value = "none";
+                element.add(option);
+
+                var option = document.createElement("option");
+                option.text = Homey.__("settings.customMQTT");
+                option.value = "customMQTT";
                 element.add(option);
 
                 for (const device of devicesArray)
@@ -738,6 +895,23 @@
 
                 // We don't want to show Dim Change value
                 document.getElementById(`${side}DimChangeDiv`).style.display = "none";
+                document.getElementById(`${side}BrokerIdDiv`).style.display = itemDisplyType;
+                document.getElementById(`${side}CustomMQTTDiv`).style.display = "none";
+                return;
+            }
+
+            if (deviceId === "customMQTT")
+            {
+                // Hide the capability element items using the div
+                capabilityDivElement.style.display = "none";
+
+                // We don't want to show Dim Change value
+                document.getElementById(`${side}DimChangeDiv`).style.display = "none";
+                document.getElementById(`${side}BrokerIdDiv`).style.display = "none";
+
+                // Show the custom MQTT section
+                document.getElementById(`${side}CustomMQTTDiv`).style.display = itemDisplyType;
+                drawCustomMQTTTopics(side, localbuttonConfigurations[currentButtonConfigurationNo]);
                 return;
             }
 
@@ -763,6 +937,8 @@
 
                     // Show the capability section
                     capabilityDivElement.style.display = itemDisplyType;
+                    document.getElementById(`${side}BrokerIdDiv`).style.display = itemDisplyType;
+                    document.getElementById(`${side}CustomMQTTDiv`).style.display = "none";
 
                     // Restore the previous capability selection
                     capabilityElement.value = selectedCapability;
@@ -814,6 +990,8 @@
                 leftCapabilityElement.value = "";
                 leftBrokerIdElement.value = "homey";
                 leftDimChangeElement.value = "+10";
+                leftFrontLEDColorElement.value = "#ff0000";
+                leftWallLEDColorElement.value = "#ff0000";
 
                 rightTopTextElement.value = "";
                 rightOnTextElement.value = "";
@@ -822,6 +1000,8 @@
                 rightCapabilityElement.value = "";
                 rightBrokerIdElement.value = "homey";
                 rightDimChangeElement.value = "-10";
+                rightFrontLEDColorElement.value = "#ff0000";
+                rightWallLEDColorElement.value = "#ff0000";
             }
             else
             {
@@ -835,6 +1015,8 @@
                 getCapabilities("left", leftDeviceElement.value, ButtonPanelConfiguration.leftCapability);
                 leftBrokerIdElement.value = ButtonPanelConfiguration.leftBrokerId;
                 leftDimChangeElement.value = ButtonPanelConfiguration.leftDimChange;
+                leftFrontLEDColorElement.value = ButtonPanelConfiguration.leftFrontLEDColor;
+                leftWallLEDColorElement.value = ButtonPanelConfiguration.leftWallLEDColor;
 
                 rightTopTextElement.value = ButtonPanelConfiguration.rightTopText;
                 rightOnTextElement.value = ButtonPanelConfiguration.rightOnText;
@@ -844,6 +1026,8 @@
                 getCapabilities("right", rightDeviceElement.value, ButtonPanelConfiguration.rightCapability);
                 rightBrokerIdElement.value = ButtonPanelConfiguration.rightBrokerId;
                 rightDimChangeElement.value = ButtonPanelConfiguration.rightDimChange;
+                rightFrontLEDColorElement.value = ButtonPanelConfiguration.rightFrontLEDColor;
+                rightWallLEDColorElement.value = ButtonPanelConfiguration.rightWallLEDColor;
             }
         }
 
@@ -942,7 +1126,7 @@
                 bottomLeft: Homey.__("settings.bottomLeft"),
                 bottomCenter: Homey.__("settings.bottomCenter"),
                 bottomRight: Homey.__("settings.bottomRight"),
-                deleteDisplayItem: Homey.__("settings.deleteDisplayItem"),
+                deleteItem: Homey.__("settings.deleteItem"),
                 brokerId: Homey.__("settings.brokerId"),
             }
             const itemLegend = Homey.__("settings.displayItemlegend", { itemNo: itemNo + 1 });
@@ -1005,7 +1189,7 @@
                                 <option value='buttonplus'>Button+</option>
                             </select>
                             <br>
-                        <p><button class="homey-button-secondary-shadow" id="deleteDisplayItem" onClick="deleteItem(${itemNo})" style="font-size: 30px;"><i class="fi fi-rr-trash"></i> </button></p>
+                        <p><button class="homey-button-secondary-shadow" id="deleteItem" onClick="deleteItem(${itemNo})" style="font-size: 30px;"><i class="fi fi-rr-trash"></i> </button></p>
                     </div>
                 </div>`;
 
@@ -1124,6 +1308,7 @@
             }
         }
 
+        /// Broker Config code
         function drawBrokerItems()
         {
             document.getElementById('brokerItemsSection').innerHTML = "";
@@ -1198,13 +1383,19 @@
             document.getElementById('brokerItemsSection').innerHTML = section;
         }
 
-        function updateBrokerLists(itmeNo)
+        function updateBrokerLists(itemNo)
         {
             // Update the broker in the left and right broker list in the panel config
             const leftBrokerIdElement = document.getElementById('leftBrokerId');
-            leftBrokerIdElement.options[itmeNo].text = document.getElementById(`broker${itmeNo}Id`).value;
+            leftBrokerIdElement.options[itemNo].text = document.getElementById(`broker${itemNo}Id`).value;
             const rightBrokerIdElement = document.getElementById('rightBrokerId');
-            rightBrokerIdElement.options[itmeNo].text = document.getElementById(`broker${itmeNo}Id`).value;
+            rightBrokerIdElement.options[itemNo].text = document.getElementById(`broker${itemNo}Id`).value;
+
+            // Update the broker in the all the custom MQTT topics in the panel config
+            for (let k = 0; k < customMQTTItemsElements.length; k++)
+            {
+                customMQTTItemsElements[k].options[itemNo].text = document.getElementById(`broker${itemNo}Id`).value;
+            }
 
             // Update the broker lists in the display config items
             for (var displayItemNo = 0; displayItemNo < localDisplayConfigurations.length; displayItemNo++)
@@ -1214,7 +1405,7 @@
                 {
                     const item = displayItem.items[itemNo];
                     const brokerIdElement = document.getElementById(`display${itemNo}BrokerId`);
-                    brokerIdElement.options[itmeNo].text = document.getElementById(`broker${itmeNo}Id`).value;
+                    brokerIdElement.options[itemNo].text = document.getElementById(`broker${itemNo}Id`).value;
                 }
             }
         }
@@ -1244,7 +1435,13 @@
             const rightBrokerIdElement = document.getElementById('rightBrokerId');
             rightBrokerIdElement.remove(itemNo);
 
-            // Remove the broker from the broker all the lists in the display config items
+            // Remove the broker from the all the custom MQTT topics in the panel config
+            for (let k = 0; k < customMQTTItemsElements.length; k++)
+            {
+                customMQTTItemsElements[k].remove(itemNo);
+            }
+
+            // Remove the broker from all the lists in the display config items
             for (var displayItemNo = 0; displayItemNo < localDisplayConfigurations.length; displayItemNo++)
             {
                 const displayItem = localDisplayConfigurations[displayItemNo];
@@ -1281,6 +1478,165 @@
 
             return true;
         }
+
+        /// Custom MQTT code
+        function drawCustomMQTTTopics(side, buttonPanelConfiguration)
+        {
+            document.getElementById(`${side}CustomMQTTTopicsSection`).innerHTML = "";
+            customMQTTItemsElements = [];
+
+            const customMQTTTopics = buttonPanelConfiguration[`${side}CustomMQTTTopics`];
+
+            for (var itemNo = 0; itemNo < customMQTTTopics.length; itemNo++)
+            {
+                const item = customMQTTTopics[itemNo];
+                insertCustomMQTTTopicSection(item, itemNo, side);
+            }
+
+            var tooltips = document.querySelectorAll(".tooltip");
+            tooltips.forEach(function(tooltip, index)
+            {
+                // Set a mouse over function for each tooltop element
+                tooltip.addEventListener("mouseover", position_tooltip); // On hover, launch the function below
+            })
+        }
+
+        function insertCustomMQTTTopicSection(item, itemNo, side)
+        {
+            const ctrlLabels = {
+                brokerId: Homey.__("settings.brokerId"),
+                brokerIdExplanation: Homey.__("settings.brokerIdExplanation"),
+                id: Homey.__("settings.MQTTId"),
+                idExplanation: Homey.__("settings.MQTTIdExplanation"),
+                type: Homey.__("settings.type"),
+                typeExplanation: Homey.__("settings.typeExplanation"),
+                topic: Homey.__("settings.topic"),
+                topicExplanation: Homey.__("settings.topicExplanation"),
+                payload: Homey.__("settings.payload"),
+                payloadExplanation: Homey.__("settings.payloadExplanation"),
+                enabled: Homey.__("settings.enabled"),
+                click: Homey.__("settings.click"),
+                longPress: Homey.__("settings.longPress"),
+                led: Homey.__("settings.led"),
+            };
+            const itemLegend = Homey.__("settings.customMQTTItemlegend", { itemNo: itemNo + 1 });
+            const enableOption = item.enabled ? "checked" : "";
+
+            var section = document.getElementById(`${side}CustomMQTTTopicsSection`).innerHTML;
+            section = section +
+                `<div class="horizontalcontainer">
+                    <div class="horizontalgroup">
+                        <legend class="homey-subtitle">${itemLegend}</legend>
+
+                        <label class="homey-form-label" for="${side}CustomMQTT${itemNo}Id">${ctrlLabels.id}
+                            <div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
+                                <span class="tooltiptext">${ctrlLabels.idExplanation}</span>
+                            </div>
+                        </label>
+                        <input class="homey-form-input" id="${side}CustomMQTT${itemNo}Id" type="text" value="${item.id}"/>
+
+                        <label class="homey-form-label" for="${side}CustomMQTT${itemNo}Type">${ctrlLabels.type}
+                            <div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
+                                <span class="tooltiptext">${ctrlLabels.typeExplanation}</span>
+                            </div>
+                        </label>
+                        <select class="homey-form-select" id="${side}CustomMQTT${itemNo}Type">
+                            <option value=0>${ctrlLabels.click}</option>
+                            <option value=1>${ctrlLabels.longPress}</option>
+                            <option value=14>${ctrlLabels.led}</option>
+                        </select><br>
+
+                        <label class="homey-form-label" for="${side}CustomMQTT${itemNo}topic">${ctrlLabels.topic}
+                            <div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
+                                <span class="tooltiptext">${ctrlLabels.topicExplanation}</span>
+                            </div>
+                        </label>
+                        <input class="homey-form-input" id="${side}CustomMQTT${itemNo}topic" type="text" value="${item.topic}" />
+
+                        <label class="homey-form-label" for="${side}CustomMQTT${itemNo}payload">${ctrlLabels.payload}
+                            <div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
+                                <span class="tooltiptext">${ctrlLabels.payloadExplanation}</span>
+                            </div>
+                        </label>
+                        <input class="homey-form-input" id="${side}CustomMQTT${itemNo}payload" type="text" value="${item.payload}" />
+
+                        <label class="homey-form-label" for="${side}CustomMQTT${itemNo}BrokerId">${ctrlLabels.brokerId}
+                            <div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
+                                <span class="tooltiptext">${ctrlLabels.brokerIdExplanation}</span>
+                            </div>
+                        </label>
+                        <select class="homey-form-select" id="${side}CustomMQTT${itemNo}BrokerId">
+                        </select><br>
+
+                        <label class="homey-form-checkbox">
+                            <input class="homey-form-checkbox-input" id="${side}CustomMQTT${itemNo}Enabled" type="checkbox" ${enableOption}/>
+                            <span class="homey-form-checkbox-checkmark"></span>
+                            <span class="homey-form-checkbox-text">${ctrlLabels.enabled}</span>
+                        </label>
+
+                        <p><button class="homey-button-secondary-shadow" id="${side}DeleteItem${itemNo}" onClick="deleteCustomMQTTItem(${itemNo}, '${side}')" style="font-size: 30px;"><i class="fi fi-rr-trash"></i> </button></p>
+                    </div>
+                </div>`;
+
+            document.getElementById(`${side}CustomMQTTTopicsSection`).innerHTML = section;
+            customMQTTItemsElements.push(document.getElementById(`${side}CustomMQTT${itemNo}BrokerId`));
+
+            // Add the brokers to the broker list
+            for (var brokerNo = 0; brokerNo < localBrokerItems.length; brokerNo++)
+            {
+                const brokerItem = localBrokerItems[brokerNo];
+                var option = document.createElement("option");
+                option.text = brokerItem.brokerid;
+                option.value = brokerItem.brokerid;
+                customMQTTItemsElements[itemNo].add(option);
+            }
+        }
+
+        // Delete the specified custom item from the button panel configuration and redraw the list
+        function deleteCustomMQTTItem(itemNo, side)
+        {
+            var ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
+            const customMQTTTopics = ButtonPanelConfiguration[`${side}CustomMQTTTopics`];
+
+            customMQTTTopics.splice(itemNo, 1);
+            drawCustomMQTTTopics(side, ButtonPanelConfiguration);
+        }
+
+        //  Copy the contents of the specified custom item controls to the button panel configuration
+        function storeCustomMQTTItem(side, buttonPanelConfiguration, itemNo)
+        {
+            // Get the custom MQTT topics array
+            const customMQTTTopics = buttonPanelConfiguration[`${side}CustomMQTTTopics`];
+            
+            // Check if customMQTTTopics is defined and length is not 0
+            if (!customMQTTTopics || customMQTTTopics.length === 0) return;
+
+            // Fetch the item from the array or create a new one
+            let item = customMQTTTopics[itemNo];
+            if (!item)
+            {
+                item = {};
+                customMQTTTopics.push(item);
+            }
+
+            // Update the item
+            item.id = document.getElementById(`${side}CustomMQTT${itemNo}Id`).value;
+            item.type = document.getElementById(`${side}CustomMQTT${itemNo}Type`).value;
+            item.topic = document.getElementById(`${side}CustomMQTT${itemNo}topic`).value;
+            item.payload = document.getElementById(`${side}CustomMQTT${itemNo}payload`).value;
+            item.brokerId = document.getElementById(`${side}CustomMQTT${itemNo}BrokerId`).value;
+            item.enabled = document.getElementById(`${side}CustomMQTT${itemNo}Enabled`).checked;
+        }
+
+        // Copy the contents of the all the custom items controls to the button panel configuration
+        function storeCustomMQTTItems(side, buttonPanelConfiguration)
+        {
+            for (var itemNo = 0; itemNo < customMQTTItemsElements.length; itemNo++)
+            {
+                storeCustomMQTTItem(side, buttonPanelConfiguration, itemNo);
+            }
+        }
+
     </script>
 </body>
 

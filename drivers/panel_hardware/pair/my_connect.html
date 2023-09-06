@@ -17,6 +17,33 @@
     Homey.setTitle(__('pair.manual_add.title'));
     document.getElementById('submit').value = __('pair.manual_add.connect');
 
+    Homey.emit('manual_connection_setup', {},
+        async function(err, result)
+        {
+            if (result && result.length > 0)
+            {
+                var showManualAdd = false;
+                // Add each device to the list
+                for (var i = 0; i < result.length; i++)
+                {
+                    var device = result[i];
+                    if (device.data.id == 'manual_connection')
+                    {
+                        showManualAdd = true;
+                    }
+                    else
+                    {
+                        await Homey.createDevice(device);
+                    }
+                }
+                if (!showManualAdd)
+                {
+                    Homey.done();
+                }
+            }
+        }
+    );
+
     function getForm()
     {
 

@@ -1,8 +1,8 @@
 {
-  "type": "mdns-sd",
-  "mdns-sd": {
-    "name": "panel",
-    "protocol": "udp"
-  },
-  "id": "{{'mac'}}"
+    "type": "mdns-sd",
+    "mdns-sd": {
+        "name": "button",
+        "protocol": "tcp"
+    },
+    "id": "{{'txt.id'}}"
 }

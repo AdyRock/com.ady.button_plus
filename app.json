@@ -566,6 +566,12 @@
       "name": {
         "en": "Button Panel"
       },
+      "platforms": [
+        "local"
+      ],
+      "connectivity": [
+        "lan"
+      ],
       "class": "button",
       "capabilities": [
         "configuration.display",
@@ -722,26 +728,16 @@
           }
         }
       },
-      "platforms": [
-        "local"
-      ],
-      "connectivity": [
-        "lan"
-      ],
       "pair": [
         {
-          "id": "my_connect"
-        },
-        {
-          "id": "list_my_devices",
+          "id": "list_devices",
           "template": "list_devices",
           "navigation": {
-            "next": "add_my_devices"
+            "next": "my_connect"
           }
         },
         {
-          "id": "add_my_devices",
-          "template": "add_devices"
+          "id": "my_connect"
         }
       ],
       "images": {
@@ -1117,10 +1113,10 @@
     "panel": {
       "type": "mdns-sd",
       "mdns-sd": {
-        "name": "panel",
-        "protocol": "udp"
+        "name": "button",
+        "protocol": "tcp"
       },
-      "id": "{{'mac'}}"
+      "id": "{{'txt.id'}}"
     }
   }
 }

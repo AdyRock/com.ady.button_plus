@@ -13,21 +13,56 @@ class PanelDriver extends Driver
         this.log('PanelDriver has been initialized');
     }
 
-    onPair(session)
+    async onPair(session)
     {
-        session.setHandler('manual_connection', async (data) =>
-        {
-            return this.pairListDevices(data.ip, 0);
-        });
+        this.devicesToAdd = [];
 
         session.setHandler('list_devices', async () =>
         {
-            const devices = await this.pairListDevices(0, 0);
-            if (!devices || devices.length === 0)
+            const devices = [];
+            devices.push({
+                name: 'Manual connection',
+                data:
+                {
+                    id: 'manual_connection',
+                },
+            });
+
+            if (this.homey.app.mDNSPanels.length > 0)
             {
-                throw new Error('no_devices_found');
+                for (let i = 0; i < this.homey.app.mDNSPanels.length; i++)
+                {
+                    const { ip } = this.homey.app.mDNSPanels[i];
+                    const device = await this.pairListDevices(ip, i);
+                    devices.push(device);
+                }
+
+                if (!devices || devices.length === 0)
+                {
+                    throw new Error('no_devices_found');
+                }
+
+                return devices;
             }
-            return devices;
+
+            return [];
+        });
+
+        session.setHandler('list_devices_selection', async (data) =>
+        {
+            // User selected a device so cache the information required to validate it when the credentials are set
+            this.devicesToAdd = data;
+        });
+
+        session.setHandler('manual_connection_setup', async () =>
+        {
+            return this.devicesToAdd;
+        });
+
+        session.setHandler('manual_connection', async (data) =>
+        {
+            this.ip = data.ip;
+            return this.pairListDevices(data.ip, 0);
         });
     }
 

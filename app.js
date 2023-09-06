@@ -5,7 +5,7 @@
 if (process.env.DEBUG === '1')
 {
     // eslint-disable-next-line node/no-unsupported-features/node-builtins, global-require
-    require('inspector').open(9223, '0.0.0.0', false);
+    require('inspector').open(9223, '0.0.0.0', true);
 }
 
 const Homey = require('homey');
@@ -109,6 +109,14 @@ class MyApp extends Homey.App
                 if (!Array.isArray(buttonConfiguration.rightCustomMQTTTopics))
                 {
                     buttonConfiguration.rightCustomMQTTTopics = [];
+                }
+
+                if (!buttonConfiguration.leftFrontLEDColor)
+                {
+                    buttonConfiguration.leftFrontLEDColor = '#ff0000';
+                    buttonConfiguration.leftWallLEDColor = '#ff0000';
+                    buttonConfiguration.rightFrontLEDColor = '#ff0000';
+                    buttonConfiguration.rightWallLEDColor = '#ff0000';
                 }
             }
 
@@ -307,31 +315,28 @@ class MyApp extends Homey.App
     // Make all the device upload their button bar configurations to the panels
     async refreshbuttonConfigurations()
     {
-        if (this.cloudConnected)
+        // Get devices to upload their configurations
+        const drivers = this.homey.drivers.getDrivers();
+        for (const driver of Object.values(drivers))
         {
-            // Get devices to upload their configurations
-            const drivers = this.homey.drivers.getDrivers();
-            for (const driver of Object.values(drivers))
+            let devices = driver.getDevices();
+            for (let device of Object.values(devices))
             {
-                let devices = driver.getDevices();
-                for (let device of Object.values(devices))
+                if (device.uploadButtonConfigurations)
                 {
-                    if (device.uploadButtonConfigurations)
+                    try
                     {
-                        try
-                        {
-                            await device.uploadButtonConfigurations(null, true);
-                        }
-                        catch (error)
-                        {
-                            this.updateLog(`Sync Devices error: ${error.message}`);
-                        }
+                        await device.uploadButtonConfigurations(null, true);
                     }
-
-                    device = null;
+                    catch (error)
+                    {
+                        this.updateLog(`Sync Devices error: ${error.message}`);
+                    }
                 }
-                devices = null;
+
+                device = null;
             }
+            devices = null;
         }
     }
 
@@ -380,6 +385,9 @@ class MyApp extends Homey.App
                 leftCapability: '',
                 leftbrokerid: 'homey',
                 leftDimChange: '-10',
+                leftFrontLEDColor: '#ff0000',
+                leftWallLEDColor: '#ff0000',
+                leftCustomMQTTTopics: [],
                 rightTopText: '',
                 rightOnText: '',
                 rightOffText: '',
@@ -387,6 +395,9 @@ class MyApp extends Homey.App
                 rightCapability: '',
                 rightbrokerid: 'homey',
                 rightDimChange: '+10',
+                rightFrontLEDColor: '#ff0000',
+                rightWallLEDColor: '#ff0000',
+                rightCustomMQTTTopics: [],
             };
             this.buttonConfigurations.push(ButtonPanelConfiguration);
         }
@@ -555,42 +566,99 @@ class MyApp extends Homey.App
                     // This device has a valid button bar at the specified location so get that panels properties
                     if (deviceConfiguration.mqttbuttons)
                     {
-                        // Configure the left button bar
                         let buttonIdx = connectorNo * 2;
-                        let capability = await this.setupClickTopic(
-                            deviceConfiguration.mqttbuttons[buttonIdx],
-                            ButtonPanelConfiguration,
-                            connectorNo,
-                            'left',
-                        );
+                        if (ButtonPanelConfiguration.leftDevice === 'customMQTT')
+                        {
+                            // Add custom MQTT topics
+                            await this.setupCustomMQTTTopics(
+                                deviceConfiguration.mqttbuttons[buttonIdx],
+                                ButtonPanelConfiguration,
+                                connectorNo,
+                                'left',
+                            );
+                        }
+                        else
+                        {
+                            // Configure the left button bar
+                            const capability = await this.setupClickTopic(
+                                deviceConfiguration.mqttbuttons[buttonIdx],
+                                ButtonPanelConfiguration,
+                                connectorNo,
+                                'left',
+                            );
 
-                        await this.setupStatusTopic(
-                            buttonIdx,
-                            deviceConfiguration.mqttbuttons[buttonIdx],
-                            ButtonPanelConfiguration,
-                            'left',
-                            capability,
-                        );
-
+                            await this.setupStatusTopic(
+                                buttonIdx,
+                                deviceConfiguration.mqttbuttons[buttonIdx],
+                                ButtonPanelConfiguration,
+                                'left',
+                                capability,
+                            );
+                        }
                         // Configure the right button bar
                         buttonIdx++;
-                        capability = await this.setupClickTopic(
+                        if (ButtonPanelConfiguration.leftDevice === 'customMQTT')
+                        {
+                            // Add custom MQTT topics
+                            await this.setupCustomMQTTTopics(
+                                deviceConfiguration.mqttbuttons[buttonIdx],
+                                ButtonPanelConfiguration,
+                                connectorNo,
+                                'right',
+                            );
+                        }
+                        else
+                        {
+                            const capability = await this.setupClickTopic(
                             deviceConfiguration.mqttbuttons[buttonIdx],
                             ButtonPanelConfiguration,
                             connectorNo,
                             'right',
-                        );
+                            );
 
-                        await this.setupStatusTopic(
-                            buttonIdx,
-                            deviceConfiguration.mqttbuttons[buttonIdx],
-                            ButtonPanelConfiguration,
-                            'right',
-                            capability,
-                        );
+                            await this.setupStatusTopic(
+                                buttonIdx,
+                                deviceConfiguration.mqttbuttons[buttonIdx],
+                                ButtonPanelConfiguration,
+                                'right',
+                                capability,
+                            );
+                        }
                     }
                 }
             }
+        }
+    }
+
+    async setupCustomMQTTTopics(mqttButtons, ButtonPanelConfiguration, connectorNo, side)
+    {
+        const customMQTTTopics = ButtonPanelConfiguration[`${side}CustomMQTTTopics`];
+        const topLabel = ButtonPanelConfiguration[`${side}TopText`];
+        const labelOn = ButtonPanelConfiguration[`${side}OnText`];
+        mqttButtons.toplabel = topLabel;
+        mqttButtons.label = labelOn;
+
+        try
+        {
+            mqttButtons.topics = [];
+            for (const customMQTTTopic of customMQTTTopics)
+            {
+                if (customMQTTTopic.topic !== '' && customMQTTTopic.enabled)
+                {
+                    mqttButtons.topics.push(
+                        {
+                            brokerid: customMQTTTopic.brokerId,
+                            eventtype: customMQTTTopic.eventType,
+                            topic: customMQTTTopic.topic,
+                            payload: customMQTTTopic.payload,
+                        },
+                    );
+                }
+            }
+        }
+        catch (err)
+        {
+            this.updateLog(`Error setting up custom MQTT topics: ${err.message}`);
         }
     }
 
@@ -642,6 +710,16 @@ class MyApp extends Homey.App
                         payload,
                     },
                 );
+
+                // Add the long press event entry
+                mqttButtons.topics.push(
+                    {
+                        brokerid: brokerId,
+                        eventtype: 1,
+                        topic: 'homey/longpress',
+                        payload,
+                    },
+                );
             }
         }
         catch (err)
@@ -663,6 +741,12 @@ class MyApp extends Homey.App
 
         mqttButtons.toplabel = topLabel;
         mqttButtons.label = labelOn;
+
+        // Convert the '#000000' string to a long for the LED color
+        const frontLEDColor = parseInt(ButtonPanelConfiguration[`${side}FrontLEDColor`].substring(1), 16);
+        const wallLEDColor = parseInt(ButtonPanelConfiguration[`${side}WallLEDColor`].substring(1), 16);
+        mqttButtons.ledcolorfront = frontLEDColor;
+        mqttButtons.ledcolorwall = wallLEDColor;
 
         try
         {
@@ -686,7 +770,7 @@ class MyApp extends Homey.App
                 mqttButtons.topics.push(
                 {
                     brokerid: brokerId,
-                    eventtype: 16,
+                    eventtype: 11,
                     topic: `homey/button/${buttonIdx}/label`,
                     payload,
                 },
@@ -718,7 +802,7 @@ class MyApp extends Homey.App
                 mqttButtons.topics.push(
                 {
                     brokerid: brokerId,
-                    eventtype: 16,
+                    eventtype: 11,
                     topic: `homey/${configDevice}/${configCapability}/label`,
                     payload,
                 },
@@ -992,17 +1076,20 @@ class MyApp extends Homey.App
 
     async setupMDNS()
     {
-        this.mDNSGateways = this.homey.settings.get('gateways');
-        this.mDNSGateways = [];
+        this.mDNSPanels = this.homey.settings.get('gateways');
+        this.mDNSPanels = [];
 
         // setup the mDNS discovery for local gateways
         this.discoveryStrategy = this.homey.discovery.getStrategy('panel');
 
-        const discoveryResult = this.discoveryStrategy.getDiscoveryResults();
-        this.updateLog(`Got initial mDNS result:${this.varToString(discoveryResult)}`);
-        if (discoveryResult && discoveryResult.address)
+        const initialDiscoveryResults = this.discoveryStrategy.getDiscoveryResults();
+        this.updateLog(`Got initial mDNS result:${this.varToString(initialDiscoveryResults)}`);
+        if (initialDiscoveryResults)
         {
-            this.mDNSGatewaysUpdate(discoveryResult);
+            for (const discoveryResult of Object.values(initialDiscoveryResults))
+            {
+                this.mDNSGatewaysUpdate(discoveryResult);
+            }
         }
 
         this.discoveryStrategy.on('result', (discoveryResult) =>
@@ -1144,7 +1231,7 @@ class MyApp extends Homey.App
     // eslint-disable-next-line camelcase
     async publishMQTTMessage(MQTT_Id, topic, message)
     {
-        const data = JSON.stringify(message);
+        const data = (typeof message === 'string' || message instanceof String) ? message : JSON.stringify(message);
         this.updateLog(`publishMQTTMessage: ${data} to topic ${topic}}`);
         try
         {
@@ -1165,32 +1252,32 @@ class MyApp extends Homey.App
     {
         try
         {
-            let index = this.mDNSGateways.findIndex((gateway) =>
+            let index = this.mDNSPanels.findIndex((panel) =>
             {
-                return gateway.gatewayId === discoveryResult.id;
+                return panel.id === discoveryResult.id;
             });
 
             if (index >= 0)
             {
                 // Already cached so just make sure the address is up to date
-                const oldAddress = this.mDNSGateways[index].address;
-                this.mDNSGateways[index].address = discoveryResult.address;
-                this.updateDeviceIPAddress(oldAddress, discoveryResult.address);
+                const oldIP = this.mDNSPanels[index].ip;
+                this.mDNSPanels[index].ip = discoveryResult.address;
+                this.updateDeviceIPAddress(oldIP, discoveryResult.address);
             }
             else
             {
                 // Add a new entry to the cache
                 const gateway = {
-                    gatewayId: discoveryResult.id,
-                    address: discoveryResult.address,
-                    model: discoveryResult.txt.model,
+                    id: discoveryResult.txt.id,
+                    ip: discoveryResult.address,
+                    model: discoveryResult.txt.md,
                 };
 
-                this.mDNSGateways.push(gateway);
-                index = this.mDNSGateways.length - 1;
+                this.mDNSPanels.push(gateway);
+                index = this.mDNSPanels.length - 1;
             }
 
-            this.homey.settings.set('gateways', this.mDNSGateways);
+            this.homey.settings.set('gateways', this.mDNSPanels);
         }
         catch (err)
         {
