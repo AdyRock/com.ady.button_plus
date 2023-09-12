@@ -32,8 +32,8 @@ class PanelDriver extends Driver
             {
                 for (let i = 0; i < this.homey.app.mDNSPanels.length; i++)
                 {
-                    const { ip } = this.homey.app.mDNSPanels[i];
-                    const device = await this.pairListDevices(ip, i);
+                    const { ip, id } = this.homey.app.mDNSPanels[i];
+                    const device = await this.pairListDevices(ip, id);
                     devices.push(device);
                 }
 
@@ -126,7 +126,8 @@ class PanelDriver extends Driver
                 connect2Type,
                 connect3Type,
                 connect4Type,
-                virtualID,
+                virtualID: (ip ? 0 : virtualID),
+                mac: (ip ? virtualID : 0),
             },
         };
 

@@ -1260,9 +1260,7 @@ class MyApp extends Homey.App
             if (index >= 0)
             {
                 // Already cached so just make sure the address is up to date
-                const oldIP = this.mDNSPanels[index].ip;
                 this.mDNSPanels[index].ip = discoveryResult.address;
-                this.updateDeviceIPAddress(oldIP, discoveryResult.address);
             }
             else
             {
@@ -1277,6 +1275,9 @@ class MyApp extends Homey.App
                 index = this.mDNSPanels.length - 1;
             }
 
+            const { id } = this.mDNSPanels[index];
+            this.updateDeviceIPAddress(id, discoveryResult.address);
+
             this.homey.settings.set('gateways', this.mDNSPanels);
         }
         catch (err)
@@ -1285,7 +1286,7 @@ class MyApp extends Homey.App
         }
     }
 
-    async updateDeviceIPAddress(oldIp, newIp)
+    async updateDeviceIPAddress(id, newIp)
     {
         try
         {
@@ -1299,7 +1300,7 @@ class MyApp extends Homey.App
                     if (device.updateGatewayConfig)
                     {
                         // Update the device IP address
-                        device.updateGatewayConfig(oldIp, newIp);
+                        device.updateGatewayConfig(id, newIp);
                     }
 
                     device = null;
@@ -1311,6 +1312,21 @@ class MyApp extends Homey.App
         {
             this.updateLog(`updateDeviceIPAddress error: ${err.message}`);
         }
+    }
+
+    findGatewayIPById(id)
+    {
+        const index = this.mDNSPanels.findIndex((panel) =>
+        {
+            return panel.id === id;
+        });
+
+        if (index >= 0)
+        {
+            return this.mDNSPanels[index].ip;
+        }
+
+        return null;
     }
 
     // Convert a variable of any type (almost) to a string

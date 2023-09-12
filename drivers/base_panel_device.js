@@ -29,8 +29,14 @@ class BasePanelDevice extends Device
 
         await this.registerCapabilityListener('info', this.onCapabilityInfo.bind(this));
 
+        this.checkGatewayConfig();
+
         const deviceConfiguration = await this.uploadButtonConfigurations(null, false);
-        await this.uploadDisplayConfigurations(deviceConfiguration, true);
+        if (deviceConfiguration)
+        {
+            // Button configurations uploaded so now do the display configuration
+            await this.uploadDisplayConfigurations(deviceConfiguration, true);
+        }
 
         this.log('MyDevice has been initialized');
     }
@@ -474,10 +480,21 @@ class BasePanelDevice extends Device
         }
     }
 
-    updateGatewayConfig(oldIp, newIp)
+    updateGatewayConfig(id, newIp)
     {
-        const ip = this.getSetting('address');
-        if (ip === oldIp)
+        const thisId = this.getSetting('mac');
+        if (thisId === id)
+        {
+            this.setSettings({ address: newIp });
+        }
+    }
+
+    checkGatewayConfig()
+    {
+        // Check if the IP address has changed by looking up our mac address in the gateway list
+        const id = this.getSetting('mac');
+        const newIp = this.homey.app.findGatewayIPById(id);
+        if (newIp)
         {
             this.setSettings({ address: newIp });
         }
