@@ -68,6 +68,13 @@ class MyApp extends Homey.App
             this.homey.settings.set('brokerConfigurationItems', this.brokerItems);
         }
 
+        // Make sure homey broker ip is up to date
+        const homeyBroker = this.brokerItems.find((broker) => broker.brokerid === 'homey');
+        if (homeyBroker)
+        {
+            homeyBroker.url = `mqtt://${this.homeyIP}`;
+        }
+
         this.buttonConfigurations = this.homey.settings.get('buttonConfigurations');
         if (!this.buttonConfigurations || this.buttonConfigurations.length < MAX_CONFIGURATIONS)
         {
@@ -511,8 +518,8 @@ class MyApp extends Homey.App
                     if (itemInfo.type === 2)
                     {
                         const buttonIdx = connectorNo * 2;
-                        await this.setupClickTopic(buttonIdx, deviceConfiguration.mqttbuttons[buttonIdx], 'none', 'none', connectorNo, 'left', 'homey');
-                        await this.setupClickTopic(buttonIdx + 1, deviceConfiguration.mqttbuttons[buttonIdx + 1], 'none', 'none', connectorNo, 'right', 'homey');
+                        await this.setupDisplayClickTopic(deviceConfiguration.mqttbuttons[buttonIdx], connectorNo, 'left');
+                        await this.setupDisplayClickTopic(deviceConfiguration.mqttbuttons[buttonIdx + 1], connectorNo, 'right');
                     }
                 }
             }
@@ -660,6 +667,39 @@ class MyApp extends Homey.App
         {
             this.updateLog(`Error setting up custom MQTT topics: ${err.message}`);
         }
+    }
+
+    setupDisplayClickTopic(mqttButtons, connectorNo, side)
+    {
+        mqttButtons.topics = [];
+        let payload = {
+            connector: connectorNo,
+            side,
+            device: 'none',
+            capability: 'none',
+            type: 'boolean',
+        };
+        payload = JSON.stringify(payload);
+
+        // Add the click event entry
+        mqttButtons.topics.push(
+            {
+                brokerid: 'homey',
+                eventtype: 0,
+                topic: 'homey/click',
+                payload,
+            },
+        );
+
+        // Add the long press event entry
+        mqttButtons.topics.push(
+            {
+                brokerid: 'homey',
+                eventtype: 1,
+                topic: 'homey/longpress',
+                payload,
+            },
+        );
     }
 
     async setupClickTopic(mqttButtons, ButtonPanelConfiguration, connectorNo, side)
@@ -846,7 +886,10 @@ class MyApp extends Homey.App
                 this.updateLog(`readDeviceConfiguration error: ${err.message}`);
             }
         }
-        this.updateLog('readDeviceConfiguration: not connected to cloud');
+        else
+        {
+            this.updateLog('readDeviceConfiguration: no connections available');
+        }
         return null;
     }
 
@@ -892,6 +935,13 @@ class MyApp extends Homey.App
                     deviceConfiguration.mqttbrokers.splice(brokerIdx, 1);
                 }
             }
+        }
+
+        // find the Homey broker in the device configuration and make sure the IP address is up to date
+        const brokerIdx = deviceConfiguration.mqttbrokers.findIndex((broker) => broker.brokerid === 'homey');
+        if (brokerIdx >= 0)
+        {
+            deviceConfiguration.mqttbrokers[brokerIdx].url = `mqtt://${this.homeyIP}`;
         }
 
         this.updateLog(`writeDeviceConfiguration: ${this.varToString(deviceConfiguration)}`);
