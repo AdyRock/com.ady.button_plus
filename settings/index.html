@@ -657,7 +657,7 @@
                             device: "none",
                             capability: "",
                             label: "",
-                            units: "",
+                            unit: "",
                             numberRounding: 0,
                             xPos: 0,
                             yPos: 0,
@@ -1110,7 +1110,7 @@
                 device: Homey.__("settings.device"),
                 capability: Homey.__("settings.capability"),
                 label: Homey.__("settings.label"),
-                units: Homey.__("settings.units"),
+                unit: Homey.__("settings.unit"),
                 xPos: Homey.__("settings.xPos"),
                 yPos: Homey.__("settings.yPos"),
                 width: Homey.__("settings.width"),
@@ -1147,8 +1147,8 @@
                         <label class="homey-form-label" for="display${itemNo}Label">${ctrlLabels.label}</label>
                         <input class="homey-form-input" id="display${itemNo}Label" type="text" value="${item.label}" />
 
-                        <label class="homey-form-label" for="display${itemNo}Units">${ctrlLabels.units}</label>
-                        <input class="homey-form-input" id="display${itemNo}Units" type="text" value="${item.units}" />
+                        <label class="homey-form-label" for="display${itemNo}Unit">${ctrlLabels.unit}</label>
+                        <input class="homey-form-input" id="display${itemNo}Unit" type="text" value="${item.unit}" />
 
                         <label class="homey-form-label" for="display${itemNo}X">${ctrlLabels.xPos}</label>
                         <input class="homey-form-input" id="display${itemNo}X" type="number" value="${item.xPos}" />
@@ -1248,7 +1248,7 @@
                             {
                                 capabilitiesElement.value = capabilityID;
                                 document.getElementById(`display${item}Label`).value = capabilities[capabilityID].title;
-                                document.getElementById(`display${item}Units`).value = capabilities[capabilityID].units ? capabilities[capabilityID].units : "";
+                                document.getElementById(`display${item}Unit`).value = capabilities[capabilityID].unit ? capabilities[capabilityID].unit : "";
                             }
                             else
                             {
@@ -1267,7 +1267,7 @@
             if (capabilityID != "" && capabilities[capabilityID])
             {
                 document.getElementById(`display${item}Label`).value = capabilities[capabilityID].title
-                document.getElementById(`display${item}Units`).value = capabilities[capabilityID].units ? capabilities[capabilityID].units : "";
+                document.getElementById(`display${item}Unit`).value = capabilities[capabilityID].units ? capabilities[capabilityID].units : "";
             }
         }
 
@@ -1296,7 +1296,7 @@
                     displayConfiguration.items[itemNo].device = document.getElementById(`display${itemNo}Device`).value;
                     displayConfiguration.items[itemNo].capability = document.getElementById(`display${itemNo}Capability`).value;
                     displayConfiguration.items[itemNo].label = document.getElementById(`display${itemNo}Label`).value;
-                    displayConfiguration.items[itemNo].units = document.getElementById(`display${itemNo}Units`).value;
+                    displayConfiguration.items[itemNo].unit = document.getElementById(`display${itemNo}Unit`).value;
                     displayConfiguration.items[itemNo].xPos = document.getElementById(`display${itemNo}X`).value;
                     displayConfiguration.items[itemNo].yPos = document.getElementById(`display${itemNo}Y`).value;
                     displayConfiguration.items[itemNo].width = document.getElementById(`display${itemNo}Width`).value;

@@ -28,7 +28,7 @@ displayItem Object
         device,
         capability,
         label,
-        units,
+        unit,
         numberRounding,
         xPos,
         yPos,

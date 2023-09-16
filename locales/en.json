@@ -30,7 +30,7 @@
         "newDisplayItem": "New Display Item",
         "displayItemlegend": "Item __itemNo__",
         "brokerItemlegend": "Broker __itemNo__",
-        "units": "Units",
+        "unit": "Unit",
         "xPos": "X Position",
         "yPos": "Y Position",
         "width": "Width",

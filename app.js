@@ -482,7 +482,7 @@ class MyApp extends Homey.App
                         align: parseInt(item.alignment, 10),
                         width: parseInt(item.width, 10),
                         label: item.label,
-                        units: item.units,
+                        unit: item.unit,
                         round: parseInt(item.rounding, 10),
                         topics: [
                         {
