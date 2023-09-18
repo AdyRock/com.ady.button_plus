@@ -1147,6 +1147,12 @@ class MyApp extends Homey.App
             this.updateLog(`Got mDNS result:${this.varToString(discoveryResult)}`);
             this.mDNSGatewaysUpdate(discoveryResult);
         });
+
+        this.discoveryStrategy.on('addressChanged', (discoveryResult) =>
+        {
+            this.updateLog(`Got mDNS address changed:${this.varToString(discoveryResult)}`);
+            this.mDNSGatewaysUpdate(discoveryResult);
+        });
     }
 
     setupHomeyMQTTServer()
