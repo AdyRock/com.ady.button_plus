@@ -12,6 +12,9 @@
         {
             "type": "text",
             "name": "info",
+            "title": {
+                "en": "Information Text"
+            },
             "placeholder": {
                 "en": "Information Text"
             }

@@ -47,6 +47,9 @@
         {
             "type": "number",
             "name": "connector",
+            "title": {
+                "en": "Connector Number"
+            },
             "placeholder": {
                 "en": "Connector number"
             },

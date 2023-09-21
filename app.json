@@ -154,6 +154,9 @@
           {
             "type": "number",
             "name": "connector",
+            "title": {
+              "en": "Connectore Number"
+            },
             "placeholder": {
               "en": "Connector number"
             },
@@ -222,6 +225,9 @@
           {
             "type": "number",
             "name": "connector",
+            "title": {
+              "en": "Connector Number"
+            },
             "placeholder": {
               "en": "Connector number"
             },
@@ -290,6 +296,9 @@
           {
             "type": "number",
             "name": "connector",
+            "title": {
+              "en": "Connector Number"
+            },
             "placeholder": {
               "en": "Connector number"
             },
@@ -342,6 +351,9 @@
           {
             "type": "number",
             "name": "connector",
+            "title": {
+              "en": "Connector Number"
+            },
             "placeholder": {
               "en": "Connector number"
             },
@@ -373,6 +385,9 @@
           {
             "type": "text",
             "name": "info",
+            "title": {
+              "en": "Information Text"
+            },
             "placeholder": {
               "en": "Information Text"
             }
@@ -399,6 +414,9 @@
           {
             "type": "number",
             "name": "connector",
+            "title": {
+              "en": "Connector number"
+            },
             "placeholder": {
               "en": "Connector number"
             },
@@ -409,6 +427,9 @@
           {
             "type": "number",
             "name": "configurationId",
+            "title": {
+              "en": "Configuration number"
+            },
             "placeholder": {
               "en": "Configuration number"
             },
@@ -438,6 +459,9 @@
           {
             "type": "number",
             "name": "configurationId",
+            "title": {
+              "en": "Configuration number"
+            },
             "placeholder": {
               "en": "Configuration number"
             },
@@ -491,6 +515,9 @@
           {
             "type": "number",
             "name": "connector",
+            "title": {
+              "en": "Connector number"
+            },
             "placeholder": {
               "en": "Connector number"
             },
@@ -544,6 +571,9 @@
           {
             "type": "number",
             "name": "connector",
+            "title": {
+              "en": "Connector number"
+            },
             "placeholder": {
               "en": "Connector number"
             },

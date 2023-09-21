@@ -12,6 +12,9 @@
         {
             "type": "number",
             "name": "configurationId",
+            "title": {
+                "en": "Configuration number"
+            },
             "placeholder": {
                 "en": "Configuration number"
             },
