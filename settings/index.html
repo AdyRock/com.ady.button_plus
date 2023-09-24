@@ -1140,49 +1140,53 @@
                         <select class="homey-form-select" id="display${itemNo}Device" onChange="getDisplayCapabilities(${itemNo})">
                         </select>
 
-                        <label class="homey-form-label" for="display${itemNo}Capability">${ctrlLabels.capability}</label>
-                        <select class="homey-form-select" id="display${itemNo}Capability" onChange="selectDisplayCapabilities(${itemNo})">
-                        </select>
+                        <div id = "display${itemNo}NoCapability"
+                            <br>
+                            <label class="homey-form-label" for="display${itemNo}Capability">${ctrlLabels.capability}</label>
+                            <select class="homey-form-select" id="display${itemNo}Capability" onChange="selectDisplayCapabilities(${itemNo})">
+                            </select>
+                        </div>
+                        <div id = "display${itemNo}NoDisplay"
+                            <br>
+                            <label class="homey-form-label" for="display${itemNo}Label">${ctrlLabels.label}</label>
+                            <input class="homey-form-input" id="display${itemNo}Label" type="text" value="${item.label}" />
 
-                        <label class="homey-form-label" for="display${itemNo}Label">${ctrlLabels.label}</label>
-                        <input class="homey-form-input" id="display${itemNo}Label" type="text" value="${item.label}" />
+                            <label class="homey-form-label" for="display${itemNo}Unit">${ctrlLabels.unit}</label>
+                            <input class="homey-form-input" id="display${itemNo}Unit" type="text" value="${item.unit}" />
 
-                        <label class="homey-form-label" for="display${itemNo}Unit">${ctrlLabels.unit}</label>
-                        <input class="homey-form-input" id="display${itemNo}Unit" type="text" value="${item.unit}" />
+                            <label class="homey-form-label" for="display${itemNo}X">${ctrlLabels.xPos}</label>
+                            <input class="homey-form-input" id="display${itemNo}X" type="number" value="${item.xPos}" />
 
-                        <label class="homey-form-label" for="display${itemNo}X">${ctrlLabels.xPos}</label>
-                        <input class="homey-form-input" id="display${itemNo}X" type="number" value="${item.xPos}" />
+                            <label class="homey-form-label" for="display${itemNo}Y">${ctrlLabels.yPos}</label>
+                            <input class="homey-form-input" id="display${itemNo}Y" type="number" value="${item.yPos}" />
 
-                        <label class="homey-form-label" for="display${itemNo}Y">${ctrlLabels.yPos}</label>
-                        <input class="homey-form-input" id="display${itemNo}Y" type="number" value="${item.yPos}" />
+                            <label class="homey-form-label" for="display${itemNo}Width">${ctrlLabels.width}</label>
+                            <input class="homey-form-input" id="display${itemNo}Width" type="number" value="${item.width}" />
 
-                        <label class="homey-form-label" for="display${itemNo}Width">${ctrlLabels.width}</label>
-                        <input class="homey-form-input" id="display${itemNo}Width" type="number" value="${item.width}" />
+                            <label class="homey-form-label" for="display${itemNo}Rounding">${ctrlLabels.rounding}</label>
+                            <input class="homey-form-input" id="display${itemNo}Rounding" type="number" value="${item.rounding}" />
 
-                        <label class="homey-form-label" for="display${itemNo}Rounding">${ctrlLabels.rounding}</label>
-                        <input class="homey-form-input" id="display${itemNo}Rounding" type="number" value="${item.rounding}" />
+                            <label class="homey-form-label" for="display${itemNo}FontSize">${ctrlLabels.fontSize}</label>
+                            <select class="homey-form-select" id="display${itemNo}FontSize">
+                                <option value=1>1</option>
+                                <option value=2>2</option>
+                                <option value=3>3</option>
+                                <option value=4>4</option>
+                            </select>
 
-                        <label class="homey-form-label" for="display${itemNo}FontSize">${ctrlLabels.fontSize}</label>
-                        <select class="homey-form-select" id="display${itemNo}FontSize">
-                            <option value=1>1</option>
-                            <option value=2>2</option>
-                            <option value=3>3</option>
-                            <option value=4>4</option>
-                        </select>
-
-                        <label class="homey-form-label" for="display${itemNo}Alignment">${ctrlLabels.alignment}</label>
-                        <select class="homey-form-select" id="display${itemNo}Alignment">
-                            <option value=0>${ctrlLabels.topLeft}</option>
-                            <option value=1>${ctrlLabels.topCenter}</option>
-                            <option value=2>${ctrlLabels.topRight}</option>
-                            <option value=3>${ctrlLabels.centerLeft}</option>
-                            <option value=4>${ctrlLabels.center}</option>
-                            <option value=5>${ctrlLabels.centerRight}</option>
-                            <option value=6>${ctrlLabels.bottomLeft}</option>
-                            <option value=7>${ctrlLabels.bottomCenter}</option>
-                            <option value=8>${ctrlLabels.bottomRight}</option>
-                        </select><br>
-
+                            <label class="homey-form-label" for="display${itemNo}Alignment">${ctrlLabels.alignment}</label>
+                            <select class="homey-form-select" id="display${itemNo}Alignment">
+                                <option value=0>${ctrlLabels.topLeft}</option>
+                                <option value=1>${ctrlLabels.topCenter}</option>
+                                <option value=2>${ctrlLabels.topRight}</option>
+                                <option value=3>${ctrlLabels.centerLeft}</option>
+                                <option value=4>${ctrlLabels.center}</option>
+                                <option value=5>${ctrlLabels.centerRight}</option>
+                                <option value=6>${ctrlLabels.bottomLeft}</option>
+                                <option value=7>${ctrlLabels.bottomCenter}</option>
+                                <option value=8>${ctrlLabels.bottomRight}</option>
+                            </select><br>
+                        </div>
                         <label class="homey-form-label" for="display${itemNo}BrokerId">${ctrlLabels.brokerId}</label>
                             <select class="homey-form-select" id="display${itemNo}BrokerId">
                                 <option value='homey'>Homey</option>
@@ -1223,6 +1227,12 @@
             capabilitiesElement.innerHTML = "";
             if ((deviceId != "") && (deviceId != 'none'))
             {
+                if (deviceId === 'customMQTT')
+                {
+                    document.getElementById(`display${item}NoCapability`).style.display = "none";
+                    document.getElementById(`display${item}NoDisplay`).style.display = itemDisplyType;
+                    return;
+                }
                 Homey.api('POST', '/device_capabilities/', { deviceId }, function(err, capabilities)
                 {
                     if (err) return Homey.alert(err);
@@ -1238,7 +1248,9 @@
                             option.value = capability.id;
                             capabilitiesElement.add(option);
                         }
-                        capabilitiesElement.style.display = itemDisplyType;
+
+                        document.getElementById(`display${item}NoCapability`).style.display = itemDisplyType;
+                        document.getElementById(`display${item}NoDisplay`).style.display =itemDisplyType;
 
                         var displayConfig = localDisplayConfigurations[displayConfigurationNoElement.value];
                         if (displayConfig)
@@ -1257,6 +1269,11 @@
                         }
                     }
                 });
+            }
+            else
+            {
+                document.getElementById(`display${item}NoCapability`).style.display = "none";
+                document.getElementById(`display${item}NoDisplay`).style.display = "none";
             }
         }
 

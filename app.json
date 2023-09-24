@@ -34,6 +34,7 @@
   },
   "homepage": "https://button.plus/",
   "support": "https://github.com/AdyRock/com.ady.button_plus/issues",
+  "homeyCommunityTopicId": 89931,
   "api": {
     "getDevices": {
       "method": "post",
