@@ -1,5 +1,8 @@
 {
-  "0.0.1": {
-    "en": "First beta release"
-  }
+    "0.0.1": {
+        "en": "First beta release"
+    },
+    "0.0.2": {
+        "en": "Fixed Display item MQTT (GH issue #1) and App button only showing capability (GH issue #3)"
+    }
 }
