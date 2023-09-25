@@ -9,256 +9,263 @@
 </head>
 
 <body>
-    <fieldset class="homey-form-fieldset">
-        <legend class="homey-form-legend"><span data-i18n="settings.Settings"></span></legend>
-        <label class="homey-form-checkbox">
-            <input class="homey-form-checkbox-input" id="autoConfig" type="checkbox" value="auto" />
-            <span class="homey-form-checkbox-checkmark"></span>
-            <span class="homey-form-checkbox-text"><span data-i18n="settings.autoConfig"></span></span>
-        </label>
-        <div id="AutoConfigWarnOff"><span data-i18n="settings.autoConfigWarning1"></span></div>
-        <div id="AutoConfigWarnOn"><span data-i18n="settings.autoConfigWarning2"></span></div>
-    </fieldset>
-
-    <fieldset class="homey-form-fieldset">
-        <label class="homey-form-label" for="configType"><span data-i18n="settings.view"></span></label>
+    <div class="fixedTop">
+        <label class="homey-form-label" for="configType" style="margin-top:0px"><span data-i18n="settings.view"></span></label>
         <select class="homey-form-select" id="configType">
             <option value="panelConfig" data-i18n="settings.buttonConfigs"></option>
             <option value="displayConfig" data-i18n="settings.displayConfigs"></option>
             <option value="brokerConfig" data-i18n="settings.brokerConfigs"></option>
         </select>
+        <hr style="margin-top:8px;margin-bottom:0px;background-color:lightblue">
+    </div>
+    
+    <div class="main">
+        <fieldset class="homey-form-fieldset">
+            <legend class="homey-form-legend"><span data-i18n="settings.Settings"></span></legend>
+            <label class="homey-form-checkbox">
+                <input class="homey-form-checkbox-input" id="autoConfig" type="checkbox" value="auto" />
+                <span class="homey-form-checkbox-checkmark"></span>
+                <span class="homey-form-checkbox-text"><span data-i18n="settings.autoConfig"></span></span>
+            </label>
+            <div id="AutoConfigWarnOff"><span data-i18n="settings.autoConfigWarning1"></span></div>
+            <div id="AutoConfigWarnOn"><span data-i18n="settings.autoConfigWarning2"></span></div>
+        </fieldset>
 
-        <!-- Button Bar Configuration -->
+        <fieldset class="homey-form-fieldset">
+            <!-- Button Bar Configuration -->
 
-        <div id="panelConfig" class="tabcontent">
-            <div class="homey-form-group">
-                <div style="padding: 10px 10px 10px 10px; border: 1px solid lightblue; border-radius: 10px">
-                    <div class="tooltip"><i class="fi fi-rr-info"></i>
-                        <span class="tooltiptext" data-i18n="settings.buttonExplanation"></span>
-                    </div>
-
-                    <select class="homey-form-select" id="ButtonPanelConfigurationNo">
-                    </select>
-                    <div class="horizontalcontainer">
-                        <div class="horizontalgroup">
-                            <legend class="homey-subtitle"><span data-i18n="settings.leftPanel"></span></legend>
-
-                            <label class="homey-form-label" for="leftDevice"><span data-i18n="settings.device"></span>
-                                <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                    <span class="tooltiptext" data-i18n="settings.deviceExplanation"></span>
-                                </div>
-                            </label>
-                            <select class="homey-form-select" id="leftDevice">
-                                <option value="" selected disabled hidden><span data-i18n="settings.device"></option>
-                            </select>
-
-                            <span>
-                                <div id="leftCapabilityDiv">
-                                    <label class="homey-form-label" id="leftCapabilityLabel" for="leftCapability"><span data-i18n="settings.capability"></span>
-                                    </label>
-                                    <select class="homey-form-select" id="leftCapability">
-                                        <option value="" selected disabled hidden><span data-i18n="settings.selectCapability"></span></option>
-                                    </select>
-                                </div>
-                            </span>
-
-                            <label class="homey-form-label" for="leftTopText"><span data-i18n="settings.topLabel"></span>
-                                <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                    <span class="tooltiptext" data-i18n="settings.topLabelExplanation"></span>
-                                </div>
-                            </label>
-                            <input class="homey-form-input" id="leftTopText" type="text" maxlength="20" value="" />
-
-                            <span>
-                                <div id="leftOnTextDiv">
-                                    <label class="homey-form-label" id="leftOnTextLabel" for="leftOnText"><span data-i18n="settings.labelOn"></span>
-                                        <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                            <span class="tooltiptext" data-i18n="settings.labelOnExplantion"></span>
-                                        </div>
-                                    </label>
-                                    <input class="homey-form-input" id="leftOnText" type="text" maxlength="20" value="" />
-                                </div>
-                            </span>
-
-                            <span>
-                                <div id="leftDimChangeDiv">
-                                    <label class="homey-form-label" id="leftDimChangeLabel" for="leftDimChange"><span data-i18n="settings.dimValue"></span>
-                                        <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                            <span class="tooltiptext" data-i18n="settings.dimChangeExplanation"></span>
-                                        </div>
-                                    </label>
-                                    <input class="homey-form-input" id="leftDimChange" type="text" maxlength="20" value="" />
-                                </div>
-                            </span>
-
-                            <label class="homey-form-label" id="leftOffTextLabel" for="leftOffText"><span data-i18n="settings.labelOff"></span>
-                                <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                    <span class="tooltiptext" data-i18n="settings.labelOffExplantion"></span>
-                                </div>
-                            </label>
-                            <input class="homey-form-input" id="leftOffText" type="text" maxlength="20" value="" />
-
-                            <label class="homey-form-label" id="leftFrontLEDColorLabel" for="leftFrontLEDColor"><span data-i18n="settings.frontLEDColor"></span>
-                                <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                    <span class="tooltiptext" data-i18n="settings.frontLEDColorExplanation"></span>
-                                </div>
-                            </label>
-                            <input class="homey-form-input" id="leftFrontLEDColor" type="color" value="" />
-
-                            <label class="homey-form-label" id="leftWallLEDColorLabel" for="leftFrontLEDColor"><span data-i18n="settings.wallLEDColor"></span>
-                                <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                    <span class="tooltiptext" data-i18n="settings.wallLEDColorExplanation"></span>
-                                </div>
-                            </label>
-                            <input class="homey-form-input" id="leftWallLEDColor" type="color" value="" />
-
-                            <span>
-                                <div id="leftBrokerIdDiv">
-                                    <label class="homey-form-label" for="leftBrokerId"><span data-i18n="settings.brokerId"></span>
-                                        <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                            <span class="tooltiptext" data-i18n="settings.brokerIdExplanation"></span>
-                                        </div>
-                                    </label>
-                                    <select class="homey-form-select" id="leftBrokerId">
-                                    </select>
-                                </div>
-                            </span>
-
-                            <span>
-                                <div id="leftCustomMQTTDiv">
-                                    <br>
-                                    <div id="leftCustomMQTTTopicsSection"></div>
-                                    <p><button class="homey-button-secondary-shadow" id="newLeftCustomMQTTItem"><span data-i18n="settings.newCustomMQTTItem"></span></button></p>
-                                </div>
-                            </span>
-
+            <div id="panelConfig" class="tabcontent">
+                <div class="homey-form-group">
+                    <div style="padding: 10px 10px 10px 10px; border: 1px solid lightblue; border-radius: 10px">
+                        <div class="tooltip"><i class="fi fi-rr-info"></i>
+                            <span class="tooltiptext" data-i18n="settings.buttonExplanation"></span>
                         </div>
-                        <div class="horizontalgroup">
-                            <legend class="homey-subtitle"><span data-i18n="settings.rightPanel"></span></legend>
 
-                            <label class="homey-form-label" for="rightDevice"><span data-i18n="settings.device"></span></label>
-                            <select class="homey-form-select" id="rightDevice">
-                                <option value="" selected disabled hidden><span data-i18n="settings.selectDevice"></span></option>
-                            </select>
+                        <select class="homey-form-select" id="ButtonPanelConfigurationNo">
+                        </select>
+                        <div class="horizontalcontainer">
+                            <div class="horizontalgroup">
+                                <legend class="homey-subtitle"><span data-i18n="settings.leftPanel"></span></legend>
 
-                            <span>
-                                <div id="rightCapabilityDiv">
-                                    <label class="homey-form-label" id="rightCapabilityLabel" for="rightCapability"><span data-i18n="settings.capability"></span></label>
-                                    <select class="homey-form-select" id="rightCapability">
-                                        <option value="" selected disabled hidden><span data-i18n="settings.selectCapability"></span></option>
-                                    </select>
-                                </div>
-                            </span>
+                                <label class="homey-form-label" for="leftDevice"><span data-i18n="settings.device"></span>
+                                    <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                        <span class="tooltiptext" data-i18n="settings.deviceExplanation"></span>
+                                    </div>
+                                </label>
+                                <select class="homey-form-select" id="leftDevice">
+                                    <option value="" selected disabled hidden><span data-i18n="settings.device"></option>
+                                </select>
 
-                            <label class="homey-form-label" for="rightTopText"><span data-i18n="settings.topLabel"></span>
-                                <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                    <span class="tooltiptext" data-i18n="settings.topLabelExplanation"></span>
-                                </div>
-                            </label>
-                            <input class="homey-form-input" id="rightTopText" type="text" maxlength="20" value="" />
+                                <span>
+                                    <div id="leftCapabilityDiv">
+                                        <label class="homey-form-label" id="leftCapabilityLabel" for="leftCapability"><span data-i18n="settings.capability"></span>
+                                        </label>
+                                        <select class="homey-form-select" id="leftCapability">
+                                            <option value="" selected disabled hidden><span data-i18n="settings.selectCapability"></span></option>
+                                        </select>
+                                    </div>
+                                </span>
 
-                            <span>
-                                <div id="rightOnTextDiv">
-                                    <label class="homey-form-label" id="rightOnTextLabel" for="rightOnText"><span data-i18n="settings.labelOn"></span>
-                                        <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                            <span class="tooltiptext" data-i18n="settings.labelOnExplantion"></span>
-                                        </div>
-                                    </label>
-                                    <input class="homey-form-input" id="rightOnText" type="text" maxlength="20" value="" />
-                                </div>
-                            </span>
+                                <label class="homey-form-label" for="leftTopText"><span data-i18n="settings.topLabel"></span>
+                                    <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                        <span class="tooltiptext" data-i18n="settings.topLabelExplanation"></span>
+                                    </div>
+                                </label>
+                                <input class="homey-form-input" id="leftTopText" type="text" maxlength="20" value="" />
 
-                            <span>
-                                <div id="rightDimChangeDiv">
-                                    <label class="homey-form-label" id="rightDimChangeLabel" for="rightDimChange"><span data-i18n="settings.dimValue"></span>
-                                        <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                            <span class="tooltiptext" data-i18n="settings.dimChangeExplanation"></span>
-                                        </div>
-                                    </label>
-                                    <input class="homey-form-input" id="rightDimChange" type="text" maxlength="20" value="" />
-                                </div>
-                            </span>
+                                <span>
+                                    <div id="leftOnTextDiv">
+                                        <label class="homey-form-label" id="leftOnTextLabel" for="leftOnText"><span data-i18n="settings.labelOn"></span>
+                                            <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                                <span class="tooltiptext" data-i18n="settings.labelOnExplantion"></span>
+                                            </div>
+                                        </label>
+                                        <input class="homey-form-input" id="leftOnText" type="text" maxlength="20" value="" />
+                                    </div>
+                                </span>
 
-                            <label class="homey-form-label" id="rightOffTextLabel" for="rightOffText"><span data-i18n="settings.labelOff"></span>
-                                <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                    <span class="tooltiptext" data-i18n="settings.labelOffExplantion"></span>
-                                </div>
-                            </label>
-                            <input class="homey-form-input" id="rightOffText" type="text" maxlength="20" value="" />
+                                <span>
+                                    <div id="leftDimChangeDiv">
+                                        <label class="homey-form-label" id="leftDimChangeLabel" for="leftDimChange"><span data-i18n="settings.dimValue"></span>
+                                            <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                                <span class="tooltiptext" data-i18n="settings.dimChangeExplanation"></span>
+                                            </div>
+                                        </label>
+                                        <input class="homey-form-input" id="leftDimChange" type="text" maxlength="20" value="" />
+                                    </div>
+                                </span>
 
-                            <label class="homey-form-label" id="rightFrontLEDColorLabel" for="rightFrontLEDColor"><span data-i18n="settings.frontLEDColor"></span>
-                                <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                    <span class="tooltiptext" data-i18n="settings.frontLEDColorExplanation"></span>
-                                </div>
-                            </label>
-                            <input class="homey-form-input" id="rightFrontLEDColor" type="color" value="" />
+                                <label class="homey-form-label" id="leftOffTextLabel" for="leftOffText"><span data-i18n="settings.labelOff"></span>
+                                    <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                        <span class="tooltiptext" data-i18n="settings.labelOffExplantion"></span>
+                                    </div>
+                                </label>
+                                <input class="homey-form-input" id="leftOffText" type="text" maxlength="20" value="" />
 
-                            <label class="homey-form-label" id="rightWallLEDColorLabel" for="rightFrontLEDColor"><span data-i18n="settings.wallLEDColor"></span>
-                                <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                    <span class="tooltiptext" data-i18n="settings.wallLEDColorExplanation"></span>
-                                </div>
-                            </label>
-                            <input class="homey-form-input" id="rightWallLEDColor" type="color" value="" />
+                                <label class="homey-form-label" id="leftFrontLEDColorLabel" for="leftFrontLEDColor"><span data-i18n="settings.frontLEDColor"></span>
+                                    <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                        <span class="tooltiptext" data-i18n="settings.frontLEDColorExplanation"></span>
+                                    </div>
+                                </label>
+                                <input class="homey-form-input" id="leftFrontLEDColor" type="color" value="" />
 
-                            <span>
-                                <div id="rightBrokerIdDiv">
-                                    <label class="homey-form-label" for="rightBrokerId"><span data-i18n="settings.brokerId"></span>
-                                        <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                            <span class="tooltiptext" data-i18n="settings.brokerIdExplanation"></span>
-                                        </div>
-                                    </label>
-                                    <select class="homey-form-select" id="rightBrokerId">
-                                    </select>
-                                </div>
-                            </span>
-                            <span>
-                                <div id="rightCustomMQTTDiv">
-                                    <br>
-                                    <div id="rightCustomMQTTTopicsSection"></div>
-                                    <p><button class="homey-button-secondary-shadow" id="newRightCustomMQTTItem"><span data-i18n="settings.newCustomMQTTItem"></span></button></p>
-                                </div>
-                            </span>
+                                <label class="homey-form-label" id="leftWallLEDColorLabel" for="leftFrontLEDColor"><span data-i18n="settings.wallLEDColor"></span>
+                                    <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                        <span class="tooltiptext" data-i18n="settings.wallLEDColorExplanation"></span>
+                                    </div>
+                                </label>
+                                <input class="homey-form-input" id="leftWallLEDColor" type="color" value="" />
+
+                                <span>
+                                    <div id="leftBrokerIdDiv">
+                                        <label class="homey-form-label" for="leftBrokerId"><span data-i18n="settings.brokerId"></span>
+                                            <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                                <span class="tooltiptext" data-i18n="settings.brokerIdExplanation"></span>
+                                            </div>
+                                        </label>
+                                        <select class="homey-form-select" id="leftBrokerId">
+                                        </select>
+                                    </div>
+                                </span>
+
+                                <span>
+                                    <div id="leftCustomMQTTDiv">
+                                        <br>
+                                        <div id="leftCustomMQTTTopicsSection"></div>
+                                        <p><button class="homey-button-secondary-shadow" id="newLeftCustomMQTTItem"><span data-i18n="settings.newCustomMQTTItem"></span></button></p>
+                                    </div>
+                                </span>
+
+                            </div>
+                            <div class="horizontalgroup">
+                                <legend class="homey-subtitle"><span data-i18n="settings.rightPanel"></span></legend>
+
+                                <label class="homey-form-label" for="rightDevice"><span data-i18n="settings.device"></span></label>
+                                <select class="homey-form-select" id="rightDevice">
+                                    <option value="" selected disabled hidden><span data-i18n="settings.selectDevice"></span></option>
+                                </select>
+
+                                <span>
+                                    <div id="rightCapabilityDiv">
+                                        <label class="homey-form-label" id="rightCapabilityLabel" for="rightCapability"><span data-i18n="settings.capability"></span></label>
+                                        <select class="homey-form-select" id="rightCapability">
+                                            <option value="" selected disabled hidden><span data-i18n="settings.selectCapability"></span></option>
+                                        </select>
+                                    </div>
+                                </span>
+
+                                <label class="homey-form-label" for="rightTopText"><span data-i18n="settings.topLabel"></span>
+                                    <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                        <span class="tooltiptext" data-i18n="settings.topLabelExplanation"></span>
+                                    </div>
+                                </label>
+                                <input class="homey-form-input" id="rightTopText" type="text" maxlength="20" value="" />
+
+                                <span>
+                                    <div id="rightOnTextDiv">
+                                        <label class="homey-form-label" id="rightOnTextLabel" for="rightOnText"><span data-i18n="settings.labelOn"></span>
+                                            <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                                <span class="tooltiptext" data-i18n="settings.labelOnExplantion"></span>
+                                            </div>
+                                        </label>
+                                        <input class="homey-form-input" id="rightOnText" type="text" maxlength="20" value="" />
+                                    </div>
+                                </span>
+
+                                <span>
+                                    <div id="rightDimChangeDiv">
+                                        <label class="homey-form-label" id="rightDimChangeLabel" for="rightDimChange"><span data-i18n="settings.dimValue"></span>
+                                            <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                                <span class="tooltiptext" data-i18n="settings.dimChangeExplanation"></span>
+                                            </div>
+                                        </label>
+                                        <input class="homey-form-input" id="rightDimChange" type="text" maxlength="20" value="" />
+                                    </div>
+                                </span>
+
+                                <label class="homey-form-label" id="rightOffTextLabel" for="rightOffText"><span data-i18n="settings.labelOff"></span>
+                                    <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                        <span class="tooltiptext" data-i18n="settings.labelOffExplantion"></span>
+                                    </div>
+                                </label>
+                                <input class="homey-form-input" id="rightOffText" type="text" maxlength="20" value="" />
+
+                                <label class="homey-form-label" id="rightFrontLEDColorLabel" for="rightFrontLEDColor"><span data-i18n="settings.frontLEDColor"></span>
+                                    <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                        <span class="tooltiptext" data-i18n="settings.frontLEDColorExplanation"></span>
+                                    </div>
+                                </label>
+                                <input class="homey-form-input" id="rightFrontLEDColor" type="color" value="" />
+
+                                <label class="homey-form-label" id="rightWallLEDColorLabel" for="rightFrontLEDColor"><span data-i18n="settings.wallLEDColor"></span>
+                                    <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                        <span class="tooltiptext" data-i18n="settings.wallLEDColorExplanation"></span>
+                                    </div>
+                                </label>
+                                <input class="homey-form-input" id="rightWallLEDColor" type="color" value="" />
+
+                                <span>
+                                    <div id="rightBrokerIdDiv">
+                                        <label class="homey-form-label" for="rightBrokerId"><span data-i18n="settings.brokerId"></span>
+                                            <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                                <span class="tooltiptext" data-i18n="settings.brokerIdExplanation"></span>
+                                            </div>
+                                        </label>
+                                        <select class="homey-form-select" id="rightBrokerId">
+                                        </select>
+                                    </div>
+                                </span>
+                                <span>
+                                    <div id="rightCustomMQTTDiv">
+                                        <br>
+                                        <div id="rightCustomMQTTTopicsSection"></div>
+                                        <p><button class="homey-button-secondary-shadow" id="newRightCustomMQTTItem"><span data-i18n="settings.newCustomMQTTItem"></span></button></p>
+                                    </div>
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Display Configuration -->
+            <!-- Display Configuration -->
 
-        <div id="displayConfig" class="tabcontent">
-            <div class="homey-form-group">
-                <div style="padding: 10px 10px 10px 10px; border: 1px solid lightblue; border-radius: 10px">
+            <div id="displayConfig" class="tabcontent">
+                <div class="homey-form-group">
+                    <div style="padding: 10px 10px 10px 10px; border: 1px solid lightblue; border-radius: 10px">
+                        <div class="tooltip"><i class="fi fi-rr-info"></i>
+                            <span class="tooltiptext" data-i18n="settings.displayExplanation"></span>
+                        </div>
+
+                        <select class="homey-form-select" id="displayConfigurationNo">
+                        </select>
+                    </div>
+                    <div id="displayItemsSection"></div>
+                </div>
+                <p><button class="homey-button-secondary-shadow" id="newDisplayItem"><span data-i18n="settings.newDisplayItem"></span></button></p>
+            </div>
+
+            <!-- Broker Configuration -->
+
+            <div id="brokerConfig" class="tabcontent">
+                <div class="homey-form-group">
                     <div class="tooltip"><i class="fi fi-rr-info"></i>
-                        <span class="tooltiptext" data-i18n="settings.displayExplanation"></span>
+                        <span class="tooltiptext" data-i18n="settings.brokerExplanation"></span>
                     </div>
 
-                    <select class="homey-form-select" id="displayConfigurationNo">
-                    </select>
+                    <div id="brokerItemsSection"></div>
                 </div>
-                <div id="displayItemsSection"></div>
+                <p><button class="homey-button-secondary-shadow" id="newBrokerItem"><span data-i18n="settings.newBrokerItem"></span></button></p>
             </div>
-            <p><button class="homey-button-secondary-shadow" id="newDisplayItem"><span data-i18n="settings.newDisplayItem"></span></button></p>
-        </div>
 
-        <!-- Broker Configuration -->
-
-        <div id="brokerConfig" class="tabcontent">
-            <div class="homey-form-group">
-                <div class="tooltip"><i class="fi fi-rr-info"></i>
-                    <span class="tooltiptext" data-i18n="settings.brokerExplanation"></span>
-                </div>
-
-                <div id="brokerItemsSection"></div>
-            </div>
-            <p><button class="homey-button-secondary-shadow" id="newBrokerItem"><span data-i18n="settings.newBrokerItem"></span></button></p>
-        </div>
-
-    </fieldset>
+        </fieldset>
+    </div>
 
     <!-- Save Configuration button -->
 
-    <p><button class="homey-button-primary-full" id="save"><span data-i18n="settings.save"></span></button></p>
+    <div class="bottomFixButtonComponent">
+        <button class="homey-button-primary-full" id="save"><span data-i18n="settings.save"></span></button>
+    </div>
 
     <!-- Code to handle page life -->
 
@@ -314,13 +321,13 @@
         // Declarations for the Broker Config page
         var newBrokerItemButton = document.getElementById('newBrokerItem');
         var localBrokerItems = [];
+        var brokerItemsFetched = false;
 
         var itemDisplyType = "flex";
 
         // a method named 'onHomeyReady' must be present in your code
         function onHomeyReady(Homey)
         {
-            // General code
             itemDisplyType = document.getElementById('leftCapabilityDiv').style.display;
 
             fillConfigElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"));
@@ -339,6 +346,7 @@
             Homey.get('brokerConfigurationItems', function(err, brokerItems)
             {
                 if (err) return Homey.alert(err);
+                brokerItemsFetched = true;
                 localBrokerItems = brokerItems;
 
                 // Setup the list items for enabled brokers in the panel config
@@ -351,11 +359,19 @@
                         option.value = brokerItem.brokerid;
                         option.text = brokerItem.brokerid;
                         leftBrokerIdElement.add(option);
+                        if (buttonConfigurationsFetched)
+                        {
+                            leftBrokerIdElement.value = localbuttonConfigurations[currentButtonConfigurationNo].leftBrokerId;
+                        }
 
                         var option = document.createElement("option");
                         option.value = brokerItem.brokerid;
                         option.text = brokerItem.brokerid;
                         rightBrokerIdElement.add(option);
+                        if (buttonConfigurationsFetched)
+                        {
+                            rightBrokerIdElement.value = localbuttonConfigurations[currentButtonConfigurationNo].rightBrokerId;
+                        }
 
                         // Add the broker to the custom MQTT topic broker lists
                         for (let k = 0; k < customMQTTItemsElements.length; k++)
@@ -366,17 +382,18 @@
                             customMQTTItemsElements[k].add(option);
                         }
 
-                        // Add the broker to the display config broker lists
-                        for (let i = 0; i < localDisplayConfigurations.length; i++)
+                        if (displayConfigurationsFetched)
                         {
-                            const displayConfiguration = localDisplayConfigurations[i];
+                            // Add the broker to the display config broker lists
+                            const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
                             for (let j = 0; j < displayConfiguration.items.length; j++)
                             {
                                 const displayItem = displayConfiguration.items[j];
-                                var optionLeft = document.createElement("option");
-                                optionLeft.value = brokerItem.brokerid;
-                                optionLeft.text = brokerItem.brokerid;
-                                document.getElementById(`display${j}BrokerId`).add(optionLeft);
+                                var optionDisplay = document.createElement("option");
+                                optionDisplay.value = brokerItem.brokerid;
+                                optionDisplay.text = brokerItem.brokerid;
+                                document.getElementById(`display${j}BrokerId`).add(optionDisplay);
+                                document.getElementById(`display${j}BrokerId`).value = displayItem.brokerId;
                             }
                         }
                     }
@@ -758,17 +775,14 @@
                 }
 
                 // Add the new broker to the display config broker lists
-                for (let i = 0; i < localDisplayConfigurations.length; i++)
+                const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+                for (let j = 0; j < displayConfiguration.items.length; j++)
                 {
-                    const displayConfiguration = localDisplayConfigurations[i];
-                    for (let j = 0; j < displayConfiguration.items.length; j++)
-                    {
-                        const displayItem = displayConfiguration.items[j];
-                        var optionLeft = document.createElement("option");
-                        optionLeft.value = brokerItem.brokerid;
-                        optionLeft.text = brokerItem.brokerid;
-                        document.getElementById(`display${j}BrokerId`).add(optionLeft);
-                    }
+                    const displayItem = displayConfiguration.items[j];
+                    var option = document.createElement("option");
+                    option.value = brokerItem.brokerid;
+                    option.text = brokerItem.brokerid;
+                    document.getElementById(`display${j}BrokerId`).add(option);
                 }
 
                 // Redraw the broker items
@@ -1098,6 +1112,17 @@
                 const capabilities = {}
                 displayCapabilityItems.push(capabilities);
                 insertDisplayItemSection(item, itemNo);
+
+                // add the brokers to the display config broker lists
+                for (let i = 0; i < localBrokerItems.length; i++)
+                {
+                    const brokerItem = localBrokerItems[i];
+                    var option = document.createElement("option");
+                    option.value = brokerItem.brokerid;
+                    option.text = brokerItem.brokerid;
+                    document.getElementById(`display${itemNo}BrokerId`).add(option);
+                    document.getElementById(`display${itemNo}BrokerId`).value = item.brokerId;
+                }
             }
 
             fillDisplayDevices();
@@ -1189,8 +1214,6 @@
                         </div>
                         <label class="homey-form-label" for="display${itemNo}BrokerId">${ctrlLabels.brokerId}</label>
                             <select class="homey-form-select" id="display${itemNo}BrokerId">
-                                <option value='homey'>Homey</option>
-                                <option value='buttonplus'>Button+</option>
                             </select>
                             <br>
                         <p><button class="homey-button-secondary-shadow" id="deleteItem" onClick="deleteItem(${itemNo})" style="font-size: 30px;"><i class="fi fi-rr-trash"></i> </button></p>
@@ -1414,16 +1437,12 @@
                 customMQTTItemsElements[k].options[itemNo].text = document.getElementById(`broker${itemNo}Id`).value;
             }
 
-            // Update the broker lists in the display config items
-            for (var displayItemNo = 0; displayItemNo < localDisplayConfigurations.length; displayItemNo++)
+            // Update the broker lists in the display config
+            const displayConfig = localDisplayConfigurations[currentDisplayConfigurationNo];
+            for (var displayItemNo = 0; displayItemNo < displayConfig.items.length; displayItemNo++)
             {
-                const displayItem = localDisplayConfigurations[displayItemNo];
-                for (var itemNo = 0; itemNo < displayItem.items.length; itemNo++)
-                {
-                    const item = displayItem.items[itemNo];
-                    const brokerIdElement = document.getElementById(`display${itemNo}BrokerId`);
-                    brokerIdElement.options[itemNo].text = document.getElementById(`broker${itemNo}Id`).value;
-                }
+                const brokerIdElement = document.getElementById(`display${displayItemNo}BrokerId`);
+                brokerIdElement.options[itemNo].text = document.getElementById(`broker${itemNo}Id`).value;
             }
         }
 
@@ -1459,15 +1478,12 @@
             }
 
             // Remove the broker from all the lists in the display config items
-            for (var displayItemNo = 0; displayItemNo < localDisplayConfigurations.length; displayItemNo++)
+            const displayConfig = localDisplayConfigurations[currentDisplayConfigurationNo];
+            for (var displayItemNo = 0; displayItemNo < displayConfig.items.length; displayItemNo++)
             {
-                const displayItem = localDisplayConfigurations[displayItemNo];
-                for (var itemNo = 0; itemNo < displayItem.items.length; itemNo++)
-                {
-                    const item = displayItem.items[itemNo];
-                    const brokerIdElement = document.getElementById(`display${itemNo}BrokerId`);
-                    brokerIdElement.remove(itemNo);
-                }
+                const item = displayConfig.items[displayItemNo];
+                const brokerIdElement = document.getElementById(`display${displayItemNo}BrokerId`);
+                brokerIdElement.remove(itemNo);
             }
         }
 
@@ -1606,6 +1622,7 @@
                 option.text = brokerItem.brokerid;
                 option.value = brokerItem.brokerid;
                 customMQTTItemsElements[itemNo].add(option);
+                customMQTTItemsElements[itemNo].value = item.brokerId;
             }
         }
 

@@ -25,7 +25,7 @@
         "device": "Device",
         "deviceExplanation": "Select the device to control when you press the Button+ button.<br>Only devices with On/Off or Dim capabilities will be shown.<br>If you select none, then nothing is directly controlled but you will still get the button pressed Flow trigger",
         "capability": "Capability",
-        "save": "Save Configurations",
+        "save": "Save All Configurations",
         "saved": "Configurations have been saved",
         "newDisplayItem": "New Display Item",
         "displayItemlegend": "Item __itemNo__",

@@ -43,3 +43,28 @@
 .tooltip:hover .tooltiptext {
     display: inherit;
 }
+
+.fixedTop {
+    position: fixed;
+    top: 0;
+    left: 0px;
+    width: 94%;
+    z-index: 2; /* set z-index to 2 to position on top */
+    background-color: white; /* set background color to white */
+    margin-left: 14px;
+    padding-top: 5px;
+}
+
+.bottomFixButtonComponent{
+    position: sticky;
+    bottom: 0px;
+    padding-top: 0px;
+    width: 100%;
+    height: 50px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.main {
+    margin-top: 65px; /* Add a top margin to avoid content overlay */
+}
