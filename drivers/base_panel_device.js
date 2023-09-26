@@ -88,11 +88,15 @@ class BasePanelDevice extends Device
                 if (homeyDeviceObjectLeft)
                 {
                     const capability = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObjectLeft, ButtonPanelConfiguration.leftCapability);
-                    value = capability.value;
-                    if (capability.id === 'dim')
+                    if (capability)
                     {
-                        value = false;
+                        value = capability.value;
+                        if (capability.id === 'dim')
+                        {
+                            value = false;
+                        }
                     }
+
                     this.setCapabilityValue(`left_button.connector${connector}`, value).catch(this.error);
                 }
 
@@ -117,11 +121,15 @@ class BasePanelDevice extends Device
                 if (homeyDeviceObjectRight)
                 {
                     const capability = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObjectRight, ButtonPanelConfiguration.rightCapability);
-                    value = capability.value;
-                    if (capability.id === 'dim')
+                    if (capability)
                     {
-                        value = false;
+                        value = capability.value;
+                        if (capability.id === 'dim')
+                        {
+                            value = false;
+                        }
                     }
+
                     this.setCapabilityValue(`right_button.connector${connector}`, value).catch(this.error);
                 }
 
