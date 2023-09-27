@@ -393,8 +393,8 @@
                                 optionDisplay.value = brokerItem.brokerid;
                                 optionDisplay.text = brokerItem.brokerid;
                                 document.getElementById(`display${j}BrokerId`).add(optionDisplay);
-                                document.getElementById(`display${j}BrokerId`).value = displayItem.brokerId;
                             }
+                            document.getElementById(`display${j}BrokerId`).value = displayItem.brokerId;
                         }
                     }
                 }
@@ -666,6 +666,10 @@
             {
                 if (displayConfigurationsFetched)
                 {
+                    // Make sure the current item is saved in the local display configuration
+                    storeDisplaySettings();
+
+                    // Create a new display item
                     displayConfigurationNo = displayConfigurationNoElement.value;
                     var displayConfiguration = localDisplayConfigurations[displayConfigurationNo];
                     if (displayConfiguration)
@@ -684,10 +688,11 @@
                             brokerId: 'homey',
                         };
 
+                        // Add the new display item to the local display configuration
                         displayConfiguration.items.push(displayItem);
-
                         localDisplayConfigurations[displayConfigurationNo] = displayConfiguration;
-                        Homey.set('displayConfigurations', localDisplayConfigurations);
+
+                        // Redraw the display items
                         drawDisplayConfiguration(displayConfiguration);
                     }
                 }
@@ -1121,8 +1126,12 @@
                     option.value = brokerItem.brokerid;
                     option.text = brokerItem.brokerid;
                     document.getElementById(`display${itemNo}BrokerId`).add(option);
-                    document.getElementById(`display${itemNo}BrokerId`).value = item.brokerId;
                 }
+            }
+            for (var itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
+            {
+                const item = displayConfiguration.items[itemNo];
+                document.getElementById(`display${itemNo}BrokerId`).value = item.brokerId;
             }
 
             fillDisplayDevices();
