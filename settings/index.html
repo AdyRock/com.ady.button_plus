@@ -271,8 +271,10 @@
 
     <script type="text/javascript">
         // General declarations
-        var devicesArray = [];
-        var devicesFetched = false;
+        var buttonDevicesArray = [];
+        var buttonDevicesFetched = false;
+        var displayDevicesArray = [];
+        var displayDevicesFetched = false;
         var autoConfigElement = document.getElementById('autoConfig');
         var configTypeElement = document.getElementById('configType');
         var saveButton = document.getElementById('save');
@@ -333,7 +335,8 @@
             fillConfigElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"));
             fillConfigElement(displayConfigurationNoElement, Homey.__("settings.displayConfig"));
 
-            getDeivices();
+            getButtonDeivices();
+            getDisplayDeivices();
             configTypeChanged('panelConfig');
 
             Homey.get('autoConfig', function(err, autoConfig)
@@ -393,8 +396,8 @@
                                 optionDisplay.value = brokerItem.brokerid;
                                 optionDisplay.text = brokerItem.brokerid;
                                 document.getElementById(`display${j}BrokerId`).add(optionDisplay);
+                                document.getElementById(`display${j}BrokerId`).value = displayItem.brokerId;
                             }
-                            document.getElementById(`display${j}BrokerId`).value = displayItem.brokerId;
                         }
                     }
                 }
@@ -848,53 +851,64 @@
             }
         }
 
-        function getDeivices()
+        function getButtonDeivices()
         {
             Homey.api('POST', '/Devices/', { type: 'boolean', id: ['dim'] }, function(err, devices)
             {
                 if (err) return Homey.alert(err);
 
-                devicesArray = Object.values(devices);
-                devicesFetched = true;
-                fillPanelDevices();
+                buttonDevicesArray = Object.values(devices);
+                buttonDevicesFetched = true;
+                fillButtonDevices();
+            });
+        }
+
+        function getDisplayDeivices()
+        {
+            Homey.api('POST', '/Devices/', {}, function(err, devices)
+            {
+                if (err) return Homey.alert(err);
+
+                displayDevicesArray = Object.values(devices);
+                displayDevicesFetched = true;
                 fillDisplayDevices();
             });
         }
 
-        function fillPanelDevices()
+        function fillButtonDevices()
         {
             //fill the device lists with devices
-            if (devicesFetched)
+            if (buttonDevicesFetched)
             {
-                fillDevicesElement(leftDeviceElement);
-                fillDevicesElement(rightDeviceElement);
+                fillDevicesElement(leftDeviceElement, buttonDevicesArray);
+                fillDevicesElement(rightDeviceElement, buttonDevicesArray);
                 updateButtonPanelConfiguration();
             };
         }
 
-        function fillDevicesElement(element)
+        function fillDevicesElement(Element, DevicesArray)
         {
-            if (devicesFetched && element)
+            if (Element && (DevicesArray.length > 0))
             {
                 //fill the device lists with devices
-                element.innerHTML = "";
+                Element.innerHTML = "";
 
                 var option = document.createElement("option");
                 option.text = Homey.__("settings.none");
                 option.value = "none";
-                element.add(option);
+                Element.add(option);
 
                 var option = document.createElement("option");
                 option.text = Homey.__("settings.customMQTT");
                 option.value = "customMQTT";
-                element.add(option);
+                Element.add(option);
 
-                for (const device of devicesArray)
+                for (const device of DevicesArray)
                 {
                     var option = document.createElement("option");
                     option.text = device.name;
                     option.value = device.id;
-                    element.add(option);
+                    Element.add(option);
                 }
             }
         }
@@ -992,7 +1006,7 @@
 
         function updateButtonPanelConfiguration()
         {
-            if ((buttonConfigurationsFetched == false) || (devicesFetched == false)) return;
+            if ((buttonConfigurationsFetched == false) || (buttonDevicesFetched == false)) return;
 
             if (currentButtonConfigurationNo < 0 || currentButtonConfigurationNo >= localbuttonConfigurations.length)
             {
@@ -1238,16 +1252,19 @@
 
         function fillDisplayDevices()
         {
-            // Get the current display configuration
-            var displayConfig = localDisplayConfigurations[displayConfigurationNoElement.value];
-
-            if (displayConfig)
+            if (displayDevicesFetched)
             {
-                for (var itemNo = 0; itemNo < displayConfig.items.length; itemNo++)
+                // Get the current display configuration
+                var displayConfig = localDisplayConfigurations[displayConfigurationNoElement.value];
+
+                if (displayConfig)
                 {
-                    fillDevicesElement(document.getElementById(`display${itemNo}Device`));
-                    document.getElementById(`display${itemNo}Device`).value = displayConfig.items[itemNo].device;
-                    getDisplayCapabilities(itemNo);
+                    for (var itemNo = 0; itemNo < displayConfig.items.length; itemNo++)
+                    {
+                        fillDevicesElement(document.getElementById(`display${itemNo}Device`), displayDevicesArray);
+                        document.getElementById(`display${itemNo}Device`).value = displayConfig.items[itemNo].device;
+                        getDisplayCapabilities(itemNo);
+                    }
                 }
             }
         }
