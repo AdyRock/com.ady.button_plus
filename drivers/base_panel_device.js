@@ -746,10 +746,16 @@ class BasePanelDevice extends Device
         const item = this.homey.app.buttonConfigurations[configNo];
         if ((item.leftDevice === deviceId) && (item.leftCapability === capability))
         {
+            if (capability === 'dim')
+            {
+                // convert dim value to percentage
+                value *= 100;
+            }
+
             // Publish to MQTT
             this.homey.app.publishMQTTMessage(item.leftBrokerId, `homey/${deviceId}/${capability}/value`, value);
 
-            if (item.leftCapability === 'dim')
+            if (capability === 'dim')
             {
                 value = false;
             }
@@ -758,8 +764,14 @@ class BasePanelDevice extends Device
 
         if ((item.rightDevice === deviceId) && (item.rightCapability === capability))
         {
+            if (capability === 'dim')
+            {
+                // convert dim value to percentage
+                value *= 100;
+            }
+
             this.homey.app.publishMQTTMessage(item.rightBrokerId, `homey/${deviceId}/${capability}/value`, value);
-            if (item.rightCapability === 'dim')
+            if (capability === 'dim')
             {
                 value = false;
             }
@@ -785,6 +797,12 @@ class BasePanelDevice extends Device
                 const displayItem = item.items[itemNo];
                 if ((displayItem.device === deviceId) && (displayItem.capability === capability))
                 {
+                    if (capability === 'dim')
+                    {
+                        // convert dim value to percentage
+                        value *= 100;
+                    }
+
                     // Publish to MQTT
                     this.homey.app.publishMQTTMessage(displayItem.brokerId, `homey/${deviceId}/${capability}/value`, value);
                 }
