@@ -995,6 +995,9 @@ class MyApp extends Homey.App
                     devices = await api.devices.getDevices();
                 }
 
+                // Sort the devices by name
+                devices = Object.values(devices).sort((a, b) => a.name.localeCompare(b.name));
+
                 if (type || ids)
                 {
                     // Filter the object on type or id
