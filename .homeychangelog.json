@@ -4,5 +4,8 @@
     },
     "0.0.2": {
         "en": "Fixed Display item MQTT (GH issue #1) and App button only showing capability (GH issue #3)"
+    },
+    "0.0.3": {
+        "en": "Display Dim as % (GH issue #5), Fix broker reset to Homey when a new item added (GH issue #8), Sort devices alphabetically (GH issue #9), Fis missing devices from Display list (GH issue #10)"
     }
 }
