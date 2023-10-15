@@ -762,36 +762,8 @@
                 // Add the new broker to the local broker list
                 localBrokerItems.push(brokerItem);
 
-                // Add the new broker to the panel config broker lists
-                var optionLeft = document.createElement("option");
-                optionLeft.value = brokerItem.brokerid;
-                optionLeft.text = brokerItem.brokerid;
-                leftBrokerIdElement.add(optionLeft);
-
-                var optionRight = document.createElement("option");
-                optionRight.value = brokerItem.brokerid;
-                optionRight.text = brokerItem.brokerid;
-                rightBrokerIdElement.add(optionRight);
-
-                // Add the new broker to the custom MQTT topic broker lists
-                for (let k = 0; k < customMQTTItemsElements.length; k++)
-                {
-                    var option = document.createElement("option");
-                    option.value = brokerItem.brokerid;
-                    option.text = brokerItem.brokerid;
-                    customMQTTItemsElements[k].add(option);
-                }
-
-                // Add the new broker to the display config broker lists
-                const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
-                for (let j = 0; j < displayConfiguration.items.length; j++)
-                {
-                    const displayItem = displayConfiguration.items[j];
-                    var option = document.createElement("option");
-                    option.value = brokerItem.brokerid;
-                    option.text = brokerItem.brokerid;
-                    document.getElementById(`display${j}BrokerId`).add(option);
-                }
+                // Add the broker to the broker lists
+                addBrokerToConfig(brokerItem);
 
                 // Redraw the broker items
                 drawBrokerItems();
@@ -1136,10 +1108,13 @@
                 for (let i = 0; i < localBrokerItems.length; i++)
                 {
                     const brokerItem = localBrokerItems[i];
-                    var option = document.createElement("option");
-                    option.value = brokerItem.brokerid;
-                    option.text = brokerItem.brokerid;
-                    document.getElementById(`display${itemNo}BrokerId`).add(option);
+                    if (brokerItem.enabled)
+                    {
+                        var option = document.createElement("option");
+                        option.value = brokerItem.brokerid;
+                        option.text = brokerItem.brokerid;
+                        document.getElementById(`display${itemNo}BrokerId`).add(option);
+                    }
                 }
             }
             for (var itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
@@ -1443,7 +1418,7 @@
                         <input class="homey-form-input" id="broker${itemNo}WSPort" type="number" value="${item.wsport}" />
 
                         <label class="homey-form-checkbox">
-                            <input class="homey-form-checkbox-input" id="broker${itemNo}Enabled" onClick="removeBrokerFromConfig(${itemNo})" type="checkbox" ${enableOption}/>
+                            <input class="homey-form-checkbox-input" id="broker${itemNo}Enabled" onClick="rebuildBrokerLists(${itemNo})" type="checkbox" ${enableOption}/>
                             <span class="homey-form-checkbox-checkmark"></span>
                             <span class="homey-form-checkbox-text">${ctrlLabels.enabled}</span>
                         </label>
@@ -1460,6 +1435,7 @@
             // Update the broker in the left and right broker list in the panel config
             const leftBrokerIdElement = document.getElementById('leftBrokerId');
             leftBrokerIdElement.options[itemNo].text = document.getElementById(`broker${itemNo}Id`).value;
+
             const rightBrokerIdElement = document.getElementById('rightBrokerId');
             rightBrokerIdElement.options[itemNo].text = document.getElementById(`broker${itemNo}Id`).value;
 
@@ -1491,6 +1467,90 @@
             else
             {
                 Homey.alert(Homey.__("settings.deleteBrokerItemError"));
+            }
+        }
+
+        function rebuildBrokerLists(itemNo)
+        {
+            localBrokerItems[itemNo].enabled = document.getElementById(`broker${itemNo}Enabled`).checked;
+            
+            // Fetch current settings so we can restore them after the rebuild
+            localbuttonConfigurations[currentButtonConfigurationNo].leftBrokerId = leftBrokerIdElement.value;
+            localbuttonConfigurations[currentButtonConfigurationNo].rightBrokerId = rightBrokerIdElement.value;
+
+            // reset the broker lists in all the config items
+            leftBrokerIdElement.length = 0;
+            rightBrokerIdElement.length = 0;
+            for (let k = 0; k < customMQTTItemsElements.length; k++)
+            {
+                customMQTTItemsElements[k].length = 0;
+            }
+
+            const displayConfig = localDisplayConfigurations[currentDisplayConfigurationNo];
+            for (let displayItemNo = 0; displayItemNo < displayConfig.items.length; displayItemNo++)
+            {
+                const displayItem = displayConfig.items[displayItemNo];
+                const brokerIdElement = document.getElementById(`display${displayItemNo}BrokerId`);
+                displayItem.brokerId = brokerIdElement.value;
+
+                brokerIdElement.length = 0;
+            }
+
+            // Add the brokers to the broker list in the panel and display config
+            for (var itemNo = 0; itemNo < localBrokerItems.length; itemNo++)
+            {
+                // Add the broker to the broker list in the panel and display config
+                var brokerItem = localBrokerItems[itemNo];
+                if (brokerItem.enabled)
+                {
+                    addBrokerToConfig(brokerItem);
+                }
+            }
+
+            // select the broker in the broker list in the panel and display config
+            leftBrokerIdElement.value = localbuttonConfigurations[currentButtonConfigurationNo].leftBrokerId;
+            rightBrokerIdElement.value = localbuttonConfigurations[currentButtonConfigurationNo].rightBrokerId;
+
+            for (let displayItemNo = 0; displayItemNo < displayConfig.items.length; displayItemNo++)
+            {
+                const displayItem = displayConfiguration.items[displayItemNo];
+                const brokerIdElement = document.getElementById(`display${displayItemNo}BrokerId`);
+                brokerIdElement.value = displayItem.brokerId;
+            }
+        }
+
+        function addBrokerToConfig(brokerItem)
+        {
+            // Add the new broker to the panel config broker lists
+            var optionLeft = document.createElement("option");
+            optionLeft.value = brokerItem.brokerid;
+            optionLeft.text = brokerItem.brokerid;
+            leftBrokerIdElement.add(optionLeft);
+
+            var optionRight = document.createElement("option");
+            optionRight.value = brokerItem.brokerid;
+            optionRight.text = brokerItem.brokerid;
+            rightBrokerIdElement.add(optionRight);
+
+            // Add the new broker to the custom MQTT topic broker lists
+            for (let k = 0; k < customMQTTItemsElements.length; k++)
+            {
+                var option = document.createElement("option");
+                option.value = brokerItem.brokerid;
+                option.text = brokerItem.brokerid;
+                customMQTTItemsElements[k].add(option);
+            }
+
+            // Add the new broker to the display config broker lists
+            const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+            for (let j = 0; j < displayConfiguration.items.length; j++)
+            {
+                const displayItem = displayConfiguration.items[j];
+                var option = document.createElement("option");
+                option.value = brokerItem.brokerid;
+                option.text = brokerItem.brokerid;
+                let brokerIdElement = document.getElementById(`display${j}BrokerId`);
+                brokerIdElement.add(option);
             }
         }
 
