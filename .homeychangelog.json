@@ -7,5 +7,8 @@
     },
     "0.0.3": {
         "en": "Display Dim as % (GH issue #5), Fix broker reset to Homey when a new item added (GH issue #8), Sort devices alphabetically (GH issue #9), Fis missing devices from Display list (GH issue #10)"
+    },
+    "0.0.4": {
+        "en": "Only show brokers that are enabled (GH issue #11), Fix Label and Unit lost after saving (GH issue #13)"
     }
 }
