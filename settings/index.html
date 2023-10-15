@@ -1308,8 +1308,14 @@
                             if (capabilities[capabilityID])
                             {
                                 capabilitiesElement.value = capabilityID;
-                                document.getElementById(`display${item}Label`).value = capabilities[capabilityID].title;
-                                document.getElementById(`display${item}Unit`).value = capabilities[capabilityID].unit ? capabilities[capabilityID].unit : "";
+                                if (document.getElementById(`display${item}Label`).value === '')
+                                {
+                                    document.getElementById(`display${item}Label`).value = capabilities[capabilityID].title;
+                                }
+                                if (document.getElementById(`display${item}Unit`).value === '')
+                                {
+                                    document.getElementById(`display${item}Unit`).value = capabilities[capabilityID].unit ? capabilities[capabilityID].unit : "";
+                                }
                             }
                             else
                             {
