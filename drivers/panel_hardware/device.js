@@ -11,6 +11,14 @@ class PanelDevice extends BasePanelDevice
     async onInit()
     {
         super.onInit();
+        if (!this.hasCapability('measure_temperature'))
+        {
+            this.addCapability('measure_temperature');
+        }
+
+        const ip = this.getSetting('address');
+        this.homey.app.setupPanelTemperatureTopic(ip, this.__id);
+
         this.log('PanelDevice has been initialized');
     }
 

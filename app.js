@@ -798,23 +798,23 @@ class MyApp extends Homey.App
 
                 // Add the LED event entry
                 mqttButtons.topics.push(
-                {
-                    brokerid: brokerId,
-                    eventtype: 14,
-                    topic: `homey/button/${buttonIdx}/value`,
-                    payload,
-                },
-);
+                    {
+                        brokerid: brokerId,
+                        eventtype: 14,
+                        topic: `homey/button/${buttonIdx}/value`,
+                        payload,
+                    },
+                );
 
                 // Add the Label event entry
                 mqttButtons.topics.push(
-                {
-                    brokerid: brokerId,
-                    eventtype: 11,
-                    topic: `homey/button/${buttonIdx}/label`,
-                    payload,
-                },
-);
+                    {
+                        brokerid: brokerId,
+                        eventtype: 11,
+                        topic: `homey/button/${buttonIdx}/label`,
+                        payload,
+                    },
+                );
             }
             else if (capability)
             {
@@ -829,24 +829,24 @@ class MyApp extends Homey.App
 
                     // Add the LED event entry
                     mqttButtons.topics.push(
-                    {
-                        brokerid: brokerId,
-                        eventtype: 14,
-                        topic: `homey/${configDevice}/${configCapability}/value`,
-                        payload,
-                    },
-);
+                        {
+                            brokerid: brokerId,
+                            eventtype: 14,
+                            topic: `homey/${configDevice}/${configCapability}/value`,
+                            payload,
+                        },
+                    );
                 }
 
                 // Add the Label event entry
                 mqttButtons.topics.push(
-                {
-                    brokerid: brokerId,
-                    eventtype: 11,
-                    topic: `homey/${configDevice}/${configCapability}/label`,
-                    payload,
-                },
-);
+                    {
+                        brokerid: brokerId,
+                        eventtype: 11,
+                        topic: `homey/${configDevice}/${configCapability}/label`,
+                        payload,
+                    },
+                );
             }
             else
             {
@@ -857,6 +857,58 @@ class MyApp extends Homey.App
         {
             this.updateLog(`Error setting up status topic: ${err.message}`);
         }
+    }
+
+    async setupPanelTemperatureTopic(ip, device)
+    {
+        if (ip !== '')
+        {
+            try
+            {
+                // Add the temperature event entry
+                const mqttSenors = {
+                    mqttsensors: [
+                        {
+                            sensorid: 1,
+                            interval: 10,
+                            topic: {
+                            brokerid: 'homey',
+                            topic: `homey/${device}/measure_temperature/value`,
+                            payload: '',
+                            eventtype: 18,
+                            },
+                        },
+                    ],
+                };
+
+                this.updateLog(`writeSensorConfig: ${this.varToString(mqttSenors)}`);
+
+                const options = {
+                    json: true,
+                };
+
+                const MQTTclient = this.MQTTClients.get('homey');
+                if (MQTTclient)
+                {
+                    MQTTclient.subscribe(`homey/${device}/measure_temperature/value`, (err) =>
+                    {
+                        if (err)
+                        {
+                            this.updateLog("setupMQTTClient.onConnect 'homey/sensorvalue' error: " * this.varToString(err), 0);
+                        }
+                    });
+                }
+
+                // Use the local device
+                return await this.httpHelperLocal.post(`http://${ip}/configsave`, options, mqttSenors);
+            }
+            catch (err)
+            {
+                this.updateLog(`Error setting up status topic: ${err.message}`);
+            }
+        }
+
+        return null;
     }
 
     async readDeviceConfiguration(ip, virtualID)
@@ -1228,14 +1280,6 @@ class MyApp extends Homey.App
                     this.updateLog("setupMQTTClient.onConnect 'homey/longpress' error: " * this.varToString(err), 0);
                 }
             });
-
-            MQTTclient.subscribe('homey/sensorvalue', (err) =>
-            {
-                if (err)
-                {
-                    this.updateLog("setupMQTTClient.onConnect 'homey/sensorvalue' error: " * this.varToString(err), 0);
-                }
-            });
         });
 
         MQTTclient.on('error', (err) =>
@@ -1275,6 +1319,31 @@ class MyApp extends Homey.App
                             device = null;
                         }
                         devices = null;
+                    }
+                }
+                else
+                {
+                    // Look for homey at the start of the topic string
+                    const topicParts = topic.split('/');
+                    if (topicParts.length >= 3 && topicParts[0] === 'homey')
+                    {
+                        // next part is the device id
+                        const deviceId = topicParts[1];
+
+                        // Try to find the device / device that has this is
+                        const drivers = this.homey.drivers.getDrivers();
+                        for (const driver of Object.values(drivers))
+                        {
+                            const devices = driver.getDevices();
+                            for (const device of Object.values(devices))
+                            {
+                                if (device.__id === deviceId)
+                                {
+                                    device.setCapabilityValue(topicParts[2], mqttMessage).catch(device.error);
+                                    return;
+                                }
+                            }
+                        }
                     }
                 }
             }
