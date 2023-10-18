@@ -852,23 +852,26 @@
             //fill the device lists with devices
             if (buttonDevicesFetched)
             {
-                fillDevicesElement(leftDeviceElement, buttonDevicesArray);
-                fillDevicesElement(rightDeviceElement, buttonDevicesArray);
+                fillDevicesElement(leftDeviceElement, buttonDevicesArray, true);
+                fillDevicesElement(rightDeviceElement, buttonDevicesArray, true);
                 updateButtonPanelConfiguration();
             };
         }
 
-        function fillDevicesElement(Element, DevicesArray)
+        function fillDevicesElement(Element, DevicesArray, button)
         {
             if (Element && (DevicesArray.length > 0))
             {
                 //fill the device lists with devices
                 Element.innerHTML = "";
 
-                var option = document.createElement("option");
-                option.text = Homey.__("settings.none");
-                option.value = "none";
-                Element.add(option);
+                if (button)
+                {
+                    var option = document.createElement("option");
+                    option.text = Homey.__("settings.none");
+                    option.value = "none";
+                    Element.add(option);
+                }
 
                 var option = document.createElement("option");
                 option.text = Homey.__("settings.customMQTT");
