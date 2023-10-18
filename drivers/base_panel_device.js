@@ -12,6 +12,7 @@ class BasePanelDevice extends Device
     {
         this.registerCapabilityListener('configuration.display', this.onCapabilityDisplayConfiguration.bind(this));
 
+        this.buttonTime = [];
         const settings = this.getSettings();
         await this.configureConnetctor(settings.connect0Type, 0);
         await this.configureConnetctor(settings.connect1Type, 1);
@@ -48,8 +49,17 @@ class BasePanelDevice extends Device
             if (this.hasCapability(`configuration.connector${connector}`))
             {
                 await this.removeCapability(`configuration.connector${connector}`);
+            }
+
+            if (connectType !== 2)
+            {
                 await this.removeCapability(`left_button.connector${connector}`);
                 await this.removeCapability(`right_button.connector${connector}`);
+            }
+            else if (!this.hasCapability(`left_button.connector${connector}`))
+            {
+                await this.addCapability(`left_button.connector${connector}`);
+                await this.addCapability(`right_button.connector${connector}`);
             }
         }
         else
@@ -354,12 +364,44 @@ class BasePanelDevice extends Device
         this.homey.app.updateLog('Panel processing MQTT message');
         if (topic === 'homey/click' && MQTTMessage)
         {
+            let buttonCapability = '';
             const connectorNo = MQTTMessage.connector;
             if (!connectorNo)
             {
                 this.homey.app.updateLog('The MQTT payload has no connector number');
                 return;
             }
+            const settings = this.getSettings();
+            if (settings[`connect${connectorNo}Type`] === 2)
+            {
+                if (MQTTMessage.side === 'left')
+                {
+                    buttonCapability = `left_button.connector${connectorNo}`;
+                }
+                else if (MQTTMessage.side === 'right')
+                {
+                    buttonCapability = `right_button.connector${connectorNo}`;
+                }
+
+                if (buttonCapability)
+                {
+                    if (this.buttonTime[buttonCapability])
+                    {
+                        clearTimeout(this.buttonTime[buttonCapability]);
+                        this.buttonTime[buttonCapability] = null;
+                    }
+                    await this.setCapabilityValue(buttonCapability, true).catch(this.error);
+                    // trigger the flow
+                    this.homey.app.triggerButtonOn(this, MQTTMessage.side === 'left', connectorNo);
+                    this.buttonTime[buttonCapability] = this.homey.setTimeout(() => {
+                        this.buttonTime[buttonCapability] = null;
+                        this.setCapabilityValue(buttonCapability, false).catch(this.error);
+                        this.homey.app.triggerButtonOff(this, MQTTMessage.side === 'left', connectorNo);
+                    }, 500);
+                }
+                return;
+            }
+
             const configNo = this.getCapabilityValue(`configuration.connector${connectorNo}`);
             if (configNo === null)
             {
@@ -367,7 +409,6 @@ class BasePanelDevice extends Device
                 return;
             }
             const ButtonPanelConfiguration = this.homey.app.buttonConfigurations[configNo];
-            let buttonCapability = '';
             let homeyDeviceID = '';
             let homeyCapabilityName = '';
             let buttonNumber = 0;
