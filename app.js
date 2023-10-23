@@ -125,6 +125,26 @@ class MyApp extends Homey.App
                     buttonConfiguration.rightFrontLEDColor = '#ff0000';
                     buttonConfiguration.rightWallLEDColor = '#ff0000';
                 }
+
+                if (!buttonConfiguration.leftLongDelay)
+                {
+                    buttonConfiguration.leftLongDelay = '75';
+                }
+
+                if (!buttonConfiguration.rightLongDelay)
+                {
+                    buttonConfiguration.rightLongDelay = '75';
+                }
+
+                if (!buttonConfiguration.leftLongRepeat)
+                {
+                    buttonConfiguration.leftLongRepeat = '15';
+                }
+
+                if (!buttonConfiguration.rightLongRepeat)
+                {
+                    buttonConfiguration.rightLongRepeat = '15';
+                }
             }
 
             this.homey.settings.set('buttonConfigurations', this.buttonConfigurations);
@@ -267,6 +287,12 @@ class MyApp extends Homey.App
             });
 
         this._triggerButtonChange = this.homey.flow.getDeviceTriggerCard('button_change')
+            .registerRunListener((args, state) =>
+            {
+                return (args.left_right === state.left_right && args.connector === state.connector);
+            });
+
+        this._triggerButtonLongPress = this.homey.flow.getDeviceTriggerCard('button_long_press')
             .registerRunListener((args, state) =>
             {
                 return (args.left_right === state.left_right && args.connector === state.connector);
@@ -499,7 +525,17 @@ class MyApp extends Homey.App
                             const capability = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObject, item.capability);
                             if (capability)
                             {
-                                this.homey.app.publishMQTTMessage(item.brokerId, `homey/${item.device}/${item.capability}/value`, capability.value);
+                                let { value } = capability;
+                                if (item.capability === 'dim')
+                                {
+                                    value = Math.round(value * 100);
+                                }
+
+                                // Send the value to the device after a short delay to allow the device to connect to the broker
+                                this.homey.setTimeout(() => {
+                                    this.homey.app.publishMQTTMessage(item.brokerId, `homey/${item.device}/${item.capability}/value`, value);
+                                }, 5000);
+
                                 this.registerDeviceCapabilityStateChange(item.device, item.capability);
                             }
                         }
@@ -778,9 +814,13 @@ class MyApp extends Homey.App
         const labelOff = ButtonPanelConfiguration[`${side}OffText`];
         const configDevice = ButtonPanelConfiguration[`${side}Device`];
         const brokerId = ButtonPanelConfiguration[`${side}BrokerId`];
+        const longDelay = ButtonPanelConfiguration[`${side}LongDelay`];
+        const longRepeat = ButtonPanelConfiguration[`${side}LongRepeat`];
 
         mqttButtons.toplabel = topLabel;
         mqttButtons.label = labelOn;
+        mqttButtons.longdelay = longDelay;
+        mqttButtons.longrepeat = longRepeat;
 
         // Convert the '#000000' string to a long for the LED color
         const frontLEDColor = parseInt(ButtonPanelConfiguration[`${side}FrontLEDColor`].substring(1), 16);
@@ -1663,6 +1703,14 @@ class MyApp extends Homey.App
         const tokens = { left_right: leftright, connector, state: value };
         const state = { left_right: leftright ? 'left' : 'right', connector };
         this.triggerFlow(this._triggerButtonChange, device, tokens, state);
+        return this;
+    }
+
+    triggerButtonLongPress(device, leftright, connector)
+    {
+        const tokens = { left_right: leftright, connector };
+        const state = { left_right: leftright ? 'left' : 'right', connector };
+        this.triggerFlow(this._triggerButtonLongPress, device, tokens, state);
         return this;
     }
 

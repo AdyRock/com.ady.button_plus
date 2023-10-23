@@ -527,6 +527,10 @@ class BasePanelDevice extends Device
                 }
             }
         }
+        else if (topic === 'homey/longpress' && MQTTMessage)
+        {
+            this.homey.app.triggerButtonLongPress(this, MQTTMessage.side === 'left', MQTTMessage.connector);
+        }
     }
 
     updateGatewayConfig(id, newIp)
