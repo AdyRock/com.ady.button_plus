@@ -15,11 +15,51 @@ class PanelDevice extends BasePanelDevice
         {
             this.addCapability('measure_temperature');
         }
+        if (!this.hasCapability('date'))
+        {
+            this.addCapability('date');
+        }
+        if (!this.hasCapability('time'))
+        {
+            this.addCapability('time');
+        }
 
         const ip = this.getSetting('address');
         this.homey.app.setupPanelTemperatureTopic(ip, this.__id);
 
+        const dateTime = this.updateTime();
+
+        // Calculate the number of ms until next while minute
+        const msUntilNextMinute = (60 - dateTime.getSeconds()) * 1000;
+
+        // Set a timeout to update the time every minute
+        this.homey.setTimeout(() =>
+        {
+            this.updateTime();
+            setInterval(() => this.updateTime(), 60000);
+        }, msUntilNextMinute);
+
         this.log('PanelDevice has been initialized');
+    }
+
+    updateTime()
+    {
+        // Allow for Homey's timezone setting
+        const tzString = this.homey.clock.getTimezone();
+        let dateTime = new Date();
+        dateTime = new Date(dateTime.toLocaleString('en-US', { timeZone: tzString }));
+
+        // Get the date using the short month format
+        const date = dateTime.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' });
+
+        // get the time in the local format, but exclude seconds keeping am/pm if it's 12 hour format
+        // eslint-disable-next-line object-curly-newline
+        const time = dateTime.toLocaleTimeString('en-US', { hour12: true, hour: 'numeric', minute: 'numeric' });
+
+        this.setCapabilityValue('date', date);
+        this.setCapabilityValue('time', time);
+
+        return dateTime;
     }
 
     /**

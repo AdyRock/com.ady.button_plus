@@ -36,6 +36,8 @@
         "left_button.connector7",
         "right_button.connector7",
         "measure_temperature",
+        "date",
+        "time",
         "info"
     ],
     "capabilitiesOptions": {
