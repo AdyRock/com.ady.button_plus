@@ -10,5 +10,8 @@
     },
     "0.0.4": {
         "en": "Only show brokers that are enabled (GH issue #11), Fix Label and Unit lost after saving (GH issue #13)"
+    },
+    "0.0.5": {
+        "en": "Added Panel Temperature to device. Added display buttons to the device. Removed Button Only option from the Display Configuration. Implemented Long Press (requires Button Panel firmware 0.822 or later)"
     }
 }
