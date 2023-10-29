@@ -1124,6 +1124,10 @@
             {
                 const item = displayConfiguration.items[itemNo];
                 document.getElementById(`display${itemNo}BrokerId`).value = item.brokerId;
+
+                document.getElementById(`display${itemNo}FontSize`).value = item.fontSize;
+                document.getElementById(`display${itemNo}Alignment`).value = item.alignment;
+                document.getElementById(`display${itemNo}BrokerId`).value = item.brokerId;
             }
 
             fillDisplayDevices();
@@ -1147,6 +1151,7 @@
                 topCenter: Homey.__("settings.topCenter"),
                 topRight: Homey.__("settings.topRight"),
                 centerLeft: Homey.__("settings.centerLeft"),
+                center: Homey.__("settings.center"),
                 centerCenter: Homey.__("settings.centerCenter"),
                 centerRight: Homey.__("settings.centerRight"),
                 bottomLeft: Homey.__("settings.bottomLeft"),
@@ -1222,10 +1227,6 @@
                 </div>`;
 
             document.getElementById('displayItemsSection').innerHTML = section;
-
-            document.getElementById(`display${itemNo}FontSize`).value = item.fontSize;
-            document.getElementById(`display${itemNo}Alignment`).value = item.alignment;
-            document.getElementById(`display${itemNo}BrokerId`).value = item.brokerId;
         }
 
         function fillDisplayDevices()
