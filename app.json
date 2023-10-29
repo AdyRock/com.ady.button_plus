@@ -702,6 +702,8 @@
         "left_button.connector7",
         "right_button.connector7",
         "measure_temperature",
+        "date",
+        "time",
         "info"
       ],
       "capabilitiesOptions": {
@@ -881,6 +883,8 @@
         "right_button.connector6",
         "left_button.connector7",
         "right_button.connector7",
+        "date",
+        "time",
         "info"
       ],
       "capabilitiesOptions": {
@@ -1182,6 +1186,15 @@
         }
       ]
     },
+    "date": {
+      "type": "string",
+      "title": {
+        "en": "Date"
+      },
+      "getable": true,
+      "setable": false,
+      "icon": "/assets/calendar.svg"
+    },
     "info": {
       "type": "string",
       "title": {
@@ -1210,6 +1223,15 @@
         "en": "Right Button"
       },
       "icon": "/assets/right_arrow.svg"
+    },
+    "time": {
+      "type": "string",
+      "title": {
+        "en": "Time"
+      },
+      "getable": true,
+      "setable": false,
+      "icon": "/assets/clock.svg"
     }
   },
   "discovery": {

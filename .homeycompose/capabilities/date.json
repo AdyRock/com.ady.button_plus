@@ -1,0 +1,9 @@
+{
+    "type": "string",
+    "title": {
+        "en": "Date"
+    },
+    "getable": true,
+    "setable": false,
+    "icon": "/assets/calendar.svg"
+}
