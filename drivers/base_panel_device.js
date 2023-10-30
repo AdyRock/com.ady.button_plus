@@ -752,27 +752,30 @@ class BasePanelDevice extends Device
 
     checkStateChange(deviceId, capability, value)
     {
-        // check the configuration to see if this capability is being monitored by one of the buttons
+        if (capability !== '_variable_')
+        {
+            // check the configuration to see if this capability is being monitored by one of the buttons
 
-        if (this.hasCapability('configuration.connector1'))
-        {
-            const configNo = this.getCapabilityValue('configuration.connector1');
-            this.checkStateChangeForConnector(configNo, 1, deviceId, capability, value);
-        }
-        if (this.hasCapability('configuration.connector2'))
-        {
-            const configNo = this.getCapabilityValue('configuration.connector2');
-            this.checkStateChangeForConnector(configNo, 2, deviceId, capability, value);
-        }
-        if (this.hasCapability('configuration.connector3'))
-        {
-            const configNo = this.getCapabilityValue('configuration.connector3');
-            this.checkStateChangeForConnector(configNo, 3, deviceId, capability, value);
-        }
-        if (this.hasCapability('configuration.connector4'))
-        {
-            const configNo = this.getCapabilityValue('configuration.connector4');
-            this.checkStateChangeForConnector(configNo, 4, deviceId, capability, value);
+            if (this.hasCapability('configuration.connector1'))
+            {
+                const configNo = this.getCapabilityValue('configuration.connector1');
+                this.checkStateChangeForConnector(configNo, 1, deviceId, capability, value);
+            }
+            if (this.hasCapability('configuration.connector2'))
+            {
+                const configNo = this.getCapabilityValue('configuration.connector2');
+                this.checkStateChangeForConnector(configNo, 2, deviceId, capability, value);
+            }
+            if (this.hasCapability('configuration.connector3'))
+            {
+                const configNo = this.getCapabilityValue('configuration.connector3');
+                this.checkStateChangeForConnector(configNo, 3, deviceId, capability, value);
+            }
+            if (this.hasCapability('configuration.connector4'))
+            {
+                const configNo = this.getCapabilityValue('configuration.connector4');
+                this.checkStateChangeForConnector(configNo, 4, deviceId, capability, value);
+            }
         }
 
         const configNo = this.getCapabilityValue('configuration.display');

@@ -20,6 +20,7 @@ const mqtt = require('./mqtt');
 const HttpHelper = require('./lib/HttpHelper');
 const DeviceManager = require('./lib/DeviceManager');
 const DeviceDispatcher = require('./lib/DeviceStateChangedDispatcher');
+const VariableDispatcher = require('./lib/variables');
 
 // const MQTT_SERVER_BUTTONPLUS = 'mqtt://mqtt.button.plus:1883';
 // const USE_LOCAL_MQTT = true;
@@ -209,6 +210,7 @@ class MyApp extends Homey.App
 
         this.getHomeyDevices({});
         this.deviceDispather = new DeviceDispatcher(this);
+        this.variableDispather = new VariableDispatcher(this);
 
         try
         {
@@ -468,7 +470,7 @@ class MyApp extends Homey.App
             if (deviceConfiguration)
             {
                 // apply the new configuration
-                this.applyDisplayConfiguration(deviceConfiguration, configurationNo);
+                deviceConfiguration = await this.applyDisplayConfiguration(deviceConfiguration, configurationNo);
                 this.updateLog(`Current Config: ${deviceConfiguration}`);
 
                 if (writeConfig)
@@ -517,27 +519,47 @@ class MyApp extends Homey.App
                             eventtype: 15,
                         }],
                     };
-                    if (item.device !== 'none')
+
+                    if (item.device === '_variable_')
                     {
-                        const homeyDeviceObject = await this.homey.app.getHomeyDeviceById(item.device);
-                        if (homeyDeviceObject)
+                        // Get the variable value
+                        const variable = await this.api.logic.getVariable({ id: item.capability });
+                        if (variable)
                         {
-                            const capability = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObject, item.capability);
-                            if (capability)
+                            // Send the value to the device after a short delay to allow the device to connect to the broker
+                            this.homey.setTimeout(() => {
+                                this.homey.app.publishMQTTMessage(item.brokerId, `homey/${item.device}/${item.capability}/value`, variable.value);
+                            }, 5000);
+                        }
+                    }
+                    else if (item.device !== 'none')
+                    {
+                        try
+                        {
+                            const homeyDeviceObject = await this.homey.app.getHomeyDeviceById(item.device);
+                            if (homeyDeviceObject)
                             {
-                                let { value } = capability;
-                                if (item.capability === 'dim')
+                                const capability = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObject, item.capability);
+                                if (capability)
                                 {
-                                    value = Math.round(value * 100);
+                                    let { value } = capability;
+                                    if (item.capability === 'dim')
+                                    {
+                                        value = Math.round(value * 100);
+                                    }
+
+                                    // Send the value to the device after a short delay to allow the device to connect to the broker
+                                    this.homey.setTimeout(() => {
+                                        this.homey.app.publishMQTTMessage(item.brokerId, `homey/${item.device}/${item.capability}/value`, value);
+                                    }, 5000);
+
+                                    this.registerDeviceCapabilityStateChange(item.device, item.capability);
                                 }
-
-                                // Send the value to the device after a short delay to allow the device to connect to the broker
-                                this.homey.setTimeout(() => {
-                                    this.homey.app.publishMQTTMessage(item.brokerId, `homey/${item.device}/${item.capability}/value`, value);
-                                }, 5000);
-
-                                this.registerDeviceCapabilityStateChange(item.device, item.capability);
                             }
+                        }
+                        catch (err)
+                        {
+                            continue;
                         }
                     }
 
@@ -559,7 +581,11 @@ class MyApp extends Homey.App
                     }
                 }
             }
+
+            return deviceConfiguration;
         }
+
+        return null;
     }
 
     async uploadButtonPanelConfiguration(ip, virtualID, connectorNo, configurationNo)
@@ -1179,6 +1205,22 @@ class MyApp extends Homey.App
             catch (e)
             {
                 this.updateLog(`Error getting devices: ${e.message}`);
+            }
+        }
+        return [];
+    }
+
+    async getVariables()
+    {
+        if (this.variableDispather)
+        {
+            try
+            {
+                return this.variableDispather.getVariables();
+            }
+            catch (e)
+            {
+                this.updateLog(`Error getting variables: ${e.message}`);
             }
         }
         return [];

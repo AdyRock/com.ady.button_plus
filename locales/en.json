@@ -87,7 +87,8 @@
         "frontLEDColor": "Front LED Color",
         "frontLEDColorExplanation": "The color of the front LED when the button is in the On state.",
         "wallLEDColor": "Wall LED Color",
-        "wallLEDColorExplanation": "The color of the wall LED when the button is in the On state."
+        "wallLEDColorExplanation": "The color of the wall LED when the button is in the On state.",
+        "variable": "Variable"
     },
     "pair": {
         "manual_add":{

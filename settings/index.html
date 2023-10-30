@@ -872,6 +872,13 @@
                     option.value = "none";
                     Element.add(option);
                 }
+                else
+                {
+                    var option = document.createElement("option");
+                    option.text = Homey.__("settings.variable");
+                    option.value = "_variable_";
+                    Element.add(option);
+                }
 
                 var option = document.createElement("option");
                 option.text = Homey.__("settings.customMQTT");
@@ -1261,6 +1268,53 @@
                     document.getElementById(`display${item}NoDisplay`).style.display = itemDisplyType;
                     return;
                 }
+                if (deviceId === '_variable_')
+                {
+                    // Resquest the list of variables
+                    Homey.api('POST', '/get_variables/', {}, function(err, variables)
+                    {
+                        if (err) return Homey.alert(err);
+
+                        if (variables)
+                        {
+                            displayCapabilityItems[item].capabilities = variables;
+                            const variablesArray = Object.values(variables);
+                            for (const variable of variablesArray)
+                            {
+                                var option = document.createElement("option");
+                                option.text = `${variable.name}`;
+                                option.value = variable.id;
+                                capabilitiesElement.add(option);
+                            }
+
+                            document.getElementById(`display${item}NoCapability`).style.display = itemDisplyType;
+                            document.getElementById(`display${item}NoDisplay`).style.display = itemDisplyType;
+
+                            var displayConfig = localDisplayConfigurations[displayConfigurationNoElement.value];
+                            if (displayConfig)
+                            {
+                                const variableID = displayConfig.items[item].capability;
+                                if (variables[variableID])
+                                {
+                                    capabilitiesElement.value = variableID;
+                                    if (document.getElementById(`display${item}Label`).value === '')
+                                    {
+                                        document.getElementById(`display${item}Label`).value = variables[variableID].name;
+                                    }
+                                    if (document.getElementById(`display${item}Unit`).value === '')
+                                    {
+                                        document.getElementById(`display${item}Unit`).value = "";
+                                    }
+                                }
+                                else
+                                {
+                                    capabilitiesElement.value = "";
+                                }
+                            }
+                        }
+                    });
+                    return;
+                }
                 Homey.api('POST', '/device_capabilities/', { deviceId }, function(err, capabilities)
                 {
                     if (err) return Homey.alert(err);
@@ -1317,7 +1371,7 @@
             var capabilityID = document.getElementById(`display${item}Capability`).value;
             if (capabilityID != "" && capabilities[capabilityID])
             {
-                document.getElementById(`display${item}Label`).value = capabilities[capabilityID].title
+                document.getElementById(`display${item}Label`).value = capabilities[capabilityID].title ? capabilities[capabilityID].title : capabilities[capabilityID].name;
                 document.getElementById(`display${item}Unit`).value = capabilities[capabilityID].units ? capabilities[capabilityID].units : "";
             }
         }

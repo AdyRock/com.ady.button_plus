@@ -48,4 +48,9 @@ module.exports = {
     async getState({ homey }) {
         return homey.app.getState();
     },
+
+    // Get the list of variables
+    async getVariables({ homey }) {
+        return homey.app.getVariables();
+    },
 };

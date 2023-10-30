@@ -90,6 +90,11 @@
       "method": "get",
       "path": "/state",
       "public": false
+    },
+    "getVariables": {
+      "method": "post",
+      "path": "/get_variables",
+      "public": false
     }
   },
   "flow": {
