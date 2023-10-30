@@ -1,8 +1,8 @@
 {
     "settings": {
-        "Settings": "Settings",
-        "autoConfig": "Allow update of Button+ configuration",
-        "autoConfigWarning1": "If this option is not selected you will have to manually setup the Button+ using it's web interface.",
+        "Settings": "Instellingen",
+        "autoConfig": "Button+ configuratie updaten toestaan",
+        "autoConfigWarning1": "Als deze optie niet is geselecteerd, moet je Button+ handmatig instellen middels de webinterface.",
         "autoConfigWarning2": "<strong>Warning</strong>: With this option on, the app will overwrite the existing button+ configuration.",
         "view": "Show Options For",
         "buttonConfigs": "Button Configurations",
