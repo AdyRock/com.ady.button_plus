@@ -470,13 +470,22 @@ class MyApp extends Homey.App
             if (deviceConfiguration)
             {
                 // apply the new configuration
-                deviceConfiguration = await this.applyDisplayConfiguration(deviceConfiguration, configurationNo);
+                const mqttQue = await this.applyDisplayConfiguration(deviceConfiguration, configurationNo);
                 this.updateLog(`Current Config: ${deviceConfiguration}`);
 
                 if (writeConfig)
                 {
                     // write the updated configuration back to the device
                     await this.writeDeviceConfiguration(ip, deviceConfiguration, virtualID);
+
+                    // Send the MQTT messages after a short delay to allow the device to connect to the broker
+                    setTimeout(() =>
+                    {
+                        for (const mqttMsg of mqttQue)
+                        {
+                            this.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value);
+                        }
+                    }, 1000);
                 }
             }
         }
@@ -495,6 +504,7 @@ class MyApp extends Homey.App
         {
             // Get the specified user configuration
             const displayConfiguration = this.displayConfigurations[configurationNo];
+            const mqttQueue = [];
 
             // Update the device configuration
             if (displayConfiguration)
@@ -527,9 +537,11 @@ class MyApp extends Homey.App
                         if (variable)
                         {
                             // Send the value to the device after a short delay to allow the device to connect to the broker
-                            this.homey.setTimeout(() => {
-                                this.homey.app.publishMQTTMessage(item.brokerId, `homey/${item.device}/${item.capability}/value`, variable.value);
-                            }, 5000);
+                            mqttQueue.push({
+                                brokerId: item.brokerId,
+                                message: `homey/${item.device}/${item.capability}/value`,
+                                value: variable.value,
+                            });
                         }
                     }
                     else if (item.device !== 'none')
@@ -549,9 +561,11 @@ class MyApp extends Homey.App
                                     }
 
                                     // Send the value to the device after a short delay to allow the device to connect to the broker
-                                    this.homey.setTimeout(() => {
-                                        this.homey.app.publishMQTTMessage(item.brokerId, `homey/${item.device}/${item.capability}/value`, value);
-                                    }, 5000);
+                                    mqttQueue.push({
+                                        brokerId: item.brokerId,
+                                        message: `homey/${item.device}/${item.capability}/value`,
+                                        value,
+                                    });
 
                                     this.registerDeviceCapabilityStateChange(item.device, item.capability);
                                 }
@@ -582,7 +596,7 @@ class MyApp extends Homey.App
                 }
             }
 
-            return deviceConfiguration;
+            return mqttQueue;
         }
 
         return null;
