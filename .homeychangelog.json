@@ -13,5 +13,8 @@
     },
     "0.0.5": {
         "en": "Added Panel Temperature to device. Added display buttons to the device. Removed Button Only option from the Display Configuration. Implemented Long Press (requires Button Panel firmware 0.822 or later)"
+    },
+    "0.0.6": {
+        "en": "Added Date & Time to the panel so they can be displayed (GH issue 2). Added option to display Homey Variables (GH issue #7), Fixed: Font Size not being restored on Display Configuration settings. Fixed: Display configurations not being downloaded when changed from the panel device."
     }
 }
