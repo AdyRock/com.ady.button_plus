@@ -8,10 +8,12 @@
     ],
     "brandColor": "#444444",
     "name": {
-        "en": "Button +"
+        "en": "Button +",
+        “nl”: “Button+”
     },
     "description": {
-        "en": "Control Button + panels"
+        "en": "Control Button + panels",
+        “nl”: “Button+ panels besturen ”
     },
     "category": [
         "appliances"
