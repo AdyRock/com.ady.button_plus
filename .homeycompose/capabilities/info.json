@@ -1,7 +1,8 @@
 {
     "type": "string",
     "title": {
-        "en": "Information"
+        "en": "Information",
+        "nl": "Informatie"
     },
     "getable": true,
     "setable": false,
