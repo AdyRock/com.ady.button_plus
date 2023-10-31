@@ -4,7 +4,8 @@
     "setable": true,
     "uiComponent": "button",
     "title": {
-        "en": "Right Button"
+        "en": "Right Button",
+        "nl": "Rechter knop"
     },
     "icon": "/assets/right_arrow.svg"
 }
