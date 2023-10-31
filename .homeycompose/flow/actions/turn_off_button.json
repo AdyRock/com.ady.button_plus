@@ -1,22 +1,27 @@
 {
     "title": {
-        "en": "Turn Button off"
+        "en": "Turn Button off",
+        "nl": "Schakel knop Uit"
     },
     "titleFormatted": {
-        "en": "Turn Off [[left_right]] button on connector [[connector]]"
+        "en": "Turn Off [[left_right]] button on connector [[connector]]",
+        "nl": "Schakel [[left_right]] knop Uit op connector [[connector]]"
     },
     "hint": {
-        "en": "Turn Off the specified button"
+        "en": "Turn Off the specified button",
+        "nl": "Schakel de geselecteerde knop Uit"
     },
     "args": [
         {
             "type": "dropdown",
             "name": "left_right",
             "title": {
-                "en": "Left / Right"
+                "en": "Left /  Right",
+                "nl": "Links / Rechts "
             },
             "placeholder": {
-                "en": "Left / Right"
+                "en": "Left / Right",
+                "nl": "Links / Rechts "
             },
             "values": [
                 {
@@ -33,10 +38,12 @@
             "type": "number",
             "name": "connector",
             "title": {
-                "en": "Connector number"
+                "en": "Connector number",
+                "nl": "Connector nummer "
             },
             "placeholder": {
-                "en": "Connector number"
+                "en": "Connector number",
+                "nl": "Connector nummer "
             },
             "min": 1,
             "max": 4,
