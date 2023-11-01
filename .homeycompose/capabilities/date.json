@@ -1,7 +1,7 @@
 {
     "type": "string",
     "title": {
-        "en": "Date"
+        "en": "Date",
         "nl": "Datum"
     },
     "getable": true,
