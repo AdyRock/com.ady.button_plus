@@ -30,6 +30,13 @@
         "name": "Adrian Rockall",
         "email": "ady@rockalls.uk"
     },
+    "contributors": {
+        "translators": [
+            {
+                "name": "Henk_Renting"
+            }
+        ]
+    },
     "bugs": {
         "url": "https://github.com/AdyRock/com.ady.button_plus/issues"
     },
