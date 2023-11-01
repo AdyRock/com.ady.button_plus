@@ -16,5 +16,8 @@
     },
     "0.0.6": {
         "en": "Added Date & Time to the panel so they can be displayed (GH issue 2). Added option to display Homey Variables (GH issue #7), Fixed: Font Size not being restored on Display Configuration settings. Fixed: Display configurations not being downloaded when changed from the panel device."
+    },
+    "0.0.7": {
+        "en": "Added Dutch translations. Added Settings section to drop list."
     }
 }
