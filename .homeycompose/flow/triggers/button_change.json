@@ -1,16 +1,19 @@
 {
     "title": {
-        "en": "A button was turned ON or OFF"
+        "en": "A button was turned ON or OFF",
+        "nl": "Een knop is AAN of UIT gezet"
     },
     "titleFormatted": {
-        "en": "The [[left_right]] Button on connector [[connector]] was turned ON or OFF"
+        "en": "The [[left_right]] Button on connector [[connector]] was turned ON or OFF",
+        "nl": "De [[left_right]] knop op connector [connector]] is AAN of UIT gezet"
     },
     "tokens": [
         {
             "name": "left_right",
             "type": "boolean",
             "title": {
-                "en": "Left"
+                "en": "Left",
+                "nl": "Links"
             },
             "example": "true"
         },
@@ -18,7 +21,8 @@
             "name": "connector",
             "type": "number",
             "title": {
-                "en": "Connector Number"
+                "en": "Connector Number",
+                "nl": "Connector Number"
             },
             "example": "1"
         },
@@ -26,7 +30,8 @@
             "name": "state",
             "type": "boolean",
             "title": {
-                "en": "State"
+                "en": "State",
+                "nl": "Status"
             },
             "example": "true"
         }
@@ -36,19 +41,21 @@
             "type": "dropdown",
             "name": "left_right",
             "title": {
-                "en": "Left / Right"
+                "en": "Left / Right",
+                "nl": "Links / Rechts"
             },
             "placeholder": {
-                "en": "Left / Right"
+                "en": "Left / Right",
+                "nl": "Links / Rechts"
             },
             "values": [
                 {
                     "id": "left",
-                    "title": {"en": "Left"}
+                    "title": {"en": "Left","nl": "Links"}
                 },
                 {
                     "id": "right",
-                    "title": {"en": "Right"}
+                    "title": {"en": "Right","nl": "Rechts"}
                 }
             ]
         },
@@ -56,10 +63,12 @@
             "type": "number",
             "name": "connector",
             "title": {
-                "en": "Connectore Number"
+                "en": "Connectore Number",
+                "nl": "Connector nummer"
             },
             "placeholder": {
-                "en": "Connector number"
+                "en": "Connector number",
+                "nl": "Connector nummer"
             },
             "min": 1,
             "max": 4,
