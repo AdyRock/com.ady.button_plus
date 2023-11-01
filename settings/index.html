@@ -12,6 +12,7 @@
     <div class="fixedTop">
         <label class="homey-form-label" for="configType" style="margin-top:0px"><span data-i18n="settings.view"></span></label>
         <select class="homey-form-select" id="configType">
+            <option value="settings" data-i18n="settings.Settings"></option>
             <option value="panelConfig" data-i18n="settings.buttonConfigs"></option>
             <option value="displayConfig" data-i18n="settings.displayConfigs"></option>
             <option value="brokerConfig" data-i18n="settings.brokerConfigs"></option>
@@ -20,17 +21,20 @@
     </div>
     
     <div class="main">
-        <fieldset class="homey-form-fieldset">
-            <legend class="homey-form-legend"><span data-i18n="settings.Settings"></span></legend>
-            <label class="homey-form-checkbox">
-                <input class="homey-form-checkbox-input" id="autoConfig" type="checkbox" value="auto" />
-                <span class="homey-form-checkbox-checkmark"></span>
-                <span class="homey-form-checkbox-text"><span data-i18n="settings.autoConfig"></span></span>
-            </label>
-            <div id="AutoConfigWarnOff"><span data-i18n="settings.autoConfigWarning1"></span></div>
-            <div id="AutoConfigWarnOn"><span data-i18n="settings.autoConfigWarning2"></span></div>
-        </fieldset>
-
+        <!-- Settings page -->
+        
+        <div id="settings" class="tabcontent">
+            <fieldset class="homey-form-fieldset">
+                <legend class="homey-form-legend"><span data-i18n="settings.Settings"></span></legend>
+                <label class="homey-form-checkbox">
+                    <input class="homey-form-checkbox-input" id="autoConfig" type="checkbox" value="auto" />
+                    <span class="homey-form-checkbox-checkmark"></span>
+                    <span class="homey-form-checkbox-text"><span data-i18n="settings.autoConfig"></span></span>
+                </label>
+                <div id="AutoConfigWarnOff"><span data-i18n="settings.autoConfigWarning1"></span></div>
+                <div id="AutoConfigWarnOn"><span data-i18n="settings.autoConfigWarning2"></span></div>
+            </fieldset>
+        </div>
         <fieldset class="homey-form-fieldset">
             <!-- Button Bar Configuration -->
 
@@ -1072,7 +1076,7 @@
 
             // Get all elements with class="tabcontent" and hide them
             tabcontent = document.getElementsByClassName("tabcontent");
-            for (i = 0; i < tabcontent.length; i++)
+            for (i = configSelected ? 0 : 1; i < tabcontent.length; i++)
             {
                 tabcontent[i].style.display = "none";
             }
