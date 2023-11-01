@@ -4,7 +4,8 @@
     "setable": true,
     "uiComponent": "button",
     "title": {
-        "en": "Left Button"
+        "en": "Left Button",
+        "nl": "Linker knop"
     },
     "icon": "/assets/left_arrow.svg"
 }

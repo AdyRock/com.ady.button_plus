@@ -1608,10 +1608,13 @@ class MyApp extends Homey.App
     // Add a message to the debug log if not running in the cloud
     updateLog(newMessage, errorLevel = 1)
     {
-        this.log(newMessage);
         if (errorLevel === 0)
         {
             this.error(newMessage);
+        }
+        else
+        {
+            this.log(newMessage);
         }
 
         if ((errorLevel === 0) || this.homey.settings.get('logEnabled'))

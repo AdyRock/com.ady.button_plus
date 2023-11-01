@@ -1,22 +1,27 @@
 {
     "title": {
-        "en": "Set Information Text"
+        "en": "Set Information Text",
+        "nl": "Informatie tekst instellen"
     },
     "titleFormatted": {
-        "en": "Set the Information text to [[info]]"
+        "en": "Set the Information text to [[info]]",
+        "nl": "Informatie tekst instellen naar"
     },
     "hint": {
-        "en": "Sets the information text so it can be displayed on a panel"
+        "en": "Sets the information text so it can be displayed on a panel",
+        "nl": "Stelt de informatie tekst in zodat het kan worden weergegeven op een panel "
     },
     "args": [
         {
             "type": "text",
             "name": "info",
             "title": {
-                "en": "Information Text"
+                "en": "Information Text",
+                "nl": "Informatie tekst"
             },
             "placeholder": {
-                "en": "Information Text"
+                "en": "Information Text",
+                "nl": "Informatie tekst"
             }
         },
         {

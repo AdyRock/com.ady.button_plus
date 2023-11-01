@@ -1,28 +1,32 @@
 {
     "title": {
-        "en": "The specified button !{{is|isn't}} ON"
+        "en": "The specified button !{{is|isn't}} ON",
+        "nl": "De gespecificeerde knop !{{is|isn't}} AAN"
     },
     "titleFormatted": {
-        "en": "The [[left_right]] Button on connector [[connector]] is !{{is|isn't}} ON"
+        "en": "The [[left_right]] Button on connector [[connector]] is !{{is|isn't}} ON",
+        "nl": "De [[left_right]] knop op connector [[connector]] is !{{is|isn't}} AAN"
     },
     "args": [
         {
             "type": "dropdown",
             "name": "left_right",
             "title": {
-                "en": "Left / Right"
+                "en": "Left / Right",
+                "nl": "Links / Rechts"
             },
             "placeholder": {
-                "en": "Left / Right"
+                "en": "Left / Right",
+                "nl": "Links / Rechts"
             },
             "values": [
                 {
                     "id": "left",
-                    "title": {"en": "Left"}
+                    "title": {"en": "Left","nl": "Links"}
                 },
                 {
                     "id": "right",
-                    "title": {"en": "Right"}
+                    "title": {"en": "Right","nl": "Rechts"}
                 }
             ]
         },
@@ -30,10 +34,12 @@
             "type": "number",
             "name": "connector",
             "title": {
-                "en": "Connector Number"
+                "en": "Connector Number",
+                "nl": "Connector nummer"
             },
             "placeholder": {
-                "en": "Connector number"
+                "en": "Connector number",
+                "nl": "Connector nummer"
             },
             "min": 1,
             "max": 4,

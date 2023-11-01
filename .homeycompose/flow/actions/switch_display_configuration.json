@@ -1,22 +1,27 @@
 {
     "title": {
-        "en": "Switch Display Configuration"
+        "en": "Switch Display Configuration",
+        "nl": "Stuur display configuratie"
     },
     "titleFormatted": {
-        "en": "Switch to Display Configuration [[configurationId]]"
+        "en": "Switch to Display Configuration [[configurationId]]",
+        "nl": "Wissel naar display configuratie [[configurationId]]"
     },
     "hint": {
-        "en": "Send the select display configuration to the device"
+        "en": "Send the select display configuration to the device",
+        "nl": "Stuur de geselecteerde display configuratie naar het apparaat"
     },
     "args": [
         {
             "type": "number",
             "name": "configurationId",
             "title": {
-                "en": "Configuration number"
+                "en": "Configuration number",
+                "nl": "Configuratie nummer"
             },
             "placeholder": {
-                "en": "Configuration number"
+                "en": "Configuration number",
+                "nl": "Configuratie nummer"
             },
             "min": 1,
             "max": 20,
