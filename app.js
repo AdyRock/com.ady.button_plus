@@ -305,7 +305,7 @@ class MyApp extends Homey.App
             {
                 const config = args.configurationId - 1;
                 this.log('switch_button_configuration', config);
-                return args.device.triggerCapabilityListener(`configuration.connector${args.connector}`, config.toString());
+                return args.device.triggerCapabilityListener(`configuration_button.connector${args.connector}`, config.toString());
             });
 
         this.homey.flow.getActionCard('switch_display_configuration')
@@ -313,7 +313,7 @@ class MyApp extends Homey.App
             {
                 const config = args.configurationId - 1;
                 this.log('switch_display_configuration', config);
-                return args.device.triggerCapabilityListener('configuration.display', config.toString());
+                return args.device.triggerCapabilityListener('configuration_display', config.toString());
             });
 
         this.homey.flow.getActionCard('turn_on_button')

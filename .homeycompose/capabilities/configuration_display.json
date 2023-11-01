@@ -1,7 +1,7 @@
 {
     "type": "enum",
     "title": {
-        "en": "Configuration",
+        "en": "Display",
         "nl": "Configuratie"
     },
     "getable": true,
@@ -11,140 +11,140 @@
         {
             "id": "0",
             "title": {
-                "en": "Button Config. 1",
+                "en": "Display Config. 1",
                 "nl": "Configuratie 1"
             }
         },
         {
             "id": "1",
             "title": {
-                "en": "Button Config. 2",
+                "en": "Display Config. 2",
                 "nl": "Configuratie 2"
             }
         },
         {
             "id": "2",
             "title": {
-                "en": "Button Config. 3",
+                "en": "Display Config. 3",
                 "nl": "Configuratie 3"
             }
         },
         {
             "id": "3",
             "title": {
-                "en": "Button Config. 4",
+                "en": "Display Config. 4",
                 "nl": "Configuratie 4"
             }
         },
         {
             "id": "4",
             "title": {
-                "en": "Button Config. 5",
+                "en": "Display Config. 5",
                 "nl": "Configuratie 5"
             }
         },
         {
             "id": "5",
             "title": {
-                "en": "Button Config. 6",
+                "en": "Display Config. 6",
                 "nl": "Configuratie 6"
             }
         },
         {
             "id": "6",
             "title": {
-                "en": "Button Config. 7",
+                "en": "Display Config. 7",
                 "nl": "Configuratie 7"
             }
         },
         {
             "id": "7",
             "title": {
-                "en": "Button Config. 8",
+                "en": "Display Config. 8",
                 "nl": "Configuratie 8"
             }
         },
         {
             "id": "8",
             "title": {
-                "en": "Button Config. 9",
+                "en": "Display Config. 9",
                 "nl": "Configuratie 9"
             }
         },
         {
             "id": "9",
             "title": {
-                "en": "Button Config. 10",
+                "en": "Display Config. 10",
                 "nl": "Configuratie 10"
             }
         },
         {
             "id": "10",
             "title": {
-                "en": "Button Config. 11",
+                "en": "Display Config. 11",
                 "nl": "Configuratie 11"
             }
         },
         {
             "id": "11",
             "title": {
-                "en": "Button Config. 12",
+                "en": "Display Config. 12",
                 "nl": "Configuratie 12"
             }
         },
         {
             "id": "12",
             "title": {
-                "en": "Button Config. 13",
+                "en": "Display Config. 13",
                 "nl": "Configuratie 13"
             }
         },
         {
             "id": "13",
             "title": {
-                "en": "Button Config. 14",
+                "en": "Display Config. 14",
                 "nl": "Configuratie 14"
             }
         },
         {
             "id": "14",
             "title": {
-                "en": "Button Config. 15",
+                "en": "Display Config. 15",
                 "nl": "Configuratie 15"
             }
         },
         {
             "id": "15",
             "title": {
-                "en": "Button Config. 16",
+                "en": "Display Config. 16",
                 "nl": "Configuratie 16"
             }
         },
         {
             "id": "16",
             "title": {
-                "en": "Button Config. 17",
+                "en": "Display Config. 17",
                 "nl": "Configuratie 17"
             }
         },
         {
             "id": "17",
             "title": {
-                "en": "Button Config. 18",
+                "en": "Display Config. 18",
                 "nl": "Configuratie 18"
             }
         },
         {
             "id": "18",
             "title": {
-                "en": "Button Config. 19",
+                "en": "Display Config. 19",
                 "nl": "Configuratie 19"
             }
         },
         {
             "id": "19",
             "title": {
-                "en": "Button Config. 20",
+                "en": "Display Config. 20",
                 "nl": "Configuratie 20"
             }
         }

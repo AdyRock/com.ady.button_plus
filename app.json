@@ -773,15 +773,15 @@
       ],
       "class": "button",
       "capabilities": [
-        "configuration.display",
-        "configuration.connector0",
-        "configuration.connector1",
-        "configuration.connector2",
-        "configuration.connector3",
-        "configuration.connector4",
-        "configuration.connector5",
-        "configuration.connector6",
-        "configuration.connector7",
+        "configuration_display",
+        "configuration_button.connector0",
+        "configuration_button.connector1",
+        "configuration_button.connector2",
+        "configuration_button.connector3",
+        "configuration_button.connector4",
+        "configuration_button.connector5",
+        "configuration_button.connector6",
+        "configuration_button.connector7",
         "left_button.connector0",
         "right_button.connector0",
         "left_button.connector1",
@@ -803,158 +803,6 @@
         "time",
         "info"
       ],
-      "capabilitiesOptions": {
-        "configuration.connector0": {
-          "title": {
-            "en": "Connector 0",
-            "nl": "Connector 0"
-          }
-        },
-        "configuration.connector1": {
-          "title": {
-            "en": "Connector 1",
-            "nl": "Connector 1"
-          }
-        },
-        "configuration.connector2": {
-          "title": {
-            "en": "Connector 2",
-            "nl": "Connector 2"
-          }
-        },
-        "configuration.connector3": {
-          "title": {
-            "en": "Connector 3",
-            "nl": "Connector 3"
-          }
-        },
-        "configuration.connector4": {
-          "title": {
-            "en": "Connector 4",
-            "nl": "Connector 4"
-          }
-        },
-        "configuration.connector5": {
-          "title": {
-            "en": "Connector 5",
-            "nl": "Connector 5"
-          }
-        },
-        "configuration.connector6": {
-          "title": {
-            "en": "Connector 6",
-            "nl": "Connector 6"
-          }
-        },
-        "configuration.connector7": {
-          "title": {
-            "en": "Connector 7",
-            "nl": "Connector 7"
-          }
-        },
-        "left_button.connector0": {
-          "title": {
-            "en": "Connector 0",
-            "nl": "Connector 0"
-          }
-        },
-        "left_button.connector1": {
-          "title": {
-            "en": "Connector 1",
-            "nl": "Connector 1"
-          }
-        },
-        "left_button.connector2": {
-          "title": {
-            "en": "Connector 2",
-            "nl": "Connector 2"
-          }
-        },
-        "left_button.connector3": {
-          "title": {
-            "en": "Connector 3",
-            "nl": "Connector 3"
-          }
-        },
-        "left_button.connector4": {
-          "title": {
-            "en": "Connector 4",
-            "nl": "Connector 4"
-          }
-        },
-        "left_button.connector5": {
-          "title": {
-            "en": "Connector 5",
-            "nl": "Connector 5"
-          }
-        },
-        "left_button.connector6": {
-          "title": {
-            "en": "Connector 6",
-            "nl": "Connector 6"
-          }
-        },
-        "left_button.connector7": {
-          "title": {
-            "en": "Connector 7",
-            "nl": "Connector 7"
-          }
-        },
-        "right_button.connector0": {
-          "title": {
-            "en": "Connector 0",
-            "nl": "Connector 0"
-          }
-        },
-        "right_button.connector1": {
-          "title": {
-            "en": "Connector 1",
-            "nl": "Connector 1"
-          }
-        },
-        "right_button.connector2": {
-          "title": {
-            "en": "Connector 2",
-            "nl": "Connector 2"
-          }
-        },
-        "right_button.connector3": {
-          "title": {
-            "en": "Connector 3",
-            "nl": "Connector 3"
-          }
-        },
-        "right_button.connector4": {
-          "title": {
-            "en": "Connector 4",
-            "nl": "Connector 4"
-          }
-        },
-        "right_button.connector5": {
-          "title": {
-            "en": "Connector 5",
-            "nl": "Connector 5"
-          }
-        },
-        "right_button.connector6": {
-          "title": {
-            "en": "Connector 6",
-            "nl": "Connector 5"
-          }
-        },
-        "right_button.connector7": {
-          "title": {
-            "en": "Connector 7",
-            "nl": "Connector 7"
-          }
-        },
-        "configuration.display": {
-          "title": {
-            "en": "Display",
-            "nl": "Display"
-          }
-        }
-      },
       "pair": [
         {
           "id": "list_devices",
@@ -981,15 +829,15 @@
       },
       "class": "button",
       "capabilities": [
-        "configuration.display",
-        "configuration.connector0",
-        "configuration.connector1",
-        "configuration.connector2",
-        "configuration.connector3",
-        "configuration.connector4",
-        "configuration.connector5",
-        "configuration.connector6",
-        "configuration.connector7",
+        "configuration_display",
+        "configuration_button.connector0",
+        "configuration_button.connector1",
+        "configuration_button.connector2",
+        "configuration_button.connector3",
+        "configuration_button.connector4",
+        "configuration_button.connector5",
+        "configuration_button.connector6",
+        "configuration_button.connector7",
         "left_button.connector0",
         "right_button.connector0",
         "left_button.connector1",
@@ -1011,49 +859,49 @@
         "info"
       ],
       "capabilitiesOptions": {
-        "configuration.connector0": {
+        "configuration_button.connector0": {
           "title": {
             "en": "Connector 0",
             "nl": "Connector 0"
           }
         },
-        "configuration.connector1": {
+        "configuration_button.connector1": {
           "title": {
             "en": "Connector 1",
             "nl": "Connector 1"
           }
         },
-        "configuration.connector2": {
+        "configuration_button.connector2": {
           "title": {
             "en": "Connector 2",
             "nl": "Connector 2"
           }
         },
-        "configuration.connector3": {
+        "configuration_button.connector3": {
           "title": {
             "en": "Connector 3",
             "nl": "Connector 3"
           }
         },
-        "configuration.connector4": {
+        "configuration_button.connector4": {
           "title": {
             "en": "Connector 4",
             "nl": "Connector 4"
           }
         },
-        "configuration.connector5": {
+        "configuration_button.connector5": {
           "title": {
             "en": "Connector 5",
             "nl": "Connector 5"
           }
         },
-        "configuration.connector6": {
+        "configuration_button.connector6": {
           "title": {
             "en": "Connector 6",
             "nl": "Connector 6"
           }
         },
-        "configuration.connector7": {
+        "configuration_button.connector7": {
           "title": {
             "en": "Connector 7",
             "nl": "Connector 7"
@@ -1155,7 +1003,7 @@
             "nl": "Connector 7"
           }
         },
-        "configuration.display": {
+        "configuration_display": {
           "title": {
             "en": "Display",
             "nl": "Display"
@@ -1217,140 +1065,444 @@
         {
           "id": "0",
           "title": {
-            "en": "Configuration 1",
+            "en": "Button Config. 1",
             "nl": "Configuratie 1"
           }
         },
         {
           "id": "1",
           "title": {
-            "en": "Configuration 2",
+            "en": "Button Config. 2",
             "nl": "Configuratie 2"
           }
         },
         {
           "id": "2",
           "title": {
-            "en": "Configuration 3",
+            "en": "Button Config. 3",
             "nl": "Configuratie 3"
           }
         },
         {
           "id": "3",
           "title": {
-            "en": "Configuration 4",
+            "en": "Button Config. 4",
             "nl": "Configuratie 4"
           }
         },
         {
           "id": "4",
           "title": {
-            "en": "Configuration 5",
+            "en": "Button Config. 5",
             "nl": "Configuratie 5"
           }
         },
         {
           "id": "5",
           "title": {
-            "en": "Configuration 6",
+            "en": "Button Config. 6",
             "nl": "Configuratie 6"
           }
         },
         {
           "id": "6",
           "title": {
-            "en": "Configuration 7",
+            "en": "Button Config. 7",
             "nl": "Configuratie 7"
           }
         },
         {
           "id": "7",
           "title": {
-            "en": "Configuration 8",
+            "en": "Button Config. 8",
             "nl": "Configuratie 8"
           }
         },
         {
           "id": "8",
           "title": {
-            "en": "Configuration 9",
+            "en": "Button Config. 9",
             "nl": "Configuratie 9"
           }
         },
         {
           "id": "9",
           "title": {
-            "en": "Configuration 10",
+            "en": "Button Config. 10",
             "nl": "Configuratie 10"
           }
         },
         {
           "id": "10",
           "title": {
-            "en": "Configuration 11",
+            "en": "Button Config. 11",
             "nl": "Configuratie 11"
           }
         },
         {
           "id": "11",
           "title": {
-            "en": "Configuration 12",
+            "en": "Button Config. 12",
             "nl": "Configuratie 12"
           }
         },
         {
           "id": "12",
           "title": {
-            "en": "Configuration 13",
+            "en": "Button Config. 13",
             "nl": "Configuratie 13"
           }
         },
         {
           "id": "13",
           "title": {
-            "en": "Configuration 14",
+            "en": "Button Config. 14",
             "nl": "Configuratie 14"
           }
         },
         {
           "id": "14",
           "title": {
-            "en": "Configuration 15",
+            "en": "Button Config. 15",
             "nl": "Configuratie 15"
           }
         },
         {
           "id": "15",
           "title": {
-            "en": "Configuration 16",
+            "en": "Button Config. 16",
             "nl": "Configuratie 16"
           }
         },
         {
           "id": "16",
           "title": {
-            "en": "Configuration 17",
+            "en": "Button Config. 17",
             "nl": "Configuratie 17"
           }
         },
         {
           "id": "17",
           "title": {
-            "en": "Configuration 18",
+            "en": "Button Config. 18",
             "nl": "Configuratie 18"
           }
         },
         {
           "id": "18",
           "title": {
-            "en": "Configuration 19",
+            "en": "Button Config. 19",
             "nl": "Configuratie 19"
           }
         },
         {
           "id": "19",
           "title": {
-            "en": "Configuration 20",
+            "en": "Button Config. 20",
+            "nl": "Configuratie 20"
+          }
+        }
+      ]
+    },
+    "configuration_button": {
+      "type": "enum",
+      "title": {
+        "en": "Button Bar",
+        "nl": "Configuratie"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "0",
+          "title": {
+            "en": "Button Config. 1",
+            "nl": "Configuratie 1"
+          }
+        },
+        {
+          "id": "1",
+          "title": {
+            "en": "Button Config. 2",
+            "nl": "Configuratie 2"
+          }
+        },
+        {
+          "id": "2",
+          "title": {
+            "en": "Button Config. 3",
+            "nl": "Configuratie 3"
+          }
+        },
+        {
+          "id": "3",
+          "title": {
+            "en": "Button Config. 4",
+            "nl": "Configuratie 4"
+          }
+        },
+        {
+          "id": "4",
+          "title": {
+            "en": "Button Config. 5",
+            "nl": "Configuratie 5"
+          }
+        },
+        {
+          "id": "5",
+          "title": {
+            "en": "Button Config. 6",
+            "nl": "Configuratie 6"
+          }
+        },
+        {
+          "id": "6",
+          "title": {
+            "en": "Button Config. 7",
+            "nl": "Configuratie 7"
+          }
+        },
+        {
+          "id": "7",
+          "title": {
+            "en": "Button Config. 8",
+            "nl": "Configuratie 8"
+          }
+        },
+        {
+          "id": "8",
+          "title": {
+            "en": "Button Config. 9",
+            "nl": "Configuratie 9"
+          }
+        },
+        {
+          "id": "9",
+          "title": {
+            "en": "Button Config. 10",
+            "nl": "Configuratie 10"
+          }
+        },
+        {
+          "id": "10",
+          "title": {
+            "en": "Button Config. 11",
+            "nl": "Configuratie 11"
+          }
+        },
+        {
+          "id": "11",
+          "title": {
+            "en": "Button Config. 12",
+            "nl": "Configuratie 12"
+          }
+        },
+        {
+          "id": "12",
+          "title": {
+            "en": "Button Config. 13",
+            "nl": "Configuratie 13"
+          }
+        },
+        {
+          "id": "13",
+          "title": {
+            "en": "Button Config. 14",
+            "nl": "Configuratie 14"
+          }
+        },
+        {
+          "id": "14",
+          "title": {
+            "en": "Button Config. 15",
+            "nl": "Configuratie 15"
+          }
+        },
+        {
+          "id": "15",
+          "title": {
+            "en": "Button Config. 16",
+            "nl": "Configuratie 16"
+          }
+        },
+        {
+          "id": "16",
+          "title": {
+            "en": "Button Config. 17",
+            "nl": "Configuratie 17"
+          }
+        },
+        {
+          "id": "17",
+          "title": {
+            "en": "Button Config. 18",
+            "nl": "Configuratie 18"
+          }
+        },
+        {
+          "id": "18",
+          "title": {
+            "en": "Button Config. 19",
+            "nl": "Configuratie 19"
+          }
+        },
+        {
+          "id": "19",
+          "title": {
+            "en": "Button Config. 20",
+            "nl": "Configuratie 20"
+          }
+        }
+      ]
+    },
+    "configuration_display": {
+      "type": "enum",
+      "title": {
+        "en": "Display",
+        "nl": "Configuratie"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "0",
+          "title": {
+            "en": "Display Config. 1",
+            "nl": "Configuratie 1"
+          }
+        },
+        {
+          "id": "1",
+          "title": {
+            "en": "Display Config. 2",
+            "nl": "Configuratie 2"
+          }
+        },
+        {
+          "id": "2",
+          "title": {
+            "en": "Display Config. 3",
+            "nl": "Configuratie 3"
+          }
+        },
+        {
+          "id": "3",
+          "title": {
+            "en": "Display Config. 4",
+            "nl": "Configuratie 4"
+          }
+        },
+        {
+          "id": "4",
+          "title": {
+            "en": "Display Config. 5",
+            "nl": "Configuratie 5"
+          }
+        },
+        {
+          "id": "5",
+          "title": {
+            "en": "Display Config. 6",
+            "nl": "Configuratie 6"
+          }
+        },
+        {
+          "id": "6",
+          "title": {
+            "en": "Display Config. 7",
+            "nl": "Configuratie 7"
+          }
+        },
+        {
+          "id": "7",
+          "title": {
+            "en": "Display Config. 8",
+            "nl": "Configuratie 8"
+          }
+        },
+        {
+          "id": "8",
+          "title": {
+            "en": "Display Config. 9",
+            "nl": "Configuratie 9"
+          }
+        },
+        {
+          "id": "9",
+          "title": {
+            "en": "Display Config. 10",
+            "nl": "Configuratie 10"
+          }
+        },
+        {
+          "id": "10",
+          "title": {
+            "en": "Display Config. 11",
+            "nl": "Configuratie 11"
+          }
+        },
+        {
+          "id": "11",
+          "title": {
+            "en": "Display Config. 12",
+            "nl": "Configuratie 12"
+          }
+        },
+        {
+          "id": "12",
+          "title": {
+            "en": "Display Config. 13",
+            "nl": "Configuratie 13"
+          }
+        },
+        {
+          "id": "13",
+          "title": {
+            "en": "Display Config. 14",
+            "nl": "Configuratie 14"
+          }
+        },
+        {
+          "id": "14",
+          "title": {
+            "en": "Display Config. 15",
+            "nl": "Configuratie 15"
+          }
+        },
+        {
+          "id": "15",
+          "title": {
+            "en": "Display Config. 16",
+            "nl": "Configuratie 16"
+          }
+        },
+        {
+          "id": "16",
+          "title": {
+            "en": "Display Config. 17",
+            "nl": "Configuratie 17"
+          }
+        },
+        {
+          "id": "17",
+          "title": {
+            "en": "Display Config. 18",
+            "nl": "Configuratie 18"
+          }
+        },
+        {
+          "id": "18",
+          "title": {
+            "en": "Display Config. 19",
+            "nl": "Configuratie 19"
+          }
+        },
+        {
+          "id": "19",
+          "title": {
+            "en": "Display Config. 20",
             "nl": "Configuratie 20"
           }
         }

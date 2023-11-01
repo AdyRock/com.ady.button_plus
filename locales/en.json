@@ -101,5 +101,8 @@
             "correct": "Successful",
             "adding": "Adding device(s)"
         }
-    }
+    },
+    "connector": "Connector",
+    "display": "Display",
+    "button": "Button bar"
 }

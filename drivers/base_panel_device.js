@@ -10,7 +10,19 @@ class BasePanelDevice extends Device
      */
     async onInit()
     {
-        this.registerCapabilityListener('configuration.display', this.onCapabilityDisplayConfiguration.bind(this));
+        if (this.hasCapability('configuration.display'))
+        {
+            try
+            {
+                await this.removeCapability('configuration.display');
+            }
+            catch (error)
+            {
+                this.error(error);
+            }
+        }
+
+        this.registerCapabilityListener('configuration_display', this.onCapabilityDisplayConfiguration.bind(this));
 
         this.buttonTime = [];
         const settings = this.getSettings();
@@ -44,11 +56,24 @@ class BasePanelDevice extends Device
 
     async configureConnetctor(connectType, connector)
     {
-        if (connectType !== 1) // 0 = not fitted, 1 = button panel, 2 = display
+        // Remove old connectors configuration capabilities
+        if (this.hasCapability(`configuration.connector${connector}`))
         {
-            if (this.hasCapability(`configuration.connector${connector}`))
+            try
             {
                 await this.removeCapability(`configuration.connector${connector}`);
+            }
+            catch (error)
+            {
+                this.error(error);
+            }
+        }
+
+        if (connectType !== 1) // 0 = not fitted, 1 = button panel, 2 = display
+        {
+            if (this.hasCapability(`configuration_button.connector${connector}`))
+            {
+                await this.removeCapability(`configuration_button.connector${connector}`);
             }
 
             if (connectType !== 2)
@@ -56,22 +81,45 @@ class BasePanelDevice extends Device
                 await this.removeCapability(`left_button.connector${connector}`);
                 await this.removeCapability(`right_button.connector${connector}`);
             }
-            else if (!this.hasCapability(`left_button.connector${connector}`))
+            else
             {
-                await this.addCapability(`left_button.connector${connector}`);
-                await this.addCapability(`right_button.connector${connector}`);
+                // Make sure a Disply configuration is assigned to this device
+                if (!this.hasCapability('configuration_display'))
+                {
+                    await this.addCapability('configuration_display');
+                }
+
+                const capabilityOption = {};
+                capabilityOption.title = `${this.homey.__('display')} ${this.homey.__('connector')} ${connector + 1}`;
+                this.setCapabilityOptions('configuration_display', capabilityOption);
+
+                if (!this.hasCapability(`left_button.connector${connector}`))
+                {
+                    await this.addCapability(`left_button.connector${connector}`);
+                    await this.addCapability(`right_button.connector${connector}`);
+                }
+                this.setCapabilityOptions(`configuration_button.connector${connector}`, capabilityOption);
+                this.setCapabilityOptions(`left_button.connector${connector}`, capabilityOption);
+                this.setCapabilityOptions(`right_button.connector${connector}`, capabilityOption);
             }
         }
         else
         {
-            if (!this.hasCapability(`configuration.connector${connector}`))
+            if (!this.hasCapability(`configuration_button.connector${connector}`))
             {
-                await this.addCapability(`configuration.connector${connector}`);
+                await this.addCapability(`configuration_button.connector${connector}`);
                 await this.addCapability(`left_button.connector${connector}`);
                 await this.addCapability(`right_button.connector${connector}`);
             }
 
-            await this.registerCapabilityListener(`configuration.connector${connector}`, this.onCapabilityConfiguration.bind(this, connector));
+            // set the tile for configuration_button.connector
+            const capabilityOption = {};
+            capabilityOption.title = `${this.homey.__('button')} ${this.homey.__('connector')} ${connector + 1}`;
+            this.setCapabilityOptions(`configuration_button.connector${connector}`, capabilityOption);
+            this.setCapabilityOptions(`left_button.connector${connector}`, capabilityOption);
+            this.setCapabilityOptions(`right_button.connector${connector}`, capabilityOption);
+
+            await this.registerCapabilityListener(`configuration_button.connector${connector}`, this.onCapabilityConfiguration.bind(this, connector));
             await this.registerCapabilityListener(`left_button.connector${connector}`, this.onCapabilityLeftButton.bind(this, connector));
             await this.registerCapabilityListener(`right_button.connector${connector}`, this.onCapabilityRightButton.bind(this, connector));
 
@@ -81,7 +129,7 @@ class BasePanelDevice extends Device
 
     async syncCapability(connector)
     {
-        const configNo = this.getCapabilityValue(`configuration.connector${connector}`);
+        const configNo = this.getCapabilityValue(`configuration_button.connector${connector}`);
         if (configNo === null)
         {
             return;
@@ -214,7 +262,7 @@ class BasePanelDevice extends Device
     async onCapabilityLeftButton(connector, value, opts)
     {
         this.log('onCapabilityLeftButton', connector, value, opts);
-        const configNo = this.getCapabilityValue(`configuration.connector${connector}`);
+        const configNo = this.getCapabilityValue(`configuration_button.connector${connector}`);
         if (configNo === null)
         {
             throw new Error(`Connector ${connector} needs a Configuration assigned to it on the next page`);
@@ -285,7 +333,7 @@ class BasePanelDevice extends Device
     async onCapabilityRightButton(connector, value, opts)
     {
         this.log('onCapabilityLeftButton', connector, value, opts);
-        const configNo = this.getCapabilityValue(`configuration.connector${connector}`);
+        const configNo = this.getCapabilityValue(`configuration_button.connector${connector}`);
         if (configNo === null)
         {
             throw new Error(`Connector ${connector} needs a Configuration assigned to it on the next page`);
@@ -402,7 +450,7 @@ class BasePanelDevice extends Device
                 return;
             }
 
-            const configNo = this.getCapabilityValue(`configuration.connector${connectorNo}`);
+            const configNo = this.getCapabilityValue(`configuration_button.connector${connectorNo}`);
             if (configNo === null)
             {
                 this.homey.app.updateLog(`Connector ${MQTTMessage.connector} needs a Configuration assigned to it`);
@@ -569,10 +617,10 @@ class BasePanelDevice extends Device
             for (let i = 0; i < (deviceConfigurations.mqttbuttons.length / 2); i++)
             {
                 const buttonID = i * 2;
-                if (this.hasCapability(`configuration.connector${i}`))
+                if (this.hasCapability(`configuration_button.connector${i}`))
                 {
                     // apply the new configuration to this button bar section
-                    const configNo = this.getCapabilityValue(`configuration.connector${i}`);
+                    const configNo = this.getCapabilityValue(`configuration_button.connector${i}`);
                     try
                     {
                         if (configNo)
@@ -624,7 +672,7 @@ class BasePanelDevice extends Device
         const virtualID = this.getSetting('virtualID');
 
         // apply the new display configuration to this unit
-        const configNo = this.getCapabilityValue('configuration.display');
+        const configNo = this.getCapabilityValue('configuration_display');
         if (configNo)
         {
             try
@@ -756,29 +804,29 @@ class BasePanelDevice extends Device
         {
             // check the configuration to see if this capability is being monitored by one of the buttons
 
-            if (this.hasCapability('configuration.connector1'))
+            if (this.hasCapability('configuration_button.connector1'))
             {
-                const configNo = this.getCapabilityValue('configuration.connector1');
+                const configNo = this.getCapabilityValue('configuration_button.connector1');
                 this.checkStateChangeForConnector(configNo, 1, deviceId, capability, value);
             }
-            if (this.hasCapability('configuration.connector2'))
+            if (this.hasCapability('configuration_button.connector2'))
             {
-                const configNo = this.getCapabilityValue('configuration.connector2');
+                const configNo = this.getCapabilityValue('configuration_button.connector2');
                 this.checkStateChangeForConnector(configNo, 2, deviceId, capability, value);
             }
-            if (this.hasCapability('configuration.connector3'))
+            if (this.hasCapability('configuration_button.connector3'))
             {
-                const configNo = this.getCapabilityValue('configuration.connector3');
+                const configNo = this.getCapabilityValue('configuration_button.connector3');
                 this.checkStateChangeForConnector(configNo, 3, deviceId, capability, value);
             }
-            if (this.hasCapability('configuration.connector4'))
+            if (this.hasCapability('configuration_button.connector4'))
             {
-                const configNo = this.getCapabilityValue('configuration.connector4');
+                const configNo = this.getCapabilityValue('configuration_button.connector4');
                 this.checkStateChangeForConnector(configNo, 4, deviceId, capability, value);
             }
         }
 
-        const configNo = this.getCapabilityValue('configuration.display');
+        const configNo = this.getCapabilityValue('configuration_display');
         this.checkStateChangeForDisplay(configNo, deviceId, capability, value);
     }
 

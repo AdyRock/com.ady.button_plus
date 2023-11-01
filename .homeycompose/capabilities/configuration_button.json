@@ -1,7 +1,7 @@
 {
     "type": "enum",
     "title": {
-        "en": "Configuration",
+        "en": "Button Bar",
         "nl": "Configuratie"
     },
     "getable": true,
