@@ -1,7 +1,8 @@
 {
     "type": "enum",
     "title": {
-        "en": "Configuration"
+        "en": "Configuration",
+        "nl": "Configuratie"
     },
     "getable": true,
     "setable": true,
@@ -10,121 +11,141 @@
         {
             "id": "0",
             "title": {
-                "en": "Configuration 1"
+                "en": "Configuration 1",
+                "nl": "Configuratie 1"
             }
         },
         {
             "id": "1",
             "title": {
-                "en": "Configuration 2"
+                "en": "Configuration 2",
+                "nl": "Configuratie 2"
             }
         },
         {
             "id": "2",
             "title": {
-                "en": "Configuration 3"
+                "en": "Configuration 3",
+                "nl": "Configuratie 3"
             }
         },
         {
             "id": "3",
             "title": {
-                "en": "Configuration 4"
+                "en": "Configuration 4",
+                "nl": "Configuratie 4"
             }
         },
         {
             "id": "4",
             "title": {
-                "en": "Configuration 5"
+                "en": "Configuration 5",
+                "nl": "Configuratie 5"
             }
         },
         {
             "id": "5",
             "title": {
-                "en": "Configuration 6"
+                "en": "Configuration 6",
+                "nl": "Configuratie 6"
             }
         },
         {
             "id": "6",
             "title": {
-                "en": "Configuration 7"
+                "en": "Configuration 7",
+                "nl": "Configuratie 7"
             }
         },
         {
             "id": "7",
             "title": {
-                "en": "Configuration 8"
+                "en": "Configuration 8",
+                "nl": "Configuratie 8"
             }
         },
         {
             "id": "8",
             "title": {
-                "en": "Configuration 9"
+                "en": "Configuration 9",
+                "nl": "Configuratie 9"
             }
         },
         {
             "id": "9",
             "title": {
-                "en": "Configuration 10"
+                "en": "Configuration 10",
+                "nl": "Configuratie 10"
             }
         },
         {
             "id": "10",
             "title": {
-                "en": "Configuration 11"
+                "en": "Configuration 11",
+                "nl": "Configuratie 11"
             }
         },
         {
             "id": "11",
             "title": {
-                "en": "Configuration 12"
+                "en": "Configuration 12",
+                "nl": "Configuratie 12"
             }
         },
         {
             "id": "12",
             "title": {
-                "en": "Configuration 13"
+                "en": "Configuration 13",
+                "nl": "Configuratie 13"
             }
         },
         {
             "id": "13",
             "title": {
-                "en": "Configuration 14"
+                "en": "Configuration 14",
+                "nl": "Configuratie 14"
             }
         },
         {
             "id": "14",
             "title": {
-                "en": "Configuration 15"
+                "en": "Configuration 15",
+                "nl": "Configuratie 15"
             }
         },
         {
             "id": "15",
             "title": {
-                "en": "Configuration 16"
+                "en": "Configuration 16",
+                "nl": "Configuratie 16"
             }
         },
         {
             "id": "16",
             "title": {
-                "en": "Configuration 17"
+                "en": "Configuration 17",
+                "nl": "Configuratie 17"
             }
         },
         {
             "id": "17",
             "title": {
-                "en": "Configuration 18"
+                "en": "Configuration 18",
+                "nl": "Configuratie 18"
             }
         },
         {
             "id": "18",
             "title": {
-                "en": "Configuration 19"
+                "en": "Configuration 19",
+                "nl": "Configuratie 19"
             }
         },
         {
             "id": "19",
             "title": {
-                "en": "Configuration 20"
+                "en": "Configuration 20",
+                "nl": "Configuratie 20"
             }
         }
     ]
