@@ -19,5 +19,8 @@
     },
     "0.0.7": {
         "en": "Added Dutch translations. Added Settings section to drop list."
+    },
+    "0.1.0": {
+        "en": "Reworked capability names which will break existing panel settings, so you will need to reassign configurations to panels."
     }
 }
