@@ -102,4 +102,7 @@
             "adding": "Appararaat/apparaten toevoegen"
         }
     }
+    "connector": "Connector",
+    "display": "Display",
+    "button": "Button Bar"
 }
