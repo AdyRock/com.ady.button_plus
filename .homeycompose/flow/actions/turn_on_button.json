@@ -26,11 +26,15 @@
             "values": [
                 {
                     "id": "left",
-                    "title": {"en": "Left","nl": Links"}
+                    "title": {
+                        "en": "Left",
+                        "nl": "Links"}
                 },
                 {
                     "id": "right",
-                    "title": {"en": "Right","nl": Rechts"}
+                    "title": {
+                        "en": "Right",
+                        "nl": "Rechts"}
                 }
             ]
         },

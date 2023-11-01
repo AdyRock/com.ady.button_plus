@@ -9,10 +9,12 @@
   ],
   "brandColor": "#444444",
   "name": {
-    "en": "Button +"
+    "en": "Button +",
+    "nl": "Button+"
   },
   "description": {
-    "en": "Control Button + panels"
+    "en": "Control Button + panels",
+    "nl": "Button+ panels besturen"
   },
   "category": [
     "appliances"
@@ -101,17 +103,20 @@
     "triggers": [
       {
         "title": {
-          "en": "A button was turned ON or OFF"
+          "en": "A button was turned ON or OFF",
+          "nl": "Een knop is AAN of UIT gezet"
         },
         "titleFormatted": {
-          "en": "The [[left_right]] Button on connector [[connector]] was turned ON or OFF"
+          "en": "The [[left_right]] Button on connector [[connector]] was turned ON or OFF",
+          "nl": "De [[left_right]] knop op connector [[connector]] is AAN of UIT gezet"
         },
         "tokens": [
           {
             "name": "left_right",
             "type": "boolean",
             "title": {
-              "en": "Left"
+              "en": "Left",
+              "nl": "Links"
             },
             "example": "true"
           },
@@ -119,7 +124,8 @@
             "name": "connector",
             "type": "number",
             "title": {
-              "en": "Connector Number"
+              "en": "Connector Number",
+              "nl": "Connector Number"
             },
             "example": "1"
           },
@@ -127,7 +133,8 @@
             "name": "state",
             "type": "boolean",
             "title": {
-              "en": "State"
+              "en": "State",
+              "nl": "Status"
             },
             "example": "true"
           }
@@ -137,22 +144,26 @@
             "type": "dropdown",
             "name": "left_right",
             "title": {
-              "en": "Left / Right"
+              "en": "Left / Right",
+              "nl": "Links / Rechts"
             },
             "placeholder": {
-              "en": "Left / Right"
+              "en": "Left / Right",
+              "nl": "Links / Rechts"
             },
             "values": [
               {
                 "id": "left",
                 "title": {
-                  "en": "Left"
+                  "en": "Left",
+                  "nl": "Links"
                 }
               },
               {
                 "id": "right",
                 "title": {
-                  "en": "Right"
+                  "en": "Right",
+                  "nl": "Rechts"
                 }
               }
             ]
@@ -161,10 +172,12 @@
             "type": "number",
             "name": "connector",
             "title": {
-              "en": "Connectore Number"
+              "en": "Connectore Number",
+              "nl": "Connector nummer"
             },
             "placeholder": {
-              "en": "Connector number"
+              "en": "Connector number",
+              "nl": "Connector nummer"
             },
             "min": 1,
             "max": 4,
@@ -180,17 +193,20 @@
       },
       {
         "title": {
-          "en": "A button was pressed for a long time"
+          "en": "A button was pressed for a long time",
+          "nl": "Een knop is ingedrukt gehouden"
         },
         "titleFormatted": {
-          "en": "The [[left_right]] Button on connector [[connector]] was pressed for a long time"
+          "en": "The [[left_right]] Button on connector [[connector]] was pressed for a long time",
+          "nl": "De [[left_right]] knop op connector [[connector]] is ingedrukt gehouden"
         },
         "tokens": [
           {
             "name": "left_right",
             "type": "boolean",
             "title": {
-              "en": "Left"
+              "en": "Left",
+              "nl": "Links"
             },
             "example": "true"
           },
@@ -198,7 +214,8 @@
             "name": "connector",
             "type": "number",
             "title": {
-              "en": "Connector Number"
+              "en": "Connector Number",
+              "nl": "Connector nummer"
             },
             "example": "1"
           }
@@ -208,22 +225,26 @@
             "type": "dropdown",
             "name": "left_right",
             "title": {
-              "en": "Left / Right"
+              "en": "Left / Right",
+              "nl": "Links / Rechts"
             },
             "placeholder": {
-              "en": "Left / Right"
+              "en": "Left / Right",
+              "nl": "Links / Rechts"
             },
             "values": [
               {
                 "id": "left",
                 "title": {
-                  "en": "Left"
+                  "en": "Left",
+                  "nl": "Links"
                 }
               },
               {
                 "id": "right",
                 "title": {
-                  "en": "Right"
+                  "en": "Right",
+                  "nl": "Rechts"
                 }
               }
             ]
@@ -232,10 +253,12 @@
             "type": "number",
             "name": "connector",
             "title": {
-              "en": "Connector Number"
+              "en": "Connector Number",
+              "nl": "Connector nummer"
             },
             "placeholder": {
-              "en": "Connector number"
+              "en": "Connector number",
+              "nl": "Connector nummer"
             },
             "min": 1,
             "max": 4,
@@ -251,17 +274,20 @@
       },
       {
         "title": {
-          "en": "A button was turned OFF"
+          "en": "A button was turned OFF",
+          "nl": "Een knop is UIT gezet"
         },
         "titleFormatted": {
-          "en": "The [[left_right]] Button on connector [[connector]] was turned OFF"
+          "en": "The [[left_right]] Button on connector [[connector]] was turned OFF",
+          "nl": "De [[left_right]] knop op connector [[connector]] is UIT gezet"
         },
         "tokens": [
           {
             "name": "left_right",
             "type": "boolean",
             "title": {
-              "en": "Left"
+              "en": "Left",
+              "nl": "Links"
             },
             "example": "true"
           },
@@ -269,7 +295,8 @@
             "name": "connector",
             "type": "number",
             "title": {
-              "en": "Connector Number"
+              "en": "Connector Number",
+              "nl": "Connector nummer"
             },
             "example": "1"
           }
@@ -279,22 +306,26 @@
             "type": "dropdown",
             "name": "left_right",
             "title": {
-              "en": "Left / Right"
+              "en": "Left / Right",
+              "nl": "Links / Rechts"
             },
             "placeholder": {
-              "en": "Left / Right"
+              "en": "Left / Right",
+              "nl": "Links / Rechts"
             },
             "values": [
               {
                 "id": "left",
                 "title": {
-                  "en": "Left"
+                  "en": "Left",
+                  "nl": "Links"
                 }
               },
               {
                 "id": "right",
                 "title": {
-                  "en": "Right"
+                  "en": "Right",
+                  "nl": "Rechts"
                 }
               }
             ]
@@ -303,10 +334,12 @@
             "type": "number",
             "name": "connector",
             "title": {
-              "en": "Connector Number"
+              "en": "Connector Number",
+              "nl": "Connector nummer"
             },
             "placeholder": {
-              "en": "Connector number"
+              "en": "Connector number",
+              "nl": "Connector nummer"
             },
             "min": 1,
             "max": 4,
@@ -322,17 +355,20 @@
       },
       {
         "title": {
-          "en": "A button was turned ON"
+          "en": "A button was turned ON",
+          "nl": "Een knop is AAN gezet"
         },
         "titleFormatted": {
-          "en": "The [[left_right]] Button on connector [[connector]] was turned ON"
+          "en": "The [[left_right]] Button on connector [[connector]] was turned ON",
+          "nl": "De [[left_right]] knop op [[connector]] is AAN gezet"
         },
         "tokens": [
           {
             "name": "left_right",
             "type": "boolean",
             "title": {
-              "en": "Left"
+              "en": "Left",
+              "nl": "Links"
             },
             "example": "true"
           },
@@ -340,7 +376,8 @@
             "name": "connector",
             "type": "number",
             "title": {
-              "en": "Connector Number"
+              "en": "Connector Number",
+              "nl": "Connector nummer"
             },
             "example": "1"
           }
@@ -350,22 +387,26 @@
             "type": "dropdown",
             "name": "left_right",
             "title": {
-              "en": "Left / Right"
+              "en": "Left / Right",
+              "nl": "Links / Rechts"
             },
             "placeholder": {
-              "en": "Left / Right"
+              "en": "Left / Right",
+              "nl": "Links / Rechts"
             },
             "values": [
               {
                 "id": "left",
                 "title": {
-                  "en": "Left"
+                  "en": "Left",
+                  "nl": "Links"
                 }
               },
               {
                 "id": "right",
                 "title": {
-                  "en": "Right"
+                  "en": "Right",
+                  "nl": "Rechts"
                 }
               }
             ]
@@ -374,10 +415,12 @@
             "type": "number",
             "name": "connector",
             "title": {
-              "en": "Connector Number"
+              "en": "Connector Number",
+              "nl": "Connector nummer"
             },
             "placeholder": {
-              "en": "Connector number"
+              "en": "Connector number",
+              "nl": "Connector nummer"
             },
             "min": 1,
             "max": 4,
@@ -395,32 +438,38 @@
     "conditions": [
       {
         "title": {
-          "en": "The specified button !{{is|isn't}} ON"
+          "en": "The specified button !{{is|isn't}} ON",
+          "nl": "De gespecificeerde knop !{{is|isn't}} AAN"
         },
         "titleFormatted": {
-          "en": "The [[left_right]] Button on connector [[connector]] is !{{is|isn't}} ON"
+          "en": "The [[left_right]] Button on connector [[connector]] is !{{is|isn't}} ON",
+          "nl": "De [[left_right]] knop op connector [[connector]] is !{{is|isn't}} AAN"
         },
         "args": [
           {
             "type": "dropdown",
             "name": "left_right",
             "title": {
-              "en": "Left / Right"
+              "en": "Left / Right",
+              "nl": "Links / Rechts"
             },
             "placeholder": {
-              "en": "Left / Right"
+              "en": "Left / Right",
+              "nl": "Links / Rechts"
             },
             "values": [
               {
                 "id": "left",
                 "title": {
-                  "en": "Left"
+                  "en": "Left",
+                  "nl": "Links"
                 }
               },
               {
                 "id": "right",
                 "title": {
-                  "en": "Right"
+                  "en": "Right",
+                  "nl": "Rechts"
                 }
               }
             ]
@@ -429,10 +478,12 @@
             "type": "number",
             "name": "connector",
             "title": {
-              "en": "Connector Number"
+              "en": "Connector Number",
+              "nl": "Connector nummer"
             },
             "placeholder": {
-              "en": "Connector number"
+              "en": "Connector number",
+              "nl": "Connector nummer"
             },
             "min": 1,
             "max": 4,
@@ -450,23 +501,28 @@
     "actions": [
       {
         "title": {
-          "en": "Set Information Text"
+          "en": "Set Information Text",
+          "nl": "Informatie tekst instellen"
         },
         "titleFormatted": {
-          "en": "Set the Information text to [[info]]"
+          "en": "Set the Information text to [[info]]",
+          "nl": "Informatie tekst instellen naar [[info]]"
         },
         "hint": {
-          "en": "Sets the information text so it can be displayed on a panel"
+          "en": "Sets the information text so it can be displayed on a panel",
+          "nl": "Stelt de informatie tekst in zodat het kan worden weergegeven op een panel "
         },
         "args": [
           {
             "type": "text",
             "name": "info",
             "title": {
-              "en": "Information Text"
+              "en": "Information Text",
+              "nl": "Informatie tekst"
             },
             "placeholder": {
-              "en": "Information Text"
+              "en": "Information Text",
+              "nl": "Informatie tekst"
             }
           },
           {
@@ -479,23 +535,28 @@
       },
       {
         "title": {
-          "en": "Switch Button Configuration"
+          "en": "Switch Button Configuration",
+          "nl": "Knop configuratie wisselen"
         },
         "titleFormatted": {
-          "en": "Switch [[connector]] to Button Configuration [[configurationId]]"
+          "en": "Switch [[connector]] to Button Configuration [[configurationId]]",
+          "nl": "Wissel [[connector]] naar Knop configuratie [[configurationId]]"
         },
         "hint": {
-          "en": "Send the select configuration to the display device for the selected connector"
+          "en": "Send the select configuration to the display device for the selected connector",
+          "nl": "Stuur de geselecteerde configuratie naar het display voor de geselecteerde connector"
         },
         "args": [
           {
             "type": "number",
             "name": "connector",
             "title": {
-              "en": "Connector number"
+              "en": "Connector number",
+              "nl": "Connector nummer"
             },
             "placeholder": {
-              "en": "Connector number"
+              "en": "Connector number",
+              "nl": "Connector nummer"
             },
             "min": 1,
             "max": 4,
@@ -505,10 +566,12 @@
             "type": "number",
             "name": "configurationId",
             "title": {
-              "en": "Configuration number"
+              "en": "Configuration number",
+              "nl": "Configuratie nummer"
             },
             "placeholder": {
-              "en": "Configuration number"
+              "en": "Configuration number",
+              "nl": "Configuratie nummer"
             },
             "min": 1,
             "max": 20,
@@ -524,23 +587,28 @@
       },
       {
         "title": {
-          "en": "Switch Display Configuration"
+          "en": "Switch Display Configuration",
+          "nl": "Stuur display configuratie"
         },
         "titleFormatted": {
-          "en": "Switch to Display Configuration [[configurationId]]"
+          "en": "Switch to Display Configuration [[configurationId]]",
+          "nl": "Wissel naar display configuratie [[configurationId]]"
         },
         "hint": {
-          "en": "Send the select display configuration to the device"
+          "en": "Send the select display configuration to the device",
+          "nl": "Stuur de geselecteerde display configuratie naar het apparaat"
         },
         "args": [
           {
             "type": "number",
             "name": "configurationId",
             "title": {
-              "en": "Configuration number"
+              "en": "Configuration number",
+              "nl": "Configuratie nummer"
             },
             "placeholder": {
-              "en": "Configuration number"
+              "en": "Configuration number",
+              "nl": "Configuratie nummer"
             },
             "min": 1,
             "max": 20,
@@ -556,23 +624,28 @@
       },
       {
         "title": {
-          "en": "Turn Button off"
+          "en": "Turn Button off",
+          "nl": "Schakel knop Uit"
         },
         "titleFormatted": {
-          "en": "Turn Off [[left_right]] button on connector [[connector]]"
+          "en": "Turn Off [[left_right]] button on connector [[connector]]",
+          "nl": "Schakel [[left_right]] knop Uit op connector [[connector]]"
         },
         "hint": {
-          "en": "Turn Off the specified button"
+          "en": "Turn Off the specified button",
+          "nl": "Schakel de geselecteerde knop Uit"
         },
         "args": [
           {
             "type": "dropdown",
             "name": "left_right",
             "title": {
-              "en": "Left / Right"
+              "en": "Left /  Right",
+              "nl": "Links / Rechts "
             },
             "placeholder": {
-              "en": "Left / Right"
+              "en": "Left / Right",
+              "nl": "Links / Rechts "
             },
             "values": [
               {
@@ -593,10 +666,12 @@
             "type": "number",
             "name": "connector",
             "title": {
-              "en": "Connector number"
+              "en": "Connector number",
+              "nl": "Connector nummer "
             },
             "placeholder": {
-              "en": "Connector number"
+              "en": "Connector number",
+              "nl": "Connector nummer "
             },
             "min": 1,
             "max": 4,
@@ -612,35 +687,42 @@
       },
       {
         "title": {
-          "en": "Turn Button On"
+          "en": "Turn Button On",
+          "nl": "Schakel knop Aan "
         },
         "titleFormatted": {
-          "en": "Turn On [[left_right]] button on connector [[connector]]"
+          "en": "Turn On [[left_right]] button on connector [[connector]]",
+          "nl": "Schakel [[left_right]] knop Aan op connector [[connector]] "
         },
         "hint": {
-          "en": "Turn On the specified button"
+          "en": "Turn On the specified button",
+          "nl": "Schakel de gespecificeerde knop Aan"
         },
         "args": [
           {
             "type": "dropdown",
             "name": "left_right",
             "title": {
-              "en": "Left / Right"
+              "en": "Left / Right",
+              "nl": "Links / Rechts"
             },
             "placeholder": {
-              "en": "Left / Right"
+              "en": "Left / Right",
+              "nl": "Links / Rechts"
             },
             "values": [
               {
                 "id": "left",
                 "title": {
-                  "en": "Left"
+                  "en": "Left",
+                  "nl": "Links"
                 }
               },
               {
                 "id": "right",
                 "title": {
-                  "en": "Right"
+                  "en": "Right",
+                  "nl": "Rechts"
                 }
               }
             ]
@@ -649,10 +731,12 @@
             "type": "number",
             "name": "connector",
             "title": {
-              "en": "Connector number"
+              "en": "Connector number",
+              "nl": "Connector nummer"
             },
             "placeholder": {
-              "en": "Connector number"
+              "en": "Connector number",
+              "nl": "Connector nummer"
             },
             "min": 1,
             "max": 4,
@@ -671,7 +755,8 @@
   "drivers": [
     {
       "name": {
-        "en": "Button Panel"
+        "en": "Button Panel",
+        "nl": "Knoppen paneel"
       },
       "platforms": [
         "local"
@@ -714,127 +799,152 @@
       "capabilitiesOptions": {
         "configuration.connector0": {
           "title": {
-            "en": "Connector 0"
+            "en": "Connector 0",
+            "nl": "Connector 0"
           }
         },
         "configuration.connector1": {
           "title": {
-            "en": "Connector 1"
+            "en": "Connector 1",
+            "nl": "Connector 1"
           }
         },
         "configuration.connector2": {
           "title": {
-            "en": "Connector 2"
+            "en": "Connector 2",
+            "nl": "Connector 2"
           }
         },
         "configuration.connector3": {
           "title": {
-            "en": "Connector 3"
+            "en": "Connector 3",
+            "nl": "Connector 3"
           }
         },
         "configuration.connector4": {
           "title": {
-            "en": "Connector 4"
+            "en": "Connector 4",
+            "nl": "Connector 4"
           }
         },
         "configuration.connector5": {
           "title": {
-            "en": "Connector 5"
+            "en": "Connector 5",
+            "nl": "Connector 5"
           }
         },
         "configuration.connector6": {
           "title": {
-            "en": "Connector 6"
+            "en": "Connector 6",
+            "nl": "Connector 6"
           }
         },
         "configuration.connector7": {
           "title": {
-            "en": "Connector 7"
+            "en": "Connector 7",
+            "nl": "Connector 7"
           }
         },
         "left_button.connector0": {
           "title": {
-            "en": "Connector 0"
+            "en": "Connector 0",
+            "nl": "Connector 0"
           }
         },
         "left_button.connector1": {
           "title": {
-            "en": "Connector 1"
+            "en": "Connector 1",
+            "nl": "Connector 1"
           }
         },
         "left_button.connector2": {
           "title": {
-            "en": "Connector 2"
+            "en": "Connector 2",
+            "nl": "Connector 2"
           }
         },
         "left_button.connector3": {
           "title": {
-            "en": "Connector 3"
+            "en": "Connector 3",
+            "nl": "Connector 3"
           }
         },
         "left_button.connector4": {
           "title": {
-            "en": "Connector 4"
+            "en": "Connector 4",
+            "nl": "Connector 4"
           }
         },
         "left_button.connector5": {
           "title": {
-            "en": "Connector 5"
+            "en": "Connector 5",
+            "nl": "Connector 5"
           }
         },
         "left_button.connector6": {
           "title": {
-            "en": "Connector 6"
+            "en": "Connector 6",
+            "nl": "Connector 6"
           }
         },
         "left_button.connector7": {
           "title": {
-            "en": "Connector 7"
+            "en": "Connector 7",
+            "nl": "Connector 7"
           }
         },
         "right_button.connector0": {
           "title": {
-            "en": "Connector 0"
+            "en": "Connector 0",
+            "nl": "Connector 0"
           }
         },
         "right_button.connector1": {
           "title": {
-            "en": "Connector 1"
+            "en": "Connector 1",
+            "nl": "Connector 1"
           }
         },
         "right_button.connector2": {
           "title": {
-            "en": "Connector 2"
+            "en": "Connector 2",
+            "nl": "Connector 2"
           }
         },
         "right_button.connector3": {
           "title": {
-            "en": "Connector 3"
+            "en": "Connector 3",
+            "nl": "Connector 3"
           }
         },
         "right_button.connector4": {
           "title": {
-            "en": "Connector 4"
+            "en": "Connector 4",
+            "nl": "Connector 4"
           }
         },
         "right_button.connector5": {
           "title": {
-            "en": "Connector 5"
+            "en": "Connector 5",
+            "nl": "Connector 5"
           }
         },
         "right_button.connector6": {
           "title": {
-            "en": "Connector 5"
+            "en": "Connector 6",
+            "nl": "Connector 5"
           }
         },
         "right_button.connector7": {
           "title": {
-            "en": "Connector 7"
+            "en": "Connector 7",
+            "nl": "Connector 7"
           }
         },
         "configuration.display": {
           "title": {
-            "en": "Display"
+            "en": "Display",
+            "nl": "Display"
           }
         }
       },
@@ -859,7 +969,8 @@
     },
     {
       "name": {
-        "en": "Button Panel (simulator)"
+        "en": "Button Panel (simulator)",
+        "nl": "Knoppen paneel (simulator)"
       },
       "class": "button",
       "capabilities": [
@@ -895,127 +1006,152 @@
       "capabilitiesOptions": {
         "configuration.connector0": {
           "title": {
-            "en": "Connector 0"
+            "en": "Connector 0",
+            "nl": "Connector 0"
           }
         },
         "configuration.connector1": {
           "title": {
-            "en": "Connector 1"
+            "en": "Connector 1",
+            "nl": "Connector 1"
           }
         },
         "configuration.connector2": {
           "title": {
-            "en": "Connector 2"
+            "en": "Connector 2",
+            "nl": "Connector 2"
           }
         },
         "configuration.connector3": {
           "title": {
-            "en": "Connector 3"
+            "en": "Connector 3",
+            "nl": "Connector 3"
           }
         },
         "configuration.connector4": {
           "title": {
-            "en": "Connector 4"
+            "en": "Connector 4",
+            "nl": "Connector 4"
           }
         },
         "configuration.connector5": {
           "title": {
-            "en": "Connector 5"
+            "en": "Connector 5",
+            "nl": "Connector 5"
           }
         },
         "configuration.connector6": {
           "title": {
-            "en": "Connector 6"
+            "en": "Connector 6",
+            "nl": "Connector 6"
           }
         },
         "configuration.connector7": {
           "title": {
-            "en": "Connector 7"
+            "en": "Connector 7",
+            "nl": "Connector 7"
           }
         },
         "left_button.connector0": {
           "title": {
-            "en": "Connector 0"
+            "en": "Connector 0",
+            "nl": "Connector 0"
           }
         },
         "left_button.connector1": {
           "title": {
-            "en": "Connector 1"
+            "en": "Connector 1",
+            "nl": "Connector 1"
           }
         },
         "left_button.connector2": {
           "title": {
-            "en": "Connector 2"
+            "en": "Connector 2",
+            "nl": "Connector 2"
           }
         },
         "left_button.connector3": {
           "title": {
-            "en": "Connector 3"
+            "en": "Connector 3",
+            "nl": "Connector 3"
           }
         },
         "left_button.connector4": {
           "title": {
-            "en": "Connector 4"
+            "en": "Connector 4",
+            "nl": "Connector 4"
           }
         },
         "left_button.connector5": {
           "title": {
-            "en": "Connector 5"
+            "en": "Connector 5",
+            "nl": "Connector 5"
           }
         },
         "left_button.connector6": {
           "title": {
-            "en": "Connector 6"
+            "en": "Connector 6",
+            "nl": "Connector 6"
           }
         },
         "left_button.connector7": {
           "title": {
-            "en": "Connector 7"
+            "en": "Connector 7",
+            "nl": "Connector 7"
           }
         },
         "right_button.connector0": {
           "title": {
-            "en": "Connector 0"
+            "en": "Connector 0",
+            "nl": "Connector 0"
           }
         },
         "right_button.connector1": {
           "title": {
-            "en": "Connector 1"
+            "en": "Connector 1",
+            "nl": "Connector 1"
           }
         },
         "right_button.connector2": {
           "title": {
-            "en": "Connector 2"
+            "en": "Connector 2",
+            "nl": "Connector 2"
           }
         },
         "right_button.connector3": {
           "title": {
-            "en": "Connector 3"
+            "en": "Connector 3",
+            "nl": "Connector 3"
           }
         },
         "right_button.connector4": {
           "title": {
-            "en": "Connector 4"
+            "en": "Connector 4",
+            "nl": "Connector 4"
           }
         },
         "right_button.connector5": {
           "title": {
-            "en": "Connector 5"
+            "en": "Connector 5",
+            "nl": "Connector 5"
           }
         },
         "right_button.connector6": {
           "title": {
-            "en": "Connector 5"
+            "en": "Connector 6",
+            "nl": "Connector 6"
           }
         },
         "right_button.connector7": {
           "title": {
-            "en": "Connector 7"
+            "en": "Connector 7",
+            "nl": "Connector 7"
           }
         },
         "configuration.display": {
           "title": {
-            "en": "Display"
+            "en": "Display",
+            "nl": "Display"
           }
         }
       },
@@ -1031,7 +1167,8 @@
           "template": "login_credentials",
           "options": {
             "title": {
-              "en": "Button + Login Credentials"
+              "en": "Button + Login Credentials",
+              "nl": "Button+ login gegevens"
             }
           }
         },
@@ -1063,7 +1200,8 @@
     "configuration": {
       "type": "enum",
       "title": {
-        "en": "Configuration"
+        "en": "Configuration",
+        "nl": "Configuratie"
       },
       "getable": true,
       "setable": true,
@@ -1072,121 +1210,141 @@
         {
           "id": "0",
           "title": {
-            "en": "Configuration 1"
+            "en": "Configuration 1",
+            "nl": "Configuratie 1"
           }
         },
         {
           "id": "1",
           "title": {
-            "en": "Configuration 2"
+            "en": "Configuration 2",
+            "nl": "Configuratie 2"
           }
         },
         {
           "id": "2",
           "title": {
-            "en": "Configuration 3"
+            "en": "Configuration 3",
+            "nl": "Configuratie 3"
           }
         },
         {
           "id": "3",
           "title": {
-            "en": "Configuration 4"
+            "en": "Configuration 4",
+            "nl": "Configuratie 4"
           }
         },
         {
           "id": "4",
           "title": {
-            "en": "Configuration 5"
+            "en": "Configuration 5",
+            "nl": "Configuratie 5"
           }
         },
         {
           "id": "5",
           "title": {
-            "en": "Configuration 6"
+            "en": "Configuration 6",
+            "nl": "Configuratie 6"
           }
         },
         {
           "id": "6",
           "title": {
-            "en": "Configuration 7"
+            "en": "Configuration 7",
+            "nl": "Configuratie 7"
           }
         },
         {
           "id": "7",
           "title": {
-            "en": "Configuration 8"
+            "en": "Configuration 8",
+            "nl": "Configuratie 8"
           }
         },
         {
           "id": "8",
           "title": {
-            "en": "Configuration 9"
+            "en": "Configuration 9",
+            "nl": "Configuratie 9"
           }
         },
         {
           "id": "9",
           "title": {
-            "en": "Configuration 10"
+            "en": "Configuration 10",
+            "nl": "Configuratie 10"
           }
         },
         {
           "id": "10",
           "title": {
-            "en": "Configuration 11"
+            "en": "Configuration 11",
+            "nl": "Configuratie 11"
           }
         },
         {
           "id": "11",
           "title": {
-            "en": "Configuration 12"
+            "en": "Configuration 12",
+            "nl": "Configuratie 12"
           }
         },
         {
           "id": "12",
           "title": {
-            "en": "Configuration 13"
+            "en": "Configuration 13",
+            "nl": "Configuratie 13"
           }
         },
         {
           "id": "13",
           "title": {
-            "en": "Configuration 14"
+            "en": "Configuration 14",
+            "nl": "Configuratie 14"
           }
         },
         {
           "id": "14",
           "title": {
-            "en": "Configuration 15"
+            "en": "Configuration 15",
+            "nl": "Configuratie 15"
           }
         },
         {
           "id": "15",
           "title": {
-            "en": "Configuration 16"
+            "en": "Configuration 16",
+            "nl": "Configuratie 16"
           }
         },
         {
           "id": "16",
           "title": {
-            "en": "Configuration 17"
+            "en": "Configuration 17",
+            "nl": "Configuratie 17"
           }
         },
         {
           "id": "17",
           "title": {
-            "en": "Configuration 18"
+            "en": "Configuration 18",
+            "nl": "Configuratie 18"
           }
         },
         {
           "id": "18",
           "title": {
-            "en": "Configuration 19"
+            "en": "Configuration 19",
+            "nl": "Configuratie 19"
           }
         },
         {
           "id": "19",
           "title": {
-            "en": "Configuration 20"
+            "en": "Configuration 20",
+            "nl": "Configuratie 20"
           }
         }
       ]
@@ -1194,7 +1352,8 @@
     "date": {
       "type": "string",
       "title": {
-        "en": "Date"
+        "en": "Date",
+        "nl": "Datum"
       },
       "getable": true,
       "setable": false,
@@ -1203,7 +1362,8 @@
     "info": {
       "type": "string",
       "title": {
-        "en": "Information"
+        "en": "Information",
+        "nl": "Informatie"
       },
       "getable": true,
       "setable": false,
@@ -1215,7 +1375,8 @@
       "setable": true,
       "uiComponent": "button",
       "title": {
-        "en": "Left Button"
+        "en": "Left Button",
+        "nl": "Linker knop"
       },
       "icon": "/assets/left_arrow.svg"
     },
@@ -1225,14 +1386,16 @@
       "setable": true,
       "uiComponent": "button",
       "title": {
-        "en": "Right Button"
+        "en": "Right Button",
+        "nl": "Rechter knop"
       },
       "icon": "/assets/right_arrow.svg"
     },
     "time": {
       "type": "string",
       "title": {
-        "en": "Time"
+        "en": "Time",
+        "nl": "Tijd"
       },
       "getable": true,
       "setable": false,

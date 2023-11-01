@@ -5,7 +5,7 @@
     },
     "titleFormatted": {
         "en": "Set the Information text to [[info]]",
-        "nl": "Informatie tekst instellen naar"
+        "nl": "Informatie tekst instellen naar [[info]]"
     },
     "hint": {
         "en": "Sets the information text so it can be displayed on a panel",

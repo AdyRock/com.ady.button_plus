@@ -9,11 +9,11 @@
     "brandColor": "#444444",
     "name": {
         "en": "Button +",
-        “nl”: “Button+”
+        "nl": "Button+"
     },
     "description": {
         "en": "Control Button + panels",
-        “nl”: “Button+ panels besturen ”
+        "nl": "Button+ panels besturen"
     },
     "category": [
         "appliances"
