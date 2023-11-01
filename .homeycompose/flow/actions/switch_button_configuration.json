@@ -1,22 +1,27 @@
 {
     "title": {
-        "en": "Switch Button Configuration"
+        "en": "Switch Button Configuration",
+        "nl": "Knop configuratie wisselen"
     },
     "titleFormatted": {
-        "en": "Switch [[connector]] to Button Configuration [[configurationId]]"
+        "en": "Switch [[connector]] to Button Configuration [[configurationId]]",
+        "nl": "Wissel [[connector]] naar Knop configuratie [[configurationId]]"
     },
     "hint": {
-        "en": "Send the select configuration to the display device for the selected connector"
+        "en": "Send the select configuration to the display device for the selected connector",
+        "nl": "Stuur de geselecteerde configuratie naar het display voor de geselecteerde connector"
     },
     "args": [
         {
             "type": "number",
             "name": "connector",
             "title": {
-                "en": "Connector number"
+                "en": "Connector number",
+                "nl": "Connector nummer"
             },
             "placeholder": {
-                "en": "Connector number"
+                "en": "Connector number",
+                "nl": "Connector nummer"
             },
             "min": 1,
             "max": 4,
@@ -26,10 +31,12 @@
             "type": "number",
             "name": "configurationId",
             "title": {
-                "en": "Configuration number"
+                "en": "Configuration number",
+                "nl": "Configuratie nummer"
             },
             "placeholder": {
-                "en": "Configuration number"
+                "en": "Configuration number",
+                "nl": "Configuratie nummer"
             },
             "min": 1,
             "max": 20,
