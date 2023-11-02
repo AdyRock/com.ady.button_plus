@@ -11,6 +11,27 @@ class PanelDevice extends BasePanelDevice
     async onInit()
     {
         super.onInit();
+
+        if (!this.hasCapability('date'))
+        {
+            this.addCapability('date');
+        }
+        if (!this.hasCapability('time'))
+        {
+            this.addCapability('time');
+        }
+
+        const dateTime = this.updateTime();
+
+        // Calculate the number of ms until next while minute
+        const msUntilNextMinute = (60 - dateTime.getSeconds()) * 1000;
+
+        // Set a timeout to update the time every minute
+        this.homey.setTimeout(() =>
+        {
+            this.updateTime();
+            this.homey.setInterval(() => this.updateTime(), 60000);
+        }, msUntilNextMinute);
         this.log('PanelDevice has been initialized');
     }
 
