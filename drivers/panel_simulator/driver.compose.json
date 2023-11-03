@@ -1,7 +1,7 @@
 {
     "name": {
         "en": "Button Panel (simulator)",
-        "nl": "Knoppen paneel (simulator)" 
+        "nl": "Button+ panel (simulator)" 
     },
     "class": "button",
     "capabilities": [
