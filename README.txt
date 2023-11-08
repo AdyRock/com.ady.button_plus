@@ -1,6 +1,6 @@
 Control Button + panels
 
-Demo Version for use with the Button+ simulator.
+The app has drivers for both the Button + simulator and the hardware.
 
 To setup with the simulator:
 
