@@ -1,14 +1,14 @@
 {
     "title": {
-        "en": "Turn Button On",
-        "nl": "Schakel knop Aan "
+        "en": "Turn button on",
+        "nl": "Schakel knop aan "
     },
     "titleFormatted": {
-        "en": "Turn On [[left_right]] button on connector [[connector]]",
+        "en": "Turn on [[left_right]] button on connector [[connector]]",
         "nl": "Schakel [[left_right]] knop Aan op connector [[connector]] "
     },
     "hint": {
-        "en": "Turn On the specified button",
+        "en": "Turn on the specified button",
         "nl": "Schakel de gespecificeerde knop Aan"
     },
     "args": [

@@ -21,13 +21,9 @@ Control Button + panels
 
 ## To Setup the app
 
-* instruction for seting up and installing apps from a desktop can be found at <https://tools.developer.homey.app/>.
-
-1. Download the app to a folder on your desktop.
-2. run 'npm update' to install the libraries.
-3. Install the app via the CLI.
-4. Open the Button + App settings / Configuration page in Homey.
-5. Make sure the Allow update of Button+ configuration is ticked.
+1. Install the app on your Homey.
+2. Open the Button + App settings / Configuration page in Homey.
+3. Make sure the Allow update of Button+ configuration is ticked.
 
 There are two types of configurations, button bar and Display, and each currently has 20 slots.
 The button bar configurations are shown when the first drop list shows button bar Configurations and the Display configurations are shown by changing the drop list to Display Configurations.
@@ -80,12 +76,6 @@ The button bar configurations are shown when the first drop list shows button ba
 5. The configuration is uploaded to the simulator, but you need to refresh the simulator to make it take affect. There is a button to the right of the Virtual Id to refresh the page.
 6. You should now see the information you selected in the configuration displayed on the button bar.
 7. You can click on the button displays in the simulator to toggle the capability in Homey.
-
-## Still to do
-
-* Add Flow cards.
-* Filter lists.
-* Fix bugs.
 
 ## SECURITY NOTE
 

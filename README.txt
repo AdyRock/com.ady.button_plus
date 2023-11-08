@@ -19,10 +19,7 @@ To setup with the simulator:
 
 To Setup the app:
 
-* instruction for seting up and installing apps from a desktop can be found at https://tools.developer.homey.app/.
-1. Download the app to a folder on your desktop.
-2. run 'npm update' to install the libraries.
-3. Install the app via the CLI. 
+3. Install the app on your Homey. 
 4. Open the Button + App settings / Configuration page in Homey.
 5. Make sure the Allow update of Button+ configuration is ticked.
 
@@ -77,12 +74,6 @@ Using the Homey device:
 5. The configuration is uploaded to the simulator, but you need to refresh the simulator to make it take affect. There is a button to the right of the Virtual Id to refresh the page.
 6. You should now see the information you selected in the configuration displayed on the button bar.
 7. You can click on the button displays in the simulator to toggle the capability in Homey.
-
-Still to do:
-
-* Add Flow cards.
-* Filter lists.
-* Fix bugs.
 
 SECURITY NOTE:
 

@@ -1,11 +1,11 @@
 {
     "title": {
-        "en": "A button was turned OFF",
+        "en": "A button was turned off",
         "nl": "Een knop is UIT gezet"
     },
     "titleFormatted": {
-        "en": "The [[left_right]] Button on connector [[connector]] was turned OFF",
-        "nl": "De [[left_right]] knop op connector [[connector]] is UIT gezet"
+        "en": "The [[left_right]] Button on connector [[connector]] was turned off",
+        "nl": "De [[left_right]] knop op connector [[connector]] is uit gezet"
     },
     "tokens": [
         {
