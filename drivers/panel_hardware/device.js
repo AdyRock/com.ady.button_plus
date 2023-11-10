@@ -13,20 +13,42 @@ class PanelDevice extends BasePanelDevice
         super.onInit();
         if (!this.hasCapability('measure_temperature'))
         {
-            this.addCapability('measure_temperature');
+            await this.addCapability('measure_temperature');
         }
+
         if (!this.hasCapability('date'))
         {
-            this.addCapability('date');
+            await this.addCapability('date');
         }
+
         if (!this.hasCapability('time'))
         {
-            this.addCapability('time');
+            await this.addCapability('time');
         }
+
+        if (!this.hasCapability('dim.large'))
+        {
+            await this.addCapability('dim.large');
+        }
+
+        if (!this.hasCapability('dim.small'))
+        {
+            await this.addCapability('dim.small');
+        }
+
+        if (!this.hasCapability('dim.led'))
+        {
+            await this.addCapability('dim.led');
+        }
+
+        this.registerCapabilityListener( 'dim.large', this.onCapabilityDim.bind( this, "largedisplay" ) );
+        this.registerCapabilityListener( 'dim.small', this.onCapabilityDim.bind( this, "minidisplay" ) );
+        this.registerCapabilityListener( 'dim.led', this.onCapabilityDim.bind( this, "leds" ) );
 
         const ip = this.getSetting('address');
         this.homey.app.setupPanelTemperatureTopic(ip, this.__id);
 
+        this.dateTimer = null;
         const dateTime = this.updateTime();
 
         // Calculate the number of ms until next while minute
@@ -36,10 +58,61 @@ class PanelDevice extends BasePanelDevice
         this.homey.setTimeout(() =>
         {
             this.updateTime();
-            this.homey.setInterval(() => this.updateTime(), 60000);
+            this.dateTimer = this.homey.setInterval(() => this.updateTime(), 60000);
         }, msUntilNextMinute);
 
+        const mqttClient = this.homey.app.getMqttClient('homey');
+        await this.setupMQTTSubscriptions(mqttClient);
+
         this.log('PanelDevice has been initialized');
+    }
+
+    async setupMQTTSubscriptions(MQTTclient)
+    {
+        const { id } = this.getData();
+        MQTTclient.subscribe(`${id}/brightness/largedisplay/value`, (err) =>
+        {
+            if (err)
+            {
+                this.updateLog("setupMQTTClient.onConnect 'homey/toggle' error: " * this.varToString(err), 0);
+            }
+            else
+            {
+                const value = this.getCapabilityValue('dim.large');
+                this.homey.app.publishMQTTMessage("homey", `${id}/brightness/largedisplay/value`, value * 100);
+            }
+        });
+        MQTTclient.subscribe(`${id}/brightness/minidisplay/value`, (err) =>
+        {
+            if (err)
+            {
+                this.updateLog("setupMQTTClient.onConnect 'homey/toggle' error: " * this.varToString(err), 0);
+            }
+            else
+            {
+                const value = this.getCapabilityValue('dim.small');
+                this.homey.app.publishMQTTMessage("homey", `${id}/brightness/minidisplay/value`, value * 100);
+            }
+        });
+        MQTTclient.subscribe(`${id}/brightness/leds/value`, (err) =>
+        {
+            if (err)
+            {
+                this.updateLog("setupMQTTClient.onConnect 'homey/toggle' error: " * this.varToString(err), 0);
+            }
+            else
+            {
+                const value = this.getCapabilityValue('dim.led');
+                this.homey.app.publishMQTTMessage("homey", `${id}/brightness/leds/value`, value * 100);
+            }
+        });
+    }
+
+    async onCapabilityDim(mqttTopic, value, opts)
+    {
+        // Publish the new value to the MQTT broker
+        const { id } = this.getData();
+        this.homey.app.publishMQTTMessage("homey", `${id}/brightness/${mqttTopic}/value`, value * 100);
     }
 
     /**
@@ -81,10 +154,36 @@ class PanelDevice extends BasePanelDevice
      */
     async onDeleted()
     {
+        if (this.dateTimer)
+        {
+            this.homey.clearInterval(this.dateTimer);
+        }
+
         super.onDeleted();
         this.log('PanelDevice has been deleted');
     }
 
+    async processMQTTBtnMessage(topic, MQTTMessage)
+    {
+        const id = this.getData('id');
+        // search the topic for the device id
+        if (topic[1] === 'brightness')
+        {
+            const dim = parseFloat(MQTTMessage) / 100;
+            if (topic[2] === 'largedisplay')
+            {
+                this.setCapabilityValue('dim.large', dim).catch(this.error);
+            }
+            else if (topic[2] === 'minidisplay')
+            {
+                this.setCapabilityValue('dim.small', dim).catch(this.error);
+            }
+            else if (topic[2] === 'leds')
+            {
+                this.setCapabilityValue('dim.led', dim).catch(this.error);
+            }
+        }
+    }
 }
 
 module.exports = PanelDevice;

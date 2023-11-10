@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.ady.button_plus",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "platforms": [
@@ -110,12 +110,12 @@
     "triggers": [
       {
         "title": {
-          "en": "A button was turned ON or OFF",
+          "en": "A button was turned on or off",
           "nl": "Een knop is AAN of UIT gezet"
         },
         "titleFormatted": {
-          "en": "The [[left_right]] Button on connector [[connector]] was turned ON or OFF",
-          "nl": "De [[left_right]] knop op connector [[connector]] is AAN of UIT gezet"
+          "en": "The [[left_right]] Button on connector [[connector]] was turned OonN or off",
+          "nl": "De [[left_right]] knop op connector [[connector]] is aan of uit gezet"
         },
         "tokens": [
           {
@@ -281,12 +281,12 @@
       },
       {
         "title": {
-          "en": "A button was turned OFF",
-          "nl": "Een knop is UIT gezet"
+          "en": "A button was turned off",
+          "nl": "Een knop is uit gezet"
         },
         "titleFormatted": {
-          "en": "The [[left_right]] Button on connector [[connector]] was turned OFF",
-          "nl": "De [[left_right]] knop op connector [[connector]] is UIT gezet"
+          "en": "The [[left_right]] Button on connector [[connector]] was turned off",
+          "nl": "De [[left_right]] knop op connector [[connector]] is uit gezet"
         },
         "tokens": [
           {
@@ -362,12 +362,12 @@
       },
       {
         "title": {
-          "en": "A button was turned ON",
+          "en": "A button was turned on",
           "nl": "Een knop is AAN gezet"
         },
         "titleFormatted": {
-          "en": "The [[left_right]] Button on connector [[connector]] was turned ON",
-          "nl": "De [[left_right]] knop op [[connector]] is AAN gezet"
+          "en": "The [[left_right]] Button on connector [[connector]] was turned on",
+          "nl": "De [[left_right]] knop op [[connector]] is aan gezet"
         },
         "tokens": [
           {
@@ -445,12 +445,12 @@
     "conditions": [
       {
         "title": {
-          "en": "The specified button !{{is|isn't}} ON",
-          "nl": "De gespecificeerde knop !{{is|isn't}} AAN"
+          "en": "The specified button !{{is|isn't}} on",
+          "nl": "De gespecificeerde knop !{{is|isn't}} aan"
         },
         "titleFormatted": {
-          "en": "The [[left_right]] Button on connector [[connector]] is !{{is|isn't}} ON",
-          "nl": "De [[left_right]] knop op connector [[connector]] is !{{is|isn't}} AAN"
+          "en": "The [[left_right]] Button on connector [[connector]] is !{{is|isn't}} on",
+          "nl": "De [[left_right]] knop op connector [[connector]] is !{{is|isn't}} aan"
         },
         "args": [
           {
@@ -694,15 +694,15 @@
       },
       {
         "title": {
-          "en": "Turn Button On",
-          "nl": "Schakel knop Aan "
+          "en": "Turn button on",
+          "nl": "Schakel knop aan "
         },
         "titleFormatted": {
-          "en": "Turn On [[left_right]] button on connector [[connector]]",
+          "en": "Turn on [[left_right]] button on connector [[connector]]",
           "nl": "Schakel [[left_right]] knop Aan op connector [[connector]] "
         },
         "hint": {
-          "en": "Turn On the specified button",
+          "en": "Turn on the specified button",
           "nl": "Schakel de gespecificeerde knop Aan"
         },
         "args": [
@@ -763,7 +763,7 @@
     {
       "name": {
         "en": "Button Panel",
-        "nl": "Knoppen paneel"
+        "nl": "Button+ panel"
       },
       "platforms": [
         "local"
@@ -798,11 +798,34 @@
         "right_button.connector6",
         "left_button.connector7",
         "right_button.connector7",
+        "dim.large",
+        "dim.small",
+        "dim.led",
         "measure_temperature",
         "date",
         "time",
         "info"
       ],
+      "capabilitiesOptions": {
+        "dim.large": {
+          "title": {
+            "en": "Large display",
+            "nl": "Grote display"
+          }
+        },
+        "dim.small": {
+          "title": {
+            "en": "Small display",
+            "nl": "Kleine display"
+          }
+        },
+        "dim.led": {
+          "title": {
+            "en": "LED",
+            "nl": "LED"
+          }
+        }
+      },
       "pair": [
         {
           "id": "list_devices",
@@ -825,7 +848,7 @@
     {
       "name": {
         "en": "Button Panel (simulator)",
-        "nl": "Knoppen paneel (simulator)"
+        "nl": "Button+ panel (simulator)"
       },
       "class": "button",
       "capabilities": [

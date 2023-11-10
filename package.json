@@ -1,6 +1,6 @@
 {
     "name": "com.ady.button_plus",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "main": "app.js",
     "scripts": {
         "lint": "eslint --ext .js,.ts --ignore-path .gitignore ."
@@ -9,11 +9,11 @@
         "@tsconfig/node16": "^16.1.0",
         "@types/homey": "npm:homey-apps-sdk-v3-types@^0.3.4",
         "@types/node": "^20.4.8",
+        "@types/tough-cookie": "^4.0.2",
         "eslint": "^7.32.0",
         "eslint-config-athom": "^3.1.1"
     },
     "dependencies": {
-        "@types/tough-cookie": "^4.0.2",
         "athom-api": "^3.9.0",
         "axios": "^0.21.0",
         "axios-cookiejar-support": "^1.0.1",

@@ -36,11 +36,34 @@
         "right_button.connector6",
         "left_button.connector7",
         "right_button.connector7",
+        "dim.large",
+        "dim.small",
+        "dim.led",
         "measure_temperature",
         "date",
         "time",
         "info"
     ],
+    "capabilitiesOptions":{
+        "dim.large": {
+            "title": {
+                "en": "Large display",
+                "nl": "Grote display"
+            }
+        },
+        "dim.small": {
+            "title": {
+                "en": "Small display",
+                "nl": "Kleine display"
+            }
+        },
+        "dim.led": {
+            "title": {
+                "en": "LED",
+                "nl": "LED"
+            }
+        }
+    },
     "pair": [
         {
             "id": "list_devices",

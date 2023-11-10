@@ -1376,6 +1376,30 @@ class MyApp extends Homey.App
                     this.updateLog("setupMQTTClient.onConnect 'homey/longpress' error: " * this.varToString(err), 0);
                 }
             });
+
+            const drivers = this.homey.drivers.getDrivers();
+            for (const driver of Object.values(drivers))
+            {
+                let devices = driver.getDevices();
+                for (let device of Object.values(devices))
+                {
+                    if (device.setupMQTTSubscriptions)
+                    {
+                        try
+                        {
+                            device.setupMQTTSubscriptions(MQTTclient);
+                        }
+                        catch (error)
+                        {
+                            this.updateLog(`Sync Devices error: ${error.message}`);
+                        }
+                    }
+
+                    device = null;
+                }
+                devices = null;
+            }
+            
         });
 
         MQTTclient.on('error', (err) =>
@@ -1426,7 +1450,7 @@ class MyApp extends Homey.App
                         // next part is the device id
                         const deviceId = topicParts[1];
 
-                        // Try to find the device / device that has this is
+                        // Try to find the driver / device that has this id
                         const drivers = this.homey.drivers.getDrivers();
                         for (const driver of Object.values(drivers))
                         {
@@ -1441,6 +1465,21 @@ class MyApp extends Homey.App
                             }
                         }
                     }
+                    else if (topicParts.length >= 3 && topicParts[0].substring(0, 4) === 'btn_')
+                    {
+                        const drivers = this.homey.drivers.getDrivers();
+                        for (const driver of Object.values(drivers))
+                        {
+                            const devices = driver.getDevices();
+                            for (const device of Object.values(devices))
+                            {
+                                if (device.processMQTTBtnMessage)
+                                {
+                                    device.processMQTTBtnMessage(topicParts, mqttMessage).catch(device.error);
+                                }
+                            }
+                        }
+                    }
                 }
             }
             catch (err)
@@ -1450,6 +1489,11 @@ class MyApp extends Homey.App
         });
 
         return true;
+    }
+
+    getMqttClient(brokerId)
+    {
+        return this.MQTTClients.get(brokerId);
     }
 
     // eslint-disable-next-line camelcase
