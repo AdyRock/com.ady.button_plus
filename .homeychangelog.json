@@ -28,5 +28,8 @@
     },
     "0.1.2": {
         "en": "Minor updates from review feedback."
+    },
+    "0.2.0": {
+        "en": "Removed simulator option and optimised networking. Added brightness capabilities for the large and mini displays and the LED's."
     }
 }

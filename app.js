@@ -22,10 +22,6 @@ const DeviceManager = require('./lib/DeviceManager');
 const DeviceDispatcher = require('./lib/DeviceStateChangedDispatcher');
 const VariableDispatcher = require('./lib/variables');
 
-// const MQTT_SERVER_BUTTONPLUS = 'mqtt://mqtt.button.plus:1883';
-// const USE_LOCAL_MQTT = true;
-// const USE_BUTTON_PLUS_MQTT = true;
-
 const MAX_CONFIGURATIONS = 20;
 
 class MyApp extends Homey.App
@@ -52,14 +48,6 @@ class MyApp extends Homey.App
                     brokerid: 'homey',
                     url: `mqtt://${this.homeyIP}`,
                     port: 49876,
-                    wsport: 9001,
-                    enabled: true,
-                    protected: true,
-                },
-                {
-                    brokerid: 'buttonplus',
-                    url: 'mqtt://mqtt.button.plus',
-                    port: 1883,
                     wsport: 9001,
                     enabled: true,
                     protected: true,
@@ -214,16 +202,6 @@ class MyApp extends Homey.App
 
         try
         {
-            this.cloudConnected = false;
-            this.httpHelperSimulator = new HttpHelper();
-            const username = this.homey.settings.get('username');
-            const password = this.homey.settings.get('password');
-
-            if (username && password)
-            {
-                await this.loginToSimulator(username, password);
-            }
-
             this.httpHelperLocal = new HttpHelper();
             this.httpHelperLocal.setBaseURL('local');
             this.httpHelperLocal.setDefaultHeaders({}, true);
@@ -335,6 +313,27 @@ class MyApp extends Homey.App
             {
                 this.log(`${args.left_right}.connector${args.connector}`, args);
                 return args.device.triggerCapabilityListener(`${args.left_right}_button.connector${args.connector}`, false);
+            });
+
+        this.homey.flow.getActionCard('dim.large')
+            .registerRunListener(async (args, state) =>
+            {
+                this.log('dim.large');
+                return args.device.triggerCapabilityListener('dim.large', args.dim / 100);
+            });
+
+        this.homey.flow.getActionCard('dim.small')
+            .registerRunListener(async (args, state) =>
+            {
+                this.log('dim.large');
+                return args.device.triggerCapabilityListener('dim.small', args.dim / 100);
+            });
+
+        this.homey.flow.getActionCard('dim.led')
+            .registerRunListener(async (args, state) =>
+            {
+                this.log('dim.large');
+                return args.device.triggerCapabilityListener('dim.led', args.dim / 100);
             });
 
         /** * CONDITIONS ** */
@@ -457,14 +456,14 @@ class MyApp extends Homey.App
         this.homey.settings.set('displayConfigurations', this.displayConfigurations);
     }
 
-    async uploadDisplayConfiguration(ip, virtualID, configurationNo, deviceConfiguration, writeConfig)
+    async uploadDisplayConfiguration(ip, configurationNo, deviceConfiguration, writeConfig)
     {
         try
         {
             if (!deviceConfiguration)
             {
                 // download the current configuration from the device
-                deviceConfiguration = await this.readDeviceConfiguration(ip, virtualID);
+                deviceConfiguration = await this.readDeviceConfiguration(ip);
             }
 
             if (deviceConfiguration)
@@ -476,7 +475,7 @@ class MyApp extends Homey.App
                 if (writeConfig)
                 {
                     // write the updated configuration back to the device
-                    await this.writeDeviceConfiguration(ip, deviceConfiguration, virtualID);
+                    await this.writeDeviceConfiguration(ip, deviceConfiguration);
 
                     // Send the MQTT messages after a short delay to allow the device to connect to the broker
                     setTimeout(() =>
@@ -602,12 +601,12 @@ class MyApp extends Homey.App
         return null;
     }
 
-    async uploadButtonPanelConfiguration(ip, virtualID, connectorNo, configurationNo)
+    async uploadButtonPanelConfiguration(ip, connectorNo, configurationNo)
     {
         try
         {
             // download the current configuration from the device
-            const deviceConfiguration = await this.readDeviceConfiguration(ip, virtualID);
+            const deviceConfiguration = await this.readDeviceConfiguration(ip);
             this.updateLog(`Current Config: ${deviceConfiguration}`);
 
             if (deviceConfiguration)
@@ -616,7 +615,7 @@ class MyApp extends Homey.App
                 await this.applyButtonConfiguration(deviceConfiguration, connectorNo, configurationNo);
 
                 // write the updated configuration back to the device
-                await this.writeDeviceConfiguration(ip, deviceConfiguration, virtualID);
+                await this.writeDeviceConfiguration(ip, deviceConfiguration);
             }
         }
         catch (err)
@@ -963,10 +962,6 @@ class MyApp extends Homey.App
 
                 this.updateLog(`writeSensorConfig: ${this.varToString(mqttSenors)}`);
 
-                const options = {
-                    json: true,
-                };
-
                 const MQTTclient = this.MQTTClients.get('homey');
                 if (MQTTclient)
                 {
@@ -980,7 +975,7 @@ class MyApp extends Homey.App
                 }
 
                 // Use the local device
-                return await this.httpHelperLocal.post(`http://${ip}/configsave`, options, mqttSenors);
+                return await this.httpHelperLocal.post(`http://${ip}/configsave`, mqttSenors);
             }
             catch (err)
             {
@@ -991,23 +986,10 @@ class MyApp extends Homey.App
         return null;
     }
 
-    async readDeviceConfiguration(ip, virtualID)
+    async readDeviceConfiguration(ip)
     {
         // Read the device configuration from the specified device
-        if ((virtualID > 0) && this.cloudConnected)
-        {
-            try
-            {
-                // TODO change to use IP for real hardware
-                this.updateLog(`readDeviceConfiguration for ${virtualID}`);
-                return await this.httpHelperSimulator.get(`button/config/${virtualID}`);
-            }
-            catch (err)
-            {
-                this.updateLog(`readDeviceConfiguration error: ${err.message}`);
-            }
-        }
-        else if (ip !== '')
+        if (ip !== '')
         {
             try
             {
@@ -1025,7 +1007,7 @@ class MyApp extends Homey.App
         return null;
     }
 
-    async writeDeviceConfiguration(ip, deviceConfiguration, virtualID)
+    async writeDeviceConfiguration(ip, deviceConfiguration)
     {
         if (!this.autoConfigGateway)
         {
@@ -1078,29 +1060,12 @@ class MyApp extends Homey.App
 
         this.updateLog(`writeDeviceConfiguration: ${this.varToString(deviceConfiguration)}`);
 
-        const options = {
-            json: true,
-        };
-
-        if ((virtualID > 0) && this.cloudConnected)
-        {
-            // Write the device configuration to the specified device
-            try
-            {
-                // Use the simulator
-                return await this.httpHelperSimulator.post(`/button/postbutton?id=${virtualID}`, options, deviceConfiguration);
-            }
-            catch (err)
-            {
-                this.updateLog(`writeDeviceConfiguration error: ${err.message}`);
-            }
-        }
-        else if (ip !== '')
+        if (ip !== '')
         {
             try
             {
                 // Use the local device
-                return await this.httpHelperLocal.post(`http://${ip}/configsave`, options, deviceConfiguration);
+                return await this.httpHelperLocal.post(`http://${ip}/configsave`, deviceConfiguration);
             }
             catch (err)
             {
@@ -1399,7 +1364,6 @@ class MyApp extends Homey.App
                 }
                 devices = null;
             }
-            
         });
 
         MQTTclient.on('error', (err) =>
@@ -1759,21 +1723,6 @@ class MyApp extends Homey.App
         }
 
         return (this.homey.__('settings.logSendFailed'));
-    }
-
-    async loginToSimulator(username, password)
-    {
-        this.httpHelperSimulator.setBaseURL('cloud');
-        this.httpHelperSimulator.setDefaultHeaders({}, true);
-
-        const login = { email: username, password };
-
-        const result = await this.httpHelperSimulator.post('account/login', {}, login);
-        this.updateLog(`Login result: ${JSON.stringify(result)}`);
-
-        this.cloudConnected = true;
-
-        return result;
     }
 
     // Register a device so we receive state change events that are posted to the MQTT server

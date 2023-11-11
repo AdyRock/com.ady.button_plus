@@ -66,9 +66,9 @@ class PanelDriver extends Driver
         });
     }
 
-    async pairListDevices(ip, virtualID)
+    async pairListDevices(ip, id)
     {
-        const deviceConfiguration = await this.homey.app.readDeviceConfiguration(ip, virtualID);
+        const deviceConfiguration = await this.homey.app.readDeviceConfiguration(ip);
         this.homey.app.updateLog(`Device configuration: ${this.homey.app.varToString(deviceConfiguration)}`);
 
         if (!deviceConfiguration)
@@ -126,8 +126,7 @@ class PanelDriver extends Driver
                 connect2Type,
                 connect3Type,
                 connect4Type,
-                virtualID: (ip ? 0 : virtualID),
-                mac: (ip ? virtualID : 0),
+                mac: id,
             },
         };
 

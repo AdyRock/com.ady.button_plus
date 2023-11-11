@@ -1,0 +1,210 @@
+{
+    "triggers": [
+        {
+            "id": "dim.large_changed",
+            "title": {
+                "en": "The large display brightness changed Changed"
+            },
+            "tokens": [
+                {
+                    "name": "dim",
+                    "type": "number",
+                    "title": {
+                        "en": "Level",
+                        "nl": "Niveau",
+                        "de": "Niveau",
+                        "fr": "Niveau",
+                        "it": "Livello",
+                        "sv": "Nivå",
+                        "no": "Nivå",
+                        "es": "Nivel",
+                        "da": "Niveau",
+                        "ru": "Уровень",
+                        "pl": "Poziom"
+                    },
+                    "example": 0.5
+                }
+            ]
+        },
+        {
+            "id": "dim.small_changed",
+            "title": {
+                "en": "The mini display brightness changed Changed"
+            },
+            "tokens": [
+                {
+                    "name": "dim",
+                    "type": "number",
+                    "title": {
+                        "en": "Level",
+                        "nl": "Niveau",
+                        "de": "Niveau",
+                        "fr": "Niveau",
+                        "it": "Livello",
+                        "sv": "Nivå",
+                        "no": "Nivå",
+                        "es": "Nivel",
+                        "da": "Niveau",
+                        "ru": "Уровень",
+                        "pl": "Poziom"
+                    },
+                    "example": 0.5
+                }
+            ]
+        },
+        {
+            "id": "dim.led_changed",
+            "title": {
+                "en": "The LED brightness changed Changed"
+            },
+            "tokens": [
+                {
+                    "name": "dim",
+                    "type": "number",
+                    "title": {
+                        "en": "Level",
+                        "nl": "Niveau",
+                        "de": "Niveau",
+                        "fr": "Niveau",
+                        "it": "Livello",
+                        "sv": "Nivå",
+                        "no": "Nivå",
+                        "es": "Nivel",
+                        "da": "Niveau",
+                        "ru": "Уровень",
+                        "pl": "Poziom"
+                    },
+                    "example": 0.5
+                }
+            ]
+        }
+    ],
+    "actions": [
+        {
+            "id": "dim.large",
+            "highlight": true,
+            "title": {
+                "en": "Dim the large display to"
+            },
+            "args": [
+                {
+                    "name": "dim",
+                    "type": "range",
+                    "min": 0,
+                    "max": 1,
+                    "step": 0.01,
+                    "value": 0.5,
+                    "label": "%",
+                    "labelMultiplier": 100,
+                    "labelDecimals": 0
+                }
+            ]
+        },
+        {
+            "id": "dim.large_relative",
+            "title": {
+                "en": "Set large display relative dim-level"
+            },
+            "hint": {
+                "en": "Dim or brighten with respect to the device's current dim-level."
+            },
+            "args": [
+                {
+                    "name": "dim",
+                    "type": "range",
+                    "min": -1,
+                    "max": 1,
+                    "step": 0.01,
+                    "value": 0.5,
+                    "label": "%",
+                    "labelMultiplier": 100,
+                    "labelDecimals": 0
+                }
+            ]
+        },
+        {
+            "id": "dim.small",
+            "highlight": true,
+            "title": {
+                "en": "Dim the mini displays to"
+            },
+            "args": [
+                {
+                    "name": "dim",
+                    "type": "range",
+                    "min": 0,
+                    "max": 1,
+                    "step": 0.01,
+                    "value": 0.5,
+                    "label": "%",
+                    "labelMultiplier": 100,
+                    "labelDecimals": 0
+                }
+            ]
+        },
+        {
+            "id": "dim.small_relative",
+            "title": {
+                "en": "Set the mini displays relative dim-level"
+            },
+            "hint": {
+                "en": "Dim or brighten with respect to the device's current dim-level."
+            },
+            "args": [
+                {
+                    "name": "dim",
+                    "type": "range",
+                    "min": -1,
+                    "max": 1,
+                    "step": 0.01,
+                    "value": 0.5,
+                    "label": "%",
+                    "labelMultiplier": 100,
+                    "labelDecimals": 0
+                }
+            ]
+        },
+        {
+            "id": "dim.led",
+            "highlight": true,
+            "title": {
+                "en": "Dim the LEDs to"
+            },
+            "args": [
+                {
+                    "name": "dim",
+                    "type": "range",
+                    "min": 0,
+                    "max": 1,
+                    "step": 0.01,
+                    "value": 0.5,
+                    "label": "%",
+                    "labelMultiplier": 100,
+                    "labelDecimals": 0
+                }
+            ]
+        },
+        {
+            "id": "dim.led_relative",
+            "title": {
+                "en": "Set LEDs relative dim-level"
+            },
+            "hint": {
+                "en": "Dim or brighten with respect to the device's current dim-level."
+            },
+            "args": [
+                {
+                    "name": "dim",
+                    "type": "range",
+                    "min": -1,
+                    "max": 1,
+                    "step": 0.01,
+                    "value": 0.5,
+                    "label": "%",
+                    "labelMultiplier": 100,
+                    "labelDecimals": 0
+                }
+            ]
+        }
+    ]
+}

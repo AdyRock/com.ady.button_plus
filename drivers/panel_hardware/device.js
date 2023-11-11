@@ -41,9 +41,9 @@ class PanelDevice extends BasePanelDevice
             await this.addCapability('dim.led');
         }
 
-        this.registerCapabilityListener( 'dim.large', this.onCapabilityDim.bind( this, "largedisplay" ) );
-        this.registerCapabilityListener( 'dim.small', this.onCapabilityDim.bind( this, "minidisplay" ) );
-        this.registerCapabilityListener( 'dim.led', this.onCapabilityDim.bind( this, "leds" ) );
+        this.registerCapabilityListener('dim.large', this.onCapabilityDim.bind(this, 'largedisplay'));
+        this.registerCapabilityListener('dim.small', this.onCapabilityDim.bind(this, 'minidisplay'));
+        this.registerCapabilityListener('dim.led', this.onCapabilityDim.bind(this, 'leds'));
 
         const ip = this.getSetting('address');
         this.homey.app.setupPanelTemperatureTopic(ip, this.__id);
@@ -79,7 +79,7 @@ class PanelDevice extends BasePanelDevice
             else
             {
                 const value = this.getCapabilityValue('dim.large');
-                this.homey.app.publishMQTTMessage("homey", `${id}/brightness/largedisplay/value`, value * 100);
+                this.homey.app.publishMQTTMessage('homey', `${id}/brightness/largedisplay/value`, value * 100);
             }
         });
         MQTTclient.subscribe(`${id}/brightness/minidisplay/value`, (err) =>
@@ -91,7 +91,7 @@ class PanelDevice extends BasePanelDevice
             else
             {
                 const value = this.getCapabilityValue('dim.small');
-                this.homey.app.publishMQTTMessage("homey", `${id}/brightness/minidisplay/value`, value * 100);
+                this.homey.app.publishMQTTMessage('homey', `${id}/brightness/minidisplay/value`, value * 100);
             }
         });
         MQTTclient.subscribe(`${id}/brightness/leds/value`, (err) =>
@@ -103,7 +103,7 @@ class PanelDevice extends BasePanelDevice
             else
             {
                 const value = this.getCapabilityValue('dim.led');
-                this.homey.app.publishMQTTMessage("homey", `${id}/brightness/leds/value`, value * 100);
+                this.homey.app.publishMQTTMessage('homey', `${id}/brightness/leds/value`, value * 100);
             }
         });
     }
@@ -112,7 +112,7 @@ class PanelDevice extends BasePanelDevice
     {
         // Publish the new value to the MQTT broker
         const { id } = this.getData();
-        this.homey.app.publishMQTTMessage("homey", `${id}/brightness/${mqttTopic}/value`, value * 100);
+        this.homey.app.publishMQTTMessage('homey', `${id}/brightness/${mqttTopic}/value`, value * 100);
     }
 
     /**
@@ -165,7 +165,6 @@ class PanelDevice extends BasePanelDevice
 
     async processMQTTBtnMessage(topic, MQTTMessage)
     {
-        const id = this.getData('id');
         // search the topic for the device id
         if (topic[1] === 'brightness')
         {
@@ -176,7 +175,8 @@ class PanelDevice extends BasePanelDevice
             }
             else if (topic[2] === 'minidisplay')
             {
-                this.setCapabilityValue('dim.small', dim).catch(this.error);
+//                this.setCapabilityValue('dim.small', dim).catch(this.error);
+                this.triggerCapabilityListener('dim.large', dim)
             }
             else if (topic[2] === 'leds')
             {
@@ -184,6 +184,7 @@ class PanelDevice extends BasePanelDevice
             }
         }
     }
+
 }
 
 module.exports = PanelDevice;

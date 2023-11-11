@@ -63,7 +63,6 @@
         "id": "Broker ID (om de broker te identificeren, moet uniek zijn)",
         "deleteBrokerItemError": "Kan deze items niet verwijderen",
         "brokerHomey": "Dit is de apps' eigen broker. Deze kan niet worden verwijderd, maar kan worden uitgeschakeld als je deze niet wilt gebruiken.",
-        "brokerButtonPlus": "Dit is de Button+ broker. Deze kan niet worden verwijderd, maar kan worden uitgeschakeld als je deze niet wilt gebruiken.",
         "brokerUser": "Dit is een gebruiker-gedefiniëerde broker. Deze kan worden verwijderd of uitgeschakeld.",
         "duplicateBrokerIdError": "Broker ID '__brokerId__' bestaat al. Wijzig en probeer opnieuw.",
         "MQTTTopic": "MQTT Topic",
