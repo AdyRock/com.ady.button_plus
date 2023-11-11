@@ -76,6 +76,19 @@
             "id": "my_connect"
         }
     ],
+    "settings": [
+        {
+            "id": "invertMiniDisplay",
+            "type": "checkbox",
+            "label": {
+                "en": "Invert mini display"
+            },
+            "value": true,
+            "hint": {
+                "en": "Inverts the background color of the mini display (black/white)"
+            }
+        }
+    ],
     "images": {
         "small": "{{driverAssetsPath}}/images/small.png",
         "large": "{{driverAssetsPath}}/images/large.png",

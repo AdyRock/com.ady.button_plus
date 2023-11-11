@@ -912,7 +912,7 @@
         "id": "dim.small",
         "highlight": true,
         "title": {
-          "en": "Dim the small display to"
+          "en": "Dim the mini displays to"
         },
         "args": [
           {
@@ -936,7 +936,7 @@
       {
         "id": "dim.small_relative",
         "title": {
-          "en": "Set the mini display relative dim-level"
+          "en": "Set the mini displays relative dim-level"
         },
         "hint": {
           "en": "Dim or brighten with respect to the device's current dim-level."
@@ -1091,6 +1091,19 @@
         },
         {
           "id": "my_connect"
+        }
+      ],
+      "settings": [
+        {
+          "id": "invertMiniDisplay",
+          "type": "checkbox",
+          "label": {
+            "en": "Invert mini display"
+          },
+          "value": true,
+          "hint": {
+            "en": "Inverts the background color of the mini display (black/white)"
+          }
         }
       ],
       "images": {

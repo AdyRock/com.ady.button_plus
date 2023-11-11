@@ -223,6 +223,20 @@ class BasePanelDevice extends Device
     async onSettings({ oldSettings, newSettings, changedKeys })
     {
         this.log('MyDevice settings where changed');
+        if (changedKeys.includes('invertMiniDisplay'))
+        {
+            const ip = this.getSetting('address');
+            const deviceConfiguration = {
+                core: {
+                    invert: newSettings.invertMiniDisplay,
+                },
+            };
+            const result = await this.homey.app.writeDeviceConfiguration(ip, deviceConfiguration, true);
+            if (result)
+            {
+                return 'Failed to send the configuration to the device';
+            }
+        }
     }
 
     /**
@@ -611,6 +625,17 @@ class BasePanelDevice extends Device
 
         if (deviceConfigurations)
         {
+            // Set the core configuration values
+            const invertMiniDisplay = this.getSetting('invertMiniDisplay');
+            const largeDim = this.getCapabilityValue('dim.large');
+            const smallDim = this.getCapabilityValue('dim.small');
+            const ledDim = this.getCapabilityValue('dim.led');
+        
+            deviceConfigurations.core.invert = invertMiniDisplay ? 1 : 0;
+            deviceConfigurations.core.brightnesslargedisplay = largeDim * 100;
+            deviceConfigurations.core.brightnessminidisplay = smallDim * 100;
+            deviceConfigurations.core.brightnessleds = ledDim * 100;
+
             for (let i = 0; i < (deviceConfigurations.mqttbuttons.length / 2); i++)
             {
                 const buttonID = i * 2;

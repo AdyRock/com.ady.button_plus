@@ -1007,55 +1007,58 @@ class MyApp extends Homey.App
         return null;
     }
 
-    async writeDeviceConfiguration(ip, deviceConfiguration)
+    async writeDeviceConfiguration(ip, deviceConfiguration, partial = false)
     {
         if (!this.autoConfigGateway)
         {
             return null;
         }
 
-        // Make sure the device configuration has the MQTT broker Id's define
-        if (!deviceConfiguration.mqttbrokers)
+        if (!partial)
         {
-            deviceConfiguration.mqttbrokers = [];
-        }
-
-        for (const brokerItem of this.brokerItems)
-        {
-            if (brokerItem.enabled)
+            // Make sure the device configuration has the MQTT broker Id's define
+            if (!deviceConfiguration.mqttbrokers)
             {
-                if ((ip !== '') || brokerItem.brokerid !== 'homey')
+                deviceConfiguration.mqttbrokers = [];
+            }
+
+            for (const brokerItem of this.brokerItems)
+            {
+                if (brokerItem.enabled)
                 {
-                    if (deviceConfiguration.mqttbrokers.findIndex((broker) => broker.brokerid === brokerItem.brokerid) < 0)
+                    if ((ip !== '') || brokerItem.brokerid !== 'homey')
                     {
-                        // Add the broker Id
-                        deviceConfiguration.mqttbrokers.push(
-                            {
-                                brokerid: brokerItem.brokerid,
-                                url: brokerItem.url,
-                                port: brokerItem.port,
-                                wsport: brokerItem.wsport,
-                            },
-                        );
+                        if (deviceConfiguration.mqttbrokers.findIndex((broker) => broker.brokerid === brokerItem.brokerid) < 0)
+                        {
+                            // Add the broker Id
+                            deviceConfiguration.mqttbrokers.push(
+                                {
+                                    brokerid: brokerItem.brokerid,
+                                    url: brokerItem.url,
+                                    port: brokerItem.port,
+                                    wsport: brokerItem.wsport,
+                                },
+                            );
+                        }
+                    }
+                }
+                else
+                {
+                    // Find the broker Id and remove it
+                    const brokerIdx = deviceConfiguration.mqttbrokers.findIndex((broker) => broker.brokerid === brokerItem.brokerid);
+                    if (brokerIdx >= 0)
+                    {
+                        deviceConfiguration.mqttbrokers.splice(brokerIdx, 1);
                     }
                 }
             }
-            else
-            {
-                // Find the broker Id and remove it
-                const brokerIdx = deviceConfiguration.mqttbrokers.findIndex((broker) => broker.brokerid === brokerItem.brokerid);
-                if (brokerIdx >= 0)
-                {
-                    deviceConfiguration.mqttbrokers.splice(brokerIdx, 1);
-                }
-            }
-        }
 
-        // find the Homey broker in the device configuration and make sure the IP address is up to date
-        const brokerIdx = deviceConfiguration.mqttbrokers.findIndex((broker) => broker.brokerid === 'homey');
-        if (brokerIdx >= 0)
-        {
-            deviceConfiguration.mqttbrokers[brokerIdx].url = `mqtt://${this.homeyIP}`;
+            // find the Homey broker in the device configuration and make sure the IP address is up to date
+            const brokerIdx = deviceConfiguration.mqttbrokers.findIndex((broker) => broker.brokerid === 'homey');
+            if (brokerIdx >= 0)
+            {
+                deviceConfiguration.mqttbrokers[brokerIdx].url = `mqtt://${this.homeyIP}`;
+            }
         }
 
         this.updateLog(`writeDeviceConfiguration: ${this.varToString(deviceConfiguration)}`);
@@ -1065,14 +1068,16 @@ class MyApp extends Homey.App
             try
             {
                 // Use the local device
-                return await this.httpHelperLocal.post(`http://${ip}/configsave`, deviceConfiguration);
+                await this.httpHelperLocal.post(`http://${ip}/configsave`, deviceConfiguration);
+                return null;
             }
             catch (err)
             {
                 this.updateLog(`writeDeviceConfiguration error: ${err.message}`);
+                return err.message;
             }
         }
-        return null;
+        return 'No IP address';
     }
 
     async getHomeyDevices({ type = '', ids = null })
