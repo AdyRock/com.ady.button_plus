@@ -234,7 +234,7 @@ class BasePanelDevice extends Device
             const result = await this.homey.app.writeDeviceConfiguration(ip, deviceConfiguration, true);
             if (result)
             {
-                return 'Failed to send the configuration to the device';
+                throw new Error('Failed to send the configuration to the device');
             }
         }
     }
