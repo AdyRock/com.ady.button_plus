@@ -1304,7 +1304,7 @@ class MyApp extends Homey.App
         const wsServer = ws.createServer({ server: httpServer }, aedes.handle);
 
         httpServer.listen(this.brokerItems[0].wsport, () => {
-            this.updateLog(`websocket server listening on port ${this.brokerItems[0].wsport}`);
+            // this.updateLog(`websocket server listening on port ${this.brokerItems[0].wsport}`);
         });
 
         wsServer.on('error', (err) => {
@@ -1312,7 +1312,7 @@ class MyApp extends Homey.App
         });
 
         wsServer.on('connection', (socket) => {
-            this.updateLog(`websocket server connection: ${this.varToString(socket)}`);
+            // this.updateLog(`websocket server connection: ${this.varToString(socket)}`);
         });
 
         wsServer.on('message', (message) => {

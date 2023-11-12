@@ -78,6 +78,17 @@
     ],
     "settings": [
         {
+            "id": "address",
+            "type": "text",
+            "label": {
+                "en": "IP address"
+            },
+            "value": "",
+            "hint": {
+                "en": "IP address of the device"
+            }
+        },
+        {
             "id": "invertMiniDisplay",
             "type": "checkbox",
             "label": {

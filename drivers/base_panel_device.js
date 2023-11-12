@@ -223,6 +223,15 @@ class BasePanelDevice extends Device
     async onSettings({ oldSettings, newSettings, changedKeys })
     {
         this.log('MyDevice settings where changed');
+        if (changedKeys.includes('address'))
+        {
+            // Ensure it is a valid IP address
+            const ip = newSettings.address;
+            if (!ip.match(/^(\d{1,3}\.){3}\d{1,3}$/))
+            {
+                throw new Error('Invalid IP address');
+            }
+        }
         if (changedKeys.includes('invertMiniDisplay'))
         {
             const ip = this.getSetting('address');
