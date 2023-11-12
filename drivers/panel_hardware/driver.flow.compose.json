@@ -86,9 +86,15 @@
             "title": {
                 "en": "Dim the large display to"
             },
+            "titleFormatted": {
+                "en": "Dim the large display to [[dim]]%"
+            },
             "args": [
                 {
                     "name": "dim",
+                    "title": {
+                        "en": "Level"
+                    },
                     "type": "range",
                     "min": 0,
                     "max": 1,
@@ -105,12 +111,18 @@
             "title": {
                 "en": "Set large display relative dim-level"
             },
+            "titleFormatted": {
+                "en": "Dim the large display to [[dim]]%"
+            },
             "hint": {
                 "en": "Dim or brighten with respect to the device's current dim-level."
             },
             "args": [
                 {
                     "name": "dim",
+                    "title": {
+                        "en": "Level"
+                    },
                     "type": "range",
                     "min": -1,
                     "max": 1,
@@ -128,9 +140,15 @@
             "title": {
                 "en": "Dim the mini displays to"
             },
+            "titleFormatted": {
+                "en": "Dim the mini display to [[dim]]%"
+            },
             "args": [
                 {
                     "name": "dim",
+                    "title": {
+                        "en": "Level"
+                    },
                     "type": "range",
                     "min": 0,
                     "max": 1,
@@ -147,12 +165,18 @@
             "title": {
                 "en": "Set the mini displays relative dim-level"
             },
+            "titleFormatted": {
+                "en": "Dim the mini display to [[dim]]%"
+            },
             "hint": {
                 "en": "Dim or brighten with respect to the device's current dim-level."
             },
             "args": [
                 {
                     "name": "dim",
+                    "title": {
+                        "en": "Level"
+                    },
                     "type": "range",
                     "min": -1,
                     "max": 1,
@@ -170,9 +194,15 @@
             "title": {
                 "en": "Dim the LEDs to"
             },
+            "titleFormatted": {
+                "en": "Dim the LEDs to [[dim]]%"
+            },
             "args": [
                 {
                     "name": "dim",
+                    "title": {
+                        "en": "Level"
+                    },
                     "type": "range",
                     "min": 0,
                     "max": 1,
@@ -189,12 +219,18 @@
             "title": {
                 "en": "Set LEDs relative dim-level"
             },
+            "titleFormatted": {
+                "en": "Dim the LEDs to [[dim]]%"
+            },
             "hint": {
                 "en": "Dim or brighten with respect to the device's current dim-level."
             },
             "args": [
                 {
                     "name": "dim",
+                    "title": {
+                        "en": "Level"
+                    },
                     "type": "range",
                     "min": -1,
                     "max": 1,
