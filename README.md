@@ -2,22 +2,7 @@
 
 Control Button + panels
 
-**The app has drivers for both the Button + simulator and the hardware.**
-
-## To setup with the simulator
-
-1. Go to the Button + web site and login / create an account <https://button.plus/account>.
-2. Open the button plus simulator <http://virtual.button.plus/virtual.html?config=16>
-3. Open the Configuration management section.
-4. Enter a name for your configuration.
-5. Click on Export.
-6. Close the simulator.
-7. Go back to your account <https://button.plus/account>.
-8. Click on Buttons in the Button + menu bar.
-9. You should see your configuration with an Id.
-10. Click on the Id to open up the details.
-11. Click on Launch Button+ simulator.
-12. This is the simulator that the app will use, so make a note of the Virtual Id ready to be entered into the app.
+**The app supports the Button + hardware.**
 
 ## To Setup the app
 
@@ -60,12 +45,10 @@ The button bar configurations are shown when the first drop list shows button ba
 ## Adding a device to Homey
 
 1. Select the New Device option in Homey.
-2. Select Button button bar (name might change later).
+2. Select Button button bar
 3. Click on Connect.
-4. If this is the first time, enter the username and password you use to log into Button+.
-5. Enter the Pincode. This is the Virtual Id you made a note of in step 12 of setting up the simulator. enter 0 at the start if you Id is less than 4 digets (e.g. 0295).
-6. You should then see the virtual device listed, so select it and continue. (The app currently uses the Name found under the General settings to identify the button bar).
-7. The device will be added to Homey.
+4. You should then see the device listed, so select it and continue. (The app currently uses the Name found under the General settings to identify the button bar). If the Button + is not found then you can try to add it manually by selecting the Manual option and entering the IP address.
+5. The device will be added to Homey.
 
 ## Using the Homey device
 
@@ -75,11 +58,7 @@ The button bar configurations are shown when the first drop list shows button ba
 4. Select a Configuration number to apply to the Display / button bar connector.
 5. The configuration is uploaded to the simulator, but you need to refresh the simulator to make it take affect. There is a button to the right of the Virtual Id to refresh the page.
 6. You should now see the information you selected in the configuration displayed on the button bar.
-7. You can click on the button displays in the simulator to toggle the capability in Homey.
+7. You can click on the buttons in the mini displays to toggle the capability in Homey.
 
-## SECURITY NOTE
+The app has a built n MQTT broker, so no setup will be required for that. However, it is possible to add one or more external MQTT brokers in the app settings page.
 
-The app is currently using the Button+ MQTTT server, so any configured Homey data is made public, but only the parameters you add to an active configuration are published.
-In the proper release, the app will use a built n MQTT server, so no setup will be required. However, I can add settings to the app to allow an external MQTT server if feedback suggests it is required.
-
-**All feedback welcome.**
