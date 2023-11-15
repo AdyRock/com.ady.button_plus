@@ -4,7 +4,7 @@
         "nl": "Een knop is AAN of UIT gezet"
     },
     "titleFormatted": {
-        "en": "The [[left_right]] Button on connector [[connector]] was turned OonN or off",
+        "en": "The [[left_right]] Button on connector [[connector]] was turned On or off",
         "nl": "De [[left_right]] knop op connector [[connector]] is aan of uit gezet"
     },
     "tokens": [

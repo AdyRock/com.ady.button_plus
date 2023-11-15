@@ -34,5 +34,8 @@
     },
     "0.2.1": {
         "en": "Updated driver images and readme."
+    },
+    "0.2.2": {
+        "en": "Fix small spelling error in Flow trigger card."
     }
 }
