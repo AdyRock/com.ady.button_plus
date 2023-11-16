@@ -203,12 +203,10 @@ class MyApp extends Homey.App
         try
         {
             this.httpHelperLocal = new HttpHelper();
-            this.httpHelperLocal.setBaseURL('local');
-            this.httpHelperLocal.setDefaultHeaders({}, true);
         }
         catch (err)
         {
-            this.updateLog(`Error logging into simulator: ${err.message}`);
+            this.updateLog(`Error connecting to device: ${err.message}`);
         }
 
         this.homey.settings.on('set', async (setting) =>

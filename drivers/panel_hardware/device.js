@@ -10,7 +10,7 @@ class PanelDevice extends BasePanelDevice
      */
     async onInit()
     {
-        super.onInit();
+        await super.onInit();
         if (!this.hasCapability('measure_temperature'))
         {
             await this.addCapability('measure_temperature');
@@ -176,7 +176,7 @@ class PanelDevice extends BasePanelDevice
             else if (topic[2] === 'minidisplay')
             {
 //                this.setCapabilityValue('dim.small', dim).catch(this.error);
-                this.triggerCapabilityListener('dim.large', dim)
+                this.triggerCapabilityListener('dim.large', dim);
             }
             else if (topic[2] === 'leds')
             {

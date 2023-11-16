@@ -639,7 +639,7 @@ class BasePanelDevice extends Device
             const largeDim = this.getCapabilityValue('dim.large');
             const smallDim = this.getCapabilityValue('dim.small');
             const ledDim = this.getCapabilityValue('dim.led');
-        
+
             deviceConfigurations.core.invert = invertMiniDisplay ? 1 : 0;
             deviceConfigurations.core.brightnesslargedisplay = largeDim * 100;
             deviceConfigurations.core.brightnessminidisplay = smallDim * 100;
