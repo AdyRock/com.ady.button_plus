@@ -110,6 +110,12 @@ class PanelDevice extends BasePanelDevice
 
     async onCapabilityDim(mqttTopic, value, opts)
     {
+        if (opts && opts.mqtt)
+        {
+            // From MQTT, don't send it back
+            return;
+        }
+    
         // Publish the new value to the MQTT broker
         const { id } = this.getData();
         this.homey.app.publishMQTTMessage('homey', `${id}/brightness/${mqttTopic}/value`, value * 100);
@@ -134,8 +140,31 @@ class PanelDevice extends BasePanelDevice
      */
     async onSettings({ oldSettings, newSettings, changedKeys })
     {
-        super.onSettings({ oldSettings, newSettings, changedKeys });
-        this.log('PanelDevice settings where changed');
+        await super.onSettings({ oldSettings, newSettings, changedKeys });
+        if (changedKeys.includes('address'))
+        {
+            // Ensure it is a valid IP address
+            const ip = newSettings.address;
+            if (!ip.match(/^(\d{1,3}\.){3}\d{1,3}$/))
+            {
+                throw new Error('Invalid IP address');
+            }
+        }
+
+        if (changedKeys.includes('invertMiniDisplay'))
+        {
+            const ip = this.getSetting('address');
+            const deviceConfiguration = {
+                core: {
+                    invert: newSettings.invertMiniDisplay,
+                },
+            };
+            const result = await this.homey.app.writeDeviceConfiguration(ip, deviceConfiguration, true);
+            if (result)
+            {
+                throw new Error('Failed to send the configuration to the device');
+            }
+        }
     }
 
     /**
@@ -171,15 +200,15 @@ class PanelDevice extends BasePanelDevice
             const dim = parseFloat(MQTTMessage) / 100;
             if (topic[2] === 'largedisplay')
             {
-                this.triggerCapabilityListener('dim.large', dim)
+                this.triggerCapabilityListener('dim.large', dim, { mqtt: true })
             }
             else if (topic[2] === 'minidisplay')
             {
-                this.triggerCapabilityListener('dim.small', dim)
+                this.triggerCapabilityListener('dim.small', dim, { mqtt: true })
             }
             else if (topic[2] === 'leds')
             {
-                this.triggerCapabilityListener('dim.led', dim)
+                this.triggerCapabilityListener('dim.led', dim, { mqtt: true })
             }
         }
     }
