@@ -10,7 +10,7 @@ class PanelDevice extends BasePanelDevice
      */
     async onInit()
     {
-        super.onInit();
+        await super.onInit();
         if (!this.hasCapability('measure_temperature'))
         {
             await this.addCapability('measure_temperature');
@@ -171,16 +171,15 @@ class PanelDevice extends BasePanelDevice
             const dim = parseFloat(MQTTMessage) / 100;
             if (topic[2] === 'largedisplay')
             {
-                this.setCapabilityValue('dim.large', dim).catch(this.error);
+                this.triggerCapabilityListener('dim.large', dim)
             }
             else if (topic[2] === 'minidisplay')
             {
-//                this.setCapabilityValue('dim.small', dim).catch(this.error);
-                this.triggerCapabilityListener('dim.large', dim)
+                this.triggerCapabilityListener('dim.small', dim)
             }
             else if (topic[2] === 'leds')
             {
-                this.setCapabilityValue('dim.led', dim).catch(this.error);
+                this.triggerCapabilityListener('dim.led', dim)
             }
         }
     }

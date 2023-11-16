@@ -96,7 +96,7 @@
             },
             "value": true,
             "hint": {
-                "en": "Inverts the background color of the mini display (black/white)"
+                "en": "Inverts the background color of the mini display (The panel will restart to apply this changed)"
             }
         }
     ],
