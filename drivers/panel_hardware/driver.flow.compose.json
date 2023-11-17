@@ -4,6 +4,7 @@
             "id": "dim.large_changed",
             "title": {
                 "en": "The large display brightness changed"
+                "nl": "Helderheid van het grote display is veranderd"
             },
             "tokens": [
                 {
@@ -30,6 +31,7 @@
             "id": "dim.small_changed",
             "title": {
                 "en": "The mini display brightness changed"
+                "nl": "Helderheid van het mini display is veranderd"
             },
             "tokens": [
                 {
@@ -56,6 +58,7 @@
             "id": "dim.led_changed",
             "title": {
                 "en": "The LED brightness changed"
+                "nl": "De LED helderheid is veranderd"
             },
             "tokens": [
                 {
@@ -85,9 +88,11 @@
             "highlight": true,
             "title": {
                 "en": "Dim the large display to"
+                "nl": "Dim het grote display naar"
             },
             "titleFormatted": {
                 "en": "Dim the large display to [[dim]]%"
+                "nl": "Dim het grote display naar [[dim]]%"
             },
             "args": [
                 {
@@ -120,12 +125,15 @@
             "id": "dim.large_relative",
             "title": {
                 "en": "Set large display relative dim-level"
+                "nl": "Stel het relatieve dimniveau van het grote display in"
             },
             "titleFormatted": {
                 "en": "Dim the large display to [[dim]]%"
+                "nl": "Dim het grote display naar [[dim]]%"
             },
             "hint": {
                 "en": "Dim or brighten with respect to the device's current dim-level."
+                "nl": "Verlaag of verhoog de helderheid ten opzichte van het huidige dim-niveau van het apparaat"
             },
             "args": [
                 {
@@ -159,9 +167,11 @@
             "highlight": true,
             "title": {
                 "en": "Dim the mini displays to"
+                "nl": "Dim het mini display naar"
             },
             "titleFormatted": {
                 "en": "Dim the mini display to [[dim]]%"
+                "nl": "Dim het mini display naar [[dim]]%"
             },
             "args": [
                 {
@@ -194,12 +204,15 @@
             "id": "dim.small_relative",
             "title": {
                 "en": "Set the mini displays relative dim-level"
+                "nl": "Stel het relatieve dimniveau van het mini-display in"
             },
             "titleFormatted": {
                 "en": "Dim the mini display to [[dim]]%"
+                "nl": "Dim het mini display naar [[dim]]%"
             },
             "hint": {
                 "en": "Dim or brighten with respect to the device's current dim-level."
+                "nl": "Verlaag of verhoog de helderheid ten op zichte van het huidige dimniveau van het apparaat"
             },
             "args": [
                 {
@@ -233,9 +246,11 @@
             "highlight": true,
             "title": {
                 "en": "Dim the LEDs to"
+                "nl": "Dim de LED's naar"
             },
             "titleFormatted": {
                 "en": "Dim the LEDs to [[dim]]%"
+                "nl": "Dim de LED's naar [[dim]]%"
             },
             "args": [
                 {
@@ -268,12 +283,15 @@
             "id": "dim.led_relative",
             "title": {
                 "en": "Set LEDs relative dim-level"
+                "nl": "Stel het relatieve dimniveau in"
             },
             "titleFormatted": {
                 "en": "Dim the LEDs to [[dim]]%"
+                "nl": "Dim de LED's naar [[dim]]%"
             },
             "hint": {
                 "en": "Dim or brighten with respect to the device's current dim-level."
+                "nl": "Verlaag of verhoog de helderheid ten opzichte van het huidige dimniveau van het apparaat"
             },
             "args": [
                 {
