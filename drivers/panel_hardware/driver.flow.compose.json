@@ -3,7 +3,7 @@
         {
             "id": "dim.large_changed",
             "title": {
-                "en": "The large display brightness changed Changed"
+                "en": "The large display brightness changed"
             },
             "tokens": [
                 {
@@ -29,7 +29,7 @@
         {
             "id": "dim.small_changed",
             "title": {
-                "en": "The mini display brightness changed Changed"
+                "en": "The mini display brightness changed"
             },
             "tokens": [
                 {
@@ -55,7 +55,7 @@
         {
             "id": "dim.led_changed",
             "title": {
-                "en": "The LED brightness changed Changed"
+                "en": "The LED brightness changed"
             },
             "tokens": [
                 {

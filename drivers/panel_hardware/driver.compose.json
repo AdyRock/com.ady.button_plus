@@ -82,7 +82,7 @@
             "type": "text",
             "label": {
                 "en": "IP address",
-                "nl": "IP adres
+                "nl": "IP adres"
             },
             "value": "",
             "hint": {
