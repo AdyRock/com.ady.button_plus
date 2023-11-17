@@ -93,7 +93,17 @@
                 {
                     "name": "dim",
                     "title": {
-                        "en": "Level"
+                        "en": "Level",
+                        "nl": "Niveau",
+                        "de": "Niveau",
+                        "fr": "Niveau",
+                        "it": "Livello",
+                        "sv": "Nivå",
+                        "no": "Nivå",
+                        "es": "Nivel",
+                        "da": "Niveau",
+                        "ru": "Уровень",
+                        "pl": "Poziom"
                     },
                     "type": "range",
                     "min": 0,
@@ -121,7 +131,17 @@
                 {
                     "name": "dim",
                     "title": {
-                        "en": "Level"
+                        "en": "Level",
+                        "nl": "Niveau",
+                        "de": "Niveau",
+                        "fr": "Niveau",
+                        "it": "Livello",
+                        "sv": "Nivå",
+                        "no": "Nivå",
+                        "es": "Nivel",
+                        "da": "Niveau",
+                        "ru": "Уровень",
+                        "pl": "Poziom"
                     },
                     "type": "range",
                     "min": -1,
@@ -147,7 +167,17 @@
                 {
                     "name": "dim",
                     "title": {
-                        "en": "Level"
+                        "en": "Level",
+                        "nl": "Niveau",
+                        "de": "Niveau",
+                        "fr": "Niveau",
+                        "it": "Livello",
+                        "sv": "Nivå",
+                        "no": "Nivå",
+                        "es": "Nivel",
+                        "da": "Niveau",
+                        "ru": "Уровень",
+                        "pl": "Poziom"
                     },
                     "type": "range",
                     "min": 0,
@@ -175,7 +205,17 @@
                 {
                     "name": "dim",
                     "title": {
-                        "en": "Level"
+                        "en": "Level",
+                        "nl": "Niveau",
+                        "de": "Niveau",
+                        "fr": "Niveau",
+                        "it": "Livello",
+                        "sv": "Nivå",
+                        "no": "Nivå",
+                        "es": "Nivel",
+                        "da": "Niveau",
+                        "ru": "Уровень",
+                        "pl": "Poziom"
                     },
                     "type": "range",
                     "min": -1,
@@ -201,7 +241,17 @@
                 {
                     "name": "dim",
                     "title": {
-                        "en": "Level"
+                        "en": "Level",
+                        "nl": "Niveau",
+                        "de": "Niveau",
+                        "fr": "Niveau",
+                        "it": "Livello",
+                        "sv": "Nivå",
+                        "no": "Nivå",
+                        "es": "Nivel",
+                        "da": "Niveau",
+                        "ru": "Уровень",
+                        "pl": "Poziom"
                     },
                     "type": "range",
                     "min": 0,
@@ -229,7 +279,17 @@
                 {
                     "name": "dim",
                     "title": {
-                        "en": "Level"
+                        "en": "Level",
+                        "nl": "Niveau",
+                        "de": "Niveau",
+                        "fr": "Niveau",
+                        "it": "Livello",
+                        "sv": "Nivå",
+                        "no": "Nivå",
+                        "es": "Nivel",
+                        "da": "Niveau",
+                        "ru": "Уровень",
+                        "pl": "Poziom"
                     },
                     "type": "range",
                     "min": -1,

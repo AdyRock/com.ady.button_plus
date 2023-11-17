@@ -126,7 +126,7 @@ class PanelDevice extends BasePanelDevice
      */
     async onAdded()
     {
-        super.onAdded();
+        await super.onAdded();
         this.log('PanelDevice has been added');
     }
 
@@ -174,7 +174,7 @@ class PanelDevice extends BasePanelDevice
      */
     async onRenamed(name)
     {
-        super.onRenamed(name);
+        await super.onRenamed(name);
         this.log('PanelDevice was renamed');
     }
 
@@ -188,7 +188,7 @@ class PanelDevice extends BasePanelDevice
             this.homey.clearInterval(this.dateTimer);
         }
 
-        super.onDeleted();
+        await super.onDeleted();
         this.log('PanelDevice has been deleted');
     }
 
