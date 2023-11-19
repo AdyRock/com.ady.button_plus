@@ -276,6 +276,12 @@ class MyApp extends Homey.App
                 return (args.left_right === state.left_right && args.connector === state.connector);
             });
 
+        this.triggerButtonRelease = this.homey.flow.getDeviceTriggerCard('button_release')
+            .registerRunListener((args, state) =>
+            {
+                return (args.left_right === state.left_right && args.connector === state.connector);
+            });
+
         this.homey.flow.getActionCard('switch_button_configuration')
             .registerRunListener(async (args, state) =>
             {
@@ -773,6 +779,16 @@ class MyApp extends Homey.App
                 payload,
             },
         );
+
+        // Add the click release event entry
+        mqttButtons.topics.push(
+            {
+                brokerid: 'homey',
+                eventtype: 2,
+                topic: 'homey/clickrelease',
+                payload,
+            },
+        );
     }
 
     async setupClickTopic(mqttButtons, ButtonPanelConfiguration, connectorNo, side)
@@ -830,6 +846,16 @@ class MyApp extends Homey.App
                         brokerid: brokerId,
                         eventtype: 1,
                         topic: 'homey/longpress',
+                        payload,
+                    },
+                );
+
+                // Add the long press event entry
+                mqttButtons.topics.push(
+                    {
+                        brokerid: brokerId,
+                        eventtype: 2,
+                        topic: 'homey/clickrelease',
                         payload,
                     },
                 );
@@ -1345,6 +1371,14 @@ class MyApp extends Homey.App
                 }
             });
 
+            MQTTclient.subscribe('homey/clickrelease', (err) =>
+            {
+                if (err)
+                {
+                    this.updateLog("setupMQTTClient.onConnect 'homey/clickrelease' error: " * this.varToString(err), 0);
+                }
+            });
+
             const drivers = this.homey.drivers.getDrivers();
             for (const driver of Object.values(drivers))
             {
@@ -1766,6 +1800,14 @@ class MyApp extends Homey.App
         const tokens = { left_right: leftright, connector };
         const state = { left_right: leftright ? 'left' : 'right', connector };
         this.triggerFlow(this._triggerButtonLongPress, device, tokens, state);
+        return this;
+    }
+
+    triggerButtonRelease(device, leftright, connector)
+    {
+        const tokens = { left_right: leftright, connector };
+        const state = { left_right: leftright ? 'left' : 'right', connector };
+        this.triggerFlow(this._triggerButtonRelease, device, tokens, state);
         return this;
     }
 

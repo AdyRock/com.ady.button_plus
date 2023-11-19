@@ -577,6 +577,10 @@ class BasePanelDevice extends Device
         {
             this.homey.app.triggerButtonLongPress(this, MQTTMessage.side === 'left', MQTTMessage.connector);
         }
+        else if (topic === 'homey/clickrelease' && MQTTMessage)
+        {
+            this.homey.app.triggerButtonRelease(this, MQTTMessage.side === 'left', MQTTMessage.connector);
+        }
     }
 
     updateGatewayConfig(id, newIp)
