@@ -282,6 +282,24 @@ class MyApp extends Homey.App
                 return (args.left_right === state.left_right && args.connector === state.connector);
             });
 
+        this.triggerDimLargeChanged = this.homey.flow.getDeviceTriggerCard('dim.large_changed')
+            .registerRunListener((args, state) =>
+            {
+                return true;
+            });
+
+        this.triggerDimMiniChanged = this.homey.flow.getDeviceTriggerCard('dim.small_changed')
+            .registerRunListener((args, state) =>
+            {
+                return true;
+            });
+
+        this.triggerDimLEDChanged = this.homey.flow.getDeviceTriggerCard('dim.led_changed')
+            .registerRunListener((args, state) =>
+            {
+                return true;
+            });
+
         this.homey.flow.getActionCard('switch_button_configuration')
             .registerRunListener(async (args, state) =>
             {
@@ -322,22 +340,43 @@ class MyApp extends Homey.App
         this.homey.flow.getActionCard('dim.large')
             .registerRunListener(async (args, state) =>
             {
-                this.log('dim.large');
-                return args.device.triggerCapabilityListener('dim.large', args.dim / 100);
+                this.log(`dim.large Flow Action ${args.dim}`);
+                return args.device.triggerCapabilityListener('dim.large', args.dim > 1 ? args.dim / 100 : args.dim);
             });
 
         this.homey.flow.getActionCard('dim.small')
             .registerRunListener(async (args, state) =>
             {
-                this.log('dim.large');
-                return args.device.triggerCapabilityListener('dim.small', args.dim / 100);
+                this.log(`dim.small Flow Action ${args.dim}`);
+                return args.device.triggerCapabilityListener('dim.small', args.dim > 1 ? args.dim / 100 : args.dim);
             });
 
         this.homey.flow.getActionCard('dim.led')
             .registerRunListener(async (args, state) =>
             {
-                this.log('dim.large');
-                return args.device.triggerCapabilityListener('dim.led', args.dim / 100);
+                this.log(`dim.led Flow Action ${args.dim}`);
+                return args.device.triggerCapabilityListener('dim.led', args.dim > 1 ? args.dim / 100 : args.dim);
+            });
+
+        this.homey.flow.getActionCard('dim.large_relative')
+            .registerRunListener(async (args, state) =>
+            {
+                this.log('dim.large_relative');
+                return args.device.triggerCapabilityListener('dim.large', args.dim > 1 ? args.dim / 100 : args.dim);
+            });
+
+        this.homey.flow.getActionCard('dim.small_relative')
+            .registerRunListener(async (args, state) =>
+            {
+                this.log('dim.small_relative');
+                return args.device.triggerCapabilityListener('dim.small', args.dim > 1 ? args.dim / 100 : args.dim);
+            });
+
+        this.homey.flow.getActionCard('dim.led_relative')
+            .registerRunListener(async (args, state) =>
+            {
+                this.log('dim.led_relative');
+                return args.device.triggerCapabilityListener('dim.led', args.dim > 1 ? args.dim / 100 : args.dim);
             });
 
         /** * CONDITIONS ** */
@@ -1085,6 +1124,13 @@ class MyApp extends Homey.App
             }
         }
 
+        // Remove core.brightnesslargedisplay and core.brightnessminidisplay references from deviceConfiguration
+        if (deviceConfiguration.core.brightnesslargedisplay)
+        {
+            delete deviceConfiguration.core.brightnesslargedisplay;
+            delete deviceConfiguration.core.brightnessminidisplay;
+        }
+    
         this.updateLog(`writeDeviceConfiguration: ${this.varToString(deviceConfiguration)}`);
 
         if (ip !== '')
@@ -1808,6 +1854,25 @@ class MyApp extends Homey.App
         const tokens = { left_right: leftright, connector };
         const state = { left_right: leftright ? 'left' : 'right', connector };
         this.triggerFlow(this._triggerButtonRelease, device, tokens, state);
+        return this;
+    }
+
+    triggerDim(device, subdevice, dim)
+    {
+        const tokens = { dim };
+        const state = { dim };
+        if (subdevice === 'largedisplay')
+        {
+            this.triggerFlow(this.triggerDimLargeChanged, device, tokens, state);
+        }
+        else if (subdevice === 'minidisplay')
+        {
+            this.triggerFlow(this.triggerDimMiniChanged, device, tokens, state);
+        }
+        else if (subdevice === 'leds')
+        {
+            this.triggerFlow(this.triggerDimLEDChanged, device, tokens, state);
+        }
         return this;
     }
 

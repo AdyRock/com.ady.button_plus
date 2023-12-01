@@ -110,6 +110,7 @@ class PanelDevice extends BasePanelDevice
 
     async onCapabilityDim(mqttTopic, value, opts)
     {
+        this.homey.app.triggerDim( this, mqttTopic, value)
         if (opts && opts.mqtt)
         {
             // From MQTT, don't send it back
@@ -119,6 +120,7 @@ class PanelDevice extends BasePanelDevice
         // Publish the new value to the MQTT broker
         const { id } = this.getData();
         this.homey.app.publishMQTTMessage('homey', `${id}/brightness/${mqttTopic}/value`, value * 100);
+
     }
 
     /**

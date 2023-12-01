@@ -946,8 +946,8 @@
           "nl": "Dim het grote display naar"
         },
         "titleFormatted": {
-          "en": "Dim the large display to [[dim]]%",
-          "nl": "Dim het grote display naar [[dim]]%"
+          "en": "Dim the large display to [[dim]]",
+          "nl": "Dim het grote display naar [[dim]]"
         },
         "args": [
           {
@@ -988,8 +988,8 @@
           "nl": "Stel het relatieve dimniveau van het grote display in"
         },
         "titleFormatted": {
-          "en": "Dim the large display to [[dim]]%",
-          "nl": "Dim het grote display naar [[dim]]%"
+          "en": "Dim the large display by [[dim]]",
+          "nl": "Dim het grote display met [[dim]]"
         },
         "hint": {
           "en": "Dim or brighten with respect to the device's current dim-level.",
@@ -1035,8 +1035,8 @@
           "nl": "Dim het mini display naar"
         },
         "titleFormatted": {
-          "en": "Dim the mini display to [[dim]]%",
-          "nl": "Dim het mini display naar [[dim]]%"
+          "en": "Dim the mini display to [[dim]]",
+          "nl": "Dim het mini display naar [[dim]]"
         },
         "args": [
           {
@@ -1077,8 +1077,8 @@
           "nl": "Stel het relatieve dimniveau van het mini-display in"
         },
         "titleFormatted": {
-          "en": "Dim the mini display to [[dim]]%",
-          "nl": "Dim het mini display naar [[dim]]%"
+          "en": "Dim the mini display by [[dim]]",
+          "nl": "Dim het mini display met [[dim]]"
         },
         "hint": {
           "en": "Dim or brighten with respect to the device's current dim-level.",
@@ -1124,8 +1124,8 @@
           "nl": "Dim de LED's naar"
         },
         "titleFormatted": {
-          "en": "Dim the LEDs to [[dim]]%",
-          "nl": "Dim de LED's naar [[dim]]%"
+          "en": "Dim the LEDs to [[dim]]",
+          "nl": "Dim de LED's naar [[dim]]"
         },
         "args": [
           {
@@ -1166,8 +1166,8 @@
           "nl": "Stel het relatieve dimniveau in"
         },
         "titleFormatted": {
-          "en": "Dim the LEDs to [[dim]]%",
-          "nl": "Dim de LED's naar [[dim]]%"
+          "en": "Dim the LEDs by [[dim]]",
+          "nl": "Dim de LED's met [[dim]]"
         },
         "hint": {
           "en": "Dim or brighten with respect to the device's current dim-level.",
