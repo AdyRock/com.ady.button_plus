@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.ady.button_plus",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "platforms": [
@@ -193,7 +193,7 @@
           {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=panel_hardware|panel_simulator"
+            "filter": "driver_id=panel_hardware"
           }
         ],
         "id": "button_change"
@@ -274,7 +274,7 @@
           {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=panel_hardware|panel_simulator"
+            "filter": "driver_id=panel_hardware"
           }
         ],
         "id": "button_long_press"
@@ -355,7 +355,7 @@
           {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=panel_hardware|panel_simulator"
+            "filter": "driver_id=panel_hardware"
           }
         ],
         "id": "button_off"
@@ -436,7 +436,7 @@
           {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=panel_hardware|panel_simulator"
+            "filter": "driver_id=panel_hardware"
           }
         ],
         "id": "button_on"
@@ -680,7 +680,7 @@
           {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=panel_hardware|panel_simulator"
+            "filter": "driver_id=panel_hardware"
           }
         ],
         "id": "is_button_on"
@@ -689,11 +689,165 @@
     "actions": [
       {
         "title": {
-          "en": "Set Information Text",
+          "en": "Set configuration cutton top label",
+          "nl": "Stel configuratie knop boven label in"
+        },
+        "titleFormatted": {
+          "en": "Set the [[left_right]] button label of configuration [[config]] to [[label]]",
+          "nl": "Stel het [[left_right]] knop label van configuratie [[config]] in op [[label]]"
+        },
+        "hint": {
+          "en": "Sets the label of the specified button",
+          "nl": "Stelt het label van de opgegeven knop in"
+        },
+        "args": [
+          {
+            "type": "dropdown",
+            "name": "left_right",
+            "title": {
+              "en": "Left /  Right",
+              "nl": "Links / Rechts "
+            },
+            "placeholder": {
+              "en": "Left / Right",
+              "nl": "Links / Rechts "
+            },
+            "values": [
+              {
+                "id": "left",
+                "title": {
+                  "en": "Left",
+                  "nl": "Links "
+                }
+              },
+              {
+                "id": "right",
+                "title": {
+                  "en": "Right",
+                  "nl": "Rechts "
+                }
+              }
+            ]
+          },
+          {
+            "type": "number",
+            "name": "config",
+            "title": {
+              "en": "configuration number",
+              "nl": "Configuratie nummer"
+            },
+            "placeholder": {
+              "en": "configuration number",
+              "nl": "Configuratie nummer"
+            },
+            "min": 1,
+            "max": 20,
+            "step": 1
+          },
+          {
+            "type": "text",
+            "name": "label",
+            "title": {
+              "en": "Label",
+              "nl": "Label"
+            },
+            "placeholder": {
+              "en": "Label",
+              "nl": "Label"
+            }
+          },
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=panel_hardware"
+          }
+        ],
+        "id": "set_config_button_top_label"
+      },
+      {
+        "title": {
+          "en": "Set connector button top label",
+          "nl": "Stel knop boven label in"
+        },
+        "titleFormatted": {
+          "en": "Set the [[left_right]] button label on connector [[connector]] to [[label]]",
+          "nl": "Stel het [[left_right]] knop label op connector [[connector]] in op [[label]]"
+        },
+        "hint": {
+          "en": "Sets the label of the specified button",
+          "nl": "Stelt het label van de opgegeven knop in"
+        },
+        "args": [
+          {
+            "type": "dropdown",
+            "name": "left_right",
+            "title": {
+              "en": "Left /  Right",
+              "nl": "Links / Rechts "
+            },
+            "placeholder": {
+              "en": "Left / Right",
+              "nl": "Links / Rechts "
+            },
+            "values": [
+              {
+                "id": "left",
+                "title": {
+                  "en": "Left",
+                  "nl": "Links "
+                }
+              },
+              {
+                "id": "right",
+                "title": {
+                  "en": "Right",
+                  "nl": "Rechts "
+                }
+              }
+            ]
+          },
+          {
+            "type": "number",
+            "name": "connector",
+            "title": {
+              "en": "Connector number",
+              "nl": "Connector nummer "
+            },
+            "placeholder": {
+              "en": "Connector number",
+              "nl": "Connector nummer "
+            },
+            "min": 1,
+            "max": 4,
+            "step": 1
+          },
+          {
+            "type": "text",
+            "name": "label",
+            "title": {
+              "en": "Label",
+              "nl": "Label"
+            },
+            "placeholder": {
+              "en": "Label",
+              "nl": "Label"
+            }
+          },
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=panel_hardware"
+          }
+        ],
+        "id": "set_connector_button_top_label"
+      },
+      {
+        "title": {
+          "en": "Set information text",
           "nl": "Informatie tekst instellen"
         },
         "titleFormatted": {
-          "en": "Set the Information text to [[info]]",
+          "en": "Set the information text to [[info]]",
           "nl": "Informatie tekst instellen naar [[info]]"
         },
         "hint": {
@@ -705,30 +859,30 @@
             "type": "text",
             "name": "info",
             "title": {
-              "en": "Information Text",
+              "en": "Information text",
               "nl": "Informatie tekst"
             },
             "placeholder": {
-              "en": "Information Text",
+              "en": "Information text",
               "nl": "Informatie tekst"
             }
           },
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=panel_hardware|panel_simulator"
+            "filter": "driver_id=panel_hardware"
           }
         ],
         "id": "set_info"
       },
       {
         "title": {
-          "en": "Switch Button Configuration",
+          "en": "Switch button configuration",
           "nl": "Knop configuratie wisselen"
         },
         "titleFormatted": {
-          "en": "Switch [[connector]] to Button Configuration [[configurationId]]",
-          "nl": "Wissel [[connector]] naar Knop configuratie [[configurationId]]"
+          "en": "Switch [[connector]] to button configuration [[configurationId]]",
+          "nl": "Wissel [[connector]] naar knop configuratie [[configurationId]]"
         },
         "hint": {
           "en": "Send the select configuration to the display device for the selected connector",
@@ -768,14 +922,14 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=panel_hardware|panel_simulator"
+            "filter": "driver_id=panel_hardware"
           }
         ],
         "id": "switch_button_configuration"
       },
       {
         "title": {
-          "en": "Switch Display Configuration",
+          "en": "Switch display configuration",
           "nl": "Stuur display configuratie"
         },
         "titleFormatted": {
@@ -805,22 +959,22 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=panel_hardware|panel_simulator"
+            "filter": "driver_id=panel_hardware"
           }
         ],
         "id": "switch_display_configuration"
       },
       {
         "title": {
-          "en": "Turn Button off",
+          "en": "Turn button off",
           "nl": "Schakel knop Uit"
         },
         "titleFormatted": {
-          "en": "Turn Off [[left_right]] button on connector [[connector]]",
+          "en": "Turn off [[left_right]] button on connector [[connector]]",
           "nl": "Schakel [[left_right]] knop Uit op connector [[connector]]"
         },
         "hint": {
-          "en": "Turn Off the specified button",
+          "en": "Turn off the specified button",
           "nl": "Schakel de geselecteerde knop Uit"
         },
         "args": [
@@ -839,13 +993,15 @@
               {
                 "id": "left",
                 "title": {
-                  "en": "Left"
+                  "en": "Left",
+                  "nl": "Links "
                 }
               },
               {
                 "id": "right",
                 "title": {
-                  "en": "Right"
+                  "en": "Right",
+                  "nl": "Rechts "
                 }
               }
             ]
@@ -868,7 +1024,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=panel_hardware|panel_simulator"
+            "filter": "driver_id=panel_hardware"
           }
         ],
         "id": "turn_off_button"
@@ -933,7 +1089,7 @@
           {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=panel_hardware|panel_simulator"
+            "filter": "driver_id=panel_hardware"
           }
         ],
         "id": "turn_on_button"

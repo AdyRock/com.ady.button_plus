@@ -319,14 +319,14 @@ class MyApp extends Homey.App
         this.homey.flow.getActionCard('turn_on_button')
             .registerRunListener(async (args, state) =>
             {
-                this.log(`${args.left_right}.connector${args.connector}`, args);
+                this.log(`${args.left_right}.connector${args.connector}`);
                 return args.device.triggerCapabilityListener(`${args.left_right}_button.connector${args.connector}`, true);
             });
 
         this.homey.flow.getActionCard('set_info')
             .registerRunListener(async (args, state) =>
             {
-                this.log(`${args.info}`, args);
+                this.log(`${args.info}`);
                 return args.device.triggerCapabilityListener('info', args.info);
             });
 
@@ -377,6 +377,18 @@ class MyApp extends Homey.App
             {
                 this.log('dim.led_relative');
                 return args.device.triggerCapabilityListener('dim.led', args.dim > 1 ? args.dim / 100 : args.dim);
+            });
+        this.homey.flow.getActionCard('set_connector_button_top_label')
+            .registerRunListener(async (args, state) =>
+            {
+                this.log(`set_connector_button_label ${args.left_right} connector${args.connector} to ${args.label}`);
+                return args.device.updateConnectorTopLabel(args.left_right, args.connector - 1, args.label);
+            });
+        this.homey.flow.getActionCard('set_config_button_top_label')
+            .registerRunListener(async (args, state) =>
+            {
+                this.log(`set_config_button_label ${args.left_right} config${args.config} to ${args.label}`);
+                return args.device.updateConfigTopLabel(args.left_right, args.config - 1, args.label);
             });
 
         /** * CONDITIONS ** */
@@ -644,7 +656,7 @@ class MyApp extends Homey.App
         return null;
     }
 
-    async uploadButtonPanelConfiguration(ip, connectorNo, configurationNo)
+    async uploadButtonPanelConfiguration(ip, panelId, connectorNo, configurationNo)
     {
         try
         {
@@ -655,7 +667,7 @@ class MyApp extends Homey.App
             if (deviceConfiguration)
             {
                 // apply the new configuration
-                await this.applyButtonConfiguration(deviceConfiguration, connectorNo, configurationNo);
+                await this.applyButtonConfiguration(panelId, deviceConfiguration, connectorNo, configurationNo);
 
                 // write the updated configuration back to the device
                 await this.writeDeviceConfiguration(ip, deviceConfiguration);
@@ -668,7 +680,7 @@ class MyApp extends Homey.App
         }
     }
 
-    async applyButtonConfiguration(deviceConfiguration, connectorNo, configurationNo)
+    async applyButtonConfiguration(panelId, deviceConfiguration, connectorNo, configurationNo)
     {
         if (deviceConfiguration)
         {
@@ -713,6 +725,7 @@ class MyApp extends Homey.App
                             );
 
                             await this.setupStatusTopic(
+                                panelId,
                                 buttonIdx,
                                 deviceConfiguration.mqttbuttons[buttonIdx],
                                 ButtonPanelConfiguration,
@@ -735,13 +748,15 @@ class MyApp extends Homey.App
                         else
                         {
                             const capability = await this.setupClickTopic(
-                            deviceConfiguration.mqttbuttons[buttonIdx],
-                            ButtonPanelConfiguration,
-                            connectorNo,
-                            'right',
+                                panelId,
+                                deviceConfiguration.mqttbuttons[buttonIdx],
+                                ButtonPanelConfiguration,
+                                connectorNo,
+                                'right',
                             );
 
                             await this.setupStatusTopic(
+                                panelId,
                                 buttonIdx,
                                 deviceConfiguration.mqttbuttons[buttonIdx],
                                 ButtonPanelConfiguration,
@@ -908,7 +923,7 @@ class MyApp extends Homey.App
         return capability;
     }
 
-    async setupStatusTopic(buttonIdx, mqttButtons, ButtonPanelConfiguration, side, capability)
+    async setupStatusTopic(panelId, buttonIdx, mqttButtons, ButtonPanelConfiguration, side, capability)
     {
         const configCapability = ButtonPanelConfiguration[`${side}Capability`];
         const topLabel = ButtonPanelConfiguration[`${side}TopText`];
@@ -943,7 +958,17 @@ class MyApp extends Homey.App
                     {
                         brokerid: brokerId,
                         eventtype: 14,
-                        topic: `homey/button/${buttonIdx}/value`,
+                        topic: `${panelId}/button/${buttonIdx}/value`,
+                        payload,
+                    },
+                );
+
+                // Add the Top Label event entry
+                mqttButtons.topics.push(
+                    {
+                        brokerid: brokerId,
+                        eventtype: 12,
+                        topic: `${panelId}/button/${buttonIdx}/toplabel`,
                         payload,
                     },
                 );
@@ -953,7 +978,7 @@ class MyApp extends Homey.App
                     {
                         brokerid: brokerId,
                         eventtype: 11,
-                        topic: `homey/button/${buttonIdx}/label`,
+                        topic: `${panelId}/button/${buttonIdx}/label`,
                         payload,
                     },
                 );
@@ -979,6 +1004,16 @@ class MyApp extends Homey.App
                         },
                     );
                 }
+
+                // Add the Top Label event entry
+                mqttButtons.topics.push(
+                    {
+                        brokerid: brokerId,
+                        eventtype: 12,
+                        topic: `homey/${configDevice}/${configCapability}/toplabel`,
+                        payload,
+                    },
+                );
 
                 // Add the Label event entry
                 mqttButtons.topics.push(
@@ -1547,7 +1582,7 @@ class MyApp extends Homey.App
     async publishMQTTMessage(MQTT_Id, topic, message)
     {
         const data = (typeof message === 'string' || message instanceof String) ? message : JSON.stringify(message);
-        this.updateLog(`publishMQTTMessage: ${data} to topic ${topic}}`);
+        this.updateLog(`publishMQTTMessage: ${data} to topic ${topic}`);
         try
         {
             const MQTTclient = this.MQTTClients.get(MQTT_Id);

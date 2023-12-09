@@ -77,7 +77,7 @@
         {
             "name": "device",
             "type": "device",
-            "filter": "driver_id=panel_hardware|panel_simulator"
+            "filter": "driver_id=panel_hardware"
         }
     ]
 }

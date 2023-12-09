@@ -1,10 +1,10 @@
 {
     "title": {
-        "en": "Set Information Text",
+        "en": "Set information text",
         "nl": "Informatie tekst instellen"
     },
     "titleFormatted": {
-        "en": "Set the Information text to [[info]]",
+        "en": "Set the information text to [[info]]",
         "nl": "Informatie tekst instellen naar [[info]]"
     },
     "hint": {
@@ -16,18 +16,18 @@
             "type": "text",
             "name": "info",
             "title": {
-                "en": "Information Text",
+                "en": "Information text",
                 "nl": "Informatie tekst"
             },
             "placeholder": {
-                "en": "Information Text",
+                "en": "Information text",
                 "nl": "Informatie tekst"
             }
         },
         {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=panel_hardware|panel_simulator"
+            "filter": "driver_id=panel_hardware"
         }
     ]
 }

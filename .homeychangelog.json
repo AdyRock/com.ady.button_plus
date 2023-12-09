@@ -37,5 +37,8 @@
     },
     "0.2.2": {
         "en": "Fix small spelling error in Flow trigger card."
+    },
+    "0.2.3": {
+        "en": "Added Set Top Label action cards."
     }
 }

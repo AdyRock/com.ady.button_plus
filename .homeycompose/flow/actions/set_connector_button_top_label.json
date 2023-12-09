@@ -1,15 +1,15 @@
 {
     "title": {
-        "en": "Turn button off",
-        "nl": "Schakel knop Uit"
+        "en": "Set connector button top label",
+        "nl": "Stel knop boven label in"
     },
     "titleFormatted": {
-        "en": "Turn off [[left_right]] button on connector [[connector]]",
-        "nl": "Schakel [[left_right]] knop Uit op connector [[connector]]"
+        "en": "Set the [[left_right]] button label on connector [[connector]] to [[label]]",
+        "nl": "Stel het [[left_right]] knop label op connector [[connector]] in op [[label]]"
     },
     "hint": {
-        "en": "Turn off the specified button",
-        "nl": "Schakel de geselecteerde knop Uit"
+        "en": "Sets the label of the specified button",
+        "nl": "Stelt het label van de opgegeven knop in"
     },
     "args": [
         {
@@ -54,6 +54,18 @@
             "min": 1,
             "max": 4,
             "step": 1
+        },
+        {
+            "type": "text",
+            "name": "label",
+            "title": {
+                "en": "Label",
+                "nl": "Label"
+            },
+            "placeholder": {
+                "en": "Label",
+                "nl": "Label"
+            }
         },
         {
             "type": "device",

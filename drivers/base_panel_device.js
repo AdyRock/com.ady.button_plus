@@ -135,6 +135,7 @@ class BasePanelDevice extends Device
             return;
         }
         const ButtonPanelConfiguration = this.homey.app.buttonConfigurations[configNo];
+        const { id } = this.getData();
 
         let value = 0;
 
@@ -164,8 +165,8 @@ class BasePanelDevice extends Device
             }
             else
             {
-                this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.leftBrokerId, `homey/button/${connector * 2}/value`, value);
-                this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.leftBrokerId, `homey/button/${connector * 2}/label`,
+                this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.leftBrokerId, `${id}/button/${connector * 2}/value`, value);
+                this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.leftBrokerId, `${id}/button/${connector * 2}/label`,
                     value ? ButtonPanelConfiguration.leftOnText : ButtonPanelConfiguration.leftOffText);
             }
             value = 0;
@@ -197,8 +198,8 @@ class BasePanelDevice extends Device
             }
             else
             {
-                this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.rightBrokerId, `homey/button/${connector * 2 + 1}/value`, value);
-                this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.rightBrokerId, `homey/button/${connector * 2 + 1}/label`,
+                this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.rightBrokerId, `${id}/button/${connector * 2 + 1}/value`, value);
+                this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.rightBrokerId, `${id}/button/${connector * 2 + 1}/label`,
                     value ? ButtonPanelConfiguration.rightOnText : ButtonPanelConfiguration.rightOffText);
             }
         }
@@ -312,8 +313,8 @@ class BasePanelDevice extends Device
             }
             else
             {
-                this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.leftBrokerId, `homey/button/${connector * 2}/value`, value);
-                this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.leftBrokerId, `homey/button/${connector * 2}/label`,
+                this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.leftBrokerId, `${id}/button/${connector * 2}/value`, value);
+                this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.leftBrokerId, `${id}/button/${connector * 2}/label`,
                     value ? ButtonPanelConfiguration.leftOnText : ButtonPanelConfiguration.leftOffText);
             }
         }
@@ -384,8 +385,8 @@ class BasePanelDevice extends Device
             }
             else
             {
-                this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.rightrokerId, `homey/button/${connector * 2 + 1}/value`, value);
-                this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.rightrokerId, `homey/button/${connector * 2 + 1}/label`,
+                this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.rightrokerId, `${id}/button/${connector * 2 + 1}/value`, value);
+                this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.rightrokerId, `${id}/button/${connector * 2 + 1}/label`,
                     value ? ButtonPanelConfiguration.rightOnText : ButtonPanelConfiguration.rightOffText);
             }
         }
@@ -567,8 +568,8 @@ class BasePanelDevice extends Device
                     }
                     else
                     {
-                        this.homey.app.publishMQTTMessage(brokerId, `homey/button/${buttonNumber}/value`, value);
-                        this.homey.app.publishMQTTMessage(brokerId, `homey/button/${buttonNumber}/label`, value ? onMessage : offMessage);
+                        this.homey.app.publishMQTTMessage(brokerId, `${id}/button/${buttonNumber}/value`, value);
+                        this.homey.app.publishMQTTMessage(brokerId, `${id}/button/${buttonNumber}/label`, value ? onMessage : offMessage);
                     }
                 }
             }
@@ -606,6 +607,7 @@ class BasePanelDevice extends Device
     async uploadButtonConfigurations(deviceConfigurations, writeConfiguration)
     {
         const ip = this.getSetting('address');
+        const { id } = this.getData();
 
         if (!deviceConfigurations)
         {
@@ -637,7 +639,7 @@ class BasePanelDevice extends Device
                     {
                         if (configNo)
                         {
-                            await this.homey.app.applyButtonConfiguration(deviceConfigurations, i, configNo);
+                            await this.homey.app.applyButtonConfiguration(id, deviceConfigurations, i, configNo);
                             await this.publishButtonCapabilities(configNo, i);
                         }
                         else
@@ -772,8 +774,8 @@ class BasePanelDevice extends Device
                 else
                 {
                     const value = this.getCapabilityValue(`left_button.connector${connector}`);
-                    this.homey.app.publishMQTTMessage(item.leftBrokerId, `homey/button/${connector * 2}/label`, value ? item.leftOnText : item.leftOffText);
-                    this.homey.app.publishMQTTMessage(item.leftBrokerId, `homey/button/${connector * 2}/value`, value);
+                    this.homey.app.publishMQTTMessage(item.leftBrokerId, `${id}/button/${connector * 2}/label`, value ? item.leftOnText : item.leftOffText);
+                    this.homey.app.publishMQTTMessage(item.leftBrokerId, `${id}/button/${connector * 2}/value`, value);
                 }
             }
         }
@@ -798,8 +800,8 @@ class BasePanelDevice extends Device
                 else
                 {
                     const value = this.getCapabilityValue(`right_button.connector${connector}`);
-                    this.homey.app.publishMQTTMessage(item.rightBrokerId, `homey/button/${connector * 2 + 1}/label`, value ? item.rightOnText : item.rightOffText);
-                    this.homey.app.publishMQTTMessage(item.rightBrokerId, `homey/button/${connector * 2 + 1}/value`, value);
+                    this.homey.app.publishMQTTMessage(item.rightBrokerId, `${id}/button/${connector * 2 + 1}/label`, value ? item.rightOnText : item.rightOffText);
+                    this.homey.app.publishMQTTMessage(item.rightBrokerId, `${id}/button/${connector * 2 + 1}/value`, value);
                 }
             }
         }

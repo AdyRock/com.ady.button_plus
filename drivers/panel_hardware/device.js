@@ -120,7 +120,6 @@ class PanelDevice extends BasePanelDevice
         // Publish the new value to the MQTT broker
         const { id } = this.getData();
         this.homey.app.publishMQTTMessage('homey', `${id}/brightness/${mqttTopic}/value`, value * 100);
-
     }
 
     /**
@@ -215,6 +214,112 @@ class PanelDevice extends BasePanelDevice
         }
     }
 
+    async updateConnectorTopLabel(left_right, connector, label)
+    {
+        const { id } = this.getData();
+        var item = null;
+        if (this.hasCapability(`configuration_button.connector${connector}`))
+        {
+            // Get the configuration number for this connector
+            const configNo = this.getCapabilityValue(`configuration_button.connector${connector}`);
+            item = this.homey.app.buttonConfigurations[configNo];
+        }
+    
+        if (left_right === 'left')
+        {
+            if (item && item.leftDevice !== 'customMQTT' && item.leftDevice !== 'none')
+            {
+                return this.homey.app.publishMQTTMessage(item.leftBrokerId, `homey/${item.leftDevice}/${item.leftCapability}/toplabel`, label);
+            }
+
+            return this.homey.app.publishMQTTMessage('homey', `${id}/button/${connector * 2}/toplabel`, label);
+        }
+        else
+        {
+            if (item && item.rightDevice !== 'customMQTT' && item.rightDevice !== 'none')
+            {
+                return this.homey.app.publishMQTTMessage(item.rightBrokerId, `homey/${item.rightDevice}/${item.rightCapability}/toplabel`, label);
+            }
+
+            return this.homey.app.publishMQTTMessage('homey', `${id}//button/${connector * 2 + 1}/toplabel`, label);
+        }
+    }
+
+    async updateConfigTopLabel(left_right, configNo, label)
+    {
+        const item = this.homey.app.buttonConfigurations[configNo];
+        if (item)
+        {
+            if (left_right === 'left')
+            {
+                if (item.leftDevice !== 'customMQTT')
+                {
+                    if (item.leftDevice !== 'none')
+                    {
+                        this.homey.app.publishMQTTMessage(item.leftBrokerId, `homey/${item.leftDevice}/${item.leftCapability}/toplabel`, label);
+                    }
+                    else
+                    {
+                        // Find the button connector that has this configuration
+                        for (let connector = 0; connector < 8; connector++)
+                        {
+                            if (this.hasCapability(`configuration_button.connector${connector}`))
+                            {
+                                // Get the configuration number for this connector
+                                const config = this.getCapabilityValue(`configuration_button.connector${connector}`);
+                                if (config == configNo)
+                                {
+                                    return this.updateConnectorTopLabel('left', connector, label);
+                                }
+                            }
+                        }
+
+                        throw new Error('Configuration is not assigned to a button');
+                    }
+                }
+                else
+                {
+                    throw new Error('Custom MQTT not compatible');
+                }
+            }
+            else
+            {
+                if (item.rightDevice !== 'customMQTT')
+                {
+                    if (item.rightDevice !== 'none')
+                    {
+                        this.homey.app.publishMQTTMessage(item.rightBrokerId, `homey/${item.rightDevice}/${item.rightCapability}/toplabel`, label);
+                    }
+                    else
+                    {
+                        // Find the button connector that has this configuration
+                        for (let connector = 0; connector < 8; connector++)
+                        {
+                            if (this.hasCapability(`configuration_button.connector${connector}`))
+                            {
+                                // Get the configuration number for this connector
+                                const config = this.getCapabilityValue(`configuration_button.connector${connector}`);
+                                if (config == configNo)
+                                {
+                                    return this.updateConnectorTopLabel('right', connector, label);
+                                }
+                            }
+                        }
+
+                        throw new Error('Configuration is not assigned to a button');
+                    }
+                }
+                else
+                {
+                    throw new Error('Custom MQTT not compatible');
+                }
+            }
+        }
+        else
+        {
+            throw new Error('Invalid configuration number');
+        }
+    }
 }
 
 module.exports = PanelDevice;

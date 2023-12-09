@@ -1,11 +1,11 @@
 {
     "title": {
-        "en": "Switch Button Configuration",
+        "en": "Switch button configuration",
         "nl": "Knop configuratie wisselen"
     },
     "titleFormatted": {
-        "en": "Switch [[connector]] to Button Configuration [[configurationId]]",
-        "nl": "Wissel [[connector]] naar Knop configuratie [[configurationId]]"
+        "en": "Switch [[connector]] to button configuration [[configurationId]]",
+        "nl": "Wissel [[connector]] naar knop configuratie [[configurationId]]"
     },
     "hint": {
         "en": "Send the select configuration to the display device for the selected connector",
@@ -45,7 +45,7 @@
         {
             "type": "device",
             "name": "device",
-            "filter": "driver_id=panel_hardware|panel_simulator"
+            "filter": "driver_id=panel_hardware"
         }
     ]
 }
