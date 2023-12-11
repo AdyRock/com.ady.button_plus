@@ -613,20 +613,44 @@ class BasePanelDevice extends Device
         {
             // download the current configuration from the device
             deviceConfigurations = await this.homey.app.readDeviceConfiguration(ip);
+            this.setCapabilityValue('dim.large', deviceConfigurations.core.brightnesslargedisplay / 100).catch(this.error);
+            this.setCapabilityValue('dim.small', deviceConfigurations.core.brightnessminidisplay / 100).catch(this.error);
         }
 
         if (deviceConfigurations)
         {
+            let updated = false;
+
             // Set the core configuration values
             const invertMiniDisplay = this.getSetting('invertMiniDisplay');
             const largeDim = this.getCapabilityValue('dim.large');
             const smallDim = this.getCapabilityValue('dim.small');
             const ledDim = this.getCapabilityValue('dim.led');
+
+            // if the invertMiniDisplay setting is not null then use it
+            if (invertMiniDisplay !== null)
+            {
+                deviceConfigurations.core.invert = invertMiniDisplay ? 1 : 0;
+                updated = true;
+            }
         
-            deviceConfigurations.core.invert = invertMiniDisplay ? 1 : 0;
-            deviceConfigurations.core.brightnesslargedisplay = largeDim * 100;
-            deviceConfigurations.core.brightnessminidisplay = smallDim * 100;
-            deviceConfigurations.core.brightnessleds = ledDim * 100;
+            if (largeDim !== null)
+            {
+                deviceConfigurations.core.brightnesslargedisplay = largeDim * 100;
+                updated = true;
+            }
+
+            if (smallDim !== null)
+            {
+                deviceConfigurations.core.brightnessminidisplay = smallDim * 100;
+                updated = true;
+            }
+
+            if (ledDim !== null)
+            {
+                deviceConfigurations.core.brightnessleds = ledDim * 100;
+                updated = true;
+            }
 
             for (let i = 0; i < (deviceConfigurations.mqttbuttons.length / 2); i++)
             {
@@ -641,11 +665,7 @@ class BasePanelDevice extends Device
                         {
                             await this.homey.app.applyButtonConfiguration(id, deviceConfigurations, i, configNo);
                             await this.publishButtonCapabilities(configNo, i);
-                        }
-                        else
-                        {
-                            deviceConfigurations.mqttbuttons[buttonID] = { id: buttonID, label: `Btn ${buttonID}`, topics: [] };
-                            deviceConfigurations.mqttbuttons[buttonID + 1] = { id: buttonID + 1, label: `Btn ${buttonID + 1}`, topics: [] };
+                            updated = true;
                         }
                     }
                     catch (error)
@@ -653,17 +673,12 @@ class BasePanelDevice extends Device
                         this.homey.app.updateLog(error);
                     }
                 }
-                else
-                {
-                    deviceConfigurations.mqttbuttons[buttonID] = { id: buttonID, label: `Btn ${buttonID}`, topics: [] };
-                    deviceConfigurations.mqttbuttons[buttonID + 1] = { id: buttonID + 1, label: `Btn ${buttonID + 1}`, topics: [] };
-                }
             }
 
             this.homey.app.updateLog(`Device configuration: ${this.homey.app.varToString(deviceConfigurations)}`);
 
             // We might not want to write the configuration just yet as we are still uploading the display configuration
-            if (writeConfiguration)
+            if (updated && writeConfiguration)
             {
                 try
                 {
