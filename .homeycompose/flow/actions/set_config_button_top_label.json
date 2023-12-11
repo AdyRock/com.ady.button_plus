@@ -1,11 +1,11 @@
 {
     "title": {
-        "en": "Set configuration cutton top label",
-        "nl": "Stel configuratie knop boven label in"
+        "en": "Set configuration button top label",
+        "nl": "Stel configuratie knop top label in"
     },
     "titleFormatted": {
         "en": "Set the [[left_right]] button label of configuration [[config]] to [[label]]",
-        "nl": "Stel het [[left_right]] knop label van configuratie [[config]] in op [[label]]"
+        "nl": "Stel de [[left_right]] knop label van configuratie [[config]] in op [[label]]"
     },
     "hint": {
         "en": "Sets the label of the specified button",
