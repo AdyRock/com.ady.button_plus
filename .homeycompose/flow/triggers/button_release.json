@@ -1,10 +1,10 @@
 {
     "title": {
-        "en": "A button was released"
-        "nl": "Een knop is los gelaten
+        "en": "A button was released",
+        "nl": "Een knop is los gelaten"
     },
     "titleFormatted": {
-        "en": "The [[left_right]] button on connector [[connector]] was released"
+        "en": "The [[left_right]] button on connector [[connector]] was released",
         "nl": "De [[left_right]] knop op connector [[connector]] is los gelaten"
     },
     "tokens": [
