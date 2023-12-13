@@ -276,7 +276,7 @@ class MyApp extends Homey.App
                 return (args.left_right === state.left_right && args.connector === state.connector);
             });
 
-        this.triggerButtonRelease = this.homey.flow.getDeviceTriggerCard('button_release')
+        this._triggerButtonRelease = this.homey.flow.getDeviceTriggerCard('button_release')
             .registerRunListener((args, state) =>
             {
                 return (args.left_right === state.left_right && args.connector === state.connector);
@@ -419,7 +419,7 @@ class MyApp extends Homey.App
                     }
                     catch (error)
                     {
-                        this.updateLog(`Sync Devices error: ${error.message}`);
+                        this.updateLog(`refreshbuttonConfigurations: ${error.message}`);
                     }
                 }
 
@@ -447,7 +447,7 @@ class MyApp extends Homey.App
                     }
                     catch (error)
                     {
-                        this.updateLog(`Sync Devices error: ${error.message}`);
+                        this.updateLog(`refreshDisplayConfigurations: ${error.message}`);
                     }
                 }
 
@@ -765,6 +765,11 @@ class MyApp extends Homey.App
                             );
                         }
                     }
+                }
+                else
+                {
+                    this.updateLog(`Invalid connector type: ${deviceConfiguration.info.connectors[connectorIdx].type} on ${connectorNo}`);
+                    throw new Error(`Invalid connector type: ${deviceConfiguration.info.connectors[connectorIdx].type} on ${connectorNo}`);
                 }
             }
         }
@@ -1474,7 +1479,7 @@ class MyApp extends Homey.App
                         }
                         catch (error)
                         {
-                            this.updateLog(`Sync Devices error: ${error.message}`);
+                            this.updateLog(`SsetupMQTTClient: ${error.message}`);
                         }
                     }
 
@@ -1514,7 +1519,7 @@ class MyApp extends Homey.App
                                 }
                                 catch (error)
                                 {
-                                    this.updateLog(`Sync Devices error: ${error.message}`);
+                                    this.updateLog(`MQTTclient.on('message'): ${error.message}`);
                                 }
                             }
 

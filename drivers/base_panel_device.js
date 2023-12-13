@@ -244,18 +244,19 @@ class BasePanelDevice extends Device
         this.log('MyDevice has been deleted');
     }
 
-    onCapabilityDisplayConfiguration(value, opts)
+    async onCapabilityDisplayConfiguration(value, opts)
     {
         this.log('onCapabilityConfiguration', value, opts);
         const ip = this.getSetting('address');
-        this.homey.app.uploadDisplayConfiguration(ip, value, null, true);
+        await this.homey.app.uploadDisplayConfiguration(ip, value, null, true)
     }
 
-    onCapabilityConfiguration(connector, value, opts)
+    async onCapabilityConfiguration(connector, value, opts)
     {
         this.log('onCapabilityConfiguration', connector, value, opts);
         const ip = this.getSetting('address');
-        this.homey.app.uploadButtonPanelConfiguration(ip, connector, value);
+        const { id } = this.getData();
+        await this.homey.app.uploadButtonPanelConfiguration(ip, id, connector, value)
     }
 
     async onCapabilityLeftButton(connector, value, opts)
@@ -743,13 +744,13 @@ class BasePanelDevice extends Device
         {
             deviceConfigurations.mqttdisplays = [
                 {
-                    x: 0, y: 0, width: 100, fontsize: 0, align: 0, label: 'Homey says hello', round: 0, topics: [],
+                    x: 0, y: 0, width: 100, fontsize: 0, align: 0, label: this.homey.__("hello1"), round: 0, topics: [],
                 },
                 {
-                    x: 0, y: 20, width: 100, fontsize: 0, align: 0, label: 'Open the Button+ Homey app settings to setup configurations', round: 0, topics: [],
+                    x: 0, y: 20, width: 100, fontsize: 0, align: 0, label: this.homey.__("hello2"), round: 0, topics: [],
                 },
                 {
-                    x: 0, y: 40, width: 100, fontsize: 0, align: 0, label: 'Then use the Button+ Homey device to assign configurations', round: 0, topics: [],
+                    x: 0, y: 40, width: 100, fontsize: 0, align: 0, label: this.homey.__("hello3"), round: 0, topics: [],
                 },
             ];
         }
