@@ -40,5 +40,8 @@
     },
     "0.2.3": {
         "en": "Added Set Top Label action cards."
+    },
+    "0.2.4": {
+        "en": "Fix crash on invalid connector number. Fix flow trigger for buttons with no device associated."
     }
 }
