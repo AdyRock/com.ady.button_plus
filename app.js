@@ -748,7 +748,6 @@ class MyApp extends Homey.App
                         else
                         {
                             const capability = await this.setupClickTopic(
-                                panelId,
                                 deviceConfiguration.mqttbuttons[buttonIdx],
                                 ButtonPanelConfiguration,
                                 connectorNo,

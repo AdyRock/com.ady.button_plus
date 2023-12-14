@@ -944,8 +944,8 @@ class BasePanelDevice extends Device
         // eslint-disable-next-line object-curly-newline
         const time = dateTime.toLocaleTimeString('en-US', { hour12: true, hour: 'numeric', minute: 'numeric' });
 
-        this.setCapabilityValue('date', date);
-        this.setCapabilityValue('time', time);
+        this.setCapabilityValue('date', date).catch(this.error);
+        this.setCapabilityValue('time', time).catch(this.error);
 
         return dateTime;
     }

@@ -43,5 +43,8 @@
     },
     "0.2.4": {
         "en": "Fix crash on invalid connector number. Fix flow trigger for buttons with no device associated."
+    },
+    "0.2.5": {
+        "en": "Fix right side button events."
     }
 }
