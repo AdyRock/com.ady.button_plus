@@ -409,7 +409,7 @@ class BasePanelDevice extends Device
 
     async processMQTTMessage(topic, MQTTMessage)
     {
-        this.homey.app.updateLog('Panel processing MQTT message');
+        this.homey.app.updateLog(`Panel processing MQTT message: ${topic}, ${this.homey.app.varToString(MQTTMessage)}`);
         if (topic === 'homey/click' && MQTTMessage)
         {
             let buttonCapability = '';
@@ -419,8 +419,9 @@ class BasePanelDevice extends Device
                 this.homey.app.updateLog('The MQTT payload has no connector number');
                 return;
             }
+            const configNo = this.getCapabilityValue(`configuration_button.connector${connectorNo}`);
             const settings = this.getSettings();
-            if (settings[`connect${connectorNo}Type`] === 2)
+            if ((settings[`connect${connectorNo}Type`] === 2) || (configNo === null) || MQTTMessage.device === '' || MQTTMessage.capability === '')
             {
                 if (MQTTMessage.side === 'left')
                 {
@@ -440,22 +441,16 @@ class BasePanelDevice extends Device
                     }
                     await this.setCapabilityValue(buttonCapability, true).catch(this.error);
                     // trigger the flow
-                    this.homey.app.triggerButtonOn(this, MQTTMessage.side === 'left', connectorNo);
+                    this.homey.app.triggerButtonOn(this, MQTTMessage.side === 'left', connectorNo + 1);
                     this.buttonTime[buttonCapability] = this.homey.setTimeout(() => {
                         this.buttonTime[buttonCapability] = null;
                         this.setCapabilityValue(buttonCapability, false).catch(this.error);
-                        this.homey.app.triggerButtonOff(this, MQTTMessage.side === 'left', connectorNo);
+                        this.homey.app.triggerButtonOff(this, MQTTMessage.side === 'left', connectorNo + 1);
                     }, 500);
                 }
                 return;
             }
 
-            const configNo = this.getCapabilityValue(`configuration_button.connector${connectorNo}`);
-            if (configNo === null)
-            {
-                this.homey.app.updateLog(`Connector ${MQTTMessage.connector} needs a Configuration assigned to it`);
-                return;
-            }
             const ButtonPanelConfiguration = this.homey.app.buttonConfigurations[configNo];
             let homeyDeviceID = '';
             let homeyCapabilityName = '';
@@ -544,7 +539,7 @@ class BasePanelDevice extends Device
                             // Set the button capability to false so it acts like a button and not a toggle
                             await this.setCapabilityValue(buttonCapability, false).catch(this.error);
                         }
-                        else
+                        else if (homeyDeviceObject)
                         {
                             try
                             {
@@ -577,11 +572,11 @@ class BasePanelDevice extends Device
         }
         else if (topic === 'homey/longpress' && MQTTMessage)
         {
-            this.homey.app.triggerButtonLongPress(this, MQTTMessage.side === 'left', MQTTMessage.connector);
+            this.homey.app.triggerButtonLongPress(this, MQTTMessage.side === 'left', MQTTMessage.connector + 1);
         }
         else if (topic === 'homey/clickrelease' && MQTTMessage)
         {
-            this.homey.app.triggerButtonRelease(this, MQTTMessage.side === 'left', MQTTMessage.connector);
+            this.homey.app.triggerButtonRelease(this, MQTTMessage.side === 'left', MQTTMessage.connector + 1);
         }
     }
 
