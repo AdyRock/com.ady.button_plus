@@ -103,7 +103,7 @@
     },
     "connector": "Connector",
     "display": "Display",
-    "button": "Button Bar"
+    "button": "Button Bar",
     "hello1": "Homey zegt hallo",
     "hello2": "Open de Button+ Homey app instellingen om configuraties samen te stellen",
     "hello3": "Gebruik daarna het Button+ Homey device om configuraties toe te kennen"
