@@ -171,7 +171,7 @@ class MyApp extends Homey.App
         }
         catch (err)
         {
-            this.updateLog(`Error setting up local access: ${err.message}`);
+            this.updateLog(`Error setting up local access: ${err.message}`, 0);
         }
 
         this.api = await HomeyAPI.forCurrentHomey(this.homey);
@@ -181,7 +181,7 @@ class MyApp extends Homey.App
         }
         catch (e)
         {
-            this.updateLog('[boot] Failed to fetch system info');
+            this.updateLog('[boot] Failed to fetch system info', 0);
             this.updateLog(e);
             this.system = {};
         }
@@ -206,7 +206,7 @@ class MyApp extends Homey.App
         }
         catch (err)
         {
-            this.updateLog(`Error connecting to panel: ${err.message}`);
+            this.updateLog(`Error connecting to panel: ${err.message}`, 0);
         }
 
         this.homey.settings.on('set', async (setting) =>
@@ -419,7 +419,7 @@ class MyApp extends Homey.App
                     }
                     catch (error)
                     {
-                        this.updateLog(`refreshbuttonConfigurations: ${error.message}`);
+                        this.updateLog(`refreshbuttonConfigurations: ${error.message}`, 0);
                     }
                 }
 
@@ -545,7 +545,7 @@ class MyApp extends Homey.App
         }
         catch (err)
         {
-            this.updateLog(`Error uploading display configuration: ${err.message}`);
+            this.updateLog(`Error uploading display configuration: ${err.message}`, 0);
             throw err;
         }
 
@@ -675,7 +675,7 @@ class MyApp extends Homey.App
         }
         catch (err)
         {
-            this.updateLog(`Error uploading button bar configuration: ${err.message}`);
+            this.updateLog(`Error uploading button bar configuration: ${err.message}`, 0);
             throw err;
         }
     }
@@ -693,7 +693,7 @@ class MyApp extends Homey.App
                 const connectorIdx = deviceConfiguration.info.connectors.findIndex((connector) => connector.id === connectorNo);
                 if (connectorIdx < 0)
                 {
-                    this.updateLog(`Invalid connector number: ${connectorNo}`);
+                    this.updateLog(`Invalid connector number: ${connectorNo}`, 0);
                     throw new Error(`Invalid connector number: ${connectorNo}`);
                 }
 
@@ -767,7 +767,7 @@ class MyApp extends Homey.App
                 }
                 else
                 {
-                    this.updateLog(`Invalid connector type: ${deviceConfiguration.info.connectors[connectorIdx].type} on ${connectorNo}`);
+                    this.updateLog(`Invalid connector type: ${deviceConfiguration.info.connectors[connectorIdx].type} on ${connectorNo}`, 0);
                     throw new Error(`Invalid connector type: ${deviceConfiguration.info.connectors[connectorIdx].type} on ${connectorNo}`);
                 }
             }
@@ -802,7 +802,7 @@ class MyApp extends Homey.App
         }
         catch (err)
         {
-            this.updateLog(`Error setting up custom MQTT topics: ${err.message}`);
+            this.updateLog(`Error setting up custom MQTT topics: ${err.message}`, 0);
         }
     }
 
@@ -921,7 +921,7 @@ class MyApp extends Homey.App
         }
         catch (err)
         {
-            this.updateLog(`Error setting up click topic: ${err.message}`);
+            this.updateLog(`Error setting up click topic: ${err.message}`, 0);
         }
 
         return capability;
@@ -1036,7 +1036,7 @@ class MyApp extends Homey.App
         }
         catch (err)
         {
-            this.updateLog(`Error setting up status topic: ${err.message}`);
+            this.updateLog(`Error setting up status topic: ${err.message}`, 0);
         }
     }
 
@@ -1081,7 +1081,7 @@ class MyApp extends Homey.App
             }
             catch (err)
             {
-                this.updateLog(`Error setting up status topic: ${err.message}`);
+                this.updateLog(`Error setting up status topic: ${err.message}`, 0);
             }
         }
 
@@ -1099,7 +1099,7 @@ class MyApp extends Homey.App
             }
             catch (err)
             {
-                this.updateLog(`readDeviceConfiguration error: ${err.message}`);
+                this.updateLog(`readDeviceConfiguration error: ${err.message}`, 0);
             }
         }
         else
@@ -1182,7 +1182,7 @@ class MyApp extends Homey.App
             }
             catch (err)
             {
-                this.updateLog(`writeDeviceConfiguration error: ${err.message}`);
+                this.updateLog(`writeDeviceConfiguration error: ${err.message}`, 0);
                 return err.message;
             }
         }
@@ -1243,7 +1243,7 @@ class MyApp extends Homey.App
             }
             catch (e)
             {
-                this.updateLog(`Error getting devices: ${e.message}`);
+                this.updateLog(`Error getting devices: ${e.message}`, 0);
             }
         }
         return [];
@@ -1262,7 +1262,7 @@ class MyApp extends Homey.App
             }
             catch (e)
             {
-                this.updateLog(`Error getting devices: ${e.message}`);
+                this.updateLog(`Error getting devices: ${e.message}`, 0);
             }
         }
         return [];
@@ -1278,7 +1278,7 @@ class MyApp extends Homey.App
             }
             catch (e)
             {
-                this.updateLog(`Error getting capability: ${e.message}`);
+                this.updateLog(`Error getting capability: ${e.message}`, 0);
             }
         }
         return [];
@@ -1297,7 +1297,7 @@ class MyApp extends Homey.App
             }
             catch (e)
             {
-                this.updateLog(`Error getting devices: ${e.message}`);
+                this.updateLog(`Error getting devices: ${e.message}`, 0);
             }
         }
         return [];
@@ -1313,7 +1313,7 @@ class MyApp extends Homey.App
             }
             catch (e)
             {
-                this.updateLog(`Error getting variables: ${e.message}`);
+                this.updateLog(`Error getting variables: ${e.message}`, 0);
             }
         }
         return [];
@@ -1406,7 +1406,7 @@ class MyApp extends Homey.App
 
         server.on('error', (err) =>
         {
-            this.updateLog(`server error: ${this.varToString(err)}`);
+            this.updateLog(`server error: ${this.varToString(err)}`, 0);
         });
 
         // Create a websocket server for the MQTT server
@@ -1417,7 +1417,7 @@ class MyApp extends Homey.App
         });
 
         wsServer.on('error', (err) => {
-            this.updateLog(`websocket server error: ${this.varToString(err)}`);
+            this.updateLog(`websocket server error: ${this.varToString(err)}`, 0);
         });
 
         wsServer.on('connection', (socket) => {
@@ -1478,7 +1478,7 @@ class MyApp extends Homey.App
                         }
                         catch (error)
                         {
-                            this.updateLog(`SsetupMQTTClient: ${error.message}`);
+                            this.updateLog(`SsetupMQTTClient: ${error.message}`, 0);
                         }
                     }
 
@@ -1490,7 +1490,7 @@ class MyApp extends Homey.App
 
         MQTTclient.on('error', (err) =>
         {
-            this.updateLog(`setupMQTTClient.onError: ${this.varToString(err)}`);
+            this.updateLog(`setupMQTTClient.onError: ${this.varToString(err)}`, 0);
         });
 
         MQTTclient.on('message', async (topic, message) =>
@@ -1570,7 +1570,7 @@ class MyApp extends Homey.App
             }
             catch (err)
             {
-                this.updateLog(`MQTT Client error: ${topic}: ${err.message}`);
+                this.updateLog(`MQTT Client error: ${topic}: ${err.message}`, 0);
             }
         });
 
@@ -1597,7 +1597,7 @@ class MyApp extends Homey.App
         }
         catch (err)
         {
-            this.updateLog(`publishMQTTMessage error: ${err.message}`);
+            this.updateLog(`publishMQTTMessage error: ${err.message}`, 0);
         }
     }
 
@@ -1636,7 +1636,7 @@ class MyApp extends Homey.App
         }
         catch (err)
         {
-            this.updateLog(`mDNSGatewaysUpdate error: ${err.message}`);
+            this.updateLog(`mDNSGatewaysUpdate error: ${err.message}`, 0);
         }
     }
 
@@ -1664,7 +1664,7 @@ class MyApp extends Homey.App
         }
         catch (err)
         {
-            this.updateLog(`updateDeviceIPAddress error: ${err.message}`);
+            this.updateLog(`updateDeviceIPAddress error: ${err.message}`, 0);
         }
     }
 
@@ -1776,27 +1776,22 @@ class MyApp extends Homey.App
         }
     }
 
+    getLog()
+    {
+        return this.diagLog;
+    }
+
+    clearLog()
+    {
+        this.diagLog = '';
+        this.homey.api.realtime('com.ady.button_plus.logupdated', { log: this.diagLog });
+    }
+
     // Send the log to the developer (not applicable to Homey cloud)
-    async sendLog(body)
+    async sendLog({email = ''})
     {
         let tries = 5;
-
-        let logData;
-        if (body.logType === 'diag')
-        {
-            logData = this.diagLog;
-        }
-        else
-        {
-            logData = JSON.parse(this.detectedDevices);
-            if (!logData)
-            {
-                throw (new Error('No data to send'));
-            }
-
-            logData = this.varToString(logData);
-        }
-
+        let error = null;
         while (tries-- > 0)
         {
             try
@@ -1826,8 +1821,8 @@ class MyApp extends Homey.App
                 {
                     from: `"Homey User" <${Homey.env.MAIL_USER}>`, // sender address
                     to: Homey.env.MAIL_RECIPIENT, // list of receivers
-                    subject: `Button + ${body.logType} log (${Homey.manifest.version})`, // Subject line
-                    text: logData, // plain text body
+                    subject: `Button + log (${Homey.manifest.version})`, // Subject line
+                    text: email + '\n' + this.diagLog // plain text body
                 },
 );
 
@@ -1841,10 +1836,11 @@ class MyApp extends Homey.App
             catch (err)
             {
                 this.updateLog(`Send log error: ${err.message}`, 0);
+                error = err;
             }
         }
 
-        return (this.homey.__('settings.logSendFailed'));
+        throw new Error(this.homey.__('settings.logSendFailed') + error.message);
     }
 
     // Register a device so we receive state change events that are posted to the MQTT server

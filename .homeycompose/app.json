@@ -81,17 +81,7 @@
         },
         "getLog": {
             "method": "get",
-            "path": "/log",
-            "public": false
-        },
-        "getLogLevel": {
-            "method": "get",
-            "path": "/loglevel",
-            "public": false
-        },
-        "setLogLevel": {
-            "method": "post",
-            "path": "/loglevel",
+            "path": "/getLog",
             "public": false
         },
         "getState": {
@@ -102,6 +92,16 @@
         "getVariables": {
             "method": "post",
             "path": "/get_variables",
+            "public": false
+        },
+        "clearLog": {
+            "method": "post",
+            "path": "/clearLog",
+            "public": false
+        },
+        "sendLog": {
+            "method": "post",
+            "path": "/sendLog",
             "public": false
         }
     }

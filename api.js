@@ -30,18 +30,7 @@ module.exports = {
 
     // Log lines
     async getLog({ homey }) {
-        return []; // Log.getLogLines();
-    },
-
-    // Log level
-    async getLogLevel({ homey }) {
-        return 0; // Log.getLevel();
-    },
-
-    // Set log level
-    async setLogLevel({ homey, body }) {
-        // const { level } = body;
-        return true; // Log.setLevel(level);
+        return homey.app.getLog();
     },
 
     // Queue/Progress state
@@ -52,5 +41,15 @@ module.exports = {
     // Get the list of variables
     async getVariables({ homey }) {
         return homey.app.getVariables();
+    },
+
+    // Clear log
+    async clearLog({ homey }) {
+        return homey.app.clearLog();
+    },
+
+    // Send Log
+    async sendLog({ homey, body }) {
+        return await homey.app.sendLog(body);
     },
 };

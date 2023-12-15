@@ -666,7 +666,7 @@ class BasePanelDevice extends Device
                     }
                     catch (error)
                     {
-                        this.homey.app.updateLog(error);
+                        this.homey.app.updateLog(error, 0);
                     }
                 }
             }
@@ -724,7 +724,7 @@ class BasePanelDevice extends Device
                             }
                             catch (error)
                             {
-                                this.homey.app.updateLog(error.message);
+                                this.homey.app.updateLog(error.message, 0);
                             }
                         }
                     }
@@ -732,7 +732,7 @@ class BasePanelDevice extends Device
             }
             catch (error)
             {
-                this.homey.app.updateLog(error);
+                this.homey.app.updateLog(error, 0);
             }
         }
         else
@@ -818,7 +818,7 @@ class BasePanelDevice extends Device
         }
         catch (error)
         {
-            this.homey.app.updateLog(error.message);
+            this.homey.app.updateLog(error.message, 0);
         }
     }
 
@@ -874,6 +874,7 @@ class BasePanelDevice extends Device
 
             // Publish to MQTT
             this.homey.app.publishMQTTMessage(item.leftBrokerId, `homey/${deviceId}/${capability}/value`, value);
+            this.homey.app.publishMQTTMessage(item.leftBrokerId, `homey/${deviceId}/${capability}/label`, value ? item.leftOnText : item.leftOffText);
 
             if (capability === 'dim')
             {
@@ -891,6 +892,7 @@ class BasePanelDevice extends Device
             }
 
             this.homey.app.publishMQTTMessage(item.rightBrokerId, `homey/${deviceId}/${capability}/value`, value);
+            this.homey.app.publishMQTTMessage(item.rightBrokerId, `homey/${deviceId}/${capability}/label`, value ? item.rightOnText : item.rightOffText);
             if (capability === 'dim')
             {
                 value = false;

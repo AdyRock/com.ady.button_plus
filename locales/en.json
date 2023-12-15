@@ -87,7 +87,15 @@
         "frontLEDColorExplanation": "The color of the front LED when the button is in the On state.",
         "wallLEDColor": "Wall LED Color",
         "wallLEDColorExplanation": "The color of the wall LED when the button is in the On state.",
-        "variable": "Variable"
+        "variable": "Variable",
+        "diagnosticsLog": "Diagnostics Log",
+        "enableLog": "Enable Diagnostics Log",
+        "clearLog": "Clear Log",
+        "sendLog": "Send Log",
+        "email": "Email Address or Forum id (Required if you want me to respond)",
+        "sendLogConfirm": "Send the log contents to the developer?",
+        "logSendFailed": "Error sending log: ",
+        "logSent": "Log has been sent"
     },
     "pair": {
         "manual_add":{
