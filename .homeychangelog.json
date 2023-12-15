@@ -46,5 +46,8 @@
     },
     "0.2.5": {
         "en": "Fix right side button events."
+    },
+    "0.2.6": {
+        "en": "Fix on/off text update when the associated device capability changes. Added a diagnostics log option to the app settings."
     }
 }
