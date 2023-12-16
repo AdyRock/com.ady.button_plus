@@ -49,5 +49,8 @@
     },
     "0.2.6": {
         "en": "Fix on/off text update when the associated device capability changes. Added a diagnostics log option to the app settings."
+    },
+    "0.2.7": {
+        "en": "Added Dutch translation for diagnostics log."
     }
 }
