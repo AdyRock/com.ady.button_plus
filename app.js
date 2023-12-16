@@ -1431,10 +1431,19 @@ class MyApp extends Homey.App
 
     setupMQTTClient(brokerConfig, homeyID)
     {
-        // Connect to the MQTT server and subscribe to the required topics
-        // this.MQTTclient = mqtt.connect(MQTT_SERVER, { clientId: `HomeyButtonApp-${homeyID}`, username: Homey.env.MQTT_USER_NAME, password: Homey.env.MQTT_PASSWORD });
-        const MQTTclient = mqtt.connect(`${brokerConfig.url}:${brokerConfig.port}`, { clientId: `HomeyButtonApp-${homeyID}`, username: '', password: '' });
-        this.MQTTClients.set(brokerConfig.brokerid, MQTTclient);
+        try
+        {
+            // Connect to the MQTT server and subscribe to the required topics
+            // this.MQTTclient = mqtt.connect(MQTT_SERVER, { clientId: `HomeyButtonApp-${homeyID}`, username: Homey.env.MQTT_USER_NAME, password: Homey.env.MQTT_PASSWORD });
+            this.updateLog(`setupMQTTClient connect: ${brokerConfig.url}:${brokerConfig.port}`, 1);
+            const MQTTclient = mqtt.connect(`${brokerConfig.url}:${brokerConfig.port}`, { clientId: `HomeyButtonApp-${homeyID}`, username: '', password: '' });
+            this.MQTTClients.set(brokerConfig.brokerid, MQTTclient);
+        }
+        catch (err)
+        {
+            this.updateLog(`setupMQTTClient error: ${err.message}`, 0);
+            return false;
+        }
 
         MQTTclient.on('connect', () =>
         {
