@@ -87,7 +87,15 @@
         "frontLEDColorExplanation": "De kleur van de voorste LED als de knop in Aan status is.",
         "wallLEDColor": "LED achterzijde",
         "wallLEDColorExplanation": "De kleur van de achterste LED als de knop in Aan status is.",
-        "variable": "Variabele"
+        "variable": "Variabele",
+        "diagnosticsLog": "Diagnostiek log",
+        "enableLog": "Diagnostiek log activeren",
+        "clearLog": "Log wissen",
+        "sendLog": "Log versturen",
+        "email": "E-mail adres of Homey Community id (Vereist als je wil dat ik antwoord)",
+        "sendLogConfirm": "stuur de inhoud van de log naar de developer?",
+        "logSendFailed": "Fout bij versturen log: ",
+        "logSent": "Log is verstuurd"
     },
     "pair": {
         "manual_add":{
