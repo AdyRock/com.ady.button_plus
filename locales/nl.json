@@ -89,7 +89,7 @@
         "wallLEDColorExplanation": "De kleur van de achterste LED als de knop in Aan status is.",
         "variable": "Variabele",
         "diagnosticsLog": "Diagnostiek log",
-        "enableLog": "Diagnostiek log activeren",
+        "enableLog": "Volledige diagnostiek log activeren",
         "clearLog": "Log wissen",
         "sendLog": "Log versturen",
         "email": "E-mail adres of Homey Community id (Vereist als je wil dat ik antwoord)",
