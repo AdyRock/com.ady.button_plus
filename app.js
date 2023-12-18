@@ -1438,152 +1438,152 @@ class MyApp extends Homey.App
             this.updateLog(`setupMQTTClient connect: ${brokerConfig.url}:${brokerConfig.port}`, 1);
             const MQTTclient = mqtt.connect(`${brokerConfig.url}:${brokerConfig.port}`, { clientId: `HomeyButtonApp-${homeyID}`, username: '', password: '' });
             this.MQTTClients.set(brokerConfig.brokerid, MQTTclient);
+
+            MQTTclient.on('connect', () =>
+            {
+                this.updateLog(`setupMQTTClient.onConnect: connected to ${brokerConfig.url}:${brokerConfig.port} as ${brokerConfig.brokerid}`);
+
+                MQTTclient.subscribe('homey/click', (err) =>
+                {
+                    if (err)
+                    {
+                        this.updateLog("setupMQTTClient.onConnect 'homey/toggle' error: " * this.varToString(err), 0);
+                    }
+                });
+
+                MQTTclient.subscribe('homey/longpress', (err) =>
+                {
+                    if (err)
+                    {
+                        this.updateLog("setupMQTTClient.onConnect 'homey/longpress' error: " * this.varToString(err), 0);
+                    }
+                });
+
+                MQTTclient.subscribe('homey/clickrelease', (err) =>
+                {
+                    if (err)
+                    {
+                        this.updateLog("setupMQTTClient.onConnect 'homey/clickrelease' error: " * this.varToString(err), 0);
+                    }
+                });
+
+                const drivers = this.homey.drivers.getDrivers();
+                for (const driver of Object.values(drivers))
+                {
+                    let devices = driver.getDevices();
+                    for (let device of Object.values(devices))
+                    {
+                        if (device.setupMQTTSubscriptions)
+                        {
+                            try
+                            {
+                                device.setupMQTTSubscriptions(MQTTclient);
+                            }
+                            catch (error)
+                            {
+                                this.updateLog(`SsetupMQTTClient: ${error.message}`, 0);
+                            }
+                        }
+
+                        device = null;
+                    }
+                    devices = null;
+                }
+            });
+
+            MQTTclient.on('error', (err) =>
+            {
+                this.updateLog(`setupMQTTClient.onError: ${this.varToString(err)}`, 0);
+            });
+
+            MQTTclient.on('message', async (topic, message) =>
+            {
+                // message is in Buffer
+                try
+                {
+                    const mqttMessage = JSON.parse(message.toString());
+                    this.updateLog(`MQTTclient.on message: ${this.varToString(mqttMessage)}`);
+
+                    // Find the device that handles this message
+                    if (mqttMessage.connector)
+                    {
+                        const drivers = this.homey.drivers.getDrivers();
+                        for (const driver of Object.values(drivers))
+                        {
+                            let devices = driver.getDevices();
+                            for (let device of Object.values(devices))
+                            {
+                                if (device.processMQTTMessage)
+                                {
+                                    try
+                                    {
+                                        await device.processMQTTMessage(topic, mqttMessage);
+                                    }
+                                    catch (error)
+                                    {
+                                        this.updateLog(`MQTTclient.on('message'): ${error.message}`);
+                                    }
+                                }
+
+                                device = null;
+                            }
+                            devices = null;
+                        }
+                    }
+                    else
+                    {
+                        // Look for homey at the start of the topic string
+                        const topicParts = topic.split('/');
+                        if (topicParts.length >= 3 && topicParts[0] === 'homey')
+                        {
+                            // next part is the device id
+                            const deviceId = topicParts[1];
+
+                            // Try to find the driver / device that has this id
+                            const drivers = this.homey.drivers.getDrivers();
+                            for (const driver of Object.values(drivers))
+                            {
+                                const devices = driver.getDevices();
+                                for (const device of Object.values(devices))
+                                {
+                                    if (device.__id === deviceId)
+                                    {
+                                        device.setCapabilityValue(topicParts[2], mqttMessage).catch(device.error);
+                                        return;
+                                    }
+                                }
+                            }
+                        }
+                        else if (topicParts.length >= 3 && topicParts[0].substring(0, 4) === 'btn_')
+                        {
+                            const drivers = this.homey.drivers.getDrivers();
+                            for (const driver of Object.values(drivers))
+                            {
+                                const devices = driver.getDevices();
+                                for (const device of Object.values(devices))
+                                {
+                                    if (device.processMQTTBtnMessage)
+                                    {
+                                        device.processMQTTBtnMessage(topicParts, mqttMessage).catch(device.error);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (err)
+                {
+                    this.updateLog(`MQTT Client error: ${topic}: ${err.message}`, 0);
+                }
+            });
+
+            return true;
         }
         catch (err)
         {
             this.updateLog(`setupMQTTClient error: ${err.message}`, 0);
             return false;
         }
-
-        MQTTclient.on('connect', () =>
-        {
-            this.updateLog(`setupMQTTClient.onConnect: connected to ${brokerConfig.url}:${brokerConfig.port} as ${brokerConfig.brokerid}`);
-
-            MQTTclient.subscribe('homey/click', (err) =>
-            {
-                if (err)
-                {
-                    this.updateLog("setupMQTTClient.onConnect 'homey/toggle' error: " * this.varToString(err), 0);
-                }
-            });
-
-            MQTTclient.subscribe('homey/longpress', (err) =>
-            {
-                if (err)
-                {
-                    this.updateLog("setupMQTTClient.onConnect 'homey/longpress' error: " * this.varToString(err), 0);
-                }
-            });
-
-            MQTTclient.subscribe('homey/clickrelease', (err) =>
-            {
-                if (err)
-                {
-                    this.updateLog("setupMQTTClient.onConnect 'homey/clickrelease' error: " * this.varToString(err), 0);
-                }
-            });
-
-            const drivers = this.homey.drivers.getDrivers();
-            for (const driver of Object.values(drivers))
-            {
-                let devices = driver.getDevices();
-                for (let device of Object.values(devices))
-                {
-                    if (device.setupMQTTSubscriptions)
-                    {
-                        try
-                        {
-                            device.setupMQTTSubscriptions(MQTTclient);
-                        }
-                        catch (error)
-                        {
-                            this.updateLog(`SsetupMQTTClient: ${error.message}`, 0);
-                        }
-                    }
-
-                    device = null;
-                }
-                devices = null;
-            }
-        });
-
-        MQTTclient.on('error', (err) =>
-        {
-            this.updateLog(`setupMQTTClient.onError: ${this.varToString(err)}`, 0);
-        });
-
-        MQTTclient.on('message', async (topic, message) =>
-        {
-            // message is in Buffer
-            try
-            {
-                const mqttMessage = JSON.parse(message.toString());
-                this.updateLog(`MQTTclient.on message: ${this.varToString(mqttMessage)}`);
-
-                // Find the device that handles this message
-                if (mqttMessage.connector)
-                {
-                    const drivers = this.homey.drivers.getDrivers();
-                    for (const driver of Object.values(drivers))
-                    {
-                        let devices = driver.getDevices();
-                        for (let device of Object.values(devices))
-                        {
-                            if (device.processMQTTMessage)
-                            {
-                                try
-                                {
-                                    await device.processMQTTMessage(topic, mqttMessage);
-                                }
-                                catch (error)
-                                {
-                                    this.updateLog(`MQTTclient.on('message'): ${error.message}`);
-                                }
-                            }
-
-                            device = null;
-                        }
-                        devices = null;
-                    }
-                }
-                else
-                {
-                    // Look for homey at the start of the topic string
-                    const topicParts = topic.split('/');
-                    if (topicParts.length >= 3 && topicParts[0] === 'homey')
-                    {
-                        // next part is the device id
-                        const deviceId = topicParts[1];
-
-                        // Try to find the driver / device that has this id
-                        const drivers = this.homey.drivers.getDrivers();
-                        for (const driver of Object.values(drivers))
-                        {
-                            const devices = driver.getDevices();
-                            for (const device of Object.values(devices))
-                            {
-                                if (device.__id === deviceId)
-                                {
-                                    device.setCapabilityValue(topicParts[2], mqttMessage).catch(device.error);
-                                    return;
-                                }
-                            }
-                        }
-                    }
-                    else if (topicParts.length >= 3 && topicParts[0].substring(0, 4) === 'btn_')
-                    {
-                        const drivers = this.homey.drivers.getDrivers();
-                        for (const driver of Object.values(drivers))
-                        {
-                            const devices = driver.getDevices();
-                            for (const device of Object.values(devices))
-                            {
-                                if (device.processMQTTBtnMessage)
-                                {
-                                    device.processMQTTBtnMessage(topicParts, mqttMessage).catch(device.error);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            catch (err)
-            {
-                this.updateLog(`MQTT Client error: ${topic}: ${err.message}`, 0);
-            }
-        });
-
-        return true;
     }
 
     getMqttClient(brokerId)

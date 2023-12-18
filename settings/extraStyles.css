@@ -8,7 +8,8 @@
 .horizontalgroup {
     flex: 1;
     /* Each group takes equal space */
-    padding: 5px;
+    padding: 10px;
+    margin-top: 15px;
     /* Add some padding for spacing */
     border: 1px solid lightblue;
     /* Add a border for visualization */
@@ -68,3 +69,27 @@
 .main {
     margin-top: 65px; /* Add a top margin to avoid content overlay */
 }
+
+details {
+    user-select: none;
+  }
+  
+  details>summary span.icon {
+    width: 24px;
+    height: 24px;
+    transition: all 0.3s;
+    margin-left: auto;
+  }
+  
+  details[open] summary span.icon {
+    transform: rotate(180deg);
+  }
+  
+  summary {
+    display: flex;
+    cursor: pointer;
+  }
+  
+  summary::-webkit-details-marker {
+    display: none;
+  }

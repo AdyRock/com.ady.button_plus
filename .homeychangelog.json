@@ -54,6 +54,6 @@
         "en": "Added Dutch translation for diagnostics log."
     },
     "0.2.8": {
-        "en": "Catche error if invalid MQTT URL specified."
+        "en": "Catche error if invalid MQTT URL specified. Expanding sections in the settings page"
     }
 }
