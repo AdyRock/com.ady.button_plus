@@ -89,7 +89,7 @@
         "wallLEDColorExplanation": "The color of the wall LED when the button is in the On state.",
         "variable": "Variable",
         "diagnosticsLog": "Diagnostics Log",
-        "enableLog": "Enable Diagnostics Log",
+        "enableLog": "Enable full diagnostics Log",
         "clearLog": "Clear Log",
         "sendLog": "Send Log",
         "email": "Email Address or Forum id (Required if you want me to respond)",
