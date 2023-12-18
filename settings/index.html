@@ -69,9 +69,9 @@
                     </select>
                     <div class="horizontalcontainer">
                         <div class="horizontalgroup">
-                            <details>
-                                <summary>
-                                    <legend class="homey-subtitle"><b><em><span data-i18n="settings.leftPanel"></span></em></b></legend>
+                            <details onclick="scrollToTop(this)">
+                                <summary class="summary">
+                                    <legend class="homey-subtitle" id="buttonLeftLegend"><b><em><span data-i18n="settings.leftPanel"></span></em></b></legend>
                                     <span class="icon" style='font-size:30px;'>&#8628;</span>
                                 </summary>
                                 <hr>
@@ -99,7 +99,7 @@
                                         <span class="tooltiptext" data-i18n="settings.topLabelExplanation"></span>
                                     </div>
                                 </label>
-                                <input class="homey-form-input" id="leftTopText" type="text" maxlength="20" value="" />
+                                <input class="homey-form-input" id="leftTopText" type="text" maxlength="20" oninput="onButtonLabelChange(this, 'buttonLeftLegend')" value="" />
 
                                 <span>
                                     <div id="leftOnTextDiv">
@@ -108,7 +108,7 @@
                                                 <span class="tooltiptext" data-i18n="settings.labelOnExplantion"></span>
                                             </div>
                                         </label>
-                                        <input class="homey-form-input" id="leftOnText" type="text" maxlength="20" value="" />
+                                        <input class="homey-form-input" id="leftOnText" type="text" maxlength="20" value="${item.label}" value="" />
                                     </div>
                                 </span>
 
@@ -166,9 +166,9 @@
                             </details>
                         </div>
                         <div class="horizontalgroup">
-                            <details>
-                                <summary>
-                                    <legend class="homey-subtitle"><b><em><span data-i18n="settings.rightPanel"></span></b></em></legend>
+                            <details onclick="scrollToTop(this)">
+                                <summary class="summary">
+                                    <legend class="homey-subtitle" id="buttonRightLegend"><b><em><span data-i18n="settings.rightPanel"></span></b></em></legend>
                                     <span class="icon" style='font-size:30px;'>&#8628;</span>
                                 </summary>
                                 <hr>
@@ -191,7 +191,7 @@
                                         <span class="tooltiptext" data-i18n="settings.topLabelExplanation"></span>
                                     </div>
                                 </label>
-                                <input class="homey-form-input" id="rightTopText" type="text" maxlength="20" value="" />
+                                <input class="homey-form-input" id="rightTopText" type="text" maxlength="20" oninput="onButtonLabelChange(this, 'buttonRightLegend')" value="" />
 
                                 <span>
                                     <div id="rightOnTextDiv">
@@ -910,6 +910,12 @@
             }
         }
 
+
+        function onButtonLabelChange(element, legend)
+        {
+            document.getElementById(`${legend}`).innerHTML = `<b><em>${Homey.__("settings.leftPanel")}</em></b> - ${element.value}`;
+        }
+
         function getButtonDeivices()
         {
             Homey.api('POST', '/Devices/', { type: 'boolean', id: ['dim'] }, function(err, devices)
@@ -1111,6 +1117,7 @@
                 let ButtonPanelConfiguration = localbuttonConfigurations[currentButtonConfigurationNo];
 
                 leftTopTextElement.value = ButtonPanelConfiguration.leftTopText;
+                document.getElementById(`buttonLeftLegend`).innerHTML = `<b><em>${Homey.__("settings.leftPanel")}</em></b> - ${leftTopTextElement.value}`;
                 leftOnTextElement.value = ButtonPanelConfiguration.leftOnText;
                 leftOffTextElement.value = ButtonPanelConfiguration.leftOffText;
                 leftDeviceElement.value = ButtonPanelConfiguration.leftDevice;
@@ -1121,6 +1128,7 @@
                 leftWallLEDColorElement.value = ButtonPanelConfiguration.leftWallLEDColor;
 
                 rightTopTextElement.value = ButtonPanelConfiguration.rightTopText;
+                document.getElementById(`buttonRightLegend`).innerHTML = `<b><em>${Homey.__("settings.rightPanel")}</em></b> - ${rightTopTextElement.value}`;
                 rightOnTextElement.value = ButtonPanelConfiguration.rightOnText;
                 rightOffTextElement.value = ButtonPanelConfiguration.rightOffText;
                 rightDeviceElement.value = ButtonPanelConfiguration.rightDevice;
@@ -1375,8 +1383,11 @@
 
         function scrollToTop(element)
         {
-            var fixedTopHeight = document.querySelector('.fixedTop').offsetHeight; // Get the height of the fixedTop div
-             element.scroll(0, fixedTopHeight);
+            setTimeout(function()
+            {
+                var fixedTopHeight = document.querySelector('.fixedTop').offsetHeight; // Get the height of the fixedTop div
+                window.scrollTo(0, element.offsetTop - fixedTopHeight);
+            }, 100);
         }
 
         function onDisplayLabelChange(element, itemNo)
@@ -1395,13 +1406,16 @@
             summaries.forEach(function(summary)
             {
                 var rect = summary.getBoundingClientRect();
-                if (lastTop <= fixedTopHeight && rect.top > fixedTopHeight)
+                if (rect.height !== 0)
                 {
-                    lastStickySummary = lastSummary;
-                }
+                    if (lastTop <= fixedTopHeight && rect.top > fixedTopHeight)
+                    {
+                        lastStickySummary = lastSummary;
+                    }
 
-                lastSummary = summary;
-                lastTop = rect.top;
+                    lastSummary = summary;
+                    lastTop = rect.top;
+                }
             });
 
             if (lastStickySummary == null)
