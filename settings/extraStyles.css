@@ -50,13 +50,15 @@
     top: 0;
     left: 0px;
     width: 94%;
-    z-index: 2; /* set z-index to 2 to position on top */
-    background-color: white; /* set background color to white */
+    z-index: 200;
+    /* set z-index to 200 to position on top */
+    background-color: white;
+    /* set background color to white */
     margin-left: 14px;
     padding-top: 5px;
 }
 
-.bottomFixButtonComponent{
+.bottomFixButtonComponent {
     position: sticky;
     bottom: 0px;
     padding-top: 0px;
@@ -64,32 +66,47 @@
     height: 50px;
     display: flex;
     justify-content: space-around;
+    z-index: 200;
+    /* set z-index to 2 to position on top */
 }
 
 .main {
-    margin-top: 65px; /* Add a top margin to avoid content overlay */
+    margin-top: 65px;
+    /* Add a top margin to avoid content overlay */
 }
 
 details {
     user-select: none;
-  }
-  
-  details>summary span.icon {
+}
+
+details>summary span.icon {
     width: 24px;
     height: 24px;
     transition: all 0.3s;
     margin-left: auto;
-  }
-  
-  details[open] summary span.icon {
+}
+
+details[open] summary span.icon {
     transform: rotate(180deg);
-  }
-  
-  summary {
+}
+
+summary {
     display: flex;
     cursor: pointer;
-  }
-  
-  summary::-webkit-details-marker {
+}
+
+summary::-webkit-details-marker {
     display: none;
-  }
+}
+
+/* Make the summary section sticky */
+.summary-sticky {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    /* You can change the background color as needed */
+    z-index: 100;
+    /* Adjust the z-index if necessary to ensure it appears above other elements */
+    border-bottom: 1px solid lightgray;
+    /* Add a border for separation */
+}

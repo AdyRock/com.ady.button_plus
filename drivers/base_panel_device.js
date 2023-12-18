@@ -609,8 +609,11 @@ class BasePanelDevice extends Device
         {
             // download the current configuration from the device
             deviceConfigurations = await this.homey.app.readDeviceConfiguration(ip);
-            this.setCapabilityValue('dim.large', deviceConfigurations.core.brightnesslargedisplay / 100).catch(this.error);
-            this.setCapabilityValue('dim.small', deviceConfigurations.core.brightnessminidisplay / 100).catch(this.error);
+            if (deviceConfigurations && deviceConfigurations.core)
+            {
+                this.setCapabilityValue('dim.large', deviceConfigurations.core.brightnesslargedisplay / 100).catch(this.error);
+                this.setCapabilityValue('dim.small', deviceConfigurations.core.brightnessminidisplay / 100).catch(this.error);
+            }
         }
 
         if (deviceConfigurations)

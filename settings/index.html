@@ -1304,23 +1304,23 @@
             section = section +
                 `<div class="horizontalcontainer">
                     <div class="horizontalgroup">
-                        <details ${expanded ? 'open' : ''}>
-                            <summary>
+                        <details ${expanded ? 'open' : ''} onclick="scrollToTop(this)">
+                            <summary class="summary">
                                 <legend class="homey-subtitle" id="display${itemNo}Legend"><b><em>${itemLegend}</em></b> - ${item.label}</legend>
                                 <span class="icon" style='font-size:30px;'>&#8628;</span>
                             </summary>
-
+                            <hr>
                             <label class="homey-form-label" for="display${itemNo}Device">${ctrlLabels.device}</label>
                             <select class="homey-form-select" id="display${itemNo}Device" onChange="getDisplayCapabilities(${itemNo})">
                             </select>
 
-                            <div id = "display${itemNo}NoCapability"
+                            <div id="display${itemNo}NoCapability">
                                 <br>
                                 <label class="homey-form-label" for="display${itemNo}Capability">${ctrlLabels.capability}</label>
                                 <select class="homey-form-select" id="display${itemNo}Capability" onChange="selectDisplayCapabilities(${itemNo})">
                                 </select>
                             </div>
-                            <div id = "display${itemNo}NoDisplay"
+                            <div id="display${itemNo}NoDisplay">
                                 <br>
                                 <label class="homey-form-label" for="display${itemNo}Label">${ctrlLabels.label}</label>
                                 <input class="homey-form-input" id="display${itemNo}Label" type="text" oninput="onDisplayLabelChange(this, ${itemNo})" value="${item.label}" />
@@ -1373,10 +1373,57 @@
             document.getElementById('displayItemsSection').innerHTML = section;
         }
 
+        function scrollToTop(element)
+        {
+            var fixedTopHeight = document.querySelector('.fixedTop').offsetHeight; // Get the height of the fixedTop div
+             element.scroll(0, fixedTopHeight);
+        }
+
         function onDisplayLabelChange(element, itemNo)
         {
             document.getElementById(`display${itemNo}Legend`).innerHTML = `<b><em>${Homey.__("settings.displayItemlegend", { itemNo: itemNo + 1 })}</em></b> - ${element.value}`;
         }
+
+        function makeSummarySticky()
+        {
+            var summaries = document.querySelectorAll('.summary');
+            var lastStickySummary = null;
+            var lastSummary = null;
+            var fixedTopHeight = document.querySelector('.fixedTop').offsetHeight; // Get the height of the fixedTop div
+            var lastTop = 0;
+
+            summaries.forEach(function(summary)
+            {
+                var rect = summary.getBoundingClientRect();
+                if (lastTop <= fixedTopHeight && rect.top > fixedTopHeight)
+                {
+                    lastStickySummary = lastSummary;
+                }
+
+                lastSummary = summary;
+                lastTop = rect.top;
+            });
+
+            if (lastStickySummary == null)
+            {
+                lastStickySummary = lastSummary;
+            }
+
+            summaries.forEach(function(summary)
+            {
+                if (summary === lastStickySummary)
+                {
+                    summary.classList.add('summary-sticky');
+                    summary.style.top = fixedTopHeight + 'px'; // Set the top of the summary div to the height of the fixedTop div
+                }
+                else
+                {
+                    summary.classList.remove('summary-sticky');
+                }
+            });
+        }
+
+        window.addEventListener("scroll", makeSummarySticky);
 
         function fillDisplayDevices()
         {
