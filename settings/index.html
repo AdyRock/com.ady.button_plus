@@ -923,6 +923,15 @@
                 if (err) return Homey.alert(err);
 
                 buttonDevicesArray = Object.values(devices);
+                buttonDevicesArray.sort((a, b) => {
+                    if (a.zoneName < b.zoneName) {
+                        return -1;
+                    }
+                    if (a.zoneName > b.zoneName) {
+                        return 1;
+                    }
+                    return 0;
+                });
                 buttonDevicesFetched = true;
                 fillButtonDevices();
             });
@@ -978,8 +987,18 @@
                 option.value = "customMQTT";
                 Element.add(option);
 
+                let deviceGroup;
                 for (const device of DevicesArray)
                 {
+                    if (deviceGroup != device.zoneName) {
+                        var option = document.createElement("option");
+                        deviceGroup = device.zoneName;
+                        option.text = deviceGroup;
+                        option.value = deviceGroup;
+                        option.disabled = true;
+                        Element.add(option);
+                    }
+                    
                     var option = document.createElement("option");
                     option.text = device.name;
                     option.value = device.id;
