@@ -374,8 +374,8 @@
             fillConfigElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"));
             fillConfigElement(displayConfigurationNoElement, Homey.__("settings.displayConfig"));
 
-            getButtonDeivices();
-            getDisplayDeivices();
+            getButtonDevices();
+            getDisplayDevices();
             configTypeChanged('panelConfig');
 
             Homey.get('autoConfig', function(err, autoConfig)
@@ -916,34 +916,37 @@
             document.getElementById(`${legend}`).innerHTML = `<b><em>${Homey.__("settings.leftPanel")}</em></b> - ${element.value}`;
         }
 
-        function getButtonDeivices()
+        function sortDevices(devicesArray) {
+            return devicesArray.sort((a, b) => {
+                if (a.zoneName < b.zoneName) {
+                    return -1;
+                }
+                if (a.zoneName > b.zoneName) {
+                    return 1;
+                }
+                return 0;
+            });
+        }
+
+        function getButtonDevices()
         {
             Homey.api('POST', '/Devices/', { type: 'boolean', id: ['dim'] }, function(err, devices)
             {
                 if (err) return Homey.alert(err);
 
-                buttonDevicesArray = Object.values(devices);
-                buttonDevicesArray.sort((a, b) => {
-                    if (a.zoneName < b.zoneName) {
-                        return -1;
-                    }
-                    if (a.zoneName > b.zoneName) {
-                        return 1;
-                    }
-                    return 0;
-                });
+                buttonDevicesArray = sortDevices(Object.values(devices));
                 buttonDevicesFetched = true;
                 fillButtonDevices();
             });
         }
 
-        function getDisplayDeivices()
+        function getDisplayDevices()
         {
             Homey.api('POST', '/Devices/', {}, function(err, devices)
             {
                 if (err) return Homey.alert(err);
 
-                displayDevicesArray = Object.values(devices);
+                displayDevicesArray = sortDevices(Object.values(devices));
                 displayDevicesFetched = true;
                 fillDisplayDevices();
             });
