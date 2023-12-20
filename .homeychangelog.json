@@ -57,6 +57,6 @@
         "en": "Catche error if invalid MQTT URL specified. Added expanding sections in the settings pages"
     },
     "0.2.9": {
-        "en": "The device lists in the configuration sections now now soreted by and show the zone name"
+        "en": "The device lists in the configuration sections now now soreted by and show the zone name. Fix issues when display is on connector 0. Fix display button events not being sent. Fix for multiple panels."
     }
 }
