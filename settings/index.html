@@ -918,10 +918,10 @@
 
         function sortDevices(devicesArray) {
             return devicesArray.sort((a, b) => {
-                if (a.zoneName < b.zoneName) {
+                if (a.zone.name < b.zone.name) {
                     return -1;
                 }
-                if (a.zoneName > b.zoneName) {
+                if (a.zone.name > b.zone.name) {
                     return 1;
                 }
                 return 0;
@@ -993,9 +993,9 @@
                 let deviceGroup;
                 for (const device of DevicesArray)
                 {
-                    if (deviceGroup != device.zoneName) {
+                    if (deviceGroup != device.zone.name) {
                         var option = document.createElement("option");
-                        deviceGroup = device.zoneName;
+                        deviceGroup = device.zone.name;
                         option.text = deviceGroup;
                         option.value = deviceGroup;
                         option.disabled = true;
@@ -1003,7 +1003,7 @@
                     }
                     
                     var option = document.createElement("option");
-                    option.text = device.name;
+                    option.text = "\xA0\xA0" + device.name;
                     option.value = device.id;
                     Element.add(option);
                 }
