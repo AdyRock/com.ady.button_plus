@@ -18,6 +18,13 @@
     "category": [
         "appliances"
     ],
+    "contributing": {
+        "donate": {
+            "paypal": {
+                "username": "adyrock"
+            }
+        }
+    },
     "permissions": [
         "homey:manager:api"
     ],
