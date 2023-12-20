@@ -511,7 +511,7 @@ class MyApp extends Homey.App
         this.homey.settings.set('displayConfigurations', this.displayConfigurations);
     }
 
-    async uploadDisplayConfiguration(ip, configurationNo, deviceConfiguration, writeConfig)
+    async uploadDisplayConfiguration(ip, configurationNo, deviceConfiguration, writeConfig, panelId)
     {
         try
         {
@@ -524,7 +524,7 @@ class MyApp extends Homey.App
             if (deviceConfiguration)
             {
                 // apply the new configuration
-                const mqttQue = await this.applyDisplayConfiguration(deviceConfiguration, configurationNo);
+                const mqttQue = await this.applyDisplayConfiguration(deviceConfiguration, configurationNo, panelId);
                 this.updateLog(`Current Config: ${deviceConfiguration}`);
 
                 if (writeConfig)
@@ -552,7 +552,7 @@ class MyApp extends Homey.App
         return deviceConfiguration;
     }
 
-    async applyDisplayConfiguration(deviceConfiguration, configurationNo)
+    async applyDisplayConfiguration(deviceConfiguration, configurationNo, panelId)
     {
         if (deviceConfiguration)
         {
@@ -644,8 +644,8 @@ class MyApp extends Homey.App
                     if (itemInfo.type === 2)
                     {
                         const buttonIdx = connectorNo * 2;
-                        await this.setupDisplayClickTopic(deviceConfiguration.mqttbuttons[buttonIdx], connectorNo, 'left');
-                        await this.setupDisplayClickTopic(deviceConfiguration.mqttbuttons[buttonIdx + 1], connectorNo, 'right');
+                        await this.setupDisplayClickTopic(deviceConfiguration.mqttbuttons[buttonIdx], connectorNo, 'left', panelId);
+                        await this.setupDisplayClickTopic(deviceConfiguration.mqttbuttons[buttonIdx + 1], connectorNo, 'right', panelId);
                     }
                 }
             }
@@ -722,6 +722,7 @@ class MyApp extends Homey.App
                                 ButtonPanelConfiguration,
                                 connectorNo,
                                 'left',
+                                panelId,
                             );
 
                             await this.setupStatusTopic(
@@ -752,6 +753,7 @@ class MyApp extends Homey.App
                                 ButtonPanelConfiguration,
                                 connectorNo,
                                 'right',
+                                panelId
                             );
 
                             await this.setupStatusTopic(
@@ -806,7 +808,7 @@ class MyApp extends Homey.App
         }
     }
 
-    setupDisplayClickTopic(mqttButtons, connectorNo, side)
+    setupDisplayClickTopic(mqttButtons, connectorNo, side, panelId)
     {
         mqttButtons.topics = [];
         let payload = {
@@ -815,6 +817,7 @@ class MyApp extends Homey.App
             device: 'none',
             capability: 'none',
             type: 'boolean',
+            panelId,
         };
         payload = JSON.stringify(payload);
 
@@ -849,7 +852,7 @@ class MyApp extends Homey.App
         );
     }
 
-    async setupClickTopic(mqttButtons, ButtonPanelConfiguration, connectorNo, side)
+    async setupClickTopic(mqttButtons, ButtonPanelConfiguration, connectorNo, side, panelId)
     {
         let readOnly = false;
         let capability = null;
@@ -883,6 +886,7 @@ class MyApp extends Homey.App
                 device: configDevice,
                 capability: configCapability,
                 type,
+                panelId,
             };
             payload = JSON.stringify(payload);
 
@@ -1504,9 +1508,10 @@ class MyApp extends Homey.App
                     const mqttMessage = JSON.parse(message.toString());
                     this.updateLog(`MQTTclient.on message: ${this.varToString(mqttMessage)}`);
 
-                    // Find the device that handles this message
-                    if (mqttMessage.connector)
+                    // Make sure mqttMessage.connector is defined
+                    if (mqttMessage.connector !== undefined)
                     {
+                        // Find the device that handles this message
                         const drivers = this.homey.drivers.getDrivers();
                         for (const driver of Object.values(drivers))
                         {

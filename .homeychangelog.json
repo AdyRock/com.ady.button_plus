@@ -55,5 +55,8 @@
     },
     "0.2.8": {
         "en": "Catche error if invalid MQTT URL specified. Added expanding sections in the settings pages"
+    },
+    "0.2.9": {
+        "en": "The device lists in the configuration sections now now soreted by and show the zone name"
     }
 }
