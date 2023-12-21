@@ -374,8 +374,8 @@
             fillConfigElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"));
             fillConfigElement(displayConfigurationNoElement, Homey.__("settings.displayConfig"));
 
-            getButtonDevices();
-            getDisplayDevices();
+            getDevices();
+
             configTypeChanged('panelConfig');
 
             Homey.get('autoConfig', function(err, autoConfig)
@@ -918,37 +918,44 @@
 
         function sortDevices(devicesArray) {
             return devicesArray.sort((a, b) => {
-                if (a.zone.name < b.zone.name) {
+                const zoneA = a.zone.name ?? a.zoneName;
+                const zoneB = b.zone.name ?? b.zoneName;
+
+                if (zoneA < zoneB) {
                     return -1;
                 }
-                if (a.zone.name > b.zone.name) {
+                if (zoneA > zoneB) {
                     return 1;
                 }
                 return 0;
             });
         }
 
-        function getButtonDevices()
-        {
-            Homey.api('POST', '/Devices/', { type: 'boolean', id: ['dim'] }, function(err, devices)
-            {
-                if (err) return Homey.alert(err);
-
-                buttonDevicesArray = sortDevices(Object.values(devices));
-                buttonDevicesFetched = true;
-                fillButtonDevices();
+        function filterButtonDevices(devices) {
+            return devices.filter((device) => {
+                // Check if at least one capability has type "boolean"
+                if(device.capabilitiesObj) {
+                    return Object.values(device.capabilitiesObj).some((capability) => {
+                        return capability.type === "boolean";
+                    });
+                }
             });
         }
 
-        function getDisplayDevices()
-        {
+        function getDevices() {
             Homey.api('POST', '/Devices/', {}, function(err, devices)
             {
                 if (err) return Homey.alert(err);
 
-                displayDevicesArray = sortDevices(Object.values(devices));
+                devices = Object.values(devices);
+ 
+                displayDevicesArray = sortDevices(devices);
                 displayDevicesFetched = true;
                 fillDisplayDevices();
+
+                buttonDevicesArray = sortDevices(filterButtonDevices(devices));
+                buttonDevicesFetched = true;
+                fillButtonDevices();
             });
         }
 
@@ -993,9 +1000,10 @@
                 let deviceGroup;
                 for (const device of DevicesArray)
                 {
-                    if (deviceGroup != device.zone.name) {
+                    const zoneName = device.zone.name ?? device.zoneName;
+                    if (deviceGroup != zoneName) {
                         var option = document.createElement("option");
-                        deviceGroup = device.zone.name;
+                        deviceGroup = zoneName;
                         option.text = deviceGroup;
                         option.value = deviceGroup;
                         option.disabled = true;
