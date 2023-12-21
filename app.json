@@ -1469,19 +1469,6 @@
             "en": "IP address of the device",
             "nl": "IP adres van het apparaat"
           }
-        },
-        {
-          "id": "invertMiniDisplay",
-          "type": "checkbox",
-          "label": {
-            "en": "Invert mini display",
-            "nl": "Mini display omkeren"
-          },
-          "value": true,
-          "hint": {
-            "en": "Inverts the background color of the mini display (The panel will restart to apply this change)",
-            "nl": "Keert de achtergrondkleur van het mini display om (het panel zal herstarten om de verandering toe te passen)"
-          }
         }
       ],
       "images": {

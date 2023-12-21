@@ -453,19 +453,9 @@ class BasePanelDevice extends Device
 
                 if (buttonCapability)
                 {
-                    if (this.buttonTime[buttonCapability])
-                    {
-                        clearTimeout(this.buttonTime[buttonCapability]);
-                        this.buttonTime[buttonCapability] = null;
-                    }
                     await this.setCapabilityValue(buttonCapability, true).catch(this.error);
                     // trigger the flow
                     this.homey.app.triggerButtonOn(this, MQTTMessage.side === 'left', connectorNo + 1);
-                    this.buttonTime[buttonCapability] = this.homey.setTimeout(() => {
-                        this.buttonTime[buttonCapability] = null;
-                        this.setCapabilityValue(buttonCapability, false).catch(this.error);
-                        this.homey.app.triggerButtonOff(this, MQTTMessage.side === 'left', connectorNo + 1);
-                    }, 500);
                 }
                 return;
             }
@@ -595,6 +585,32 @@ class BasePanelDevice extends Device
         }
         else if (topic === 'homey/clickrelease' && MQTTMessage)
         {
+            const connectorNo = MQTTMessage.connector;
+            if (connectorNo === undefined)
+            {
+                this.homey.app.updateLog('The MQTT payload has no connector number');
+                return;
+            }
+            const configNo = this.getCapabilityValue(`configuration_button.connector${connectorNo}`);
+            const settings = this.getSettings();
+            if ((settings[`connect${connectorNo}Type`] === 2) || (configNo === null) || MQTTMessage.device === '' || MQTTMessage.capability === '')
+            {
+                // A large display button or no configuration or no device/capability assigned to this button, therefore it can't be latched so turn off the capability
+                let buttonCapability = '';
+                if (MQTTMessage.side === 'left')
+                {
+                    buttonCapability = `left_button.connector${connectorNo}`;
+                }
+                else if (MQTTMessage.side === 'right')
+                {
+                    buttonCapability = `right_button.connector${connectorNo}`;
+                }
+
+                if (buttonCapability)
+                {
+                    await this.setCapabilityValue(buttonCapability, false).catch(this.error);
+                }
+            }
             this.homey.app.triggerButtonRelease(this, MQTTMessage.side === 'left', MQTTMessage.connector + 1);
         }
     }
@@ -640,18 +656,10 @@ class BasePanelDevice extends Device
             let updated = false;
 
             // Set the core configuration values
-            const invertMiniDisplay = this.getSetting('invertMiniDisplay');
             const largeDim = this.getCapabilityValue('dim.large');
             const smallDim = this.getCapabilityValue('dim.small');
             const ledDim = this.getCapabilityValue('dim.led');
 
-            // if the invertMiniDisplay setting is not null then use it
-            if (invertMiniDisplay !== null)
-            {
-                deviceConfigurations.core.invert = invertMiniDisplay ? 1 : 0;
-                updated = true;
-            }
-        
             if (largeDim !== null)
             {
                 deviceConfigurations.core.brightnesslargedisplay = largeDim * 100;

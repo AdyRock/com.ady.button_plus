@@ -151,21 +151,6 @@ class PanelDevice extends BasePanelDevice
                 throw new Error('Invalid IP address');
             }
         }
-
-        if (changedKeys.includes('invertMiniDisplay'))
-        {
-            const ip = this.getSetting('address');
-            const deviceConfiguration = {
-                core: {
-                    invert: newSettings.invertMiniDisplay,
-                },
-            };
-            const result = await this.homey.app.writeDeviceConfiguration(ip, deviceConfiguration, true);
-            if (result)
-            {
-                throw new Error('Failed to send the configuration to the device');
-            }
-        }
     }
 
     /**
