@@ -34,6 +34,7 @@ class MyApp extends Homey.App
     {
         this.mqttServerReady = false;
         this.autoConfigGateway = true;
+        this.lastMQTTData = new Map();
 
         const homeyLocalURL = await this.homey.cloud.getLocalAddress();
         this.homeyIP = homeyLocalURL.split(':')[0];
@@ -1269,7 +1270,7 @@ class MyApp extends Homey.App
                 this.updateLog(`Error getting devices: ${e.message}`, 0);
             }
         }
-        return [];
+        return undefined;
     }
 
     async getHomeyCapabilityByName(device, name)
@@ -1285,7 +1286,7 @@ class MyApp extends Homey.App
                 this.updateLog(`Error getting capability: ${e.message}`, 0);
             }
         }
-        return [];
+        return undefined;
     }
 
     async getHomeyDeviceCapabilities(device)
@@ -1600,6 +1601,16 @@ class MyApp extends Homey.App
     async publishMQTTMessage(MQTT_Id, topic, message)
     {
         const data = (typeof message === 'string' || message instanceof String) ? message : JSON.stringify(message);
+
+        const lastMQTTData = this.lastMQTTData.get(`${MQTT_Id}_${topic}`);
+        if (lastMQTTData == data) 
+        {
+            this.updateLog(`publishMQTTMessage: ${MQTT_Id}_${topic}, ${data}, ignored, same as previous value`);
+            return;
+        }
+
+        this.lastMQTTData.set(`${MQTT_Id}_${topic}`, data);
+
         this.updateLog(`publishMQTTMessage: ${data} to topic ${topic}`);
         try
         {

@@ -267,152 +267,33 @@ class BasePanelDevice extends Device
     {
         this.log('onCapabilityLeftButton', connector, value, opts);
 
-        // Check if the button is on this connector
-        const connectorType = this.getSetting(`connect${connector}Type`);
-        if (connectorType === 1)
-        {
-            const configNo = this.getCapabilityValue(`configuration_button.connector${connector}`);
-            if (configNo === null)
-            {
-                throw new Error(`Connector ${connector} needs a Configuration assigned to it on the next page`);
-            }
-            const ButtonPanelConfiguration = this.homey.app.buttonConfigurations[configNo];
-            if (ButtonPanelConfiguration.leftDevice !== 'customMQTT')
-            {
-                if (ButtonPanelConfiguration.leftDevice !== 'none')
-                {
-                    const homeyDeviceObject = await this.homey.app.getHomeyDeviceById(ButtonPanelConfiguration.leftDevice);
-                    if (homeyDeviceObject)
-                    {
-                        const capability = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObject, ButtonPanelConfiguration.leftCapability);
-                        if (!capability.setable)
-                        {
-                            // Not allowed to change this capability
-                            throw new Error(`The capability ${ButtonPanelConfiguration.leftCapability} is not setable`);
-                        }
-                        if (capability.id === 'dim')
-                        {
-                            const change = parseInt(ButtonPanelConfiguration.leftOnText, 10) / 100;
-                            if ((ButtonPanelConfiguration.leftOnText.indexOf('+') >= 0) || (ButtonPanelConfiguration.leftOnText.indexOf('-') >= 0))
-                            {
-                                value = capability.value + change;
-                                if (value > 1)
-                                {
-                                    value = 1;
-                                }
-                                else if (value < 0)
-                                {
-                                    value = 0;
-                                }
-                            }
-                            else
-                            {
-                                value = change;
-                            }
+        // Setup parameters and call procesButtonClick
+        const parameters = {};
+        parameters.fromButton = true;
+        parameters.buttonCapability = `left_button.connector${parameters.connector}`
+        parameters.connector = connector;
+        parameters.side = 'left';
+        parameters.value = value;
+        parameters.configNo = this.getCapabilityValue(`configuration_button.connector${parameters.connector}`);
+        parameters.connectorType = this.getSetting(`connect${connector}Type`);
 
-                            this.setCapabilityValue(`left_button.connector${connector}`, false).catch(this.error);
-                        }
-                        if (capability.value !== value)
-                        {
-                            await homeyDeviceObject.setCapabilityValue(ButtonPanelConfiguration.leftCapability, value).catch(this.error);
-                        }
-                    }
-                    this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.leftBrokerId, `homey/${ButtonPanelConfiguration.leftDevice}/${ButtonPanelConfiguration.leftCapability}/value`, value);
-                    this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.leftBrokerId, `homey/${ButtonPanelConfiguration.leftDevice}/${ButtonPanelConfiguration.leftCapability}/label`,
-                        value ? ButtonPanelConfiguration.leftOnText : ButtonPanelConfiguration.leftOffText);
-                }
-                else
-                {
-                    this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.leftBrokerId, `${id}/button/${connector * 2}/value`, value);
-                    this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.leftBrokerId, `${id}/button/${connector * 2}/label`, value ? ButtonPanelConfiguration.leftOnText : ButtonPanelConfiguration.leftOffText);
-                }
-            }
-        }
-
-        if (value)
-        {
-            this.homey.app.triggerButtonOn(this, true, connector);
-        }
-        else
-        {
-            this.homey.app.triggerButtonOff(this, true, connector);
-        }
+        await this.processClickMessage(parameters);
     }
 
     async onCapabilityRightButton(connector, value, opts)
     {
         this.log('onCapabilityLeftButton', connector, value, opts);
-        const connectorType = this.getSetting(`connect${connector}Type`);
-        if (connectorType === 1)
-        {
-            const configNo = this.getCapabilityValue(`configuration_button.connector${connector}`);
-            if (configNo === null)
-            {
-                throw new Error(`Connector ${connector} needs a Configuration assigned to it on the next page`);
-            }
-            const ButtonPanelConfiguration = this.homey.app.buttonConfigurations[configNo];
-            if (ButtonPanelConfiguration.leftDevice !== 'customMQTT')
-            {
-                if (ButtonPanelConfiguration.rightDevice !== 'none')
-                {
-                    const homeyDeviceObject = await this.homey.app.getHomeyDeviceById(ButtonPanelConfiguration.rightDevice);
-                    if (homeyDeviceObject)
-                    {
-                        const capability = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObject, ButtonPanelConfiguration.rightCapability);
-                        if (!capability.setable)
-                        {
-                            // Not allowed to change this capability
-                            throw new Error(`The capability ${ButtonPanelConfiguration.rightCapability} is not setable`);
-                        }
-                        if (capability.id === 'dim')
-                        {
-                            const change = parseInt(ButtonPanelConfiguration.rightDimChange, 10) / 100;
-                            if ((ButtonPanelConfiguration.rightDimChange.indexOf('+') >= 0) || (ButtonPanelConfiguration.rightDimChange.indexOf('-') >= 0))
-                            {
-                                value = capability.value + change;
-                                if (value > 1)
-                                {
-                                    value = 1;
-                                }
-                                else if (value < 0)
-                                {
-                                    value = 0;
-                                }
-                            }
-                            else
-                            {
-                                value = change;
-                            }
+        // Setup parameters and call procesButtonClick
+        const parameters = {};
+        parameters.fromButton = true;
+        parameters.buttonCapability = `right_button.connector${parameters.connector}`
+        parameters.connector = connector;
+        parameters.side = 'right';
+        parameters.value = value;
+        parameters.configNo = this.getCapabilityValue(`configuration_button.connector${parameters.connector}`);
+        parameters.connectorType = this.getSetting(`connect${connector}Type`);
 
-                            this.setCapabilityValue(`right_button.connector${connector}`, false).catch(this.error);
-                        }
-
-                        if (capability.value !== value)
-                        {
-                            homeyDeviceObject.setCapabilityValue(ButtonPanelConfiguration.rightCapability, value).catch(this.error);
-                        }
-                    }
-                    this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.rightrokerId, `homey/${ButtonPanelConfiguration.rightDevice}/${ButtonPanelConfiguration.rightCapability}/value`, value);
-                    this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.rightrokerId, `homey/${ButtonPanelConfiguration.rightDevice}/${ButtonPanelConfiguration.rightCapability}/label`,
-                        value ? ButtonPanelConfiguration.rightOnText : ButtonPanelConfiguration.rightOffText);
-                }
-                else
-                {
-                    this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.rightrokerId, `${id}/button/${connector * 2 + 1}/value`, value);
-                    this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.rightrokerId, `${id}/button/${connector * 2 + 1}/label`,
-                        value ? ButtonPanelConfiguration.rightOnText : ButtonPanelConfiguration.rightOffText);
-                }
-            }
-        }
-
-        if (value)
-        {
-            this.homey.app.triggerButtonOn(this, false, connector);
-        }
-        else
-        {
-            this.homey.app.triggerButtonOff(this, false, connector);
-        }
+        await this.processClickMessage(parameters);
     }
 
     async onCapabilityInfo(value, opts)
@@ -425,178 +306,223 @@ class BasePanelDevice extends Device
         const { id } = this.getData();
         if (!MQTTMessage || MQTTMessage.panelId != id)
         {
+            // Message is not for this device
             return;
         }
 
-        this.homey.app.updateLog(`Panel processing MQTT message: ${topic}, ${this.homey.app.varToString(MQTTMessage)}`);
-        if (topic === 'homey/click' && MQTTMessage)
+        this.homey.app.updateLog(`Panel processing MQTT message: ${topic}`);
+
+        if (MQTTMessage.connector === undefined)
         {
-            let buttonCapability = '';
-            const connectorNo = MQTTMessage.connector;
-            if (connectorNo === undefined)
+            // If the message has no connector number then ignore it as we don't know which button it is for
+            this.homey.app.updateLog('The MQTT payload has no connector number');
+            return;
+        }
+
+        // gather the parameters from various places that we need to process the message
+        const parameters = {...MQTTMessage};
+        parameters.connectorType = this.getSetting(`connect${parameters.connector}Type`);
+        parameters.configNo = this.getCapabilityValue(`configuration_button.connector${parameters.connector}`);
+
+        // Setup which of our buttons (left or right) this message is for
+        if (parameters.side === 'left')
+        {
+            parameters.buttonCapability = `left_button.connector${parameters.connector}`;
+        }
+        else if (parameters.side === 'right')
+        {
+            parameters.buttonCapability = `right_button.connector${parameters.connector}`;
+        }
+
+        if (!parameters.buttonCapability)
+        {
+            // If the message has no button capability then ignore it as we don't know which button it is for
+            this.homey.app.updateLog('The MQTT payload has no valid button capability');
+            return;
+        }
+
+        // Now process the message
+        if (topic === 'homey/click')
+        {
+            // The button was pressed
+            this.processClickMessage(parameters);
+        }
+        else if (topic === 'homey/longpress')
+        {
+            // The button has been pressed for a long time
+            this.processLongPressMessage(parameters);
+        }
+        else if (topic === 'homey/clickrelease')
+        {
+            // The button has been released
+            this.processReleaseMessage(parameters)
+        }
+    }
+
+    async processClickMessage(parameters)
+    {
+        // Check if a large display or if no configuration assigned to this connector
+        if ((parameters.connectorType === 2) || (parameters.configNo === null) || parameters.device === '' || parameters.capability === '')
+        {
+            // No button configuration assigned to this connector so just toggle the button
+            await this.setCapabilityValue(parameters.buttonCapability, true).catch(this.error);
+
+            // and trigger the flow
+            this.homey.app.triggerButtonOn(this, parameters.side === 'left', parameters.connector + 1);
+            return;
+        }
+
+        // Get the button configuration for this connector
+        const buttonPanelConfiguration = this.homey.app.buttonConfigurations[parameters.configNo];
+        let configDeviceID = '';
+        let configCapabilityName = '';
+        let buttonNumber = 0;
+        let onMessage = '';
+        let offMessage = '';
+        let brokerId = '';
+        let dimChange = '';
+
+        // Setup which of our buttons (left or right) this message is for
+        if (parameters.side === 'left')
+        {
+            configDeviceID = buttonPanelConfiguration.leftDevice;
+            configCapabilityName = buttonPanelConfiguration.leftCapability;
+            buttonNumber = parameters.connector * 2;
+            onMessage = buttonPanelConfiguration.leftOnText;
+            offMessage = buttonPanelConfiguration.leftOffText;
+            brokerId = buttonPanelConfiguration.leftBrokerId;
+            dimChange = buttonPanelConfiguration.leftDimChange;
+        }
+        else if (parameters.side === 'right')
+        {
+            configDeviceID = buttonPanelConfiguration.rightDevice;
+            configCapabilityName = buttonPanelConfiguration.rightCapability;
+            buttonNumber = (parameters.connector * 2) + 1;
+            onMessage = buttonPanelConfiguration.rightOnText;
+            offMessage = buttonPanelConfiguration.rightOffText;
+            brokerId = buttonPanelConfiguration.rightBrokerId;
+            dimChange = buttonPanelConfiguration.rightDimChange;
+        }
+
+        if (configDeviceID === 'customMQTT')
+        {
+            // we don't handle customMQTT messages
+            return;
+        }
+
+        let value = 0;
+
+        if (parameters.fromButton || ((configDeviceID === parameters.device) && (configCapabilityName === parameters.capability)))
+        {
+            // Check if the button has another device and capability assigned to it
+            if (configDeviceID !== 'none')
             {
-                this.homey.app.updateLog('The MQTT payload has no connector number');
-                return;
-            }
-            const configNo = this.getCapabilityValue(`configuration_button.connector${connectorNo}`);
-            const settings = this.getSettings();
-            if ((settings[`connect${connectorNo}Type`] === 2) || (configNo === null) || MQTTMessage.device === '' || MQTTMessage.capability === '')
-            {
-                if (MQTTMessage.side === 'left')
+                // Find the Homey device that is defined in the configuration
+                const homeyDeviceObject = await this.homey.app.getHomeyDeviceById(configDeviceID);
+                if (!homeyDeviceObject)
                 {
-                    buttonCapability = `left_button.connector${connectorNo}`;
+                    // Device not found
+                    this.homey.app.updateLog(`Device ${configDeviceID} not found`);
+                    return;
                 }
-                else if (MQTTMessage.side === 'right')
+
+                // Find the capability that is defined in the configuration
+                const capability = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObject, configCapabilityName);
+                if (!capability)
                 {
-                    buttonCapability = `right_button.connector${connectorNo}`;
+                    // Capability not found
+                    this.homey.app.updateLog(`Capability ${configCapabilityName} not found`);
+                    return;
                 }
 
-                if (buttonCapability)
+                if (configCapabilityName === 'dim')
                 {
-                    if (this.buttonTime[buttonCapability])
+                    // For dim cpaabilities we need to adjust the value by the amount in the dimChange field and not change the button state
+                    // Get the required change from the dimChange field and convert it from a percentage to a value
+                    const change = parseInt(dimChange, 10) / 100;
+                    if ((dimChange.indexOf('+') >= 0) || (dimChange.indexOf('-') >= 0))
                     {
-                        clearTimeout(this.buttonTime[buttonCapability]);
-                        this.buttonTime[buttonCapability] = null;
-                    }
-                    await this.setCapabilityValue(buttonCapability, true).catch(this.error);
-                    // trigger the flow
-                    this.homey.app.triggerButtonOn(this, MQTTMessage.side === 'left', connectorNo + 1);
-                    this.buttonTime[buttonCapability] = this.homey.setTimeout(() => {
-                        this.buttonTime[buttonCapability] = null;
-                        this.setCapabilityValue(buttonCapability, false).catch(this.error);
-                        this.homey.app.triggerButtonOff(this, MQTTMessage.side === 'left', connectorNo + 1);
-                    }, 500);
-                }
-                return;
-            }
+                        // + or - was specified so add or subtract the change from the current value
+                        value = capability.value + change;
 
-            const ButtonPanelConfiguration = this.homey.app.buttonConfigurations[configNo];
-            let homeyDeviceID = '';
-            let homeyCapabilityName = '';
-            let buttonNumber = 0;
-            let onMessage = '';
-            let offMessage = '';
-            let brokerId = '';
-            let dimChange = '';
-            let postCapabilityValue = true;
-
-            if (MQTTMessage.side === 'left')
-            {
-                buttonCapability = `left_button.connector${connectorNo}`;
-                homeyDeviceID = ButtonPanelConfiguration.leftDevice;
-                homeyCapabilityName = ButtonPanelConfiguration.leftCapability;
-                buttonNumber = MQTTMessage.connector * 2;
-                onMessage = ButtonPanelConfiguration.leftOnText;
-                offMessage = ButtonPanelConfiguration.leftOffText;
-                brokerId = ButtonPanelConfiguration.leftBrokerId;
-                dimChange = ButtonPanelConfiguration.leftDimChange;
-            }
-            else if (MQTTMessage.side === 'right')
-            {
-                buttonCapability = `right_button.connector${connectorNo}`;
-                homeyDeviceID = ButtonPanelConfiguration.rightDevice;
-                homeyCapabilityName = ButtonPanelConfiguration.rightCapability;
-                buttonNumber = (MQTTMessage.connector * 2) + 1;
-                onMessage = ButtonPanelConfiguration.rightOnText;
-                offMessage = ButtonPanelConfiguration.rightOffText;
-                brokerId = ButtonPanelConfiguration.rightBrokerId;
-                dimChange = ButtonPanelConfiguration.rightDimChange;
-            }
-
-            if (homeyDeviceID !== 'customMQTT')
-            {
-                if ((homeyDeviceID === MQTTMessage.device) && (homeyCapabilityName === MQTTMessage.capability))
-                {
-                    let value = !this.getCapabilityValue(buttonCapability);
-                    try
-                    {
-                        await this.setCapabilityValue(buttonCapability, value).catch(this.error);
-                    }
-                    catch (error)
-                    {
-                        this.error(error);
-                    }
-
-                    // Find the Homey capability that is linked to the MQTT topic
-                    if (homeyDeviceID !== 'none')
-                    {
-                        const homeyDeviceObject = await this.homey.app.getHomeyDeviceById(homeyDeviceID);
-                        if (homeyCapabilityName === 'dim')
+                        // Make sure the value is between 0 and 1
+                        if (value > 1)
                         {
-                            const capability = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObject, homeyCapabilityName);
-
-                            const change = parseInt(dimChange, 10) / 100;
-                            if ((dimChange.indexOf('+') >= 0) || (dimChange.indexOf('-') >= 0))
-                            {
-                                value = capability.value + change;
-                                if (value > 1)
-                                {
-                                    value = 1;
-                                }
-                                else if (value < 0)
-                                {
-                                    value = 0;
-                                }
-                            }
-                            else
-                            {
-                                value = change;
-                            }
-                            await homeyDeviceObject.setCapabilityValue(homeyCapabilityName, value).catch(this.error);
-                            value = true;
-                            if ((change < 0) && (value === 0))
-                            {
-                                // Reach the limit of the dimmer so use the off message
-                                value = false;
-                            }
-                            else if ((change > 0) && (value === 1))
-                            {
-                                // Reach the limit of the dimmer so use the off message
-                                value = false;
-                            }
-
-                            // Set the button capability to false so it acts like a button and not a toggle
-                            await this.setCapabilityValue(buttonCapability, false).catch(this.error);
+                            value = 1;
                         }
-                        else if (homeyDeviceObject)
+                        else if (value < 0)
                         {
-                            try
-                            {
-                                // Setting the capability value will trigger the MQTT message to be sent
-                                postCapabilityValue = false;
-                                await homeyDeviceObject.setCapabilityValue(homeyCapabilityName, value);
-                            }
-                            catch (error)
-                            {
-                                this.homey.app.updateLog(`Device ${homeyDeviceObject.name}: Capability ${homeyCapabilityName}, ${error.message}`);
-                                this.setCapabilityValue('info', error.message).catch(this.error);
-                            }
+                            value = 0;
                         }
-
-                        if (postCapabilityValue)
-                        {
-                            this.homey.app.publishMQTTMessage(brokerId, `homey/${homeyDeviceID}/${homeyCapabilityName}/value`, value);
-                        }
-                        this.homey.app.publishMQTTMessage(brokerId, `homey/${homeyDeviceID}/${homeyCapabilityName}/label`, value ? onMessage : offMessage);
-
-                        // TODO - check if getable and if not set a timer to set it back to the previous value
                     }
                     else
                     {
-                        this.homey.app.publishMQTTMessage(brokerId, `${id}/button/${buttonNumber}/value`, value);
-                        this.homey.app.publishMQTTMessage(brokerId, `${id}/button/${buttonNumber}/label`, value ? onMessage : offMessage);
+                        // No + or - was specified so just set the value to the change
+                        value = change;
                     }
+
+                    // Set the dim capability value of the target device
+                    homeyDeviceObject.setCapabilityValue(configCapabilityName, value).catch(this.error);
+                    this.homey.app.publishMQTTMessage(brokerId, `homey/${configDeviceID}/${configCapabilityName}/value`, value * 100);
+
+                    if (parameters.fromButton)
+                    {
+                        // Set the button state back to false immediately
+                        setImmediate(() => this.setCapabilityValue(parameters.buttonCapability, false).catch(this.error));
+                    }
+                    return;
+                }
+                
+                try
+                {
+                    // Setting the capability value will trigger the MQTT message to be sent
+                    value = parameters.fromButton ? parameters.value : !capability.value;
+                    await homeyDeviceObject.setCapabilityValue(configCapabilityName, value);
+                    this.homey.app.publishMQTTMessage(brokerId, `homey/${configDeviceID}/${configCapabilityName}/label`, value ? onMessage : offMessage);
+                    this.homey.app.publishMQTTMessage(brokerId, `homey/${configDeviceID}/${configCapabilityName}/value`, value);
+                }
+                catch (error)
+                {
+                    this.homey.app.updateLog(`Device ${homeyDeviceObject.name}: Capability ${configCapabilityName}, ${error.message}`);
                 }
             }
+            else
+            {
+                // No capability assigned to this button so just toggle the button
+                this.homey.app.publishMQTTMessage(brokerId, `${id}/button/${buttonNumber}/value`, value);
+                this.homey.app.publishMQTTMessage(brokerId, `${id}/button/${buttonNumber}/label`, value ? onMessage : offMessage);
+            }
         }
-        else if (topic === 'homey/longpress' && MQTTMessage)
+
+        if (!parameters.fromButton)
         {
-            this.homey.app.triggerButtonLongPress(this, MQTTMessage.side === 'left', MQTTMessage.connector + 1);
+            // Only do this for on / off capabilities and not dim
+            try
+            {
+                let value = !this.getCapabilityValue(parameters.buttonCapability);
+                await this.setCapabilityValue(parameters.buttonCapability, value).catch(this.error);
+            }
+            catch (error)
+            {
+                this.error(error);
+            }
         }
-        else if (topic === 'homey/clickrelease' && MQTTMessage)
+    }
+
+    async processLongPressMessage(parameters)
+    {
+        this.homey.app.triggerButtonLongPress(this, parameters.side === 'left', parameters.connector + 1);
+
+        if (parameters.capability === 'dim')
         {
-            this.homey.app.triggerButtonRelease(this, MQTTMessage.side === 'left', MQTTMessage.connector + 1);
+            // process another click message to change the dim value
+            return this.processClickMessage(parameters);
         }
+    }
+
+    async processReleaseMessage(parameters)
+    {
+        this.homey.app.triggerButtonRelease(this, parameters.side === 'left', parameters.connector + 1);
     }
 
     updateGatewayConfig(id, newIp)
@@ -851,25 +777,25 @@ class BasePanelDevice extends Device
         {
             // check the configuration to see if this capability is being monitored by one of the buttons
 
+            if (this.hasCapability('configuration_button.connector0'))
+            {
+                this.checkStateChangeForConnector(0, deviceId, capability, value);
+            }
             if (this.hasCapability('configuration_button.connector1'))
             {
-                const configNo = this.getCapabilityValue('configuration_button.connector1');
-                this.checkStateChangeForConnector(configNo, 1, deviceId, capability, value);
+                this.checkStateChangeForConnector(1, deviceId, capability, value);
             }
             if (this.hasCapability('configuration_button.connector2'))
             {
-                const configNo = this.getCapabilityValue('configuration_button.connector2');
-                this.checkStateChangeForConnector(configNo, 2, deviceId, capability, value);
+                this.checkStateChangeForConnector(2, deviceId, capability, value);
             }
             if (this.hasCapability('configuration_button.connector3'))
             {
-                const configNo = this.getCapabilityValue('configuration_button.connector3');
-                this.checkStateChangeForConnector(configNo, 3, deviceId, capability, value);
+                this.checkStateChangeForConnector(3, deviceId, capability, value);
             }
             if (this.hasCapability('configuration_button.connector4'))
             {
-                const configNo = this.getCapabilityValue('configuration_button.connector4');
-                this.checkStateChangeForConnector(configNo, 4, deviceId, capability, value);
+                this.checkStateChangeForConnector(4, deviceId, capability, value);
             }
         }
 
@@ -877,50 +803,51 @@ class BasePanelDevice extends Device
         this.checkStateChangeForDisplay(configNo, deviceId, capability, value);
     }
 
-    checkStateChangeForConnector(configNo, connector, deviceId, capability, value)
+    checkStateChangeForConnector(connector, deviceId, capability, value)
     {
-        // Check the left and right devices and capabilities for this connector
+        // Get the configuration for this connector
+        const configNo = this.getCapabilityValue(`configuration_button.connector${connector}`);
         if (!configNo)
         {
             // Connector not configured
             return;
         }
 
+        if (capability === 'dim')
+        {
+            // convert dim value to percentage
+            value *= 100;
+        }
+
+        // Check the left and right devices and capabilities for this connector
         const item = this.homey.app.buttonConfigurations[configNo];
         if ((item.leftDevice === deviceId) && (item.leftCapability === capability))
         {
-            if (capability === 'dim')
+            if (capability !== 'dim')
             {
-                // convert dim value to percentage
-                value *= 100;
+                // Set the device button state
+                this.setCapabilityValue(`left_button.connector${connector}`, value).catch(this.error);
+                this.homey.app.publishMQTTMessage(item.leftBrokerId, `homey/${deviceId}/${capability}/label`, value ? item.leftOnText : item.leftOffText);
             }
-
-            // Publish to MQTT
-            this.homey.app.publishMQTTMessage(item.leftBrokerId, `homey/${deviceId}/${capability}/value`, value);
-            this.homey.app.publishMQTTMessage(item.leftBrokerId, `homey/${deviceId}/${capability}/label`, value ? item.leftOnText : item.leftOffText);
-
-            if (capability === 'dim')
+            // else
             {
-                value = false;
+                // Publish to MQTT
+                this.homey.app.publishMQTTMessage(item.leftBrokerId, `homey/${deviceId}/${capability}/value`, value);
             }
-            this.setCapabilityValue(`left_button.connector${connector}`, value).catch(this.error);
         }
 
         if ((item.rightDevice === deviceId) && (item.rightCapability === capability))
         {
-            if (capability === 'dim')
+            if (capability !== 'dim')
             {
-                // convert dim value to percentage
-                value *= 100;
+                // Set the device button state
+                this.setCapabilityValue(`right_button.connector${connector}`, value).catch(this.error);
+                this.homey.app.publishMQTTMessage(item.rightBrokerId, `homey/${deviceId}/${capability}/label`, value ? item.rightOnText : item.rightOffText);
             }
-
-            this.homey.app.publishMQTTMessage(item.rightBrokerId, `homey/${deviceId}/${capability}/value`, value);
-            this.homey.app.publishMQTTMessage(item.rightBrokerId, `homey/${deviceId}/${capability}/label`, value ? item.rightOnText : item.rightOffText);
-            if (capability === 'dim')
+            // else
             {
-                value = false;
+                this.homey.app.publishMQTTMessage(item.rightBrokerId, `homey/${deviceId}/${capability}/value`, value);
             }
-            this.setCapabilityValue(`right_button.connector${connector}`, value).catch(this.error);
         }
     }
 
@@ -942,14 +869,20 @@ class BasePanelDevice extends Device
                 const displayItem = item.items[itemNo];
                 if ((displayItem.device === deviceId) && (displayItem.capability === capability))
                 {
-                    if (capability === 'dim')
+                    // Check if the value is different from the last time we published it
+                    if (displayItem.lastValue !== value)
                     {
-                        // convert dim value to percentage
-                        value *= 100;
-                    }
+                        displayItem.lastValue = value;
 
-                    // Publish to MQTT
-                    this.homey.app.publishMQTTMessage(displayItem.brokerId, `homey/${deviceId}/${capability}/value`, value);
+                        if (capability === 'dim')
+                        {
+                            // convert dim value to percentage
+                            value *= 100;
+                        }
+
+                        // Publish to MQTT
+                        this.homey.app.publishMQTTMessage(displayItem.brokerId, `homey/${deviceId}/${capability}/value`, value);
+                    }
                 }
             }
         }

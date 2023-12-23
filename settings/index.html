@@ -1107,6 +1107,8 @@
                 document.getElementById(`${side}OffText`).style.display = itemDisplyType;
                 document.getElementById(`${side}OffTextLabel`).style.display = itemDisplyType;
             }
+            document.getElementById(`${side}TopText`).value = document.getElementById(`${side}TopText`).value ? document.getElementById(`${side}TopText`).value : value;
+            
         }
 
         function updateButtonPanelConfiguration()

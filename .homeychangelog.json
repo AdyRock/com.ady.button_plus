@@ -57,6 +57,9 @@
         "en": "Catche error if invalid MQTT URL specified. Added expanding sections in the settings pages"
     },
     "0.2.9": {
-        "en": "The device lists in the configuration sections now now soreted by and show the zone name. Fix issues when display is on connector 0. Fix display button events not being sent. Fix for multiple panels."
+        "en": "The device lists in the configuration sections is now sorted by and shows the zone name. Fix issues when display is on connector 0. Fix display button events not being sent. Fix for multiple panels."
+    },
+    "0.2.10": {
+        "en": "Removed obsolete Invert option. Optimised the code to send less MQTT messages. Added auto repeat on long press for the Dim capability."
     }
 }

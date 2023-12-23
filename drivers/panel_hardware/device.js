@@ -10,6 +10,7 @@ class PanelDevice extends BasePanelDevice
      */
     async onInit()
     {
+        this.initFinished = false;
         await super.onInit();
         if (!this.hasCapability('measure_temperature'))
         {
@@ -65,6 +66,7 @@ class PanelDevice extends BasePanelDevice
         await this.setupMQTTSubscriptions(mqttClient);
 
         this.log('PanelDevice has been initialized');
+        this.initFinished = true;
     }
 
     async setupMQTTSubscriptions(MQTTclient)
@@ -74,7 +76,7 @@ class PanelDevice extends BasePanelDevice
         {
             if (err)
             {
-                this.updateLog("setupMQTTClient.onConnect 'homey/toggle' error: " * this.varToString(err), 0);
+                this.updateLog("setupMQTTClient.onConnect 'homey/toggle' error: " * this.homey.app.varToString(err), 0);
             }
             else
             {
@@ -86,7 +88,7 @@ class PanelDevice extends BasePanelDevice
         {
             if (err)
             {
-                this.updateLog("setupMQTTClient.onConnect 'homey/toggle' error: " * this.varToString(err), 0);
+                this.updateLog("setupMQTTClient.onConnect 'homey/toggle' error: " * this.homey.app.varToString(err), 0);
             }
             else
             {
@@ -98,7 +100,7 @@ class PanelDevice extends BasePanelDevice
         {
             if (err)
             {
-                this.updateLog("setupMQTTClient.onConnect 'homey/toggle' error: " * this.varToString(err), 0);
+                this.updateLog("setupMQTTClient.onConnect 'homey/toggle' error: " * this.homey.app.varToString(err), 0);
             }
             else
             {
@@ -195,21 +197,26 @@ class PanelDevice extends BasePanelDevice
 
     async processMQTTBtnMessage(topic, MQTTMessage)
     {
+        if (!this.initFinished)
+        {
+            return;
+        }
+
         // search the topic for the device id
         if (topic[1] === 'brightness')
         {
             const dim = parseFloat(MQTTMessage) / 100;
             if (topic[2] === 'largedisplay')
             {
-                this.triggerCapabilityListener('dim.large', dim, { mqtt: true })
+                this.triggerCapabilityListener('dim.large', dim, { mqtt: true }).catch((e) => this.log(e));
             }
             else if (topic[2] === 'minidisplay')
             {
-                this.triggerCapabilityListener('dim.small', dim, { mqtt: true })
+                this.triggerCapabilityListener('dim.small', dim, { mqtt: true }).catch((e) => this.log(e));
             }
             else if (topic[2] === 'leds')
             {
-                this.triggerCapabilityListener('dim.led', dim, { mqtt: true })
+                this.triggerCapabilityListener('dim.led', dim, { mqtt: true }).catch((e) => this.log(e));
             }
         }
     }
