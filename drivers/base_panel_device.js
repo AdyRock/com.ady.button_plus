@@ -270,11 +270,11 @@ class BasePanelDevice extends Device
         // Setup parameters and call procesButtonClick
         const parameters = {};
         parameters.fromButton = true;
-        parameters.buttonCapability = `left_button.connector${parameters.connector}`
+        parameters.buttonCapability = `left_button.connector${connector}`
         parameters.connector = connector;
         parameters.side = 'left';
         parameters.value = value;
-        parameters.configNo = this.getCapabilityValue(`configuration_button.connector${parameters.connector}`);
+        parameters.configNo = this.getCapabilityValue(`configuration_button.connector${connector}`);
         parameters.connectorType = this.getSetting(`connect${connector}Type`);
 
         await this.processClickMessage(parameters);
@@ -286,11 +286,11 @@ class BasePanelDevice extends Device
         // Setup parameters and call procesButtonClick
         const parameters = {};
         parameters.fromButton = true;
-        parameters.buttonCapability = `right_button.connector${parameters.connector}`
+        parameters.buttonCapability = `right_button.connector${connector}`
         parameters.connector = connector;
         parameters.side = 'right';
         parameters.value = value;
-        parameters.configNo = this.getCapabilityValue(`configuration_button.connector${parameters.connector}`);
+        parameters.configNo = this.getCapabilityValue(`configuration_button.connector${connector}`);
         parameters.connectorType = this.getSetting(`connect${connector}Type`);
 
         await this.processClickMessage(parameters);
