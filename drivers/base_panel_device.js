@@ -367,6 +367,15 @@ class BasePanelDevice extends Device
             // No button configuration assigned to this connector so just toggle the button
             await this.setCapabilityValue(parameters.buttonCapability, true).catch(this.error);
 
+            if (parameters.fromButton)
+            {
+                // Set the button state back to false immediately
+                setImmediate(() => this.setCapabilityValue(parameters.buttonCapability, false).catch(this.error));
+
+                // and trigger the flow
+                this.homey.app.triggerButtonOff(this, parameters.side === 'left', parameters.connector + 1);
+            }
+
             // and trigger the flow
             this.homey.app.triggerButtonOn(this, parameters.side === 'left', parameters.connector + 1);
             return;
@@ -489,6 +498,7 @@ class BasePanelDevice extends Device
             else
             {
                 // No capability assigned to this button so just toggle the button
+                const { id } = this.getData();
                 this.homey.app.publishMQTTMessage(brokerId, `${id}/button/${buttonNumber}/value`, value);
                 this.homey.app.publishMQTTMessage(brokerId, `${id}/button/${buttonNumber}/label`, value ? onMessage : offMessage);
             }
@@ -523,6 +533,16 @@ class BasePanelDevice extends Device
     async processReleaseMessage(parameters)
     {
         this.homey.app.triggerButtonRelease(this, parameters.side === 'left', parameters.connector + 1);
+
+        // Check if a large display or if no configuration assigned to this connector
+        if ((parameters.connectorType === 2) || (parameters.configNo === null) || parameters.device === '' || parameters.capability === '')
+        {
+            // No button configuration assigned to this connector so just toggle the button
+            await this.setCapabilityValue(parameters.buttonCapability, false).catch(this.error);
+
+            // and trigger the flow
+            this.homey.app.triggerButtonOff(this, parameters.side === 'left', parameters.connector + 1);
+        }
     }
 
     updateGatewayConfig(id, newIp)
