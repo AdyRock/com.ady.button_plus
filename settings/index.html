@@ -508,10 +508,11 @@
             {
                 if (autoConfigElement.checked)
                 {
-                    if (storeBrokerSettings())
+                    if (!storeBrokerSettings())
                     {
-                        Homey.set('brokerConfigurationItems', localBrokerItems);
+                        return;
                     }
+                    Homey.set('brokerConfigurationItems', localBrokerItems);
 
                     if (leftCapabilityElement.value === 'dim')
                     {
@@ -936,7 +937,7 @@
                 // Check if at least one capability has type "boolean"
                 if(device.capabilitiesObj) {
                     return Object.values(device.capabilitiesObj).some((capability) => {
-                        return capability.type === "boolean";
+                        return ((capability.type === "boolean") || (capability.id === "dim") || (capability.id === "windowcoverings_state"));
                     });
                 }
             });
@@ -1064,7 +1065,7 @@
                     const capabilitiesArray = Object.values(capabilities);
                     for (const capability of capabilitiesArray)
                     {
-                        if (capability.type === "boolean" || capability.id === "dim")
+                        if (capability.type === "boolean" || capability.id === "dim" || capability.id === "windowcoverings_state")
                         {
                             var option = document.createElement("option");
                             option.text = `${capability.title} (${capability.id}})`;
@@ -1415,11 +1416,11 @@
 
         function scrollToTop(element)
         {
-            setTimeout(function()
-            {
-                var fixedTopHeight = document.querySelector('.fixedTop').offsetHeight; // Get the height of the fixedTop div
-                window.scrollTo(0, element.offsetTop - fixedTopHeight);
-            }, 100);
+            // setTimeout(function()
+            // {
+            //     var fixedTopHeight = document.querySelector('.fixedTop').offsetHeight; // Get the height of the fixedTop div
+            //     window.scrollTo(0, element.offsetTop - fixedTopHeight);
+            // }, 100);
         }
 
         function onDisplayLabelChange(element, itemNo)
@@ -1670,6 +1671,15 @@
                 port: Homey.__("settings.port"),
                 wsPort: Homey.__("settings.wsPort"),
                 enabled: Homey.__("settings.enabled"),
+                username: Homey.__("settings.username"),
+                password: Homey.__("settings.password"),
+                idExplanation: Homey.__("settings.idExplanation"),
+                addressExplanation: Homey.__("settings.addressExplanation"),
+                portExplanation: Homey.__("settings.portExplanation"),
+                wsPortExplanation: Homey.__("settings.wsPortExplanation"),
+                enabledExplanation: Homey.__("settings.enabledExplanation"),
+                usernameExplanation: Homey.__("settings.usernameExplanation"),
+                passwordExplanation: Homey.__("settings.passwordExplanation"),
             };
             const itemLegend = Homey.__("settings.brokerItemlegend", { itemNo: itemNo + 1 });
             const protected = item.protected ? "disabled" : "";
@@ -1684,6 +1694,12 @@
             if (item.brokerid === "homey")
             {
                 brokerDescription = Homey.__("settings.brokerHomey");
+                ctrlLabels.passwordExplanation = Homey.__("settings.homeyPasswordExplanation");
+                ctrlLabels.usernameExplanation = Homey.__("settings.homeyUsernameExplanation");
+            }
+            else if (item.brokerid === "buttonplus")
+            {
+                brokerDescription = Homey.__("settings.brokerButtonPlus");
             }
             else
             {
@@ -1697,22 +1713,55 @@
                         <legend class="homey-subtitle">${itemLegend}</legend>
                         <p>${brokerDescription}</p>
 
-                        <label class="homey-form-label" for="broker${itemNo}Id">${ctrlLabels.id}</label>
+                        <label class="homey-form-label" for="broker${itemNo}Id">${ctrlLabels.id}
+                            <div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
+                                <span class="tooltiptext">${ctrlLabels.idExplanation}</span>
+                            </div>
+                        </label>
                         <input class="homey-form-input" id="broker${itemNo}Id" type="text" value="${item.brokerid}" ${protected} onChange="updateBrokerLists(${itemNo})"/>
 
-                        <label class="homey-form-label" for="broker${itemNo}Address">${ctrlLabels.address}</label>
+                        <label class="homey-form-label" for="broker${itemNo}Address">${ctrlLabels.address}
+                            <div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
+                                <span class="tooltiptext">${ctrlLabels.addressExplanation}</span>
+                            </div>
+                        </label>
                         <input class="homey-form-input" id="broker${itemNo}Address" type="text" value="${item.url}" ${protected} />
 
-                        <label class="homey-form-label" for="broker${itemNo}Port">${ctrlLabels.port}</label>
+                        <label class="homey-form-label" for="broker${itemNo}Port">${ctrlLabels.port}
+                            <div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
+                                <span class="tooltiptext">${ctrlLabels.portExplanation}</span>
+                            </div>
+                        </label>
                         <input class="homey-form-input" id="broker${itemNo}Port" type="number" value="${item.port}" />
 
-                        <label class="homey-form-label" for="broker${itemNo}WSPort">${ctrlLabels.wsPort}</label>
+                        <label class="homey-form-label" for="broker${itemNo}WSPort">${ctrlLabels.wsPort}
+                            <div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
+                                <span class="tooltiptext">${ctrlLabels.wsPortExplanation}</span>
+                            </div>
+                        </label>
                         <input class="homey-form-input" id="broker${itemNo}WSPort" type="number" value="${item.wsport}" />
+
+                        <label class="homey-form-label" for="broker${itemNo}Username">${ctrlLabels.username}
+                            <div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
+                                <span class="tooltiptext">${ctrlLabels.usernameExplanation}</span>
+                            </div>
+                        </label>
+                        <input class="homey-form-input" id="broker${itemNo}Username" type="text" value="${item.username ? item.username : ""}""/>
+
+                        <label class="homey-form-label" for="broker${itemNo}Password">${ctrlLabels.password}
+                            <div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
+                                <span class="tooltiptext">${ctrlLabels.passwordExplanation}</span>
+                            </div>
+                        </label>
+                        <input class="homey-form-input" id="broker${itemNo}Password" type="text" value="${item.password ? item.password : ""}""/>
 
                         <label class="homey-form-checkbox">
                             <input class="homey-form-checkbox-input" id="broker${itemNo}Enabled" onClick="rebuildBrokerLists(${itemNo})" type="checkbox" ${enableOption}/>
                             <span class="homey-form-checkbox-checkmark"></span>
                             <span class="homey-form-checkbox-text">${ctrlLabels.enabled}</span>
+                            <div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
+                                <span class="tooltiptext">${ctrlLabels.enabledExplanation}</span>
+                            </div>
                         </label>
 
                         ${deleteButton}
@@ -1873,6 +1922,7 @@
 
         function storeBrokerSettings()
         {
+            let oneEnabled = false; 
             for (var itemNo = 0; itemNo < localBrokerItems.length; itemNo++)
             {
                 // Make sure there isn't already a broker with this id
@@ -1886,14 +1936,35 @@
                         return false;
                     }
                 }
-                localBrokerItems[itemNo].enabled = document.getElementById(`broker${itemNo}Enabled`).checked;
+                
+                const enabled = document.getElementById(`broker${itemNo}Enabled`).checked;
+                if (enabled)
+                {
+                    oneEnabled = true;
+                }
+                localBrokerItems[itemNo].enabled = enabled;
                 localBrokerItems[itemNo].brokerid = newBrokerid;
                 localBrokerItems[itemNo].url = document.getElementById(`broker${itemNo}Address`).value;
                 localBrokerItems[itemNo].port = document.getElementById(`broker${itemNo}Port`).value;
                 localBrokerItems[itemNo].wsport = document.getElementById(`broker${itemNo}WSPort`).value;
+
+                const username = document.getElementById(`broker${itemNo}Username`).value;
+                const password = document.getElementById(`broker${itemNo}Password`).value;
+                if (!username && password)
+                {
+                    Homey.alert(Homey.__("settings.passwordError1"));
+                    return false;
+                }
+                localBrokerItems[itemNo].username = username;
+                localBrokerItems[itemNo].password = password;
             }
 
-            return true;
+            if (!oneEnabled)
+            {
+                Homey.alert(Homey.__("settings.noEnabledBrokerError"));
+                return false;
+            }
+            return oneEnabled;
         }
 
         /// Custom MQTT code

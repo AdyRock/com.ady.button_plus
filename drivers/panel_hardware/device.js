@@ -42,11 +42,22 @@ class PanelDevice extends BasePanelDevice
             await this.addCapability('dim.led');
         }
 
+        if (!this.hasCapability('button.update_firmware'))
+        {
+            await this.addCapability('button.update_firmware');
+        }
+
+        const ip = this.getSetting('address');
+
         this.registerCapabilityListener('dim.large', this.onCapabilityDim.bind(this, 'largedisplay'));
         this.registerCapabilityListener('dim.small', this.onCapabilityDim.bind(this, 'minidisplay'));
         this.registerCapabilityListener('dim.led', this.onCapabilityDim.bind(this, 'leds'));
+        
+        this.registerCapabilityListener('button.update_firmware', async () => {
+            // Maintenance action button was pressed
+            return await this.homey.app.updateFirmware(ip);
+          });
 
-        const ip = this.getSetting('address');
         this.homey.app.setupPanelTemperatureTopic(ip, this.__id);
 
         this.dateTimer = null;

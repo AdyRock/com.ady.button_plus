@@ -42,7 +42,8 @@
         "measure_temperature",
         "date",
         "time",
-        "info"
+        "info",
+        "button.update_firmware"
     ],
     "capabilitiesOptions":{
         "dim.large": {
@@ -61,6 +62,17 @@
             "title": {
                 "en": "LED",
                 "nl": "LED"
+            }
+        },
+        "button.update_firmware": {
+            "maintenanceAction": true,
+            "title": {
+                "en": "Update firmware",
+                "nl": "Firmware bijwerken"
+            },
+            "desc": {
+                "en": "Update the firmware of the device",
+                "nl": "Firmware van het apparaat bijwerken"
             }
         }
     },
