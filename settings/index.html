@@ -775,7 +775,6 @@
                             yPos: 0,
                             width: 100,
                             fontSize: 1,
-                            alignment: 0,
                             brokerId: 'homey',
                         };
 
@@ -1306,7 +1305,6 @@
                 document.getElementById(`display${itemNo}BrokerId`).value = item.brokerId;
 
                 document.getElementById(`display${itemNo}FontSize`).value = item.fontSize;
-                document.getElementById(`display${itemNo}Alignment`).value = item.alignment;
                 document.getElementById(`display${itemNo}BrokerId`).value = item.brokerId;
             }
 
@@ -1326,17 +1324,6 @@
                 width: Homey.__("settings.width"),
                 rounding: Homey.__("settings.rounding"),
                 fontSize: Homey.__("settings.fontSize"),
-                alignment: Homey.__("settings.alignment"),
-                topLeft: Homey.__("settings.topLeft"),
-                topCenter: Homey.__("settings.topCenter"),
-                topRight: Homey.__("settings.topRight"),
-                centerLeft: Homey.__("settings.centerLeft"),
-                center: Homey.__("settings.center"),
-                centerCenter: Homey.__("settings.centerCenter"),
-                centerRight: Homey.__("settings.centerRight"),
-                bottomLeft: Homey.__("settings.bottomLeft"),
-                bottomCenter: Homey.__("settings.bottomCenter"),
-                bottomRight: Homey.__("settings.bottomRight"),
                 deleteItem: Homey.__("settings.deleteItem"),
                 brokerId: Homey.__("settings.brokerId"),
             }
@@ -1388,19 +1375,6 @@
                                     <option value=3>3</option>
                                     <option value=4>4</option>
                                 </select>
-
-                                <label class="homey-form-label" for="display${itemNo}Alignment">${ctrlLabels.alignment}</label>
-                                <select class="homey-form-select" id="display${itemNo}Alignment">
-                                    <option value=0>${ctrlLabels.topLeft}</option>
-                                    <option value=1>${ctrlLabels.topCenter}</option>
-                                    <option value=2>${ctrlLabels.topRight}</option>
-                                    <option value=3>${ctrlLabels.centerLeft}</option>
-                                    <option value=4>${ctrlLabels.center}</option>
-                                    <option value=5>${ctrlLabels.centerRight}</option>
-                                    <option value=6>${ctrlLabels.bottomLeft}</option>
-                                    <option value=7>${ctrlLabels.bottomCenter}</option>
-                                    <option value=8>${ctrlLabels.bottomRight}</option>
-                                </select><br>
                             </div>
                             <label class="homey-form-label" for="display${itemNo}BrokerId">${ctrlLabels.brokerId}</label>
                                 <select class="homey-form-select" id="display${itemNo}BrokerId">
@@ -1646,7 +1620,6 @@
                     displayConfiguration.items[itemNo].width = document.getElementById(`display${itemNo}Width`).value;
                     displayConfiguration.items[itemNo].rounding = document.getElementById(`display${itemNo}Rounding`).value;
                     displayConfiguration.items[itemNo].fontSize = document.getElementById(`display${itemNo}FontSize`).value;
-                    displayConfiguration.items[itemNo].alignment = document.getElementById(`display${itemNo}Alignment`).value;
                     displayConfiguration.items[itemNo].brokerId = document.getElementById(`display${itemNo}BrokerId`).value;
                 }
             }

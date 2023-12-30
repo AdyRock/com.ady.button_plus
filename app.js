@@ -644,7 +644,6 @@ class MyApp extends Homey.App
                     x: parseInt(item.xPos, 10),
                     y: parseInt(item.yPos, 10),
                     fontsize: parseInt(item.fontSize, 10),
-                    align: parseInt(item.alignment, 10),
                     width: parseInt(item.width, 10),
                     label: item.label,
                     unit: item.unit,
@@ -721,7 +720,7 @@ class MyApp extends Homey.App
 
             if (deviceConfiguration)
             {
-                const sectionConfiguration = {'mqttbuttons': [...deviceConfigurations.mqttbuttons]};
+                const sectionConfiguration = {'mqttbuttons': [...deviceConfiguration.mqttbuttons]};
 
                 // apply the new configuration
                 await this.applyButtonConfiguration(panelId, deviceConfiguration, sectionConfiguration, connectorNo, configurationNo);

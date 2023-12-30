@@ -38,9 +38,8 @@ The button bar configurations are shown when the first drop list shows button ba
 9. Enter a width. Again this is a percentage of the display width.
 10. Enter a Rounding value. 0 = whole numbers (integer), 1 is 1 decimal place, etc.
 11. Select a Font Size from the list.
-12. Specify the Alignment of the value.
-13. Add more display items as required.
-14. Click on Save Configurations.
+12. Add more display items as required.
+13. Click on Save Configurations.
 
 ## Adding a device to Homey
 

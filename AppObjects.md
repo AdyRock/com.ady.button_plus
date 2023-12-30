@@ -34,5 +34,4 @@ displayItem Object
         yPos,
         width,
         fontSize: 1,
-        alignment,
     };
