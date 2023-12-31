@@ -171,7 +171,10 @@ class MyApp extends Homey.App
                 // The client setup is called when the server is ready
                 this.setupHomeyMQTTServer();
             }
+
+            // Start the mDNS discovery and setup an array of detected devices
             this.setupMDNS();
+
             for (const brokerItem of this.brokerItems)
             {
                 if (brokerItem.enabled && brokerItem.brokerid !== 'homey')
@@ -456,7 +459,54 @@ class MyApp extends Homey.App
             }
         });
 
+        this.syncTime();
+
         this.updateLog('MyApp has been initialized');
+    }
+
+    async syncTime()
+    {
+        this.dateTimer = null;
+        const msUntilNextMinute = this.updateTime();
+
+        // Set a timeout to update the time every minute
+        this.homey.setTimeout(() =>
+        {
+            this.syncTime();
+        }, msUntilNextMinute);
+    }
+
+    updateTime()
+    {
+        // Allow for Homey's timezone setting
+        const tzString = this.homey.clock.getTimezone();
+        let dateTime = new Date();
+        dateTime = new Date(dateTime.toLocaleString('en-US', { timeZone: tzString }));
+
+        // Get the date using the short month format
+        const date = dateTime.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' });
+
+        // get the time in the local format, but exclude seconds keeping am/pm if it's 12 hour format
+        // eslint-disable-next-line object-curly-newline
+        const time = dateTime.toLocaleTimeString('en-US', { hour12: true, hour: 'numeric', minute: 'numeric' });
+
+        const drivers = this.homey.drivers.getDrivers();
+        for (const driver of Object.values(drivers))
+        {
+            let devices = driver.getDevices();
+            for (let device of Object.values(devices))
+            {
+                if (device.hasCapability('date'))
+                {
+                    device.setCapabilityValue('date', date).catch(this.error);
+                    device.setCapabilityValue('time', time).catch(this.error);
+                }
+            }
+        }
+
+        // Return the number of ms until next minute
+        dateTime = new Date();
+        return (60 - dateTime.getSeconds()) * 1000;
     }
 
     // Make all the device upload their button bar configurations to the panels
@@ -1433,6 +1483,23 @@ class MyApp extends Homey.App
         return [];
     }
 
+    async getButtonDevices()
+    {
+        // Get the apps devices
+        const driver = this.homey.drivers.getDriver('panel_hardware');
+        const devices = [];
+        const driverDevices = driver.getDevices();
+        for (const device of Object.values(driverDevices))
+        {
+            const data = device.getSettings();
+            const deviceEntry = {ip: data.address, name: device.getName()};
+            devices.push(deviceEntry);
+        }
+
+        return devices;
+    }
+
+
     async _getSystemInfo()
     {
         this.updateLog('get system info');
@@ -1476,15 +1543,17 @@ class MyApp extends Homey.App
         // setup the mDNS discovery for local gateways
         this.discoveryStrategy = this.homey.discovery.getStrategy('panel');
 
-        const initialDiscoveryResults = this.discoveryStrategy.getDiscoveryResults();
-        this.updateLog(`Got initial mDNS result:${this.varToString(initialDiscoveryResults)}`);
-        if (initialDiscoveryResults)
-        {
-            for (const discoveryResult of Object.values(initialDiscoveryResults))
+        this.homey.setTimeout(() => {
+            const initialDiscoveryResults = this.discoveryStrategy.getDiscoveryResults();
+            this.updateLog(`Got initial mDNS result:${this.varToString(initialDiscoveryResults)}`);
+            if (initialDiscoveryResults)
             {
-                this.mDNSGatewaysUpdate(discoveryResult);
+                for (const discoveryResult of Object.values(initialDiscoveryResults))
+                {
+                    this.mDNSGatewaysUpdate(discoveryResult);
+                }
             }
-        }
+        }, 2000);
 
         this.discoveryStrategy.on('result', (discoveryResult) =>
         {

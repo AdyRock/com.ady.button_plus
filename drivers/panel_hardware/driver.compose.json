@@ -101,6 +101,19 @@
                 "en": "IP address of the device",
                 "nl": "IP adres van het apparaat"
             }
+        },
+        {
+            "id": "mac",
+            "type": "text",
+            "label": {
+                "en": "MAC address",
+                "nl": "MAC adres"
+            },
+            "value": "",
+            "hint": {
+                "en": "MAC address of the device",
+                "nl": "MAC adres van het apparaat"
+            }
         }
     ],
     "images": {

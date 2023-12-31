@@ -72,6 +72,11 @@
       "path": "/zones",
       "public": false
     },
+    "getButtonDevices": {
+      "method": "post",
+      "path": "/buttondevices",
+      "public": false
+    },
     "getRunning": {
       "method": "get",
       "path": "/running",
@@ -1481,6 +1486,19 @@
             "en": "IP address of the device",
             "nl": "IP adres van het apparaat"
           }
+        },
+        {
+          "id": "mac",
+          "type": "text",
+          "label": {
+            "en": "MAC address",
+            "nl": "MAC adres"
+          },
+          "value": "",
+          "hint": {
+            "en": "MAC address of the device",
+            "nl": "MAC adres van het apparaat"
+          }
         }
       ],
       "images": {
@@ -2005,7 +2023,7 @@
     "panel": {
       "type": "mdns-sd",
       "mdns-sd": {
-        "name": "button",
+        "name": "_button",
         "protocol": "tcp"
       },
       "id": "{{'txt.id'}}"

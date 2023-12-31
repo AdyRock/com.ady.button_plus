@@ -646,7 +646,8 @@ class BasePanelDevice extends Device
         const thisId = this.getSetting('mac');
         if (thisId === id)
         {
-            this.setSettings({ address: newIp });
+            // TODO: update the IP address when mDNS is fixed
+            // this.setSettings({ address: newIp });
         }
     }
 
@@ -654,10 +655,14 @@ class BasePanelDevice extends Device
     {
         // Check if the IP address has changed by looking up our mac address in the gateway list
         const id = this.getSetting('mac');
-        const newIp = this.homey.app.findGatewayIPById(id);
-        if (newIp)
+        if (id)
         {
-            this.setSettings({ address: newIp });
+            const newIp = this.homey.app.findGatewayIPById(id);
+            if (newIp)
+            {
+                // TODO: update the IP address when mDNS is fixed
+                // this.setSettings({ address: newIp });
+            }
         }
     }
 
@@ -1031,25 +1036,25 @@ class BasePanelDevice extends Device
         }
     }
 
-    updateTime()
-    {
-        // Allow for Homey's timezone setting
-        const tzString = this.homey.clock.getTimezone();
-        let dateTime = new Date();
-        dateTime = new Date(dateTime.toLocaleString('en-US', { timeZone: tzString }));
+    // updateTime()
+    // {
+    //     // Allow for Homey's timezone setting
+    //     const tzString = this.homey.clock.getTimezone();
+    //     let dateTime = new Date();
+    //     dateTime = new Date(dateTime.toLocaleString('en-US', { timeZone: tzString }));
 
-        // Get the date using the short month format
-        const date = dateTime.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' });
+    //     // Get the date using the short month format
+    //     const date = dateTime.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' });
 
-        // get the time in the local format, but exclude seconds keeping am/pm if it's 12 hour format
-        // eslint-disable-next-line object-curly-newline
-        const time = dateTime.toLocaleTimeString('en-US', { hour12: true, hour: 'numeric', minute: 'numeric' });
+    //     // get the time in the local format, but exclude seconds keeping am/pm if it's 12 hour format
+    //     // eslint-disable-next-line object-curly-newline
+    //     const time = dateTime.toLocaleTimeString('en-US', { hour12: true, hour: 'numeric', minute: 'numeric' });
 
-        this.setCapabilityValue('date', date).catch(this.error);
-        this.setCapabilityValue('time', time).catch(this.error);
+    //     this.setCapabilityValue('date', date).catch(this.error);
+    //     this.setCapabilityValue('time', time).catch(this.error);
 
-        return dateTime;
-    }
+    //     return dateTime;
+    // }
 
 }
 

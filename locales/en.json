@@ -108,7 +108,11 @@
         "homeyUsernameExplanation": "You can define any username you like to protect the built in MQTT broker or leave it empty to disable user name protection.",
         "homeyPasswordExplanation": "You can define any password you like to protect the built in MQTT broker or leave it empty to disable password protection. If you set a password, you must also set a username.",
         "passwordError1": "You must set a username if you set a password.",
-        "noEnabledBrokerError": "You must enable at least one broker."
+        "noEnabledBrokerError": "You must enable at least one broker.",
+        "webview": "Button + device web page",
+        "webviewExplanation": "Select the Homey device from the drop list and then tap on the 'Open Web view' button to open the device simulation page.",
+        "webviewip": "Button + device",
+        "openwebview": "Open Web view"
     },
     "pair": {
         "manual_add":{

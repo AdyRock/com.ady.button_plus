@@ -1,7 +1,7 @@
 {
     "type": "mdns-sd",
     "mdns-sd": {
-        "name": "button",
+        "name": "_button",
         "protocol": "tcp"
     },
     "id": "{{'txt.id'}}"

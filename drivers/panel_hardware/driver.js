@@ -45,7 +45,7 @@ class PanelDriver extends Driver
                 return devices;
             }
 
-            return [];
+            return devices;
         });
 
         session.setHandler('list_devices_selection', async (data) =>
@@ -62,7 +62,7 @@ class PanelDriver extends Driver
         session.setHandler('manual_connection', async (data) =>
         {
             this.ip = data.ip;
-            return this.pairListDevices(data.ip, 0);
+            return this.pairListDevices(data.ip, '');
         });
     }
 

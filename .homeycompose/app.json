@@ -71,6 +71,11 @@
             "path": "/zones",
             "public": false
         },
+        "getButtonDevices": {
+            "method": "post",
+            "path": "/buttondevices",
+            "public": false
+        },
         "getRunning": {
             "method": "get",
             "path": "/running",

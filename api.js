@@ -18,6 +18,11 @@ module.exports = {
         return homey.app.getZones();
     },
 
+    // Get an array of Homey's Button devices
+    async getButtonDevices({ homey }) {
+        return homey.app.getButtonDevices();
+    },
+
     // Refresh device states
     async refresh({ homey }) {
         return homey.app.refresh();

@@ -34,6 +34,19 @@
                 <div id="AutoConfigWarnOff"><span data-i18n="settings.autoConfigWarning1"></span></div>
                 <div id="AutoConfigWarnOn"><span data-i18n="settings.autoConfigWarning2"></span></div>
             </fieldset>
+            <fieldset class="homey-form-fieldset">
+                <legend class="homey-form-legend"><span data-i18n="settings.webview"></span></legend>
+                <P></P>
+                <label class="homey-form-label" for="webviewip" style="margin-top:0px"><span data-i18n="settings.webviewip"></span>
+                    <div class="tooltip"><i class="fi fi-rr-info"></i>
+                        <span class="tooltiptext" data-i18n="settings.webviewExplanation"></span>
+                    </div>
+                </label>
+                <select class="homey-form-select" id="webviewip">
+                </select>
+                <P></P>
+                <p><button class="homey-button-secondary-shadow" id="openwebview"><span data-i18n="settings.openwebview"></span></button></p>
+            </fieldset>
         </div>
 
         <!-- Diagnostics Log -->
@@ -343,6 +356,9 @@
         var currentButtonConfigurationNo = 0;
         var customMQTTItemsElements = [];
 
+        var openWebViewElement = document.getElementById('openwebview');
+        var webViewIpElement = document.getElementById('webviewip');
+
         // Declarations for the Display Config page
 
         var displayConfigurationNoElement = document.getElementById('displayConfigurationNo');
@@ -370,6 +386,8 @@
         function onHomeyReady(Homey)
         {
             itemDisplyType = document.getElementById('leftCapabilityDiv').style.display;
+
+            getButtonList();
 
             fillConfigElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"));
             fillConfigElement(displayConfigurationNoElement, Homey.__("settings.displayConfig"));
@@ -472,6 +490,12 @@
                         return Homey.alert(err);
                     }
                 });
+            });
+
+            openWebViewElement.addEventListener('click', function(e)
+            {
+                let ip = webViewIpElement.value;
+                Homey.openURL(`http://${ip}`);
             });
 
             sendLogElement.addEventListener('click', function(e)
@@ -2098,6 +2122,33 @@
                 storeCustomMQTTItem(side, buttonPanelConfiguration, itemNo);
             }
         }
+
+        function getButtonList() {
+            Homey.api('POST', '/buttondevices/', {}, function(err, devices)
+            {
+                if (err) return Homey.alert(err);
+
+                fillButtonListElement(webViewIpElement, devices);
+            });
+        }
+
+        function fillButtonListElement(Element, DevicesArray)
+        {
+            if (Element && (DevicesArray.length > 0))
+            {
+                //fill the device lists with devices
+                Element.innerHTML = "";
+
+                for (const device of DevicesArray)
+                {
+                    var option = document.createElement("option");
+                    option.text = device.name;
+                    option.value = device.ip;
+                    Element.add(option);
+                }
+            }
+        }
+
     </script>
 </body>
 
