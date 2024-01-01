@@ -56,10 +56,23 @@
                     <input class="homey-form-checkbox-input" id="enableLog" type="checkbox" value="auto" />
                     <span class="homey-form-checkbox-checkmark"></span>
                     <span class="homey-form-checkbox-text"><span data-i18n="settings.enableLog"></span></span>
+                    <div class="tooltip"><i class="fi fi-rr-info"></i>
+                        <span class="tooltiptext" data-i18n="settings.enableLLogExplanation"></span>
+                    </div>
                 </label>
                 <div class="field row">
-                    <label class="homey-form-label" for="email"><span data-i18n="settings.email"></span></label>
+                    <label class="homey-form-label" for="email"><span data-i18n="settings.email"></span>
+                        <div class="tooltip"><i class="fi fi-rr-info"></i>
+                            <span class="tooltiptext" data-i18n="settings.emailExplanation"></span>
+                        </div>
+                    </label>
                     <input class="homey-form-input" id="email" type="text" value="" />
+                    <label class="homey-form-label" for="description"><span data-i18n="settings.description"></span>
+                        <div class="tooltip"><i class="fi fi-rr-info"></i>
+                            <span class="tooltiptext" data-i18n="settings.descriptionExplanation"></span>
+                        </div>
+                    </label>
+                    <input class="homey-form-input" id="description" type="text" value="" />
                     <P></P>
                 </div>
                 <p><button class="homey-button-secondary-shadow" id="clearLog"><span data-i18n="settings.clearLog"></span></button> <button class="homey-button-secondary-shadow" id="sendLog"><span data-i18n="settings.sendLog"></span></button></p>
@@ -74,10 +87,11 @@
         <div id="panelConfig" class="tabcontent">
             <div class="homey-form-group">
                 <div style="padding: 10px 10px 10px 10px; border: 1px solid lightblue; border-radius: 10px">
-                    <div class="tooltip"><i class="fi fi-rr-info"></i>
-                        <span class="tooltiptext" data-i18n="settings.buttonExplanation"></span>
-                    </div>
-
+                    <label class="homey-form-label" for="ButtonPanelConfigurationNo"><span data-i18n="settings.configtoedit"></span>
+                        <div class="tooltip"><i class="fi fi-rr-info"></i>
+                            <span class="tooltiptext" data-i18n="settings.buttonExplanation"></span>
+                        </div>
+                    </label>
                     <select class="homey-form-select" id="ButtonPanelConfigurationNo">
                     </select>
                     <div class="horizontalcontainer">
@@ -279,10 +293,11 @@
         <div id="displayConfig" class="tabcontent">
             <div class="homey-form-group">
                 <div style="padding: 10px 10px 10px 10px; border: 1px solid lightblue; border-radius: 10px">
-                    <div class="tooltip"><i class="fi fi-rr-info"></i>
-                        <span class="tooltiptext" data-i18n="settings.displayExplanation"></span>
-                    </div>
-
+                    <label class="homey-form-label" for="displayConfigurationNo"><span data-i18n="settings.configtoedit"></span>
+                        <div class="tooltip"><i class="fi fi-rr-info"></i>
+                            <span class="tooltiptext" data-i18n="settings.displayExplanation"></span>
+                        </div>
+                    </label>
                     <select class="homey-form-select" id="displayConfigurationNo">
                     </select>
                 </div>
@@ -295,10 +310,15 @@
 
         <div id="brokerConfig" class="tabcontent">
             <div class="homey-form-group">
-                <div class="tooltip"><i class="fi fi-rr-info"></i>
-                    <span class="tooltiptext" data-i18n="settings.brokerExplanation"></span>
+                <div style="padding: 10px 10px 10px 10px; border: 1px solid lightblue; border-radius: 10px">
+                    <label class="homey-form-label" for="defaultBroker"><span data-i18n="settings.defaultBroker"></span>
+                    <div class="tooltip"><i class="fi fi-rr-info"></i>
+                        <span class="tooltiptext" data-i18n="settings.brokerExplanation"></span>
+                    </div>
+                    </label>
+                    <select class="homey-form-select" id="defaultBroker">
+                    </select>
                 </div>
-
                 <div id="brokerItemsSection"></div>
             </div>
             <p><button class="homey-button-secondary-shadow" id="newBrokerItem"><span data-i18n="settings.newBrokerItem"></span></button></p>
@@ -370,6 +390,7 @@
         var displayCapabilityItems = [];
 
         // Declarations for the Broker Config page
+        var defaultBrokerElement = document.getElementById('defaultBroker');
         var newBrokerItemButton = document.getElementById('newBrokerItem');
         var localBrokerItems = [];
         var brokerItemsFetched = false;
@@ -377,6 +398,7 @@
         var diagLogEnabledElement = document.getElementById('enableLog');
         var diagLogElement = document.getElementById('diagLog');
         var emailElement = document.getElementById('email');
+        var descriptionElement = document.getElementById('description');
         var clearLogElement = document.getElementById('clearLog');
         var sendLogElement = document.getElementById('sendLog');
 
@@ -408,6 +430,34 @@
                 if (err) return Homey.alert(err);
                 brokerItemsFetched = true;
                 localBrokerItems = brokerItems;
+
+                // Add a 'Default' broker entry to the lists
+                var defaultText = Homey.__("settings.default");
+
+                var option = document.createElement("option");
+                option.value = defaultText;
+                option.text = defaultText;
+                leftBrokerIdElement.add(option);
+
+                var option = document.createElement("option");
+                option.value = defaultText;
+                option.text = defaultText;
+                rightBrokerIdElement.add(option);
+
+                if (displayConfigurationsFetched)
+                {
+                    // Add the deafult option to the display config broker lists
+                    const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+                    for (let j = 0; j < displayConfiguration.items.length; j++)
+                    {
+                        const displayItem = displayConfiguration.items[j];
+                        var optionDisplay = document.createElement("option");
+                        optionDisplay.value = defaultText;
+                        optionDisplay.text = defaultText;
+                        document.getElementById(`display${j}BrokerId`).add(optionDisplay);
+                        document.getElementById(`display${j}BrokerId`).value = displayItem.brokerId;
+                    }
+                }
 
                 // Setup the list items for enabled brokers in the panel config
                 for (let i = 0; i < localBrokerItems.length; i++)
@@ -460,6 +510,22 @@
                 }
 
                 drawBrokerItems();
+
+                // Fill the default broker list
+                fillDefaultBrokerList();
+                Homey.get('defaultBroker', function(err, defaultBroker)
+                {
+                    if (err) return Homey.alert(err);
+
+                    if (defaultBroker === "")
+                    {
+                        defaultBrokerElement.value = 'homey';
+                    }
+                    else
+                    {
+                        defaultBrokerElement.value = defaultBroker;
+                    }
+                });
             });
 
             autoConfigElement.addEventListener('click', function(e)
@@ -500,6 +566,11 @@
 
             sendLogElement.addEventListener('click', function(e)
             {
+                if (descriptionElement.value === '')
+                {
+                    Homey.alert(Homey.__("settings.descriptionExplanation"));
+                    return;
+                }
                 Homey.confirm(Homey.__("settings.sendLogConfirm"), null, function(e, ok)
                 {
                     if (ok)
@@ -508,6 +579,7 @@
                         {
                             notify: true,
                             email: emailElement.value,
+                            description: descriptionElement.value,
                         }, function(err, result)
                         {
                             if (err)
@@ -537,6 +609,7 @@
                         return;
                     }
                     Homey.set('brokerConfigurationItems', localBrokerItems);
+                    Homey.set('defaultBroker', defaultBrokerElement.value);
 
                     if (leftCapabilityElement.value === 'dim')
                     {
@@ -799,7 +872,7 @@
                             yPos: 0,
                             width: 100,
                             fontSize: 1,
-                            brokerId: 'homey',
+                            brokerId: 'default',
                         };
 
                         // Add the new display item to the local display configuration
@@ -822,7 +895,7 @@
                         type: 0,
                         topic: "",
                         payload: "",
-                        brokerId: 'homey',
+                        brokerId: 'default',
                         enable: true,
                     };
 
@@ -841,7 +914,7 @@
                         type: 0,
                         topic: "",
                         payload: "",
-                        brokerId: 'homey',
+                        brokerId: 'default',
                         enable: true,
                     };
 
@@ -934,45 +1007,70 @@
             }
         }
 
+        function fillDefaultBrokerList()
+        {
+            if (brokerItemsFetched)
+            {
+                //fill the device lists with devices
+                defaultBrokerElement.innerHTML = "";
+                for (let i = 0; i < localBrokerItems.length; i++)
+                {
+                    const brokerItem = localBrokerItems[i];
+                    var option = document.createElement("option");
+                    option.value = brokerItem.brokerid;
+                    option.text = brokerItem.brokerid;
+                    defaultBrokerElement.add(option);
+                }
+            }
+        }
 
         function onButtonLabelChange(element, legend)
         {
             document.getElementById(`${legend}`).innerHTML = `<b><em>${Homey.__("settings.leftPanel")}</em></b> - ${element.value}`;
         }
 
-        function sortDevices(devicesArray) {
-            return devicesArray.sort((a, b) => {
+        function sortDevices(devicesArray)
+        {
+            return devicesArray.sort((a, b) =>
+            {
                 const zoneA = a.zone.name ?? a.zoneName;
                 const zoneB = b.zone.name ?? b.zoneName;
 
-                if (zoneA < zoneB) {
+                if (zoneA < zoneB)
+                {
                     return -1;
                 }
-                if (zoneA > zoneB) {
+                if (zoneA > zoneB)
+                {
                     return 1;
                 }
                 return 0;
             });
         }
 
-        function filterButtonDevices(devices) {
-            return devices.filter((device) => {
+        function filterButtonDevices(devices)
+        {
+            return devices.filter((device) =>
+            {
                 // Check if at least one capability has type "boolean"
-                if(device.capabilitiesObj) {
-                    return Object.values(device.capabilitiesObj).some((capability) => {
+                if (device.capabilitiesObj)
+                {
+                    return Object.values(device.capabilitiesObj).some((capability) =>
+                    {
                         return ((capability.type === "boolean") || (capability.id === "dim") || (capability.id === "windowcoverings_state"));
                     });
                 }
             });
         }
 
-        function getDevices() {
+        function getDevices()
+        {
             Homey.api('POST', '/Devices/', {}, function(err, devices)
             {
                 if (err) return Homey.alert(err);
 
                 devices = Object.values(devices);
- 
+
                 displayDevicesArray = sortDevices(devices);
                 displayDevicesFetched = true;
                 fillDisplayDevices();
@@ -1025,7 +1123,8 @@
                 for (const device of DevicesArray)
                 {
                     const zoneName = device.zone.name ?? device.zoneName;
-                    if (deviceGroup != zoneName) {
+                    if (deviceGroup != zoneName)
+                    {
                         var option = document.createElement("option");
                         deviceGroup = zoneName;
                         option.text = deviceGroup;
@@ -1033,7 +1132,7 @@
                         option.disabled = true;
                         Element.add(option);
                     }
-                    
+
                     var option = document.createElement("option");
                     option.text = "\xA0\xA0" + device.name;
                     option.value = device.id;
@@ -1132,7 +1231,7 @@
                 document.getElementById(`${side}OffTextLabel`).style.display = itemDisplyType;
             }
             document.getElementById(`${side}TopText`).value = document.getElementById(`${side}TopText`).value ? document.getElementById(`${side}TopText`).value : value;
-            
+
         }
 
         function updateButtonPanelConfiguration()
@@ -1147,12 +1246,14 @@
 
             if (buttonConfigurationNoElement.value == "")
             {
+                var defaultText = Homey.__("settings.default");
+
                 leftTopTextElement.value = "";
                 leftOnTextElement.value = "";
                 leftOffTextElement.value = "";
                 leftDeviceElement.value = "";
                 leftCapabilityElement.value = "";
-                leftBrokerIdElement.value = "homey";
+                leftBrokerIdElement.value = defaultText;
                 leftDimChangeElement.value = "+10";
                 leftFrontLEDColorElement.value = "#ff0000";
                 leftWallLEDColorElement.value = "#ff0000";
@@ -1162,7 +1263,7 @@
                 rightOffTextElement.value = "";
                 rightDeviceElement.value = "";
                 rightCapabilityElement.value = "";
-                rightBrokerIdElement.value = "homey";
+                rightBrokerIdElement.value = defaultText;
                 rightDimChangeElement.value = "-10";
                 rightFrontLEDColorElement.value = "#ff0000";
                 rightWallLEDColorElement.value = "#ff0000";
@@ -1356,7 +1457,7 @@
             section = section +
                 `<div class="horizontalcontainer">
                     <div class="horizontalgroup">
-                        <details ${expanded ? 'open' : ''} onclick="scrollToTop(this)">
+                        <details ${expanded ? 'open' : ''}>
                             <summary class="summary">
                                 <legend class="homey-subtitle" id="display${itemNo}Legend"><b><em>${itemLegend}</em></b> - ${item.label}</legend>
                                 <span class="icon" style='font-size:30px;'>&#8628;</span>
@@ -1660,7 +1761,7 @@
             }
         }
 
-        function insertBrokerItemSection(item, itemNo)
+        function insertBrokerItemSection(item, itemNo, expanded = false)
         {
             const ctrlLabels = {
                 id: Homey.__("settings.id"),
@@ -1707,65 +1808,76 @@
             section = section +
                 `<div class="horizontalcontainer">
                     <div class="horizontalgroup">
-                        <legend class="homey-subtitle">${itemLegend}</legend>
-                        <p>${brokerDescription}</p>
+                        <details ${expanded ? 'open' : ''}>
+                            <summary class="summary">
+                                <legend class="homey-subtitle" id="broker${itemNo}Legend"><b><em>${itemLegend}</em></b> - ${item.brokerid}</legend>
+                                <span class="icon" style='font-size:30px;'>&#8628;</span>
+                            </summary>
+                            <hr>
+                            <p>${brokerDescription}</p>
 
-                        <label class="homey-form-label" for="broker${itemNo}Id">${ctrlLabels.id}
-                            <div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
-                                <span class="tooltiptext">${ctrlLabels.idExplanation}</span>
-                            </div>
-                        </label>
-                        <input class="homey-form-input" id="broker${itemNo}Id" type="text" value="${item.brokerid}" ${protected} onChange="updateBrokerLists(${itemNo})"/>
+                            <label class="homey-form-label" for="broker${itemNo}Id">${ctrlLabels.id}
+                                <div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
+                                    <span class="tooltiptext">${ctrlLabels.idExplanation}</span>
+                                </div>
+                            </label>
+                            <input class="homey-form-input" id="broker${itemNo}Id" type="text" value="${item.brokerid}" ${protected} onChange="updateBrokerLists(${itemNo})" oninput="onBrokerLabelChange(this, ${itemNo})"/>
 
-                        <label class="homey-form-label" for="broker${itemNo}Address">${ctrlLabels.address}
-                            <div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
-                                <span class="tooltiptext">${ctrlLabels.addressExplanation}</span>
-                            </div>
-                        </label>
-                        <input class="homey-form-input" id="broker${itemNo}Address" type="text" value="${item.url}" ${protected} />
+                            <label class="homey-form-label" for="broker${itemNo}Address">${ctrlLabels.address}
+                                <div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
+                                    <span class="tooltiptext">${ctrlLabels.addressExplanation}</span>
+                                </div>
+                            </label>
+                            <input class="homey-form-input" id="broker${itemNo}Address" type="text" value="${item.url}" ${protected} />
 
-                        <label class="homey-form-label" for="broker${itemNo}Port">${ctrlLabels.port}
-                            <div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
-                                <span class="tooltiptext">${ctrlLabels.portExplanation}</span>
-                            </div>
-                        </label>
-                        <input class="homey-form-input" id="broker${itemNo}Port" type="number" value="${item.port}" />
+                            <label class="homey-form-label" for="broker${itemNo}Port">${ctrlLabels.port}
+                                <div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
+                                    <span class="tooltiptext">${ctrlLabels.portExplanation}</span>
+                                </div>
+                            </label>
+                            <input class="homey-form-input" id="broker${itemNo}Port" type="number" value="${item.port}" />
 
-                        <label class="homey-form-label" for="broker${itemNo}WSPort">${ctrlLabels.wsPort}
-                            <div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
-                                <span class="tooltiptext">${ctrlLabels.wsPortExplanation}</span>
-                            </div>
-                        </label>
-                        <input class="homey-form-input" id="broker${itemNo}WSPort" type="number" value="${item.wsport}" />
+                            <label class="homey-form-label" for="broker${itemNo}WSPort">${ctrlLabels.wsPort}
+                                <div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
+                                    <span class="tooltiptext">${ctrlLabels.wsPortExplanation}</span>
+                                </div>
+                            </label>
+                            <input class="homey-form-input" id="broker${itemNo}WSPort" type="number" value="${item.wsport}" />
 
-                        <label class="homey-form-label" for="broker${itemNo}Username">${ctrlLabels.username}
-                            <div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
-                                <span class="tooltiptext">${ctrlLabels.usernameExplanation}</span>
-                            </div>
-                        </label>
-                        <input class="homey-form-input" id="broker${itemNo}Username" type="text" value="${item.username ? item.username : ""}""/>
+                            <label class="homey-form-label" for="broker${itemNo}Username">${ctrlLabels.username}
+                                <div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
+                                    <span class="tooltiptext">${ctrlLabels.usernameExplanation}</span>
+                                </div>
+                            </label>
+                            <input class="homey-form-input" id="broker${itemNo}Username" type="text" value="${item.username ? item.username : ""}""/>
 
-                        <label class="homey-form-label" for="broker${itemNo}Password">${ctrlLabels.password}
-                            <div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
-                                <span class="tooltiptext">${ctrlLabels.passwordExplanation}</span>
-                            </div>
-                        </label>
-                        <input class="homey-form-input" id="broker${itemNo}Password" type="text" value="${item.password ? item.password : ""}""/>
+                            <label class="homey-form-label" for="broker${itemNo}Password">${ctrlLabels.password}
+                                <div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
+                                    <span class="tooltiptext">${ctrlLabels.passwordExplanation}</span>
+                                </div>
+                            </label>
+                            <input class="homey-form-input" id="broker${itemNo}Password" type="text" value="${item.password ? item.password : ""}""/>
 
-                        <label class="homey-form-checkbox">
-                            <input class="homey-form-checkbox-input" id="broker${itemNo}Enabled" onClick="rebuildBrokerLists(${itemNo})" type="checkbox" ${enableOption}/>
-                            <span class="homey-form-checkbox-checkmark"></span>
-                            <span class="homey-form-checkbox-text">${ctrlLabels.enabled}</span>
-                            <div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
-                                <span class="tooltiptext">${ctrlLabels.enabledExplanation}</span>
-                            </div>
-                        </label>
+                            <label class="homey-form-checkbox">
+                                <input class="homey-form-checkbox-input" id="broker${itemNo}Enabled" onClick="rebuildBrokerLists(${itemNo})" type="checkbox" ${enableOption}/>
+                                <span class="homey-form-checkbox-checkmark"></span>
+                                <span class="homey-form-checkbox-text">${ctrlLabels.enabled}</span>
+                                <div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
+                                    <span class="tooltiptext">${ctrlLabels.enabledExplanation}</span>
+                                </div>
+                            </label>
 
-                        ${deleteButton}
+                            ${deleteButton}
+                        </details>
                     </div>
                 </div>`;
 
             document.getElementById('brokerItemsSection').innerHTML = section;
+        }
+
+        function onBrokerLabelChange(element, itemNo)
+        {
+            document.getElementById(`broker${itemNo}Legend`).innerHTML = `<b><em>${Homey.__("settings.brokerItemlegend", { itemNo: itemNo + 1 })}</em></b> - ${element.value}`;
         }
 
         function updateBrokerLists(itemNo)
@@ -1776,6 +1888,9 @@
 
             const rightBrokerIdElement = document.getElementById('rightBrokerId');
             rightBrokerIdElement.options[itemNo].text = document.getElementById(`broker${itemNo}Id`).value;
+
+            // Update the default broker list
+            defaultBrokerElement.options[itemNo].text = document.getElementById(`broker${itemNo}Id`).value;
 
             // Update the broker in the all the custom MQTT topics in the panel config
             for (let k = 0; k < customMQTTItemsElements.length; k++)
@@ -1798,6 +1913,9 @@
             {
                 localBrokerItems.splice(itemNo, 1);
                 drawBrokerItems();
+
+                // Remove from the default broker list
+                defaultBrokerElement.remove(itemNo);
 
                 // Remove the broker from the broker list in the panel and display config
                 removeBrokerFromConfig(itemNo);
@@ -1824,6 +1942,10 @@
                 customMQTTItemsElements[k].length = 0;
             }
 
+            // Reset the default broker list
+            const defaultBrokerItem = defaultBrokerElement.value;
+            defaultBrokerElement.length = 0;
+
             const displayConfig = localDisplayConfigurations[currentDisplayConfigurationNo];
             for (let displayItemNo = 0; displayItemNo < displayConfig.items.length; displayItemNo++)
             {
@@ -1833,6 +1955,12 @@
 
                 brokerIdElement.length = 0;
             }
+
+            var option = document.createElement("option");
+            option.value = defaultBrokerItem;
+            option.text = defaultBrokerItem;
+            defaultBrokerElement.add(option);
+            defaultBrokerElement.value = defaultBrokerItem;
 
             // Add the brokers to the broker list in the panel and display config
             for (var itemNo = 0; itemNo < localBrokerItems.length; itemNo++)
@@ -1859,6 +1987,12 @@
 
         function addBrokerToConfig(brokerItem)
         {
+            // Add the new broker to the default broker list
+            var option = document.createElement("option");
+            option.value = brokerItem.brokerid;
+            option.text = brokerItem.brokerid;
+            defaultBrokerElement.add(option);
+
             // Add the new broker to the panel config broker lists
             var optionLeft = document.createElement("option");
             optionLeft.value = brokerItem.brokerid;
@@ -1919,7 +2053,7 @@
 
         function storeBrokerSettings()
         {
-            let oneEnabled = false; 
+            let oneEnabled = false;
             for (var itemNo = 0; itemNo < localBrokerItems.length; itemNo++)
             {
                 // Make sure there isn't already a broker with this id
@@ -1933,7 +2067,7 @@
                         return false;
                     }
                 }
-                
+
                 const enabled = document.getElementById(`broker${itemNo}Enabled`).checked;
                 if (enabled)
                 {
@@ -2123,7 +2257,8 @@
             }
         }
 
-        function getButtonList() {
+        function getButtonList()
+        {
             Homey.api('POST', '/buttondevices/', {}, function(err, devices)
             {
                 if (err) return Homey.alert(err);
@@ -2148,7 +2283,6 @@
                 }
             }
         }
-
     </script>
 </body>
 

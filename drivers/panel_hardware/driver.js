@@ -41,8 +41,6 @@ class PanelDriver extends Driver
                 {
                     throw new Error('no_devices_found');
                 }
-
-                return devices;
             }
 
             return devices;
@@ -116,17 +114,17 @@ class PanelDriver extends Driver
             name: deviceConfiguration.core.location,
             data:
             {
-                id: deviceConfiguration.core.name,
+                id: deviceConfiguration.info.id,
             },
             settings:
             {
-                address: ip,
+                address: deviceConfiguration.info.ipaddress,
                 connect0Type,
                 connect1Type,
                 connect2Type,
                 connect3Type,
                 connect4Type,
-                mac: id,
+                mac: deviceConfiguration.info.mac,
             },
         };
 

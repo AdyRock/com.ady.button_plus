@@ -60,20 +60,8 @@ class PanelDevice extends BasePanelDevice
 
         this.homey.app.setupPanelTemperatureTopic(ip, this.__id);
 
-        // this.dateTimer = null;
-        // const dateTime = this.updateTime();
-
-        // // Calculate the number of ms until next while minute
-        // const msUntilNextMinute = (60 - dateTime.getSeconds()) * 1000;
-
-        // // Set a timeout to update the time every minute
-        // this.homey.setTimeout(() =>
-        // {
-        //     this.updateTime();
-        //     this.dateTimer = this.homey.setInterval(() => this.updateTime(), 60000);
-        // }, msUntilNextMinute);
-
-        const mqttClient = this.homey.app.getMqttClient('homey');
+        let brokerId = this.homey.settings.get('defaultBroker');
+        const mqttClient = this.homey.app.getMqttClient(brokerId);
         await this.setupMQTTSubscriptions(mqttClient);
 
         this.log('PanelDevice has been initialized');
@@ -82,6 +70,11 @@ class PanelDevice extends BasePanelDevice
 
     async setupMQTTSubscriptions(MQTTclient)
     {
+        if (!MQTTclient)
+        {
+            return;
+        }
+
         const { id } = this.getData();
         MQTTclient.subscribe(`${id}/brightness/largedisplay/value`, (err) =>
         {

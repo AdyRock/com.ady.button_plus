@@ -36,6 +36,12 @@ class MyApp extends Homey.App
         this.autoConfigGateway = true;
         this.lastMQTTData = new Map();
 
+        let defaultbroker = this.homey.settings.get('defaultBroker');
+        if (!defaultbroker)
+        {
+            this.homey.settings.set('defaultBroker', 'homey');
+        }
+
         const homeyLocalURL = await this.homey.cloud.getLocalAddress();
         this.homeyIP = homeyLocalURL.split(':')[0];
 
@@ -89,12 +95,12 @@ class MyApp extends Homey.App
                 const buttonConfiguration = this.buttonConfigurations[i];
                 if (!buttonConfiguration.leftBrokerId)
                 {
-                    buttonConfiguration.leftBrokerId = 'homey';
+                    buttonConfiguration.leftBrokerId = 'default';
                 }
 
                 if (!buttonConfiguration.rightBrokerId)
                 {
-                    buttonConfiguration.rightBrokerId = 'homey';
+                    buttonConfiguration.rightBrokerId = 'default';
                 }
 
                 if (!buttonConfiguration.leftDimChange)
@@ -608,7 +614,7 @@ class MyApp extends Homey.App
                 leftOffText: '',
                 leftDevice: 'none',
                 leftCapability: '',
-                leftbrokerid: 'homey',
+                leftbrokerid: 'default',
                 leftDimChange: '-10',
                 leftFrontLEDColor: '#ff0000',
                 leftWallLEDColor: '#ff0000',
@@ -618,7 +624,7 @@ class MyApp extends Homey.App
                 rightOffText: '',
                 rightDevice: 'none',
                 rightCapability: '',
-                rightbrokerid: 'homey',
+                rightbrokerid: 'default',
                 rightDimChange: '+10',
                 rightFrontLEDColor: '#ff0000',
                 rightWallLEDColor: '#ff0000',
@@ -808,68 +814,101 @@ class MyApp extends Homey.App
                     {
                         // Get the specified user configuration
                         const ButtonPanelConfiguration = this.buttonConfigurations[configurationNo];
+                        if (!ButtonPanelConfiguration)
+                        {
+                            this.updateLog(`Invalid button bar configuration: ${configurationNo}`, 0);
+                            throw new Error(`Invalid button bar configuration: ${configurationNo}`);
+                        }
 
                         let buttonIdx = connectorNo * 2;
                         if (ButtonPanelConfiguration.leftDevice === 'customMQTT')
                         {
-                            // Add custom MQTT topics
-                            await this.setupCustomMQTTTopics(
-                                sectionConfiguration.mqttbuttons[buttonIdx],
-                                ButtonPanelConfiguration,
-                                connectorNo,
-                                'left',
-                            );
+                            try
+                            {
+                                // Add custom MQTT topics
+                                await this.setupCustomMQTTTopics(
+                                    sectionConfiguration.mqttbuttons[buttonIdx],
+                                    ButtonPanelConfiguration,
+                                    connectorNo,
+                                    'left',
+                                );
+                            }
+                            catch (err)
+                            {
+                                this.updateLog(`Error setting up custom MQTT topics: ${err.message}`, 0);
+                            }
                         }
                         else
                         {
-                            // Configure the left button bar
-                            const capability = await this.setupClickTopic(
-                                sectionConfiguration.mqttbuttons[buttonIdx],
-                                ButtonPanelConfiguration,
-                                connectorNo,
-                                'left',
-                                panelId,
-                            );
+                            try
+                            {
+                                // Configure the left button bar
+                                const capability = await this.setupClickTopic(
+                                    sectionConfiguration.mqttbuttons[buttonIdx],
+                                    ButtonPanelConfiguration,
+                                    connectorNo,
+                                    'left',
+                                    panelId,
+                                );
 
-                            await this.setupStatusTopic(
-                                panelId,
-                                buttonIdx,
-                                sectionConfiguration.mqttbuttons[buttonIdx],
-                                ButtonPanelConfiguration,
-                                'left',
-                                capability,
-                            );
+                                await this.setupStatusTopic(
+                                    panelId,
+                                    buttonIdx,
+                                    sectionConfiguration.mqttbuttons[buttonIdx],
+                                    ButtonPanelConfiguration,
+                                    'left',
+                                    capability,
+                                );
+                            }
+                            catch (err)
+                            {
+                                this.updateLog(`Error setting up status topic: ${err.message}`, 0);
+                            }
                         }
                         // Configure the right button bar
                         buttonIdx++;
                         if (ButtonPanelConfiguration.leftDevice === 'customMQTT')
                         {
-                            // Add custom MQTT topics
-                            await this.setupCustomMQTTTopics(
-                                sectionConfiguration.mqttbuttons[buttonIdx],
-                                ButtonPanelConfiguration,
-                                connectorNo,
-                                'right',
-                            );
+                            try
+                            {
+                                // Add custom MQTT topics
+                                await this.setupCustomMQTTTopics(
+                                    sectionConfiguration.mqttbuttons[buttonIdx],
+                                    ButtonPanelConfiguration,
+                                    connectorNo,
+                                    'right',
+                                );
+                            }
+                            catch (err)
+                            {
+                                this.updateLog(`Error setting up custom MQTT topics: ${err.message}`, 0);
+                            }
                         }
                         else
                         {
-                            const capability = await this.setupClickTopic(
-                                sectionConfiguration.mqttbuttons[buttonIdx],
-                                ButtonPanelConfiguration,
-                                connectorNo,
-                                'right',
-                                panelId
-                            );
+                            try
+                            {
+                                const capability = await this.setupClickTopic(
+                                    sectionConfiguration.mqttbuttons[buttonIdx],
+                                    ButtonPanelConfiguration,
+                                    connectorNo,
+                                    'right',
+                                    panelId
+                                );
 
-                            await this.setupStatusTopic(
-                                panelId,
-                                buttonIdx,
-                                sectionConfiguration.mqttbuttons[buttonIdx],
-                                ButtonPanelConfiguration,
-                                'right',
-                                capability,
-                            );
+                                await this.setupStatusTopic(
+                                    panelId,
+                                    buttonIdx,
+                                    sectionConfiguration.mqttbuttons[buttonIdx],
+                                    ButtonPanelConfiguration,
+                                    'right',
+                                    capability,
+                                );
+                            }
+                            catch (err)
+                            {
+                                this.updateLog(`Error setting up status topic: ${err.message}`, 0);
+                            }
                         }
                     }
                 }
@@ -878,8 +917,23 @@ class MyApp extends Homey.App
 
                     // Create click events for the display buttons
                     const buttonIdx = connectorNo * 2;
-                    await this.setupDisplayClickTopic(sectionConfiguration.mqttbuttons[buttonIdx], connectorNo, 'left', panelId);
-                    await this.setupDisplayClickTopic(sectionConfiguration.mqttbuttons[buttonIdx + 1], connectorNo, 'right', panelId);
+                    try
+                    {
+                        await this.setupDisplayClickTopic(sectionConfiguration.mqttbuttons[buttonIdx], connectorNo, 'left', panelId);
+                    }
+                    catch (err)
+                    {
+                        this.updateLog(`Error setting up display click topic: ${err.message}`, 0);
+                    }
+
+                    try
+                    {
+                        await this.setupDisplayClickTopic(sectionConfiguration.mqttbuttons[buttonIdx + 1], connectorNo, 'right', panelId);
+                    }
+                    catch (err)
+                    {
+                        this.updateLog(`Error setting up display click topic: ${err.message}`, 0);
+                    }
                 }
                 else
                 {
@@ -907,7 +961,7 @@ class MyApp extends Homey.App
                 {
                     mqttButtons.topics.push(
                         {
-                            brokerid: customMQTTTopic.brokerId,
+                            brokerid: customMQTTTopic.brokerId !== 'Default' ? customMQTTTopic.brokerId : this.homey.settings.get('defaultBroker'),
                             eventtype: customMQTTTopic.eventType,
                             topic: customMQTTTopic.topic,
                             payload: customMQTTTopic.payload,
@@ -924,6 +978,11 @@ class MyApp extends Homey.App
 
     setupDisplayClickTopic(mqttButtons, connectorNo, side, panelId)
     {
+        mqttButtons.toplabel = '';
+        mqttButtons.label = '';
+        mqttButtons.longdelay = 50;
+        mqttButtons.longrepeat = 15;
+
         mqttButtons.topics = [];
         let payload = {
             connector: connectorNo,
@@ -935,10 +994,12 @@ class MyApp extends Homey.App
         };
         payload = JSON.stringify(payload);
 
+        let brokerId = this.homey.settings.get('defaultBroker');
+
         // Add the click event entry
         mqttButtons.topics.push(
             {
-                brokerid: 'homey',
+                brokerid: brokerId,
                 eventtype: 0,
                 topic: 'homey/click',
                 payload,
@@ -948,7 +1009,7 @@ class MyApp extends Homey.App
         // Add the long press event entry
         mqttButtons.topics.push(
             {
-                brokerid: 'homey',
+                brokerid: brokerId,
                 eventtype: 1,
                 topic: 'homey/longpress',
                 payload,
@@ -958,7 +1019,7 @@ class MyApp extends Homey.App
         // Add the click release event entry
         mqttButtons.topics.push(
             {
-                brokerid: 'homey',
+                brokerid: brokerId,
                 eventtype: 2,
                 topic: 'homey/clickrelease',
                 payload,
@@ -968,7 +1029,7 @@ class MyApp extends Homey.App
         // Add the short press event entry
         mqttButtons.topics.push(
             {
-                brokerid: 'homey',
+                brokerid: brokerId,
                 eventtype: 3,
                 topic: 'homey/shortpress',
                 payload,
@@ -978,7 +1039,7 @@ class MyApp extends Homey.App
         // Add the multipress press event entry
         mqttButtons.topics.push(
             {
-                brokerid: 'homey',
+                brokerid: brokerId,
                 eventtype: 4,
                 topic: 'homey/multipress',
                 payload,
@@ -994,7 +1055,12 @@ class MyApp extends Homey.App
 
         const configDevice = ButtonPanelConfiguration[`${side}Device`];
         const configCapability = ButtonPanelConfiguration[`${side}Capability`];
-        const brokerId = ButtonPanelConfiguration[`${side}BrokerId`];
+        var brokerId = ButtonPanelConfiguration[`${side}BrokerId`];
+        if (brokerId === 'Default')
+        {
+            brokerId = this.homey.settings.get('defaultBroker');
+        }
+
         try
         {
             mqttButtons.topics = [];
@@ -1059,7 +1125,7 @@ class MyApp extends Homey.App
                 // // Add the short press event entry
                 // mqttButtons.topics.push(
                 //     {
-                //         brokerid: 'homey',
+                //         brokerid: brokerId,
                 //         eventtype: 3,
                 //         topic: 'homey/shortpress',
                 //         payload,
@@ -1069,7 +1135,7 @@ class MyApp extends Homey.App
                 // // Add the multipress press event entry
                 // mqttButtons.topics.push(
                 //     {
-                //         brokerid: 'homey',
+                //         brokerid: brokerId,
                 //         eventtype: 4,
                 //         topic: 'homey/multipress',
                 //         payload,
@@ -1092,12 +1158,18 @@ class MyApp extends Homey.App
         const labelOn = configCapability === 'dim' ? ButtonPanelConfiguration[`${side}DimChange`] : ButtonPanelConfiguration[`${side}OnText`];
         const labelOff = ButtonPanelConfiguration[`${side}OffText`];
         const configDevice = ButtonPanelConfiguration[`${side}Device`];
-        const brokerId = ButtonPanelConfiguration[`${side}BrokerId`];
         const longDelay = ButtonPanelConfiguration[`${side}LongDelay`];
         const longRepeat = ButtonPanelConfiguration[`${side}LongRepeat`];
 
+        let brokerId = ButtonPanelConfiguration[`${side}BrokerId`];
+
+        if (brokerId === 'Default')
+        {
+            brokerId = this.homey.settings.get('defaultBroker');
+        }
+
         mqttButtons.toplabel = topLabel;
-        mqttButtons.label = labelOn;
+        mqttButtons.label = labelOn ? labelOn : labelOff;
         mqttButtons.longdelay = longDelay;
         mqttButtons.longrepeat = longRepeat;
 
@@ -1205,13 +1277,18 @@ class MyApp extends Homey.App
             try
             {
                 // Add the temperature event entry
+                let brokerId = this.homey.settings.get('defaultBroker');
+                if (brokerId === 'Default')
+                {
+                    brokerId = this.homeyID.getSetting('defaultBroker');
+                }
                 const mqttSenors = {
                     mqttsensors: [
                         {
                             sensorid: 1,
                             interval: 10,
                             topic: {
-                            brokerid: 'homey',
+                            brokerid: brokerId,
                             topic: `homey/${device}/measure_temperature/value`,
                             payload: '',
                             eventtype: 18,
@@ -1222,7 +1299,7 @@ class MyApp extends Homey.App
 
                 this.updateLog(`writeSensorConfig: ${this.varToString(mqttSenors)}`);
 
-                const MQTTclient = this.MQTTClients.get('homey');
+                const MQTTclient = this.MQTTClients.get(brokerId);
                 if (MQTTclient)
                 {
                     MQTTclient.subscribe(`homey/${device}/measure_temperature/value`, (err) =>
@@ -2015,7 +2092,7 @@ class MyApp extends Homey.App
     }
 
     // Send the log to the developer (not applicable to Homey cloud)
-    async sendLog({email = ''})
+    async sendLog({email = '', description = ''})
     {
         let tries = 5;
         let error = null;
@@ -2049,7 +2126,7 @@ class MyApp extends Homey.App
                     from: `"Homey User" <${Homey.env.MAIL_USER}>`, // sender address
                     to: Homey.env.MAIL_RECIPIENT, // list of receivers
                     subject: `Button + log (${Homey.manifest.version})`, // Subject line
-                    text: email + '\n' + this.diagLog // plain text body
+                    text: email + '\n' + description + '\n\n' + this.diagLog // plain text body
                 },
 );
 
