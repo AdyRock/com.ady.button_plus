@@ -64,5 +64,8 @@
     },
     "0.2.11": {
         "en": "Added button suport for Open/Idle/Close capability. Split configuration upload into smaller chunks to avoid timeouts. Removed alignment option from the display configuration as it has been removed from the hardware. Fixed missing manual option when no devices found. Added open web view to settings page."
+    },
+    "0.2.12": {
+        "en": "Fixes for using an external broker, including adding an option to specify a default broker. Setup a rule to make buttons non-latching if no 'On' label is specified."
     }
 }
