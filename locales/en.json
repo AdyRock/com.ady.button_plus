@@ -119,7 +119,15 @@
         "enableLLogExplanation": "If enabled, the app will log a lot of diagnostics information.<br>The app will still log errors even if this is disabled.",
         "emailExplanation": "If you want me to respond to your log, please enter your email address or forum id here so I know how to contact you.",
         "description": "Description",
-        "descriptionExplanation": "Please enter a brief description of the problem if you are going to send the log."
+        "descriptionExplanation": "Please enter a brief description of the problem if you are going to send the log.",
+        "copy": "Copy",
+        "paste": "Paste",
+        "copySuccess": "Copy Successful",
+        "clipboardError": "Paste error: __error__",
+        "importExport": "Import and Export",
+        "import": "Import",
+        "export": "Export",
+        "importExportExplanation": "To import settings, paste the JSON text into the box below and tap the 'Import' button.<br>To export settings, tap the 'Export' button and then copy the JSON text from the box below."
     },
     "pair": {
         "manual_add":{
