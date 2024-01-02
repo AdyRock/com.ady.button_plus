@@ -794,7 +794,7 @@ class MyApp extends Homey.App
 
     async applyButtonConfiguration(panelId, deviceConfiguration, sectionConfiguration, connectorNo, configurationNo)
     {
-        if (deviceConfiguration)
+        if (deviceConfiguration && configurationNo !== null)
         {
             // Update the device configuration for the selected connectorNo
             if (deviceConfiguration.info && deviceConfiguration.info.connectors)
@@ -2235,7 +2235,7 @@ class MyApp extends Homey.App
                 })
                 .catch((error) =>
                 {
-                    this.homey.app.logInformation(`triggerFlow (${trigger.id})`, error);
+                    this.homey.app.updateLog(`triggerFlow (${trigger.id})`, error);
                 });
         }
     }
