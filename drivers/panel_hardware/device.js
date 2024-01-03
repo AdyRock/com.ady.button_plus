@@ -11,7 +11,29 @@ class PanelDevice extends BasePanelDevice
     async onInit()
     {
         this.initFinished = false;
+
+        if (this.getSetting('dateFormat') == null)
+        {
+            this.setSetting('dateFormat', '2-digit');
+        }
+
+        if (this.getSetting( 'monthFormat') == null)
+        {
+            this.setSetting('monthFormat', 'short');
+        }
+
+        if (this.getSetting('yearFormat') == null)
+        {
+            this.setSetting('yearFormat', 'numeric');
+        }
+
+        if (this.getSetting('timeFormat') == null)
+        {
+            this.setSettings({ timeFormat: '24h' });
+        }
+
         await super.onInit();
+
         if (!this.hasCapability('measure_temperature'))
         {
             await this.addCapability('measure_temperature');

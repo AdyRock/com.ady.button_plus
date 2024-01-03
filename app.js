@@ -495,13 +495,6 @@ class MyApp extends Homey.App
         let dateTime = new Date();
         dateTime = new Date(dateTime.toLocaleString('en-US', { timeZone: tzString }));
 
-        // Get the date using the short month format
-        const date = dateTime.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: '2-digit' });
-
-        // get the time in the local format, but exclude seconds keeping am/pm if it's 12 hour format
-        // eslint-disable-next-line object-curly-newline
-        const time = dateTime.toLocaleTimeString('en-US', { hour12: true, hour: 'numeric', minute: 'numeric' });
-
         const drivers = this.homey.drivers.getDrivers();
         for (const driver of Object.values(drivers))
         {
@@ -510,6 +503,40 @@ class MyApp extends Homey.App
             {
                 if (device.hasCapability('date'))
                 {
+                    let langCode = this.homey.i18n.getLanguage();
+                    let formatString = { year: 'numeric', month: 'long', day: '2-digit' }
+                    let date = '';
+                    formatString.day = device.getSetting('dateFormat');
+                    formatString.month = device.getSetting('monthFormat');
+                    formatString.year = device.getSetting('yearFormat');
+
+                    try
+                    {
+                        // Get the date using the short month format
+                        date = dateTime.toLocaleDateString(langCode, formatString);
+                    }
+                    catch (err)
+                    {
+                        // Get the date using the long month format
+                        formatString = { year: 'numeric', month: 'long', day: '2-digit' };
+                        date = dateTime.toLocaleDateString(langCode, formatString);
+                    }
+        
+                    let time = '';
+                    const tf = device.getSetting('timeFormat');
+                    if (tf === 'T24')
+                    {
+                        // get the time in the local format, but exclude seconds
+                        // eslint-disable-next-line object-curly-newline
+                        time = dateTime.toLocaleTimeString(langCode, { hour12: false, hour: '2-digit', minute: '2-digit' });
+                    }
+                    else
+                    {
+                        // get the time in the local format, but exclude seconds keeping am/pm if it's 12 hour format
+                        // eslint-disable-next-line object-curly-newline
+                        time = dateTime.toLocaleTimeString(langCode, { hour12: true, hour: 'numeric', minute: '2-digit' });
+                    }
+
                     device.setCapabilityValue('date', date).catch(this.error);
                     device.setCapabilityValue('time', time).catch(this.error);
                 }

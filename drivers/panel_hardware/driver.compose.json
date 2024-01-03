@@ -114,6 +114,112 @@
                 "en": "MAC address of the device",
                 "nl": "MAC adres van het apparaat"
             }
+        },
+        {
+            "id": "dateFormat",
+            "type": "dropdown",
+            "label": {
+                "en": "Date format",
+                "nl": "Datum formaat"
+            },
+            "value": "2-digit",
+            "values": [
+                {
+                    "id": "2-digit",
+                    "label": {
+                        "en": "2 digit (01)"
+                    }
+                },
+                {
+                    "id": "numeric",
+                    "label": {
+                        "en": "1 or 2 digit (1 or 11)"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "monthFormat",
+            "type": "dropdown",
+            "label": {
+                "en": "Month format",
+                "nl": "Maand formaat"
+            },
+            "value": "short",
+            "values": [
+                {
+                    "id": "short",
+                    "label": {
+                        "en": "short (Jan)"
+                    }
+                },
+                {
+                    "id": "long",
+                    "label": {
+                        "en": "long (January)"
+                    }
+                },
+                {
+                    "id": "2-digit",
+                    "label": {
+                        "en": "2 digit (01)"
+                    }
+                },
+                {
+                    "id": "numeric",
+                    "label": {
+                        "en": "1 or 2 digit (1 or 11)"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "yearFormat",
+            "type": "dropdown",
+            "label": {
+                "en": "Year format",
+                "nl": "Jaar formaat"
+            },
+            "value": "short",
+            "values": [
+                {
+                    "id": "2-digit",
+                    "label": {
+                        "en": "2 digit"
+                    }
+                },
+                {
+                    "id": "numeric",
+                    "label": {
+                        "en": "4 digit"
+                    }
+                }
+            ]
+        },
+        {
+            "id": "timeFormat",
+            "type": "dropdown",
+            "label": {
+                "en": "Time format",
+                "nl": "Tijd formaat"
+            },
+            "value": "24",
+            "values": [
+                {
+                    "id": "T24",
+                    "label": {
+                        "en": "24h",
+                        "nl": "24u"
+                    }
+                },
+                {
+                    "id": "T12",
+                    "label": {
+                        "en": "12h",
+                        "nl": "12u"
+                    }
+                }
+            ]
         }
     ],
     "images": {
