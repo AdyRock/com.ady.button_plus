@@ -67,5 +67,8 @@
     },
     "0.2.12": {
         "en": "Fixes for using an external broker, including adding an option to specify a default broker. Setup a rule to make buttons non-latching if no 'On' label is specified."
+    },
+    "0.2.13": {
+        "en": "Check for valid configuration so it doesn't have to catch errors. Added copy/paste and Import/Export configurations options."
     }
 }
