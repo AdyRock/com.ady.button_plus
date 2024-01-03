@@ -162,6 +162,16 @@ class BasePanelDevice extends Device
                         }
                     }
 
+                    // and trigger the flow
+                    if (value)
+                    {
+                        this.homey.app.triggerButtonOn(this, true, connector + 1);
+                    }
+                    else
+                    {
+                        this.homey.app.triggerButtonOff(this, true, connector + 1);
+                    }
+
                     this.setCapabilityValue(`left_button.connector${connector}`, value).catch(this.error);
                 }
 
@@ -193,6 +203,16 @@ class BasePanelDevice extends Device
                         {
                             value = false;
                         }
+                    }
+
+                    // and trigger the flow
+                    if (value)
+                    {
+                        this.homey.app.triggerButtonOn(this, false, connector + 1);
+                    }
+                    else
+                    {
+                        this.homey.app.triggerButtonOff(this, false, connector + 1);
                     }
 
                     this.setCapabilityValue(`right_button.connector${connector}`, value).catch(this.error);
@@ -387,6 +407,16 @@ class BasePanelDevice extends Device
                 {
                     value = !this.getCapabilityValue(parameters.buttonCapability);
                     await this.setCapabilityValue(parameters.buttonCapability, value).catch(this.error);
+
+                    // and trigger the flow
+                    if (value)
+                    {
+                        this.homey.app.triggerButtonOn(this, parameters.side === 'left', parameters.connector + 1);
+                    }
+                    else
+                    {
+                        this.homey.app.triggerButtonOff(this, parameters.side === 'left', parameters.connector + 1);
+                    }
                 }
                 catch (error)
                 {
@@ -445,9 +475,6 @@ class BasePanelDevice extends Device
                     });
                 }
             }
-
-            // and trigger the flow
-            this.homey.app.triggerButtonOn(this, parameters.side === 'left', parameters.connector + 1);
             return;
         }
 
@@ -600,6 +627,17 @@ class BasePanelDevice extends Device
             try
             {
                 let value = !this.getCapabilityValue(parameters.buttonCapability);
+
+                // and trigger the flow
+                if (value)
+                {
+                    this.homey.app.triggerButtonOn(this, parameters.side === 'left', parameters.connector + 1);
+                }
+                else
+                {
+                    this.homey.app.triggerButtonOff(this, parameters.side === 'left', parameters.connector + 1);
+                }
+
                 await this.setCapabilityValue(parameters.buttonCapability, value).catch(this.error);
             }
             catch (error)
@@ -669,14 +707,13 @@ class BasePanelDevice extends Device
 
             if (onMessage === '')
             {
+                // and trigger the flow
+                this.homey.app.triggerButtonOff(this, parameters.side === 'left', parameters.connector + 1);
                 await this.setCapabilityValue(parameters.buttonCapability, false).catch(this.error);
 
                 const { id } = this.getData();
                 this.homey.app.publishMQTTMessage(brokerId, `${id}/button/${buttonNumber}/label`, offMessage);
                 this.homey.app.publishMQTTMessage(brokerId, `${id}/button/${buttonNumber}/value`, false);
-
-                // and trigger the flow
-                this.homey.app.triggerButtonOff(this, parameters.side === 'left', parameters.connector + 1);
             }
         }
         else if (this.longPressOccured.get(`${parameters.connector}_${parameters.side}`) && parameters.capability === 'windowcoverings_state')
@@ -1119,6 +1156,16 @@ class BasePanelDevice extends Device
         {
             if (capability !== 'dim')
             {
+                // and trigger the flow
+                if (value)
+                {
+                    this.homey.app.triggerButtonOn(this, parameters.side === 'left', parameters.connector + 1);
+                }
+                else
+                {
+                    this.homey.app.triggerButtonOff(this, parameters.side === 'left', parameters.connector + 1);
+                }
+
                 // Set the device button state
                 this.setCapabilityValue(`left_button.connector${connector}`, value).catch(this.error);
                 this.homey.app.publishMQTTMessage(item.leftBrokerId, `homey/${deviceId}/${capability}/label`, value ? item.leftOnText : item.leftOffText);
@@ -1136,6 +1183,16 @@ class BasePanelDevice extends Device
             {
                 if (capability !== 'windowcoverings_state')
                 {
+                    // and trigger the flow
+                    if (value)
+                    {
+                        this.homey.app.triggerButtonOn(this, parameters.side === 'left', parameters.connector + 1);
+                    }
+                    else
+                    {
+                        this.homey.app.triggerButtonOff(this, parameters.side === 'left', parameters.connector + 1);
+                    }
+
                     // Set the device button state
                     this.setCapabilityValue(`right_button.connector${connector}`, value).catch(this.error);
                 }
