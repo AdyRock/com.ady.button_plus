@@ -325,7 +325,14 @@ class BasePanelDevice extends Device
         // gather the parameters from various places that we need to process the message
         const parameters = {...MQTTMessage};
         parameters.connectorType = this.getSetting(`connect${parameters.connector}Type`);
-        parameters.configNo = this.getCapabilityValue(`configuration_button.connector${parameters.connector}`);
+        if (parameters.connectorType === 2)
+        {
+            parameters.configNo = this.getCapabilityValue(`configuration_display`);
+        }
+        else
+        {
+            parameters.configNo = this.getCapabilityValue(`configuration_button.connector${parameters.connector}`);
+        }
 
         // Setup which of our buttons (left or right) this message is for
         if (parameters.side === 'left')
@@ -365,6 +372,11 @@ class BasePanelDevice extends Device
     async processClickMessage(parameters)
     {
         // Check if a large display or if no configuration assigned to this connector
+        if (parameters.configNo !== null)
+        {
+            this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'clicked');
+        }
+
         if ((parameters.connectorType === 2) || (parameters.configNo === null) || parameters.device === '' || parameters.capability === '')
         {
             let value = parameters.value;
@@ -426,6 +438,10 @@ class BasePanelDevice extends Device
                
                         // and trigger the flow
                         this.homey.app.triggerButtonOff(this, parameters.side === 'left', parameters.connector + 1);
+                        if (parameters.configNo !== null)
+                        {
+                            this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'released');
+                        }
                     });
                 }
             }
@@ -598,6 +614,11 @@ class BasePanelDevice extends Device
         this.longPressOccured.set(`${parameters.connector}_${parameters.side}`, true);
         this.homey.app.triggerButtonLongPress(this, parameters.side === 'left', parameters.connector + 1);
 
+        if (parameters.configNo !== null)
+        {
+            this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'long');
+        }
+
         if (parameters.capability === 'dim')
         {
             // process another click message to change the dim value
@@ -608,6 +629,10 @@ class BasePanelDevice extends Device
     async processReleaseMessage(parameters)
     {
         this.homey.app.triggerButtonRelease(this, parameters.side === 'left', parameters.connector + 1);
+        if (parameters.configNo !== null)
+        {
+            this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'released');
+        }
 
         // Check if a large display or if no configuration assigned to this connector
         if ((parameters.connectorType === 2) || (parameters.configNo === null) || parameters.device === '' || parameters.capability === '')

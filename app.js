@@ -231,14 +231,14 @@ class MyApp extends Homey.App
 
         this.homey.settings.on('set', async (setting) =>
         {
-            if (setting === 'buttonConfigurations')
+            if ((setting === 'buttonConfigurations') || (setting === 'defaultBroker'))
             {
                 this.buttonConfigurations = this.homey.settings.get('buttonConfigurations');
 
                 // Get devices to upload their configurations that might have changed
                 this.refreshbuttonConfigurations();
             }
-            if (setting === 'displayConfigurations')
+            if ((setting === 'displayConfigurations') || (setting === 'defaultBroker'))
             {
                 this.displayConfigurations = this.homey.settings.get('displayConfigurations');
 
@@ -317,6 +317,12 @@ class MyApp extends Homey.App
             });
 
         this.triggerDimLEDChanged = this.homey.flow.getDeviceTriggerCard('dim.led_changed')
+            .registerRunListener((args, state) =>
+            {
+                return true;
+            });
+
+        this.triggerConfigButtonChanged = this.homey.flow.getDeviceTriggerCard('config_button_change')
             .registerRunListener((args, state) =>
             {
                 return true;
@@ -2196,6 +2202,18 @@ class MyApp extends Homey.App
         return this;
     }
 
+    triggerConfigButton(device, left_right, display_button, configID, button_state)
+    {
+        const state = {
+            left_right,
+            displaybutton: display_button === 2 ? 'display' : 'button',
+            config: parseInt(configID) + 1,
+            state: button_state
+        };
+        this.triggerFlow(this.triggerConfigButtonChanged, device, {}, state);
+        return this;
+    }
+
     triggerDim(device, subdevice, dim)
     {
         const tokens = { dim };
@@ -2225,6 +2243,8 @@ class MyApp extends Homey.App
     {
         if (trigger)
         {
+            this.updateLog(`triggerFlow (${trigger.id})\n tokens: ${this.varToString(tokens)},\n state: ${this.varToString(state)}`);
+
             trigger.trigger(device, tokens, state)
                 .then((result) =>
                 {
