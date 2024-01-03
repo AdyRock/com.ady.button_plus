@@ -101,7 +101,11 @@ class BasePanelDevice extends Device
                     await this.addCapability(`right_button.connector${connector}`);
                 }
                 this.setCapabilityOptions(`configuration_button.connector${connector}`, capabilityOption);
+
+                capabilityOption.title = `${this.homey.__('display')} ${this.homey.__('connector')} ${connector + 1} ${this.homey.__('left')}`;
                 this.setCapabilityOptions(`left_button.connector${connector}`, capabilityOption);
+
+                capabilityOption.title = `${this.homey.__('display')} ${this.homey.__('connector')} ${connector + 1} ${this.homey.__('right')}`;
                 this.setCapabilityOptions(`right_button.connector${connector}`, capabilityOption);
 
                 await this.registerCapabilityListener(`configuration_button.connector${connector}`, this.onCapabilityConfiguration.bind(this, connector));
@@ -122,7 +126,11 @@ class BasePanelDevice extends Device
             const capabilityOption = {};
             capabilityOption.title = `${this.homey.__('button')} ${this.homey.__('connector')} ${connector + 1}`;
             this.setCapabilityOptions(`configuration_button.connector${connector}`, capabilityOption);
+
+            capabilityOption.title = `${this.homey.__('button')} ${this.homey.__('connector')} ${connector + 1} ${this.homey.__('left')}`;
             this.setCapabilityOptions(`left_button.connector${connector}`, capabilityOption);
+
+            capabilityOption.title = `${this.homey.__('button')} ${this.homey.__('connector')} ${connector + 1} ${this.homey.__('right')}`;
             this.setCapabilityOptions(`right_button.connector${connector}`, capabilityOption);
 
             await this.registerCapabilityListener(`configuration_button.connector${connector}`, this.onCapabilityConfiguration.bind(this, connector));
