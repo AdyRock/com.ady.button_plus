@@ -2230,12 +2230,12 @@ class MyApp extends Homey.App
                 {
                     if (result)
                     {
-                        this.log(result);
+                        this.updateLog(`triggerFlow result: ${this.varToString(result)}`);
                     }
                 })
                 .catch((error) =>
                 {
-                    this.homey.app.updateLog(`triggerFlow (${trigger.id})`, error);
+                    this.updateLog(`triggerFlow (${trigger.id}) Error: ${error.message}`, 0);
                 });
         }
     }
