@@ -961,7 +961,17 @@ class BasePanelDevice extends Device
 
     async publishButtonCapabilities(configNo, connector)
     {
+        if (configNo === null)
+        {
+            return;
+        }
+
         const item = this.homey.app.buttonConfigurations[configNo];
+        if (!item)
+        {
+            return;
+        }
+    
         const { id } = this.getData();
 
         try
