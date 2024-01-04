@@ -245,21 +245,33 @@ class PanelDevice extends BasePanelDevice
     
         if (left_right === 'left')
         {
+            let brokerId = item.leftBrokerId;
+            if (brokerId === 'Default')
+            {
+                brokerId = this.homey.settings.get('defaultBroker');
+            }
+    
             if (item && item.leftDevice !== 'customMQTT' && item.leftDevice !== 'none')
             {
-                return this.homey.app.publishMQTTMessage(item.leftBrokerId, `homey/${item.leftDevice}/${item.leftCapability}/toplabel`, label);
+                return this.homey.app.publishMQTTMessage(brokerId, `homey/${item.leftDevice}/${item.leftCapability}/toplabel`, label);
             }
 
-            return this.homey.app.publishMQTTMessage('homey', `${id}/button/${connector * 2}/toplabel`, label);
+            return this.homey.app.publishMQTTMessage(brokerId, `${id}/button/${connector * 2}/toplabel`, label);
         }
         else
         {
+            let brokerId = item.rightBrokerId;
+            if (brokerId === 'Default')
+            {
+                brokerId = this.homey.settings.get('defaultBroker');
+            }
+    
             if (item && item.rightDevice !== 'customMQTT' && item.rightDevice !== 'none')
             {
-                return this.homey.app.publishMQTTMessage(item.rightBrokerId, `homey/${item.rightDevice}/${item.rightCapability}/toplabel`, label);
+                return this.homey.app.publishMQTTMessage(brokerId, `homey/${item.rightDevice}/${item.rightCapability}/toplabel`, label);
             }
 
-            return this.homey.app.publishMQTTMessage('homey', `${id}//button/${connector * 2 + 1}/toplabel`, label);
+            return this.homey.app.publishMQTTMessage(brokerId, `${id}//button/${connector * 2 + 1}/toplabel`, label);
         }
     }
 
@@ -274,7 +286,12 @@ class PanelDevice extends BasePanelDevice
                 {
                     if (item.leftDevice !== 'none')
                     {
-                        this.homey.app.publishMQTTMessage(item.leftBrokerId, `homey/${item.leftDevice}/${item.leftCapability}/toplabel`, label);
+                        let brokerId = item.leftBrokerId;
+                        if (brokerId === 'Default')
+                        {
+                            brokerId = this.homey.settings.get('defaultBroker');
+                        }
+                        this.homey.app.publishMQTTMessage(brokerId, `homey/${item.leftDevice}/${item.leftCapability}/toplabel`, label);
                     }
                     else
                     {
@@ -306,7 +323,12 @@ class PanelDevice extends BasePanelDevice
                 {
                     if (item.rightDevice !== 'none')
                     {
-                        this.homey.app.publishMQTTMessage(item.rightBrokerId, `homey/${item.rightDevice}/${item.rightCapability}/toplabel`, label);
+                        let brokerId = item.rightBrokerId;
+                        if (brokerId === 'Default')
+                        {
+                            brokerId = this.homey.settings.get('defaultBroker');
+                        }
+                        this.homey.app.publishMQTTMessage(brokerId, `homey/${item.rightDevice}/${item.rightCapability}/toplabel`, label);
                     }
                     else
                     {
