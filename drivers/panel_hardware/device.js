@@ -102,7 +102,7 @@ class PanelDevice extends BasePanelDevice
         {
             if (err)
             {
-                this.updateLog("setupMQTTClient.onConnect 'homey/toggle' error: " * this.homey.app.varToString(err), 0);
+                this.omey.app.updateLog("setupMQTTClient.onConnect 'homey/toggle' error: " * this.homey.app.varToString(err), 0);
             }
             else
             {

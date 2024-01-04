@@ -42,9 +42,16 @@ class MyApp extends Homey.App
             this.homey.settings.set('defaultBroker', 'homey');
         }
 
-        const homeyLocalURL = await this.homey.cloud.getLocalAddress();
-        this.homeyIP = homeyLocalURL.split(':')[0];
-
+        try
+        {
+            const homeyLocalURL = await this.homey.cloud.getLocalAddress();
+            this.homeyIP = homeyLocalURL.split(':')[0];
+        }
+        catch (err)
+        {
+            this.updateLog(`Error getting homey IP: ${err.message}`, 0);
+        }
+        
         this.homey.settings.set('autoConfig', this.autoConfigGateway);
 
         this.brokerItems = this.homey.settings.get('brokerConfigurationItems');
