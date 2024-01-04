@@ -10,6 +10,8 @@ class BasePanelDevice extends Device
      */
     async onInit()
     {
+        this.longPressOccured = new Map();
+
         if (this.hasCapability('configuration.display'))
         {
             try
@@ -21,8 +23,6 @@ class BasePanelDevice extends Device
                 this.error(error);
             }
         }
-
-        this.longPressOccured = new Map();
 
         this.registerCapabilityListener('configuration_display', this.onCapabilityDisplayConfiguration.bind(this));
 
@@ -155,6 +155,12 @@ class BasePanelDevice extends Device
 
         if (ButtonPanelConfiguration.leftDevice !== 'customMQTT')
         {
+            let brokerId = ButtonPanelConfiguration.leftBrokerId;
+            if (brokerId === 'Default')
+            {
+                brokerId = this.homey.settings.get('defaultBroker');
+            }
+
             if (ButtonPanelConfiguration.leftDevice !== 'none')
             {
                 const homeyDeviceObjectLeft = await this.homey.app.getHomeyDeviceById(ButtonPanelConfiguration.leftDevice);
@@ -183,14 +189,14 @@ class BasePanelDevice extends Device
                     this.setCapabilityValue(`left_button.connector${connector}`, value).catch(this.error);
                 }
 
-                this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.leftBrokerId, `homey/${ButtonPanelConfiguration.leftDevice}/${ButtonPanelConfiguration.leftCapability}/value`, value);
-                this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.leftBrokerId, `homey/${ButtonPanelConfiguration.leftDevice}/${ButtonPanelConfiguration.leftCapability}/label`,
+                this.homey.app.publishMQTTMessage(brokerId, `homey/${ButtonPanelConfiguration.leftDevice}/${ButtonPanelConfiguration.leftCapability}/value`, value);
+                this.homey.app.publishMQTTMessage(brokerId, `homey/${ButtonPanelConfiguration.leftDevice}/${ButtonPanelConfiguration.leftCapability}/label`,
                     value ? ButtonPanelConfiguration.leftOnText : ButtonPanelConfiguration.leftOffText);
             }
             else
             {
-                this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.leftBrokerId, `${id}/button/${connector * 2}/value`, value);
-                this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.leftBrokerId, `${id}/button/${connector * 2}/label`,
+                this.homey.app.publishMQTTMessage(brokerId, `${id}/button/${connector * 2}/value`, value);
+                this.homey.app.publishMQTTMessage(brokerId, `${id}/button/${connector * 2}/label`,
                     value ? ButtonPanelConfiguration.leftOnText : ButtonPanelConfiguration.leftOffText);
             }
             value = 0;
@@ -198,6 +204,12 @@ class BasePanelDevice extends Device
 
         if (ButtonPanelConfiguration.rightDevice !== 'customMQTT')
         {
+            let brokerId = ButtonPanelConfiguration.rightBrokerId;
+            if (brokerId === 'Default')
+            {
+                brokerId = this.homey.settings.get('defaultBroker');
+            }
+
             if (ButtonPanelConfiguration.rightDevice !== 'none')
             {
                 const homeyDeviceObjectRight = await this.homey.app.getHomeyDeviceById(ButtonPanelConfiguration.rightDevice);
@@ -226,14 +238,14 @@ class BasePanelDevice extends Device
                     this.setCapabilityValue(`right_button.connector${connector}`, value).catch(this.error);
                 }
 
-                this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.rightBrokerId, `homey/${ButtonPanelConfiguration.rightDevice}/${ButtonPanelConfiguration.rightCapability}/value`, value);
-                this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.rightBrokerId, `homey/${ButtonPanelConfiguration.rightDevice}/${ButtonPanelConfiguration.rightCapability}/label`,
+                this.homey.app.publishMQTTMessage(brokerId, `homey/${ButtonPanelConfiguration.rightDevice}/${ButtonPanelConfiguration.rightCapability}/value`, value);
+                this.homey.app.publishMQTTMessage(brokerId, `homey/${ButtonPanelConfiguration.rightDevice}/${ButtonPanelConfiguration.rightCapability}/label`,
                     value ? ButtonPanelConfiguration.rightOnText : ButtonPanelConfiguration.rightOffText);
             }
             else
             {
-                this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.rightBrokerId, `${id}/button/${connector * 2 + 1}/value`, value);
-                this.homey.app.publishMQTTMessage(ButtonPanelConfiguration.rightBrokerId, `${id}/button/${connector * 2 + 1}/label`,
+                this.homey.app.publishMQTTMessage(brokerId, `${id}/button/${connector * 2 + 1}/value`, value);
+                this.homey.app.publishMQTTMessage(brokerId, `${id}/button/${connector * 2 + 1}/label`,
                     value ? ButtonPanelConfiguration.rightOnText : ButtonPanelConfiguration.rightOffText);
             }
         }
@@ -724,7 +736,7 @@ class BasePanelDevice extends Device
                 this.homey.app.publishMQTTMessage(brokerId, `${id}/button/${buttonNumber}/value`, false);
             }
         }
-        else if (this.longPressOccured.get(`${parameters.connector}_${parameters.side}`) && parameters.capability === 'windowcoverings_state')
+        else if (this.longPressOccured && this.longPressOccured.get(`${parameters.connector}_${parameters.side}`) && parameters.capability === 'windowcoverings_state')
         {
             // Send the pause command to the device if the LongPress was received
             // Get the button configuration for this connector
@@ -805,7 +817,11 @@ class BasePanelDevice extends Device
             }
         }
 
-        this.longPressOccured.set(`${parameters.connector}_${parameters.side}`, false);
+        if (this.longPressOccured)
+        {
+            // Record that the long press has finished
+            this.longPressOccured.set(`${parameters.connector}_${parameters.side}`, false);
+        }
     }
 
     updateGatewayConfig(id, newIp)
@@ -1162,31 +1178,12 @@ class BasePanelDevice extends Device
         const item = this.homey.app.buttonConfigurations[configNo];
         if ((item.leftDevice === deviceId) && (item.leftCapability === capability))
         {
-            if (capability !== 'dim')
+            let brokerId = item.leftBrokerId;
+            if (brokerId === 'Default')
             {
-                // and trigger the flow
-                if (value)
-                {
-                    this.homey.app.triggerButtonOn(this, parameters.side === 'left', parameters.connector + 1);
-                }
-                else
-                {
-                    this.homey.app.triggerButtonOff(this, parameters.side === 'left', parameters.connector + 1);
-                }
-
-                // Set the device button state
-                this.setCapabilityValue(`left_button.connector${connector}`, value).catch(this.error);
-                this.homey.app.publishMQTTMessage(item.leftBrokerId, `homey/${deviceId}/${capability}/label`, value ? item.leftOnText : item.leftOffText);
+                brokerId = this.homey.settings.get('defaultBroker');
             }
-            // else
-            {
-                // Publish to MQTT
-                this.homey.app.publishMQTTMessage(item.leftBrokerId, `homey/${deviceId}/${capability}/value`, value);
-            }
-        }
-
-        if ((item.rightDevice === deviceId) && (item.rightCapability === capability))
-        {
+    
             if (capability !== 'dim')
             {
                 if (capability !== 'windowcoverings_state')
@@ -1194,11 +1191,47 @@ class BasePanelDevice extends Device
                     // and trigger the flow
                     if (value)
                     {
-                        this.homey.app.triggerButtonOn(this, parameters.side === 'left', parameters.connector + 1);
+                        this.homey.app.triggerButtonOn(this, true, connector + 1);
                     }
                     else
                     {
-                        this.homey.app.triggerButtonOff(this, parameters.side === 'left', parameters.connector + 1);
+                        this.homey.app.triggerButtonOff(this, true, connector + 1);
+                    }
+
+                    // Set the device button state
+                    this.setCapabilityValue(`left_button.connector${connector}`, value).catch(this.error);
+                }
+                else
+                {
+                    value = value === 'up';
+                }
+                this.homey.app.publishMQTTMessage(brokerId, `homey/${deviceId}/${capability}/label`, value ? item.leftOnText : item.leftOffText);
+            }
+
+            // Publish to MQTT
+            this.homey.app.publishMQTTMessage(brokerId, `homey/${deviceId}/${capability}/value`, value);
+        }
+
+        if ((item.rightDevice === deviceId) && (item.rightCapability === capability))
+        {
+            let brokerId = item.rightBrokerId;
+            if (brokerId === 'Default')
+            {
+                brokerId = this.homey.settings.get('defaultBroker');
+            }
+    
+            if (capability !== 'dim')
+            {
+                if (capability !== 'windowcoverings_state')
+                {
+                    // and trigger the flow
+                    if (value)
+                    {
+                        this.homey.app.triggerButtonOn(this, false, connector + 1);
+                    }
+                    else
+                    {
+                        this.homey.app.triggerButtonOff(this, false, connector + 1);
                     }
 
                     // Set the device button state
@@ -1208,10 +1241,10 @@ class BasePanelDevice extends Device
                 {
                     value = value === 'up';
                 }
-                this.homey.app.publishMQTTMessage(item.rightBrokerId, `homey/${deviceId}/${capability}/label`, value ? item.rightOnText : item.rightOffText);
+                this.homey.app.publishMQTTMessage(brokerId, `homey/${deviceId}/${capability}/label`, value ? item.rightOnText : item.rightOffText);
             }
 
-            this.homey.app.publishMQTTMessage(item.rightBrokerId, `homey/${deviceId}/${capability}/value`, value);
+            this.homey.app.publishMQTTMessage(brokerId, `homey/${deviceId}/${capability}/value`, value);
         }
     }
 
