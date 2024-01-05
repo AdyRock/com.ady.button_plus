@@ -12,46 +12,49 @@ class PanelDevice extends BasePanelDevice
     {
         this.initFinished = false;
 
-        this.langCode = this.getSetting('langCode');
+        const settings = this.getSettings();
+        this.langCode = settings.langCode;
         if (!this.langCode)
         {
             this.langCode = this.homey.i18n.getLanguage();
-            this.setSettings({'langCode':  this.langCode});
+            settings.langCode = this.langCode;
         }
 
-        this.weekdayFormat = this.getSetting('weekdayFormat')
+        this.weekdayFormat = settings.weekdayFormat;
         if (this.weekdayFormat == null)
         {
-            this.setSettings({'weekdayFormat': 'none'});
+            settings.weekdayFormat = 'none';
         }
 
-        this.dateFormat = this.getSetting('dateFormat');
+        this.dateFormat = settings.dateFormat;
         if (this.dateFormat == null)
         {
             this.dateFormat = '2-digit';
-            this.setSettings({'dateFormat': this.dateFormat});
+            settings.dateFormat = this.dateFormat;
         }
 
-        this.monthFormat = this.getSetting('monthFormat');
+        this.monthFormat = settings.monthFormat;
         if (this.monthFormat == null)
         {
             this.monthFormat = 'short';
-            this.setSettings({'monthFormat': this.monthFormat});
+            settings.monthFormat = this.monthFormat;
         }
 
-        this.yearFormat = this.getSetting('yearFormat');
+        this.yearFormat = settings.yearFormat;
         if (this.yearFormat == null)
         {
             this.yearFormat = 'numeric';
-            this.setSettings({'yearFormat': this.yearFormat});
+            settings.yearFormat = this.yearFormat;
         }
 
-        this.timeFormat = this.getSetting('timeFormat');
+        this.timeFormat = settings.timeFormat;
         if (this.timeFormat == null)
         {
             this.timeFormat = 'T24';
-            this.setSettings({'timeFormat': this.timeFormat});
+            settings.timeFormat = this.timeFormat;
         }
+
+        this.setSettings(settings);
 
         await super.onInit();
 
