@@ -12,19 +12,30 @@ class PanelDevice extends BasePanelDevice
     {
         this.initFinished = false;
 
+        if (!this.getSetting('langCode'))
+        {
+            const langCode = this.homey.i18n.getLanguage();
+            this.setSettings({'langCode': langCode});
+        }
+
+        if (this.getSetting('weekdayFormat') == null)
+        {
+            this.setSettings({'weekdayFormat': 'none'});
+        }
+
         if (this.getSetting('dateFormat') == null)
         {
-            this.setSetting('dateFormat', '2-digit');
+            this.setSettings({'dateFormat': '2-digit'});
         }
 
         if (this.getSetting( 'monthFormat') == null)
         {
-            this.setSetting('monthFormat', 'short');
+            this.setSettings({'monthFormat': 'short'});
         }
 
         if (this.getSetting('yearFormat') == null)
         {
-            this.setSetting('yearFormat', 'numeric');
+            this.setSettings({'yearFormat': 'numeric'});
         }
 
         if (this.getSetting('timeFormat') == null)
@@ -191,6 +202,38 @@ class PanelDevice extends BasePanelDevice
                 throw new Error('Invalid IP address');
             }
         }
+        else if (changedKeys.includes('mac'))
+        {
+            // Ensure it is a valid MAC address
+            const mac = newSettings.mac;
+            if (!mac.match(/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/))
+            {
+                throw new Error('Invalid MAC address');
+            }
+        }
+        else
+        {
+            // All others should be date and time related
+            if (changedKeys.includes('langCode'))
+            {
+                // Ensure it is a valid language code
+                const langCode = newSettings.langCode;
+                if (!langCode.match(/^[a-z]{2}$/))
+                {
+                    throw new Error('Invalid language code');
+                }
+            }
+
+            // Allow for Homey's timezone setting
+            const tzString = this.homey.clock.getTimezone();
+            let dateTime = new Date();
+            dateTime = new Date(dateTime.toLocaleString('en-US', { timeZone: tzString }));
+
+            setImmediate(() =>
+            {
+                this.updateDateAndTime(dateTime).catch(this.error);
+            });
+        }
     }
 
     /**
@@ -209,11 +252,6 @@ class PanelDevice extends BasePanelDevice
      */
     async onDeleted()
     {
-        if (this.dateTimer)
-        {
-            this.homey.clearInterval(this.dateTimer);
-        }
-
         await super.onDeleted();
         this.log('PanelDevice has been deleted');
     }
@@ -370,6 +408,54 @@ class PanelDevice extends BasePanelDevice
         else
         {
             throw new Error('Invalid configuration number');
+        }
+    }
+
+    async updateDateAndTime(dateTime)
+    {
+        if (this.hasCapability('date'))
+        {
+            let date = '';
+            let langCode = this.getSetting('langCode');
+            let formatString = { year: 'numeric', month: 'long', day: '2-digit' }
+            formatString.day = this.getSetting('dateFormat');
+            formatString.month = this.getSetting('monthFormat');
+            formatString.year = this.getSetting('yearFormat');
+            let weekdayFormat = this.getSetting('weekdayFormat');
+            if (weekdayFormat !== 'none')
+            {
+                formatString.weekday = weekdayFormat;
+            }
+
+            try
+            {
+                // Get the date using the short month format
+                date = dateTime.toLocaleDateString(langCode, formatString);
+            }
+            catch (err)
+            {
+                // Get the date using the long month format
+                formatString = { year: 'numeric', month: 'long', day: '2-digit' };
+                date = dateTime.toLocaleDateString(langCode, formatString);
+            }
+
+            let time = '';
+            const tf = this.getSetting('timeFormat');
+            if (tf === 'T24')
+            {
+                // get the time in the local format, but exclude seconds
+                // eslint-disable-next-line object-curly-newline
+                time = dateTime.toLocaleTimeString(langCode, { hour12: false, hour: '2-digit', minute: '2-digit' });
+            }
+            else
+            {
+                // get the time in the local format, but exclude seconds keeping am/pm if it's 12 hour format
+                // eslint-disable-next-line object-curly-newline
+                time = dateTime.toLocaleTimeString(langCode, { hour12: true, hour: 'numeric', minute: '2-digit' });
+            }
+
+            this.setCapabilityValue('date', date).catch(this.error);
+            this.setCapabilityValue('time', time).catch(this.error);
         }
     }
 }

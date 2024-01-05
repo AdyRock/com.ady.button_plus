@@ -127,108 +127,182 @@
             }
         },
         {
-            "id": "dateFormat",
-            "type": "dropdown",
+            "type": "group",
             "label": {
-                "en": "Date format",
-                "nl": "Datum formaat"
+                "en": "Date and Time Format",
+                "nl": "Datum en Tijd Formaat"
             },
-            "value": "2-digit",
-            "values": [
+            "children": [
                 {
-                    "id": "2-digit",
+                    "id": "dateFormat",
+                    "type": "dropdown",
                     "label": {
-                        "en": "2 digit (01)"
-                    }
+                        "en": "Date format",
+                        "nl": "Datum formaat"
+                    },
+                    "hint": {
+                        "en": "This is the format for the day of the month",
+                        "nl": "Dit is het formaat voor de dag van de maand"
+                    },
+                    "value": "2-digit",
+                    "values": [
+                        {
+                            "id": "2-digit",
+                            "label": {
+                                "en": "2 digit (01)"
+                            }
+                        },
+                        {
+                            "id": "numeric",
+                            "label": {
+                                "en": "1 or 2 digit (1 or 11)"
+                            }
+                        }
+                    ]
                 },
                 {
-                    "id": "numeric",
+                    "id": "monthFormat",
+                    "type": "dropdown",
                     "label": {
-                        "en": "1 or 2 digit (1 or 11)"
-                    }
-                }
-            ]
-        },
-        {
-            "id": "monthFormat",
-            "type": "dropdown",
-            "label": {
-                "en": "Month format",
-                "nl": "Maand formaat"
-            },
-            "value": "short",
-            "values": [
-                {
-                    "id": "short",
-                    "label": {
-                        "en": "short (Jan)"
-                    }
+                        "en": "Month format",
+                        "nl": "Maand formaat"
+                    },
+                    "hint": {
+                        "en": "This is the format for the month",
+                        "nl": "Dit is het formaat voor de maand"
+                    },
+                    "value": "short",
+                    "values": [
+                        {
+                            "id": "short",
+                            "label": {
+                                "en": "short (Jan)"
+                            }
+                        },
+                        {
+                            "id": "long",
+                            "label": {
+                                "en": "long (January)"
+                            }
+                        },
+                        {
+                            "id": "2-digit",
+                            "label": {
+                                "en": "2 digit (01)"
+                            }
+                        },
+                        {
+                            "id": "numeric",
+                            "label": {
+                                "en": "1 or 2 digit (1 or 11)"
+                            }
+                        }
+                    ]
                 },
                 {
-                    "id": "long",
+                    "id": "yearFormat",
+                    "type": "dropdown",
                     "label": {
-                        "en": "long (January)"
-                    }
+                        "en": "Year format",
+                        "nl": "Jaar formaat"
+                    },
+                    "hint": {
+                        "en": "This is the format for the year",
+                        "nl": "Dit is het formaat voor het jaar"
+                    },
+                    "value": "short",
+                    "values": [
+                        {
+                            "id": "2-digit",
+                            "label": {
+                                "en": "2 digit"
+                            }
+                        },
+                        {
+                            "id": "numeric",
+                            "label": {
+                                "en": "4 digit"
+                            }
+                        }
+                    ]
                 },
                 {
-                    "id": "2-digit",
+                    "id": "timeFormat",
+                    "type": "dropdown",
                     "label": {
-                        "en": "2 digit (01)"
-                    }
+                        "en": "Time format",
+                        "nl": "Tijd formaat"
+                    },
+                    "hint": {
+                        "en": "This is the format for the time",
+                        "nl": "Dit is het formaat voor de tijd"
+                    },
+                    "value": "24",
+                    "values": [
+                        {
+                            "id": "T24",
+                            "label": {
+                                "en": "24h",
+                                "nl": "24u"
+                            }
+                        },
+                        {
+                            "id": "T12",
+                            "label": {
+                                "en": "12h",
+                                "nl": "12u"
+                            }
+                        }
+                    ]
                 },
                 {
-                    "id": "numeric",
+                    "id": "weekdayFormat",
+                    "type": "dropdown",
                     "label": {
-                        "en": "1 or 2 digit (1 or 11)"
-                    }
-                }
-            ]
-        },
-        {
-            "id": "yearFormat",
-            "type": "dropdown",
-            "label": {
-                "en": "Year format",
-                "nl": "Jaar formaat"
-            },
-            "value": "short",
-            "values": [
-                {
-                    "id": "2-digit",
-                    "label": {
-                        "en": "2 digit"
-                    }
+                        "en": "Week day format",
+                        "nl": "Week dag formaat"
+                    },
+                    "hint": {
+                        "en": "This is the format for the day of the week",
+                        "nl": "Dit is het formaat voor de dag van de week"
+                    },
+                    "value": "long",
+                    "values": [
+                        {
+                            "id": "none",
+                            "label": {
+                                "en": "Not displayed",
+                                "nl": "Niet weergegeven"
+                            }
+                        },
+                        {
+                            "id": "long",
+                            "label": {
+                                "en": "Long (Monday)",
+                                "nl": "Lang (Maandag)"
+                            }
+                        },
+                        {
+                            "id": "short",
+                            "label": {
+                                "en": "Short (Mon)",
+                                "nl": "Kort (Ma)"
+                            }
+                        }
+                    ]
                 },
                 {
-                    "id": "numeric",
+                    "id": "langCode",
+                    "type": "text",
                     "label": {
-                        "en": "4 digit"
-                    }
-                }
-            ]
-        },
-        {
-            "id": "timeFormat",
-            "type": "dropdown",
-            "label": {
-                "en": "Time format",
-                "nl": "Tijd formaat"
-            },
-            "value": "24",
-            "values": [
-                {
-                    "id": "T24",
-                    "label": {
-                        "en": "24h",
-                        "nl": "24u"
-                    }
-                },
-                {
-                    "id": "T12",
-                    "label": {
-                        "en": "12h",
-                        "nl": "12u"
-                    }
+                        "en": "Language code",
+                        "nl": "Taal code"
+                    },
+                    "hint": {
+                        "en": "This is the 2 digit language code of the language you want to use for the date format (e.g. en, nl, de, fr, ...)",
+                        "nl": "Dit is de 2 letter taal code van de taal die je wil gebruiken voor het datum formaat (bijv. en, nl, de, fr, ...)"
+                    },
+                    "value": ""
                 }
             ]
         }

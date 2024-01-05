@@ -73,5 +73,8 @@
     },
     "0.2.14": {
         "en": "No longer set Label to the device name #73. Fix button update when capability changes #75. Fix top label not being updated #77. Added maintenance button to re-apply configurations to the panel #76."
+    },
+    "0.2.15": {
+        "en": "Added setting for date and time langauge code. Added a setting to show the Day of the week"
     }
 }

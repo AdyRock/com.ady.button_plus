@@ -35,6 +35,7 @@ class MyApp extends Homey.App
         this.mqttServerReady = false;
         this.autoConfigGateway = true;
         this.lastMQTTData = new Map();
+        this.dateTimer = null;
 
         let defaultbroker = this.homey.settings.get('defaultBroker');
         if (!defaultbroker)
@@ -485,11 +486,16 @@ class MyApp extends Homey.App
 
     async syncTime()
     {
-        this.dateTimer = null;
+        if (this.dateTimer !== null)
+        {
+            this.homey.clearTimeout(this.dateTimer);
+            this.dateTimer = null;
+        }
+
         const msUntilNextMinute = this.updateTime();
 
         // Set a timeout to update the time every minute
-        this.homey.setTimeout(() =>
+        this.dateTimer = this.homey.setTimeout(() =>
         {
             this.syncTime();
         }, msUntilNextMinute);
@@ -508,44 +514,9 @@ class MyApp extends Homey.App
             let devices = driver.getDevices();
             for (let device of Object.values(devices))
             {
-                if (device.hasCapability('date'))
+                if (device.updateDateAndTime)
                 {
-                    let langCode = this.homey.i18n.getLanguage();
-                    let formatString = { year: 'numeric', month: 'long', day: '2-digit' }
-                    let date = '';
-                    formatString.day = device.getSetting('dateFormat');
-                    formatString.month = device.getSetting('monthFormat');
-                    formatString.year = device.getSetting('yearFormat');
-
-                    try
-                    {
-                        // Get the date using the short month format
-                        date = dateTime.toLocaleDateString(langCode, formatString);
-                    }
-                    catch (err)
-                    {
-                        // Get the date using the long month format
-                        formatString = { year: 'numeric', month: 'long', day: '2-digit' };
-                        date = dateTime.toLocaleDateString(langCode, formatString);
-                    }
-        
-                    let time = '';
-                    const tf = device.getSetting('timeFormat');
-                    if (tf === 'T24')
-                    {
-                        // get the time in the local format, but exclude seconds
-                        // eslint-disable-next-line object-curly-newline
-                        time = dateTime.toLocaleTimeString(langCode, { hour12: false, hour: '2-digit', minute: '2-digit' });
-                    }
-                    else
-                    {
-                        // get the time in the local format, but exclude seconds keeping am/pm if it's 12 hour format
-                        // eslint-disable-next-line object-curly-newline
-                        time = dateTime.toLocaleTimeString(langCode, { hour12: true, hour: 'numeric', minute: '2-digit' });
-                    }
-
-                    device.setCapabilityValue('date', date).catch(this.error);
-                    device.setCapabilityValue('time', time).catch(this.error);
+                    device.updateDateAndTime(dateTime);
                 }
             }
         }
