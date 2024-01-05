@@ -69,6 +69,11 @@ class PanelDevice extends BasePanelDevice
             await this.addCapability('button.update_firmware');
         }
 
+        if (!this.hasCapability('button.apply_config'))
+        {
+            await this.addCapability('button.apply_config');
+        }
+
         const ip = this.getSetting('address');
 
         this.registerCapabilityListener('dim.large', this.onCapabilityDim.bind(this, 'largedisplay'));
@@ -78,6 +83,13 @@ class PanelDevice extends BasePanelDevice
         this.registerCapabilityListener('button.update_firmware', async () => {
             // Maintenance action button was pressed
             return await this.homey.app.updateFirmware(ip);
+          });
+        
+          this.registerCapabilityListener('button.apply_config', async () => {
+            // Maintenance action button was pressed
+            await this.uploadButtonConfigurations(null, true);
+            await this.uploadBrokerConfigurations();
+            await this.uploadBrokerConfigurations();
           });
 
         this.homey.app.setupPanelTemperatureTopic(ip, this.__id);

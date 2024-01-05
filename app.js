@@ -625,7 +625,7 @@ class MyApp extends Homey.App
                 {
                     try
                     {
-                        await device.uploadBrokerConfigurations(null, true);
+                        await device.uploadBrokerConfigurations();
                     }
                     catch (error)
                     {

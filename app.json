@@ -1570,6 +1570,17 @@
             "en": "Update the firmware of the device",
             "nl": "Firmware van het apparaat bijwerken"
           }
+        },
+        "button.apply_config": {
+          "maintenanceAction": true,
+          "title": {
+            "en": "Re-apply configurations",
+            "nl": "Configuraties opnieuw toepassen"
+          },
+          "desc": {
+            "en": "Send the configuration to the device again",
+            "nl": "Stuur de configuratie opnieuw naar het apparaat"
+          }
         }
       },
       "pair": [
