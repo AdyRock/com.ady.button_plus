@@ -1,6 +1,6 @@
 {
     "name": "com.ady.button_plus",
-    "version": "0.2.15",
+    "version": "0.2.16",
     "main": "app.js",
     "scripts": {
         "lint": "eslint --ext .js,.ts --ignore-path .gitignore ."
