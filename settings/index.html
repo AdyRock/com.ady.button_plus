@@ -474,12 +474,12 @@
                 var defaultText = Homey.__("settings.default");
 
                 var option = document.createElement("option");
-                option.value = defaultText;
+                option.value = 'Default';
                 option.text = defaultText;
                 leftBrokerIdElement.add(option);
 
                 var option = document.createElement("option");
-                option.value = defaultText;
+                option.value = 'Default';
                 option.text = defaultText;
                 rightBrokerIdElement.add(option);
 
@@ -491,7 +491,7 @@
                     {
                         const displayItem = displayConfiguration.items[j];
                         var optionDisplay = document.createElement("option");
-                        optionDisplay.value = defaultText;
+                        optionDisplay.value = 'Default';
                         optionDisplay.text = defaultText;
                         document.getElementById(`display${j}BrokerId`).add(optionDisplay);
                         document.getElementById(`display${j}BrokerId`).value = displayItem.brokerId;
@@ -1080,7 +1080,7 @@
                             yPos: 0,
                             width: 100,
                             fontSize: 1,
-                            brokerId: 'default',
+                            brokerId: 'Default',
                         };
 
                         // Add the new display item to the local display configuration
@@ -1103,7 +1103,7 @@
                         type: 0,
                         topic: "",
                         payload: "",
-                        brokerId: 'default',
+                        brokerId: 'Default',
                         enable: true,
                     };
 
@@ -1122,7 +1122,7 @@
                         type: 0,
                         topic: "",
                         payload: "",
-                        brokerId: 'default',
+                        brokerId: 'Default',
                         enable: true,
                     };
 
@@ -1454,14 +1454,12 @@
 
             if (buttonConfigurationNoElement.value == "")
             {
-                var defaultText = Homey.__("settings.default");
-
                 leftTopTextElement.value = "";
                 leftOnTextElement.value = "";
                 leftOffTextElement.value = "";
                 leftDeviceElement.value = "";
                 leftCapabilityElement.value = "";
-                leftBrokerIdElement.value = defaultText;
+                leftBrokerIdElement.value = 'Default';
                 leftDimChangeElement.value = "+10";
                 leftFrontLEDColorElement.value = "#ff0000";
                 leftWallLEDColorElement.value = "#ff0000";
@@ -1471,7 +1469,7 @@
                 rightOffTextElement.value = "";
                 rightDeviceElement.value = "";
                 rightCapabilityElement.value = "";
-                rightBrokerIdElement.value = defaultText;
+                rightBrokerIdElement.value = 'Default';
                 rightDimChangeElement.value = "-10";
                 rightFrontLEDColorElement.value = "#ff0000";
                 rightWallLEDColorElement.value = "#ff0000";
@@ -1624,6 +1622,14 @@
                 displayCapabilityItems.push(capabilities);
                 insertDisplayItemSection(item, itemNo, (itemNo === expandItem));
 
+                // Add a 'Default' broker entry to the lists
+                var defaultText = Homey.__("settings.default");
+
+                var option = document.createElement("option");
+                option.value = 'Default';
+                option.text = defaultText;
+                document.getElementById(`display${itemNo}BrokerId`).add(option);
+                
                 // add the brokers to the display config broker lists
                 for (let i = 0; i < localBrokerItems.length; i++)
                 {
@@ -1845,15 +1851,15 @@
                                 if (variables[variableID])
                                 {
                                     capabilitiesElement.value = variableID;
-                                    if (document.getElementById(`display${item}Label`).value === '')
-                                    {
-                                        document.getElementById(`display${item}Label`).value = variables[variableID].name;
-                                        document.getElementById(`display${item}Legend`).innerHTML = `<b><em>${Homey.__("settings.displayItemlegend", { itemNo: item + 1 })}</em></b> - ${document.getElementById(`display${item}Label`).value}`;
-                                    }
-                                    if (document.getElementById(`display${item}Unit`).value === '')
-                                    {
-                                        document.getElementById(`display${item}Unit`).value = "";
-                                    }
+                                    // if (document.getElementById(`display${item}Label`).value === '')
+                                    // {
+                                    //     document.getElementById(`display${item}Label`).value = variables[variableID].name;
+                                    //     document.getElementById(`display${item}Legend`).innerHTML = `<b><em>${Homey.__("settings.displayItemlegend", { itemNo: item + 1 })}</em></b> - ${document.getElementById(`display${item}Label`).value}`;
+                                    // }
+                                    // if (document.getElementById(`display${item}Unit`).value === '')
+                                    // {
+                                    //     document.getElementById(`display${item}Unit`).value = "";
+                                    // }
                                 }
                                 else
                                 {
@@ -1890,11 +1896,11 @@
                             if (capabilities[capabilityID])
                             {
                                 capabilitiesElement.value = capabilityID;
-                                if (document.getElementById(`display${item}Label`).value === '')
-                                {
-                                    document.getElementById(`display${item}Label`).value = capabilities[capabilityID].title;
-                                    document.getElementById(`display${item}Legend`).innerHTML = `<b><em>${Homey.__("settings.displayItemlegend", { itemNo: item + 1 })}</em></b> - ${document.getElementById(`display${item}Label`).value}`;
-                                }
+                                // if (document.getElementById(`display${item}Label`).value === '')
+                                // {
+                                //     document.getElementById(`display${item}Label`).value = capabilities[capabilityID].title;
+                                //     document.getElementById(`display${item}Legend`).innerHTML = `<b><em>${Homey.__("settings.displayItemlegend", { itemNo: item + 1 })}</em></b> - ${document.getElementById(`display${item}Label`).value}`;
+                                // }
                                 if (document.getElementById(`display${item}Unit`).value === '')
                                 {
                                     document.getElementById(`display${item}Unit`).value = capabilities[capabilityID].unit ? capabilities[capabilityID].unit : "";
@@ -1921,8 +1927,8 @@
             var capabilityID = document.getElementById(`display${item}Capability`).value;
             if (capabilityID != "" && capabilities[capabilityID])
             {
-                document.getElementById(`display${item}Label`).value = capabilities[capabilityID].title ? capabilities[capabilityID].title : capabilities[capabilityID].name;
-                document.getElementById(`display${item}Legend`).innerHTML = `<b><em>${Homey.__("settings.displayItemlegend", { itemNo: item + 1 })}</em></b> - ${document.getElementById(`display${item}Label`).value}`;
+                // document.getElementById(`display${item}Label`).value = capabilities[capabilityID].title ? capabilities[capabilityID].title : capabilities[capabilityID].name;
+                // document.getElementById(`display${item}Legend`).innerHTML = `<b><em>${Homey.__("settings.displayItemlegend", { itemNo: item + 1 })}</em></b> - ${document.getElementById(`display${item}Label`).value}`;
                 document.getElementById(`display${item}Unit`).value = capabilities[capabilityID].units ? capabilities[capabilityID].units : "";
             }
         }

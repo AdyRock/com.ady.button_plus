@@ -51,7 +51,7 @@ class MyApp extends Homey.App
         {
             this.updateLog(`Error getting homey IP: ${err.message}`, 0);
         }
-        
+
         this.homey.settings.set('autoConfig', this.autoConfigGateway);
 
         this.brokerItems = this.homey.settings.get('brokerConfigurationItems');
@@ -102,12 +102,12 @@ class MyApp extends Homey.App
                 const buttonConfiguration = this.buttonConfigurations[i];
                 if (!buttonConfiguration.leftBrokerId)
                 {
-                    buttonConfiguration.leftBrokerId = 'default';
+                    buttonConfiguration.leftBrokerId = 'Default';
                 }
 
                 if (!buttonConfiguration.rightBrokerId)
                 {
-                    buttonConfiguration.rightBrokerId = 'default';
+                    buttonConfiguration.rightBrokerId = 'Default';
                 }
 
                 if (!buttonConfiguration.leftDimChange)
@@ -654,7 +654,7 @@ class MyApp extends Homey.App
                 leftOffText: '',
                 leftDevice: 'none',
                 leftCapability: '',
-                leftbrokerid: 'default',
+                leftbrokerid: 'Default',
                 leftDimChange: '-10',
                 leftFrontLEDColor: '#ff0000',
                 leftWallLEDColor: '#ff0000',
@@ -664,7 +664,7 @@ class MyApp extends Homey.App
                 rightOffText: '',
                 rightDevice: 'none',
                 rightCapability: '',
-                rightbrokerid: 'default',
+                rightbrokerid: 'Default',
                 rightDimChange: '+10',
                 rightFrontLEDColor: '#ff0000',
                 rightWallLEDColor: '#ff0000',
@@ -736,6 +736,11 @@ class MyApp extends Homey.App
             for (let itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
             {
                 const item = displayConfiguration.items[itemNo];
+                let brokerId = item.brokerId;
+                if (brokerId === 'Default')
+                {
+                    brokerId = this.homey.settings.get('defaultBroker');
+                }
                 const capabilities = {
                     x: parseInt(item.xPos, 10),
                     y: parseInt(item.yPos, 10),
@@ -746,7 +751,7 @@ class MyApp extends Homey.App
                     round: parseInt(item.rounding, 10),
                     topics: [
                     {
-                        brokerid: item.brokerId,
+                        brokerid: brokerId,
                         topic: `homey/${item.device}/${item.capability}/value`,
                         eventtype: 15,
                     }],
@@ -760,7 +765,7 @@ class MyApp extends Homey.App
                     {
                         // Send the value to the device after a short delay to allow the device to connect to the broker
                         mqttQueue.push({
-                            brokerId: item.brokerId,
+                            brokerId: brokerId,
                             message: `homey/${item.device}/${item.capability}/value`,
                             value: variable.value,
                         });
@@ -784,7 +789,7 @@ class MyApp extends Homey.App
 
                                 // Send the value to the device after a short delay to allow the device to connect to the broker
                                 mqttQueue.push({
-                                    brokerId: item.brokerId,
+                                    brokerId: brokerId,
                                     message: `homey/${item.device}/${item.capability}/value`,
                                     value,
                                 });
