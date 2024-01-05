@@ -115,6 +115,9 @@
                                 <span>
                                     <div id="leftCapabilityDiv">
                                         <label class="homey-form-label" id="leftCapabilityLabel" for="leftCapability"><span data-i18n="settings.capability"></span>
+                                            <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                                <span class="tooltiptext" data-i18n="settings.capabilityExplanation"></span>
+                                            </div>
                                         </label>
                                         <select class="homey-form-select" id="leftCapability">
                                             <option value="" selected disabled hidden><span data-i18n="settings.selectCapability"></span></option>
@@ -207,7 +210,11 @@
 
                                 <span>
                                     <div id="rightCapabilityDiv">
-                                        <label class="homey-form-label" id="rightCapabilityLabel" for="rightCapability"><span data-i18n="settings.capability"></span></label>
+                                        <label class="homey-form-label" id="rightCapabilityLabel" for="rightCapability"><span data-i18n="settings.capability"></span>
+                                            <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                                <span class="tooltiptext" data-i18n="settings.capabilityExplanation"></span>
+                                            </div>
+                                        </label>
                                         <select class="homey-form-select" id="rightCapability">
                                             <option value="" selected disabled hidden><span data-i18n="settings.selectCapability"></span></option>
                                         </select>
@@ -298,21 +305,23 @@
         <div id="displayConfig" class="tabcontent">
             <div class="homey-form-group">
                 <div style="padding: 10px 10px 10px 10px; border: 1px solid lightblue; border-radius: 10px">
-                    <label class="homey-form-label" for="displayConfigurationNo"><span data-i18n="settings.configtoedit"></span>
-                        <div class="tooltip"><i class="fi fi-rr-info"></i>
-                            <span class="tooltiptext" data-i18n="settings.displayExplanation"></span>
-                        </div>
-                    </label>
-                    <select class="homey-form-select" id="displayConfigurationNo">
-                    </select>
+                    <div style="padding: 10px 10px 10px 10px; border: 1px solid lightblue; border-radius: 10px">
+                        <label class="homey-form-label" for="displayConfigurationNo"><span data-i18n="settings.configtoedit"></span>
+                            <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                <span class="tooltiptext" data-i18n="settings.displayExplanation"></span>
+                            </div>
+                        </label>
+                        <select class="homey-form-select" id="displayConfigurationNo">
+                        </select>
+                    </div>
+                    <div id="displayItemsSection"></div>
+                    <p><button class="homey-button-secondary-shadow" id="newDisplayItem"><span data-i18n="settings.newDisplayItem"></span></button></p>
+                    <p>
+                        <button class="homey-button-secondary-shadow" id="copyDisplayConfig"><span data-i18n="settings.copy"></span></button>
+                        <button class="homey-button-secondary-shadow" id="pasteDisplayConfig"><span data-i18n="settings.paste"></span></button>
+                    </p>
                 </div>
-                <div id="displayItemsSection"></div>
             </div>
-            <p><button class="homey-button-secondary-shadow" id="newDisplayItem"><span data-i18n="settings.newDisplayItem"></span></button></p>
-            <p>
-                <button class="homey-button-secondary-shadow" id="copyDisplayConfig"><span data-i18n="settings.copy"></span></button>
-                <button class="homey-button-secondary-shadow" id="pasteDisplayConfig"><span data-i18n="settings.paste"></span></button>
-            </p>
         </div>
 
         <!-- Broker Configuration -->
@@ -679,26 +688,26 @@
 
                     // Copy the values from the controls to the buttonConfiguration
                     ButtonPanelConfiguration.leftTopText = leftTopTextElement.value,
-                        ButtonPanelConfiguration.leftOnText = leftOnTextElement.value,
-                        ButtonPanelConfiguration.leftOffText = leftOffTextElement.value,
-                        ButtonPanelConfiguration.leftDevice = leftDeviceElement.value,
-                        ButtonPanelConfiguration.leftCapability = leftCapabilityElement.value,
-                        ButtonPanelConfiguration.leftBrokerId = leftBrokerIdElement.value,
-                        ButtonPanelConfiguration.leftDimChange = leftDimChangeElement.value,
-                        ButtonPanelConfiguration.leftFrontLEDColor = leftFrontLEDColorElement.value,
-                        ButtonPanelConfiguration.leftWallLEDColor = leftWallLEDColorElement.value,
+                    ButtonPanelConfiguration.leftOnText = leftOnTextElement.value,
+                    ButtonPanelConfiguration.leftOffText = leftOffTextElement.value,
+                    ButtonPanelConfiguration.leftDevice = leftDeviceElement.value,
+                    ButtonPanelConfiguration.leftCapability = leftCapabilityElement.value,
+                    ButtonPanelConfiguration.leftBrokerId = leftBrokerIdElement.value,
+                    ButtonPanelConfiguration.leftDimChange = leftDimChangeElement.value,
+                    ButtonPanelConfiguration.leftFrontLEDColor = leftFrontLEDColorElement.value,
+                    ButtonPanelConfiguration.leftWallLEDColor = leftWallLEDColorElement.value,
 
-                        ButtonPanelConfiguration.rightTopText = rightTopTextElement.value,
-                        ButtonPanelConfiguration.rightOnText = rightOnTextElement.value,
-                        ButtonPanelConfiguration.rightOffText = rightOffTextElement.value,
-                        ButtonPanelConfiguration.rightDevice = rightDeviceElement.value,
-                        ButtonPanelConfiguration.rightCapability = rightCapabilityElement.value,
-                        ButtonPanelConfiguration.rightBrokerId = rightBrokerIdElement.value,
-                        ButtonPanelConfiguration.rightDimChange = rightDimChangeElement.value,
-                        ButtonPanelConfiguration.rightFrontLEDColor = rightFrontLEDColorElement.value,
-                        ButtonPanelConfiguration.rightWallLEDColor = rightWallLEDColorElement.value,
+                    ButtonPanelConfiguration.rightTopText = rightTopTextElement.value,
+                    ButtonPanelConfiguration.rightOnText = rightOnTextElement.value,
+                    ButtonPanelConfiguration.rightOffText = rightOffTextElement.value,
+                    ButtonPanelConfiguration.rightDevice = rightDeviceElement.value,
+                    ButtonPanelConfiguration.rightCapability = rightCapabilityElement.value,
+                    ButtonPanelConfiguration.rightBrokerId = rightBrokerIdElement.value,
+                    ButtonPanelConfiguration.rightDimChange = rightDimChangeElement.value,
+                    ButtonPanelConfiguration.rightFrontLEDColor = rightFrontLEDColorElement.value,
+                    ButtonPanelConfiguration.rightWallLEDColor = rightWallLEDColorElement.value,
 
-                        Homey.set('buttonConfigurations', localButtonConfigurations);
+                    Homey.set('buttonConfigurations', localButtonConfigurations);
 
                     //Copy the values from the controls to the displayConfiguration
                     storeDisplaySettings();
@@ -1313,9 +1322,9 @@
                     option.text = Homey.__("settings.none");
                     option.value = "none";
                     Element.add(option);
-                }
-                else
-                {
+                // }
+                // else
+                // {
                     var option = document.createElement("option");
                     option.text = Homey.__("settings.variable");
                     option.value = "_variable_";
@@ -1384,6 +1393,41 @@
                 return;
             }
 
+            if (deviceId === '_variable_')
+            {
+                // Resquest the list of variables
+                Homey.api('POST', '/get_variables/', {}, function(err, variables)
+                {
+                    if (err) return Homey.alert(err);
+
+                    if (variables)
+                    {
+                        // Add each of the capabilities to the item drop list
+                        const variablesArray = Object.values(variables);
+                        for (const variable of variablesArray)
+                        {
+                            if (variable.type === "boolean")
+                            {
+                                var option = document.createElement("option");
+                                option.text = variable.name;
+                                option.value = variable.id;
+                                capabilityElement.add(option);
+                            }
+                        }
+
+                        // Show the capability section
+                        capabilityDivElement.style.display = itemDisplyType;
+                        document.getElementById(`${side}BrokerIdDiv`).style.display = itemDisplyType;
+                        document.getElementById(`${side}CustomMQTTDiv`).style.display = "none";
+
+                        // Restore the previous capability selection
+                        capabilityElement.value = selectedCapability;
+                        capabilityChanged(side, selectedCapability);
+                    }
+                });
+                return;
+            }
+
             // Request the capabilities for the selected device
             Homey.api('POST', '/device_capabilities/', { deviceId }, function(err, capabilities)
             {
@@ -1438,7 +1482,7 @@
                 document.getElementById(`${side}OffText`).style.display = itemDisplyType;
                 document.getElementById(`${side}OffTextLabel`).style.display = itemDisplyType;
             }
-            document.getElementById(`${side}TopText`).value = document.getElementById(`${side}TopText`).value ? document.getElementById(`${side}TopText`).value : value;
+            //document.getElementById(`${side}TopText`).value = document.getElementById(`${side}TopText`).value ? document.getElementById(`${side}TopText`).value : value;
 
         }
 

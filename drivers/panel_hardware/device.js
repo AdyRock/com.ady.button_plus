@@ -12,35 +12,45 @@ class PanelDevice extends BasePanelDevice
     {
         this.initFinished = false;
 
-        if (!this.getSetting('langCode'))
+        this.langCode = this.getSetting('langCode');
+        if (!this.langCode)
         {
-            const langCode = this.homey.i18n.getLanguage();
-            this.setSettings({'langCode': langCode});
+            this.langCode = this.homey.i18n.getLanguage();
+            this.setSettings({'langCode':  this.langCode});
         }
 
-        if (this.getSetting('weekdayFormat') == null)
+        this.weekdayFormat = this.getSetting('weekdayFormat')
+        if (this.weekdayFormat == null)
         {
             this.setSettings({'weekdayFormat': 'none'});
         }
 
-        if (this.getSetting('dateFormat') == null)
+        this.dateFormat = this.getSetting('dateFormat');
+        if (this.dateFormat == null)
         {
-            this.setSettings({'dateFormat': '2-digit'});
+            this.dateFormat = '2-digit';
+            this.setSettings({'dateFormat': this.dateFormat});
         }
 
-        if (this.getSetting( 'monthFormat') == null)
+        this.monthFormat = this.getSetting('monthFormat');
+        if (this.monthFormat == null)
         {
-            this.setSettings({'monthFormat': 'short'});
+            this.monthFormat = 'short';
+            this.setSettings({'monthFormat': this.monthFormat});
         }
 
-        if (this.getSetting('yearFormat') == null)
+        this.yearFormat = this.getSetting('yearFormat');
+        if (this.yearFormat == null)
         {
-            this.setSettings({'yearFormat': 'numeric'});
+            this.yearFormat = 'numeric';
+            this.setSettings({'yearFormat': this.yearFormat});
         }
 
-        if (this.getSetting('timeFormat') == null)
+        this.timeFormat = this.getSetting('timeFormat');
+        if (this.timeFormat == null)
         {
-            this.setSettings({ timeFormat: '24h' });
+            this.timeFormat = 'T24';
+            this.setSettings({'timeFormat': this.timeFormat});
         }
 
         await super.onInit();
@@ -202,7 +212,7 @@ class PanelDevice extends BasePanelDevice
                 throw new Error('Invalid IP address');
             }
         }
-        else if (changedKeys.includes('mac'))
+        if (changedKeys.includes('mac'))
         {
             // Ensure it is a valid MAC address
             const mac = newSettings.mac;
@@ -211,19 +221,53 @@ class PanelDevice extends BasePanelDevice
                 throw new Error('Invalid MAC address');
             }
         }
-        else
+
+        let updateDateAndTime = false;
+        // All others should be date and time related
+        if (changedKeys.includes('langCode'))
         {
-            // All others should be date and time related
-            if (changedKeys.includes('langCode'))
+            // Ensure it is a valid language code
+            const langCode = newSettings.langCode;
+            if (!langCode.match(/^[a-z]{2}$/))
             {
-                // Ensure it is a valid language code
-                const langCode = newSettings.langCode;
-                if (!langCode.match(/^[a-z]{2}$/))
-                {
-                    throw new Error('Invalid language code');
-                }
+                throw new Error('Invalid language code');
             }
 
+            this.langCode = langCode;
+        }
+
+        if (changedKeys.includes('weekdayFormat'))
+        {
+            this.weekdayFormat = newSettings.weekdayFormat;
+            updateDateAndTime = true;
+        }
+
+        if (changedKeys.includes('dateFormat'))
+        {
+            this.dateFormat = newSettings.dateFormat;
+            updateDateAndTime = true;
+        }
+
+        if (changedKeys.includes('monthFormat'))
+        {
+            this.monthFormat = newSettings.monthFormat;
+            updateDateAndTime = true;
+        }
+
+        if (changedKeys.includes('yearFormat'))
+        {
+            this.yearFormat = newSettings.yearFormat;
+            updateDateAndTime = true;
+        }
+
+        if (changedKeys.includes('timeFormat'))
+        {
+            this.timeFormat = newSettings.timeFormat;
+            updateDateAndTime = true;
+        }
+
+        if (updateDateAndTime)
+        {
             // Allow for Homey's timezone setting
             const tzString = this.homey.clock.getTimezone();
             let dateTime = new Date();
@@ -416,12 +460,11 @@ class PanelDevice extends BasePanelDevice
         if (this.hasCapability('date'))
         {
             let date = '';
-            let langCode = this.getSetting('langCode');
             let formatString = { year: 'numeric', month: 'long', day: '2-digit' }
-            formatString.day = this.getSetting('dateFormat');
-            formatString.month = this.getSetting('monthFormat');
-            formatString.year = this.getSetting('yearFormat');
-            let weekdayFormat = this.getSetting('weekdayFormat');
+            formatString.day = this.dateFormat;
+            formatString.month = this.monthFormat;
+            formatString.year = this.yearFormat;
+            let weekdayFormat = this.weekdayFormat;
             if (weekdayFormat !== 'none')
             {
                 formatString.weekday = weekdayFormat;
@@ -430,13 +473,13 @@ class PanelDevice extends BasePanelDevice
             try
             {
                 // Get the date using the short month format
-                date = dateTime.toLocaleDateString(langCode, formatString);
+                date = dateTime.toLocaleDateString(this.langCode, formatString);
             }
             catch (err)
             {
                 // Get the date using the long month format
                 formatString = { year: 'numeric', month: 'long', day: '2-digit' };
-                date = dateTime.toLocaleDateString(langCode, formatString);
+                date = dateTime.toLocaleDateString(this.langCode, formatString);
             }
 
             let time = '';
@@ -445,13 +488,13 @@ class PanelDevice extends BasePanelDevice
             {
                 // get the time in the local format, but exclude seconds
                 // eslint-disable-next-line object-curly-newline
-                time = dateTime.toLocaleTimeString(langCode, { hour12: false, hour: '2-digit', minute: '2-digit' });
+                time = dateTime.toLocaleTimeString(this.langCode, { hour12: false, hour: '2-digit', minute: '2-digit' });
             }
             else
             {
                 // get the time in the local format, but exclude seconds keeping am/pm if it's 12 hour format
                 // eslint-disable-next-line object-curly-newline
-                time = dateTime.toLocaleTimeString(langCode, { hour12: true, hour: 'numeric', minute: '2-digit' });
+                time = dateTime.toLocaleTimeString(this.langCode, { hour12: true, hour: 'numeric', minute: '2-digit' });
             }
 
             this.setCapabilityValue('date', date).catch(this.error);

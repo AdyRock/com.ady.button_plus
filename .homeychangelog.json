@@ -75,6 +75,6 @@
         "en": "No longer set Label to the device name #73. Fix button update when capability changes #75. Fix top label not being updated #77. Added maintenance button to re-apply configurations to the panel #76."
     },
     "0.2.15": {
-        "en": "Added setting for date and time langauge code. Added a setting to show the Day of the week"
+        "en": "Added setting for date and time langauge code. Added a setting to show the Day of the week. Added Variable option to Button Configuration so a Boolean variable can be used to control the button state (Variables are read-only for an app so a flow is required to toggle the state)."
     }
 }

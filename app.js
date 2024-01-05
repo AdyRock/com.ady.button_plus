@@ -285,31 +285,31 @@ class MyApp extends Homey.App
         this._triggerButtonOn = this.homey.flow.getDeviceTriggerCard('button_on')
             .registerRunListener((args, state) =>
             {
-                return (args.left_right === state.left_right && args.connector === state.connector);
+                return ((args.left_right === state.left_right) && (args.connector === state.connector));
             });
 
         this._triggerButtonOff = this.homey.flow.getDeviceTriggerCard('button_off')
             .registerRunListener((args, state) =>
             {
-                return (args.left_right === state.left_right && args.connector === state.connector);
+                return ((args.left_right === state.left_right) && (args.connector === state.connector));
             });
 
         this._triggerButtonChange = this.homey.flow.getDeviceTriggerCard('button_change')
             .registerRunListener((args, state) =>
             {
-                return (args.left_right === state.left_right && args.connector === state.connector);
+                return ((args.left_right === state.left_right) && (args.connector === state.connector));
             });
 
         this._triggerButtonLongPress = this.homey.flow.getDeviceTriggerCard('button_long_press')
             .registerRunListener((args, state) =>
             {
-                return (args.left_right === state.left_right && args.connector === state.connector);
+                return ((args.left_right === state.left_right) && (args.connector === state.connector));
             });
 
         this._triggerButtonRelease = this.homey.flow.getDeviceTriggerCard('button_release')
             .registerRunListener((args, state) =>
             {
-                return (args.left_right === state.left_right && args.connector === state.connector);
+                return ((args.left_right === state.left_right) && (args.connector === state.connector));
             });
 
         this.triggerDimLargeChanged = this.homey.flow.getDeviceTriggerCard('dim.large_changed')
@@ -333,7 +333,7 @@ class MyApp extends Homey.App
         this.triggerConfigButtonChanged = this.homey.flow.getDeviceTriggerCard('config_button_change')
             .registerRunListener((args, state) =>
             {
-                return true;
+                return ((args.left_right === state.left_right) && (args.config === state.config) && (args.display_button === state.displaybutton) && (args.state === state.state));
             });
 
         this.homey.flow.getActionCard('switch_button_configuration')
@@ -1080,7 +1080,7 @@ class MyApp extends Homey.App
         try
         {
             mqttButtons.topics = [];
-            if (configDevice !== 'none')
+            if ((configDevice !== 'none') && (configDevice !== '_variable_'))
             {
                 const device = await this.deviceManager.getDeviceById(configDevice);
                 if (device)
@@ -1198,7 +1198,51 @@ class MyApp extends Homey.App
         try
         {
             let payload = '';
-            if (configDevice === 'none')
+            if (configDevice === '_variable_')
+            {
+                // Get the variable value
+                const variable = await this.api.logic.getVariable({ id: configCapability });
+                if (variable && variable.type === 'boolean')
+                {
+                    if (variable.value === false)
+                    {
+                        mqttButtons.label = labelOff;
+                    }
+                    // Boolean capabilities are always 'true' or 'false'
+                    payload = true;
+
+                    // Add the LED event entry
+                    mqttButtons.topics.push(
+                        {
+                            brokerid: brokerId,
+                            eventtype: 14,
+                            topic: `homey/${configDevice}/${configCapability}/value`,
+                            payload,
+                        },
+                    );
+                }
+
+                // Add the Top Label event entry
+                mqttButtons.topics.push(
+                    {
+                        brokerid: brokerId,
+                        eventtype: 12,
+                        topic: `homey/${configDevice}/${configCapability}/toplabel`,
+                        payload,
+                    },
+                );
+
+                // Add the Label event entry
+                mqttButtons.topics.push(
+                    {
+                        brokerid: brokerId,
+                        eventtype: 11,
+                        topic: `homey/${configDevice}/${configCapability}/label`,
+                        payload,
+                    },
+                );
+            }
+            else if (configDevice === 'none')
             {
                 // User capabilities are always 'ON' or 'OFF' and have a click event
                 payload = true;
@@ -1566,7 +1610,7 @@ class MyApp extends Homey.App
         {
             try
             {
-                return this.variableDispather.getVariables();
+                return await this.variableDispather.getVariables();
             }
             catch (e)
             {
@@ -1574,6 +1618,38 @@ class MyApp extends Homey.App
             }
         }
         return [];
+    }
+
+    async getVariable(id)
+    {
+        if (this.variableDispather)
+        {
+            try
+            {
+                return await this.variableDispather.getVariable(id);
+            }
+            catch (e)
+            {
+                this.updateLog(`Error getting variables: ${e.message}`, 0);
+            }
+        }
+        return null;
+    }
+
+    async setVariable(id, variable)
+    {
+        if (this.variableDispather)
+        {
+            try
+            {
+                return await this.variableDispather.setVariable(id, variable);
+            }
+            catch (e)
+            {
+                this.updateLog(`Error getting variables: ${e.message}`, 0);
+            }
+        }
+        return null;
     }
 
     async getButtonDevices()

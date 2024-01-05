@@ -161,7 +161,31 @@ class BasePanelDevice extends Device
                 brokerId = this.homey.settings.get('defaultBroker');
             }
 
-            if (ButtonPanelConfiguration.leftDevice !== 'none')
+            if (ButtonPanelConfiguration.leftDevice === '_variable_')
+            {
+                const variable = await this.homey.app.getVariable(ButtonPanelConfiguration.leftCapability);
+                if (variable && variable.type === 'boolean')
+                {
+                    value = variable.value;
+
+                    // and trigger the flow
+                    if (value)
+                    {
+                        this.homey.app.triggerButtonOn(this, true, connector + 1);
+                    }
+                    else
+                    {
+                        this.homey.app.triggerButtonOff(this, true, connector + 1);
+                    }
+
+                    this.setCapabilityValue(`left_button.connector${connector}`, value).catch(this.error);
+                }
+
+                this.homey.app.publishMQTTMessage(brokerId, `homey/${ButtonPanelConfiguration.leftDevice}/${ButtonPanelConfiguration.leftCapability}/value`, value);
+                this.homey.app.publishMQTTMessage(brokerId, `homey/${ButtonPanelConfiguration.leftDevice}/${ButtonPanelConfiguration.leftCapability}/label`,
+                    value ? ButtonPanelConfiguration.leftOnText : ButtonPanelConfiguration.leftOffText);
+            }
+            else if (ButtonPanelConfiguration.leftDevice !== 'none')
             {
                 const homeyDeviceObjectLeft = await this.homey.app.getHomeyDeviceById(ButtonPanelConfiguration.leftDevice);
                 if (homeyDeviceObjectLeft)
@@ -210,7 +234,31 @@ class BasePanelDevice extends Device
                 brokerId = this.homey.settings.get('defaultBroker');
             }
 
-            if (ButtonPanelConfiguration.rightDevice !== 'none')
+            if (ButtonPanelConfiguration.rightDevice === '_variable_')
+            {
+                const variable = await this.homey.app.getVariable(ButtonPanelConfiguration.rightCapability);
+                if (variable && variable.type === 'boolean')
+                {
+                    value = variable.value;
+
+                    // and trigger the flow
+                    if (value)
+                    {
+                        this.homey.app.triggerButtonOn(this, false, connector + 1);
+                    }
+                    else
+                    {
+                        this.homey.app.triggerButtonOff(this, false, connector + 1);
+                    }
+
+                    this.setCapabilityValue(`left_button.connector${connector}`, value).catch(this.error);
+                }
+
+                this.homey.app.publishMQTTMessage(brokerId, `homey/${ButtonPanelConfiguration.rightDevice}/${ButtonPanelConfiguration.rightCapability}/value`, value);
+                this.homey.app.publishMQTTMessage(brokerId, `homey/${ButtonPanelConfiguration.rightDevice}/${ButtonPanelConfiguration.rightCapability}/label`,
+                    value ? ButtonPanelConfiguration.rightOnText : ButtonPanelConfiguration.rightOffText);
+            }
+            else if (ButtonPanelConfiguration.rightDevice !== 'none')
             {
                 const homeyDeviceObjectRight = await this.homey.app.getHomeyDeviceById(ButtonPanelConfiguration.rightDevice);
                 if (homeyDeviceObjectRight)
@@ -546,7 +594,37 @@ class BasePanelDevice extends Device
         if (parameters.fromButton || ((configDeviceID === parameters.device) && (configCapabilityName === parameters.capability)))
         {
             // Check if the button has another device and capability assigned to it
-            if (configDeviceID !== 'none')
+            if (configDeviceID === '_variable_')
+            {
+                // Variables are read only so just trigger the button flows so they can do the work
+                const variable = await this.homey.app.getVariable(configCapabilityName);
+                if (variable && variable.type === 'boolean')
+                {
+                    // value = !variable.value;
+                    // variable.value = value;
+                    // await this.homey.app.setVariable(configCapabilityName, variable);
+                    value = variable.value;
+
+                    // and trigger the flow
+                    if (value)
+                    {
+                        this.homey.app.triggerButtonOn(this, true, parameters.connector + 1);
+                    }
+                    else
+                    {
+                        this.homey.app.triggerButtonOff(this, true, parameters.connector + 1);
+                    }
+
+                    // this.setCapabilityValue(`left_button.connector${parameters.connector}`, value).catch(this.error);
+                }
+
+                // this.homey.app.publishMQTTMessage(brokerId, `homey/${configDeviceID}/${configCapabilityName}/value`, value);
+                // this.homey.app.publishMQTTMessage(brokerId, `homey/${configDeviceID}/${configCapabilityName}/label`,
+                //     value ? onMessage : offMessage);
+
+                return;
+            }
+            else if (configDeviceID !== 'none')
             {
                 // Find the Homey device that is defined in the configuration
                 const homeyDeviceObject = await this.homey.app.getHomeyDeviceById(configDeviceID);
@@ -1128,7 +1206,7 @@ class BasePanelDevice extends Device
 
     checkStateChange(deviceId, capability, value)
     {
-        if (capability !== '_variable_')
+        // if (capability !== '_variable_')
         {
             // check the configuration to see if this capability is being monitored by one of the buttons
 

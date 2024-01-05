@@ -1706,7 +1706,7 @@
                 "en": "This is the format for the year",
                 "nl": "Dit is het formaat voor het jaar"
               },
-              "value": "short",
+              "value": "numeric",
               "values": [
                 {
                   "id": "2-digit",
@@ -1733,7 +1733,7 @@
                 "en": "This is the format for the time",
                 "nl": "Dit is het formaat voor de tijd"
               },
-              "value": "24",
+              "value": "T24",
               "values": [
                 {
                   "id": "T24",
@@ -1798,7 +1798,7 @@
                 "en": "This is the 2 digit language code of the language you want to use for the date format (e.g. en, nl, de, fr, ...)",
                 "nl": "Dit is de 2 letter taal code van de taal die je wil gebruiken voor het datum formaat (bijv. en, nl, de, fr, ...)"
               },
-              "value": ""
+              "value": "en"
             }
           ]
         }
