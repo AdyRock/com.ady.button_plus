@@ -70,5 +70,8 @@
     },
     "0.2.13": {
         "en": "Check for valid configuration so it doesn't have to catch errors. Added copy/paste and Import/Export configurations options #66. Added options to configure data and time format #68. Added configuration button changed flow trigger #69. Fixed status on button on connector # changed trigger #71"
+    },
+    "0.2.14": {
+        "en": "No longer set Label to the device name #73. Fix button update when capability changes #75. Fix top label not being updated #77. Added maintenance button to re-apply configurations to the panel #76."
     }
 }
