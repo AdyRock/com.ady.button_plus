@@ -24,8 +24,8 @@
                 "nl": "Connector nummer om te wisselen (bovenste connector is 0, onderste connector is 3)"
             },
             "placeholder": {
-                "en": "Connector number",
-                "nl": "Connector nummer"
+                "en": "Connector number (1 to 4)",
+                "nl": "Connector nummer (1 tot 4)"
             },
             "min": 1,
             "max": 4,
