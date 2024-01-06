@@ -1050,7 +1050,16 @@ class BasePanelDevice extends Device
                     const item = displayConfiguration.items[itemNo];
                     if (item !== undefined)
                     {
-                        if (item.device !== 'none')
+                        if (item.device === '_variable_')
+                        {
+                            const variable = await this.homey.app.getVariable(item.capability);
+                            if (variable)
+                            {
+                                this.homey.app.publishMQTTMessage(item.brokerId, `homey/${item.device}/${item.capability}/label`, variable.value);
+                                this.homey.app.publishMQTTMessage(item.brokerId, `homey/${item.device}/${item.capability}/value`, variable.value);
+                            }
+                        }
+                        else if (item.device !== 'none')
                         {
                             const homeyDeviceObject = await this.homey.app.getHomeyDeviceById(item.device);
                             try

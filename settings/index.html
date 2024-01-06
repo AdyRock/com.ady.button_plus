@@ -1322,14 +1322,12 @@
                     option.text = Homey.__("settings.none");
                     option.value = "none";
                     Element.add(option);
-                // }
-                // else
-                // {
-                    var option = document.createElement("option");
-                    option.text = Homey.__("settings.variable");
-                    option.value = "_variable_";
-                    Element.add(option);
                 }
+
+                var option = document.createElement("option");
+                option.text = Homey.__("settings.variable");
+                option.value = "_variable_";
+                Element.add(option);
 
                 var option = document.createElement("option");
                 option.text = Homey.__("settings.customMQTT");
