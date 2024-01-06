@@ -199,9 +199,13 @@
               "en": "Connectore Number",
               "nl": "Connector nummer"
             },
+            "hint": {
+              "en": "The connector number (1-4)",
+              "nl": "Het connector nummer (1-4)"
+            },
             "placeholder": {
-              "en": "Connector number",
-              "nl": "Connector nummer"
+              "en": "Connector number (1-4)",
+              "nl": "Connector nummer (1-4)"
             },
             "min": 1,
             "max": 4,
@@ -280,9 +284,13 @@
               "en": "Connector Number",
               "nl": "Connector nummer"
             },
+            "hint": {
+              "en": "The connector number (1-4)",
+              "nl": "Het connector nummer (1-4)"
+            },
             "placeholder": {
-              "en": "Connector number",
-              "nl": "Connector nummer"
+              "en": "Connector number (1-4)",
+              "nl": "Connector nummer (1-4)"
             },
             "min": 1,
             "max": 4,
@@ -361,9 +369,13 @@
               "en": "Connector Number",
               "nl": "Connector nummer"
             },
+            "hint": {
+              "en": "The connector number (1-4)",
+              "nl": "Het connector nummer (1-4)"
+            },
             "placeholder": {
-              "en": "Connector number",
-              "nl": "Connector nummer"
+              "en": "Connector number (1-4)",
+              "nl": "Connector nummer (1-4)"
             },
             "min": 1,
             "max": 4,
@@ -442,9 +454,13 @@
               "en": "Connector Number",
               "nl": "Connector nummer"
             },
+            "hint": {
+              "en": "The connector number (1-4)",
+              "nl": "Het connector nummer (1-4)"
+            },
             "placeholder": {
-              "en": "Connector number",
-              "nl": "Connector nummer"
+              "en": "Connector number (1-4)",
+              "nl": "Connector nummer (1-4)"
             },
             "min": 1,
             "max": 4,
@@ -523,9 +539,13 @@
               "en": "Connector Number",
               "nl": "Connector nummer"
             },
+            "hint": {
+              "en": "The connector number (1-4)",
+              "nl": "Het connector nummer (1-4)"
+            },
             "placeholder": {
-              "en": "Connector number",
-              "nl": "Connector nummer"
+              "en": "Connector number (1-4)",
+              "nl": "Connector nummer (1-4)"
             },
             "min": 1,
             "max": 4,
@@ -606,7 +626,7 @@
               "en": "Config Number"
             },
             "placeholder": {
-              "en": "Config number"
+              "en": "Config number (1-20)"
             },
             "min": 1,
             "max": 20,
@@ -800,8 +820,8 @@
               "nl": "Connector nummer"
             },
             "placeholder": {
-              "en": "Connector number",
-              "nl": "Connector nummer"
+              "en": "Connector number (1-4)",
+              "nl": "Connector nummer (1-4)"
             },
             "min": 1,
             "max": 4,
@@ -866,9 +886,13 @@
               "en": "configuration number",
               "nl": "Configuratie nummer"
             },
+            "hint": {
+              "en": "Configuration number (1-20)",
+              "nl": "Configuratie nummer (1-20)"
+            },
             "placeholder": {
-              "en": "configuration number",
-              "nl": "Configuratie nummer"
+              "en": "configuration number (1-20)",
+              "nl": "Configuratie nummer (1-20)"
             },
             "min": 1,
             "max": 20,
@@ -943,9 +967,13 @@
               "en": "Connector number",
               "nl": "Connector nummer "
             },
+            "hint": {
+              "en": "Connector number (1-4)",
+              "nl": "Connector nummer (1-4)"
+            },
             "placeholder": {
-              "en": "Connector number",
-              "nl": "Connector nummer "
+              "en": "Connector number (1-4)",
+              "nl": "Connector nummer (1-4)"
             },
             "min": 1,
             "max": 4,
@@ -1011,8 +1039,8 @@
           "nl": "Knop configuratie wisselen"
         },
         "titleFormatted": {
-          "en": "Switch [[connector]] to button configuration [[configurationId]]",
-          "nl": "Wissel [[connector]] naar knop configuratie [[configurationId]]"
+          "en": "Switch connector [[connector]] to button configuration [[configurationId]]",
+          "nl": "Wissel connector [[connector]] naar knop configuratie [[configurationId]]"
         },
         "hint": {
           "en": "Send the select configuration to the display device for the selected connector",
@@ -1025,6 +1053,10 @@
             "title": {
               "en": "Connector number",
               "nl": "Connector nummer"
+            },
+            "hint": {
+              "en": "Connector number to switch (top connector is 0, bottom connector is 3)",
+              "nl": "Connector nummer om te wisselen (bovenste connector is 0, onderste connector is 3)"
             },
             "placeholder": {
               "en": "Connector number",
@@ -1041,9 +1073,13 @@
               "en": "Configuration number",
               "nl": "Configuratie nummer"
             },
+            "hint": {
+              "en": "Button configuration number to switch to (1-20)",
+              "nl": "Knop configuratie nummer om naar te wisselen (1-20)"
+            },
             "placeholder": {
-              "en": "Configuration number",
-              "nl": "Configuratie nummer"
+              "en": "Configuration number (1-20)",
+              "nl": "Configuratie nummer (1-20)"
             },
             "min": 1,
             "max": 20,
@@ -1078,9 +1114,13 @@
               "en": "Configuration number",
               "nl": "Configuratie nummer"
             },
+            "hint": {
+              "en": "Configuration number (1-20)",
+              "nl": "Configuratie nummer (1-20)"
+            },
             "placeholder": {
-              "en": "Configuration number",
-              "nl": "Configuratie nummer"
+              "en": "Configuration number (1-20)",
+              "nl": "Configuratie nummer (1-20)"
             },
             "min": 1,
             "max": 20,
@@ -1143,9 +1183,13 @@
               "en": "Connector number",
               "nl": "Connector nummer "
             },
+            "hint": {
+              "en": "Connector number (1-4)",
+              "nl": "Connector nummer (1-4)"
+            },
             "placeholder": {
-              "en": "Connector number",
-              "nl": "Connector nummer "
+              "en": "Connector number (1-4)",
+              "nl": "Connector nummer (1-4)"
             },
             "min": 1,
             "max": 4,
@@ -1208,9 +1252,13 @@
               "en": "Connector number",
               "nl": "Connector nummer"
             },
+            "hint": {
+              "en": "Connector number (1-4)",
+              "nl": "Connector nummer (1-4)"
+            },
             "placeholder": {
-              "en": "Connector number",
-              "nl": "Connector nummer"
+              "en": "Connector number (1-4)",
+              "nl": "Connector nummer (1-4)"
             },
             "min": 1,
             "max": 4,

@@ -285,31 +285,31 @@ class MyApp extends Homey.App
         this._triggerButtonOn = this.homey.flow.getDeviceTriggerCard('button_on')
             .registerRunListener((args, state) =>
             {
-                return ((args.left_right === state.left_right) && (args.connector === state.connector));
+                return ((args.left_right === state.left_right) && (args.connector - 1 === state.connector));
             });
 
         this._triggerButtonOff = this.homey.flow.getDeviceTriggerCard('button_off')
             .registerRunListener((args, state) =>
             {
-                return ((args.left_right === state.left_right) && (args.connector === state.connector));
+                return ((args.left_right === state.left_right) && (args.connector - 1 === state.connector));
             });
 
         this._triggerButtonChange = this.homey.flow.getDeviceTriggerCard('button_change')
             .registerRunListener((args, state) =>
             {
-                return ((args.left_right === state.left_right) && (args.connector === state.connector));
+                return ((args.left_right === state.left_right) && (args.connector - 1 === state.connector));
             });
 
         this._triggerButtonLongPress = this.homey.flow.getDeviceTriggerCard('button_long_press')
             .registerRunListener((args, state) =>
             {
-                return ((args.left_right === state.left_right) && (args.connector === state.connector));
+                return ((args.left_right === state.left_right) && (args.connector - 1 === state.connector));
             });
 
         this._triggerButtonRelease = this.homey.flow.getDeviceTriggerCard('button_release')
             .registerRunListener((args, state) =>
             {
-                return ((args.left_right === state.left_right) && (args.connector === state.connector));
+                return ((args.left_right === state.left_right) && (args.connector - 1 === state.connector));
             });
 
         this.triggerDimLargeChanged = this.homey.flow.getDeviceTriggerCard('dim.large_changed')
@@ -341,7 +341,7 @@ class MyApp extends Homey.App
             {
                 const config = args.configurationId - 1;
                 this.log('switch_button_configuration', config);
-                return args.device.triggerCapabilityListener(`configuration_button.connector${args.connector}`, config.toString());
+                return args.device.triggerCapabilityListener(`configuration_button.connector${args.connector - 1}`, config.toString());
             });
 
         this.homey.flow.getActionCard('switch_display_configuration')
@@ -356,7 +356,7 @@ class MyApp extends Homey.App
             .registerRunListener(async (args, state) =>
             {
                 this.log(`${args.left_right}.connector${args.connector}`);
-                return args.device.triggerCapabilityListener(`${args.left_right}_button.connector${args.connector}`, true);
+                return args.device.triggerCapabilityListener(`${args.left_right}_button.connector${args.connector - 1}`, true);
             });
 
         this.homey.flow.getActionCard('set_info')
@@ -370,7 +370,7 @@ class MyApp extends Homey.App
             .registerRunListener(async (args, state) =>
             {
                 this.log(`${args.left_right}.connector${args.connector}`, args);
-                return args.device.triggerCapabilityListener(`${args.left_right}_button.connector${args.connector}`, false);
+                return args.device.triggerCapabilityListener(`${args.left_right}_button.connector${args.connector - 1}`, false);
             });
 
         this.homey.flow.getActionCard('dim.large')
@@ -431,7 +431,7 @@ class MyApp extends Homey.App
         this._conditionIsButtonOn = this.homey.flow.getConditionCard('is_button_on');
         this._conditionIsButtonOn.registerRunListener(async (args, state) =>
         {
-            return args.device.getCapabilityValue(`${args.left_right}_button.connector${args.connector}`);
+            return args.device.getCapabilityValue(`${args.left_right}_button.connector${args.connector - 1}`);
         });
 
         this.homey.on('memwarn', (data) =>
