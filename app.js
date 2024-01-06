@@ -285,31 +285,31 @@ class MyApp extends Homey.App
         this._triggerButtonOn = this.homey.flow.getDeviceTriggerCard('button_on')
             .registerRunListener((args, state) =>
             {
-                return ((args.left_right === state.left_right) && (args.connector - 1 === state.connector));
+                return ((args.left_right === state.left_right) && (args.connector === state.connector));
             });
 
         this._triggerButtonOff = this.homey.flow.getDeviceTriggerCard('button_off')
             .registerRunListener((args, state) =>
             {
-                return ((args.left_right === state.left_right) && (args.connector - 1 === state.connector));
+                return ((args.left_right === state.left_right) && (args.connector === state.connector));
             });
 
         this._triggerButtonChange = this.homey.flow.getDeviceTriggerCard('button_change')
             .registerRunListener((args, state) =>
             {
-                return ((args.left_right === state.left_right) && (args.connector - 1 === state.connector));
+                return ((args.left_right === state.left_right) && (args.connector === state.connector));
             });
 
         this._triggerButtonLongPress = this.homey.flow.getDeviceTriggerCard('button_long_press')
             .registerRunListener((args, state) =>
             {
-                return ((args.left_right === state.left_right) && (args.connector - 1 === state.connector));
+                return ((args.left_right === state.left_right) && (args.connector === state.connector));
             });
 
         this._triggerButtonRelease = this.homey.flow.getDeviceTriggerCard('button_release')
             .registerRunListener((args, state) =>
             {
-                return ((args.left_right === state.left_right) && (args.connector - 1 === state.connector));
+                return ((args.left_right === state.left_right) && (args.connector === state.connector));
             });
 
         this.triggerDimLargeChanged = this.homey.flow.getDeviceTriggerCard('dim.large_changed')

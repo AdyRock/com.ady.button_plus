@@ -79,5 +79,8 @@
     },
     "0.2.16": {
         "en": "Fix date settings typo."
+    },
+    "0.3.0": {
+        "en": "Added Variable option back into Display configurations. Made connector numbers consistently 1 to 4, as some places it was 0 to 3 and others 1 to 4, which might break some Flows"
     }
 }
