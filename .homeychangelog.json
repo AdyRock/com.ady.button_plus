@@ -82,5 +82,8 @@
     },
     "0.3.0": {
         "en": "Added Variable option back into Display configurations. Made connector numbers consistently 1 to 4, as some places it was 0 to 3 and others 1 to 4, which might break some Flows"
+    },
+    "0.3.1": {
+        "en": "Tidy up MQTT topics so everything is under the Homey root topic. Republish MQTT topics when a configuration is uploaded to ensure new values are up to date."
     }
 }
