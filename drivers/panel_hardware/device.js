@@ -112,7 +112,7 @@ class PanelDevice extends BasePanelDevice
           this.registerCapabilityListener('button.apply_config', async () => {
             // Maintenance action button was pressed
             await this.uploadButtonConfigurations(null, true);
-            await this.uploadBrokerConfigurations();
+            await this.uploadDisplayConfigurations();
             await this.uploadBrokerConfigurations();
           });
 
@@ -353,7 +353,7 @@ class PanelDevice extends BasePanelDevice
                 return this.homey.app.publishMQTTMessage(brokerId, `homey/${item.leftDevice}/${item.leftCapability}/toplabel`, label);
             }
 
-            return this.homey.app.publishMQTTMessage(brokerId, `${id}/button/${connector * 2}/toplabel`, label);
+            return this.homey.app.publishMQTTMessage(brokerId, `homey/${id}/button/${connector * 2}/toplabel`, label);
         }
         else
         {
@@ -368,7 +368,7 @@ class PanelDevice extends BasePanelDevice
                 return this.homey.app.publishMQTTMessage(brokerId, `homey/${item.rightDevice}/${item.rightCapability}/toplabel`, label);
             }
 
-            return this.homey.app.publishMQTTMessage(brokerId, `${id}//button/${connector * 2 + 1}/toplabel`, label);
+            return this.homey.app.publishMQTTMessage(brokerId, `homey/${id}//button/${connector * 2 + 1}/toplabel`, label);
         }
     }
 

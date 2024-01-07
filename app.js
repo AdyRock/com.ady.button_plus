@@ -677,11 +677,11 @@ class MyApp extends Homey.App
             await this.writeDeviceConfiguration(ip, sectionConfiguration);
 
             // Send the MQTT messages after a short delay to allow the device to connect to the broker
-            setTimeout(() =>
+            setTimeout(async () =>
             {
                 for (const mqttMsg of mqttQue)
                 {
-                    this.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value);
+                    await this.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value);
                 }
             }, 1000);
         }
@@ -795,10 +795,19 @@ class MyApp extends Homey.App
                 const sectionConfiguration = {'mqttbuttons': [...deviceConfiguration.mqttbuttons]};
 
                 // apply the new configuration
-                await this.applyButtonConfiguration(panelId, deviceConfiguration, sectionConfiguration, connectorNo, configurationNo);
+                const mqttQue = await this.applyButtonConfiguration(panelId, deviceConfiguration, sectionConfiguration, connectorNo, configurationNo);
 
                 // write the updated configuration back to the device
                 await this.writeDeviceConfiguration(ip, deviceConfiguration);
+
+                // Send the MQTT messages after a short delay to allow the device to connect to the broker
+                setTimeout(async () =>
+                {
+                    for (const mqttMsg of mqttQue)
+                    {
+                        await this.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value);
+                    }
+                }, 1000);
             }
         }
         catch (err)
@@ -815,6 +824,7 @@ class MyApp extends Homey.App
             // Update the device configuration for the selected connectorNo
             if (deviceConfiguration.info && deviceConfiguration.info.connectors)
             {
+                let mqttQue = [];
                 const connectorIdx = deviceConfiguration.info.connectors.findIndex((connector) => connector.id === connectorNo);
                 if (connectorIdx < 0)
                 {
@@ -867,7 +877,7 @@ class MyApp extends Homey.App
                                     panelId,
                                 );
 
-                                await this.setupStatusTopic(
+                                const mqttLeftButtonQue = await this.setupStatusTopic(
                                     panelId,
                                     buttonIdx,
                                     sectionConfiguration.mqttbuttons[buttonIdx],
@@ -875,10 +885,12 @@ class MyApp extends Homey.App
                                     'left',
                                     capability,
                                 );
+
+                                mqttQue = mqttQue.concat(mqttLeftButtonQue);
                             }
                             catch (err)
                             {
-                                this.updateLog(`Error setting up status topic: ${err.message}`, 0);
+                                this.updateLog(`Error setting up status topic (1): ${err.message}`, 0);
                             }
                         }
                         // Configure the right button bar
@@ -912,7 +924,7 @@ class MyApp extends Homey.App
                                     panelId
                                 );
 
-                                await this.setupStatusTopic(
+                                const mqttRightButtonQue = await this.setupStatusTopic(
                                     panelId,
                                     buttonIdx,
                                     sectionConfiguration.mqttbuttons[buttonIdx],
@@ -920,13 +932,17 @@ class MyApp extends Homey.App
                                     'right',
                                     capability,
                                 );
+
+                                mqttQue = mqttQue.concat(mqttRightButtonQue);
                             }
                             catch (err)
                             {
-                                this.updateLog(`Error setting up status topic: ${err.message}`, 0);
+                                this.updateLog(`Error setting up status topic (2): ${err.message}`, 0);
                             }
                         }
                     }
+
+                    return mqttQue;
                 }
                 else if (deviceConfiguration.info.connectors[connectorIdx].type === 2)
                 {
@@ -958,6 +974,8 @@ class MyApp extends Homey.App
                 }
             }
         }
+
+        return [];
     }
 
     async setupCustomMQTTTopics(mqttButtons, ButtonPanelConfiguration, connectorNo, side)
@@ -1195,6 +1213,9 @@ class MyApp extends Homey.App
         mqttButtons.ledcolorfront = frontLEDColor;
         mqttButtons.ledcolorwall = wallLEDColor;
 
+        let value = '';
+        const mqttQueue = [];
+
         try
         {
             let payload = '';
@@ -1204,7 +1225,8 @@ class MyApp extends Homey.App
                 const variable = await this.api.logic.getVariable({ id: configCapability });
                 if (variable && variable.type === 'boolean')
                 {
-                    if (variable.value === false)
+                    value = variable.value;
+                    if (value === false)
                     {
                         mqttButtons.label = labelOff;
                     }
@@ -1220,6 +1242,20 @@ class MyApp extends Homey.App
                             payload,
                         },
                     );
+
+                    // Send the value to the device after a short delay to allow the device to connect to the broker
+                    mqttQueue.push({
+                        brokerId: brokerId,
+                        message: `homey/${configDevice}/${configCapability}/value`,
+                        value,
+                    });
+
+                    // Send the value to the device after a short delay to allow the device to connect to the broker
+                    mqttQueue.push({
+                        brokerId: brokerId,
+                        message: `homey/${configDevice}/${configCapability}/label`,
+                        value: value ? labelOn : labelOff,
+                    });
                 }
 
                 // Add the Top Label event entry
@@ -1231,6 +1267,13 @@ class MyApp extends Homey.App
                         payload,
                     },
                 );
+
+                // Send the value to the device after a short delay to allow the device to connect to the broker
+                mqttQueue.push({
+                    brokerId: brokerId,
+                    message: `homey/${configDevice}/${configCapability}/toplabel`,
+                    value: topLabel,
+                });
 
                 // Add the Label event entry
                 mqttButtons.topics.push(
@@ -1252,30 +1295,51 @@ class MyApp extends Homey.App
                     {
                         brokerid: brokerId,
                         eventtype: 14,
-                        topic: `${panelId}/button/${buttonIdx}/value`,
+                        topic: `homey/${panelId}/button/${buttonIdx}/value`,
                         payload,
                     },
                 );
+
+                // Send the value to the device after a short delay to allow the device to connect to the broker
+                mqttQueue.push({
+                    brokerId: brokerId,
+                    message: `homey/${panelId}/button/${buttonIdx}/value`,
+                    value,
+                });
 
                 // Add the Top Label event entry
                 mqttButtons.topics.push(
                     {
                         brokerid: brokerId,
                         eventtype: 12,
-                        topic: `${panelId}/button/${buttonIdx}/toplabel`,
+                        topic: `homey/${panelId}/button/${buttonIdx}/toplabel`,
                         payload,
                     },
                 );
+
+                // Send the value to the device after a short delay to allow the device to connect to the broker
+                mqttQueue.push({
+                    brokerId: brokerId,
+                    message: `homey/${panelId}/button/${buttonIdx}/toplabel`,
+                    value: topLabel,
+                });
 
                 // Add the Label event entry
                 mqttButtons.topics.push(
                     {
                         brokerid: brokerId,
                         eventtype: 11,
-                        topic: `${panelId}/button/${buttonIdx}/label`,
+                        topic: `homey/${panelId}/button/${buttonIdx}/label`,
                         payload,
                     },
                 );
+
+                // Send the value to the device after a short delay to allow the device to connect to the broker
+                mqttQueue.push({
+                    brokerId: brokerId,
+                    message: `homey/${panelId}/button/${buttonIdx}/label`,
+                    value: value ? labelOn : labelOff,
+                });
             }
             else if (capability)
             {
@@ -1297,6 +1361,13 @@ class MyApp extends Homey.App
                             payload,
                         },
                     );
+
+                    // Send the value to the device after a short delay to allow the device to connect to the broker
+                    mqttQueue.push({
+                        brokerId: brokerId,
+                        message: `homey/${configDevice}/${configCapability}/value`,
+                        value: capability.value,
+                    });
                 }
 
                 // Add the Top Label event entry
@@ -1309,6 +1380,13 @@ class MyApp extends Homey.App
                     },
                 );
 
+                // Send the value to the device after a short delay to allow the device to connect to the broker
+                mqttQueue.push({
+                    brokerId: brokerId,
+                    message: `homey/${configDevice}/${configCapability}/toplabel`,
+                    value: topLabel,
+                });
+
                 // Add the Label event entry
                 mqttButtons.topics.push(
                     {
@@ -1318,6 +1396,13 @@ class MyApp extends Homey.App
                         payload,
                     },
                 );
+
+                // Send the value to the device after a short delay to allow the device to connect to the broker
+                mqttQueue.push({
+                    brokerId: brokerId,
+                    message: `homey/${configDevice}/${configCapability}/label`,
+                    value: mqttButtons.label,
+                });
             }
             else
             {
@@ -1326,8 +1411,10 @@ class MyApp extends Homey.App
         }
         catch (err)
         {
-            this.updateLog(`Error setting up status topic: ${err.message}`, 0);
+            this.updateLog(`Error setting up status topic (3): ${err.message}`, 0);
         }
+
+        return mqttQueue;
     }
 
     async setupPanelTemperatureTopic(ip, device)
@@ -1376,7 +1463,7 @@ class MyApp extends Homey.App
             }
             catch (err)
             {
-                this.updateLog(`Error setting up status topic: ${err.message}`, 0);
+                this.updateLog(`Error setting up pane temperature topic: ${err.message}`, 0);
             }
         }
 
@@ -1969,12 +2056,12 @@ class MyApp extends Homey.App
     }
 
     // eslint-disable-next-line camelcase
-    async publishMQTTMessage(MQTT_Id, topic, message)
+    async publishMQTTMessage(MQTT_Id, topic, message, Ignoresame = true)
     {
         const data = (typeof message === 'string' || message instanceof String) ? message : JSON.stringify(message);
 
         const lastMQTTData = this.lastMQTTData.get(`${MQTT_Id}_${topic}`);
-        if (lastMQTTData == data) 
+        if (Ignoresame && (lastMQTTData == data) )
         {
             this.updateLog(`publishMQTTMessage: ${MQTT_Id}_${topic}, ${data}, ignored, same as previous value`);
             return;
