@@ -127,6 +127,20 @@
             }
         },
         {
+            "id": "temperatureCalibration",
+            "type": "number",
+            "label": {
+                "en": "Temperature calibration",
+                "nl": "Temperatuur kalibratie"
+            },
+            "value": 0,
+            "units": "°C",
+            "hint": {
+                "en": "A value to add to the temperature measurement to correct for internal heat",
+                "nl": "Een waarde die bij de temperatuur meting wordt opgeteld om te corrigeren voor interne warmte"
+            }
+        },
+        {
             "type": "group",
             "label": {
                 "en": "Date and Time Format",

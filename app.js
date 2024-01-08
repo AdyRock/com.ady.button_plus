@@ -1417,59 +1417,6 @@ class MyApp extends Homey.App
         return mqttQueue;
     }
 
-    async setupPanelTemperatureTopic(ip, device)
-    {
-        if (ip !== '')
-        {
-            try
-            {
-                // Add the temperature event entry
-                let brokerId = this.homey.settings.get('defaultBroker');
-                if (brokerId === 'Default')
-                {
-                    brokerId = this.homeyID.getSetting('defaultBroker');
-                }
-                const mqttSenors = {
-                    mqttsensors: [
-                        {
-                            sensorid: 1,
-                            interval: 10,
-                            topic: {
-                            brokerid: brokerId,
-                            topic: `homey/${device}/measure_temperature/value`,
-                            payload: '',
-                            eventtype: 18,
-                            },
-                        },
-                    ],
-                };
-
-                this.updateLog(`writeSensorConfig: ${this.varToString(mqttSenors)}`);
-
-                const MQTTclient = this.MQTTClients.get(brokerId);
-                if (MQTTclient)
-                {
-                    MQTTclient.subscribe(`homey/${device}/measure_temperature/value`, (err) =>
-                    {
-                        if (err)
-                        {
-                            this.updateLog("setupMQTTClient.onConnect 'homey/sensorvalue' error: " * this.varToString(err), 0);
-                        }
-                    });
-                }
-
-                // Use the local device
-                return await this.httpHelperLocal.post(`http://${ip}/configsave`, mqttSenors);
-            }
-            catch (err)
-            {
-                this.updateLog(`Error setting up pane temperature topic: ${err.message}`, 0);
-            }
-        }
-
-        return null;
-    }
-
     async readDeviceConfiguration(ip)
     {
         // Read the device configuration from the specified device
