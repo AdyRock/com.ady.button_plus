@@ -54,7 +54,7 @@ class PanelDevice extends BasePanelDevice
             settings.timeFormat = this.timeFormat;
         }
 
-        this.setSettings(settings);
+        this.setSettings(settings).catch(this.error);
 
         await super.onInit();
 
@@ -138,7 +138,7 @@ class PanelDevice extends BasePanelDevice
         {
             if (err)
             {
-                this.omey.app.updateLog("setupMQTTClient.onConnect 'homey/toggle' error: " * this.homey.app.varToString(err), 0);
+                this.homey.app.updateLog("setupMQTTClient.onConnect 'homey/toggle' error: " * this.homey.app.varToString(err), 0);
             }
             else
             {
@@ -150,7 +150,7 @@ class PanelDevice extends BasePanelDevice
         {
             if (err)
             {
-                this.updateLog("setupMQTTClient.onConnect 'homey/toggle' error: " * this.homey.app.varToString(err), 0);
+                this.homey.app.updateLog("setupMQTTClient.onConnect 'homey/toggle' error: " * this.homey.app.varToString(err), 0);
             }
             else
             {
@@ -162,7 +162,7 @@ class PanelDevice extends BasePanelDevice
         {
             if (err)
             {
-                this.updateLog("setupMQTTClient.onConnect 'homey/toggle' error: " * this.homey.app.varToString(err), 0);
+                this.homey.app.updateLog("setupMQTTClient.onConnect 'homey/toggle' error: " * this.homey.app.varToString(err), 0);
             }
             else
             {

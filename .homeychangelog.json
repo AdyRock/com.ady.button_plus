@@ -85,5 +85,8 @@
     },
     "0.3.1": {
         "en": "Tidy up MQTT topics so everything is under the Homey root topic. Republish MQTT topics when a configuration is uploaded to ensure new values are up to date."
+    },
+    "0.3.2": {
+        "en": "Fix a couple of typing error."
     }
 }
