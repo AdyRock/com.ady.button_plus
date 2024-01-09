@@ -88,5 +88,8 @@
     },
     "0.3.2": {
         "en": "Fix a couple of typing error."
+    },
+    "0.3.3": {
+        "en": "Added 'Set button label text' action Flow card. Added new display dim MQTT messages. Added temperature offset setting to adjust the button + temperature value. Fix a Flow condition label typo."
     }
 }
