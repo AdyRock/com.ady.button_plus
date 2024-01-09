@@ -4,8 +4,8 @@
         "nl": "De gespecificeerde knop !{{is|isn't}} aan"
     },
     "titleFormatted": {
-        "en": "The [[left_right]] Button on connector [[connector]] is !{{is|isn't}} on",
-        "nl": "De [[left_right]] knop op connector [[connector]] is !{{is|isn't}} aan"
+        "en": "The [[left_right]] Button on connector [[connector]] !{{is|isn't}} on",
+        "nl": "De [[left_right]] knop op connector [[connector]] !{{is|isn't}} aan"
     },
     "args": [
         {
