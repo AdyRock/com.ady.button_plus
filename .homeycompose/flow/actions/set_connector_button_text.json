@@ -1,15 +1,15 @@
 {
     "title": {
-        "en": "Set configuration button top label",
-        "nl": "Stel configuratie knop top label in"
+        "en": "Set connector button text",
+        "nl": "Stel connector knop tekst in"
     },
     "titleFormatted": {
-        "en": "Set the [[left_right]] button top label of configuration [[config]] to [[label]]",
-        "nl": "Stel de [[left_right]] knop top label van configuratie [[config]] in op [[label]]"
+        "en": "Set the [[left_right]] button text on connector [[connector]] to [[label]]",
+        "nl": "Stel de [[left_right]] knop tekst op connector [[connector]] in op [[label]]"
     },
     "hint": {
-        "en": "Sets the top label of the specified button",
-        "nl": "Stelt de top label van de gespecificeerde knop in"
+        "en": "Sets the text of the specified button",
+        "nl": "Stelt de tekst van de opgegeven knop in"
     },
     "args": [
         {
@@ -42,33 +42,33 @@
         },
         {
             "type": "number",
-            "name": "config",
+            "name": "connector",
             "title": {
-                "en": "configuration number",
-                "nl": "Configuratie nummer"
+                "en": "Connector number",
+                "nl": "Connector nummer "
             },
             "hint": {
-                "en": "Configuration number (1-20)",
-                "nl": "Configuratie nummer (1-20)"
+                "en": "Connector number (1-4)",
+                "nl": "Connector nummer (1-4)"
             },
             "placeholder": {
-                "en": "configuration number (1-20)",
-                "nl": "Configuratie nummer (1-20)"
+                "en": "Connector number (1-4)",
+                "nl": "Connector nummer (1-4)"
             },
             "min": 1,
-            "max": 20,
+            "max": 4,
             "step": 1
         },
         {
             "type": "text",
             "name": "label",
             "title": {
-                "en": "Top Label",
-                "nl": "Top Label"
+                "en": "Text",
+                "nl": "Tekst"
             },
             "placeholder": {
-                "en": "Label",
-                "nl": "Label"
+                "en": "Text",
+                "nl": "Tekst"
             }
         },
         {

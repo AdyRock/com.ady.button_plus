@@ -417,8 +417,14 @@ class MyApp extends Homey.App
         this.homey.flow.getActionCard('set_connector_button_top_label')
             .registerRunListener(async (args, state) =>
             {
-                this.log(`set_connector_button_label ${args.left_right} connector${args.connector} to ${args.label}`);
+                this.log(`set_connector_top_button_label ${args.left_right} connector${args.connector} to ${args.label}`);
                 return args.device.updateConnectorTopLabel(args.left_right, args.connector - 1, args.label);
+            });
+        this.homey.flow.getActionCard('set_connector_button_text')
+            .registerRunListener(async (args, state) =>
+            {
+                this.log(`set_connector_button_text ${args.left_right} connector${args.connector} to ${args.label}`);
+                return args.device.updateConnectorText(args.left_right, args.connector - 1, args.label);
             });
         this.homey.flow.getActionCard('set_config_button_top_label')
             .registerRunListener(async (args, state) =>
@@ -1156,25 +1162,25 @@ class MyApp extends Homey.App
                     },
                 );
 
-                // // Add the short press event entry
-                // mqttButtons.topics.push(
-                //     {
-                //         brokerid: brokerId,
-                //         eventtype: 3,
-                //         topic: 'homey/shortpress',
-                //         payload,
-                //     },
-                // );
+                // Add the short press event entry
+                mqttButtons.topics.push(
+                    {
+                        brokerid: brokerId,
+                        eventtype: 3,
+                        topic: 'homey/shortpress',
+                        payload,
+                    },
+                );
 
-                // // Add the multipress press event entry
-                // mqttButtons.topics.push(
-                //     {
-                //         brokerid: brokerId,
-                //         eventtype: 4,
-                //         topic: 'homey/multipress',
-                //         payload,
-                //     },
-                // );
+                // Add the multipress press event entry
+                mqttButtons.topics.push(
+                    {
+                        brokerid: brokerId,
+                        eventtype: 4,
+                        topic: 'homey/multipress',
+                        payload,
+                    },
+                );
             }
         }
         catch (err)

@@ -843,12 +843,12 @@
           "nl": "Stel configuratie knop top label in"
         },
         "titleFormatted": {
-          "en": "Set the [[left_right]] button label of configuration [[config]] to [[label]]",
-          "nl": "Stel het [[left_right]] knop label van configuratie [[config]] in op [[label]]"
+          "en": "Set the [[left_right]] button top label of configuration [[config]] to [[label]]",
+          "nl": "Stel de [[left_right]] knop top label van configuratie [[config]] in op [[label]]"
         },
         "hint": {
-          "en": "Sets the label of the specified button",
-          "nl": "Stelt het label van de opgegeven knop in"
+          "en": "Sets the top label of the specified button",
+          "nl": "Stelt de top label van de gespecificeerde knop in"
         },
         "args": [
           {
@@ -902,8 +902,8 @@
             "type": "text",
             "name": "label",
             "title": {
-              "en": "Label",
-              "nl": "Label"
+              "en": "Top Label",
+              "nl": "Top Label"
             },
             "placeholder": {
               "en": "Label",
@@ -917,6 +917,87 @@
           }
         ],
         "id": "set_config_button_top_label"
+      },
+      {
+        "title": {
+          "en": "Set connector button text",
+          "nl": "Stel connector knop tekst in"
+        },
+        "titleFormatted": {
+          "en": "Set the [[left_right]] button text on connector [[connector]] to [[label]]",
+          "nl": "Stel de [[left_right]] knop tekst op connector [[connector]] in op [[label]]"
+        },
+        "hint": {
+          "en": "Sets the text of the specified button",
+          "nl": "Stelt de tekst van de opgegeven knop in"
+        },
+        "args": [
+          {
+            "type": "dropdown",
+            "name": "left_right",
+            "title": {
+              "en": "Left /  Right",
+              "nl": "Links / Rechts "
+            },
+            "placeholder": {
+              "en": "Left / Right",
+              "nl": "Links / Rechts "
+            },
+            "values": [
+              {
+                "id": "left",
+                "title": {
+                  "en": "Left",
+                  "nl": "Links "
+                }
+              },
+              {
+                "id": "right",
+                "title": {
+                  "en": "Right",
+                  "nl": "Rechts "
+                }
+              }
+            ]
+          },
+          {
+            "type": "number",
+            "name": "connector",
+            "title": {
+              "en": "Connector number",
+              "nl": "Connector nummer "
+            },
+            "hint": {
+              "en": "Connector number (1-4)",
+              "nl": "Connector nummer (1-4)"
+            },
+            "placeholder": {
+              "en": "Connector number (1-4)",
+              "nl": "Connector nummer (1-4)"
+            },
+            "min": 1,
+            "max": 4,
+            "step": 1
+          },
+          {
+            "type": "text",
+            "name": "label",
+            "title": {
+              "en": "Text",
+              "nl": "Tekst"
+            },
+            "placeholder": {
+              "en": "Text",
+              "nl": "Tekst"
+            }
+          },
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=panel_hardware"
+          }
+        ],
+        "id": "set_connector_button_text"
       },
       {
         "title": {
