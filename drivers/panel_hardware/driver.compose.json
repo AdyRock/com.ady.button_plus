@@ -55,7 +55,7 @@
         "dim.small": {
             "title": {
                 "en": "Mini display",
-                "nl": "Mini display"
+                "nl": "Kleine display"
             }
         },
         "dim.led": {
@@ -163,13 +163,15 @@
                         {
                             "id": "2-digit",
                             "label": {
-                                "en": "2 digit (01)"
+                                "en": "2 digit (01)",
+                                "nl": "2 cijfers (01)"
                             }
                         },
                         {
                             "id": "numeric",
                             "label": {
-                                "en": "1 or 2 digit (1 or 11)"
+                                "en": "1 or 2 digit (1 or 11)",
+                                "nl": "1 of 2 cijfers (1 of 11)"
                             }
                         }
                     ]
@@ -190,25 +192,29 @@
                         {
                             "id": "short",
                             "label": {
-                                "en": "short (Jan)"
+                                "en": "short (Jan)",
+                                "nl": "kort (jan)"
                             }
                         },
                         {
                             "id": "long",
                             "label": {
-                                "en": "long (January)"
+                                "en": "long (January)",
+                                "nl": "lang (januari)"
                             }
                         },
                         {
                             "id": "2-digit",
                             "label": {
-                                "en": "2 digit (01)"
+                                "en": "2 digit (01)",
+                                "nl": "2 cijfers (01)"
                             }
                         },
                         {
                             "id": "numeric",
                             "label": {
-                                "en": "1 or 2 digit (1 or 11)"
+                                "en": "1 or 2 digit (1 or 11)",
+                                "nl": "1 of 2 cijfers (1 of 11)"
                             }
                         }
                     ]
@@ -229,13 +235,15 @@
                         {
                             "id": "2-digit",
                             "label": {
-                                "en": "2 digit"
+                                "en": "2 digit",
+                                "nl": "2 cijfers"
                             }
                         },
                         {
                             "id": "numeric",
                             "label": {
-                                "en": "4 digit"
+                                "en": "4 digit",
+                                "nl": "4 cijfers"
                             }
                         }
                     ]
@@ -293,14 +301,14 @@
                             "id": "long",
                             "label": {
                                 "en": "Long (Monday)",
-                                "nl": "Lang (Maandag)"
+                                "nl": "Lang (maandag)"
                             }
                         },
                         {
                             "id": "short",
                             "label": {
                                 "en": "Short (Mon)",
-                                "nl": "Kort (Ma)"
+                                "nl": "Kort (ma)"
                             }
                         }
                     ]
@@ -314,7 +322,7 @@
                     },
                     "hint": {
                         "en": "This is the 2 digit language code of the language you want to use for the date format (e.g. en, nl, de, fr, ...)",
-                        "nl": "Dit is de 2 letter taal code van de taal die je wil gebruiken voor het datum formaat (bijv. en, nl, de, fr, ...)"
+                        "nl": "Dit is de 2 letter taalcode van de taal die je wil gebruiken voor het datum formaat (bijv. en, nl, de, fr, ...)"
                     },
                     "value": "en"
                 }
