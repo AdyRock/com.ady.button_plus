@@ -956,7 +956,7 @@ class PanelDevice extends Device
                         this.homey.app.triggerButtonOff(this, false, connector + 1);
                     }
 
-                    this.setCapabilityValue(`left_button.connector${connector}`, value).catch(this.error);
+                    this.setCapabilityValue(`right_button.connector${connector}`, value).catch(this.error);
                 }
 
                 this.homey.app.publishMQTTMessage(brokerId, `homey/${ButtonPanelConfiguration.rightDevice}/${ButtonPanelConfiguration.rightCapability}/value`, value);
@@ -1285,11 +1285,11 @@ class PanelDevice extends Device
                     // and trigger the flow
                     if (value)
                     {
-                        this.homey.app.triggerButtonOn(this, true, parameters.connector + 1);
+                        this.homey.app.triggerButtonOn(this, parameters.side, parameters.connector + 1);
                     }
                     else
                     {
-                        this.homey.app.triggerButtonOff(this, true, parameters.connector + 1);
+                        this.homey.app.triggerButtonOff(this, parameters.side, parameters.connector + 1);
                     }
                 }
 
