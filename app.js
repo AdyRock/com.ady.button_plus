@@ -546,7 +546,7 @@ class MyApp extends Homey.App
                 {
                     try
                     {
-                        await device.uploadButtonConfigurations(null, true);
+                        await device.uploadButtonConfigurations(2);
                     }
                     catch (error)
                     {
@@ -574,7 +574,7 @@ class MyApp extends Homey.App
                 {
                     try
                     {
-                        await device.uploadDisplayConfigurations();
+                        await device.uploadDisplayConfigurations(2);
                     }
                     catch (error)
                     {
@@ -602,7 +602,7 @@ class MyApp extends Homey.App
                 {
                     try
                     {
-                        await device.uploadBrokerConfigurations();
+                        await device.uploadBrokerConfigurations(2);
                     }
                     catch (error)
                     {
@@ -670,7 +670,7 @@ class MyApp extends Homey.App
         this.homey.settings.set('displayConfigurations', this.displayConfigurations);
     }
 
-    async uploadDisplayConfiguration(ip, configurationNo, panelId)
+    async uploadDisplayConfiguration(ip, configurationNo, panelId, option)
     {
         try
         {
@@ -680,7 +680,7 @@ class MyApp extends Homey.App
             this.updateLog(`Current Config: ${sectionConfiguration}`);
 
             // write the updated configuration back to the device
-            await this.writeDeviceConfiguration(ip, sectionConfiguration);
+            await this.writeDeviceConfiguration(ip, sectionConfiguration, option);
 
             // Send the MQTT messages after a short delay to allow the device to connect to the broker
             setTimeout(async () =>
@@ -788,7 +788,7 @@ class MyApp extends Homey.App
         return mqttQueue;
     }
 
-    async uploadButtonPanelConfiguration(ip, panelId, connectorNo, configurationNo)
+    async uploadButtonPanelConfiguration(ip, panelId, connectorNo, configurationNo, option)
     {
         try
         {
@@ -798,13 +798,20 @@ class MyApp extends Homey.App
 
             if (deviceConfiguration)
             {
-                const sectionConfiguration = {'mqttbuttons': [...deviceConfiguration.mqttbuttons]};
+                const sectionConfiguration = {
+                    'mqttbuttons': [...deviceConfiguration.mqttbuttons]
+                };
+
+                if (option === 0)
+                {
+                    sectionConfiguration.core = { ...deviceConfiguration.core };
+                }
 
                 // apply the new configuration
-                const mqttQue = await this.applyButtonConfiguration(panelId, deviceConfiguration, sectionConfiguration, connectorNo, configurationNo);
+                const mqttQue = await this.applyButtonConfiguration(panelId, deviceConfiguration.info.connectors[connectorNo].type, sectionConfiguration, connectorNo, configurationNo);
 
                 // write the updated configuration back to the device
-                await this.writeDeviceConfiguration(ip, deviceConfiguration);
+                await this.writeDeviceConfiguration(ip, sectionConfiguration, option);
 
                 // Send the MQTT messages after a short delay to allow the device to connect to the broker
                 setTimeout(async () =>
@@ -823,162 +830,156 @@ class MyApp extends Homey.App
         }
     }
 
-    async applyButtonConfiguration(panelId, deviceConfiguration, sectionConfiguration, connectorNo, configurationNo)
+    async applyButtonConfiguration(panelId, connectorType, sectionConfiguration, connectorNo, configurationNo)
     {
-        if (deviceConfiguration && configurationNo !== null)
+        let mqttQue = [];
+
+        // Make sure it's a button bar
+        let buttonIdx = connectorNo * 2;
+        let arrayIdx = 0;
+        if (sectionConfiguration.mqttbuttons.length > buttonIdx)
         {
-            // Update the device configuration for the selected connectorNo
-            if (deviceConfiguration.info && deviceConfiguration.info.connectors)
+            // Might only be a single configuration entry if doing a partial update
+            arrayIdx = buttonIdx;
+        }
+
+        if (connectorType === 1)
+        {
+            // This device has a valid button bar at the specified location so get that panels properties
+            if (sectionConfiguration.mqttbuttons)
             {
-                let mqttQue = [];
-                const connectorIdx = deviceConfiguration.info.connectors.findIndex((connector) => connector.id === connectorNo);
-                if (connectorIdx < 0)
+                // Get the specified user configuration
+                const ButtonPanelConfiguration = this.buttonConfigurations[configurationNo];
+                if (!ButtonPanelConfiguration)
                 {
-                    this.updateLog(`Invalid connector number: ${connectorNo}`, 0);
-                    throw new Error(`Invalid connector number: ${connectorNo}`);
+                    this.updateLog(`Invalid button bar configuration: ${configurationNo}`, 0);
+                    throw new Error(`Invalid button bar configuration: ${configurationNo}`);
                 }
 
-                // Make sure it's a button bar
-                if (deviceConfiguration.info.connectors[connectorIdx].type === 1)
+                if (ButtonPanelConfiguration.leftDevice === 'customMQTT')
                 {
-                    // This device has a valid button bar at the specified location so get that panels properties
-                    if (sectionConfiguration.mqttbuttons)
-                    {
-                        // Get the specified user configuration
-                        const ButtonPanelConfiguration = this.buttonConfigurations[configurationNo];
-                        if (!ButtonPanelConfiguration)
-                        {
-                            this.updateLog(`Invalid button bar configuration: ${configurationNo}`, 0);
-                            throw new Error(`Invalid button bar configuration: ${configurationNo}`);
-                        }
-
-                        let buttonIdx = connectorNo * 2;
-                        if (ButtonPanelConfiguration.leftDevice === 'customMQTT')
-                        {
-                            try
-                            {
-                                // Add custom MQTT topics
-                                await this.setupCustomMQTTTopics(
-                                    sectionConfiguration.mqttbuttons[buttonIdx],
-                                    ButtonPanelConfiguration,
-                                    connectorNo,
-                                    'left',
-                                );
-                            }
-                            catch (err)
-                            {
-                                this.updateLog(`Error setting up custom MQTT topics: ${err.message}`, 0);
-                            }
-                        }
-                        else
-                        {
-                            try
-                            {
-                                // Configure the left button bar
-                                const capability = await this.setupClickTopic(
-                                    sectionConfiguration.mqttbuttons[buttonIdx],
-                                    ButtonPanelConfiguration,
-                                    connectorNo,
-                                    'left',
-                                    panelId,
-                                );
-
-                                const mqttLeftButtonQue = await this.setupStatusTopic(
-                                    panelId,
-                                    buttonIdx,
-                                    sectionConfiguration.mqttbuttons[buttonIdx],
-                                    ButtonPanelConfiguration,
-                                    'left',
-                                    capability,
-                                );
-
-                                mqttQue = mqttQue.concat(mqttLeftButtonQue);
-                            }
-                            catch (err)
-                            {
-                                this.updateLog(`Error setting up status topic (1): ${err.message}`, 0);
-                            }
-                        }
-                        // Configure the right button bar
-                        buttonIdx++;
-                        if (ButtonPanelConfiguration.leftDevice === 'customMQTT')
-                        {
-                            try
-                            {
-                                // Add custom MQTT topics
-                                await this.setupCustomMQTTTopics(
-                                    sectionConfiguration.mqttbuttons[buttonIdx],
-                                    ButtonPanelConfiguration,
-                                    connectorNo,
-                                    'right',
-                                );
-                            }
-                            catch (err)
-                            {
-                                this.updateLog(`Error setting up custom MQTT topics: ${err.message}`, 0);
-                            }
-                        }
-                        else
-                        {
-                            try
-                            {
-                                const capability = await this.setupClickTopic(
-                                    sectionConfiguration.mqttbuttons[buttonIdx],
-                                    ButtonPanelConfiguration,
-                                    connectorNo,
-                                    'right',
-                                    panelId
-                                );
-
-                                const mqttRightButtonQue = await this.setupStatusTopic(
-                                    panelId,
-                                    buttonIdx,
-                                    sectionConfiguration.mqttbuttons[buttonIdx],
-                                    ButtonPanelConfiguration,
-                                    'right',
-                                    capability,
-                                );
-
-                                mqttQue = mqttQue.concat(mqttRightButtonQue);
-                            }
-                            catch (err)
-                            {
-                                this.updateLog(`Error setting up status topic (2): ${err.message}`, 0);
-                            }
-                        }
-                    }
-
-                    return mqttQue;
-                }
-                else if (deviceConfiguration.info.connectors[connectorIdx].type === 2)
-                {
-
-                    // Create click events for the display buttons
-                    const buttonIdx = connectorNo * 2;
                     try
                     {
-                        await this.setupDisplayClickTopic(sectionConfiguration.mqttbuttons[buttonIdx], connectorNo, 'left', panelId);
+                        // Add custom MQTT topics
+                        await this.setupCustomMQTTTopics(
+                            sectionConfiguration.mqttbuttons[arrayIdx],
+                            ButtonPanelConfiguration,
+                            connectorNo,
+                            'left',
+                        );
                     }
                     catch (err)
                     {
-                        this.updateLog(`Error setting up display click topic: ${err.message}`, 0);
-                    }
-
-                    try
-                    {
-                        await this.setupDisplayClickTopic(sectionConfiguration.mqttbuttons[buttonIdx + 1], connectorNo, 'right', panelId);
-                    }
-                    catch (err)
-                    {
-                        this.updateLog(`Error setting up display click topic: ${err.message}`, 0);
+                        this.updateLog(`Error setting up custom MQTT topics: ${err.message}`, 0);
                     }
                 }
                 else
                 {
-                    this.updateLog(`Invalid connector type: ${deviceConfiguration.info.connectors[connectorIdx].type} on ${connectorNo}`, 0);
-                    throw new Error(`Invalid connector type: ${deviceConfiguration.info.connectors[connectorIdx].type} on ${connectorNo}`);
+                    try
+                    {
+                        // Configure the left button bar
+                        const capability = await this.setupClickTopic(
+                            sectionConfiguration.mqttbuttons[arrayIdx],
+                            ButtonPanelConfiguration,
+                            connectorNo,
+                            'left',
+                            panelId,
+                        );
+
+                        const mqttLeftButtonQue = await this.setupStatusTopic(
+                            panelId,
+                            buttonIdx,
+                            sectionConfiguration.mqttbuttons[arrayIdx],
+                            ButtonPanelConfiguration,
+                            'left',
+                            capability,
+                        );
+
+                        mqttQue = mqttQue.concat(mqttLeftButtonQue);
+                    }
+                    catch (err)
+                    {
+                        this.updateLog(`Error setting up status topic (1): ${err.message}`, 0);
+                    }
+                }
+                // Configure the right button bar
+                buttonIdx++;
+                arrayIdx++;
+                if (ButtonPanelConfiguration.leftDevice === 'customMQTT')
+                {
+                    try
+                    {
+                        // Add custom MQTT topics
+                        await this.setupCustomMQTTTopics(
+                            sectionConfiguration.mqttbuttons[arrayIdx],
+                            ButtonPanelConfiguration,
+                            connectorNo,
+                            'right',
+                        );
+                    }
+                    catch (err)
+                    {
+                        this.updateLog(`Error setting up custom MQTT topics: ${err.message}`, 0);
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        const capability = await this.setupClickTopic(
+                            sectionConfiguration.mqttbuttons[arrayIdx],
+                            ButtonPanelConfiguration,
+                            connectorNo,
+                            'right',
+                            panelId
+                        );
+
+                        const mqttRightButtonQue = await this.setupStatusTopic(
+                            panelId,
+                            buttonIdx,
+                            sectionConfiguration.mqttbuttons[arrayIdx],
+                            ButtonPanelConfiguration,
+                            'right',
+                            capability,
+                        );
+
+                        mqttQue = mqttQue.concat(mqttRightButtonQue);
+                    }
+                    catch (err)
+                    {
+                        this.updateLog(`Error setting up status topic (2): ${err.message}`, 0);
+                    }
                 }
             }
+
+            return mqttQue;
+        }
+        else if (connectorType === 2)
+        {
+            // Create click events for the display buttons
+            try
+            {
+                await this.setupDisplayClickTopic(sectionConfiguration.mqttbuttons[arrayIdx], connectorNo, 'left', panelId, buttonIdx);
+            }
+            catch (err)
+            {
+                this.updateLog(`Error setting up display click topic: ${err.message}`, 0);
+            }
+            buttonIdx++;
+            arrayIdx++;
+            try
+            {
+                await this.setupDisplayClickTopic(sectionConfiguration.mqttbuttons[arrayIdx], connectorNo, 'right', panelId, buttonIdx);
+            }
+            catch (err)
+            {
+                this.updateLog(`Error setting up display click topic: ${err.message}`, 0);
+            }
+        }
+        else
+        {
+            this.updateLog(`Invalid connector type: ${connectorType} on ${connectorNo}`, 0);
+            throw new Error(`Invalid connector type: ${connectorType} on ${connectorNo}`);
         }
 
         return [];
@@ -1016,8 +1017,9 @@ class MyApp extends Homey.App
         }
     }
 
-    setupDisplayClickTopic(mqttButtons, connectorNo, side, panelId)
+    setupDisplayClickTopic(mqttButtons, connectorNo, side, panelId, buttonIdx)
     {
+        mqttButtons.id = buttonIdx;
         mqttButtons.toplabel = '';
         mqttButtons.label = '';
         mqttButtons.longdelay = 50;
@@ -1066,25 +1068,25 @@ class MyApp extends Homey.App
             },
         );
 
-        // Add the short press event entry
-        mqttButtons.topics.push(
-            {
-                brokerid: brokerId,
-                eventtype: 3,
-                topic: 'homey/shortpress',
-                payload,
-            },
-        );
+        // // Add the short press event entry
+        // mqttButtons.topics.push(
+        //     {
+        //         brokerid: brokerId,
+        //         eventtype: 3,
+        //         topic: 'homey/shortpress',
+        //         payload,
+        //     },
+        // );
 
-        // Add the multipress press event entry
-        mqttButtons.topics.push(
-            {
-                brokerid: brokerId,
-                eventtype: 4,
-                topic: 'homey/multipress',
-                payload,
-            },
-        );
+        // // Add the multipress press event entry
+        // mqttButtons.topics.push(
+        //     {
+        //         brokerid: brokerId,
+        //         eventtype: 4,
+        //         topic: 'homey/multipress',
+        //         payload,
+        //     },
+        // );
     }
 
     async setupClickTopic(mqttButtons, ButtonPanelConfiguration, connectorNo, side, panelId)
@@ -1162,25 +1164,25 @@ class MyApp extends Homey.App
                     },
                 );
 
-                // Add the short press event entry
-                mqttButtons.topics.push(
-                    {
-                        brokerid: brokerId,
-                        eventtype: 3,
-                        topic: 'homey/shortpress',
-                        payload,
-                    },
-                );
+                // // Add the short press event entry
+                // mqttButtons.topics.push(
+                //     {
+                //         brokerid: brokerId,
+                //         eventtype: 3,
+                //         topic: 'homey/shortpress',
+                //         payload,
+                //     },
+                // );
 
-                // Add the multipress press event entry
-                mqttButtons.topics.push(
-                    {
-                        brokerid: brokerId,
-                        eventtype: 4,
-                        topic: 'homey/multipress',
-                        payload,
-                    },
-                );
+                // // Add the multipress press event entry
+                // mqttButtons.topics.push(
+                //     {
+                //         brokerid: brokerId,
+                //         eventtype: 4,
+                //         topic: 'homey/multipress',
+                //         payload,
+                //     },
+                // );
             }
         }
         catch (err)
@@ -1212,6 +1214,7 @@ class MyApp extends Homey.App
         mqttButtons.label = labelOn ? labelOn : labelOff;
         mqttButtons.longdelay = longDelay;
         mqttButtons.longrepeat = longRepeat;
+        mqttButtons.id = buttonIdx;
 
         // Convert the '#000000' string to a long for the LED color
         const frontLEDColor = parseInt(ButtonPanelConfiguration[`${side}FrontLEDColor`].substring(1), 16);
@@ -1444,7 +1447,7 @@ class MyApp extends Homey.App
         return null;
     }
 
-    async writeDeviceConfiguration(ip, deviceConfiguration, partial = false)
+    async writeDeviceConfiguration(ip, deviceConfiguration, option)
     {
         if (!this.autoConfigGateway)
         {
@@ -1465,7 +1468,14 @@ class MyApp extends Homey.App
             try
             {
                 // Use the local device
-                await this.httpHelperLocal.post(`http://${ip}/configsave`, deviceConfiguration);
+                if (option > 0)
+                {
+                    await this.httpHelperLocal.post(`http://${ip}/configsave?option=${option}`, deviceConfiguration);
+                }
+                else
+                {
+                    await this.httpHelperLocal.post(`http://${ip}/configsave`, deviceConfiguration);
+                }
                 return null;
             }
             catch (err)
@@ -1598,7 +1608,7 @@ class MyApp extends Homey.App
             {
                 if (this.deviceManager.devices)
                 {
-                    return this.deviceManager.getDeviceById(id);
+                    return await this.deviceManager.getDeviceById(id);
                 }
             }
             catch (e)
@@ -1813,7 +1823,7 @@ class MyApp extends Homey.App
         this.wsServer = ws.createServer({ server: httpServer }, aedes.handle);
 
         httpServer.listen(this.brokerItems[0].wsport, () => {
-            // this.updateLog(`websocket server listening on port ${this.brokerItems[0].wsport}`);
+            this.updateLog(`websocket server listening on port ${this.brokerItems[0].wsport}`);
         });
 
         this.wsServer.on('error', (err) => {
@@ -1821,7 +1831,7 @@ class MyApp extends Homey.App
         });
 
         this.wsServer.on('connection', (socket) => {
-            // this.updateLog(`websocket server connection: ${this.varToString(socket)}`);
+            this.updateLog('websocket server connection');
         });
 
         this.wsServer.on('message', (message) => {
@@ -1847,7 +1857,7 @@ class MyApp extends Homey.App
                 {
                     if (err)
                     {
-                        this.updateLog("setupMQTTClient.onConnect 'homey/toggle' error: " * this.varToString(err), 0);
+                        this.updateLog("setupMQTTClient.onConnect 'homey/click' error: " * this.varToString(err), 0);
                     }
                 });
 
@@ -1867,21 +1877,21 @@ class MyApp extends Homey.App
                     }
                 });
 
-                MQTTclient.subscribe('homey/shortpress', (err) =>
-                {
-                    if (err)
-                    {
-                        this.updateLog("setupMQTTClient.onConnect 'homey/shortpress' error: " * this.varToString(err), 0);
-                    }
-                });
+                // MQTTclient.subscribe('homey/shortpress', (err) =>
+                // {
+                //     if (err)
+                //     {
+                //         this.updateLog("setupMQTTClient.onConnect 'homey/shortpress' error: " * this.varToString(err), 0);
+                //     }
+                // });
 
-                MQTTclient.subscribe('homey/multipress', (err) =>
-                {
-                    if (err)
-                    {
-                        this.updateLog("setupMQTTClient.onConnect 'homey/multipress' error: " * this.varToString(err), 0);
-                    }
-                });
+                // MQTTclient.subscribe('homey/multipress', (err) =>
+                // {
+                //     if (err)
+                //     {
+                //         this.updateLog("setupMQTTClient.onConnect 'homey/multipress' error: " * this.varToString(err), 0);
+                //     }
+                // });
 
                 const drivers = this.homey.drivers.getDrivers();
                 for (const driver of Object.values(drivers))
@@ -1965,7 +1975,16 @@ class MyApp extends Homey.App
                                 {
                                     if (device.__id === deviceId)
                                     {
-                                        device.setCapabilityValue(topicParts[2], mqttMessage).catch(device.error);
+                                        if (driver.id === 'panel_hardware' && topicParts[2] === 'button_temperature')
+                                        {
+                                            // Add the temperature calibration offset to the value
+                                             const temperature = mqttMessage + device.temperatureCalibration;
+                                             device.setCapabilityValue('measure_temperature', temperature).catch(device.error);
+                                        }
+                                        else
+                                        {
+                                            device.setCapabilityValue(topicParts[2], mqttMessage).catch(device.error);
+                                        }
                                         return;
                                     }
                                 }
@@ -2044,7 +2063,7 @@ class MyApp extends Homey.App
         {
             let index = this.mDNSPanels.findIndex((panel) =>
             {
-                return panel.id === discoveryResult.id;
+                return panel.id === discoveryResult.txt.id;
             });
 
             if (index >= 0)
@@ -2328,15 +2347,16 @@ class MyApp extends Homey.App
         return this;
     }
 
-    triggerConfigButton(device, left_right, display_button, configID, button_state)
+    triggerConfigButton(device, left_right, display_button, configID, button_state, onoff)
     {
+        const tokens = { state: onoff };
         const state = {
             left_right,
             displaybutton: display_button === 2 ? 'display' : 'button',
             config: parseInt(configID) + 1,
             state: button_state
         };
-        this.triggerFlow(this.triggerConfigButtonChanged, device, {}, state);
+        this.triggerFlow(this.triggerConfigButtonChanged, device, tokens, state);
         return this;
     }
 

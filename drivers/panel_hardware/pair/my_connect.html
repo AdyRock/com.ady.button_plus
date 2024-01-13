@@ -49,7 +49,7 @@
 
         // Mark as authenticating
         document.getElementById('submit').disabled = 'disabled';
-        document.getElementById('submit').value = __('pair.manual_add.checking');
+        document.getElementById('status').value = __('pair.manual_add.checking');
 
         Homey.emit('manual_connection',
             {
@@ -68,8 +68,7 @@
                 else
                 {
                     console.log('connection succeeded');
-                    document.getElementById('submit').value = __('pair.manual_add.correct');
-                    document.getElementById('status').value = __('pair.manual_add.adding');
+                    document.getElementById('status').value = __('pair.manual_add.correct') + ": " + __('pair.manual_add.adding');
                     document.getElementById('status').style.color = 'green';
                     if (!result)
                     {
@@ -88,8 +87,7 @@
                             {
                                 console.error(addErr);
                                 document.getElementById('submit').disabled = false;
-                                document.getElementById('submit').value = __('pair.manual_add.try_again');
-                                document.getElementById('status').value = addErr;
+                                document.getElementById('status').value = addErr + "; " + __('pair.manual_add.try_again');
                                 document.getElementById('status').style.color = 'red';
                             }
                             else

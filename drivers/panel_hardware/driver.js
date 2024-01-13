@@ -111,7 +111,7 @@ class PanelDriver extends Driver
         }
 
         const device = {
-            name: deviceConfiguration.core.location,
+            name: deviceConfiguration.core.location ? deviceConfiguration.core.location : (deviceConfiguration.core.name ? deviceConfiguration.core.name : deviceConfiguration.info.ipaddress),
             data:
             {
                 id: deviceConfiguration.info.id,

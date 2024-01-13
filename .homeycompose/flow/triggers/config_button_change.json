@@ -5,6 +5,17 @@
     "titleFormatted": {
         "en": "The [[left_right]] Button on [[display_button]] configuration [[config]] was [[state]]"
     },
+    "tokens": [
+        {
+            "name": "state",
+            "type": "boolean",
+            "title": {
+                "en": "State",
+                "nl": "Status"
+            },
+            "example": "true"
+        }
+    ],
     "args": [
         {
             "type": "dropdown",

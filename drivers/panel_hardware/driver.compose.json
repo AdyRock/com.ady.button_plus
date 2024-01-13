@@ -127,6 +127,18 @@
             }
         },
         {
+            "id": "firmware",
+            "type": "label",
+            "label": {
+                "en": "Firmware version",
+                "nl": "Firmware versie"
+            },
+            "value": "",
+            "hint": {
+                "en": "Firmware version of the device. This is read in when the devices is initialised."
+            }
+        },
+        {
             "id": "temperatureCalibration",
             "type": "number",
             "label": {
