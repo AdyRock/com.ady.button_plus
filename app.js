@@ -78,7 +78,11 @@ class MyApp extends Homey.App
         const homeyBroker = this.brokerItems.find((broker) => broker.brokerid === 'homey');
         if (homeyBroker)
         {
-            homeyBroker.url = `mqtt://${this.homeyIP}`;
+            if (!homeyBroker.url !== `mqtt://${this.homeyIP}`)
+            {
+                homeyBroker.url = `mqtt://${this.homeyIP}`;
+                this.homey.settings.set('brokerConfigurationItems', this.brokerItems);
+            }
             if (!homeyBroker.username)
             {
                 homeyBroker.username = '';
@@ -265,6 +269,10 @@ class MyApp extends Homey.App
                         {
                             this.setupMQTTClient(brokerItem, this.homeyID);
                         }
+                        else if (!this.server)
+                        {
+                            this.setupHomeyMQTTServer();
+                        }
                     }
                     else
                     {
@@ -275,6 +283,11 @@ class MyApp extends Homey.App
                             client.end();
                             this.MQTTClients.delete(brokerItem.brokerid);
                         }
+
+                        // if (brokerItem.brokerid === 'homey')
+                        // {
+                        //     this.disconnectAllClientsAndClose();
+                        // }
                     }
                 }
 
@@ -465,11 +478,10 @@ class MyApp extends Homey.App
                     this.updateLog('Closing server', 0);
                     if (this.server && this.server.listening)
                     {
-                        this.server.close((err) => 
+                        aedes.close((err) => 
                         {
                             this.updateLog(`Server closed: ${err}`, 0);
                         });
-                        this.server.closeAllConnections();
                         setTimeout(() =>
                         {
                             this.server.close();
@@ -1805,14 +1817,28 @@ class MyApp extends Homey.App
         }.bind(this);
 
         this.server = net.createServer(aedes.handle);
-        this.server.listen(this.brokerItems[0].port, () =>
+        try
         {
-            this.updateLog(`server started and listening on port ${this.brokerItems[0].port}`);
-            this.mqttServerReady = true;
+            this.server.listen(this.brokerItems[0].port, () =>
+            {
+                this.updateLog(`server started and listening on port ${this.brokerItems[0].port}`);
+                this.mqttServerReady = true;
 
-            // Start the MQTT client
-            this.setupMQTTClient(this.brokerItems[0], this.homeyID);
-        });
+                // Start the MQTT client
+                this.setupMQTTClient(this.brokerItems[0], this.homeyID);
+            });
+        }
+        catch (err)
+        {
+            if (err.code === 'ERR_SERVER_ALREADY_LISTEN')
+            {
+                this.updateLog(`server already listening on port ${this.brokerItems[0].port}`);
+            }
+            else if (err.code === 'EADDRINUSE')
+            {
+                this.updateLog(`server address in use on port ${this.brokerItems[0].port}`);
+            }
+        }
 
         this.server.on('error', (err) =>
         {
@@ -1822,9 +1848,23 @@ class MyApp extends Homey.App
         // Create a websocket server for the MQTT server
         this.wsServer = ws.createServer({ server: httpServer }, aedes.handle);
 
-        httpServer.listen(this.brokerItems[0].wsport, () => {
-            this.updateLog(`websocket server listening on port ${this.brokerItems[0].wsport}`);
-        });
+        try
+        {
+            httpServer.listen(this.brokerItems[0].wsport, () => {
+                this.updateLog(`websocket server listening on port ${this.brokerItems[0].wsport}`);
+            });
+        }
+        catch (err)
+        {
+            if (err.code === 'ERR_SERVER_ALREADY_LISTEN')
+            {
+                this.updateLog(`server already listening on port ${this.brokerItems[0].port}`);
+            }
+            else if (err.code === 'EADDRINUSE')
+            {
+                this.updateLog(`server address in use on port ${this.brokerItems[0].port}`);
+            }
+        }
 
         this.wsServer.on('error', (err) => {
             this.updateLog(`websocket server error: ${this.varToString(err)}`, 0);
@@ -2025,6 +2065,22 @@ class MyApp extends Homey.App
     getMqttClient(brokerId)
     {
         return this.MQTTClients.get(brokerId);
+    }
+    
+    disconnectAllClientsAndClose()
+    {
+        // Iterate through all connected clients and disconnect them
+        var server = this.server;
+        var wsServer = this.wsServer;
+        aedes.close( function()
+        {
+            // server.close();
+            // wsServer.close();
+            // httpServer.close();
+        });
+
+        this.server = null;
+        this.wsServer = null;
     }
 
     // eslint-disable-next-line camelcase

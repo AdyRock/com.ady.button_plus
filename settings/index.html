@@ -329,17 +329,19 @@
         <div id="brokerConfig" class="tabcontent">
             <div class="homey-form-group">
                 <div style="padding: 10px 10px 10px 10px; border: 1px solid lightblue; border-radius: 10px">
-                    <label class="homey-form-label" for="defaultBroker"><span data-i18n="settings.defaultBroker"></span>
-                    <div class="tooltip"><i class="fi fi-rr-info"></i>
-                        <span class="tooltiptext" data-i18n="settings.brokerExplanation"></span>
+                    <div style="padding: 10px 10px 10px 10px; border: 1px solid lightblue; border-radius: 10px">
+                        <label class="homey-form-label" for="defaultBroker"><span data-i18n="settings.defaultBroker"></span>
+                        <div class="tooltip"><i class="fi fi-rr-info"></i>
+                            <span class="tooltiptext" data-i18n="settings.brokerExplanation"></span>
+                        </div>
+                        </label>
+                        <select class="homey-form-select" id="defaultBroker">
+                        </select>
                     </div>
-                    </label>
-                    <select class="homey-form-select" id="defaultBroker">
-                    </select>
+                    <div id="brokerItemsSection"></div>
+                    <p><button class="homey-button-secondary-shadow" id="newBrokerItem"><span data-i18n="settings.newBrokerItem"></span></button></p>
                 </div>
-                <div id="brokerItemsSection"></div>
             </div>
-            <p><button class="homey-button-secondary-shadow" id="newBrokerItem"><span data-i18n="settings.newBrokerItem"></span></button></p>
         </div>
     </div>
 
@@ -363,7 +365,7 @@
                 </div>
             </div>
         </div>
-</div>
+    </div>
 
     <!-- Save Configuration button -->
 
@@ -1233,10 +1235,13 @@
                 for (let i = 0; i < localBrokerItems.length; i++)
                 {
                     const brokerItem = localBrokerItems[i];
-                    var option = document.createElement("option");
-                    option.value = brokerItem.brokerid;
-                    option.text = brokerItem.brokerid;
-                    defaultBrokerElement.add(option);
+                    if (brokerItem.enabled)
+                    {
+                        var option = document.createElement("option");
+                        option.value = brokerItem.brokerid;
+                        option.text = brokerItem.brokerid;
+                        defaultBrokerElement.add(option);
+                    }
                 }
             }
         }
@@ -2189,7 +2194,8 @@
 
         function rebuildBrokerLists(itemNo)
         {
-            localBrokerItems[itemNo].enabled = document.getElementById(`broker${itemNo}Enabled`).checked;
+            const enabled = document.getElementById(`broker${itemNo}Enabled`).checked;
+            localBrokerItems[itemNo].enabled = enabled;
 
             // Fetch current settings so we can restore them after the rebuild
             localButtonConfigurations[currentButtonConfigurationNo].leftBrokerId = leftBrokerIdElement.value;
@@ -2217,11 +2223,27 @@
                 brokerIdElement.length = 0;
             }
 
+            // if (enabled)
+            // {
+            //     var option = document.createElement("option");
+            //     option.value = defaultBrokerItem;
+            //     option.text = defaultBrokerItem;
+            //     defaultBrokerElement.add(option);
+            //     defaultBrokerElement.value = defaultBrokerItem;
+            // }
+
+            // Add a 'Default' broker entry to the lists
+            var defaultText = Homey.__("settings.default");
+
             var option = document.createElement("option");
-            option.value = defaultBrokerItem;
-            option.text = defaultBrokerItem;
-            defaultBrokerElement.add(option);
-            defaultBrokerElement.value = defaultBrokerItem;
+            option.value = 'Default';
+            option.text = defaultText;
+            leftBrokerIdElement.add(option);
+
+            var option = document.createElement("option");
+            option.value = 'Default';
+            option.text = defaultText;
+            rightBrokerIdElement.add(option);
 
             // Add the brokers to the broker list in the panel and display config
             for (var itemNo = 0; itemNo < localBrokerItems.length; itemNo++)
@@ -2240,7 +2262,11 @@
 
             for (let displayItemNo = 0; displayItemNo < displayConfig.items.length; displayItemNo++)
             {
-                const displayItem = displayConfiguration.items[displayItemNo];
+                var optionDisplay = document.createElement("option");
+                optionDisplay.value = 'Default';
+                optionDisplay.text = defaultText;
+                document.getElementById(`display${displayItemNo}BrokerId`).add(optionDisplay);
+                const displayItem = displayConfig.items[displayItemNo];
                 const brokerIdElement = document.getElementById(`display${displayItemNo}BrokerId`);
                 brokerIdElement.value = displayItem.brokerId;
             }
@@ -2310,6 +2336,8 @@
                 const brokerIdElement = document.getElementById(`display${displayItemNo}BrokerId`);
                 brokerIdElement.remove(itemNo);
             }
+
+            defaultBrokerElement.remove(itemNo);
         }
 
         function storeBrokerSettings()

@@ -649,7 +649,7 @@ class PanelDevice extends Device
                     {
                         if (err)
                         {
-                            this.homey.app.updateLog("setupMQTTClient.onConnect 'homey/sensorvalue' error: " * this.varToString(err), 0);
+                            this.homey.app.updateLog("setupMQTTClient.onConnect 'homey/sensorvalue' error: " * this.homey.app.varToString(err), 0);
                         }
                     });
                 }
@@ -1285,11 +1285,11 @@ class PanelDevice extends Device
                     // and trigger the flow
                     if (value)
                     {
-                        this.homey.app.triggerButtonOn(this, parameters.side, parameters.connector + 1);
+                        this.homey.app.triggerButtonOn(this, parameters.side === 'left', parameters.connector + 1);
                     }
                     else
                     {
-                        this.homey.app.triggerButtonOff(this, parameters.side, parameters.connector + 1);
+                        this.homey.app.triggerButtonOff(this, parameters.side === 'left', parameters.connector + 1);
                     }
                 }
 
@@ -1478,7 +1478,7 @@ class PanelDevice extends Device
             let offMessage = '';
             let brokerId = '';
 
-            if (parameters.configNo !== null)
+            if ((parameters.connectorType !== 2) && (parameters.configNo !== null))
             {
                 const buttonPanelConfiguration = this.homey.app.buttonConfigurations[parameters.configNo];
 
