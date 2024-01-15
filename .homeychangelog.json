@@ -92,7 +92,8 @@
     "0.3.3": {
         "en": "Added 'Set button label text' action Flow card. Added temperature offset setting to adjust the button + temperature value. Fix a Flow condition label typo. More Dutch translations. Fix an issue where the temperature reports could get into a loop and cause a flood of MQTT messages. Added on/off status token to configuration button changed trigger. Added a timeout and queue system to configuration transfer."
     },
-    "0.3.4": {
-        "en": "Fix wrong left / right issues for Variable configuration."
+    "0.3.5": {
+        "en": "Fixed Right-Side Variable issue. Fixed Broker Configuration issue when enabling and disabling brokers. Display button are now non-latching. Fixed double Flow trigger for buttons that use Variables."
     }
+
 }
