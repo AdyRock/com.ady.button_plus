@@ -1,15 +1,15 @@
 {
     "title": {
-        "en": "Set connector button top label",
-        "nl": "Stel knop top label in"
+        "en": "Set configuration button label",
+        "nl": "Stel configuratie knop label in"
     },
     "titleFormatted": {
-        "en": "Set the [[left_right]] button top label on connector [[connector]] to [[label]]",
-        "nl": "Stel het [[left_right]] knop top label op connector [[connector]] in op [[label]]"
+        "en": "Set the [[left_right]] button label of configuration [[config]] to [[label]]",
+        "nl": "Stel de [[left_right]] knop label van configuratie [[config]] in op [[label]]"
     },
     "hint": {
-        "en": "Sets the top label of the specified button",
-        "nl": "Stelt het top label van de opgegeven knop in"
+        "en": "Sets the label of the specified button",
+        "nl": "Stelt de label van de gespecificeerde knop in"
     },
     "args": [
         {
@@ -42,21 +42,21 @@
         },
         {
             "type": "number",
-            "name": "connector",
+            "name": "config",
             "title": {
-                "en": "Connector number",
-                "nl": "Connector nummer "
+                "en": "configuration number",
+                "nl": "Configuratie nummer"
             },
             "hint": {
-                "en": "Connector number (1-4)",
-                "nl": "Connector nummer (1-4)"
+                "en": "Configuration number (1-20)",
+                "nl": "Configuratie nummer (1-20)"
             },
             "placeholder": {
-                "en": "Connector number (1-4)",
-                "nl": "Connector nummer (1-4)"
+                "en": "configuration number (1-20)",
+                "nl": "Configuratie nummer (1-20)"
             },
             "min": 1,
-            "max": 4,
+            "max": 20,
             "step": 1
         },
         {

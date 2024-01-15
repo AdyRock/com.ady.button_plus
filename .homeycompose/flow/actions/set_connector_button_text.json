@@ -1,15 +1,15 @@
 {
     "title": {
-        "en": "Set connector button text",
-        "nl": "Stel connector knop tekst in"
+        "en": "Set connector button label",
+        "nl": "Stel connector knop label in"
     },
     "titleFormatted": {
-        "en": "Set the [[left_right]] button text on connector [[connector]] to [[label]]",
-        "nl": "Stel de [[left_right]] knop tekst op connector [[connector]] in op [[label]]"
+        "en": "Set the [[left_right]] button label on connector [[connector]] to [[label]]",
+        "nl": "Stel de [[left_right]] knop label op connector [[connector]] in op [[label]]"
     },
     "hint": {
-        "en": "Sets the text of the specified button",
-        "nl": "Stelt de tekst van de opgegeven knop in"
+        "en": "Sets the label of the specified button",
+        "nl": "Stelt de label van de opgegeven knop in"
     },
     "args": [
         {

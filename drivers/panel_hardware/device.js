@@ -564,6 +564,92 @@ class PanelDevice extends Device
         }
     }
 
+    async updateConfigLabel(left_right, configNo, label)
+    {
+        const item = this.homey.app.buttonConfigurations[configNo];
+        if (item)
+        {
+            if (left_right === 'left')
+            {
+                if (item.leftDevice !== 'customMQTT')
+                {
+                    if (item.leftDevice !== 'none')
+                    {
+                        let brokerId = item.leftBrokerId;
+                        if (brokerId === 'Default')
+                        {
+                            brokerId = this.homey.settings.get('defaultBroker');
+                        }
+                        this.homey.app.publishMQTTMessage(brokerId, `homey/${item.leftDevice}/${item.leftCapability}/label`, label);
+                    }
+                    else
+                    {
+                        // Find the button connector that has this configuration
+                        for (let connector = 0; connector < 8; connector++)
+                        {
+                            if (this.hasCapability(`configuration_button.connector${connector}`))
+                            {
+                                // Get the configuration number for this connector
+                                const config = this.getCapabilityValue(`configuration_button.connector${connector}`);
+                                if (config == configNo)
+                                {
+                                    return this.updateConnectorText('left', connector, label);
+                                }
+                            }
+                        }
+
+                        throw new Error('Configuration is not assigned to a button');
+                    }
+                }
+                else
+                {
+                    throw new Error('Custom MQTT not compatible');
+                }
+            }
+            else
+            {
+                if (item.rightDevice !== 'customMQTT')
+                {
+                    if (item.rightDevice !== 'none')
+                    {
+                        let brokerId = item.rightBrokerId;
+                        if (brokerId === 'Default')
+                        {
+                            brokerId = this.homey.settings.get('defaultBroker');
+                        }
+                        this.homey.app.publishMQTTMessage(brokerId, `homey/${item.rightDevice}/${item.rightCapability}/label`, label);
+                    }
+                    else
+                    {
+                        // Find the button connector that has this configuration
+                        for (let connector = 0; connector < 8; connector++)
+                        {
+                            if (this.hasCapability(`configuration_button.connector${connector}`))
+                            {
+                                // Get the configuration number for this connector
+                                const config = this.getCapabilityValue(`configuration_button.connector${connector}`);
+                                if (config == configNo)
+                                {
+                                    return this.updateConnectorText('right', connector, label);
+                                }
+                            }
+                        }
+
+                        throw new Error('Configuration is not assigned to a button');
+                    }
+                }
+                else
+                {
+                    throw new Error('Custom MQTT not compatible');
+                }
+            }
+        }
+        else
+        {
+            throw new Error('Invalid configuration number');
+        }
+    }
+
     async updateDateAndTime(dateTime)
     {
         if (this.hasCapability('date'))

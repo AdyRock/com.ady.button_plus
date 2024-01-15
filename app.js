@@ -442,8 +442,14 @@ class MyApp extends Homey.App
         this.homey.flow.getActionCard('set_config_button_top_label')
             .registerRunListener(async (args, state) =>
             {
-                this.log(`set_config_button_label ${args.left_right} config${args.config} to ${args.label}`);
+                this.log(`set_config_button_top_label ${args.left_right} config${args.config} to ${args.label}`);
                 return args.device.updateConfigTopLabel(args.left_right, args.config - 1, args.label);
+            });
+        this.homey.flow.getActionCard('set_config_button_label')
+            .registerRunListener(async (args, state) =>
+            {
+                this.log(`set_config_button_label ${args.left_right} config${args.config} to ${args.label}`);
+                return args.device.updateConfigLabel(args.left_right, args.config - 1, args.label);
             });
 
         /** * CONDITIONS ** */

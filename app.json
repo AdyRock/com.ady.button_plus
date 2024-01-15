@@ -850,6 +850,87 @@
     "actions": [
       {
         "title": {
+          "en": "Set configuration button label",
+          "nl": "Stel configuratie knop label in"
+        },
+        "titleFormatted": {
+          "en": "Set the [[left_right]] button label of configuration [[config]] to [[label]]",
+          "nl": "Stel de [[left_right]] knop label van configuratie [[config]] in op [[label]]"
+        },
+        "hint": {
+          "en": "Sets the label of the specified button",
+          "nl": "Stelt de label van de gespecificeerde knop in"
+        },
+        "args": [
+          {
+            "type": "dropdown",
+            "name": "left_right",
+            "title": {
+              "en": "Left /  Right",
+              "nl": "Links / Rechts "
+            },
+            "placeholder": {
+              "en": "Left / Right",
+              "nl": "Links / Rechts "
+            },
+            "values": [
+              {
+                "id": "left",
+                "title": {
+                  "en": "Left",
+                  "nl": "Links "
+                }
+              },
+              {
+                "id": "right",
+                "title": {
+                  "en": "Right",
+                  "nl": "Rechts "
+                }
+              }
+            ]
+          },
+          {
+            "type": "number",
+            "name": "config",
+            "title": {
+              "en": "configuration number",
+              "nl": "Configuratie nummer"
+            },
+            "hint": {
+              "en": "Configuration number (1-20)",
+              "nl": "Configuratie nummer (1-20)"
+            },
+            "placeholder": {
+              "en": "configuration number (1-20)",
+              "nl": "Configuratie nummer (1-20)"
+            },
+            "min": 1,
+            "max": 20,
+            "step": 1
+          },
+          {
+            "type": "text",
+            "name": "label",
+            "title": {
+              "en": "Label",
+              "nl": "Label"
+            },
+            "placeholder": {
+              "en": "Label",
+              "nl": "Label"
+            }
+          },
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=panel_hardware"
+          }
+        ],
+        "id": "set_config_button_label"
+      },
+      {
+        "title": {
           "en": "Set configuration button top label",
           "nl": "Stel configuratie knop top label in"
         },
@@ -931,16 +1012,16 @@
       },
       {
         "title": {
-          "en": "Set connector button text",
-          "nl": "Stel connector knop tekst in"
+          "en": "Set connector button label",
+          "nl": "Stel connector knop label in"
         },
         "titleFormatted": {
-          "en": "Set the [[left_right]] button text on connector [[connector]] to [[label]]",
-          "nl": "Stel de [[left_right]] knop tekst op connector [[connector]] in op [[label]]"
+          "en": "Set the [[left_right]] button label on connector [[connector]] to [[label]]",
+          "nl": "Stel de [[left_right]] knop label op connector [[connector]] in op [[label]]"
         },
         "hint": {
-          "en": "Sets the text of the specified button",
-          "nl": "Stelt de tekst van de opgegeven knop in"
+          "en": "Sets the label of the specified button",
+          "nl": "Stelt de label van de opgegeven knop in"
         },
         "args": [
           {
@@ -1016,12 +1097,12 @@
           "nl": "Stel knop top label in"
         },
         "titleFormatted": {
-          "en": "Set the [[left_right]] button label on connector [[connector]] to [[label]]",
-          "nl": "Stel het [[left_right]] knop label op connector [[connector]] in op [[label]]"
+          "en": "Set the [[left_right]] button top label on connector [[connector]] to [[label]]",
+          "nl": "Stel het [[left_right]] knop top label op connector [[connector]] in op [[label]]"
         },
         "hint": {
-          "en": "Sets the label of the specified button",
-          "nl": "Stelt het label van de opgegeven knop in"
+          "en": "Sets the top label of the specified button",
+          "nl": "Stelt het top label van de opgegeven knop in"
         },
         "args": [
           {
