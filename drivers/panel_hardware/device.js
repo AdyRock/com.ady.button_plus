@@ -1276,7 +1276,11 @@ class PanelDevice extends Device
                 const variable = await this.homey.app.getVariable(configCapabilityName);
                 if (variable && variable.type === 'boolean')
                 {
-                    value = variable.value;
+                    value = !variable.value;
+
+                    // Set the device button state
+                    this.setCapabilityValue(`right_button.connector${parameters.connector}`, value).catch(this.error);
+
                     if (parameters.configNo !== null)
                     {
                         this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'clicked', value);
@@ -2126,18 +2130,22 @@ class PanelDevice extends Device
             {
                 if (capability !== 'windowcoverings_state')
                 {
-                    // and trigger the flow
-                    if (value)
+                    const buttonValue = this.getCapabilityValue(`right_button.connector${connector}`);
+                    if (buttonValue !== value)
                     {
-                        this.homey.app.triggerButtonOn(this, false, connector + 1);
-                    }
-                    else
-                    {
-                        this.homey.app.triggerButtonOff(this, false, connector + 1);
-                    }
+                        // Set the device button state
+                        this.setCapabilityValue(`right_button.connector${connector}`, value).catch(this.error);
 
-                    // Set the device button state
-                    this.setCapabilityValue(`right_button.connector${connector}`, value).catch(this.error);
+                        // and trigger the flow
+                        if (value)
+                        {
+                            this.homey.app.triggerButtonOn(this, false, connector + 1);
+                        }
+                        else
+                        {
+                            this.homey.app.triggerButtonOff(this, false, connector + 1);
+                        }
+                    }
                 }
                 else
                 {
