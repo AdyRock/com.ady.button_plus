@@ -97,6 +97,9 @@
     },
     "0.3.6": {
         "en": "Added 'Set ... configuration # to'... Flow card. Renamed Text to Label and Label to Top label on Flow cards to be consistent with Button plus terms."
+    },
+    "0.3.7": {
+        "en": "Fix button on / off actions cards issue when configured for App Only Button."
     }
 
 }
