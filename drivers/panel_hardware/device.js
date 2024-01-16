@@ -1489,11 +1489,21 @@ class PanelDevice extends Device
             }
             else
             {
+                if (parameters.fromButton)
+                {
+                    value = parameters.value;
+                }
+                else
+                {
+                    value = !this.getCapabilityValue(parameters.buttonCapability);
+                }
+
                 // No capability assigned to this button so just toggle the button
                 if (parameters.configNo !== null)
                 {
                     this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'clicked', value);
                 }
+
                 const { id } = this.getData();
                 this.homey.app.publishMQTTMessage(brokerId, `homey/${id}/button/${buttonNumber}/value`, value);
                 if (onMessage !== '' || offMessage !== '')
