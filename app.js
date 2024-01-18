@@ -2026,6 +2026,9 @@ class MyApp extends Homey.App
                                             // Add the temperature calibration offset to the value
                                              const temperature = mqttMessage + device.temperatureCalibration;
                                              device.setCapabilityValue('measure_temperature', temperature).catch(device.error);
+                                            
+                                             // request the device to check the state change
+                                            device.checkStateChange(deviceId, 'measure_temperature', temperature);
                                         }
                                         else
                                         {
