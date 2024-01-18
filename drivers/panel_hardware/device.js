@@ -2,7 +2,7 @@
 
 const { Device } = require('homey');
 
-const FIRMWARE_OPTION_SUPPORT = 1.07;
+const FIRMWARE_OPTION_SUPPORT = 2.00;
 class PanelDevice extends Device
 {
 
@@ -14,7 +14,11 @@ class PanelDevice extends Device
         this.initFinished = false;
         this.longPressOccured = new Map();
 
+        const { id } = this.getData();
+        this.id = id;
+
         const settings = this.getSettings();
+        this.ip = settings.address;
         this.langCode = settings.langCode;
         if (!this.langCode)
         {
@@ -61,20 +65,6 @@ class PanelDevice extends Device
         {
             this.temperatureCalibration = 0;
             settings.temperatureCalibration = 0;
-        }
-
-        try
-        {
-            const config = await this.homey.app.readDeviceConfiguration(settings.address);
-            if (config.info && config.info.firmware)
-            {
-                this.firmware = parseFloat(config.info.firmware);
-                settings.firmware = config.info.firmware;
-            }
-        }
-        catch (err)
-        {
-            this.homey.app.updateLog(`Error reading device configuration: ${err.message}`, 0);
         }
 
         this.setSettings(settings).catch(this.error);
@@ -127,19 +117,19 @@ class PanelDevice extends Device
             await this.addCapability('time');
         }
 
-        if (!this.hasCapability('dim.large'))
+        if (this.hasCapability('dim.large'))
         {
-            await this.addCapability('dim.large');
+            await this.removeCapability('dim.large');
         }
 
-        if (!this.hasCapability('dim.small'))
+        if (this.hasCapability('dim.small'))
         {
-            await this.addCapability('dim.small');
+            await this.removeCapability('dim.small');
         }
 
-        if (!this.hasCapability('dim.led'))
+        if (this.hasCapability('dim.led'))
         {
-            await this.addCapability('dim.led');
+            await this.removeCapability('dim.led');
         }
 
         if (!this.hasCapability('button.update_firmware'))
@@ -152,15 +142,14 @@ class PanelDevice extends Device
             await this.addCapability('button.apply_config');
         }
 
-        this.registerCapabilityListener('dim.large', this.onCapabilityDim.bind(this, 'largedisplay'));
-        this.registerCapabilityListener('dim.small', this.onCapabilityDim.bind(this, 'minidisplay'));
-        this.registerCapabilityListener('dim.led', this.onCapabilityDim.bind(this, 'leds'));
+        // this.registerCapabilityListener('dim.large', this.onCapabilityDim.bind(this, 'largedisplay'));
+        // this.registerCapabilityListener('dim.small', this.onCapabilityDim.bind(this, 'minidisplay'));
+        // this.registerCapabilityListener('dim.led', this.onCapabilityDim.bind(this, 'leds'));
 
         this.registerCapabilityListener('button.update_firmware', async () =>
         {
             // Maintenance action button was pressed
-            const ip = this.getSetting('address');
-            return await this.homey.app.updateFirmware(ip);
+            return await this.homey.app.updateFirmware(this.ip);
         });
 
         this.registerCapabilityListener('button.apply_config', async () =>
@@ -184,9 +173,7 @@ class PanelDevice extends Device
             return;
         }
 
-        const { id } = this.getData();
-        
-        mqttClient.subscribe(`homey/${id}/brightness/largedisplay/value`, (err) =>
+        mqttClient.subscribe(`homey/${this.id}/brightness/largedisplay/value`, (err) =>
         {
             if (err)
             {
@@ -195,10 +182,10 @@ class PanelDevice extends Device
             else
             {
                 const value = this.getCapabilityValue('dim.large');
-                this.homey.app.publishMQTTMessage(brokerId, `homey/${id}/brightness/largedisplay/value`, value * 100);
+                this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/brightness/largedisplay/value`, value * 100);
             }
         });
-        mqttClient.subscribe(`${id}/brightness/minidisplay/value`, (err) =>
+        mqttClient.subscribe(`${this.id}/brightness/minidisplay/value`, (err) =>
         {
             if (err)
             {
@@ -207,10 +194,10 @@ class PanelDevice extends Device
             else
             {
                 const value = this.getCapabilityValue('dim.small');
-                this.homey.app.publishMQTTMessage(brokerId, `homey/${id}/brightness/minidisplay/value`, value * 100);
+                this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/brightness/minidisplay/value`, value * 100);
             }
         });
-        mqttClient.subscribe(`${id}/brightness/leds/value`, (err) =>
+        mqttClient.subscribe(`${this.id}/brightness/leds/value`, (err) =>
         {
             if (err)
             {
@@ -219,7 +206,7 @@ class PanelDevice extends Device
             else
             {
                 const value = this.getCapabilityValue('dim.led');
-                this.homey.app.publishMQTTMessage(brokerId, `homey/${id}/brightness/leds/value`, value * 100);
+                this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/brightness/leds/value`, value * 100);
             }
         });
     }
@@ -234,9 +221,8 @@ class PanelDevice extends Device
         }
 
         // Publish the new value to the MQTT broker
-        const { id } = this.getData();
         let brokerId = this.homey.settings.get('defaultBroker');
-        this.homey.app.publishMQTTMessage(brokerId, `homey/${id}/brightness/${mqttTopic}/value`, value * 100);
+        this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/brightness/${mqttTopic}/value`, value * 100);
     }
 
     /**
@@ -267,6 +253,7 @@ class PanelDevice extends Device
             {
                 throw new Error('Invalid IP address');
             }
+            this.ip = ip;
         }
         if (changedKeys.includes('mac'))
         {
@@ -394,7 +381,6 @@ class PanelDevice extends Device
 
     async updateConnectorTopLabel(left_right, connector, label)
     {
-        const { id } = this.getData();
         var item = null;
         if (this.hasCapability(`configuration_button.connector${connector}`))
         {
@@ -416,7 +402,7 @@ class PanelDevice extends Device
                 return this.homey.app.publishMQTTMessage(brokerId, `homey/${item.leftDevice}/${item.leftCapability}/toplabel`, label);
             }
 
-            return this.homey.app.publishMQTTMessage(brokerId, `homey/${id}/button/${connector * 2}/toplabel`, label);
+            return this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/button/${connector * 2}/toplabel`, label);
         }
         else
         {
@@ -431,13 +417,12 @@ class PanelDevice extends Device
                 return this.homey.app.publishMQTTMessage(brokerId, `homey/${item.rightDevice}/${item.rightCapability}/toplabel`, label);
             }
 
-            return this.homey.app.publishMQTTMessage(brokerId, `homey/${id}//button/${connector * 2 + 1}/toplabel`, label);
+            return this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}//button/${connector * 2 + 1}/toplabel`, label);
         }
     }
 
     async updateConnectorText(left_right, connector, label)
     {
-        const { id } = this.getData();
         var item = null;
         if (this.hasCapability(`configuration_button.connector${connector}`))
         {
@@ -459,7 +444,7 @@ class PanelDevice extends Device
                 return this.homey.app.publishMQTTMessage(brokerId, `homey/${item.leftDevice}/${item.leftCapability}/label`, label);
             }
 
-            return this.homey.app.publishMQTTMessage(brokerId, `homey/${id}/button/${connector * 2}/label`, label);
+            return this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/button/${connector * 2}/label`, label);
         }
         else
         {
@@ -474,7 +459,7 @@ class PanelDevice extends Device
                 return this.homey.app.publishMQTTMessage(brokerId, `homey/${item.rightDevice}/${item.rightCapability}/label`, label);
             }
 
-            return this.homey.app.publishMQTTMessage(brokerId, `homey/${id}/button/${connector * 2 + 1}/label`, label);
+            return this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/button/${connector * 2 + 1}/label`, label);
         }
     }
 
@@ -699,8 +684,7 @@ class PanelDevice extends Device
 
     async uploadPanelTemperatureConfiguration(option)
     {
-        const ip = this.getSetting('address');
-        if (ip !== '')
+        if (this.ip !== '')
         {
             try
             {
@@ -740,7 +724,7 @@ class PanelDevice extends Device
                     });
                 }
 
-                return await await this.homey.app.writeDeviceConfiguration(ip, sectionConfiguration, this.firmware > FIRMWARE_OPTION_SUPPORT ? option : 0);
+                return await await this.homey.app.writeDeviceConfiguration(this.ip, sectionConfiguration, this.firmware > FIRMWARE_OPTION_SUPPORT ? option : 0);
             }
             catch (err)
             {
@@ -753,33 +737,31 @@ class PanelDevice extends Device
 
     async uploadBrightnessConfiguration(option)
     {
-        const ip = this.getSetting('address');
-        if (ip !== '')
+        if (this.ip !== '')
         {
             try
             {
                 // Add the temperature event entry
                 let brokerId = this.homey.settings.get('defaultBroker');
-                const { id } = this.getData();
                 const sectionConfiguration = {
                     core:
                     {
                         topics: [
                             {
                                 brokerid: brokerId,
-                                topic: `homey/${id}/brightness/largedisplay/value`,
+                                topic: `homey/${this.id}/brightness/largedisplay/value`,
                                 payload: '',
                                 eventtype: 5,
                             },
                             {
                                 brokerid: brokerId,
-                                topic: `homey/${id}/brightness/minidisplay/value`,
+                                topic: `homey/${this.id}/brightness/minidisplay/value`,
                                 payload: '',
                                 eventtype: 6,
                             },
                             {
                                 brokerid: brokerId,
-                                topic: `homey/${id}/brightness/leds/value`,
+                                topic: `homey/${this.id}/brightness/leds/value`,
                                 payload: '',
                                 eventtype: 7,
                             },
@@ -792,30 +774,30 @@ class PanelDevice extends Device
                 const MQTTclient = this.homey.app.MQTTClients.get(brokerId);
                 if (MQTTclient)
                 {
-                    MQTTclient.subscribe(`homey/${id}/brightness/largedisplay/value`, (err) =>
+                    MQTTclient.subscribe(`homey/${this.id}/brightness/largedisplay/value`, (err) =>
                     {
                         if (err)
                         {
-                            this.homey.app.updateLog(`setupMQTTClient.onConnect 'homey/${id}/brightness/largedisplay' error:  ${this.homey.app.varToString(err)}`, 0);
+                            this.homey.app.updateLog(`setupMQTTClient.onConnect 'homey/${this.id}/brightness/largedisplay' error:  ${this.homey.app.varToString(err)}`, 0);
                         }
                     });
-                    MQTTclient.subscribe(`homey/${id}/brightness/minidisplay/value`, (err) =>
+                    MQTTclient.subscribe(`homey/${this.id}/brightness/minidisplay/value`, (err) =>
                     {
                         if (err)
                         {
-                            this.homey.app.updateLog(`setupMQTTClient.onConnect 'homey/${id}/brightness/minidisplay/value' error:  ${this.homey.app.varToString(err)}`, 0);
+                            this.homey.app.updateLog(`setupMQTTClient.onConnect 'homey/${this.id}/brightness/minidisplay/value' error:  ${this.homey.app.varToString(err)}`, 0);
                         }
                     });
-                    MQTTclient.subscribe(`homey/${id}/brightness/leds/value`, (err) =>
+                    MQTTclient.subscribe(`homey/${this.id}/brightness/leds/value`, (err) =>
                     {
                         if (err)
                         {
-                            this.homey.app.updateLog(`setupMQTTClient.onConnect 'homey/${id}/brightness/leds/value' error:  ${this.homey.app.varToString(err)}`, 0);
+                            this.homey.app.updateLog(`setupMQTTClient.onConnect 'homey/${this.id}/brightness/leds/value' error:  ${this.homey.app.varToString(err)}`, 0);
                         }
                     });
                 }
 
-                return await await this.homey.app.writeDeviceConfiguration(ip, sectionConfiguration, option);
+                return await await this.homey.app.writeDeviceConfiguration(this.ip, sectionConfiguration, option);
             }
             catch (err)
             {
@@ -828,17 +810,31 @@ class PanelDevice extends Device
 
     async uploadConfigurations()
     {
-        await this.uploadButtonConfigurations(this.firmware > FIRMWARE_OPTION_SUPPORT ? 2 : 0);
-        await this.uploadDisplayConfigurations(this.firmware > FIRMWARE_OPTION_SUPPORT ? 2 : 0);
-        await this.uploadBrokerConfigurations(this.firmware > FIRMWARE_OPTION_SUPPORT ? 2 : 0);
-        await this.uploadPanelTemperatureConfiguration(this.firmware > FIRMWARE_OPTION_SUPPORT ? 2 : 0);
-        if (this.firmware > FIRMWARE_OPTION_SUPPORT)
+        try
         {
-            await this.uploadBrightnessConfiguration(0);
-        }
+            var deviceConfigurations = await this.homey.app.readDeviceConfiguration(this.ip);
+            if (deviceConfigurations.info && deviceConfigurations.info.firmware)
+            {
+                this.firmware = parseFloat(deviceConfigurations.info.firmware);
+                await this.setSettings({firmware: deviceConfigurations.info.firmware});
+            }
 
-        let brokerId = this.homey.settings.get('defaultBroker');
-        await this.setupMQTTSubscriptions(brokerId);
+            deviceConfigurations = await this.uploadButtonConfigurationsBulk(deviceConfigurations);
+            await this.uploadDisplayConfigurations(this.firmware > FIRMWARE_OPTION_SUPPORT ? 2 : 0);
+            await this.uploadBrokerConfigurations(this.firmware > FIRMWARE_OPTION_SUPPORT ? 2 : 0);
+            await this.uploadPanelTemperatureConfiguration(this.firmware > FIRMWARE_OPTION_SUPPORT ? 2 : 0);
+            // if (this.firmware > FIRMWARE_OPTION_SUPPORT)
+            // {
+            //     await this.uploadBrightnessConfiguration(0);
+            // }
+
+            // let brokerId = this.homey.settings.get('defaultBroker');
+            // await this.setupMQTTSubscriptions(brokerId);
+        }
+        catch (err)
+        {
+            this.homey.app.updateLog(`Error reading device configuration: ${err.message}`, 0);
+        }
     }
 
     async configureConnetctor(connectType, connector)
@@ -934,7 +930,6 @@ class PanelDevice extends Device
             return;
         }
         const ButtonPanelConfiguration = this.homey.app.buttonConfigurations[configNo];
-        const { id } = this.getData();
 
         let value = 0;
 
@@ -1008,10 +1003,10 @@ class PanelDevice extends Device
             }
             else
             {
-                this.homey.app.publishMQTTMessage(brokerId, `homey/${id}/button/${connector * 2}/value`, value);
+                this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/button/${connector * 2}/value`, value);
                 if (ButtonPanelConfiguration.leftOnText !== '' || ButtonPanelConfiguration.leftOffText !== '')
                 {
-                    this.homey.app.publishMQTTMessage(brokerId, `homey/${id}/button/${connector * 2}/label`, value ? ButtonPanelConfiguration.leftOnText : ButtonPanelConfiguration.leftOffText);
+                    this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/button/${connector * 2}/label`, value ? ButtonPanelConfiguration.leftOnText : ButtonPanelConfiguration.leftOffText);
                 }
             }
             value = 0;
@@ -1087,10 +1082,10 @@ class PanelDevice extends Device
             }
             else
             {
-                this.homey.app.publishMQTTMessage(brokerId, `homey/${id}/button/${connector * 2 + 1}/value`, value);
+                this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/button/${connector * 2 + 1}/value`, value);
                 if (ButtonPanelConfiguration.rightOnText !== '' || ButtonPanelConfiguration.rightOffText !== '')
                 {
-                    this.homey.app.publishMQTTMessage(brokerId, `homey/${id}/button/${connector * 2 + 1}/label`, value ? ButtonPanelConfiguration.rightOnText : ButtonPanelConfiguration.rightOffText);
+                    this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/button/${connector * 2 + 1}/label`, value ? ButtonPanelConfiguration.rightOnText : ButtonPanelConfiguration.rightOffText);
                 }
             }
         }
@@ -1099,17 +1094,21 @@ class PanelDevice extends Device
     async onCapabilityDisplayConfiguration(value, opts)
     {
         this.log('onCapabilityConfiguration', value, opts);
-        const ip = this.getSetting('address');
-        const { id } = this.getData();
-        await this.homey.app.uploadDisplayConfiguration(ip, value, id, this.firmware > FIRMWARE_OPTION_SUPPORT ? 1 : 0)
+        await this.homey.app.uploadDisplayConfiguration(this.ip, value, this.id, this.firmware > FIRMWARE_OPTION_SUPPORT ? 1 : 0)
     }
 
     async onCapabilityConfiguration(connector, value, opts)
     {
         this.log('onCapabilityConfiguration', connector, value, opts);
-        const ip = this.getSetting('address');
-        const { id } = this.getData();
-        await this.homey.app.uploadButtonPanelConfiguration(ip, id, connector, value, this.firmware > FIRMWARE_OPTION_SUPPORT ? 1 : 0)
+
+        if (this.firmware > FIRMWARE_OPTION_SUPPORT)
+        {
+            await this.uploadOneButtonConfiguration(connector, value, 1);
+        }
+        else
+        {
+            await this.uploadAllButtonConfigurations(0);
+        }
     }
 
     async onCapabilityLeftButton(connector, value, opts)
@@ -1152,8 +1151,7 @@ class PanelDevice extends Device
 
     async processMQTTMessage(topic, MQTTMessage)
     {
-        const { id } = this.getData();
-        if (!MQTTMessage || MQTTMessage.panelId != id)
+        if (!MQTTMessage || MQTTMessage.panelId != this.id)
         {
             // Message is not for this device
             return;
@@ -1279,12 +1277,11 @@ class PanelDevice extends Device
                     brokerId = this.homey.settings.get('defaultBroker');
                 }
 
-                const { id } = this.getData();
                 if (onMessage !== '' || offMessage !== '')
                 {
-                    this.homey.app.publishMQTTMessage(brokerId, `homey/${id}/button/${buttonNumber}/label`, value && onMessage ? onMessage : offMessage);
+                    this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/button/${buttonNumber}/label`, value && onMessage ? onMessage : offMessage);
                 }
-                this.homey.app.publishMQTTMessage(brokerId, `homey/${id}/button/${buttonNumber}/value`, value);
+                this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/button/${buttonNumber}/value`, value);
             }
 
             if (parameters.fromButton)
@@ -1504,11 +1501,10 @@ class PanelDevice extends Device
                     this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'clicked', value);
                 }
 
-                const { id } = this.getData();
-                this.homey.app.publishMQTTMessage(brokerId, `homey/${id}/button/${buttonNumber}/value`, value);
+                this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/button/${buttonNumber}/value`, value);
                 if (onMessage !== '' || offMessage !== '')
                 {
-                    this.homey.app.publishMQTTMessage(brokerId, `homey/${id}/button/${buttonNumber}/label`, value ? onMessage : offMessage);
+                    this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/button/${buttonNumber}/label`, value ? onMessage : offMessage);
                 }
             }
         }
@@ -1609,12 +1605,11 @@ class PanelDevice extends Device
                 this.homey.app.triggerButtonOff(this, parameters.side === 'left', parameters.connector + 1);
                 await this.setCapabilityValue(parameters.buttonCapability, false).catch(this.error);
 
-                const { id } = this.getData();
                 if (offMessage !== '')
                 {
-                    this.homey.app.publishMQTTMessage(brokerId, `homey/${id}/button/${buttonNumber}/label`, offMessage);
+                    this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/button/${buttonNumber}/label`, offMessage);
                 }
-                this.homey.app.publishMQTTMessage(brokerId, `homey/${id}/button/${buttonNumber}/value`, false);
+                this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/button/${buttonNumber}/value`, false);
             }
         }
         else if (this.longPressOccured && this.longPressOccured.get(`${parameters.connector}_${parameters.side}`) && parameters.capability === 'windowcoverings_state')
@@ -1712,6 +1707,7 @@ class PanelDevice extends Device
         {
             // TODO: update the IP address when mDNS is fixed
             // this.setSettings({ address: newIp });
+            // this.ip = newIp;
         }
     }
 
@@ -1726,31 +1722,23 @@ class PanelDevice extends Device
             {
                 // TODO: update the IP address when mDNS is fixed
                 // this.setSettings({ address: newIp });
+                // this.ip = newIp;
             }
         }
     }
 
     async updateTemperatureOffset()
     {
-        // const ip = this.getSetting('address');
         // const sectionConfiguration = { 'mqttsensors': [{ calibrationOffset: this.temperatureCalibration }] };
-        // await this.homey.app.writeDeviceConfiguration(ip, sectionConfiguration, 1);
+        // await this.homey.app.writeDeviceConfiguration(this.ip, sectionConfiguration, 1);
     }
 
     async uploadButtonConfigurationsBulk(deviceConfigurations)
     {
-        const ip = this.getSetting('address');
-        const { id } = this.getData();
-
         if (!deviceConfigurations)
         {
             // download the current configuration from the device
-            deviceConfigurations = await this.homey.app.readDeviceConfiguration(ip);
-            if (deviceConfigurations && deviceConfigurations.core)
-            {
-                this.setCapabilityValue('dim.large', deviceConfigurations.core.brightnesslargedisplay / 100).catch(this.error);
-                this.setCapabilityValue('dim.small', deviceConfigurations.core.brightnessminidisplay / 100).catch(this.error);
-            }
+            deviceConfigurations = await this.homey.app.readDeviceConfiguration(this.ip);
         }
 
         if (deviceConfigurations)
@@ -1778,31 +1766,6 @@ class PanelDevice extends Device
             }
             let updated = false;
 
-            // Set the core configuration values
-            const largeDim = this.getCapabilityValue('dim.large');
-            const smallDim = this.getCapabilityValue('dim.small');
-            const ledDim = this.getCapabilityValue('dim.led');
-
-            if (largeDim !== null)
-            {
-                sectionConfiguration.core.brightnesslargedisplay = largeDim * 100;
-                updated = true;
-            }
-
-            if (smallDim !== null)
-            {
-                sectionConfiguration.core.brightnessminidisplay = smallDim * 100;
-                updated = true;
-            }
-
-            if (ledDim !== null)
-            {
-                sectionConfiguration.core.brightnessleds = ledDim * 100;
-                updated = true;
-            }
-
-            // sectionConfiguration.core.calibrationOffset = this.temperatureCalibration;
-
             for (let i = 0; i < (sectionConfiguration.mqttbuttons.length / 2); i++)
             {
                 const connectorType = this.getSetting(`connect${i}Type`);
@@ -1815,7 +1778,7 @@ class PanelDevice extends Device
 
                 try
                 {
-                    mqttQue = mqttQue.concat(await this.homey.app.applyButtonConfiguration(id, connectorType, sectionConfiguration, i, configNo));
+                    mqttQue = mqttQue.concat(await this.homey.app.applyButtonConfiguration(this.id, connectorType, sectionConfiguration, i, configNo));
                     // await this.publishButtonCapabilities(configNo, i);
                     updated = true;
                 }
@@ -1828,7 +1791,7 @@ class PanelDevice extends Device
             try
             {
                 // write the updated configuration back to the device
-                await this.homey.app.writeDeviceConfiguration(ip, sectionConfiguration);
+                await this.homey.app.writeDeviceConfiguration(this.ip, sectionConfiguration);
             }
             catch (error)
             {
@@ -1851,15 +1814,12 @@ class PanelDevice extends Device
         return deviceConfigurations;
     }
 
-    async uploadButtonConfigurations(option)
+    async uploadAllButtonConfigurations(option)
     {
         if (this.firmware <= FIRMWARE_OPTION_SUPPORT)
         {
             return this.uploadButtonConfigurationsBulk(null)
         }
-
-        const ip = this.getSetting('address');
-        const { id } = this.getData();
 
         let mqttQue = [];
 
@@ -1884,10 +1844,10 @@ class PanelDevice extends Device
                 }
                 try
                 {
-                    mqttQue = mqttQue.concat(await this.homey.app.applyButtonConfiguration(id, connectorType, sectionConfiguration, i, configNo));
+                    mqttQue = mqttQue.concat(await this.homey.app.applyButtonConfiguration(this.id, connectorType, sectionConfiguration, i, configNo));
         
                     // write the updated configuration back to the device
-                    await this.homey.app.writeDeviceConfiguration(ip, sectionConfiguration, option);
+                    await this.homey.app.writeDeviceConfiguration(this.ip, sectionConfiguration, option);
                 }
                 catch (error)
                 {
@@ -1910,18 +1870,56 @@ class PanelDevice extends Device
         return;
     }
 
+    async uploadOneButtonConfiguration(connector, configNo, option)
+    {
+        let mqttQue = [];
+
+        // Create a new section configuration for the button panel by adding mqttbuttons sections of the deviceConfiguration to a new object
+        // Create the framework for the left and right mqttbuttons section
+        const sectionConfiguration = {
+            'mqttbuttons': [
+                    {},
+                    {}
+                ],
+        };
+
+        const connectorType = this.getSetting(`connect${connector}Type`);
+        if (connectorType == 1)
+        {
+            try
+            {
+                mqttQue = mqttQue.concat(await this.homey.app.applyButtonConfiguration(this.id, connectorType, sectionConfiguration, connector, configNo));
+    
+                // write the updated configuration back to the device
+                await this.homey.app.writeDeviceConfiguration(this.ip, sectionConfiguration, option);
+            }
+            catch (error)
+            {
+                this.homey.app.updateLog(error, 0);
+            }
+        }
+
+        // Send the MQTT messages after a short delay to allow the device to connect to the broker
+        setTimeout(async () =>
+        {
+            for (const mqttMsg of mqttQue)
+            {
+                await this.homey.app.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value, false);
+            }
+        }, option == 0 ? 1000 : 10000);
+
+        return;
+    }
+
     async uploadDisplayConfigurations(option)
     {
-        const ip = this.getSetting('address');
-        const { id } = this.getData();
-
         // apply the new display configuration to this unit
         const configNo = this.getCapabilityValue('configuration_display');
         if (configNo)
         {
             try
             {
-                await this.homey.app.uploadDisplayConfiguration(ip, configNo, id, this.firmware > FIRMWARE_OPTION_SUPPORT ? option : 0);
+                await this.homey.app.uploadDisplayConfiguration(this.ip, configNo, this.id, this.firmware > FIRMWARE_OPTION_SUPPORT ? option : 0);
 
                 // Send each of the display values referenced in the config to the MQTT broker
                 const displayConfiguration = this.homey.app.displayConfigurations[configNo];
@@ -2007,7 +2005,7 @@ class PanelDevice extends Device
             try
             {
                 // write the updated configuration back to the device
-                await this.homey.app.writeDeviceConfiguration(ip, sectionConfiguration, this.firmware > FIRMWARE_OPTION_SUPPORT ? option : 0);
+                await this.homey.app.writeDeviceConfiguration(this.ip, sectionConfiguration, this.firmware > FIRMWARE_OPTION_SUPPORT ? option : 0);
             }
             catch (error)
             {
@@ -2018,13 +2016,12 @@ class PanelDevice extends Device
 
     async uploadBrokerConfigurations(option)
     {
-        const ip = this.getSetting('address');
-        const sectionConfiguration = await this.homey.app.applyBrokerConfiguration(ip);
+        const sectionConfiguration = await this.homey.app.applyBrokerConfiguration(this.ip);
 
         try
         {
             // write the updated configuration back to the device
-            await this.homey.app.writeDeviceConfiguration(ip, sectionConfiguration, this.firmware > FIRMWARE_OPTION_SUPPORT ? option : 0);
+            await this.homey.app.writeDeviceConfiguration(this.ip, sectionConfiguration, this.firmware > FIRMWARE_OPTION_SUPPORT ? option : 0);
         }
         catch (error)
         {
@@ -2044,8 +2041,6 @@ class PanelDevice extends Device
         {
             return;
         }
-
-        const { id } = this.getData();
 
         try
         {
@@ -2075,9 +2070,9 @@ class PanelDevice extends Device
                     const value = this.getCapabilityValue(`left_button.connector${connector}`);
                     if (item.leftOnText !== '' || item.leftOffText !== '')
                     {
-                        this.homey.app.publishMQTTMessage(brokerId, `homey/${id}/button/${connector * 2}/label`, value && item.leftOnText ? item.leftOnText : item.leftOffText);
+                        this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/button/${connector * 2}/label`, value && item.leftOnText ? item.leftOnText : item.leftOffText);
                     }
-                    this.homey.app.publishMQTTMessage(brokerId, `homey/${id}/button/${connector * 2}/value`, value);
+                    this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/button/${connector * 2}/value`, value);
                 }
             }
         }
@@ -2113,9 +2108,9 @@ class PanelDevice extends Device
                     const value = this.getCapabilityValue(`right_button.connector${connector}`);
                     if (item.rightOnText !== '' || item.rightOffText !== '')
                     {
-                        this.homey.app.publishMQTTMessage(brokerId, `homey/${id}/button/${connector * 2 + 1}/label`, value && item.rightOnText ? item.rightOnText : item.rightOffText);
+                        this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/button/${connector * 2 + 1}/label`, value && item.rightOnText ? item.rightOnText : item.rightOffText);
                     }
-                    this.homey.app.publishMQTTMessage(brokerId, `homey/${id}/button/${connector * 2 + 1}/value`, value);
+                    this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/button/${connector * 2 + 1}/value`, value);
                 }
             }
         }
