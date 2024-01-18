@@ -103,6 +103,9 @@
     },
     "0.3.8": {
         "en": "Fix Button + Temperature update on display."
+    },
+    "0.3.9": {
+        "en": "Update to work with V1.08 firmware."
     }
 
 }
