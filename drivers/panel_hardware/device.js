@@ -18,7 +18,14 @@ class PanelDevice extends Device
         this.id = id;
 
         const settings = this.getSettings();
+
         this.ip = settings.address;
+
+        if (!settings.statusbar)
+        {
+            settings.statusbar = 2;
+        }
+
         this.langCode = settings.langCode;
         if (!this.langCode)
         {
@@ -307,6 +314,14 @@ class PanelDevice extends Device
         {
             this.timeFormat = newSettings.timeFormat;
             updateDateAndTime = true;
+        }
+
+        if (changedKeys.includes('statusbar'))
+        {
+            setImmediate(() =>
+            {
+                this.updateStatusBar(this).catch(this.error);
+            });
         }
 
         if (updateDateAndTime)
@@ -682,6 +697,32 @@ class PanelDevice extends Device
         }
     }
 
+    async updateStatusBar()
+    {
+        if (this.ip !== '')
+        {
+            try
+            {
+                const sectionConfiguration = {
+                    core:
+                    {
+                        statusbar: this.getSetting('statusbar'),
+                    },
+                };
+
+                this.homey.app.updateLog(`writeCore ${this.homey.app.varToString(sectionConfiguration)}`);
+
+                return await await this.homey.app.writeDeviceConfiguration(this.ip, sectionConfiguration, 0);
+            }
+            catch (err)
+            {
+                this.homey.app.updateLog(`Error setting up pane temperature topic: ${err.message}`, 0);
+            }
+        }
+
+        return null;
+    }
+
     async uploadPanelTemperatureConfiguration(option)
     {
         if (this.ip !== '')
@@ -819,7 +860,7 @@ class PanelDevice extends Device
                 await this.setSettings({firmware: deviceConfigurations.info.firmware});
             }
 
-            deviceConfigurations = await this.uploadButtonConfigurationsBulk(deviceConfigurations);
+            deviceConfigurations = await this.uploadAllButtonConfigurations(deviceConfigurations);
             await this.uploadDisplayConfigurations(this.firmware > FIRMWARE_OPTION_SUPPORT ? 2 : 0);
             await this.uploadBrokerConfigurations(this.firmware > FIRMWARE_OPTION_SUPPORT ? 2 : 0);
             await this.uploadPanelTemperatureConfiguration(this.firmware > FIRMWARE_OPTION_SUPPORT ? 2 : 0);
@@ -1101,14 +1142,18 @@ class PanelDevice extends Device
     {
         this.log('onCapabilityConfiguration', connector, value, opts);
 
-        if (this.firmware > FIRMWARE_OPTION_SUPPORT)
-        {
-            await this.uploadOneButtonConfiguration(connector, value, 1);
-        }
-        else
-        {
-            await this.uploadAllButtonConfigurations(0);
-        }
+        await this.uploadOneButtonConfiguration(connector, value, 0);
+        // if (this.firmware > FIRMWARE_OPTION_SUPPORT)
+        // {
+        //     await this.uploadOneButtonConfiguration(connector, value, 1);
+        // }
+        // else
+        // {
+        //     setImmediate(() =>
+        //     {
+        //         this.uploadAllButtonConfigurations().catch(this.error);
+        //     });
+        // }
     }
 
     async onCapabilityLeftButton(connector, value, opts)
@@ -1733,7 +1778,7 @@ class PanelDevice extends Device
         // await this.homey.app.writeDeviceConfiguration(this.ip, sectionConfiguration, 1);
     }
 
-    async uploadButtonConfigurationsBulk(deviceConfigurations)
+    async uploadAllButtonConfigurations(deviceConfigurations)
     {
         if (!deviceConfigurations)
         {
@@ -1814,62 +1859,6 @@ class PanelDevice extends Device
         return deviceConfigurations;
     }
 
-    async uploadAllButtonConfigurations(option)
-    {
-        if (this.firmware <= FIRMWARE_OPTION_SUPPORT)
-        {
-            return this.uploadButtonConfigurationsBulk(null)
-        }
-
-        let mqttQue = [];
-
-        // Create a new section configuration for the button panel by adding the core and mqttbuttons sections of the deviceConfigurations to core and mqttbuttons of a new object
-        const sectionConfiguration = {
-            'mqttbuttons': [
-                    {},
-                    {}
-                ],
-        };
-
-        for (let i = 0; i < 4; i++)
-        {
-            const connectorType = this.getSetting(`connect${i}Type`);
-            let configNo = 0;
-            if ((connectorType == 1 && this.hasCapability(`configuration_button.connector${i}`)) || (connectorType == 2 ))
-            {
-                if (connectorType == 1)
-                {
-                    // apply the new configuration to this button bar section
-                    configNo = this.getCapabilityValue(`configuration_button.connector${i}`);
-                }
-                try
-                {
-                    mqttQue = mqttQue.concat(await this.homey.app.applyButtonConfiguration(this.id, connectorType, sectionConfiguration, i, configNo));
-        
-                    // write the updated configuration back to the device
-                    await this.homey.app.writeDeviceConfiguration(this.ip, sectionConfiguration, option);
-                }
-                catch (error)
-                {
-                    this.homey.app.updateLog(error, 0);
-                }
-            }
-        }
-
-        // Send the MQTT messages after a short delay to allow the device to connect to the broker
-        setTimeout(async () =>
-        {
-            for (const mqttMsg of mqttQue)
-            {
-                await this.homey.app.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value, false);
-            }
-        }, option == 0 ? 1000 : 10000);
-
-        this.homey.app.updateLog(`Device configuration: ${this.homey.app.varToString(sectionConfiguration)}`);
-
-        return;
-    }
-
     async uploadOneButtonConfiguration(connector, configNo, option)
     {
         let mqttQue = [];
@@ -1882,6 +1871,12 @@ class PanelDevice extends Device
                     {}
                 ],
         };
+
+        if (option === 0)
+        {
+            // Add the core section
+            sectionConfiguration.core = {};
+        }
 
         const connectorType = this.getSetting(`connect${connector}Type`);
         if (connectorType == 1)

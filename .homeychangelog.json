@@ -106,6 +106,9 @@
     },
     "0.3.9": {
         "en": "Update to work with V1.08 firmware."
+    },
+    "0.3.10": {
+        "en": "Update 2 to work with V1.08 firmware. Added advanced setting to device to control the status bar display."
     }
 
 }

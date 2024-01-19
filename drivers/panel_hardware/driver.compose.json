@@ -139,6 +139,42 @@
             }
         },
         {
+            "id": "statusbar",
+            "type": "dropdown",
+            "label": {
+                "en": "Status bar",
+                "nl": "Status balk"
+            },
+            "hint": {
+                "en": "The status bar shows the IP address",
+                "nl": "De status balk toont het IP adres"
+            },
+            "value": "2",
+            "values": [
+                {
+                    "id": "0",
+                    "label": {
+                        "en": "Off",
+                        "nl": "Uit"
+                    }
+                },
+                {
+                    "id": "1",
+                    "label": {
+                        "en": "Top",
+                        "nl": "Boven"
+                    }
+                },
+                {
+                    "id": "2",
+                    "label": {
+                        "en": "Bottom",
+                        "nl": "Onder"
+                    }
+                }
+            ]
+        },
+        {
             "id": "temperatureCalibration",
             "type": "number",
             "label": {

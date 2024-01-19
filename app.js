@@ -561,11 +561,11 @@ class MyApp extends Homey.App
             let devices = driver.getDevices();
             for (let device of Object.values(devices))
             {
-                if (device.uploadButtonConfigurations)
+                if (device.uploadAllButtonConfigurations)
                 {
                     try
                     {
-                        await device.uploadButtonConfigurations(2);
+                        await device.uploadAllButtonConfigurations();
                     }
                     catch (error)
                     {
