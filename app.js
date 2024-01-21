@@ -593,7 +593,7 @@ class MyApp extends Homey.App
                 {
                     try
                     {
-                        await device.uploadDisplayConfigurations(2);
+                        await device.uploadDisplayConfigurations();
                     }
                     catch (error)
                     {
@@ -689,7 +689,7 @@ class MyApp extends Homey.App
         this.homey.settings.set('displayConfigurations', this.displayConfigurations);
     }
 
-    async uploadDisplayConfiguration(ip, configurationNo, panelId, option)
+    async uploadDisplayConfiguration(ip, configurationNo, panelId)
     {
         try
         {
@@ -699,7 +699,7 @@ class MyApp extends Homey.App
             this.updateLog(`Current Config: ${sectionConfiguration}`);
 
             // write the updated configuration back to the device
-            await this.writeDeviceConfiguration(ip, sectionConfiguration, option);
+            await this.writeDeviceConfiguration(ip, sectionConfiguration);
 
             // Send the MQTT messages after a short delay to allow the device to connect to the broker
             setTimeout(async () =>
@@ -807,7 +807,7 @@ class MyApp extends Homey.App
         return mqttQueue;
     }
 
-    async uploadButtonPanelConfiguration(ip, panelId, connectorNo, configurationNo, option)
+    async uploadButtonPanelConfiguration(ip, panelId, connectorNo, configurationNo)
     {
         try
         {
@@ -830,7 +830,7 @@ class MyApp extends Homey.App
                 const mqttQue = await this.applyButtonConfiguration(panelId, deviceConfiguration.info.connectors[connectorNo].type, sectionConfiguration, connectorNo, configurationNo);
 
                 // write the updated configuration back to the device
-                await this.writeDeviceConfiguration(ip, sectionConfiguration, option);
+                await this.writeDeviceConfiguration(ip, sectionConfiguration);
 
                 // Send the MQTT messages after a short delay to allow the device to connect to the broker
                 setTimeout(async () =>
@@ -1466,7 +1466,7 @@ class MyApp extends Homey.App
         return null;
     }
 
-    async writeDeviceConfiguration(ip, deviceConfiguration, option)
+    async writeDeviceConfiguration(ip, deviceConfiguration)
     {
         if (!this.autoConfigGateway)
         {
@@ -1487,14 +1487,7 @@ class MyApp extends Homey.App
             try
             {
                 // Use the local device
-                if (option > 0)
-                {
-                    await this.httpHelperLocal.post(`http://${ip}/configsave?option=${option}`, deviceConfiguration);
-                }
-                else
-                {
-                    await this.httpHelperLocal.post(`http://${ip}/configsave`, deviceConfiguration);
-                }
+                await this.httpHelperLocal.post(`http://${ip}/configsave`, deviceConfiguration);
                 return null;
             }
             catch (err)
