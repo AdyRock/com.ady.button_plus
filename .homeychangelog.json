@@ -109,6 +109,8 @@
     },
     "0.3.10": {
         "en": "Update 2 to work with V1.08 firmware. Added advanced setting to device to control the status bar display."
+    },
+    "0.3.11": {
+        "en": "Added new Condition Flow cards. Removed extra curly brackets from capability names in Configuration page. Added check for no return data from panel."
     }
-
 }

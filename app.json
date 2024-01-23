@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.ady.button_plus",
-  "version": "0.3.10",
+  "version": "0.3.11",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "platforms": [
@@ -691,6 +691,58 @@
     "conditions": [
       {
         "title": {
+          "en": "The specified button / display configuration !{{is|isn't}} active",
+          "nl": "De opgegeven knop / display configuratie !{{is|isn't}} actief"
+        },
+        "titleFormatted": {
+          "en": "The button configuration [[config]] !{{is|isn't}} active on connector [[connector]]",
+          "nl": "De knop configuratie [[config]] !{{is|isn't}} actief op connector [[connector]]"
+        },
+        "args": [
+          {
+            "type": "number",
+            "name": "config",
+            "title": {
+              "en": "Config Number",
+              "nl": "Config nummer"
+            },
+            "placeholder": {
+              "en": "Config number (1-20)",
+              "nl": "Config nummer (1-20)"
+            },
+            "min": 1,
+            "max": 20,
+            "step": 1
+          },
+          {
+            "type": "number",
+            "name": "connector",
+            "title": {
+              "en": "Connector Number",
+              "nl": "Connector nummer"
+            },
+            "hint": {
+              "en": "The connector number (1-4)",
+              "nl": "Het connector nummer (1-4)"
+            },
+            "placeholder": {
+              "en": "Connector number (1-4)",
+              "nl": "Connector nummer (1-4)"
+            },
+            "min": 1,
+            "max": 4,
+            "step": 1
+          },
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=panel_hardware"
+          }
+        ],
+        "id": "is_button_config"
+      },
+      {
+        "title": {
           "en": "The specified button !{{is|isn't}} on",
           "nl": "De gespecificeerde knop !{{is|isn't}} aan"
         },
@@ -749,6 +801,39 @@
           }
         ],
         "id": "is_button_on"
+      },
+      {
+        "title": {
+          "en": "The specified display configuration !{{is|isn't}} active",
+          "nl": "De opgegeven display configuratie !{{is|isn't}} actief"
+        },
+        "titleFormatted": {
+          "en": "The display configuration [[config]] !{{is|isn't}} active",
+          "nl": "De display configuratie [[config]] !{{is|isn't}} actief"
+        },
+        "args": [
+          {
+            "type": "number",
+            "name": "config",
+            "title": {
+              "en": "Config Number",
+              "nl": "Config Nummer"
+            },
+            "placeholder": {
+              "en": "Config number (1-20)",
+              "nl": "Config nummer (1-20)"
+            },
+            "min": 1,
+            "max": 20,
+            "step": 1
+          },
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=panel_hardware"
+          }
+        ],
+        "id": "is_display_config"
       }
     ],
     "actions": [
