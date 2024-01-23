@@ -123,6 +123,12 @@
       "public": false
     }
   },
+  "tags": {
+    "en": [
+      "Button",
+      "display"
+    ]
+  },
   "flow": {
     "triggers": [
       {

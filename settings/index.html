@@ -693,6 +693,7 @@
                     ButtonPanelConfiguration.leftOnText = leftOnTextElement.value,
                     ButtonPanelConfiguration.leftOffText = leftOffTextElement.value,
                     ButtonPanelConfiguration.leftDevice = leftDeviceElement.value,
+                    ButtonPanelConfiguration.leftDeviceName = leftDeviceElement.options && leftDeviceElement.options[leftDeviceElement.selectedIndex] ? leftDeviceElement.options[leftDeviceElement.selectedIndex].text : leftDeviceElement.value,
                     ButtonPanelConfiguration.leftCapability = leftCapabilityElement.value,
                     ButtonPanelConfiguration.leftBrokerId = leftBrokerIdElement.value,
                     ButtonPanelConfiguration.leftDimChange = leftDimChangeElement.value,
@@ -703,6 +704,7 @@
                     ButtonPanelConfiguration.rightOnText = rightOnTextElement.value,
                     ButtonPanelConfiguration.rightOffText = rightOffTextElement.value,
                     ButtonPanelConfiguration.rightDevice = rightDeviceElement.value,
+                    ButtonPanelConfiguration.rightDeviceName = rightDeviceElement.options && rightDeviceElement.options[rightDeviceElement.selectedIndex] ? rightDeviceElement.options[rightDeviceElement.selectedIndex].text : rightDeviceElement.value,
                     ButtonPanelConfiguration.rightCapability = rightCapabilityElement.value,
                     ButtonPanelConfiguration.rightBrokerId = rightBrokerIdElement.value,
                     ButtonPanelConfiguration.rightDimChange = rightDimChangeElement.value,
@@ -844,6 +846,7 @@
 
                 // Update the device in the local configuration
                 ButtonPanelConfiguration.leftDevice = leftDeviceElement.value;
+                ButtonPanelConfiguration.leftDeviceName = leftDeviceElement.options[leftDeviceElement.selectedIndex].text;
 
                 // Update the capabilities
                 getCapabilities("left", leftDeviceElement.value, ButtonPanelConfiguration.leftCapability);
@@ -856,6 +859,7 @@
 
                 // Update the device in the local configuration
                 ButtonPanelConfiguration.rightDevice = rightDeviceElement.value;
+                ButtonPanelConfiguration.rightDeviceName = rightDeviceElement.options[rightDeviceElement.selectedIndex].text;
 
                 // Update the capabilities
                 getCapabilities("right", rightDeviceElement.value, ButtonPanelConfiguration.rightCapability);
@@ -1419,7 +1423,7 @@
                         }
 
                         // Show the capability section
-                        capabilityDivElement.style.display = itemDisplyType;
+                        leftCapabilityDiv.style.display = itemDisplyType;
                         document.getElementById(`${side}BrokerIdDiv`).style.display = itemDisplyType;
                         document.getElementById(`${side}CustomMQTTDiv`).style.display = "none";
 
@@ -1429,6 +1433,30 @@
                     }
                 });
                 return;
+            }
+
+            const devIdx = buttonDevicesArray.findIndex((device) => device.id === deviceId)
+            if (devIdx >= 0)
+            {
+                const device = buttonDevicesArray[devIdx];
+                const zoneName = device.zone.name ?? device.zoneName;
+                if (zoneName === "Missing Devices")
+                {
+                    // There won't be any capabilities defined for this device, so add the capability for the missing device from the ButtonPanelConfiguration.'side'Capability setting
+                    var option = document.createElement("option");
+                    option.text = selectedCapability;
+                    option.value = selectedCapability;
+                    capabilityElement.add(option);
+
+                    capabilityDivElement.style.display = itemDisplyType;
+                    document.getElementById(`${side}BrokerIdDiv`).style.display = itemDisplyType;
+                    document.getElementById(`${side}CustomMQTTDiv`).style.display = "none";
+
+                    // Restore the previous capability selection
+                    capabilityElement.value = selectedCapability;
+                    capabilityChanged(side, selectedCapability);
+                    return;
+                }
             }
 
             // Request the capabilities for the selected device
@@ -1531,6 +1559,18 @@
                 leftOnTextElement.value = ButtonPanelConfiguration.leftOnText;
                 leftOffTextElement.value = ButtonPanelConfiguration.leftOffText;
                 leftDeviceElement.value = ButtonPanelConfiguration.leftDevice;
+                // If the element is not in the list, add it
+                if (leftDeviceElement.value != ButtonPanelConfiguration.leftDevice)
+                {
+                    if (buttonDevicesArray.findIndex((device) => device.id === ButtonPanelConfiguration.leftDevice) < 0)
+                    {
+                        buttonDevicesArray.push({ id: ButtonPanelConfiguration.leftDevice, name: ButtonPanelConfiguration.leftDeviceName ? ButtonPanelConfiguration.leftDeviceName : ButtonPanelConfiguration.leftDevice, zone: { name: "Missing Devices" } });
+                        buttonDevicesArray = sortDevices(buttonDevicesArray);
+                        fillButtonDevices();
+                        leftDeviceElement.value = ButtonPanelConfiguration.leftDevice;
+                    }
+                }
+
                 getCapabilities("left", leftDeviceElement.value, ButtonPanelConfiguration.leftCapability);
                 leftBrokerIdElement.value = ButtonPanelConfiguration.leftBrokerId;
                 leftDimChangeElement.value = ButtonPanelConfiguration.leftDimChange;
@@ -1542,7 +1582,18 @@
                 rightOnTextElement.value = ButtonPanelConfiguration.rightOnText;
                 rightOffTextElement.value = ButtonPanelConfiguration.rightOffText;
                 rightDeviceElement.value = ButtonPanelConfiguration.rightDevice;
-                rightCapabilityElement.value = ButtonPanelConfiguration.rightCapability;
+                // If the element is not in the list, add it
+                if (rightDeviceElement.value != ButtonPanelConfiguration.rightDevice)
+                {
+                    if (buttonDevicesArray.findIndex((device) => device.id === ButtonPanelConfiguration.rightDevice) < 0)
+                    {
+                        buttonDevicesArray.push({ id: ButtonPanelConfiguration.rightDevice, name: ButtonPanelConfiguration.rightDeviceName ? ButtonPanelConfiguration.rightDeviceName : ButtonPanelConfiguration.rightDevice, zone: { name: "Missing Devices" } });
+                        buttonDevicesArray = sortDevices(buttonDevicesArray);
+                        fillButtonDevices();
+                        rightDeviceElement.value = ButtonPanelConfiguration.rightDevice;
+                    }
+                }
+
                 getCapabilities("right", rightDeviceElement.value, ButtonPanelConfiguration.rightCapability);
                 rightBrokerIdElement.value = ButtonPanelConfiguration.rightBrokerId;
                 rightDimChangeElement.value = ButtonPanelConfiguration.rightDimChange;
@@ -2002,7 +2053,10 @@
             {
                 for (var itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
                 {
-                    displayConfiguration.items[itemNo].device = document.getElementById(`display${itemNo}Device`).value;
+                    const deviceElement = document.getElementById(`display${itemNo}Device`);
+                    
+                    displayConfiguration.items[itemNo].device = deviceElement.value;
+                    displayConfiguration.items[itemNo].deviceName = deviceElement.options[deviceElement.selectedIndex].text;
                     displayConfiguration.items[itemNo].capability = document.getElementById(`display${itemNo}Capability`).value;
                     displayConfiguration.items[itemNo].label = document.getElementById(`display${itemNo}Label`).value;
                     displayConfiguration.items[itemNo].unit = document.getElementById(`display${itemNo}Unit`).value;

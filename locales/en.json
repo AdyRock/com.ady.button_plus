@@ -119,7 +119,8 @@
         "importExport": "Import and Export",
         "import": "Import",
         "export": "Export",
-        "importExportExplanation": "To import settings, paste the JSON text into the box below and tap the 'Import' button.<br>To export settings, tap the 'Export' button and then copy the JSON text from the box below."
+        "importExportExplanation": "To import settings, paste the JSON text into the box below and tap the 'Import' button.<br>To export settings, tap the 'Export' button and then copy the JSON text from the box below.",
+        "imported": "Settings have been imported. Check the configurations and then tap the 'Save All Configurations' button to save them."
     },
     "pair": {
         "manual_add":{

@@ -164,7 +164,7 @@ class PanelDevice extends Device
             await this.uploadConfigurations();
         });
 
-        this.uploadConfigurations();
+        await this.uploadConfigurations();
 
         this.log('PanelDevice has been initialized');
         this.initFinished = true;
@@ -722,7 +722,7 @@ class PanelDevice extends Device
         return null;
     }
 
-    async uploadPanelTemperatureConfiguration(option)
+    async uploadPanelTemperatureConfiguration()
     {
         if (this.ip !== '')
         {
@@ -1853,11 +1853,8 @@ class PanelDevice extends Device
                 ],
         };
 
-        if (option === 0)
-        {
-            // Add the core section
-            sectionConfiguration.core = {};
-        }
+        // Add the core section
+        sectionConfiguration.core = {};
 
         const connectorType = this.getSetting(`connect${connector}Type`);
         if (connectorType == 1)

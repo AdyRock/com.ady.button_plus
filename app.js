@@ -821,10 +821,8 @@ class MyApp extends Homey.App
                     'mqttbuttons': [...deviceConfiguration.mqttbuttons]
                 };
 
-                if (option === 0)
-                {
-                    sectionConfiguration.core = { ...deviceConfiguration.core };
-                }
+                // Old firmware only paresd buttons if the core section was present
+                sectionConfiguration.core = {};
 
                 // apply the new configuration
                 const mqttQue = await this.applyButtonConfiguration(panelId, deviceConfiguration.info.connectors[connectorNo].type, sectionConfiguration, connectorNo, configurationNo);
@@ -1127,17 +1125,24 @@ class MyApp extends Homey.App
             mqttButtons.topics = [];
             if ((configDevice !== 'none') && (configDevice !== '_variable_'))
             {
-                const device = await this.deviceManager.getDeviceById(configDevice);
-                if (device)
+                try
                 {
-                    // Check if this device capability id read only
-                    capability = await this.deviceManager.getCapability(device, configCapability);
-                    if (capability)
+                    const device = await this.deviceManager.getDeviceById(configDevice);
+                    if (device)
                     {
-                        readOnly = (capability.setable === false);
-                        type = capability.type;
-                        this.registerDeviceCapabilityStateChange(device, configCapability);
+                        // Check if this device capability id read only
+                        capability = await this.deviceManager.getCapability(device, configCapability);
+                        if (capability)
+                        {
+                            readOnly = (capability.setable === false);
+                            type = capability.type;
+                            this.registerDeviceCapabilityStateChange(device, configCapability);
+                        }
                     }
+                }
+                catch (err)
+                {
+                    this.updateLog(`Error getting device: ${err.message}`, 0);
                 }
             }
 
@@ -1369,7 +1374,7 @@ class MyApp extends Homey.App
                     value: value ? labelOn : labelOff,
                 });
             }
-            else if (capability)
+            else
             {
                 if (capability && capability.type === 'boolean')
                 {
@@ -1377,26 +1382,26 @@ class MyApp extends Homey.App
                     {
                         mqttButtons.label = labelOff;
                     }
-                    // Boolean capabilities are always 'true' or 'false'
-                    payload = true;
-
-                    // Add the LED event entry
-                    mqttButtons.topics.push(
-                        {
-                            brokerid: brokerId,
-                            eventtype: 14,
-                            topic: `homey/${configDevice}/${configCapability}/value`,
-                            payload,
-                        },
-                    );
-
-                    // Send the value to the device after a short delay to allow the device to connect to the broker
-                    mqttQueue.push({
-                        brokerId: brokerId,
-                        message: `homey/${configDevice}/${configCapability}/value`,
-                        value: capability.value,
-                    });
                 }
+                // Boolean capabilities are always 'true' or 'false'
+                payload = true;
+
+                // Add the LED event entry
+                mqttButtons.topics.push(
+                    {
+                        brokerid: brokerId,
+                        eventtype: 14,
+                        topic: `homey/${configDevice}/${configCapability}/value`,
+                        payload,
+                    },
+                );
+
+                // Send the value to the device after a short delay to allow the device to connect to the broker
+                mqttQueue.push({
+                    brokerId: brokerId,
+                    message: `homey/${configDevice}/${configCapability}/value`,
+                    value: capability ? capability.value : false,
+                });
 
                 // Add the Top Label event entry
                 mqttButtons.topics.push(
@@ -1431,10 +1436,6 @@ class MyApp extends Homey.App
                     message: `homey/${configDevice}/${configCapability}/label`,
                     value: mqttButtons.label,
                 });
-            }
-            else
-            {
-                // Oops
             }
         }
         catch (err)
@@ -1774,17 +1775,15 @@ class MyApp extends Homey.App
         // setup the mDNS discovery for local gateways
         this.discoveryStrategy = this.homey.discovery.getStrategy('panel');
 
-        this.homey.setTimeout(() => {
-            const initialDiscoveryResults = this.discoveryStrategy.getDiscoveryResults();
-            this.updateLog(`Got initial mDNS result:${this.varToString(initialDiscoveryResults)}`);
-            if (initialDiscoveryResults)
+        const initialDiscoveryResults = this.discoveryStrategy.getDiscoveryResults();
+        this.updateLog(`Got initial mDNS result:${this.varToString(initialDiscoveryResults)}`);
+        if (initialDiscoveryResults)
+        {
+            for (const discoveryResult of Object.values(initialDiscoveryResults))
             {
-                for (const discoveryResult of Object.values(initialDiscoveryResults))
-                {
-                    this.mDNSGatewaysUpdate(discoveryResult);
-                }
+                this.mDNSGatewaysUpdate(discoveryResult);
             }
-        }, 2000);
+        }
 
         this.discoveryStrategy.on('result', (discoveryResult) =>
         {
