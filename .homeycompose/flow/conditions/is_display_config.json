@@ -1,0 +1,32 @@
+{
+    "title": {
+        "en": "The specified display configuration !{{is|isn't}} active",
+        "nl": "De opgegeven display configuratie !{{is|isn't}} actief"
+    },
+    "titleFormatted": {
+        "en": "The display configuration [[config]] !{{is|isn't}} active",
+        "nl": "De display configuratie [[config]] !{{is|isn't}} actief"
+    },
+    "args": [
+        {
+            "type": "number",
+            "name": "config",
+            "title": {
+                "en": "Config Number",
+                "nl": "Config Nummer"
+            },
+            "placeholder": {
+                "en": "Config number (1-20)",
+                "nl": "Config nummer (1-20)"
+            },
+            "min": 1,
+            "max": 20,
+            "step": 1
+        },
+        {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=panel_hardware"
+        }
+    ]
+}

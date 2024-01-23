@@ -460,6 +460,22 @@ class MyApp extends Homey.App
             return args.device.getCapabilityValue(`${args.left_right}_button.connector${args.connector - 1}`);
         });
 
+        this._conditionIsButtonConfigActive = this.homey.flow.getConditionCard('is_button_config');
+        this._conditionIsButtonConfigActive.registerRunListener(async (args, state) =>
+        {
+            const activeConfig = args.device.getCapabilityValue(`configuration_button.connector${args.connector - 1}`);
+            const requiredConfig = args.config - 1;
+            return activeConfig == requiredConfig;
+        });
+
+        this._conditionIsDisplayConfigActive = this.homey.flow.getConditionCard('is_display_config');
+        this._conditionIsDisplayConfigActive.registerRunListener(async (args, state) =>
+        {
+            const activeConfig = args.device.getCapabilityValue('configuration_display');
+            const requiredConfig = args.config - 1;
+            return activeConfig == requiredConfig;
+        });
+
         this.homey.on('memwarn', (data) =>
         {
             if (data)
