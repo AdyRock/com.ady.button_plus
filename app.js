@@ -228,7 +228,7 @@ class MyApp extends Homey.App
         this.updateLog('Register DeviceManager');
         await this.deviceManager.register();
 
-        this.getHomeyDevices({});
+//        this.getHomeyDevices({});
         this.deviceDispather = new DeviceDispatcher(this);
         this.variableDispather = new VariableDispatcher(this);
 
@@ -2267,17 +2267,17 @@ class MyApp extends Homey.App
     // Add a message to the debug log if not running in the cloud
     updateLog(newMessage, errorLevel = 1)
     {
-        if (errorLevel === 0)
-        {
-            this.error(newMessage);
-        }
-        else
-        {
-            this.log(newMessage);
-        }
-
         if ((errorLevel === 0) || this.homey.settings.get('logEnabled'))
         {
+            if (errorLevel === 0)
+            {
+                this.error(newMessage);
+            }
+            else
+            {
+                this.log(newMessage);
+            }
+    
             try
             {
                 const nowTime = new Date(Date.now());

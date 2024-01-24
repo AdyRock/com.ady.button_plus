@@ -1920,7 +1920,7 @@ class PanelDevice extends Device
                                         brokerId = this.homey.settings.get('defaultBroker');
                                     }
                                     this.homey.app.publishMQTTMessage(brokerId, `homey/${item.device}/${item.capability}/value`, capability.value);
-                                    this.homey.app.registerDeviceCapabilityStateChange(item.device, item.capability);
+//                                    this.homey.app.registerDeviceCapabilityStateChange(item.device, item.capability);
                                 }
                             }
                             catch (error)

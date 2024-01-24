@@ -380,6 +380,8 @@
         // General declarations
         var buttonDevicesArray = [];
         var buttonDevicesFetched = false;
+        var variablesArray = [];
+        var variablesFetched = false;
         var displayDevicesArray = [];
         var displayDevicesFetched = false;
         var autoConfigElement = document.getElementById('autoConfig');
@@ -465,8 +467,6 @@
             fillConfigElement(displayConfigurationNoElement, Homey.__("settings.displayConfig"));
 
             getDevices();
-
-            configTypeChanged('panelConfig');
 
             Homey.get('autoConfig', function(err, autoConfig)
             {
@@ -689,27 +689,67 @@
                     storeCustomMQTTItems("right", ButtonPanelConfiguration);
 
                     // Copy the values from the controls to the buttonConfiguration
-                    ButtonPanelConfiguration.leftTopText = leftTopTextElement.value,
-                    ButtonPanelConfiguration.leftOnText = leftOnTextElement.value,
-                    ButtonPanelConfiguration.leftOffText = leftOffTextElement.value,
-                    ButtonPanelConfiguration.leftDevice = leftDeviceElement.value,
-                    ButtonPanelConfiguration.leftDeviceName = leftDeviceElement.options && leftDeviceElement.options[leftDeviceElement.selectedIndex] ? leftDeviceElement.options[leftDeviceElement.selectedIndex].text : leftDeviceElement.value,
-                    ButtonPanelConfiguration.leftCapability = leftCapabilityElement.value,
-                    ButtonPanelConfiguration.leftBrokerId = leftBrokerIdElement.value,
-                    ButtonPanelConfiguration.leftDimChange = leftDimChangeElement.value,
-                    ButtonPanelConfiguration.leftFrontLEDColor = leftFrontLEDColorElement.value,
-                    ButtonPanelConfiguration.leftWallLEDColor = leftWallLEDColorElement.value,
+                    ButtonPanelConfiguration.leftTopText = leftTopTextElement.value;
+                    ButtonPanelConfiguration.leftOnText = leftOnTextElement.value;
+                    ButtonPanelConfiguration.leftOffText = leftOffTextElement.value;
+                    ButtonPanelConfiguration.leftDevice = leftDeviceElement.value;
 
-                    ButtonPanelConfiguration.rightTopText = rightTopTextElement.value,
-                    ButtonPanelConfiguration.rightOnText = rightOnTextElement.value,
-                    ButtonPanelConfiguration.rightOffText = rightOffTextElement.value,
-                    ButtonPanelConfiguration.rightDevice = rightDeviceElement.value,
-                    ButtonPanelConfiguration.rightDeviceName = rightDeviceElement.options && rightDeviceElement.options[rightDeviceElement.selectedIndex] ? rightDeviceElement.options[rightDeviceElement.selectedIndex].text : rightDeviceElement.value,
-                    ButtonPanelConfiguration.rightCapability = rightCapabilityElement.value,
-                    ButtonPanelConfiguration.rightBrokerId = rightBrokerIdElement.value,
-                    ButtonPanelConfiguration.rightDimChange = rightDimChangeElement.value,
-                    ButtonPanelConfiguration.rightFrontLEDColor = rightFrontLEDColorElement.value,
-                    ButtonPanelConfiguration.rightWallLEDColor = rightWallLEDColorElement.value,
+                    if (leftDeviceElement.selectedIndex >= 0)
+                    {
+                        ButtonPanelConfiguration.leftDeviceName = leftDeviceElement.options && leftDeviceElement.options[leftDeviceElement.selectedIndex] ? leftDeviceElement.options[leftDeviceElement.selectedIndex].text : leftDeviceElement.value;
+                        // Remove any leading spaces from the device name
+                        ButtonPanelConfiguration.leftDeviceName = ButtonPanelConfiguration.leftDeviceName.trim();
+                    }
+                    else
+                    {
+                        ButtonPanelConfiguration.leftDeviceName = leftDeviceElement.value;
+                    }
+
+                    ButtonPanelConfiguration.leftCapability = leftCapabilityElement.value;
+                    if (leftCapabilityElement.selectedIndex >= 0)
+                    {
+                        ButtonPanelConfiguration.leftCapabilityName = leftCapabilityElement.options && leftCapabilityElement.options[leftCapabilityElement.selectedIndex] ? leftCapabilityElement.options[leftCapabilityElement.selectedIndex].text : leftCapabilityElement.value;
+                    }
+                    else
+                    {
+                        ButtonPanelConfiguration.leftCapabilityName = leftCapabilityElement.value;
+                    }
+                
+                    ButtonPanelConfiguration.leftBrokerId = leftBrokerIdElement.value;
+                    ButtonPanelConfiguration.leftDimChange = leftDimChangeElement.value;
+                    ButtonPanelConfiguration.leftFrontLEDColor = leftFrontLEDColorElement.value;
+                    ButtonPanelConfiguration.leftWallLEDColor = leftWallLEDColorElement.value;
+
+                    ButtonPanelConfiguration.rightTopText = rightTopTextElement.value;
+                    ButtonPanelConfiguration.rightOnText = rightOnTextElement.value;
+                    ButtonPanelConfiguration.rightOffText = rightOffTextElement.value;
+
+                    ButtonPanelConfiguration.rightDevice = rightDeviceElement.value;
+                    if (rightDeviceElement.selectedIndex >= 0)
+                    {
+                        ButtonPanelConfiguration.rightDeviceName = rightDeviceElement.options && rightDeviceElement.options[rightDeviceElement.selectedIndex] ? rightDeviceElement.options[rightDeviceElement.selectedIndex].text : rightDeviceElement.value;
+                        // Remove any leading spaces from the device name
+                        ButtonPanelConfiguration.rightDeviceName = ButtonPanelConfiguration.rightDeviceName.trim();
+                    }
+                    else
+                    {
+                        ButtonPanelConfiguration.rightDeviceName = rightDeviceElement.value;
+                    }
+
+                    ButtonPanelConfiguration.rightCapability = rightCapabilityElement.value;
+                    if (rightCapabilityElement.selectedIndex >= 0)
+                    {
+                        ButtonPanelConfiguration.rightCapabilityName = rightCapabilityElement.options && rightCapabilityElement.options[rightCapabilityElement.selectedIndex] ? rightCapabilityElement.options[rightCapabilityElement.selectedIndex].text : rightCapabilityElement.value;
+                    }
+                    else
+                    {
+                        ButtonPanelConfiguration.rightCapabilityName = rightCapabilityElement.value;
+                    }
+
+                    ButtonPanelConfiguration.rightBrokerId = rightBrokerIdElement.value;
+                    ButtonPanelConfiguration.rightDimChange = rightDimChangeElement.value;
+                    ButtonPanelConfiguration.rightFrontLEDColor = rightFrontLEDColorElement.value;
+                    ButtonPanelConfiguration.rightWallLEDColor = rightWallLEDColorElement.value;
 
                     Homey.set('buttonConfigurations', localButtonConfigurations);
 
@@ -745,7 +785,23 @@
                 buttonPanelConfiguration.leftOnText = leftOnTextElement.value;
                 buttonPanelConfiguration.leftOffText = leftOffTextElement.value;
                 buttonPanelConfiguration.leftDevice = leftDeviceElement.value;
+                if (leftDeviceElement.selectedIndex >= 0)
+                {
+                    buttonPanelConfiguration.leftDeviceName = leftDeviceElement.options[leftDeviceElement.selectedIndex].text;
+                }
+                else
+                {
+                    buttonPanelConfiguration.leftDeviceName = leftDeviceElement.value;
+                }
                 buttonPanelConfiguration.leftCapability = leftCapabilityElement.value;
+                if (leftCapabilityElement.selectedIndex >= 0)
+                {
+                    buttonPanelConfiguration.leftCapabilityName = leftCapabilityElement.options[leftCapabilityElement.selectedIndex].text;
+                }
+                else
+                {
+                    buttonPanelConfiguration.leftCapabilityName = leftCapabilityElement.value;
+                }
                 buttonPanelConfiguration.leftBrokerId = leftBrokerIdElement.value;
                 buttonPanelConfiguration.leftDimChange = leftDimChangeElement.value;
                 buttonPanelConfiguration.leftFrontLEDColor = leftFrontLEDColorElement.value;
@@ -756,7 +812,23 @@
                 buttonPanelConfiguration.rightOnText = rightOnTextElement.value;
                 buttonPanelConfiguration.rightOffText = rightOffTextElement.value;
                 buttonPanelConfiguration.rightDevice = rightDeviceElement.value;
+                if (rightDeviceElement.selectedIndex >= 0)
+                {
+                    buttonPanelConfiguration.rightDeviceName = rightDeviceElement.options[rightDeviceElement.selectedIndex].text;
+                }
+                else
+                {
+                    buttonPanelConfiguration.rightDeviceName = rightDeviceElement.value;
+                }
                 buttonPanelConfiguration.rightCapability = rightCapabilityElement.value;
+                if (rightCapabilityElement.selectedIndex >= 0)
+                {
+                    buttonPanelConfiguration.rightCapabilityName = rightCapabilityElement.options[rightCapabilityElement.selectedIndex].text;
+                }
+                else
+                {
+                    buttonPanelConfiguration.rightCapabilityName = rightCapabilityElement.value;
+                }
                 buttonPanelConfiguration.rightBrokerId = rightBrokerIdElement.value;
                 buttonPanelConfiguration.rightDimChange = rightDimChangeElement.value;
                 buttonPanelConfiguration.rightFrontLEDColor = rightFrontLEDColorElement.value;
@@ -846,10 +918,20 @@
 
                 // Update the device in the local configuration
                 ButtonPanelConfiguration.leftDevice = leftDeviceElement.value;
-                ButtonPanelConfiguration.leftDeviceName = leftDeviceElement.options[leftDeviceElement.selectedIndex].text;
+                if (leftDeviceElement.selectedIndex >= 0)
+                {
+                    ButtonPanelConfiguration.leftDeviceName = leftDeviceElement.options[leftDeviceElement.selectedIndex].text;
+                }
+                else
+                {
+                    ButtonPanelConfiguration.leftDeviceName = leftDeviceElement.value;
+                }
+                
+                // Remove any leading spaces from the device name
+                ButtonPanelConfiguration.leftDeviceName = ButtonPanelConfiguration.leftDeviceName.trim();
 
                 // Update the capabilities
-                getCapabilities("left", leftDeviceElement.value, ButtonPanelConfiguration.leftCapability);
+                getCapabilities("left", leftDeviceElement.value, ButtonPanelConfiguration.leftCapability, ButtonPanelConfiguration.leftCapabilityName);
             });
 
             rightDeviceElement.addEventListener('change', function(e)
@@ -859,16 +941,34 @@
 
                 // Update the device in the local configuration
                 ButtonPanelConfiguration.rightDevice = rightDeviceElement.value;
-                ButtonPanelConfiguration.rightDeviceName = rightDeviceElement.options[rightDeviceElement.selectedIndex].text;
+                if (rightDeviceElement.selectedIndex >= 0)
+                {
+                    ButtonPanelConfiguration.rightDeviceName = rightDeviceElement.options[rightDeviceElement.selectedIndex].text;
+                }
+                else
+                {
+                    ButtonPanelConfiguration.rightDeviceName = rightDeviceElement.value;
+                }
+                
+                // Remove any leading spaces from the device name
+                ButtonPanelConfiguration.rightDeviceName = ButtonPanelConfiguration.rightDeviceName.trim();
 
                 // Update the capabilities
-                getCapabilities("right", rightDeviceElement.value, ButtonPanelConfiguration.rightCapability);
+                getCapabilities("right", rightDeviceElement.value, ButtonPanelConfiguration.rightCapability, ButtonPanelConfiguration.rightCapabilityName);
             });
 
             leftCapabilityElement.addEventListener('change', function(e)
             {
                 var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
                 ButtonPanelConfiguration.leftCapability = leftCapabilityElement.value;
+                if (leftCapabilityElement.selectedIndex >= 0)
+                {
+                    ButtonPanelConfiguration.leftCapabilityName = leftCapabilityElement.options[leftCapabilityElement.selectedIndex].text;
+                }
+                else
+                {
+                    ButtonPanelConfiguration.leftCapabilityName = leftCapabilityElement.value;
+                }
 
                 capabilityChanged("left", leftCapabilityElement.value);
             });
@@ -877,6 +977,14 @@
             {
                 var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
                 ButtonPanelConfiguration.rightCapability = rightCapabilityElement.value;
+                if (rightCapabilityElement.selectedIndex >= 0)
+                {
+                    ButtonPanelConfiguration.rightCapabilityName = rightCapabilityElement.options[rightCapabilityElement.selectedIndex].text;
+                }
+                else
+                {
+                    ButtonPanelConfiguration.rightCapabilityName = rightCapabilityElement.value;
+                }
 
                 capabilityChanged("right", rightCapabilityElement.value);
             });
@@ -943,7 +1051,9 @@
                     if (newButtonPanelConfiguration.leftOnText !== undefined ) buttonPanelConfiguration.leftOnText = newButtonPanelConfiguration.leftOnText;
                     if (newButtonPanelConfiguration.leftOffText !== undefined ) buttonPanelConfiguration.leftOffText = newButtonPanelConfiguration.leftOffText;
                     if (newButtonPanelConfiguration.leftDevice !== undefined ) buttonPanelConfiguration.leftDevice = newButtonPanelConfiguration.leftDevice;
+                    if (newButtonPanelConfiguration.leftDeviceName !== undefined ) buttonPanelConfiguration.leftDevice = newButtonPanelConfiguration.leftDeviceName;
                     if (newButtonPanelConfiguration.leftCapability !== undefined ) buttonPanelConfiguration.leftCapability = newButtonPanelConfiguration.leftCapability;
+                    if (newButtonPanelConfiguration.leftCapabilityName !== undefined ) buttonPanelConfiguration.leftCapabilityName = newButtonPanelConfiguration.leftCapabilityName;
                     if (newButtonPanelConfiguration.leftBrokerId !== undefined ) buttonPanelConfiguration.leftBrokerId = newButtonPanelConfiguration.leftBrokerId;
                     if (newButtonPanelConfiguration.leftDimChange !== undefined ) buttonPanelConfiguration.leftDimChange = newButtonPanelConfiguration.leftDimChange;
                     if (newButtonPanelConfiguration.leftFrontLEDColor !== undefined ) buttonPanelConfiguration.leftFrontLEDColor = newButtonPanelConfiguration.leftFrontLEDColor;
@@ -954,7 +1064,9 @@
                     if (newButtonPanelConfiguration.rightOnText !== undefined) buttonPanelConfiguration.rightOnText = newButtonPanelConfiguration.rightOnText;
                     if (newButtonPanelConfiguration.rightOffText !== undefined) buttonPanelConfiguration.rightOffText = newButtonPanelConfiguration.rightOffText;
                     if (newButtonPanelConfiguration.rightDevice !== undefined) buttonPanelConfiguration.rightDevice = newButtonPanelConfiguration.rightDevice;
+                    if (newButtonPanelConfiguration.rightDeviceName !== undefined) buttonPanelConfiguration.rightDevice = newButtonPanelConfiguration.rightDeviceName;
                     if (newButtonPanelConfiguration.rightCapability !== undefined) buttonPanelConfiguration.rightCapability = newButtonPanelConfiguration.rightCapability;
+                    if (newButtonPanelConfiguration.rightCapabilityName !== undefined) buttonPanelConfiguration.rightCapabilityName = newButtonPanelConfiguration.rightCapabilityName;
                     if (newButtonPanelConfiguration.rightBrokerId !== undefined) buttonPanelConfiguration.rightBrokerId = newButtonPanelConfiguration.rightBrokerId;
                     if (newButtonPanelConfiguration.rightDimChange !== undefined) buttonPanelConfiguration.rightDimChange = newButtonPanelConfiguration.rightDimChange;
                     if (newButtonPanelConfiguration.rightFrontLEDColor !== undefined) buttonPanelConfiguration.rightFrontLEDColor = newButtonPanelConfiguration.rightFrontLEDColor;
@@ -1065,7 +1177,7 @@
                     copyTextElement.value = jsonString;
 
                     // Notify the user
-                    Homey.alert(Homey.__("settings.copied"));
+                    Homey.alert(Homey.__("settings.exported"));
                 }
                 catch (err)
                 {
@@ -1087,7 +1199,9 @@
                     {
                         var displayItem = {
                             device: "none",
+                            deviceName: "none",
                             capability: "",
+                            capabilityName: "",
                             label: "",
                             unit: "",
                             numberRounding: -1,
@@ -1185,6 +1299,8 @@
 
             // Tell Homey we're ready to be displayed
             Homey.ready();
+
+            configTypeChanged('settings');
         }
 
         function position_tooltip()
@@ -1365,7 +1481,36 @@
             }
         }
 
-        function getCapabilities(side, deviceId, selectedCapability)
+        function fillButtonVariablesElement(side, capabilityElement, selectedCapability, selectedCapabilityName)
+        {
+            for (const variable of variablesArray)
+            {
+                if (variable.type === "boolean")
+                {
+                    var option = document.createElement("option");
+                    option.text = variable.name;
+                    option.value = variable.id;
+                    capabilityElement.add(option);
+                }
+            }
+
+            // Restore the previous variable selection
+            capabilityElement.value = selectedCapability;
+            if (capabilityElement.value !== selectedCapability)
+            {
+                // The variable must be missing, so add it to the list
+                var option = document.createElement("option");
+                option.text = selectedCapabilityName + " (Missing)";
+                option.value = selectedCapability;
+                capabilityElement.add(option);
+
+                capabilityElement.value = selectedCapability;
+            }
+
+            capabilityChanged(side, selectedCapability);
+        }
+
+        function getCapabilities(side, deviceId, selectedCapability, selectedCapabilityName)
         {
             // Clear the list options
             let capabilityElement = document.getElementById(`${side}Capability`);
@@ -1402,36 +1547,32 @@
 
             if (deviceId === '_variable_')
             {
-                // Resquest the list of variables
-                Homey.api('POST', '/get_variables/', {}, function(err, variables)
+                if (variablesFetched)
                 {
-                    if (err) return Homey.alert(err);
-
-                    if (variables)
+                    // Add each of the variables to the item drop list
+                    fillButtonVariablesElement(side, capabilityElement, selectedCapability, selectedCapabilityName);
+                }
+                else
+                {
+                    // Resquest the list of variables
+                    Homey.api('POST', '/get_variables/', {}, function(err, variables)
                     {
-                        // Add each of the capabilities to the item drop list
-                        const variablesArray = Object.values(variables);
-                        for (const variable of variablesArray)
+                        if (err) return Homey.alert(err);
+
+                        if (variables)
                         {
-                            if (variable.type === "boolean")
-                            {
-                                var option = document.createElement("option");
-                                option.text = variable.name;
-                                option.value = variable.id;
-                                capabilityElement.add(option);
-                            }
+                            // Add each of the variables to the item drop list
+                            variablesArray = Object.values(variables);
+                            variablesFetched = true;
+                            fillButtonVariablesElement(side, capabilityElement, selectedCapability, selectedCapabilityName);
                         }
+                    });
+                }
 
-                        // Show the capability section
-                        leftCapabilityDiv.style.display = itemDisplyType;
-                        document.getElementById(`${side}BrokerIdDiv`).style.display = itemDisplyType;
-                        document.getElementById(`${side}CustomMQTTDiv`).style.display = "none";
-
-                        // Restore the previous capability selection
-                        capabilityElement.value = selectedCapability;
-                        capabilityChanged(side, selectedCapability);
-                    }
-                });
+                // Show the capability section
+                capabilityDivElement.style.display = itemDisplyType;
+                document.getElementById(`${side}BrokerIdDiv`).style.display = itemDisplyType;
+                document.getElementById(`${side}CustomMQTTDiv`).style.display = "none";
                 return;
             }
 
@@ -1444,7 +1585,7 @@
                 {
                     // There won't be any capabilities defined for this device, so add the capability for the missing device from the ButtonPanelConfiguration.'side'Capability setting
                     var option = document.createElement("option");
-                    option.text = selectedCapability;
+                    option.text = selectedCapabilityName;
                     option.value = selectedCapability;
                     capabilityElement.add(option);
 
@@ -1564,14 +1705,17 @@
                 {
                     if (buttonDevicesArray.findIndex((device) => device.id === ButtonPanelConfiguration.leftDevice) < 0)
                     {
-                        buttonDevicesArray.push({ id: ButtonPanelConfiguration.leftDevice, name: ButtonPanelConfiguration.leftDeviceName ? ButtonPanelConfiguration.leftDeviceName : ButtonPanelConfiguration.leftDevice, zone: { name: "Missing Devices" } });
+                        var name = ButtonPanelConfiguration.leftDeviceName ? ButtonPanelConfiguration.leftDeviceName : ButtonPanelConfiguration.leftDevice;
+                        // Remove any leading spaces from the device name
+                        name = name.trim();
+                        buttonDevicesArray.push({ id: ButtonPanelConfiguration.leftDevice, name, zone: { name: "Missing Devices" } });
                         buttonDevicesArray = sortDevices(buttonDevicesArray);
                         fillButtonDevices();
                         leftDeviceElement.value = ButtonPanelConfiguration.leftDevice;
                     }
                 }
 
-                getCapabilities("left", leftDeviceElement.value, ButtonPanelConfiguration.leftCapability);
+                getCapabilities("left", leftDeviceElement.value, ButtonPanelConfiguration.leftCapability, ButtonPanelConfiguration.leftCapabilityName);
                 leftBrokerIdElement.value = ButtonPanelConfiguration.leftBrokerId;
                 leftDimChangeElement.value = ButtonPanelConfiguration.leftDimChange;
                 leftFrontLEDColorElement.value = ButtonPanelConfiguration.leftFrontLEDColor;
@@ -1585,16 +1729,19 @@
                 // If the element is not in the list, add it
                 if (rightDeviceElement.value != ButtonPanelConfiguration.rightDevice)
                 {
+                    var name = ButtonPanelConfiguration.rightDeviceName ? ButtonPanelConfiguration.rightDeviceName : ButtonPanelConfiguration.rightDevice;
+                    // Remove any leading spaces from the device name
+                    name = name.trim();
                     if (buttonDevicesArray.findIndex((device) => device.id === ButtonPanelConfiguration.rightDevice) < 0)
                     {
-                        buttonDevicesArray.push({ id: ButtonPanelConfiguration.rightDevice, name: ButtonPanelConfiguration.rightDeviceName ? ButtonPanelConfiguration.rightDeviceName : ButtonPanelConfiguration.rightDevice, zone: { name: "Missing Devices" } });
+                        buttonDevicesArray.push({ id: ButtonPanelConfiguration.rightDevice, name, zone: { name: "Missing Devices" } });
                         buttonDevicesArray = sortDevices(buttonDevicesArray);
                         fillButtonDevices();
                         rightDeviceElement.value = ButtonPanelConfiguration.rightDevice;
                     }
                 }
 
-                getCapabilities("right", rightDeviceElement.value, ButtonPanelConfiguration.rightCapability);
+                getCapabilities("right", rightDeviceElement.value, ButtonPanelConfiguration.rightCapability, ButtonPanelConfiguration.rightCapabilityName);
                 rightBrokerIdElement.value = ButtonPanelConfiguration.rightBrokerId;
                 rightDimChangeElement.value = ButtonPanelConfiguration.rightDimChange;
                 rightFrontLEDColorElement.value = ButtonPanelConfiguration.rightFrontLEDColor;
@@ -1784,13 +1931,13 @@
                             <select class="homey-form-select" id="display${itemNo}Device" onChange="getDisplayCapabilities(${itemNo})">
                             </select>
 
-                            <div id="display${itemNo}NoCapability">
+                            <div id="display${itemNo}CapabilityDiv">
                                 <br>
                                 <label class="homey-form-label" for="display${itemNo}Capability">${ctrlLabels.capability}</label>
-                                <select class="homey-form-select" id="display${itemNo}Capability" onChange="selectDisplayCapabilities(${itemNo})">
+                                <select class="homey-form-select" id="display${itemNo}Capability" onChange="selectDisplayCapability(this, ${itemNo})">
                                 </select>
                             </div>
-                            <div id="display${itemNo}NoDisplay">
+                            <div id="display${itemNo}DisplayDiv">
                                 <br>
                                 <label class="homey-form-label" for="display${itemNo}Label">${ctrlLabels.label}</label>
                                 <input class="homey-form-input" id="display${itemNo}Label" type="text" oninput="onDisplayLabelChange(this, ${itemNo})" value="${item.label}" />
@@ -1907,67 +2054,86 @@
             }
         }
 
+        function fillDisplayVariablesElement(item, capabilityElement, selectedVariable, selectedVariableName)
+        {
+            for (const variable of variablesArray)
+            {
+                if (variable.type === "boolean")
+                {
+                    var option = document.createElement("option");
+                    option.text = variable.name;
+                    option.value = variable.id;
+                    capabilityElement.add(option);
+                }
+            }
+
+            // Restore the previous variable selection
+            capabilityElement.value = selectedVariable;
+            if (capabilityElement.value !== selectedVariable)
+            {
+                // The variable must be missing, so add it to the list
+                var option = document.createElement("option");
+                option.text = selectedVariableName + " (Missing)";
+                option.value = selectedVariable;
+                capabilityElement.add(option);
+
+                capabilityElement.value = selectedVariable;
+            }
+        }
+
         function getDisplayCapabilities(item)
         {
             var deviceId = document.getElementById(`display${item}Device`).value;
             var capabilitiesElement = document.getElementById(`display${item}Capability`);
             capabilitiesElement.innerHTML = "";
+    
             if ((deviceId != "") && (deviceId != 'none'))
             {
                 if (deviceId === 'customMQTT')
                 {
-                    document.getElementById(`display${item}NoCapability`).style.display = "none";
-                    document.getElementById(`display${item}NoDisplay`).style.display = itemDisplyType;
+                    document.getElementById(`display${item}CapabilityDiv`).style.display = "none";
+                    document.getElementById(`display${item}DisplayDiv`).style.display = itemDisplyType;
                     return;
                 }
+
                 if (deviceId === '_variable_')
                 {
-                    // Resquest the list of variables
-                    Homey.api('POST', '/get_variables/', {}, function(err, variables)
+                    document.getElementById(`display${item}CapabilityDiv`).style.display = itemDisplyType;
+                    document.getElementById(`display${item}DisplayDiv`).style.display = itemDisplyType;
+
+                    var selectedVariable = '';
+                    var displayConfig = localDisplayConfigurations[displayConfigurationNoElement.value];
+                    if (displayConfig)
                     {
-                        if (err) return Homey.alert(err);
+                        selectedVariable = displayConfig.items[item].capability;
+                        selectedVariableName = displayConfig.items[item].capabilityName;
+                    }
 
-                        if (variables)
+                    if (variablesFetched)
+                    {
+                        // Add each of the variables to the item drop list
+                        fillDisplayVariablesElement(item, capabilitiesElement, selectedVariable, selectedVariableName);
+                    }
+                    else
+                    {
+                        // Resquest the list of variables
+                        Homey.api('POST', '/get_variables/', {}, function(err, variables)
                         {
-                            displayCapabilityItems[item].capabilities = variables;
-                            const variablesArray = Object.values(variables);
-                            for (const variable of variablesArray)
-                            {
-                                var option = document.createElement("option");
-                                option.text = `${variable.name}`;
-                                option.value = variable.id;
-                                capabilitiesElement.add(option);
-                            }
+                            if (err) return Homey.alert(err);
 
-                            document.getElementById(`display${item}NoCapability`).style.display = itemDisplyType;
-                            document.getElementById(`display${item}NoDisplay`).style.display = itemDisplyType;
-
-                            var displayConfig = localDisplayConfigurations[displayConfigurationNoElement.value];
-                            if (displayConfig)
+                            if (variables)
                             {
-                                const variableID = displayConfig.items[item].capability;
-                                if (variables[variableID])
-                                {
-                                    capabilitiesElement.value = variableID;
-                                    // if (document.getElementById(`display${item}Label`).value === '')
-                                    // {
-                                    //     document.getElementById(`display${item}Label`).value = variables[variableID].name;
-                                    //     document.getElementById(`display${item}Legend`).innerHTML = `<b><em>${Homey.__("settings.displayItemlegend", { itemNo: item + 1 })}</em></b> - ${document.getElementById(`display${item}Label`).value}`;
-                                    // }
-                                    // if (document.getElementById(`display${item}Unit`).value === '')
-                                    // {
-                                    //     document.getElementById(`display${item}Unit`).value = "";
-                                    // }
-                                }
-                                else
-                                {
-                                    capabilitiesElement.value = "";
-                                }
+                                // Add each of the variables to the item drop list
+                                variablesArray = Object.values(variables);
+                                variablesFetched = true;
+                                fillDisplayVariablesElement(item, capabilitiesElement, selectedVariable, selectedVariableName);
                             }
-                        }
-                    });
+                        });
+                    }
+
                     return;
                 }
+
                 Homey.api('POST', '/device_capabilities/', { deviceId }, function(err, capabilities)
                 {
                     if (err) return Homey.alert(err);
@@ -1984,8 +2150,8 @@
                             capabilitiesElement.add(option);
                         }
 
-                        document.getElementById(`display${item}NoCapability`).style.display = itemDisplyType;
-                        document.getElementById(`display${item}NoDisplay`).style.display = itemDisplyType;
+                        document.getElementById(`display${item}CapabilityDiv`).style.display = itemDisplyType;
+                        document.getElementById(`display${item}DisplayDiv`).style.display = itemDisplyType;
 
                         var displayConfig = localDisplayConfigurations[displayConfigurationNoElement.value];
                         if (displayConfig)
@@ -1993,12 +2159,6 @@
                             const capabilityID = displayConfig.items[item].capability;
                             if (capabilities[capabilityID])
                             {
-                                capabilitiesElement.value = capabilityID;
-                                // if (document.getElementById(`display${item}Label`).value === '')
-                                // {
-                                //     document.getElementById(`display${item}Label`).value = capabilities[capabilityID].title;
-                                //     document.getElementById(`display${item}Legend`).innerHTML = `<b><em>${Homey.__("settings.displayItemlegend", { itemNo: item + 1 })}</em></b> - ${document.getElementById(`display${item}Label`).value}`;
-                                // }
                                 if (document.getElementById(`display${item}Unit`).value === '')
                                 {
                                     document.getElementById(`display${item}Unit`).value = capabilities[capabilityID].unit ? capabilities[capabilityID].unit : "";
@@ -2006,27 +2166,40 @@
                             }
                             else
                             {
-                                capabilitiesElement.value = "";
+                                // The capability must be missing, so add it to the list
+                                var option = document.createElement("option");
+                                option.text = capabilityID + " (Missing)";
+                                option.value = capabilityID;
+                                capabilitiesElement.add(option);
                             }
+
+                            capabilitiesElement.value = capabilityID;
                         }
                     }
                 });
             }
             else
             {
-                document.getElementById(`display${item}NoCapability`).style.display = "none";
-                document.getElementById(`display${item}NoDisplay`).style.display = "none";
+                document.getElementById(`display${item}CapabilityDiv`).style.display = "none";
+                document.getElementById(`display${item}DisplayDiv`).style.display = "none";
             }
         }
 
-        function selectDisplayCapabilities(item)
+        function selectDisplayCapability(Element, item)
         {
-            const capabilities = displayCapabilityItems[item].capabilities
-            var capabilityID = document.getElementById(`display${item}Capability`).value;
+            var capabilities = null;
+            if (displayCapabilityItems[item].capabilities)
+            {
+                capabilities = displayCapabilityItems[item].capabilities
+            }
+            else
+            {
+                capabilities = variablesArray
+            }
+
+            var capabilityID = Element.value;
             if (capabilityID != "" && capabilities[capabilityID])
             {
-                // document.getElementById(`display${item}Label`).value = capabilities[capabilityID].title ? capabilities[capabilityID].title : capabilities[capabilityID].name;
-                // document.getElementById(`display${item}Legend`).innerHTML = `<b><em>${Homey.__("settings.displayItemlegend", { itemNo: item + 1 })}</em></b> - ${document.getElementById(`display${item}Label`).value}`;
                 document.getElementById(`display${item}Unit`).value = capabilities[capabilityID].units ? capabilities[capabilityID].units : "";
             }
         }
@@ -2056,8 +2229,24 @@
                     const deviceElement = document.getElementById(`display${itemNo}Device`);
                     
                     displayConfiguration.items[itemNo].device = deviceElement.value;
-                    displayConfiguration.items[itemNo].deviceName = deviceElement.options[deviceElement.selectedIndex].text;
+                    if (deviceElement.selectedIndex >= 0)
+                    {
+                        displayConfiguration.items[itemNo].deviceName = deviceElement.options[deviceElement.selectedIndex].text;
+                    }
+                    else
+                    {
+                        displayConfiguration.items[itemNo].deviceName = "";
+                    }
+
                     displayConfiguration.items[itemNo].capability = document.getElementById(`display${itemNo}Capability`).value;
+                    if (document.getElementById(`display${itemNo}Capability`).selectedIndex >= 0)
+                    {
+                        displayConfiguration.items[itemNo].capabilityName = document.getElementById(`display${itemNo}Capability`).options[document.getElementById(`display${itemNo}Capability`).selectedIndex].text;
+                    }
+                    else
+                    {
+                        displayConfiguration.items[itemNo].capabilityName = "";
+                    }
                     displayConfiguration.items[itemNo].label = document.getElementById(`display${itemNo}Label`).value;
                     displayConfiguration.items[itemNo].unit = document.getElementById(`display${itemNo}Unit`).value;
                     displayConfiguration.items[itemNo].xPos = document.getElementById(`display${itemNo}X`).value;
