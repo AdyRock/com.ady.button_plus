@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 /* eslint-disable max-len */
 
 'use strict';
@@ -10,7 +11,8 @@ if (process.env.DEBUG === '1')
 
 const Homey = require('homey');
 
-const { HomeyAPI } = require('athom-api');
+const { HomeyAPI } = require('homey-api');
+// const { HomeyAPI } = require('athom-api');
 const httpServer = require('http').createServer();
 const ws = require('websocket-stream');
 const net = require('./net');
@@ -37,7 +39,7 @@ class MyApp extends Homey.App
         this.lastMQTTData = new Map();
         this.dateTimer = null;
 
-        let defaultbroker = this.homey.settings.get('defaultBroker');
+        const defaultbroker = this.homey.settings.get('defaultBroker');
         if (!defaultbroker)
         {
             this.homey.settings.set('defaultBroker', 'homey');
@@ -206,7 +208,7 @@ class MyApp extends Homey.App
             this.updateLog(`Error setting up local access: ${err.message}`, 0);
         }
 
-        this.api = await HomeyAPI.forCurrentHomey(this.homey);
+        this.api = await HomeyAPI.createAppAPI({ homey: this.homey });
         try
         {
             this.system = await this._getSystemInfo();
@@ -218,7 +220,6 @@ class MyApp extends Homey.App
             this.system = {};
         }
 
-        this.api.devices.setMaxListeners(9999); // HACK
         this.initSettings();
 
         // devices
@@ -465,6 +466,7 @@ class MyApp extends Homey.App
         {
             const activeConfig = args.device.getCapabilityValue(`configuration_button.connector${args.connector - 1}`);
             const requiredConfig = args.config - 1;
+            // eslint-disable-next-line eqeqeq
             return activeConfig == requiredConfig;
         });
 
@@ -473,6 +475,7 @@ class MyApp extends Homey.App
         {
             const activeConfig = args.device.getCapabilityValue('configuration_display');
             const requiredConfig = args.config - 1;
+            // eslint-disable-next-line eqeqeq
             return activeConfig == requiredConfig;
         });
 
@@ -501,7 +504,7 @@ class MyApp extends Homey.App
                     this.updateLog('Closing server', 0);
                     if (this.server && this.server.listening)
                     {
-                        aedes.close((err) => 
+                        aedes.close((err) =>
                         {
                             this.updateLog(`Server closed: ${err}`, 0);
                         });
@@ -552,8 +555,8 @@ class MyApp extends Homey.App
         const drivers = this.homey.drivers.getDrivers();
         for (const driver of Object.values(drivers))
         {
-            let devices = driver.getDevices();
-            for (let device of Object.values(devices))
+            const devices = driver.getDevices();
+            for (const device of Object.values(devices))
             {
                 if (device.updateDateAndTime)
                 {
@@ -731,8 +734,6 @@ class MyApp extends Homey.App
             this.updateLog(`Error uploading display configuration: ${err.message}`, 0);
             throw err;
         }
-
-        return;
     }
 
     async applyDisplayConfiguration(sectionConfiguration, configurationNo, panelId)
@@ -748,7 +749,7 @@ class MyApp extends Homey.App
             for (let itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
             {
                 const item = displayConfiguration.items[itemNo];
-                let brokerId = item.brokerId;
+                let { brokerId } = item;
                 if (brokerId === 'Default')
                 {
                     brokerId = this.homey.settings.get('defaultBroker');
@@ -777,7 +778,7 @@ class MyApp extends Homey.App
                     {
                         // Send the value to the device after a short delay to allow the device to connect to the broker
                         mqttQueue.push({
-                            brokerId: brokerId,
+                            brokerId,
                             message: `homey/${item.device}/${item.capability}/value`,
                             value: variable.value,
                         });
@@ -801,7 +802,7 @@ class MyApp extends Homey.App
 
                                 // Send the value to the device after a short delay to allow the device to connect to the broker
                                 mqttQueue.push({
-                                    brokerId: brokerId,
+                                    brokerId,
                                     message: `homey/${item.device}/${item.capability}/value`,
                                     value,
                                 });
@@ -834,7 +835,7 @@ class MyApp extends Homey.App
             if (deviceConfiguration)
             {
                 const sectionConfiguration = {
-                    'mqttbuttons': [...deviceConfiguration.mqttbuttons]
+                    mqttbuttons: [...deviceConfiguration.mqttbuttons],
                 };
 
                 // Old firmware only paresd buttons if the core section was present
@@ -964,7 +965,7 @@ class MyApp extends Homey.App
                             ButtonPanelConfiguration,
                             connectorNo,
                             'right',
-                            panelId
+                            panelId,
                         );
 
                         const mqttRightButtonQue = await this.setupStatusTopic(
@@ -987,7 +988,7 @@ class MyApp extends Homey.App
 
             return mqttQue;
         }
-        else if (connectorType === 2)
+        if (connectorType === 2)
         {
             // Create click events for the display buttons
             try
@@ -1069,7 +1070,7 @@ class MyApp extends Homey.App
         };
         payload = JSON.stringify(payload);
 
-        let brokerId = this.homey.settings.get('defaultBroker');
+        const brokerId = this.homey.settings.get('defaultBroker');
 
         // Add the click event entry
         mqttButtons.topics.push(
@@ -1130,7 +1131,7 @@ class MyApp extends Homey.App
 
         const configDevice = ButtonPanelConfiguration[`${side}Device`];
         const configCapability = ButtonPanelConfiguration[`${side}Capability`];
-        var brokerId = ButtonPanelConfiguration[`${side}BrokerId`];
+        let brokerId = ButtonPanelConfiguration[`${side}BrokerId`];
         if (brokerId === 'Default')
         {
             brokerId = this.homey.settings.get('defaultBroker');
@@ -1251,7 +1252,7 @@ class MyApp extends Homey.App
         }
 
         mqttButtons.toplabel = topLabel;
-        mqttButtons.label = labelOn ? labelOn : labelOff;
+        mqttButtons.label = labelOn || labelOff;
         mqttButtons.longdelay = longDelay;
         mqttButtons.longrepeat = longRepeat;
         mqttButtons.id = buttonIdx;
@@ -1294,14 +1295,14 @@ class MyApp extends Homey.App
 
                     // Send the value to the device after a short delay to allow the device to connect to the broker
                     mqttQueue.push({
-                        brokerId: brokerId,
+                        brokerId,
                         message: `homey/${configDevice}/${configCapability}/value`,
                         value,
                     });
 
                     // Send the value to the device after a short delay to allow the device to connect to the broker
                     mqttQueue.push({
-                        brokerId: brokerId,
+                        brokerId,
                         message: `homey/${configDevice}/${configCapability}/label`,
                         value: value ? labelOn : labelOff,
                     });
@@ -1319,7 +1320,7 @@ class MyApp extends Homey.App
 
                 // Send the value to the device after a short delay to allow the device to connect to the broker
                 mqttQueue.push({
-                    brokerId: brokerId,
+                    brokerId,
                     message: `homey/${configDevice}/${configCapability}/toplabel`,
                     value: topLabel,
                 });
@@ -1351,7 +1352,7 @@ class MyApp extends Homey.App
 
                 // Send the value to the device after a short delay to allow the device to connect to the broker
                 mqttQueue.push({
-                    brokerId: brokerId,
+                    brokerId,
                     message: `homey/${panelId}/button/${buttonIdx}/value`,
                     value,
                 });
@@ -1368,7 +1369,7 @@ class MyApp extends Homey.App
 
                 // Send the value to the device after a short delay to allow the device to connect to the broker
                 mqttQueue.push({
-                    brokerId: brokerId,
+                    brokerId,
                     message: `homey/${panelId}/button/${buttonIdx}/toplabel`,
                     value: topLabel,
                 });
@@ -1385,7 +1386,7 @@ class MyApp extends Homey.App
 
                 // Send the value to the device after a short delay to allow the device to connect to the broker
                 mqttQueue.push({
-                    brokerId: brokerId,
+                    brokerId,
                     message: `homey/${panelId}/button/${buttonIdx}/label`,
                     value: value ? labelOn : labelOff,
                 });
@@ -1414,7 +1415,7 @@ class MyApp extends Homey.App
 
                 // Send the value to the device after a short delay to allow the device to connect to the broker
                 mqttQueue.push({
-                    brokerId: brokerId,
+                    brokerId,
                     message: `homey/${configDevice}/${configCapability}/value`,
                     value: capability ? capability.value : false,
                 });
@@ -1431,7 +1432,7 @@ class MyApp extends Homey.App
 
                 // Send the value to the device after a short delay to allow the device to connect to the broker
                 mqttQueue.push({
-                    brokerId: brokerId,
+                    brokerId,
                     message: `homey/${configDevice}/${configCapability}/toplabel`,
                     value: topLabel,
                 });
@@ -1448,7 +1449,7 @@ class MyApp extends Homey.App
 
                 // Send the value to the device after a short delay to allow the device to connect to the broker
                 mqttQueue.push({
-                    brokerId: brokerId,
+                    brokerId,
                     message: `homey/${configDevice}/${configCapability}/label`,
                     value: mqttButtons.label,
                 });
@@ -1496,7 +1497,7 @@ class MyApp extends Homey.App
             delete deviceConfiguration.core.brightnesslargedisplay;
             delete deviceConfiguration.core.brightnessminidisplay;
         }
-    
+
         this.updateLog(`writeDeviceConfiguration: ${this.varToString(deviceConfiguration)}`);
 
         if (ip !== '')
@@ -1519,7 +1520,7 @@ class MyApp extends Homey.App
     async applyBrokerConfiguration(ip)
     {
         // Make sure the device configuration has the MQTT broker Id's define
-        const sectionConfiguration = {mqttbrokers: []};
+        const sectionConfiguration = { mqttbrokers: [] };
 
         for (const brokerItem of this.brokerItems)
         {
@@ -1566,7 +1567,7 @@ class MyApp extends Homey.App
 
     async updateFirmware(ip)
     {
-        return await this.httpHelperLocal.get(`http://${ip}/updatefirmware`);
+        return this.httpHelperLocal.get(`http://${ip}/updatefirmware`);
     }
 
     async getHomeyDevices({ type = '', ids = null })
@@ -1740,13 +1741,12 @@ class MyApp extends Homey.App
         for (const device of Object.values(driverDevices))
         {
             const data = device.getSettings();
-            const deviceEntry = {ip: data.address, name: device.getName()};
+            const deviceEntry = { ip: data.address, name: device.getName() };
             devices.push(deviceEntry);
         }
 
         return devices;
     }
-
 
     async _getSystemInfo()
     {
@@ -2035,7 +2035,7 @@ class MyApp extends Homey.App
                                             // Add the temperature calibration offset to the value
                                              const temperature = mqttMessage + device.temperatureCalibration;
                                              device.setCapabilityValue('measure_temperature', temperature).catch(device.error);
-                                            
+
                                              // request the device to check the state change
                                             device.checkStateChange(deviceId, 'measure_temperature', temperature);
                                         }
@@ -2084,13 +2084,11 @@ class MyApp extends Homey.App
     {
         return this.MQTTClients.get(brokerId);
     }
-    
+
     disconnectAllClientsAndClose()
     {
         // Iterate through all connected clients and disconnect them
-        var server = this.server;
-        var wsServer = this.wsServer;
-        aedes.close( function()
+        aedes.close(() =>
         {
             // server.close();
             // wsServer.close();
@@ -2107,7 +2105,8 @@ class MyApp extends Homey.App
         const data = (typeof message === 'string' || message instanceof String) ? message : JSON.stringify(message);
 
         const lastMQTTData = this.lastMQTTData.get(`${MQTT_Id}_${topic}`);
-        if (Ignoresame && (lastMQTTData == data) )
+        // eslint-disable-next-line eqeqeq
+        if (Ignoresame && (lastMQTTData == data))
         {
             this.updateLog(`publishMQTTMessage: ${MQTT_Id}_${topic}, ${data}, ignored, same as previous value`);
             return;
@@ -2277,7 +2276,7 @@ class MyApp extends Homey.App
             {
                 this.log(newMessage);
             }
-    
+
             try
             {
                 const nowTime = new Date(Date.now());
@@ -2317,7 +2316,7 @@ class MyApp extends Homey.App
     }
 
     // Send the log to the developer (not applicable to Homey cloud)
-    async sendLog({email = '', description = ''})
+    async sendLog({ email = '', description = '' })
     {
         let tries = 5;
         let error = null;
@@ -2351,7 +2350,7 @@ class MyApp extends Homey.App
                     from: `"Homey User" <${Homey.env.MAIL_USER}>`, // sender address
                     to: Homey.env.MAIL_RECIPIENT, // list of receivers
                     subject: `Button + log (${Homey.manifest.version})`, // Subject line
-                    text: email + '\n' + description + '\n\n' + this.diagLog // plain text body
+                    text: `${email}\n${description}\n\n${this.diagLog}`, // plain text body
                 },
 );
 
@@ -2427,8 +2426,8 @@ class MyApp extends Homey.App
         const state = {
             left_right,
             displaybutton: display_button === 2 ? 'display' : 'button',
-            config: parseInt(configID) + 1,
-            state: button_state
+            config: parseInt(configID, 10) + 1,
+            state: button_state,
         };
         this.triggerFlow(this.triggerConfigButtonChanged, device, tokens, state);
         return this;

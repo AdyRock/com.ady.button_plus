@@ -1,3 +1,6 @@
+/* eslint-disable max-len */
+/* eslint-disable camelcase */
+
 'use strict';
 
 const { Device } = require('homey');
@@ -155,7 +158,7 @@ class PanelDevice extends Device
         this.registerCapabilityListener('button.update_firmware', async () =>
         {
             // Maintenance action button was pressed
-            return await this.homey.app.updateFirmware(this.ip);
+            return this.homey.app.updateFirmware(this.ip);
         });
 
         this.registerCapabilityListener('button.apply_config', async () =>
@@ -219,7 +222,7 @@ class PanelDevice extends Device
 
     async onCapabilityDim(mqttTopic, value, opts)
     {
-        this.homey.app.triggerDim(this, mqttTopic, value)
+        this.homey.app.triggerDim(this, mqttTopic, value);
         if (opts && opts.mqtt)
         {
             // From MQTT, don't send it back
@@ -227,7 +230,7 @@ class PanelDevice extends Device
         }
 
         // Publish the new value to the MQTT broker
-        let brokerId = this.homey.settings.get('defaultBroker');
+        const brokerId = this.homey.settings.get('defaultBroker');
         this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/brightness/${mqttTopic}/value`, value * 100);
     }
 
@@ -264,7 +267,7 @@ class PanelDevice extends Device
         if (changedKeys.includes('mac'))
         {
             // Ensure it is a valid MAC address
-            const mac = newSettings.mac;
+            const { mac } = newSettings;
             if (!mac.match(/^([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})$/))
             {
                 throw new Error('Invalid MAC address');
@@ -276,7 +279,7 @@ class PanelDevice extends Device
         if (changedKeys.includes('langCode'))
         {
             // Ensure it is a valid language code
-            const langCode = newSettings.langCode;
+            const { langCode } = newSettings;
             if (!langCode.match(/^[a-z]{2}$/))
             {
                 throw new Error('Invalid language code');
@@ -395,7 +398,7 @@ class PanelDevice extends Device
 
     async updateConnectorTopLabel(left_right, connector, label)
     {
-        var item = null;
+        let item = null;
         if (this.hasCapability(`configuration_button.connector${connector}`))
         {
             // Get the configuration number for this connector
@@ -418,8 +421,7 @@ class PanelDevice extends Device
 
             return this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/button/${connector * 2}/toplabel`, label);
         }
-        else
-        {
+
             let brokerId = item.rightBrokerId;
             if (brokerId === 'Default')
             {
@@ -432,12 +434,11 @@ class PanelDevice extends Device
             }
 
             return this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}//button/${connector * 2 + 1}/toplabel`, label);
-        }
     }
 
     async updateConnectorText(left_right, connector, label)
     {
-        var item = null;
+        let item = null;
         if (this.hasCapability(`configuration_button.connector${connector}`))
         {
             // Get the configuration number for this connector
@@ -460,8 +461,7 @@ class PanelDevice extends Device
 
             return this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/button/${connector * 2}/label`, label);
         }
-        else
-        {
+
             let brokerId = item.rightBrokerId;
             if (brokerId === 'Default')
             {
@@ -474,7 +474,6 @@ class PanelDevice extends Device
             }
 
             return this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/button/${connector * 2 + 1}/label`, label);
-        }
     }
 
     async updateConfigTopLabel(left_right, configNo, label)
@@ -504,6 +503,7 @@ class PanelDevice extends Device
                             {
                                 // Get the configuration number for this connector
                                 const config = this.getCapabilityValue(`configuration_button.connector${connector}`);
+                                // eslint-disable-next-line eqeqeq
                                 if (config == configNo)
                                 {
                                     return this.updateConnectorTopLabel('left', connector, label);
@@ -520,8 +520,7 @@ class PanelDevice extends Device
                 }
             }
             else
-            {
-                if (item.rightDevice !== 'customMQTT')
+            if (item.rightDevice !== 'customMQTT')
                 {
                     if (item.rightDevice !== 'none')
                     {
@@ -541,6 +540,7 @@ class PanelDevice extends Device
                             {
                                 // Get the configuration number for this connector
                                 const config = this.getCapabilityValue(`configuration_button.connector${connector}`);
+                                // eslint-disable-next-line eqeqeq
                                 if (config == configNo)
                                 {
                                     return this.updateConnectorTopLabel('right', connector, label);
@@ -555,12 +555,13 @@ class PanelDevice extends Device
                 {
                     throw new Error('Custom MQTT not compatible');
                 }
-            }
         }
         else
         {
             throw new Error('Invalid configuration number');
         }
+
+        return null;
     }
 
     async updateConfigLabel(left_right, configNo, label)
@@ -590,6 +591,7 @@ class PanelDevice extends Device
                             {
                                 // Get the configuration number for this connector
                                 const config = this.getCapabilityValue(`configuration_button.connector${connector}`);
+                                // eslint-disable-next-line eqeqeq
                                 if (config == configNo)
                                 {
                                     return this.updateConnectorText('left', connector, label);
@@ -606,8 +608,7 @@ class PanelDevice extends Device
                 }
             }
             else
-            {
-                if (item.rightDevice !== 'customMQTT')
+            if (item.rightDevice !== 'customMQTT')
                 {
                     if (item.rightDevice !== 'none')
                     {
@@ -627,6 +628,7 @@ class PanelDevice extends Device
                             {
                                 // Get the configuration number for this connector
                                 const config = this.getCapabilityValue(`configuration_button.connector${connector}`);
+                                // eslint-disable-next-line eqeqeq
                                 if (config == configNo)
                                 {
                                     return this.updateConnectorText('right', connector, label);
@@ -641,12 +643,13 @@ class PanelDevice extends Device
                 {
                     throw new Error('Custom MQTT not compatible');
                 }
-            }
         }
         else
         {
             throw new Error('Invalid configuration number');
         }
+
+        return null;
     }
 
     async updateDateAndTime(dateTime)
@@ -654,11 +657,11 @@ class PanelDevice extends Device
         if (this.hasCapability('date'))
         {
             let date = '';
-            let formatString = { year: 'numeric', month: 'long', day: '2-digit' }
+            let formatString = { year: 'numeric', month: 'long', day: '2-digit' };
             formatString.day = this.dateFormat;
             formatString.month = this.monthFormat;
             formatString.year = this.yearFormat;
-            let weekdayFormat = this.weekdayFormat;
+            const { weekdayFormat } = this;
             if (weekdayFormat !== 'none')
             {
                 formatString.weekday = weekdayFormat;
@@ -747,7 +750,7 @@ class PanelDevice extends Device
                             payload: '',
                             eventtype: 18,
                         },
-                    }, ],
+                    }],
                 };
 
                 this.homey.app.updateLog(`writeSensorConfig: ${this.homey.app.varToString(sectionConfiguration)}`);
@@ -782,7 +785,7 @@ class PanelDevice extends Device
             try
             {
                 // Add the temperature event entry
-                let brokerId = this.homey.settings.get('defaultBroker');
+                const brokerId = this.homey.settings.get('defaultBroker');
                 const sectionConfiguration = {
                     core:
                     {
@@ -852,11 +855,11 @@ class PanelDevice extends Device
     {
         try
         {
-            var deviceConfigurations = await this.homey.app.readDeviceConfiguration(this.ip);
+            const deviceConfigurations = await this.homey.app.readDeviceConfiguration(this.ip);
             if (deviceConfigurations.info && deviceConfigurations.info.firmware)
             {
                 this.firmware = parseFloat(deviceConfigurations.info.firmware);
-                await this.setSettings({firmware: deviceConfigurations.info.firmware});
+                await this.setSettings({ firmware: deviceConfigurations.info.firmware });
             }
 
             await this.uploadAllButtonConfigurations(deviceConfigurations);
@@ -1127,7 +1130,7 @@ class PanelDevice extends Device
     async onCapabilityDisplayConfiguration(value, opts)
     {
         this.log('onCapabilityConfiguration', value, opts);
-        await this.homey.app.uploadDisplayConfiguration(this.ip, value, this.id)
+        await this.homey.app.uploadDisplayConfiguration(this.ip, value, this.id);
     }
 
     async onCapabilityConfiguration(connector, value, opts)
@@ -1144,7 +1147,7 @@ class PanelDevice extends Device
         // Setup parameters and call procesButtonClick
         const parameters = {};
         parameters.fromButton = true;
-        parameters.buttonCapability = `left_button.connector${connector}`
+        parameters.buttonCapability = `left_button.connector${connector}`;
         parameters.connector = connector;
         parameters.side = 'left';
         parameters.value = value;
@@ -1160,7 +1163,7 @@ class PanelDevice extends Device
         // Setup parameters and call procesButtonClick
         const parameters = {};
         parameters.fromButton = true;
-        parameters.buttonCapability = `right_button.connector${connector}`
+        parameters.buttonCapability = `right_button.connector${connector}`;
         parameters.connector = connector;
         parameters.side = 'right';
         parameters.value = value;
@@ -1177,6 +1180,7 @@ class PanelDevice extends Device
 
     async processMQTTMessage(topic, MQTTMessage)
     {
+        // eslint-disable-next-line eqeqeq
         if (!MQTTMessage || MQTTMessage.panelId != this.id)
         {
             // Message is not for this device
@@ -1197,7 +1201,7 @@ class PanelDevice extends Device
         parameters.connectorType = this.getSetting(`connect${parameters.connector}Type`);
         if (parameters.connectorType === 2)
         {
-            parameters.configNo = this.getCapabilityValue(`configuration_display`);
+            parameters.configNo = this.getCapabilityValue('configuration_display');
         }
         else
         {
@@ -1235,7 +1239,7 @@ class PanelDevice extends Device
         else if (topic === 'homey/clickrelease')
         {
             // The button has been released
-            this.processReleaseMessage(parameters)
+            this.processReleaseMessage(parameters);
         }
     }
 
@@ -1244,7 +1248,7 @@ class PanelDevice extends Device
         // Check if a large display or if no configuration assigned to this connector
         if ((parameters.connectorType === 2) || (parameters.configNo === null) || parameters.device === '' || parameters.capability === '')
         {
-            let value = parameters.value;
+            let { value } = parameters;
             if (!parameters.fromButton)
             {
                 // Only do this for on / off capabilities and not dim
@@ -1273,7 +1277,7 @@ class PanelDevice extends Device
             {
                 this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'clicked', value);
             }
-    
+
             let buttonNumber = -1;
             let onMessage = '';
             let offMessage = '';
@@ -1317,7 +1321,7 @@ class PanelDevice extends Device
                     // Set the button state back to false immediately
                     setImmediate(() =>
                     {
-                        this.setCapabilityValue(parameters.buttonCapability, false).catch(this.error)
+                        this.setCapabilityValue(parameters.buttonCapability, false).catch(this.error);
 
                         // and trigger the flow
                         this.homey.app.triggerButtonOff(this, parameters.side === 'left', parameters.connector + 1);
@@ -1387,6 +1391,10 @@ class PanelDevice extends Device
                 {
                     value = !variable.value;
 
+                    // Cant't update the variable as the app has missing scopes so a Flow card is required to do this
+                    // variable.value = value;
+                    // this.homey.app.setVariable(configCapabilityName, variable);
+
                     // Set the device button state
                     this.setCapabilityValue(`right_button.connector${parameters.connector}`, value).catch(this.error);
 
@@ -1394,7 +1402,7 @@ class PanelDevice extends Device
                     {
                         this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'clicked', value);
                     }
-        
+
                     // and trigger the flow
                     if (value)
                     {
@@ -1408,7 +1416,7 @@ class PanelDevice extends Device
 
                 return;
             }
-            else if (configDeviceID !== 'none')
+            if (configDeviceID !== 'none')
             {
                 // Find the Homey device that is defined in the configuration
                 const homeyDeviceObject = await this.homey.app.getHomeyDeviceById(configDeviceID);
@@ -1434,7 +1442,7 @@ class PanelDevice extends Device
                     {
                         this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'clicked', value);
                     }
-                    
+
                     // For dim cpaabilities we need to adjust the value by the amount in the dimChange field and not change the button state
                     // Get the required change from the dimChange field and convert it from a percentage to a value
                     const change = parseInt(dimChange, 10) / 100;
@@ -1475,12 +1483,12 @@ class PanelDevice extends Device
                 {
                     if (configCapabilityName === 'windowcoverings_state')
                     {
-                        value = parameters.fromButton ? parameters.value : !this.getCapabilityValue(parameters.buttonCapability);;
+                        value = parameters.fromButton ? parameters.value : !this.getCapabilityValue(parameters.buttonCapability);
                         if (parameters.configNo !== null)
                         {
                             this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'clicked', value);
                         }
-            
+
                         if (value)
                         {
                             await homeyDeviceObject.setCapabilityValue(configCapabilityName, 'up');
@@ -1540,12 +1548,12 @@ class PanelDevice extends Device
             // Only do this for on / off capabilities and not dim
             try
             {
-                let value = !this.getCapabilityValue(parameters.buttonCapability);
+                const value = !this.getCapabilityValue(parameters.buttonCapability);
                 if (parameters.configNo !== null)
                 {
                     this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'clicked', value);
                 }
-    
+
                 // and trigger the flow
                 if (value)
                 {
@@ -1581,6 +1589,8 @@ class PanelDevice extends Device
             // process another click message to change the dim value
             return this.processClickMessage(parameters);
         }
+
+        return null;
     }
 
     async processReleaseMessage(parameters)
@@ -1645,32 +1655,20 @@ class PanelDevice extends Device
             const buttonPanelConfiguration = this.homey.app.buttonConfigurations[parameters.configNo];
             let configDeviceID = '';
             let configCapabilityName = '';
-            let buttonNumber = 0;
-            let onMessage = '';
-            let offMessage = '';
             let brokerId = '';
-            let dimChange = '';
 
             // Setup which of our buttons (left or right) this message is for
             if (parameters.side === 'left')
             {
                 configDeviceID = buttonPanelConfiguration.leftDevice;
                 configCapabilityName = buttonPanelConfiguration.leftCapability;
-                buttonNumber = parameters.connector * 2;
-                onMessage = buttonPanelConfiguration.leftOnText;
-                offMessage = buttonPanelConfiguration.leftOffText;
                 brokerId = buttonPanelConfiguration.leftBrokerId;
-                dimChange = buttonPanelConfiguration.leftDimChange;
             }
             else if (parameters.side === 'right')
             {
                 configDeviceID = buttonPanelConfiguration.rightDevice;
                 configCapabilityName = buttonPanelConfiguration.rightCapability;
-                buttonNumber = (parameters.connector * 2) + 1;
-                onMessage = buttonPanelConfiguration.rightOnText;
-                offMessage = buttonPanelConfiguration.rightOffText;
                 brokerId = buttonPanelConfiguration.rightBrokerId;
-                dimChange = buttonPanelConfiguration.rightDimChange;
             }
 
             if (configDeviceID === 'customMQTT')
@@ -1772,8 +1770,8 @@ class PanelDevice extends Device
             let mqttQue = [];
             // Create a new section configuration for the button panel by adding the core and mqttbuttons sections of the deviceConfigurations to core and mqttbuttons of a new object
             const sectionConfiguration = {
-                'core': { ...deviceConfigurations.core },
-                'mqttbuttons': [...deviceConfigurations.mqttbuttons],
+                core: { ...deviceConfigurations.core },
+                mqttbuttons: [...deviceConfigurations.mqttbuttons],
             };
 
             if (sectionConfiguration.mqttbuttons.length < (deviceConfigurations.info.connectors.length * 2))
@@ -1787,10 +1785,10 @@ class PanelDevice extends Device
                         label: `Btn_${i}`,
                         toplabel: 'Label',
                         topics: [],
-                    });
+                    },
+);
                 }
             }
-            let updated = false;
 
             for (let i = 0; i < (sectionConfiguration.mqttbuttons.length / 2); i++)
             {
@@ -1806,7 +1804,6 @@ class PanelDevice extends Device
                 {
                     mqttQue = mqttQue.concat(await this.homey.app.applyButtonConfiguration(this.id, connectorType, sectionConfiguration, i, configNo));
                     // await this.publishButtonCapabilities(configNo, i);
-                    updated = true;
                 }
                 catch (error)
                 {
@@ -1823,7 +1820,6 @@ class PanelDevice extends Device
             {
                 this.log(error);
             }
-
 
             // Send the MQTT messages after a short delay to allow the device to connect to the broker
             setTimeout(async () =>
@@ -1847,9 +1843,9 @@ class PanelDevice extends Device
         // Create a new section configuration for the button panel by adding mqttbuttons sections of the deviceConfiguration to a new object
         // Create the framework for the left and right mqttbuttons section
         const sectionConfiguration = {
-            'mqttbuttons': [
+            mqttbuttons: [
                     {},
-                    {}
+                    {},
                 ],
         };
 
@@ -1857,6 +1853,7 @@ class PanelDevice extends Device
         sectionConfiguration.core = {};
 
         const connectorType = this.getSetting(`connect${connector}Type`);
+        // eslint-disable-next-line eqeqeq
         if (connectorType == 1)
         {
             try
@@ -1867,7 +1864,7 @@ class PanelDevice extends Device
                 {
                     await this.homey.app.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value, false);
                 }
-        
+
                 // write the updated configuration back to the device
                 await this.homey.app.writeDeviceConfiguration(this.ip, sectionConfiguration);
             }
@@ -1876,8 +1873,6 @@ class PanelDevice extends Device
                 this.homey.app.updateLog(error, 0);
             }
         }
-
-        return;
     }
 
     async uploadDisplayConfigurations()
@@ -1914,7 +1909,7 @@ class PanelDevice extends Device
                                 if (homeyDeviceObject)
                                 {
                                     const capability = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObject, item.capability);
-                                    let brokerId = item.brokerId;
+                                    let { brokerId } = item;
                                     if (brokerId === 'Default')
                                     {
                                         brokerId = this.homey.settings.get('defaultBroker');
@@ -1946,7 +1941,7 @@ class PanelDevice extends Device
                 width: 100,
                 fontsize: 0,
                 align: 0,
-                label: this.homey.__("hello1"),
+                label: this.homey.__('hello1'),
                 round: 0,
                 topics: [],
             },
@@ -1956,7 +1951,7 @@ class PanelDevice extends Device
                 width: 100,
                 fontsize: 0,
                 align: 0,
-                label: this.homey.__("hello2"),
+                label: this.homey.__('hello2'),
                 round: 0,
                 topics: [],
             },
@@ -1966,10 +1961,10 @@ class PanelDevice extends Device
                 width: 100,
                 fontsize: 0,
                 align: 0,
-                label: this.homey.__("hello3"),
+                label: this.homey.__('hello3'),
                 round: 0,
                 topics: [],
-            }, ];
+            }];
 
             try
             {
@@ -2091,30 +2086,26 @@ class PanelDevice extends Device
 
     checkStateChange(deviceId, capability, value)
     {
-        // if (capability !== '_variable_')
+        // check the configuration to see if this capability is being monitored by one of the buttons
+        if (this.hasCapability('configuration_button.connector0'))
         {
-            // check the configuration to see if this capability is being monitored by one of the buttons
-
-            if (this.hasCapability('configuration_button.connector0'))
-            {
-                this.checkStateChangeForConnector(0, deviceId, capability, value);
-            }
-            if (this.hasCapability('configuration_button.connector1'))
-            {
-                this.checkStateChangeForConnector(1, deviceId, capability, value);
-            }
-            if (this.hasCapability('configuration_button.connector2'))
-            {
-                this.checkStateChangeForConnector(2, deviceId, capability, value);
-            }
-            if (this.hasCapability('configuration_button.connector3'))
-            {
-                this.checkStateChangeForConnector(3, deviceId, capability, value);
-            }
-            if (this.hasCapability('configuration_button.connector4'))
-            {
-                this.checkStateChangeForConnector(4, deviceId, capability, value);
-            }
+            this.checkStateChangeForConnector(0, deviceId, capability, value);
+        }
+        if (this.hasCapability('configuration_button.connector1'))
+        {
+            this.checkStateChangeForConnector(1, deviceId, capability, value);
+        }
+        if (this.hasCapability('configuration_button.connector2'))
+        {
+            this.checkStateChangeForConnector(2, deviceId, capability, value);
+        }
+        if (this.hasCapability('configuration_button.connector3'))
+        {
+            this.checkStateChangeForConnector(3, deviceId, capability, value);
+        }
+        if (this.hasCapability('configuration_button.connector4'))
+        {
+            this.checkStateChangeForConnector(4, deviceId, capability, value);
         }
 
         const configNo = this.getCapabilityValue('configuration_display');
@@ -2251,7 +2242,7 @@ class PanelDevice extends Device
                         }
 
                         // Publish to MQTT
-                        let brokerId = displayItem.brokerId;
+                        let { brokerId } = displayItem;
                         if (brokerId === 'Default')
                         {
                             brokerId = this.homey.settings.get('defaultBroker');
