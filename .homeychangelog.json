@@ -118,5 +118,8 @@
     },
     "0.3.13": {
         "en": "Fixed missing variables from Display Configuration elements."
+    },
+    "0.3.14": {
+        "en": "Added tips for item parameters in the Display Configuration."
     }
 }

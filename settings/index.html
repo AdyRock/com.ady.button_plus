@@ -1916,6 +1916,19 @@
                 deleteItem: Homey.__("settings.deleteItem"),
                 brokerId: Homey.__("settings.brokerId"),
             }
+            const ctrlExplanations = {
+                device: Homey.__("settings.deviceDExplanation"),
+                capability: Homey.__("settings.capabilityDExplanation"),
+                label: Homey.__("settings.labelExplanation"),
+                unit: Homey.__("settings.unitExplanation"),
+                xPos: Homey.__("settings.xPosExplanation"),
+                yPos: Homey.__("settings.yPosExplanation"),
+                width: Homey.__("settings.widthExplanation"),
+                rounding: Homey.__("settings.roundingExplanation"),
+                fontSize: Homey.__("settings.fontSizeExplanation"),
+                deleteItem: Homey.__("settings.deleteItemExplanation"),
+                brokerId: Homey.__("settings.brokerIdExplanation"),
+            }
             const itemLegend = Homey.__("settings.displayItemlegend", { itemNo: itemNo + 1 });
 
             section = section +
@@ -1927,37 +1940,73 @@
                                 <span class="icon" style='font-size:30px;'>&#8628;</span>
                             </summary>
                             <hr>
-                            <label class="homey-form-label" for="display${itemNo}Device">${ctrlLabels.device}</label>
+                            <label class="homey-form-label" for="display${itemNo}Device">${ctrlLabels.device}
+                                <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                    <span class="tooltiptext">${ctrlExplanations.device}</span>
+                                </div>
+                            </label>
                             <select class="homey-form-select" id="display${itemNo}Device" onChange="getDisplayCapabilities(${itemNo})">
                             </select>
 
                             <div id="display${itemNo}CapabilityDiv">
                                 <br>
-                                <label class="homey-form-label" for="display${itemNo}Capability">${ctrlLabels.capability}</label>
+                                <label class="homey-form-label" for="display${itemNo}Capability">${ctrlLabels.capability}
+                                    <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                        <span class="tooltiptext">${ctrlExplanations.capability}</span>
+                                    </div>
+                                </label>
                                 <select class="homey-form-select" id="display${itemNo}Capability" onChange="selectDisplayCapability(this, ${itemNo})">
                                 </select>
                             </div>
                             <div id="display${itemNo}DisplayDiv">
                                 <br>
-                                <label class="homey-form-label" for="display${itemNo}Label">${ctrlLabels.label}</label>
+                                <label class="homey-form-label" for="display${itemNo}Label">${ctrlLabels.label}
+                                    <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                        <span class="tooltiptext">${ctrlExplanations.label}</span>
+                                    </div>
+                                </label>
                                 <input class="homey-form-input" id="display${itemNo}Label" type="text" oninput="onDisplayLabelChange(this, ${itemNo})" value="${item.label}" />
 
-                                <label class="homey-form-label" for="display${itemNo}Unit">${ctrlLabels.unit}</label>
+                                <label class="homey-form-label" for="display${itemNo}Unit">${ctrlLabels.unit}
+                                    <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                        <span class="tooltiptext">${ctrlExplanations.unit}</span>
+                                    </div>
+                                </label>
                                 <input class="homey-form-input" id="display${itemNo}Unit" type="text" value="${item.unit}" />
 
-                                <label class="homey-form-label" for="display${itemNo}X">${ctrlLabels.xPos}</label>
+                                <label class="homey-form-label" for="display${itemNo}X">${ctrlLabels.xPos}
+                                    <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                        <span class="tooltiptext">${ctrlExplanations.xPos}</span>
+                                    </div>
+                                </label>
                                 <input class="homey-form-input" id="display${itemNo}X" type="number" value="${item.xPos}" />
 
-                                <label class="homey-form-label" for="display${itemNo}Y">${ctrlLabels.yPos}</label>
+                                <label class="homey-form-label" for="display${itemNo}Y">${ctrlLabels.yPos}
+                                    <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                        <span class="tooltiptext">${ctrlExplanations.yPos}</span>
+                                    </div>
+                                </label>
                                 <input class="homey-form-input" id="display${itemNo}Y" type="number" value="${item.yPos}" />
 
-                                <label class="homey-form-label" for="display${itemNo}Width">${ctrlLabels.width}</label>
+                                <label class="homey-form-label" for="display${itemNo}Width">${ctrlLabels.width}
+                                    <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                        <span class="tooltiptext">${ctrlExplanations.width}</span>
+                                    </div>
+                                </label>
                                 <input class="homey-form-input" id="display${itemNo}Width" type="number" value="${item.width}" />
 
-                                <label class="homey-form-label" for="display${itemNo}Rounding">${ctrlLabels.rounding}</label>
+                                <label class="homey-form-label" for="display${itemNo}Rounding">${ctrlLabels.rounding}
+                                    <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                        <span class="tooltiptext">${ctrlExplanations.rounding}</span>
+                                    </div>
+                                </label>
                                 <input class="homey-form-input" id="display${itemNo}Rounding" type="number" value="${item.rounding}" />
 
-                                <label class="homey-form-label" for="display${itemNo}FontSize">${ctrlLabels.fontSize}</label>
+                                <label class="homey-form-label" for="display${itemNo}FontSize">${ctrlLabels.fontSize}
+                                    <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                        <span class="tooltiptext">${ctrlExplanations.fontSize}</span>
+                                    </div>
+                                </label>
                                 <select class="homey-form-select" id="display${itemNo}FontSize">
                                     <option value=1>1</option>
                                     <option value=2>2</option>
@@ -1965,7 +2014,11 @@
                                     <option value=4>4</option>
                                 </select>
                             </div>
-                            <label class="homey-form-label" for="display${itemNo}BrokerId">${ctrlLabels.brokerId}</label>
+                            <label class="homey-form-label" for="display${itemNo}BrokerId">${ctrlLabels.brokerId}
+                                    <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                        <span class="tooltiptext">${ctrlExplanations.brokerId}</span>
+                                    </div>
+                                </label>
                                 <select class="homey-form-select" id="display${itemNo}BrokerId">
                                 </select>
                                 <br>
