@@ -115,5 +115,8 @@
     },
     "0.3.12": {
         "en": "Updated to use homey-api instead of athom-api and a general clean up to reduce memory usage. Prevent duplicate capability listener registration."
-    }
+    },
+    "0.3.13": {
+        "en": "Fixed missing variables from Dislay Configuration elements."
+    },
 }

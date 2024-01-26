@@ -2058,13 +2058,10 @@
         {
             for (const variable of variablesArray)
             {
-                if (variable.type === "boolean")
-                {
-                    var option = document.createElement("option");
-                    option.text = variable.name;
-                    option.value = variable.id;
-                    capabilityElement.add(option);
-                }
+                var option = document.createElement("option");
+                option.text = variable.name;
+                option.value = variable.id;
+                capabilityElement.add(option);
             }
 
             // Restore the previous variable selection
