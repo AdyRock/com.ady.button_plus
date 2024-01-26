@@ -183,6 +183,7 @@
       },
       "value": 0,
       "units": "°C",
+      "step": 0.1,
       "hint": {
         "en": "A value to add to the temperature measurement to correct for internal heat",
         "nl": "Een waarde die bij de temperatuur meting wordt opgeteld om te corrigeren voor interne warmte"
