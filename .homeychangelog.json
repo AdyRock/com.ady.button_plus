@@ -120,6 +120,6 @@
         "en": "Fixed missing variables from Display Configuration elements."
     },
     "0.3.14": {
-        "en": "Added tips for item parameters in the Display Configuration."
+        "en": "Added tips for item parameters in the Display Configuration. Add step option to Temperature Calibration in Advanced settings."
     }
 }
