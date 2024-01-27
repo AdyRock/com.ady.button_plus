@@ -1163,6 +1163,66 @@
       },
       {
         "title": {
+          "en": "Set the panel brightness",
+          "nl": "Stel de helderheid van het paneel in"
+        },
+        "titleFormatted": {
+          "en": "Set the large display brightness to [[large]] and the mini display brightness to [[mini]]",
+          "nl": "Stel de helderheid van het grote display in op [[large]] en het kleine display op [[mini]]"
+        },
+        "hint": {
+          "en": "Set the brightness of the displays",
+          "nl": "Stel de helderheid van de displays in"
+        },
+        "args": [
+          {
+            "type": "number",
+            "name": "large",
+            "title": {
+              "en": "Large Level",
+              "nl": "Groot niveau"
+            },
+            "hint": {
+              "en": "Level (1-100)",
+              "nl": "Niveau (1-100)"
+            },
+            "placeholder": {
+              "en": "Large display level (1-100)",
+              "nl": "Groot display niveau (1-100)"
+            },
+            "min": 1,
+            "max": 100,
+            "step": 1
+          },
+          {
+            "type": "number",
+            "name": "mini",
+            "title": {
+              "en": "Mini Level",
+              "nl": "Klein niveau"
+            },
+            "hint": {
+              "en": "Level (1-100)",
+              "nl": "Niveau (1-100)"
+            },
+            "placeholder": {
+              "en": "Large display level (1-100)",
+              "nl": "Klein display niveau (1-100)"
+            },
+            "min": 1,
+            "max": 100,
+            "step": 1
+          },
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=panel_hardware"
+          }
+        ],
+        "id": "set_dim"
+      },
+      {
+        "title": {
           "en": "Set information text",
           "nl": "Informatie tekst instellen"
         },

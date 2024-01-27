@@ -454,6 +454,13 @@ class MyApp extends Homey.App
                 return args.device.updateConfigLabel(args.left_right, args.config - 1, args.label);
             });
 
+        this.homey.flow.getActionCard('set_dim')
+            .registerRunListener(async (args, state) =>
+            {
+                this.log(`set_dim ${args.large} to ${args.mini}`);
+                return args.device.setDimLevel(args.large, args.mini);
+            });
+
         /** * CONDITIONS ** */
         this._conditionIsButtonOn = this.homey.flow.getConditionCard('is_button_on');
         this._conditionIsButtonOn.registerRunListener(async (args, state) =>
@@ -1489,13 +1496,6 @@ class MyApp extends Homey.App
         if (!this.autoConfigGateway)
         {
             return null;
-        }
-
-        // Remove core.brightnesslargedisplay and core.brightnessminidisplay references from deviceConfiguration
-        if (deviceConfiguration.core && deviceConfiguration.core.brightnesslargedisplay)
-        {
-            delete deviceConfiguration.core.brightnesslargedisplay;
-            delete deviceConfiguration.core.brightnessminidisplay;
         }
 
         this.updateLog(`writeDeviceConfiguration: ${this.varToString(deviceConfiguration)}`);

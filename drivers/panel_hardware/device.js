@@ -725,6 +725,33 @@ class PanelDevice extends Device
         return null;
     }
 
+    async setDimLevel(large, mini)
+    {
+        if (this.ip !== '')
+        {
+            try
+            {
+                const sectionConfiguration = {
+                    core:
+                    {
+                        brightnesslargedisplay: large,
+                        brightnessminidisplay: mini,
+                    },
+                };
+
+                this.homey.app.updateLog(`writeCore ${this.homey.app.varToString(sectionConfiguration)}`);
+
+                return await await this.homey.app.writeDeviceConfiguration(this.ip, sectionConfiguration);
+            }
+            catch (err)
+            {
+                this.homey.app.updateLog(`Error setting up pane temperature topic: ${err.message}`, 0);
+            }
+        }
+
+        return null;
+    }
+
     async uploadPanelTemperatureConfiguration()
     {
         if (this.ip !== '')
