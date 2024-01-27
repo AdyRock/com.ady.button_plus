@@ -693,6 +693,9 @@ class PanelDevice extends Device
                 // eslint-disable-next-line object-curly-newline
                 time = dateTime.toLocaleTimeString(this.langCode, { hour12: true, hour: 'numeric', minute: '2-digit' });
             }
+            
+            // Replace a . with a : in the time
+            time = time.replace('.', ':');
 
             this.setCapabilityValue('date', date).catch(this.error);
             this.setCapabilityValue('time', time).catch(this.error);
