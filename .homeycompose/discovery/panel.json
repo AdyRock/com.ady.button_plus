@@ -4,5 +4,5 @@
         "name": "_button",
         "protocol": "tcp"
     },
-    "id": "{{'txt.id'}}"
+    "id": "{{txt.id}}"
 }

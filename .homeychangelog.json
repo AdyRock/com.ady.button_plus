@@ -124,5 +124,8 @@
     },
     "0.3.15": {
         "en": "Added Display dim Flow action card. Force time to use a : instead of a . so the Button + doesn't treat it as a number."
+    },
+    "0.3.16": {
+        "en": "Fix Right Button text changes to Left Button text when Top Label first changed #93. Fix mDNS discovery issue. Optimise complete configuration upload."
     }
 }

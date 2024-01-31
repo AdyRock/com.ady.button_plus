@@ -721,20 +721,11 @@ class MyApp extends Homey.App
         {
             // apply the new configuration
             const sectionConfiguration = {};
-            const mqttQue = await this.applyDisplayConfiguration(sectionConfiguration, configurationNo, panelId);
+            await this.applyDisplayConfiguration(sectionConfiguration, configurationNo, panelId);
             this.updateLog(`Current Config: ${sectionConfiguration}`);
 
             // write the updated configuration back to the device
             await this.writeDeviceConfiguration(ip, sectionConfiguration);
-
-            // Send the MQTT messages after a short delay to allow the device to connect to the broker
-            setTimeout(async () =>
-            {
-                for (const mqttMsg of mqttQue)
-                {
-                    await this.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value);
-                }
-            }, 1000);
         }
         catch (err)
         {
@@ -828,7 +819,16 @@ class MyApp extends Homey.App
             }
         }
 
-        return mqttQueue;
+        // Send the MQTT messages after a short delay to allow the device to connect to the broker
+        setTimeout(async () =>
+        {
+            for (const mqttMsg of mqttQueue)
+            {
+                this.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value).catch(this.error);
+            }
+        }, 1000);
+
+        return;
     }
 
     async uploadButtonPanelConfiguration(ip, panelId, connectorNo, configurationNo)
@@ -859,7 +859,7 @@ class MyApp extends Homey.App
                 {
                     for (const mqttMsg of mqttQue)
                     {
-                        await this.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value);
+                        this.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value).catch(this.error);
                     }
                 }, 1000);
             }
