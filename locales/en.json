@@ -13,8 +13,8 @@
         "displayExplanation": "Display Configrations can be applied to one or more large Button+ displays to determine what is displayed.<br>You define the X and Y position of the top left corner of the item and it's width all as a percentage of the display width.<br>You can define multiple items to display but make sure they all fit.",
         "brokerExplanation": "You can define multiple brokers to connect to.<br>Each broker can have multiple devices and each device can have multiple capabilities.<br>Brokers can be enabled or disabled and if disabled, no features will be published to it.<br>You can change which broker is the used for the 'Default' setting here. This broker is also used where no other broker definition is available",
         "panelSettings": "Button Settings",
-        "leftPanel": "Left Button",
-        "rightPanel": "Right Button",
+        "LeftPanel": "Left Button",
+        "RightPanel": "Right Button",
         "topLabel": "Top Label",
         "topLabelExplanation": "The Top Label is shown along the top of the mini display. It can be used to show the name of the device or flow that is controlled by the button.",
         "label": "Label",
@@ -132,7 +132,9 @@
         "importExportExplanation": "To import settings, paste the JSON text into the box below and tap the 'Import' button.<br>To export settings, tap the 'Export' button and then copy the JSON text from the box below.",
         "imported": "Settings have been imported.\n\nCheck the configurations and then tap the 'Save All Configurations' button to save them.",
         "exported:": "The settings have been copied to the panel.\n\nYou can select the all text in the panel, copy it to the clipboard and then paste them into a text file or email.",
-        "copied": "The settings have been copied.\n\nYou can now paste them into another Configuration."
+        "copied": "The settings have been copied.\n\nYou can now paste them into another Configuration.",
+        "screenNo": "Screen Index",
+        "screenNoExplanation": "Select the screen index to display the item on. The default is screen 1. If there is more than 1 screen, you can switch screens with the left or right screen buttons."
     },
     "pair": {
         "manual_add":{

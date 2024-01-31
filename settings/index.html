@@ -99,7 +99,7 @@
                         <div class="horizontalgroup">
                             <details onclick="scrollToTop(this)">
                                 <summary class="summary">
-                                    <legend class="homey-subtitle" id="buttonLeftLegend"><b><em><span data-i18n="settings.leftPanel"></span></em></b></legend>
+                                    <legend class="homey-subtitle" id="buttonLeftLegend"><b><em><span data-i18n="settings.LeftPanel"></span></em></b></legend>
                                     <span class="icon" style='font-size:30px;'>&#8628;</span>
                                 </summary>
                                 <hr>
@@ -130,7 +130,7 @@
                                         <span class="tooltiptext" data-i18n="settings.topLabelExplanation"></span>
                                     </div>
                                 </label>
-                                <input class="homey-form-input" id="leftTopText" type="text" maxlength="20" oninput="onButtonLabelChange(this, 'buttonLeftLegend')" value="" />
+                                <input class="homey-form-input" id="leftTopText" type="text" maxlength="20" oninput="onButtonLabelChange(this, 'Left')" value="" />
 
                                 <span>
                                     <div id="leftOnTextDiv">
@@ -199,7 +199,7 @@
                         <div class="horizontalgroup">
                             <details onclick="scrollToTop(this)">
                                 <summary class="summary">
-                                    <legend class="homey-subtitle" id="buttonRightLegend"><b><em><span data-i18n="settings.rightPanel"></span></b></em></legend>
+                                    <legend class="homey-subtitle" id="buttonRightLegend"><b><em><span data-i18n="settings.RightPanel"></span></b></em></legend>
                                     <span class="icon" style='font-size:30px;'>&#8628;</span>
                                 </summary>
                                 <hr>
@@ -226,7 +226,7 @@
                                         <span class="tooltiptext" data-i18n="settings.topLabelExplanation"></span>
                                     </div>
                                 </label>
-                                <input class="homey-form-input" id="rightTopText" type="text" maxlength="20" oninput="onButtonLabelChange(this, 'buttonRightLegend')" value="" />
+                                <input class="homey-form-input" id="rightTopText" type="text" maxlength="20" oninput="onButtonLabelChange(this, 'Right')" value="" />
 
                                 <span>
                                     <div id="rightOnTextDiv">
@@ -666,7 +666,7 @@
                         const dimVal = parseInt(leftDimChangeElement.value, 10);
                         if (dimVal < -100 || dimVal > 100 || dimVal === 0)
                         {
-                            Homey.alert(Homey.__("settings.dimError", { leftRight: Homey.__("settings.leftPanel") }));
+                            Homey.alert(Homey.__("settings.dimError", { leftRight: Homey.__("settings.LeftPanel") }));
                             return;
                         }
                     }
@@ -677,7 +677,7 @@
                         if (dimVal < -100 || dimVal > 100 || dimVal === 0)
                         {
                             // Get the translated string and insert the Right text
-                            Homey.alert(Homey.__("settings.dimError", { leftRight: Homey.__("settings.rightPanel") }));
+                            Homey.alert(Homey.__("settings.dimError", { leftRight: Homey.__("settings.RightPanel") }));
                             return;
                         }
                     }
@@ -1366,9 +1366,9 @@
             }
         }
 
-        function onButtonLabelChange(element, legend)
+        function onButtonLabelChange(element, side)
         {
-            document.getElementById(`${legend}`).innerHTML = `<b><em>${Homey.__("settings.leftPanel")}</em></b> - ${element.value}`;
+            document.getElementById(`button${side}Legend`).innerHTML = `<b><em>${Homey.__(`settings.${side}Panel`)}</em></b> - ${element.value}`;
         }
 
         function sortDevices(devicesArray)
@@ -1696,7 +1696,7 @@
                 let ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
 
                 leftTopTextElement.value = ButtonPanelConfiguration.leftTopText;
-                document.getElementById(`buttonLeftLegend`).innerHTML = `<b><em>${Homey.__("settings.leftPanel")}</em></b> - ${leftTopTextElement.value}`;
+                document.getElementById(`buttonLeftLegend`).innerHTML = `<b><em>${Homey.__("settings.LeftPanel")}</em></b> - ${leftTopTextElement.value}`;
                 leftOnTextElement.value = ButtonPanelConfiguration.leftOnText;
                 leftOffTextElement.value = ButtonPanelConfiguration.leftOffText;
                 leftDeviceElement.value = ButtonPanelConfiguration.leftDevice;
@@ -1722,7 +1722,7 @@
                 leftWallLEDColorElement.value = ButtonPanelConfiguration.leftWallLEDColor;
 
                 rightTopTextElement.value = ButtonPanelConfiguration.rightTopText;
-                document.getElementById(`buttonRightLegend`).innerHTML = `<b><em>${Homey.__("settings.rightPanel")}</em></b> - ${rightTopTextElement.value}`;
+                document.getElementById(`buttonRightLegend`).innerHTML = `<b><em>${Homey.__("settings.RightPanel")}</em></b> - ${rightTopTextElement.value}`;
                 rightOnTextElement.value = ButtonPanelConfiguration.rightOnText;
                 rightOffTextElement.value = ButtonPanelConfiguration.rightOffText;
                 rightDeviceElement.value = ButtonPanelConfiguration.rightDevice;
