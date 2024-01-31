@@ -9,8 +9,9 @@ assignees: AdyRock
 
 **Homey**
 - Model: [e.g. 2019 or 2023 or cloud]
-- Firmware Version: 
+- Homey Firmware Version: 
 - App Version:
+- Button+ Firmware Version:
 
 **Describe the bug**
 A clear and concise description of what the bug is.
