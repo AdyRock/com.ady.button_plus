@@ -461,6 +461,13 @@ class MyApp extends Homey.App
                 return args.device.setDimLevel(args.large, args.mini);
             });
 
+        this.homey.flow.getActionCard('set_display_screen_index')
+            .registerRunListener(async (args, state) =>
+            {
+                this.log(`set_screen_index to ${args.index}`);
+                return args.device.setSetScreenIndex(args.index);
+            });
+
         /** * CONDITIONS ** */
         this._conditionIsButtonOn = this.homey.flow.getConditionCard('is_button_on');
         this._conditionIsButtonOn.registerRunListener(async (args, state) =>

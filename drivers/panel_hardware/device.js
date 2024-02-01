@@ -789,6 +789,13 @@ class PanelDevice extends Device
         return null;
     }
 
+    async setSetScreenIndex(index)
+    {
+        let brokerId = this.homey.settings.get('defaultBroker');
+        this.screenIndex = index;
+        this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/screenindex/value`, index - 1).catch(this.error);;
+    }
+
     async uploadPanelTemperatureConfiguration(deviceConfigurations)
     {
         if (this.ip !== '')
@@ -797,10 +804,6 @@ class PanelDevice extends Device
             {
                 // Add the temperature event entry
                 let brokerId = this.homey.settings.get('defaultBroker');
-                if (brokerId === 'Default')
-                {
-                    brokerId = this.homeyID.getSetting('defaultBroker');
-                }
                 const sectionConfiguration = {
                     mqttsensors: [
                     {

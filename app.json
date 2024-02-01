@@ -1223,6 +1223,47 @@
       },
       {
         "title": {
+          "en": "Select the Display screen index",
+          "nl": "Selecteer het display scherm index"
+        },
+        "titleFormatted": {
+          "en": "Select the large display screen index to [[index]]",
+          "nl": "Selecteer het grote display scherm index naar [[index]]"
+        },
+        "hint": {
+          "en": "Select the screen index of the displays",
+          "nl": "Selecteer het scherm index van de displays"
+        },
+        "args": [
+          {
+            "type": "number",
+            "name": "index",
+            "title": {
+              "en": "Screen Index",
+              "nl": "Scherm Index"
+            },
+            "hint": {
+              "en": "Index (1-100)",
+              "nl": "Index (1-100)"
+            },
+            "placeholder": {
+              "en": "Large display screen index (1-100)",
+              "nl": "Groot display scherm index (1-100)"
+            },
+            "min": 1,
+            "max": 100,
+            "step": 1
+          },
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=panel_hardware"
+          }
+        ],
+        "id": "set_display_screen_index"
+      },
+      {
+        "title": {
           "en": "Set information text",
           "nl": "Informatie tekst instellen"
         },

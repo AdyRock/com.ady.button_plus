@@ -1005,11 +1005,7 @@
 
             displayConfigurationNoElement.addEventListener('change', function(e)
             {
-                // Store the current configuration
-                storeDisplaySettings();
-
-                // Fetch the new configuration
-                updateDisplayConfiguration();
+                redisplayDisplyConfig();
             });
 
             copyButtonConfigElement.addEventListener('click', function(e)
@@ -1838,6 +1834,15 @@
 
         // Code for Displaypanel configuration
 
+        function redisplayDisplyConfig()
+        {
+                // Store the current configuration
+                storeDisplaySettings();
+
+                // Fetch the new configuration
+                updateDisplayConfiguration();            
+        }
+
         function updateDisplayConfiguration()
         {
             if (displayConfigurationsFetched)
@@ -1860,13 +1865,64 @@
 
         function drawDisplayConfiguration(displayConfiguration, expandItem = -1)
         {
-            document.getElementById('displayItemsSection').innerHTML = "";
+            // Sort the display items by screen number, then by Y position and finally by X position
+            displayConfiguration.items.sort((a, b) =>
+            {
+                if (a.screen < b.screen)
+                {
+                    return -1;
+                }
+                if (a.screen > b.screen)
+                {
+                    return 1;
+                }
+                if (a.yPos < b.yPos)
+                {
+                    return -1;
+                }
+                if (a.yPos > b.yPos)
+                {
+                    return 1;
+                }
+                if (a.xPos < b.xPos)
+                {
+                    return -1;
+                }
+                if (a.xPos > b.xPos)
+                {
+                    return 1;
+                }
+                return 0;
+            });
+
+            let screenNo = -1;
+            // document.getElementById('displayItemsSection').innerHTML = "";
+            let htmlText = "";
             for (var itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
             {
                 const item = displayConfiguration.items[itemNo];
                 const capabilities = {}
                 displayCapabilityItems.push(capabilities);
-                insertDisplayItemSection(item, itemNo, (itemNo === expandItem));
+
+                if (screenNo != item.screen)
+                {
+                    // Insert a screen number heading
+                    if (screenNo >= 0)
+                    {
+                        htmlText += `</div></div>`;
+                    }
+
+                    screenNo = item.screen;
+                    htmlText += `<div class="horizontalcontainer"><div class="horizontalgroup"><h3>${Homey.__("settings.screenNo")} ${item.screen + 1}</h3>`;
+                }
+
+                htmlText += insertDisplayItemSection(item, itemNo, (itemNo === expandItem));
+            }
+            htmlText += `</div></div>`;
+            document.getElementById('displayItemsSection').innerHTML = htmlText;
+
+            for (var itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
+            {
 
                 // Add a 'Default' broker entry to the lists
                 var defaultText = Homey.__("settings.default");
@@ -1888,9 +1944,7 @@
                         document.getElementById(`display${itemNo}BrokerId`).add(option);
                     }
                 }
-            }
-            for (var itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
-            {
+
                 const item = displayConfiguration.items[itemNo];
                 document.getElementById(`display${itemNo}BrokerId`).value = item.brokerId;
 
@@ -1903,7 +1957,7 @@
 
         function insertDisplayItemSection(item, itemNo, expanded = false)
         {
-            var section = document.getElementById('displayItemsSection').innerHTML;
+            var section = ""; // document.getElementById('displayItemsSection').innerHTML;
             const ctrlLabels = {
                 device: Homey.__("settings.device"),
                 capability: Homey.__("settings.capability"),
@@ -1954,7 +2008,7 @@
                                     <span class="tooltiptext">${ctrlExplanations.screenNo}</span>
                                 </div>
                             </label>
-                            <input class="homey-form-input" id="display${itemNo}screen" type="number" value="${item.screen + 1}" />
+                            <input class="homey-form-input" id="display${itemNo}screen" onChange="redisplayDisplyConfig()" type="number" value="${item.screen + 1}" />
 
                             <label class="homey-form-label" for="display${itemNo}Device">${ctrlLabels.device}
                                 <div class="tooltip"><i class="fi fi-rr-info"></i>
@@ -2046,7 +2100,8 @@
                     </div>
                 </div>`;
 
-            document.getElementById('displayItemsSection').innerHTML = section;
+            // document.getElementById('displayItemsSection').innerHTML = section;
+            return section;
         }
 
         function scrollToTop(element)
