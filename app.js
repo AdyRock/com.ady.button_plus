@@ -760,6 +760,7 @@ class MyApp extends Homey.App
                     label: item.label,
                     unit: item.unit,
                     round: parseInt(item.rounding, 10),
+                    screenIndex: parseInt(item.screen, 10),
                     topics: [
                     {
                         brokerid: brokerId,
@@ -1166,7 +1167,7 @@ class MyApp extends Homey.App
                 }
                 catch (err)
                 {
-                    this.updateLog(`Error getting device: ${err.message}`, 0);
+                    this.updateLog(`Error getting device id = ${configDevice}: ${err.message}`, 0);
                 }
             }
 
@@ -1624,7 +1625,7 @@ class MyApp extends Homey.App
             }
             catch (e)
             {
-                this.updateLog(`Error getting devices: ${e.message}`, 0);
+                this.updateLog(`Error getting device list: ${e.message}`, 0);
             }
         }
         return [];
@@ -1643,7 +1644,7 @@ class MyApp extends Homey.App
             }
             catch (e)
             {
-                this.updateLog(`Error getting devices: ${e.message}`, 0);
+                this.updateLog(`Error getting device id = ${id}: ${e.message}`, 0);
             }
         }
         return undefined;
@@ -1678,7 +1679,7 @@ class MyApp extends Homey.App
             }
             catch (e)
             {
-                this.updateLog(`Error getting devices: ${e.message}`, 0);
+                this.updateLog(`Error getting capabilities for device id ${device.id}: ${e.message}`, 0);
             }
         }
         return [];
@@ -2082,6 +2083,10 @@ class MyApp extends Homey.App
 
     getMqttClient(brokerId)
     {
+        if (brokerId === 'Default')
+        {
+            brokerId = this.homey.settings.get('defaultBroker');
+        }
         return this.MQTTClients.get(brokerId);
     }
 
@@ -2102,6 +2107,11 @@ class MyApp extends Homey.App
     // eslint-disable-next-line camelcase
     async publishMQTTMessage(MQTT_Id, topic, message, Ignoresame = true)
     {
+        if (MQTT_Id === 'Default')
+        {
+            MQTT_Id = this.homey.settings.get('defaultBroker');
+        }
+    
         const data = (typeof message === 'string' || message instanceof String) ? message : JSON.stringify(message);
 
         const lastMQTTData = this.lastMQTTData.get(`${MQTT_Id}_${topic}`);

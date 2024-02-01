@@ -102,6 +102,8 @@ class PanelDevice extends Device
         await this.configureConnetctor(settings.connect6Type, 6);
         await this.configureConnetctor(settings.connect7Type, 7);
 
+        this.setupMQTTSubscriptions('Default');
+
         if (!this.hasCapability('info'))
         {
             await this.addCapability('info');
@@ -186,36 +188,61 @@ class PanelDevice extends Device
         {
             if (err)
             {
-                this.homey.app.updateLog("setupMQTTClient.onConnect 'homey/toggle' error: " * this.homey.app.varToString(err), 0);
+                this.homey.app.updateLog("setupMQTTClient.subscribe '/brightness/largedisplay/value' error: " * this.homey.app.varToString(err), 0);
             }
             else
             {
                 const value = this.getCapabilityValue('dim.large');
-                this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/brightness/largedisplay/value`, value * 100).catch(this.error);;
+                this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/brightness/largedisplay/value`, value * 100).catch(this.error);
+                if (value !== null)
+                {
+                    this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/brightness/largedisplay/value`, value * 100).catch(this.error);
+                }
             }
         });
-        mqttClient.subscribe(`${this.id}/brightness/minidisplay/value`, (err) =>
+        mqttClient.subscribe(`homey/${this.id}/brightness/minidisplay/value`, (err) =>
         {
             if (err)
             {
-                this.homey.app.updateLog("setupMQTTClient.onConnect 'homey/toggle' error: " * this.homey.app.varToString(err), 0);
+                this.homey.app.updateLog("setupMQTTClient.subscribe 'h/brightness/minidisplay/value' error: " * this.homey.app.varToString(err), 0);
             }
             else
             {
                 const value = this.getCapabilityValue('dim.small');
-                this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/brightness/minidisplay/value`, value * 100).catch(this.error);;
+                if (value !== null)
+                {
+                    this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/brightness/minidisplay/value`, value * 100).catch(this.error);
+                }
             }
         });
-        mqttClient.subscribe(`${this.id}/brightness/leds/value`, (err) =>
+        mqttClient.subscribe(`homey/${this.id}/brightness/leds/value`, (err) =>
         {
             if (err)
             {
-                this.homey.app.updateLog("setupMQTTClient.onConnect 'homey/toggle' error: " * this.homey.app.varToString(err), 0);
+                this.homey.app.updateLog("setupMQTTClient.subscribe '/brightness/leds/value' error: " * this.homey.app.varToString(err), 0);
             }
             else
             {
                 const value = this.getCapabilityValue('dim.led');
-                this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/brightness/leds/value`, value * 100).catch(this.error);;
+                if (value !== null)
+                {
+                    this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/brightness/leds/value`, value * 100);
+                }
+            }
+        });
+        mqttClient.subscribe(`homey/${this.id}/screenindex/value`, (err) =>
+        {
+            if (err)
+            {
+                this.homey.app.updateLog("setupMQTTClient.subscribe 'screenindex/value' error: " * this.homey.app.varToString(err), 0);
+            }
+            else
+            {
+                const value = 0; // this.getCapabilityValue('dim.led');
+                if (value !== null)
+                {
+                    this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/screenindex/value`, value);
+                }
             }
         });
     }
@@ -826,7 +853,6 @@ class PanelDevice extends Device
         {
             try
             {
-                // Add the temperature event entry
                 const brokerId = this.homey.settings.get('defaultBroker');
                 const sectionConfiguration = {
                     core:
@@ -850,6 +876,12 @@ class PanelDevice extends Device
                                 payload: '',
                                 eventtype: 7,
                             },
+                            {
+                                brokerid: brokerId,
+                                topic: `homey/${this.id}/screenindex/value`,
+                                payload: '',
+                                eventtype: 19,
+                            }
                         ],
                     },
                 };
@@ -878,6 +910,13 @@ class PanelDevice extends Device
                         if (err)
                         {
                             this.homey.app.updateLog(`setupMQTTClient.onConnect 'homey/${this.id}/brightness/leds/value' error:  ${this.homey.app.varToString(err)}`, 0);
+                        }
+                    });
+                    MQTTclient.subscribe(`homey/${this.id}/screenindex/value`, (err) =>
+                    {
+                        if (err)
+                        {
+                            this.homey.app.updateLog(`setupMQTTClient.onConnect 'homey/${this.id}/screenindex/value' error:  ${this.homey.app.varToString(err)}`, 0);
                         }
                     });
                 }
@@ -1846,7 +1885,10 @@ class PanelDevice extends Device
 
                 try
                 {
-                    mqttQue = mqttQue.concat(await this.homey.app.applyButtonConfiguration(this.id, connectorType, sectionConfiguration, i, configNo));
+                    if (configNo !== null)
+                    {
+                        mqttQue = mqttQue.concat(await this.homey.app.applyButtonConfiguration(this.id, connectorType, sectionConfiguration, i, configNo));
+                    }
                 }
                 catch (error)
                 {

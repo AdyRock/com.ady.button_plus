@@ -1210,6 +1210,7 @@
                             width: 100,
                             fontSize: 1,
                             brokerId: 'Default',
+                            screen: 0,
                         };
 
                         // Add the new display item to the local display configuration
@@ -1915,6 +1916,7 @@
                 fontSize: Homey.__("settings.fontSize"),
                 deleteItem: Homey.__("settings.deleteItem"),
                 brokerId: Homey.__("settings.brokerId"),
+                screenNo: Homey.__("settings.screenNo"),
             }
             const ctrlExplanations = {
                 device: Homey.__("settings.deviceDExplanation"),
@@ -1928,8 +1930,14 @@
                 fontSize: Homey.__("settings.fontSizeExplanation"),
                 deleteItem: Homey.__("settings.deleteItemExplanation"),
                 brokerId: Homey.__("settings.brokerIdExplanation"),
+                screenNo: Homey.__("settings.screenNoExplanation"),
             }
             const itemLegend = Homey.__("settings.displayItemlegend", { itemNo: itemNo + 1 });
+
+            if (typeof item.screen === 'undefined')
+            {
+                item.screen = 0;
+            }
 
             section = section +
                 `<div class="horizontalcontainer">
@@ -1940,6 +1948,14 @@
                                 <span class="icon" style='font-size:30px;'>&#8628;</span>
                             </summary>
                             <hr>
+
+                            <label class="homey-form-label" for="display${itemNo}screen">${ctrlLabels.screenNo}
+                                <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                    <span class="tooltiptext">${ctrlExplanations.screenNo}</span>
+                                </div>
+                            </label>
+                            <input class="homey-form-input" id="display${itemNo}screen" type="number" value="${item.screen + 1}" />
+
                             <label class="homey-form-label" for="display${itemNo}Device">${ctrlLabels.device}
                                 <div class="tooltip"><i class="fi fi-rr-info"></i>
                                     <span class="tooltiptext">${ctrlExplanations.device}</span>
@@ -2308,6 +2324,7 @@
                     displayConfiguration.items[itemNo].rounding = document.getElementById(`display${itemNo}Rounding`).value;
                     displayConfiguration.items[itemNo].fontSize = document.getElementById(`display${itemNo}FontSize`).value;
                     displayConfiguration.items[itemNo].brokerId = document.getElementById(`display${itemNo}BrokerId`).value;
+                    displayConfiguration.items[itemNo].screen = document.getElementById(`display${itemNo}screen`).value - 1;
                 }
             }
         }
