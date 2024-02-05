@@ -1193,7 +1193,10 @@
                     var displayConfiguration = localDisplayConfigurations[displayConfigurationNo];
                     if (displayConfiguration)
                     {
+                        let itemId = displayConfiguration.items.length;
+
                         var displayItem = {
+                            itemId,
                             device: "none",
                             deviceName: "none",
                             capability: "",
@@ -1210,11 +1213,10 @@
                         };
 
                         // Add the new display item to the local display configuration
-                        let item = displayConfiguration.items.push(displayItem) - 1;
                         localDisplayConfigurations[displayConfigurationNo] = displayConfiguration;
 
                         // Redraw the display items
-                        drawDisplayConfiguration(displayConfiguration, item);
+                        drawDisplayConfiguration(displayConfiguration, itemId);
                     }
                 }
             });
@@ -1916,7 +1918,7 @@
                     htmlText += `<div class="horizontalcontainer"><div class="horizontalgroup"><h3>${Homey.__("settings.screenNo")} ${item.screen + 1}</h3>`;
                 }
 
-                htmlText += insertDisplayItemSection(item, itemNo, (itemNo === expandItem));
+                htmlText += insertDisplayItemSection(item, itemNo, (item.itemId === expandItem));
             }
             htmlText += `</div></div>`;
             document.getElementById('displayItemsSection').innerHTML = htmlText;
