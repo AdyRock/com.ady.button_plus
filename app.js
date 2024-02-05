@@ -461,6 +461,20 @@ class MyApp extends Homey.App
                 return args.device.setDimLevel(args.large, args.mini);
             });
 
+        this.homey.flow.getActionCard('set_connector_led_rgb')
+            .registerRunListener(async (args, state) =>
+            {
+                this.log(`set_connector_led_rgb ${args.left_right} connector${args.connector} to ${args.rgb}`);
+                return args.device.setConfigLEDColour(args.left_right, args.connector - 1, args.rgb);
+            });
+
+        this.homey.flow.getActionCard('set_config_led_rgb')
+            .registerRunListener(async (args, state) =>
+            {
+                this.log(`set_config_led_rgb ${args.left_right} config${args.config} to ${args.rgb}`);
+                return args.device.setConfigLEDColour(args.left_right, args.config - 1, args.rgb);
+            });
+
         /** * CONDITIONS ** */
         this._conditionIsButtonOn = this.homey.flow.getConditionCard('is_button_on');
         this._conditionIsButtonOn.registerRunListener(async (args, state) =>
@@ -1290,7 +1304,7 @@ class MyApp extends Homey.App
                     // Boolean capabilities are always 'true' or 'false'
                     payload = true;
 
-                    // Add the LED event entry
+                    // Add the LED On/Off event entry
                     mqttButtons.topics.push(
                         {
                             brokerid: brokerId,
@@ -1306,41 +1320,7 @@ class MyApp extends Homey.App
                         message: `homey/${configDevice}/${configCapability}/value`,
                         value,
                     });
-
-                    // Send the value to the device after a short delay to allow the device to connect to the broker
-                    mqttQueue.push({
-                        brokerId,
-                        message: `homey/${configDevice}/${configCapability}/label`,
-                        value: value ? labelOn : labelOff,
-                    });
                 }
-
-                // Add the Top Label event entry
-                mqttButtons.topics.push(
-                    {
-                        brokerid: brokerId,
-                        eventtype: 12,
-                        topic: `homey/${configDevice}/${configCapability}/toplabel`,
-                        payload,
-                    },
-                );
-
-                // Send the value to the device after a short delay to allow the device to connect to the broker
-                mqttQueue.push({
-                    brokerId,
-                    message: `homey/${configDevice}/${configCapability}/toplabel`,
-                    value: topLabel,
-                });
-
-                // Add the Label event entry
-                mqttButtons.topics.push(
-                    {
-                        brokerid: brokerId,
-                        eventtype: 11,
-                        topic: `homey/${configDevice}/${configCapability}/label`,
-                        payload,
-                    },
-                );
             }
             else if (configDevice === 'none')
             {
@@ -1363,40 +1343,6 @@ class MyApp extends Homey.App
                     message: `homey/${panelId}/button/${buttonIdx}/value`,
                     value,
                 });
-
-                // Add the Top Label event entry
-                mqttButtons.topics.push(
-                    {
-                        brokerid: brokerId,
-                        eventtype: 12,
-                        topic: `homey/${panelId}/button/${buttonIdx}/toplabel`,
-                        payload,
-                    },
-                );
-
-                // Send the value to the device after a short delay to allow the device to connect to the broker
-                mqttQueue.push({
-                    brokerId,
-                    message: `homey/${panelId}/button/${buttonIdx}/toplabel`,
-                    value: topLabel,
-                });
-
-                // Add the Label event entry
-                mqttButtons.topics.push(
-                    {
-                        brokerid: brokerId,
-                        eventtype: 11,
-                        topic: `homey/${panelId}/button/${buttonIdx}/label`,
-                        payload,
-                    },
-                );
-
-                // Send the value to the device after a short delay to allow the device to connect to the broker
-                mqttQueue.push({
-                    brokerId,
-                    message: `homey/${panelId}/button/${buttonIdx}/label`,
-                    value: value ? labelOn : labelOff,
-                });
             }
             else
             {
@@ -1405,12 +1351,13 @@ class MyApp extends Homey.App
                     if (capability.value === false)
                     {
                         mqttButtons.label = labelOff;
+                        value = false;
                     }
                 }
                 // Boolean capabilities are always 'true' or 'false'
                 payload = true;
 
-                // Add the LED event entry
+                // Add the LED On/Off event entry
                 mqttButtons.topics.push(
                     {
                         brokerid: brokerId,
@@ -1426,41 +1373,51 @@ class MyApp extends Homey.App
                     message: `homey/${configDevice}/${configCapability}/value`,
                     value: capability ? capability.value : false,
                 });
-
-                // Add the Top Label event entry
-                mqttButtons.topics.push(
-                    {
-                        brokerid: brokerId,
-                        eventtype: 12,
-                        topic: `homey/${configDevice}/${configCapability}/toplabel`,
-                        payload,
-                    },
-                );
-
-                // Send the value to the device after a short delay to allow the device to connect to the broker
-                mqttQueue.push({
-                    brokerId,
-                    message: `homey/${configDevice}/${configCapability}/toplabel`,
-                    value: topLabel,
-                });
-
-                // Add the Label event entry
-                mqttButtons.topics.push(
-                    {
-                        brokerid: brokerId,
-                        eventtype: 11,
-                        topic: `homey/${configDevice}/${configCapability}/label`,
-                        payload,
-                    },
-                );
-
-                // Send the value to the device after a short delay to allow the device to connect to the broker
-                mqttQueue.push({
-                    brokerId,
-                    message: `homey/${configDevice}/${configCapability}/label`,
-                    value: mqttButtons.label,
-                });
             }
+
+            // Add the Top Label event entry
+            mqttButtons.topics.push(
+                {
+                    brokerid: brokerId,
+                    eventtype: 12,
+                    topic: `homey/${panelId}/button/${buttonIdx}/toplabel`,
+                    payload: '',
+                },
+            );
+
+            // Send the value to the device after a short delay to allow the device to connect to the broker
+            mqttQueue.push({
+                brokerId,
+                message: `homey/${panelId}/button/${buttonIdx}/toplabel`,
+                value: topLabel,
+            });
+
+            // Add the Label event entry
+            mqttButtons.topics.push(
+                {
+                    brokerid: brokerId,
+                    eventtype: 11,
+                    topic: `homey/${panelId}/button/${buttonIdx}/label`,
+                    payload: '',
+                },
+            );
+
+            // Send the value to the device after a short delay to allow the device to connect to the broker
+            mqttQueue.push({
+                brokerId,
+                message: `homey/${panelId}/button/${buttonIdx}/label`,
+                value: value ? labelOn : labelOff,
+            });
+
+            // Add the LED RGB event entry but don't push a value to the device
+            mqttButtons.topics.push(
+                {
+                    brokerid: brokerId,
+                    eventtype: 13,
+                    topic: `homey/${panelId}/button/${buttonIdx}/rgb`,
+                    payload: '',
+                },
+            );
         }
         catch (err)
         {

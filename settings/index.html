@@ -1475,6 +1475,7 @@
 
                     var option = document.createElement("option");
                     option.text = "\xA0\xA0" + device.name;
+                    option.text += ` (${zoneName})`;
                     option.value = device.id;
                     Element.add(option);
                 }
