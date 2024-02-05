@@ -134,7 +134,9 @@
         "exported:": "The settings have been copied to the panel.\n\nYou can select the all text in the panel, copy it to the clipboard and then paste them into a text file or email.",
         "copied": "The settings have been copied.\n\nYou can now paste them into another Configuration.",
         "screenNo": "Screen Index",
-        "screenNoExplanation": "Select the screen index to display the item on. The default is screen 1. If there is more than 1 screen, you can switch screens with the left or right screen buttons."
+        "screenNoExplanation": "Select the screen index to display the item on. The default is screen 1. If there is more than 1 screen, you can switch screens with the left or right screen buttons.",
+        "configName": "Configuration Name",
+        "configNameExplanation": "Enter a name for the configuration. This is optional but it will help you identify the configuration if you have more than one."
     },
     "pair": {
         "manual_add":{
