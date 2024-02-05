@@ -133,8 +133,8 @@
         "imported": "Settings have been imported.\n\nCheck the configurations and then tap the 'Save All Configurations' button to save them.",
         "exported:": "The settings have been copied to the panel.\n\nYou can select the all text in the panel, copy it to the clipboard and then paste them into a text file or email.",
         "copied": "The settings have been copied.\n\nYou can now paste them into another Configuration.",
-        "screenNo": "Screen Index",
-        "screenNoExplanation": "Select the screen index to display the item on. The default is screen 1. If there is more than 1 screen, you can switch screens with the left or right screen buttons."
+        "page": "Page",
+        "pageExplanation": "Select the page to display the item on. The default is page 1. If there is more than 1 scpagereen, you can switch screens with the left or page screen buttons."
     },
     "pair": {
         "manual_add":{

@@ -461,11 +461,11 @@ class MyApp extends Homey.App
                 return args.device.setDimLevel(args.large, args.mini);
             });
 
-        this.homey.flow.getActionCard('set_display_screen_index')
+        this.homey.flow.getActionCard('set_display_page')
             .registerRunListener(async (args, state) =>
             {
-                this.log(`set_screen_index to ${args.index}`);
-                return args.device.setSetScreenIndex(args.index);
+                this.log(`set_screen_page to ${args.page}`);
+                return args.device.setSetPage(args.page);
             });
 
         /** * CONDITIONS ** */
@@ -767,7 +767,7 @@ class MyApp extends Homey.App
                     label: item.label,
                     unit: item.unit,
                     round: parseInt(item.rounding, 10),
-                    screenIndex: parseInt(item.screen, 10),
+                    page: parseInt(item.page, 10),
                     topics: [
                     {
                         brokerid: brokerId,

@@ -1223,32 +1223,32 @@
       },
       {
         "title": {
-          "en": "Select the Display screen index",
-          "nl": "Selecteer het display scherm index"
+          "en": "Select the display page",
+          "nl": "Selecteer de display pagina"
         },
         "titleFormatted": {
-          "en": "Select the large display screen index to [[index]]",
-          "nl": "Selecteer het grote display scherm index naar [[index]]"
+          "en": "Select the large display page to [[page]]",
+          "nl": "Selecteer de grote display pagina naar [[page]]"
         },
         "hint": {
-          "en": "Select the screen index of the displays",
-          "nl": "Selecteer het scherm index van de displays"
+          "en": "Select the page of the displays",
+          "nl": "Selecteer de pagina van de displays"
         },
         "args": [
           {
             "type": "number",
-            "name": "index",
+            "name": "page",
             "title": {
-              "en": "Screen Index",
-              "nl": "Scherm Index"
+              "en": "Page",
+              "nl": "Pagina"
             },
             "hint": {
-              "en": "Index (1-100)",
-              "nl": "Index (1-100)"
+              "en": "Page (1-100)",
+              "nl": "Pagina (1-100)"
             },
             "placeholder": {
-              "en": "Large display screen index (1-100)",
-              "nl": "Groot display scherm index (1-100)"
+              "en": "Large display page (1-100)",
+              "nl": "Grote display pagina (1-100)"
             },
             "min": 1,
             "max": 100,
@@ -1260,7 +1260,7 @@
             "filter": "driver_id=panel_hardware"
           }
         ],
-        "id": "set_display_screen_index"
+        "id": "set_display_page"
       },
       {
         "title": {

@@ -1209,10 +1209,11 @@
                             width: 100,
                             fontSize: 1,
                             brokerId: 'Default',
-                            screen: 0,
+                            page: 0,
                         };
 
                         // Add the new display item to the local display configuration
+                        displayConfiguration.items.push(displayItem) - 1;
                         localDisplayConfigurations[displayConfigurationNo] = displayConfiguration;
 
                         // Redraw the display items
@@ -1264,6 +1265,20 @@
                 if (err) return Homey.alert(err);
                 localDisplayConfigurations = displayConfigurations;
                 displayConfigurationsFetched = (localDisplayConfigurations.length > 0);
+                // add the itemId and validate the page number to each item
+                for (let i = 0; i < localDisplayConfigurations.length; i++)
+                {
+                    const displayConfiguration = localDisplayConfigurations[i];
+                    for (let j = 0; j < displayConfiguration.items.length; j++)
+                    {
+                        displayConfiguration.items[j].itemId = j;
+                        if (displayConfiguration.items[j].page === undefined)
+                        {
+                            displayConfiguration.items[j].page = 0;
+                        }
+                    }
+                }
+
                 updateDisplayConfiguration();
             });
 
@@ -1836,16 +1851,16 @@
 
         // Code for Displaypanel configuration
 
-        function redisplayDisplyConfig()
+        function redisplayDisplyConfig(activeItemNo = -1)
         {
                 // Store the current configuration
                 storeDisplaySettings();
 
                 // Fetch the new configuration
-                updateDisplayConfiguration();            
+                updateDisplayConfiguration(activeItemNo);            
         }
 
-        function updateDisplayConfiguration()
+        function updateDisplayConfiguration(expandItem = -1)
         {
             if (displayConfigurationsFetched)
             {
@@ -1853,28 +1868,36 @@
 
                 var displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
 
+                let expandItemId = -1;
                 if (displayConfiguration == null)
                 {
                     displayConfiguration = {};
                     displayConfiguration.items = [];
                 }
+                else
+                {
+                    if (expandItem >= 0)
+                    {
+                        expandItemId = displayConfiguration.items[expandItem].itemId;
+                    }
+                }
 
                 displayCapabilityItems = [];
 
-                drawDisplayConfiguration(displayConfiguration);
+                drawDisplayConfiguration(displayConfiguration, expandItemId);
             }
         }
 
-        function drawDisplayConfiguration(displayConfiguration, expandItem = -1)
+        function drawDisplayConfiguration(displayConfiguration, expandItemId = -1)
         {
-            // Sort the display items by screen number, then by Y position and finally by X position
+            // Sort the display items by page number, then by Y position and finally by X position
             displayConfiguration.items.sort((a, b) =>
             {
-                if (a.screen < b.screen)
+                if (a.page < b.page)
                 {
                     return -1;
                 }
-                if (a.screen > b.screen)
+                if (a.page > b.page)
                 {
                     return 1;
                 }
@@ -1897,7 +1920,7 @@
                 return 0;
             });
 
-            let screenNo = -1;
+            let page = -1;
             // document.getElementById('displayItemsSection').innerHTML = "";
             let htmlText = "";
             for (var itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
@@ -1906,26 +1929,25 @@
                 const capabilities = {}
                 displayCapabilityItems.push(capabilities);
 
-                if (screenNo != item.screen)
+                if (page != item.page)
                 {
-                    // Insert a screen number heading
-                    if (screenNo >= 0)
+                    // Insert a page number heading
+                    if (page >= 0)
                     {
                         htmlText += `</div></div>`;
                     }
 
-                    screenNo = item.screen;
-                    htmlText += `<div class="horizontalcontainer"><div class="horizontalgroup"><h3>${Homey.__("settings.screenNo")} ${item.screen + 1}</h3>`;
+                    page = item.page;
+                    htmlText += `<div class="horizontalcontainer"><div class="horizontalgroup"><h3>${Homey.__("settings.page")} ${item.page + 1}</h3>`;
                 }
 
-                htmlText += insertDisplayItemSection(item, itemNo, (item.itemId === expandItem));
+                htmlText += insertDisplayItemSection(item, itemNo, (item.itemId === expandItemId));
             }
             htmlText += `</div></div>`;
             document.getElementById('displayItemsSection').innerHTML = htmlText;
 
             for (var itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
             {
-
                 // Add a 'Default' broker entry to the lists
                 var defaultText = Homey.__("settings.default");
 
@@ -1972,7 +1994,7 @@
                 fontSize: Homey.__("settings.fontSize"),
                 deleteItem: Homey.__("settings.deleteItem"),
                 brokerId: Homey.__("settings.brokerId"),
-                screenNo: Homey.__("settings.screenNo"),
+                page: Homey.__("settings.page"),
             }
             const ctrlExplanations = {
                 device: Homey.__("settings.deviceDExplanation"),
@@ -1986,13 +2008,13 @@
                 fontSize: Homey.__("settings.fontSizeExplanation"),
                 deleteItem: Homey.__("settings.deleteItemExplanation"),
                 brokerId: Homey.__("settings.brokerIdExplanation"),
-                screenNo: Homey.__("settings.screenNoExplanation"),
+                page: Homey.__("settings.pageExplanation"),
             }
             const itemLegend = Homey.__("settings.displayItemlegend", { itemNo: itemNo + 1 });
 
-            if (typeof item.screen === 'undefined')
+            if (typeof item.page === 'undefined')
             {
-                item.screen = 0;
+                item.page = 0;
             }
 
             section = section +
@@ -2000,17 +2022,17 @@
                     <div class="horizontalgroup">
                         <details ${expanded ? 'open' : ''}>
                             <summary class="summary">
-                                <legend class="homey-subtitle" id="display${itemNo}Legend"><b><em>${itemLegend}</em></b> - ${item.label}</legend>
+                                <legend class="homey-subtitle" id="display${itemNo}Legend"><b><em>${itemLegend}</em></b> - ${item.label}: ${item.xPos}, ${item.yPos}, ${item.width}</legend>
                                 <span class="icon" style='font-size:30px;'>&#8628;</span>
                             </summary>
                             <hr>
 
-                            <label class="homey-form-label" for="display${itemNo}screen">${ctrlLabels.screenNo}
+                            <label class="homey-form-label" for="display${itemNo}page">${ctrlLabels.page}
                                 <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                    <span class="tooltiptext">${ctrlExplanations.screenNo}</span>
+                                    <span class="tooltiptext">${ctrlExplanations.page}</span>
                                 </div>
                             </label>
-                            <input class="homey-form-input" id="display${itemNo}screen" onChange="redisplayDisplyConfig()" type="number" value="${item.screen + 1}" />
+                            <input class="homey-form-input" id="display${itemNo}page" onChange="redisplayDisplyConfig(${itemNo})" type="number" value="${item.page + 1}" />
 
                             <label class="homey-form-label" for="display${itemNo}Device">${ctrlLabels.device}
                                 <div class="tooltip"><i class="fi fi-rr-info"></i>
@@ -2051,14 +2073,14 @@
                                         <span class="tooltiptext">${ctrlExplanations.xPos}</span>
                                     </div>
                                 </label>
-                                <input class="homey-form-input" id="display${itemNo}X" type="number" value="${item.xPos}" />
+                                <input class="homey-form-input" id="display${itemNo}X" onChange="redisplayDisplyConfig(${itemNo})" type="number" value="${item.xPos}" />
 
                                 <label class="homey-form-label" for="display${itemNo}Y">${ctrlLabels.yPos}
                                     <div class="tooltip"><i class="fi fi-rr-info"></i>
                                         <span class="tooltiptext">${ctrlExplanations.yPos}</span>
                                     </div>
                                 </label>
-                                <input class="homey-form-input" id="display${itemNo}Y" type="number" value="${item.yPos}" />
+                                <input class="homey-form-input" id="display${itemNo}Y" onChange="redisplayDisplyConfig(${itemNo})" type="number" value="${item.yPos}" />
 
                                 <label class="homey-form-label" for="display${itemNo}Width">${ctrlLabels.width}
                                     <div class="tooltip"><i class="fi fi-rr-info"></i>
@@ -2381,7 +2403,7 @@
                     displayConfiguration.items[itemNo].rounding = document.getElementById(`display${itemNo}Rounding`).value;
                     displayConfiguration.items[itemNo].fontSize = document.getElementById(`display${itemNo}FontSize`).value;
                     displayConfiguration.items[itemNo].brokerId = document.getElementById(`display${itemNo}BrokerId`).value;
-                    displayConfiguration.items[itemNo].screen = document.getElementById(`display${itemNo}screen`).value - 1;
+                    displayConfiguration.items[itemNo].page = document.getElementById(`display${itemNo}page`).value - 1;
                 }
             }
         }

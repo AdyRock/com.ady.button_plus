@@ -1,0 +1,40 @@
+{
+    "title": {
+        "en": "Select the display page",
+        "nl": "Selecteer de display pagina"
+    },
+    "titleFormatted": {
+        "en": "Select the large display page to [[page]]",
+        "nl": "Selecteer de grote display pagina naar [[page]]"
+    },
+    "hint": {
+        "en": "Select the page of the displays",
+        "nl": "Selecteer de pagina van de displays"
+    },
+    "args": [
+        {
+            "type": "number",
+            "name": "page",
+            "title": {
+                "en": "Page",
+                "nl": "Pagina"
+            },
+            "hint": {
+                "en": "Page (1-100)",
+                "nl": "Pagina (1-100)"
+            },
+            "placeholder": {
+                "en": "Large display page (1-100)",
+                "nl": "Grote display pagina (1-100)"
+            },
+            "min": 1,
+            "max": 100,
+            "step": 1
+        },
+        {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=panel_hardware"
+        }
+    ]
+}

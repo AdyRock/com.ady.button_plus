@@ -230,18 +230,18 @@ class PanelDevice extends Device
                 }
             }
         });
-        mqttClient.subscribe(`homey/${this.id}/screenindex/value`, (err) =>
+        mqttClient.subscribe(`homey/${this.id}/page/value`, (err) =>
         {
             if (err)
             {
-                this.homey.app.updateLog("setupMQTTClient.subscribe 'screenindex/value' error: " * this.homey.app.varToString(err), 0);
+                this.homey.app.updateLog("setupMQTTClient.subscribe 'page/value' error: " * this.homey.app.varToString(err), 0);
             }
             else
             {
                 const value = 0; // this.getCapabilityValue('dim.led');
                 if (value !== null)
                 {
-                    this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/screenindex/value`, value);
+                    this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/page/value`, value);
                 }
             }
         });
@@ -789,11 +789,11 @@ class PanelDevice extends Device
         return null;
     }
 
-    async setSetScreenIndex(index)
+    async setSetScreenPage(page)
     {
         let brokerId = this.homey.settings.get('defaultBroker');
-        this.screenIndex = index;
-        this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/screenindex/value`, index - 1).catch(this.error);;
+        this.page = page;
+        this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/page/value`, page - 1).catch(this.error);;
     }
 
     async uploadPanelTemperatureConfiguration(deviceConfigurations)
@@ -881,9 +881,9 @@ class PanelDevice extends Device
                             },
                             {
                                 brokerid: brokerId,
-                                topic: `homey/${this.id}/screenindex/value`,
+                                topic: `homey/${this.id}/page/value`,
                                 payload: '',
-                                eventtype: 19,
+                                eventtype: 20,
                             }
                         ],
                     },
@@ -915,11 +915,11 @@ class PanelDevice extends Device
                             this.homey.app.updateLog(`setupMQTTClient.onConnect 'homey/${this.id}/brightness/leds/value' error:  ${this.homey.app.varToString(err)}`, 0);
                         }
                     });
-                    MQTTclient.subscribe(`homey/${this.id}/screenindex/value`, (err) =>
+                    MQTTclient.subscribe(`homey/${this.id}/page/value`, (err) =>
                     {
                         if (err)
                         {
-                            this.homey.app.updateLog(`setupMQTTClient.onConnect 'homey/${this.id}/screenindex/value' error:  ${this.homey.app.varToString(err)}`, 0);
+                            this.homey.app.updateLog(`setupMQTTClient.onConnect 'homey/${this.id}/page/value' error:  ${this.homey.app.varToString(err)}`, 0);
                         }
                     });
                 }
