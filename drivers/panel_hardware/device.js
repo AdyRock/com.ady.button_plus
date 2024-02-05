@@ -404,24 +404,7 @@ class PanelDevice extends Device
 		{
 			buttonNo++;
 		}
-		// Remove the # from rgbString and convert it to a number
-		rgbString = rgbString.replace('#', '');
-		let rgb = parseInt(rgbString, 16);
 		return this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/button/${buttonNo}/toplabel`, label).catch(this.error);;
-	}
-
-	async updateConnectorText(left_right, connector, label)
-	{
-		let brokerId = this.homey.settings.get('defaultBroker');
-		let buttonNo = connector * 2;
-		if (left_right === 'right')
-		{
-			buttonNo++;
-		}
-		// Remove the # from rgbString and convert it to a number
-		rgbString = rgbString.replace('#', '');
-		let rgb = parseInt(rgbString, 16);
-		return this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/button/${buttonNo}/label`, label).catch(this.error);;
 	}
 
 	async updateConfigTopLabel(left_right, configNo, label)
@@ -453,6 +436,17 @@ class PanelDevice extends Device
 		}
 
 		return null;
+	}
+
+	async updateConnectorLabel(left_right, connector, label)
+	{
+		let brokerId = this.homey.settings.get('defaultBroker');
+		let buttonNo = connector * 2;
+		if (left_right === 'right')
+		{
+			buttonNo++;
+		}
+		return this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/button/${buttonNo}/label`, label).catch(this.error);;
 	}
 
 	async updateConfigLabel(left_right, configNo, label)

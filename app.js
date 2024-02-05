@@ -435,23 +435,57 @@ class MyApp extends Homey.App
 				this.log(`set_connector_top_button_label ${args.left_right} connector${args.connector} to ${args.label}`);
 				return args.device.updateConnectorTopLabel(args.left_right, args.connector - 1, args.label);
 			});
+		
 		this.homey.flow.getActionCard('set_connector_button_text')
 			.registerRunListener(async (args, state) =>
 			{
 				this.log(`set_connector_button_text ${args.left_right} connector${args.connector} to ${args.label}`);
-				return args.device.updateConnectorText(args.left_right, args.connector - 1, args.label);
+				return args.device.updateConnectorLabel(args.left_right, args.connector - 1, args.label);
 			});
+
+		// This flow is deprecated as it is replaced by the set_config_name_button_top_label flow
 		this.homey.flow.getActionCard('set_config_button_top_label')
 			.registerRunListener(async (args, state) =>
 			{
 				this.log(`set_config_button_top_label ${args.left_right} config${args.config} to ${args.label}`);
 				return args.device.updateConfigTopLabel(args.left_right, args.config - 1, args.label);
 			});
+
+		this.homey.flow.getActionCard('set_config_name_button_top_label')
+			.registerRunListener(async (args, state) =>
+			{
+				this.log(`set_config_name_button_label ${args.left_right} config${args.config} to ${args.label}`);
+				return args.device.updateConfigTopLabel(args.left_right, args.config.id, args.label);
+			})
+			.registerArgumentAutocompleteListener('config', async (query, args) =>
+			{
+				// itterate over the config array and return the name and id
+				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config.name ? config.name : ''}`, id: index }));
+
+				// filter the results based on the search query
+				return results.filter((result) => (result.name.toLowerCase().includes(query.toLowerCase())));
+			});
+
+		// This flow is deprecated as it is replaced by the set_config_name_button_label flow
 		this.homey.flow.getActionCard('set_config_button_label')
 			.registerRunListener(async (args, state) =>
 			{
 				this.log(`set_config_button_label ${args.left_right} config${args.config} to ${args.label}`);
 				return args.device.updateConfigLabel(args.left_right, args.config - 1, args.label);
+			});
+		this.homey.flow.getActionCard('set_config_name_button_label')
+			.registerRunListener(async (args, state) =>
+			{
+				this.log(`set_config_name_button_label ${args.left_right} config${args.config} to ${args.label}`);
+				return args.device.updateConfigLabel(args.left_right, args.config.id, args.label);
+			})
+			.registerArgumentAutocompleteListener('config', async (query, args) =>
+			{
+				// itterate over the config array and return the name and id
+				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config.name ? config.name : ''}`, id: index }));
+
+				// filter the results based on the search query
+				return results.filter((result) => (result.name.toLowerCase().includes(query.toLowerCase())));
 			});
 
 		this.homey.flow.getActionCard('set_dim')
@@ -468,11 +502,19 @@ class MyApp extends Homey.App
 				return args.device.setConfigLEDColour(args.left_right, args.connector - 1, args.rgb);
 			});
 
-		this.homey.flow.getActionCard('set_config_led_rgb')
+		this.homey.flow.getActionCard('set_config_name_led_rgb')
 			.registerRunListener(async (args, state) =>
 			{
-				this.log(`set_config_led_rgb ${args.left_right} config${args.config} to ${args.rgb}`);
-				return args.device.setConfigLEDColour(args.left_right, args.config - 1, args.rgb);
+				this.log(`set_config_name_led_rgb ${args.left_right} config${args.config} to ${args.rgb}`);
+				return args.device.setConfigLEDColour(args.left_right, args.config.id, args.rgb);
+			})
+			.registerArgumentAutocompleteListener('config', async (query, args) =>
+			{
+				// itterate over the config array and return the name and id
+				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config.name ? config.name : ''}`, id: index }));
+
+				// filter the results based on the search query
+				return results.filter((result) => (result.name.toLowerCase().includes(query.toLowerCase())));
 			});
 
 		/** * CONDITIONS ** */

@@ -850,6 +850,7 @@
           "en": "Sets the label of the specified button",
           "nl": "Stelt de label van de gespecificeerde knop in"
         },
+        "deprecated": true,
         "args": [
           {
             "type": "dropdown",
@@ -931,6 +932,7 @@
           "en": "Sets the top label of the specified button",
           "nl": "Stelt de top label van de gespecificeerde knop in"
         },
+        "deprecated": true,
         "args": [
           {
             "type": "dropdown",
@@ -1001,12 +1003,168 @@
       },
       {
         "title": {
+          "en": "Set configuration button label",
+          "nl": "Stel configuratie knop label in"
+        },
+        "titleFormatted": {
+          "en": "Set the [[left_right]] button label of [[config]] to [[label]]",
+          "nl": "Stel de [[left_right]] knop label van [[config]] in op [[label]]"
+        },
+        "hint": {
+          "en": "Sets the label of the specified button",
+          "nl": "Stelt de label van de gespecificeerde knop in"
+        },
+        "args": [
+          {
+            "type": "dropdown",
+            "name": "left_right",
+            "title": {
+              "en": "Left /  Right",
+              "nl": "Links / Rechts "
+            },
+            "placeholder": {
+              "en": "Left / Right",
+              "nl": "Links / Rechts "
+            },
+            "values": [
+              {
+                "id": "left",
+                "title": {
+                  "en": "Left",
+                  "nl": "Links "
+                }
+              },
+              {
+                "id": "right",
+                "title": {
+                  "en": "Right",
+                  "nl": "Rechts "
+                }
+              }
+            ]
+          },
+          {
+            "type": "autocomplete",
+            "name": "config",
+            "title": {
+              "en": "Configuration",
+              "nl": "Configuratie"
+            },
+            "hint": {
+              "en": "Find this Configuration on a button connector",
+              "nl": "Vind deze configuratie op een knop connector"
+            },
+            "placeholder": {
+              "en": "Choose a configuration",
+              "nl": "Kies een configuratie"
+            }
+          },
+          {
+            "type": "text",
+            "name": "label",
+            "title": {
+              "en": "Label",
+              "nl": "Label"
+            },
+            "placeholder": {
+              "en": "Label",
+              "nl": "Label"
+            }
+          },
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=panel_hardware"
+          }
+        ],
+        "id": "set_config_name_button_label"
+      },
+      {
+        "title": {
+          "en": "Set configuration button top label",
+          "nl": "Stel configuratie knop boven label in"
+        },
+        "titleFormatted": {
+          "en": "Set the [[left_right]] button top label of [[config]] to [[label]]",
+          "nl": "Stel de [[left_right]] knop boven label van [[config]] in op [[label]]"
+        },
+        "hint": {
+          "en": "Sets the top label of the specified button",
+          "nl": "Stelt het boven label van de gespecificeerde knop in"
+        },
+        "args": [
+          {
+            "type": "dropdown",
+            "name": "left_right",
+            "title": {
+              "en": "Left /  Right",
+              "nl": "Links / Rechts "
+            },
+            "placeholder": {
+              "en": "Left / Right",
+              "nl": "Links / Rechts "
+            },
+            "values": [
+              {
+                "id": "left",
+                "title": {
+                  "en": "Left",
+                  "nl": "Links "
+                }
+              },
+              {
+                "id": "right",
+                "title": {
+                  "en": "Right",
+                  "nl": "Rechts "
+                }
+              }
+            ]
+          },
+          {
+            "type": "autocomplete",
+            "name": "config",
+            "title": {
+              "en": "Configuration",
+              "nl": "Configuratie"
+            },
+            "hint": {
+              "en": "Find this Configuration on a button connector",
+              "nl": "Vind deze configuratie op een knop connector"
+            },
+            "placeholder": {
+              "en": "Choose a configuration",
+              "nl": "Kies een configuratie"
+            }
+          },
+          {
+            "type": "text",
+            "name": "label",
+            "title": {
+              "en": "Top Label",
+              "nl": "Boven Label"
+            },
+            "placeholder": {
+              "en": "New Top Label",
+              "nl": "Nieuw Boven Label"
+            }
+          },
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=panel_hardware"
+          }
+        ],
+        "id": "set_config_name_button_top_label"
+      },
+      {
+        "title": {
           "en": "Set configuration LED colour",
           "nl": "Stel configuratie LED kleur in"
         },
         "titleFormatted": {
-          "en": "Set the [[left_right]] LED colour on configuration [[config]] to [[rgb]]",
-          "nl": "Stel de [[left_right]] LED kleur op configuratie [[config]] in op [[rgb]]"
+          "en": "Set the [[left_right]] LED colour on [[config]] to [[rgb]]",
+          "nl": "Stel de [[left_right]] LED kleur op [[config]] in op [[rgb]]"
         },
         "hint": {
           "en": "Sets the colour of the LED associated with the connector in the specified configuration",
@@ -1042,23 +1200,20 @@
             ]
           },
           {
-            "type": "number",
+            "type": "autocomplete",
             "name": "config",
             "title": {
-              "en": "Configuration number",
-              "nl": "Configuratie nummer"
+              "en": "Configuration",
+              "nl": "Configuratie"
             },
             "hint": {
-              "en": "Configuration number (1-20)",
-              "nl": "Configuratie nummer (1-20)"
+              "en": "Find this Configuration on a button connector",
+              "nl": "Vind deze configuratie op een knop connector"
             },
             "placeholder": {
-              "en": "Configuration number (1-20)",
-              "nl": "Configuratie nummer (1-20)"
-            },
-            "min": 1,
-            "max": 20,
-            "step": 1
+              "en": "Choose a configuration",
+              "nl": "Kies een configuratie"
+            }
           },
           {
             "type": "color",
@@ -1078,7 +1233,7 @@
             "filter": "driver_id=panel_hardware"
           }
         ],
-        "id": "set_config_led_rgb"
+        "id": "set_config_name_led_rgb"
       },
       {
         "title": {
