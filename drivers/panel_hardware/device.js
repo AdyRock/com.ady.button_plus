@@ -1158,7 +1158,7 @@ class PanelDevice extends Device
 				try
 				{
 					value = !this.getCapabilityValue(parameters.buttonCapability);
-					await this.setCapabilityValue(parameters.buttonCapability, value).catch(this.error);
+					await this.setCapabilityValue(parameters.buttonCapability, value);
 
 					// and trigger the flow
 					if (value)
@@ -1343,7 +1343,7 @@ class PanelDevice extends Device
 				{
 					if (parameters.configNo !== null)
 					{
-						this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'clicked', value);
+						this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'clicked', true);
 					}
 
 					// For dim cpaabilities we need to adjust the value by the amount in the dimChange field and not change the button state
@@ -1389,7 +1389,7 @@ class PanelDevice extends Device
 						value = parameters.fromButton ? parameters.value : !this.getCapabilityValue(parameters.buttonCapability);
 						if (parameters.configNo !== null)
 						{
-							this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'clicked', value);
+							this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'clicked', true);
 						}
 
 						if (value)
@@ -1406,7 +1406,7 @@ class PanelDevice extends Device
 						value = parameters.fromButton ? parameters.value : !capability.value;
 						if (parameters.configNo !== null)
 						{
-							this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'clicked', value);
+							this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'clicked', value > 0);
 						}
 						await homeyDeviceObject.setCapabilityValue(configCapabilityName, value);
 					}
