@@ -722,13 +722,13 @@ class MyApp extends Homey.App
         this.homey.settings.set('displayConfigurations', this.displayConfigurations);
     }
 
-    async uploadDisplayConfiguration(ip, configurationNo, panelId)
+    async uploadDisplayConfiguration(ip, configurationNo, panelId, firmwareVersion)
     {
         try
         {
             // apply the new configuration
             const sectionConfiguration = {};
-            await this.applyDisplayConfiguration(sectionConfiguration, configurationNo, panelId);
+            await this.applyDisplayConfiguration(sectionConfiguration, configurationNo, panelId, firmwareVersion);
             this.updateLog(`Current Config: ${sectionConfiguration}`);
 
             // write the updated configuration back to the device
@@ -741,7 +741,7 @@ class MyApp extends Homey.App
         }
     }
 
-    async applyDisplayConfiguration(sectionConfiguration, configurationNo, panelId)
+    async applyDisplayConfiguration(sectionConfiguration, configurationNo, panelId, firmwareVersion)
     {
         // Get the specified user configuration
         const displayConfiguration = this.displayConfigurations[configurationNo];
@@ -754,6 +754,12 @@ class MyApp extends Homey.App
             for (let itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
             {
                 const item = displayConfiguration.items[itemNo];
+                if ((firmwareVersion < 1.09) && (parseInt(item.page, 10) > 0))
+                {
+                    // Page support was added in firmware 1.09 so skip any items with a page number > 0
+                    continue;
+                }
+
                 let { brokerId } = item;
                 if (brokerId === 'Default')
                 {

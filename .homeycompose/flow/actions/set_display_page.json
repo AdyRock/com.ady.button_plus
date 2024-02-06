@@ -11,6 +11,7 @@
         "en": "Select the page of the displays",
         "nl": "Selecteer de pagina van de displays"
     },
+    "deprecated": true,
     "args": [
         {
             "type": "number",

@@ -1216,7 +1216,7 @@ class PanelDevice extends Device
     async onCapabilityDisplayConfiguration(value, opts)
     {
         this.log('onCapabilityConfiguration', value, opts);
-        await this.homey.app.uploadDisplayConfiguration(this.ip, value, this.id);
+        await this.homey.app.uploadDisplayConfiguration(this.ip, value, this.id, this.firmware);
     }
 
     async onCapabilityConfiguration(connector, value, opts)
@@ -1986,7 +1986,7 @@ class PanelDevice extends Device
                 }
                 else
                 {
-                    await this.homey.app.uploadDisplayConfiguration(this.ip, configNo, this.id);
+                    await this.homey.app.uploadDisplayConfiguration(this.ip, configNo, this.id, this.firmware);
                 }
             }
             catch (error)

@@ -1938,7 +1938,7 @@
                     }
 
                     page = item.page;
-                    htmlText += `<div class="horizontalcontainer"><div class="horizontalgroup"><h3>${Homey.__("settings.page")} ${item.page + 1}</h3>`;
+                    htmlText += `<div class="horizontalcontainer"><div class="horizontalgroup"><h2>${Homey.__("settings.page")} ${item.page + 1} <div class="tooltip"><i class="fi fi-rr-info"></i><span class="tooltiptext">${Homey.__("settings.pageExplanation")}</span></div></h2>`;
                 }
 
                 htmlText += insertDisplayItemSection(item, itemNo, (item.itemId === expandItemId));
