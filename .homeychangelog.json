@@ -127,5 +127,8 @@
     },
     "0.3.16": {
         "en": "Fix Right Button text changes to Left Button text when Top Label first changed #93. Fix mDNS discovery issue. Optimise complete configuration upload."
+    },
+    "0.3.17": {
+        "en": "Added Flow action cards to chenage the LED colour. Add optional Configuration Name to to both Button and Display Configurations to help identify them (not in the device lists though). Reduce the size of some of the MQTT messages."
     }
 }
