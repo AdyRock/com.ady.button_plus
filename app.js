@@ -344,12 +344,33 @@ class MyApp extends Homey.App
 		//         return true;
 		//     });
 
+		// This flow is deprecated as it is replaced by the config_name_button_change flow
 		this.triggerConfigButtonChanged = this.homey.flow.getDeviceTriggerCard('config_button_change')
 			.registerRunListener((args, state) =>
 			{
 				return ((args.left_right === state.left_right) && (args.config === state.config) && (args.display_button === state.displaybutton) && (args.state === state.state));
 			});
 
+		this.triggerConfigButtonNameChanged = this.homey.flow.getDeviceTriggerCard('config_name_button_change')
+			.registerRunListener((args, state) =>
+			{
+				return ((args.left_right === state.left_right) && (args.config.id === state.config) && (args.display_button === state.displaybutton) && (args.state === state.state));
+			})
+			.registerArgumentAutocompleteListener('config', async (query, args) =>
+			{
+				// itterate over the config array and return the name and id
+				let configurations = this.buttonConfigurations;
+				if (args.display_button === 'display')
+				{
+					configurations = this.displayConfigurations;
+				}
+				const results = configurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config.name ? config.name : ''}`, id: index }));
+
+				// filter the results based on the search query
+				return results.filter((result) => (result.name.toLowerCase().includes(query.toLowerCase())));
+			});
+
+		// This trigger is deprecated as it is replaced by the switch_button_configuration_name trigger
 		this.homey.flow.getActionCard('switch_button_configuration')
 			.registerRunListener(async (args, state) =>
 			{
@@ -357,13 +378,44 @@ class MyApp extends Homey.App
 				this.log('switch_button_configuration', config);
 				return args.device.triggerCapabilityListener(`configuration_button.connector${args.connector - 1}`, config.toString());
 			});
+		
+		this.homey.flow.getActionCard('switch_button_configuration_name')
+			.registerRunListener(async (args, state) =>
+			{
+				this.log('switch_button_configuration_name', args.config.id);
+				return args.device.triggerCapabilityListener(`configuration_button.connector${args.connector - 1}`, args.config.id.toString());
+			})
+			.registerArgumentAutocompleteListener('config', async (query, args) =>
+			{
+				// itterate over the config array and return the name and id
+				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config.name ? config.name : ''}`, id: index }));
 
+				// filter the results based on the search query
+				return results.filter((result) => (result.name.toLowerCase().includes(query.toLowerCase())));
+			});
+
+		// This flow is deprecated as it is replaced by the switch_display_configuration_name flow
 		this.homey.flow.getActionCard('switch_display_configuration')
 			.registerRunListener(async (args, state) =>
 			{
 				const config = args.configurationId - 1;
 				this.log('switch_display_configuration', config);
 				return args.device.triggerCapabilityListener('configuration_display', config.toString());
+			});
+		
+		this.homey.flow.getActionCard('switch_display_configuration_name')
+			.registerRunListener(async (args, state) =>
+			{
+				this.log('switch_display_configuration_name', args.config.id);
+				return args.device.triggerCapabilityListener('configuration_display', args.config.id.toString());
+			})
+			.registerArgumentAutocompleteListener('config', async (query, args) =>
+			{
+				// itterate over the config array and return the name and id
+				const results = this.displayConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config.name ? config.name : ''}`, id: index }));
+
+				// filter the results based on the search query
+				return results.filter((result) => (result.name.toLowerCase().includes(query.toLowerCase())));
 			});
 
 		this.homey.flow.getActionCard('turn_on_button')
@@ -473,6 +525,7 @@ class MyApp extends Homey.App
 				this.log(`set_config_button_label ${args.left_right} config${args.config} to ${args.label}`);
 				return args.device.updateConfigLabel(args.left_right, args.config - 1, args.label);
 			});
+
 		this.homey.flow.getActionCard('set_config_name_button_label')
 			.registerRunListener(async (args, state) =>
 			{
@@ -518,29 +571,65 @@ class MyApp extends Homey.App
 			});
 
 		/** * CONDITIONS ** */
-		this._conditionIsButtonOn = this.homey.flow.getConditionCard('is_button_on');
-		this._conditionIsButtonOn.registerRunListener(async (args, state) =>
-		{
-			return args.device.getCapabilityValue(`${args.left_right}_button.connector${args.connector - 1}`);
-		});
+		this.homey.flow.getConditionCard('is_button_on')
+			.registerRunListener(async (args, state) =>
+			{
+				return args.device.getCapabilityValue(`${args.left_right}_button.connector${args.connector - 1}`);
+			});
 
-		this._conditionIsButtonConfigActive = this.homey.flow.getConditionCard('is_button_config');
-		this._conditionIsButtonConfigActive.registerRunListener(async (args, state) =>
-		{
-			const activeConfig = args.device.getCapabilityValue(`configuration_button.connector${args.connector - 1}`);
-			const requiredConfig = args.config - 1;
-			// eslint-disable-next-line eqeqeq
-			return activeConfig == requiredConfig;
-		});
+		// This flow is deprecated as it is replaced by the is_button_config_name flow
+		this.homey.flow.getConditionCard('is_button_config')
+			.registerRunListener(async (args, state) =>
+			{
+				const activeConfig = args.device.getCapabilityValue(`configuration_button.connector${args.connector - 1}`);
+				const requiredConfig = args.config - 1;
+				// eslint-disable-next-line eqeqeq
+				return activeConfig == requiredConfig;
+			});
 
-		this._conditionIsDisplayConfigActive = this.homey.flow.getConditionCard('is_display_config');
-		this._conditionIsDisplayConfigActive.registerRunListener(async (args, state) =>
-		{
-			const activeConfig = args.device.getCapabilityValue('configuration_display');
-			const requiredConfig = args.config - 1;
-			// eslint-disable-next-line eqeqeq
-			return activeConfig == requiredConfig;
-		});
+		this.homey.flow.getConditionCard('is_button_config_name')
+			.registerRunListener(async (args, state) =>
+			{
+				const activeConfig = args.device.getCapabilityValue(`configuration_button.connector${args.connector - 1}`);
+				const requiredConfig = args.config.id;
+				// eslint-disable-next-line eqeqeq
+				return activeConfig == requiredConfig;
+			})
+			.registerArgumentAutocompleteListener('config', async (query, args) =>
+			{
+				// itterate over the config array and return the name and id
+				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config.name ? config.name : ''}`, id: index }));
+
+				// filter the results based on the search query
+				return results.filter((result) => (result.name.toLowerCase().includes(query.toLowerCase())));
+			});
+
+		// This flow is deprecated as it is replaced by the is_display_config_name flow
+		this.homey.flow.getConditionCard('is_display_config')
+			.registerRunListener(async (args, state) =>
+			{
+				const activeConfig = args.device.getCapabilityValue('configuration_display');
+				const requiredConfig = args.config - 1;
+				// eslint-disable-next-line eqeqeq
+				return activeConfig == requiredConfig;
+			});
+
+		this.homey.flow.getConditionCard('is_display_config_name')
+			.registerRunListener(async (args, state) =>
+			{
+				const activeConfig = args.device.getCapabilityValue('configuration_display');
+				const requiredConfig = args.config.id;
+				// eslint-disable-next-line eqeqeq
+				return activeConfig == requiredConfig;
+			})
+			.registerArgumentAutocompleteListener('config', async (query, args) =>
+			{
+				// itterate over the config array and return the name and id
+				const results = this.displayConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config.name ? config.name : ''}`, id: index }));
+
+				// filter the results based on the search query
+				return results.filter((result) => (result.name.toLowerCase().includes(query.toLowerCase())));
+			});
 
 		this.homey.on('memwarn', (data) =>
 		{

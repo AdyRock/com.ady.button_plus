@@ -7,22 +7,22 @@
         "en": "The button configuration [[config]] !{{is|isn't}} active on connector [[connector]]",
         "nl": "De knop configuratie [[config]] !{{is|isn't}} actief op connector [[connector]]"
     },
-    "deprecated": true,
     "args": [
         {
-            "type": "number",
+            "type": "autocomplete",
             "name": "config",
             "title": {
-                "en": "Config Number",
-                "nl": "Config nummer"
+                "en": "Configuration",
+                "nl": "Configuratie"
+            },
+            "hint": {
+                "en": "Find this Configuration on a button connector",
+                "nl": "Vind deze configuratie op een knop connector"
             },
             "placeholder": {
-                "en": "Config number (1-20)",
-                "nl": "Config nummer (1-20)"
-            },
-            "min": 1,
-            "max": 20,
-            "step": 1
+                "en": "Choose a configuration",
+                "nl": "Kies een configuratie"
+            }
         },
         {
             "type": "number",
