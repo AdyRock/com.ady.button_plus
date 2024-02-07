@@ -184,29 +184,32 @@ class PanelDevice extends Device
 			return;
 		}
 
-		let value = 1; // this.getCapabilityValue('dim.large');
-		this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/brightness/largedisplay/value`, value * 255).catch(this.error);
-
-		value = 1; //this.getCapabilityValue('dim.small');
-		this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/brightness/minidisplay/value`, value * 255).catch(this.error);
-
-		// value = this.getCapabilityValue('dim.led');
-		// this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/brightness/leds/value`, value * 100);
-		
-		value = 1;
-		if (this.page !== null)
+		if (this.firmware >= 1.09)
 		{
-			value = `${this.page - 1}`;
-		}
-		this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/setpage/value`, value);
+			let value = 1; // this.getCapabilityValue('dim.large');
+			this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/brightness/largedisplay/value`, value * 255).catch(this.error);
 
-		mqttClient.subscribe(`homey/${this.id}/currentpage/value`, (err) =>
-		{
-			if (err)
+			value = 1; //this.getCapabilityValue('dim.small');
+			this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/brightness/minidisplay/value`, value * 255).catch(this.error);
+
+			// value = this.getCapabilityValue('dim.led');
+			// this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/brightness/leds/value`, value * 100);
+			
+			value = 1;
+			if (this.page !== null)
 			{
-				this.homey.app.updateLog("setupMQTTClient.subscribe 'currentpage/value' error: " * this.homey.app.varToString(err), 0);
+				value = `${this.page - 1}`;
 			}
-		});
+			this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/setpage/value`, value);
+
+			mqttClient.subscribe(`homey/${this.id}/currentpage/value`, (err) =>
+			{
+				if (err)
+				{
+					this.homey.app.updateLog("setupMQTTClient.subscribe 'currentpage/value' error: " * this.homey.app.varToString(err), 0);
+				}
+			});
+		}
 	}
 
 	async onCapabilityDim(mqttTopic, value, opts)
@@ -753,6 +756,11 @@ class PanelDevice extends Device
 
 	async setSetDisplayPage(pageCommand, page)
 	{
+		if (this.firmware < 1.09)
+		{
+			throw new Error('Firmware too old to support this feature');
+		}
+
 		let brokerId = this.homey.settings.get('defaultBroker');
 		if (pageCommand === 'index')
 		{
@@ -826,7 +834,7 @@ class PanelDevice extends Device
 
 	async uploadCoreConfiguration(deviceConfigurations)
 	{
-		if (this.ip !== '')
+		if ((this.ip !== '') && (this.firmware >= 1.09))
 		{
 			try
 			{
@@ -892,7 +900,7 @@ class PanelDevice extends Device
 			}
 		}
 
-		return null;
+		return;
 	}
 
 	async uploadConfigurations()
