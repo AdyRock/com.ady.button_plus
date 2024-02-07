@@ -464,8 +464,8 @@ class MyApp extends Homey.App
         this.homey.flow.getActionCard('set_display_page')
             .registerRunListener(async (args, state) =>
             {
-                this.log(`set_screen_page to ${args.page}`);
-                return args.device.setSetPage(args.page);
+                this.log(`set_screen_page to ${args.pageCommand} ${args.index}`);
+                return args.device.setSetDisplayPage(arg.pageCommand, args.index);
             });
 
         /** * CONDITIONS ** */
@@ -1972,6 +1972,7 @@ class MyApp extends Homey.App
                         {
                             try
                             {
+                                // Setup device MQTT subscriptions
                                 device.setupMQTTSubscriptions(MQTTclient);
                             }
                             catch (error)
@@ -1997,7 +1998,7 @@ class MyApp extends Homey.App
                 try
                 {
                     const mqttMessage = JSON.parse(message.toString());
-                    this.updateLog(`MQTTclient.on message: ${this.varToString(mqttMessage)}`);
+                    this.updateLog(`MQTTclient.on message: ${topic}, ${this.varToString(mqttMessage)}`);
 
                     // Make sure mqttMessage.connector is defined
                     if (mqttMessage.connector !== undefined)
@@ -2058,6 +2059,13 @@ class MyApp extends Homey.App
                                             device.setCapabilityValue(topicParts[2], mqttMessage).catch(device.error);
                                         }
                                         return;
+                                    }
+                                    else 
+                                    {
+                                        if (await device.checkCoreMQTTMessage(topicParts, mqttMessage))
+                                        {
+                                            return;
+                                        }
                                     }
                                 }
                             }
