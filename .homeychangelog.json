@@ -54,7 +54,7 @@
         "en": "Added Dutch translation for diagnostics log."
     },
     "0.2.8": {
-        "en": "Catche error if invalid MQTT URL specified. Added expanding sections in the settings pages"
+        "en": "Catch error if invalid MQTT URL specified. Added expanding sections in the settings pages"
     },
     "0.2.9": {
         "en": "The device lists in the configuration sections is now sorted by and shows the zone name. Fix issues when display is on connector 0. Fix display button events not being sent. Fix for multiple panels."
@@ -63,7 +63,7 @@
         "en": "Removed obsolete Invert option. Optimised the code to send less MQTT messages. Added auto repeat on long press for the Dim capability."        
     },
     "0.2.11": {
-        "en": "Added button suport for Open/Idle/Close capability. Split configuration upload into smaller chunks to avoid timeouts. Removed alignment option from the display configuration as it has been removed from the hardware. Fixed missing manual option when no devices found. Added open web view to settings page."
+        "en": "Added button support for Open/Idle/Close capability. Split configuration upload into smaller chunks to avoid timeouts. Removed alignment option from the display configuration as it has been removed from the hardware. Fixed missing manual option when no devices found. Added open web view to settings page."
     },
     "0.2.12": {
         "en": "Fixes for using an external broker, including adding an option to specify a default broker. Setup a rule to make buttons non-latching if no 'On' label is specified."

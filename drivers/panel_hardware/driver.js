@@ -111,6 +111,7 @@ class PanelDriver extends Driver
         }
 
         const device = {
+            // eslint-disable-next-line no-nested-ternary
             name: deviceConfiguration.core.location ? deviceConfiguration.core.location : (deviceConfiguration.core.name ? deviceConfiguration.core.name : deviceConfiguration.info.ipaddress),
             data:
             {

@@ -55,6 +55,6 @@ module.exports = {
 
     // Send Log
     async sendLog({ homey, body }) {
-        return await homey.app.sendLog(body);
+        return homey.app.sendLog(body);
     },
 };
