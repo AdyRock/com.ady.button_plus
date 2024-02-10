@@ -134,7 +134,9 @@
         "exported:": "The settings have been copied to the panel.\n\nYou can select the all text in the panel, copy it to the clipboard and then paste them into a text file or email.",
         "copied": "The settings have been copied.\n\nYou can now paste them into another Configuration.",
         "page": "Page",
-        "pageExplanation": "Select which page the item should appear on (requires firmware 1.09 or later).<br>The default is page 1.<br>If there is more than 1 page, you can switch pages with the left or right Display buttons."
+        "pageExplanation": "Select which page the item should appear on (requires firmware 1.09 or later).<br>The default is page 1.<br>If there is more than 1 page, you can switch pages with the left or right Display buttons.",
+        "configName": "Configuration Name",
+        "configNameExplanation": "Enter a name for the configuration. This is optional but it will help you identify the configuration if you have more than one."
     },
     "pair": {
         "manual_add":{

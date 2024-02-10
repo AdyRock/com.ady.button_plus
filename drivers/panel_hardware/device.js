@@ -564,6 +564,53 @@ class PanelDevice extends Device
 		return null;
 	}
 
+	async setConnectorLEDColour(left_right, connector, rgbString)
+	{
+		let brokerId = this.homey.settings.get('defaultBroker');
+		let buttonNo = connector * 2;
+		if (left_right === 'right')
+		{
+			buttonNo++;
+		}
+		// Remove the # from rgbString and convert it to a number
+		rgbString = rgbString.replace('#', '');
+		let rgb = parseInt(rgbString, 16);
+		return this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/button/${buttonNo}/rgb`, rgb).catch(this.error);;
+	}
+
+	async setConfigLEDColour(left_right, configNo, rgb)
+	{
+		const item = this.homey.app.buttonConfigurations[configNo];
+		if (item)
+		{
+			// Find the button connector that has this configuration
+			for (let connector = 0; connector < 8; connector++)
+			{
+				if (this.hasCapability(`configuration_button.connector${connector}`))
+				{
+					// Get the configuration number for this connector
+					const config = this.getCapabilityValue(`configuration_button.connector${connector}`);
+
+					// eslint-disable-next-line eqeqeq
+					if (config == configNo)
+					{
+						return this.setConnectorLEDColour(left_right, connector, rgb);
+					}
+				}
+			}
+
+			throw new Error('Configuration is not assigned to a button');
+		}
+		else
+		{
+			throw new Error('Invalid configuration number');
+		}
+
+		return null;
+	}
+		return null;
+	}
+
 	async setSetDisplayPage(pageCommand, page)
 	{
 		if (this.firmware < 1.09)
@@ -694,27 +741,41 @@ class PanelDevice extends Device
 
 					this.homey.app.updateLog(`writeBrightnessConfig: ${this.homey.app.varToString(deviceConfigurations)}`);
 
-					const MQTTclient = this.homey.app.MQTTClients.get(brokerId);
-					if (MQTTclient)
-					{
-						this.setupMQTTSubscriptions(brokerId);
-					}
-
-					if (writeConfig)
-					{
-						return await await this.homey.app.writeDeviceConfiguration(this.ip, deviceConfigurations);
-					}
-					return null;
-				}
-				catch (err)
+				const MQTTclient = this.homey.app.MQTTClients.get(brokerId);
+				if (MQTTclient)
 				{
-					this.homey.app.updateLog(`Error setting up dim topics: ${err.message}`, 0);
-					return `Error setting up dim topics: ${err.message}`;
+					MQTTclient.subscribe(`homey/${this.id}/brightness/largedisplay/value`, (err) =>
+					{
+						if (err)
+						{
+							this.homey.app.updateLog(`setupMQTTClient.onConnect 'homey/${this.id}/brightness/largedisplay' error:  ${this.homey.app.varToString(err)}`, 0);
+						}
+					});
+					MQTTclient.subscribe(`homey/${this.id}/brightness/minidisplay/value`, (err) =>
+					{
+						if (err)
+						{
+							this.homey.app.updateLog(`setupMQTTClient.onConnect 'homey/${this.id}/brightness/minidisplay/value' error:  ${this.homey.app.varToString(err)}`, 0);
+						}
+					});
+					MQTTclient.subscribe(`homey/${this.id}/brightness/leds/value`, (err) =>
+					{
+						if (err)
+						{
+							this.homey.app.updateLog(`setupMQTTClient.onConnect 'homey/${this.id}/brightness/leds/value' error:  ${this.homey.app.varToString(err)}`, 0);
+						}
+					});
 				}
+
+				return await await this.homey.app.writeDeviceConfiguration(this.ip, sectionConfiguration);
 			}
-			return null;
+			catch (err)
+			{
+				this.homey.app.updateLog(`Error setting up dim topics: ${err.message}`, 0);
+			}
 		}
-		return 'No IP address';
+
+		return null;
 	}
 
 	async uploadConfigurations()

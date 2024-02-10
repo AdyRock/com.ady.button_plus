@@ -1,17 +1,16 @@
 {
     "title": {
-        "en": "Set configuration button top label",
-        "nl": "Stel configuratie knop top label in"
+        "en": "Set configuration LED colour",
+        "nl": "Stel configuratie LED kleur in"
     },
     "titleFormatted": {
-        "en": "Set the [[left_right]] button top label of configuration [[config]] to [[label]]",
-        "nl": "Stel de [[left_right]] knop top label van configuratie [[config]] in op [[label]]"
+        "en": "Set the [[left_right]] LED colour on [[config]] to [[rgb]]",
+        "nl": "Stel de [[left_right]] LED kleur op [[config]] in op [[rgb]]"
     },
     "hint": {
-        "en": "Sets the top label of the specified button",
-        "nl": "Stelt de top label van de gespecificeerde knop in"
+        "en": "Sets the colour of the LED associated with the connector in the specified configuration",
+        "nl": "Stelt de kleur van de LED in die is gekoppeld aan de connector in de opgegeven configuratie"
     },
-    "deprecated": true,
     "args": [
         {
             "type": "dropdown",
@@ -42,34 +41,31 @@
             ]
         },
         {
-            "type": "number",
+            "type": "autocomplete",
             "name": "config",
             "title": {
-                "en": "configuration number",
-                "nl": "Configuratie nummer"
+                "en": "Configuration",
+                "nl": "Configuratie"
             },
             "hint": {
-                "en": "Configuration number (1-20)",
-                "nl": "Configuratie nummer (1-20)"
+                "en": "Find this Configuration on a button connector",
+                "nl": "Vind deze configuratie op een knop connector"
             },
             "placeholder": {
-                "en": "configuration number (1-20)",
-                "nl": "Configuratie nummer (1-20)"
-            },
-            "min": 1,
-            "max": 20,
-            "step": 1
+                "en": "Choose a configuration",
+                "nl": "Kies een configuratie"
+            }
         },
         {
-            "type": "text",
-            "name": "label",
+            "type": "color",
+            "name": "rgb",
             "title": {
-                "en": "Top Label",
-                "nl": "Top Label"
+                "en": "RGB colour",
+                "nl": "RGB kleur"
             },
             "placeholder": {
-                "en": "Label",
-                "nl": "Label"
+                "en": "Text",
+                "nl": "Tekst"
             }
         },
         {

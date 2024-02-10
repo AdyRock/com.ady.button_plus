@@ -7,10 +7,12 @@
         "en": "Switch to Display Configuration [[configurationId]]",
         "nl": "Wissel naar display configuratie [[configurationId]]"
     },
+    
     "hint": {
         "en": "Send the select display configuration to the device",
         "nl": "Stuur de geselecteerde display configuratie naar het apparaat"
     },
+    "deprecated": true,
     "args": [
         {
             "type": "number",

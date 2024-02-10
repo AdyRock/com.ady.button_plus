@@ -5,110 +5,110 @@ const { Driver } = require('homey');
 class PanelDriver extends Driver
 {
 
-    /**
-     * onInit is called when the driver is initialized.
-     */
-    async onInit()
-    {
-        this.log('PanelDriver has been initialized');
-    }
+	/**
+	 * onInit is called when the driver is initialized.
+	 */
+	async onInit()
+	{
+		this.log('PanelDriver has been initialized');
+	}
 
-    async onPair(session)
-    {
-        this.devicesToAdd = [];
+	async onPair(session)
+	{
+		this.devicesToAdd = [];
 
-        session.setHandler('list_devices', async () =>
-        {
-            const devices = [];
-            devices.push({
-                name: 'Manual connection',
-                data:
-                {
-                    id: 'manual_connection',
-                },
-            });
+		session.setHandler('list_devices', async () =>
+		{
+			const devices = [];
+			devices.push({
+				name: 'Manual connection',
+				data:
+				{
+					id: 'manual_connection',
+				},
+			});
 
-            if (this.homey.app.mDNSPanels.length > 0)
-            {
-                for (let i = 0; i < this.homey.app.mDNSPanels.length; i++)
-                {
-                    const { ip, id } = this.homey.app.mDNSPanels[i];
-                    const device = await this.pairListDevices(ip, id);
-                    devices.push(device);
-                }
+			if (this.homey.app.mDNSPanels.length > 0)
+			{
+				for (let i = 0; i < this.homey.app.mDNSPanels.length; i++)
+				{
+					const { ip, id } = this.homey.app.mDNSPanels[i];
+					const device = await this.pairListDevices(ip, id);
+					devices.push(device);
+				}
 
-                if (!devices || devices.length === 0)
-                {
-                    throw new Error('no_devices_found');
-                }
-            }
+				if (!devices || devices.length === 0)
+				{
+					throw new Error('no_devices_found');
+				}
+			}
 
-            return devices;
-        });
+			return devices;
+		});
 
-        session.setHandler('list_devices_selection', async (data) =>
-        {
-            // User selected a device so cache the information required to validate it when the credentials are set
-            this.devicesToAdd = data;
-        });
+		session.setHandler('list_devices_selection', async (data) =>
+		{
+			// User selected a device so cache the information required to validate it when the credentials are set
+			this.devicesToAdd = data;
+		});
 
-        session.setHandler('manual_connection_setup', async () =>
-        {
-            return this.devicesToAdd;
-        });
+		session.setHandler('manual_connection_setup', async () =>
+		{
+			return this.devicesToAdd;
+		});
 
-        session.setHandler('manual_connection', async (data) =>
-        {
-            this.ip = data.ip;
-            return this.pairListDevices(data.ip, '');
-        });
-    }
+		session.setHandler('manual_connection', async (data) =>
+		{
+			this.ip = data.ip;
+			return this.pairListDevices(data.ip, '');
+		});
+	}
 
-    async pairListDevices(ip, id)
-    {
-        const deviceConfiguration = await this.homey.app.readDeviceConfiguration(ip);
-        this.homey.app.updateLog(`Device configuration: ${this.homey.app.varToString(deviceConfiguration)}`);
+	async pairListDevices(ip, id)
+	{
+		const deviceConfiguration = await this.homey.app.readDeviceConfiguration(ip);
+		this.homey.app.updateLog(`Device configuration: ${this.homey.app.varToString(deviceConfiguration)}`);
 
-        if (!deviceConfiguration)
-        {
-            return [];
-        }
+		if (!deviceConfiguration)
+		{
+			return [];
+		}
 
-        let connect0Type = 0;
-        let connect1Type = 0;
-        let connect2Type = 0;
-        let connect3Type = 0;
-        let connect4Type = 0;
+		let connect0Type = 0;
+		let connect1Type = 0;
+		let connect2Type = 0;
+		let connect3Type = 0;
+		let connect4Type = 0;
 
-        let connectIdx = deviceConfiguration.info.connectors.findIndex((id) => id.id === 0);
-        if (connectIdx >= 0)
-        {
-            connect0Type = deviceConfiguration.info.connectors[connectIdx].type;
-        }
+		let connectIdx = deviceConfiguration.info.connectors.findIndex((id) => id.id === 0);
+		if (connectIdx >= 0)
+		{
+			connect0Type = deviceConfiguration.info.connectors[connectIdx].type;
+		}
 
-        connectIdx = deviceConfiguration.info.connectors.findIndex((id) => id.id === 1);
-        if (connectIdx >= 0)
-        {
-            connect1Type = deviceConfiguration.info.connectors[connectIdx].type;
-        }
+		connectIdx = deviceConfiguration.info.connectors.findIndex((id) => id.id === 1);
+		if (connectIdx >= 0)
+		{
+			connect1Type = deviceConfiguration.info.connectors[connectIdx].type;
+		}
 
-        connectIdx = deviceConfiguration.info.connectors.findIndex((id) => id.id === 2);
-        if (connectIdx >= 0)
-        {
-            connect2Type = deviceConfiguration.info.connectors[connectIdx].type;
-        }
+		connectIdx = deviceConfiguration.info.connectors.findIndex((id) => id.id === 2);
+		if (connectIdx >= 0)
+		{
+			connect2Type = deviceConfiguration.info.connectors[connectIdx].type;
+		}
 
-        connectIdx = deviceConfiguration.info.connectors.findIndex((id) => id.id === 3);
-        if (connectIdx >= 0)
-        {
-            connect3Type = deviceConfiguration.info.connectors[connectIdx].type;
-        }
+		connectIdx = deviceConfiguration.info.connectors.findIndex((id) => id.id === 3);
+		if (connectIdx >= 0)
+		{
+			connect3Type = deviceConfiguration.info.connectors[connectIdx].type;
+		}
 
-        connectIdx = deviceConfiguration.info.connectors.findIndex((id) => id.id === 4);
-        if (connectIdx >= 0)
-        {
-            connect4Type = deviceConfiguration.info.connectors[connectIdx].type;
-        }
+		connectIdx = deviceConfiguration.info.connectors.findIndex((id) => id.id === 4);
+		if (connectIdx >= 0)
+		{
+			connect4Type = deviceConfiguration.info.connectors[connectIdx].type;
+		}
 
         const device = {
             // eslint-disable-next-line no-nested-ternary
@@ -129,8 +129,8 @@ class PanelDriver extends Driver
             },
         };
 
-        return device;
-    }
+		return device;
+	}
 
 }
 

@@ -1,0 +1,37 @@
+{
+    "title": {
+        "en": "Switch display configuration",
+        "nl": "Stuur display configuratie"
+    },
+    "titleFormatted": {
+        "en": "Switch to Display Configuration [[config]]",
+        "nl": "Wissel naar display configuratie [[config]]"
+    },
+    "hint": {
+        "en": "Send the select display configuration to the device",
+        "nl": "Stuur de geselecteerde display configuratie naar het apparaat"
+    },
+    "args": [
+        {
+            "type": "autocomplete",
+            "name": "config",
+            "title": {
+                "en": "Configuration",
+                "nl": "Configuratie"
+            },
+            "hint": {
+                "en": "Find this Configuration on a button connector",
+                "nl": "Vind deze configuratie op een knop connector"
+            },
+            "placeholder": {
+                "en": "Choose a configuration",
+                "nl": "Kies een configuratie"
+            }
+        },
+        {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=panel_hardware"
+        }
+    ]
+}
