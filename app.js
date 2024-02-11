@@ -378,7 +378,7 @@ class MyApp extends Homey.App
 				this.log('switch_button_configuration', config);
 				return args.device.triggerCapabilityListener(`configuration_button.connector${args.connector - 1}`, config.toString());
 			});
-		
+
 		this.homey.flow.getActionCard('switch_button_configuration_name')
 			.registerRunListener(async (args, state) =>
 			{
@@ -402,7 +402,7 @@ class MyApp extends Homey.App
 				this.log('switch_display_configuration', config);
 				return args.device.triggerCapabilityListener('configuration_display', config.toString());
 			});
-		
+
 		this.homey.flow.getActionCard('switch_display_configuration_name')
 			.registerRunListener(async (args, state) =>
 			{
@@ -487,7 +487,7 @@ class MyApp extends Homey.App
 				this.log(`set_connector_top_button_label ${args.left_right} connector${args.connector} to ${args.label}`);
 				return args.device.updateConnectorTopLabel(args.left_right, args.connector - 1, args.label);
 			});
-		
+
 		this.homey.flow.getActionCard('set_connector_button_text')
 			.registerRunListener(async (args, state) =>
 			{
@@ -923,7 +923,7 @@ class MyApp extends Homey.App
 				if (item.device === '_variable_')
 				{
 					// Get the variable value
-					const variable = await this.api.logic.getVariable({ id: item.capability });
+					const variable = await this.homey.app.getVariable(item.capability);
 					if (variable)
 					{
 						// Send the value to the device after a short delay to allow the device to connect to the broker
@@ -1025,7 +1025,6 @@ class MyApp extends Homey.App
 	{
 		const buttonIdx = connectorNo * 2;
 		let arrayIdx = 0;
-		const mqttQue = [];
 
 		if (sectionConfiguration.mqttbuttons.length > buttonIdx)
 		{
@@ -1075,8 +1074,6 @@ class MyApp extends Homey.App
 			this.setupButtonMQTTList(null, panelId, buttonIdx, sectionConfiguration.mqttbuttons[arrayIdx], connectorType);
 			this.setupButtonMQTTList(null, panelId, buttonIdx + 1, sectionConfiguration.mqttbuttons[arrayIdx + 1], connectorType);
 		}
-
-		return mqttQue;
 	}
 
 	async setupCustomMQTTTopics(mqttButtons, ButtonPanelConfiguration, connectorNo, side)
@@ -1367,7 +1364,7 @@ class MyApp extends Homey.App
 			}
 			catch (e)
 			{
-				this.updateLog(`Error getting variables: ${e.message}`, 0);
+				this.updateLog(`Error setting variables: ${e.message}`, 0);
 			}
 		}
 		return null;
@@ -2199,6 +2196,16 @@ class MyApp extends Homey.App
 					eventtype: 14,
 					topic: `homey/${panelId}/${buttonIdx}/value`,
 					payload: true,
+				},
+			);
+
+			// Add the LED colour event entry
+			mqttButtons.topics.push(
+				{
+					brokerid: brokerId,
+					eventtype: 13,
+					topic: `homey/${panelId}/${buttonIdx}/rgb`,
+					payload: '',
 				},
 			);
 		}
