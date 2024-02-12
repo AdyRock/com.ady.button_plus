@@ -909,7 +909,7 @@ class MyApp extends Homey.App
 					fontsize: parseInt(item.fontSize, 10),
 					width: parseInt(item.width, 10),
 					label: item.label,
-					unit: item.unit,
+					unit: item.device === 'none' ? '' : item.unit,
 					round: parseInt(item.rounding, 10),
 					page: parseInt(item.page, 10),
 					topics: [
@@ -966,6 +966,16 @@ class MyApp extends Homey.App
 						continue;
 					}
 				}
+                else
+                {
+                    // For deviceId type None, we need to send the Label vai MQTT so the item is displayed
+                    // Send the value to the device after a short delay to allow the device to connect to the broker
+                    mqttQueue.push({
+                        brokerId,
+                        message: `homey/${item.device}/${item.capability}/value`,
+                        value: item.unit,
+                    });
+                }
 
 				sectionConfiguration.mqttdisplays.push(capabilities);
 			}

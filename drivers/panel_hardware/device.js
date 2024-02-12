@@ -691,11 +691,13 @@ class PanelDevice extends Device
 		{
 			if (this.firmware >= 1.09)
 			{
+                let upload = false;
 				try
 				{
 					if (!deviceConfigurations)
 					{
 						deviceConfigurations = { core: {} };
+                        upload = true;
 					}
 					const brokerId = this.homey.settings.get('defaultBroker');
 					deviceConfigurations.core = {
@@ -760,7 +762,10 @@ class PanelDevice extends Device
 						});
 					}
 
-					return await await this.homey.app.writeDeviceConfiguration(this.ip, deviceConfigurations);
+					if (upload)
+                    {
+                        return await await this.homey.app.writeDeviceConfiguration(this.ip, deviceConfigurations);
+                    }
 				}
 				catch (err)
 				{
