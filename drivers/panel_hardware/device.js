@@ -4,6 +4,7 @@
 'use strict';
 
 const { Device } = require('homey');
+const _ = require('lodash');
 
 class PanelDevice extends Device
 {
@@ -511,7 +512,15 @@ class PanelDevice extends Device
 			// If a device configuration is passed, just update that.
 			if (deviceConfigurations)
 			{
-				deviceConfigurations.core.statusbar = this.getSetting('statusbar');
+				const statusbar = parseInt(this.getSetting('statusbar'), 10);
+				if (deviceConfigurations.core && deviceConfigurations.core.statusbar !== statusbar)
+				{
+					deviceConfigurations.core.statusbar = statusbar;
+				}
+				else
+				{
+					delete deviceConfigurations.core.statusbar;
+				}
 				return null;
 			}
 
@@ -644,7 +653,6 @@ class PanelDevice extends Device
 					{
 						sensorid: 1,
 						interval: 10,
-						calibrationOffset: this.temperatureCalibration,
 						topic:
 						{
 							brokerid: brokerId,
@@ -669,7 +677,15 @@ class PanelDevice extends Device
 
 				if (deviceConfigurations)
 				{
-					deviceConfigurations.mqttsensors = sectionConfiguration.mqttsensors;
+					// Check if the configuration is the same
+					if (this.compareObjects(sectionConfiguration.mqttsensors, deviceConfigurations.mqttsensors))
+					{
+						delete deviceConfigurations.mqttsensors;
+					}
+					else
+					{
+						deviceConfigurations.mqttsensors = sectionConfiguration.mqttsensors;
+					}
 					return null;
 				}
 
@@ -691,50 +707,54 @@ class PanelDevice extends Device
 		{
 			if (this.firmware >= 1.09)
 			{
-                let upload = false;
+				let upload = false;
 				try
 				{
 					if (!deviceConfigurations)
 					{
-						deviceConfigurations = { core: {} };
-                        upload = true;
+						// Read the current device configuration
+						deviceConfigurations = await this.homey.app.readDeviceConfiguration(this.ip);
+						upload = true;
 					}
-					const brokerId = this.homey.settings.get('defaultBroker');
-					deviceConfigurations.core = {
-						topics: [
-						{
-							brokerid: brokerId,
-							topic: `homey/${this.id}/brightness/large/value`,
-							payload: '',
-							eventtype: 24,
-						},
-						{
-							brokerid: brokerId,
-							topic: `homey/${this.id}/brightness/mini/value`,
-							payload: '',
-							eventtype: 25,
-						},
-						{
-							brokerid: brokerId,
-							topic: `homey/${this.id}/brightness/leds/value`,
-							payload: '',
-							eventtype: 26,
-						},
-						{
-							brokerid: brokerId,
-							topic: `homey/${this.id}/currentpage/value`,
-							payload: '',
-							eventtype: 6,
-						},
-						{
-							brokerid: brokerId,
-							topic: `homey/${this.id}/setpage/value`,
-							payload: '',
-							eventtype: 20,
-						}],
+
+					const sectionConfiguration = {
+						core: { ...deviceConfigurations.core },
 					};
 
-					this.homey.app.updateLog(`writeBrightnessConfig: ${this.homey.app.varToString(deviceConfigurations)}`);
+					const brokerId = this.homey.settings.get('defaultBroker');
+					sectionConfiguration.core.topics = [
+					{
+						brokerid: brokerId,
+						topic: `homey/${this.id}/brightness/large/value`,
+						payload: '',
+						eventtype: 24,
+					},
+					{
+						brokerid: brokerId,
+						topic: `homey/${this.id}/brightness/mini/value`,
+						payload: '',
+						eventtype: 25,
+					},
+					{
+						brokerid: brokerId,
+						topic: `homey/${this.id}/brightness/leds/value`,
+						payload: '',
+						eventtype: 26,
+					},
+					{
+						brokerid: brokerId,
+						topic: `homey/${this.id}/currentpage/value`,
+						payload: '',
+						eventtype: 6,
+					},
+					{
+						brokerid: brokerId,
+						topic: `homey/${this.id}/setpage/value`,
+						payload: '',
+						eventtype: 20,
+					}];
+
+					this.homey.app.updateLog(`writeBrightnessConfig: ${this.homey.app.varToString(sectionConfiguration)}`);
 
 					const MQTTclient = this.homey.app.MQTTClients.get(brokerId);
 					if (MQTTclient)
@@ -762,10 +782,20 @@ class PanelDevice extends Device
 						});
 					}
 
-					if (upload)
-                    {
-                        return await await this.homey.app.writeDeviceConfiguration(this.ip, deviceConfigurations);
-                    }
+					// Compare the current settings with the new settings
+					if (this.compareObjects(sectionConfiguration.core, deviceConfigurations.core))
+					{
+						// They are the same so don't upload
+						if (!upload)
+						{
+							// Remove the core section from the device configuration
+							delete deviceConfigurations.core;
+						}
+					}
+					else if (upload)
+					{
+						return await await this.homey.app.writeDeviceConfiguration(this.ip, sectionConfiguration);
+					}
 				}
 				catch (err)
 				{
@@ -787,12 +817,13 @@ class PanelDevice extends Device
 				this.firmware = parseFloat(deviceConfigurations.info.firmware);
 				await this.setSettings({ firmware: deviceConfigurations.info.firmware });
 			}
-			await this.uploadCoreConfiguration(deviceConfigurations);
 			await this.updateStatusBar(deviceConfigurations);
+			await this.uploadCoreConfiguration(deviceConfigurations);
 			await this.uploadAllButtonConfigurations(deviceConfigurations);
 			await this.uploadDisplayConfigurations(deviceConfigurations);
 			await this.uploadBrokerConfigurations(deviceConfigurations);
 			await this.uploadPanelTemperatureConfiguration(deviceConfigurations);
+			delete deviceConfigurations.info;
 
 			await this.homey.app.writeDeviceConfiguration(this.ip, deviceConfigurations);
 		}
@@ -971,7 +1002,7 @@ class PanelDevice extends Device
 
 	async onCapabilityInfo(value, opts)
 	{
-		this.setCapabilityValue('info', value);
+		this.setCapabilityValue('info', value).catch(this.error);
 	}
 
 	async checkCoreMQTTMessage(topicParts, value)
@@ -1295,13 +1326,13 @@ class PanelDevice extends Device
 				for (let i = sectionConfiguration.mqttbuttons.length; i < (deviceConfigurations.info.connectors.length * 2); i++)
 				{
 					sectionConfiguration.mqttbuttons.push(
-					{
-						id: i,
-						label: `Btn_${i}`,
-						toplabel: 'Label',
-						topics: [],
-					},
-);
+						{
+							id: i,
+							label: `Btn_${i}`,
+							toplabel: 'Label',
+							topics: [],
+						},
+					);
 				}
 			}
 
@@ -1331,8 +1362,16 @@ class PanelDevice extends Device
 					this.homey.app.updateLog(error, 0);
 				}
 			}
+			for (let i = sectionConfiguration.mqttbuttons.length - 1; i >= 0; i--)
+			{
+				if (this.compareObjects(sectionConfiguration.mqttbuttons[i], deviceConfigurations.mqttbuttons[i]))
+				{
+					// No changes have been made to the configuration so remove it from the sectionConfiguration so is doesn't write
+					sectionConfiguration.mqttbuttons.splice(i, 1);
+				}
+			}
 
-			if (writeConfig)
+			if (writeConfig && (sectionConfiguration.mqttbuttons.length > 0))
 			{
 				try
 				{
@@ -1344,6 +1383,16 @@ class PanelDevice extends Device
 				{
 					this.homey.app.updateLog(this.homey.app.varToString(error), 0);
 				}
+			}
+			else if (sectionConfiguration.mqttbuttons.length === 0)
+			{
+				// No changes have been made to the configuration so remove it from the deviceConfigurations so is doesn't write
+				delete deviceConfigurations.mqttbuttons;
+			}
+			else
+			{
+				// Replace the mqttbuttons section of the device configuration with the new sectionConfiguration
+				deviceConfigurations.mqttbuttons = sectionConfiguration.mqttbuttons;
 			}
 
 			// Send the MQTT messages after a short delay to allow the device to connect to the broker
@@ -1401,7 +1450,23 @@ class PanelDevice extends Device
 			{
 				if (deviceConfigurations)
 				{
-					await this.homey.app.applyDisplayConfiguration(deviceConfigurations, configNo, this.id, this.firmware);
+					const sectionConfiguration = {
+						mqttdisplays: { ...deviceConfigurations.mqttdisplays },
+					};
+
+					await this.homey.app.applyDisplayConfiguration(sectionConfiguration, configNo, this.id, this.firmware);
+
+					// Check if the display configuration has changed
+					if (this.compareObjects(sectionConfiguration.mqttdisplays, deviceConfigurations.mqttdisplays))
+					{
+						// No changes have been made to the configuration so remove it from the sectionConfiguration so is doesn't write
+						delete deviceConfigurations.mqttdisplays;
+					}
+					else
+					{
+						// Replace the display section of the device configuration with the new sectionConfiguration
+						deviceConfigurations.mqttdisplays = sectionConfiguration.mqttdisplays;
+					}
 				}
 				else
 				{
@@ -1475,8 +1540,16 @@ class PanelDevice extends Device
 
 		if (deviceConfigurations)
 		{
+			// Check if the broker configuration has changed
+			if (this.compareObjects(sectionConfiguration.mqttbrokers, deviceConfigurations.mqttbrokers))
+			{
+				// No changes have been made to the configuration so remove it from the sectionConfiguration so is doesn't write
+				delete deviceConfigurations.mqttbrokers;
+				return;
+			}
+
 			// copy the section configuration to the device configuration
-			deviceConfigurations.mqttbroker = sectionConfiguration.mqttbroker;
+			deviceConfigurations.mqttbrokers = sectionConfiguration.mqttbrokers;
 			return;
 		}
 
@@ -1649,7 +1722,7 @@ class PanelDevice extends Device
 				value = variable.value;
 			}
 
-			this.setCapabilityValue(`${side}_button.connector${buttonIdx / 2}`, value);
+			this.setCapabilityValue(`${side}_button.connector${parseInt(buttonIdx / 2, 10)}`, value).catch(this.error);
 		}
 		else if (config.deviceID !== 'none')
 		{
@@ -1661,7 +1734,7 @@ class PanelDevice extends Device
 				{
 					this.homey.app.registerDeviceCapabilityStateChange(device, config.capabilityName);
 					value = capability.value;
-					this.setCapabilityValue(`${side}_button.connector${buttonIdx / 2}`, value);
+					await this.setCapabilityValue(`${side}_button.connector${parseInt(buttonIdx / 2, 10)}`, value);
 				}
 			}
 			catch (err)
@@ -1671,7 +1744,7 @@ class PanelDevice extends Device
 		}
 		else
 		{
-			value = this.getCapabilityValue(`${side}_button.connector${buttonIdx / 2}`);
+			value = this.getCapabilityValue(`${side}_button.connector${parseInt(buttonIdx / 2, 10)}`);
 		}
 
 		// Send the value to the device after a short delay to allow the device to connect to the broker
@@ -1756,6 +1829,78 @@ class PanelDevice extends Device
 		}
 
 		return { homeyDeviceObject, capability };
+	}
+
+	compareObjects(obj1, obj2)
+	{
+		// Use Lodash to compare objects
+		function customizer(value1, value2)
+		{
+			if (Array.isArray(value1) && Array.isArray(value2))
+			{
+				value1.sort((a, b) => {
+					if (a.eventtype !== undefined)
+					{
+						// Array of topics
+						return a.eventtype - b.eventtype;
+					}
+
+					if (a.brokerid !== undefined)
+					{
+						// Array of brokers
+						return a.brokerid.localeCompare(b.brokerid);
+					}
+
+					if (a.page !== undefined)
+					{
+						// Array of display items, so sort by page then x and then y
+						if (a.page === b.page)
+						{
+							if (a.x === b.x)
+							{
+								return a.y - b.y;
+							}
+							return a.x - b.x;
+						}
+						return a.page - b.page;
+					}
+
+					return 0;
+				});
+
+				value2.sort((a, b) => {
+					if (a.eventtype)
+					{
+						return a.eventtype - b.eventtype;
+					}
+
+					if (a.brokerid)
+					{
+						return a.brokerid.localeCompare(b.brokerid);
+					}
+
+					if (a.page !== undefined)
+					{
+						// Array of display items, so sort by page then x and then y
+						if (a.page === b.page)
+						{
+							if (a.x === b.x)
+							{
+								return a.y - b.y;
+							}
+							return a.x - b.x;
+						}
+						return a.page - b.page;
+					}
+
+					return 0;
+				});
+			}
+
+			return undefined;
+		}
+
+		return _.isEqualWith(obj1, obj2, customizer);
 	}
 
 }

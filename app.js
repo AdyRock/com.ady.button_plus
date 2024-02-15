@@ -23,6 +23,7 @@ const HttpHelper = require('./lib/HttpHelper');
 const DeviceManager = require('./lib/DeviceManager');
 const DeviceDispatcher = require('./lib/DeviceStateChangedDispatcher');
 const VariableDispatcher = require('./lib/variables');
+const _ = require('lodash');
 
 const MAX_CONFIGURATIONS = 20;
 
@@ -904,19 +905,21 @@ class MyApp extends Homey.App
 					brokerId = this.homey.settings.get('defaultBroker');
 				}
 				const capabilities = {
-					x: parseInt(item.xPos, 10),
-					y: parseInt(item.yPos, 10),
-					fontsize: parseInt(item.fontSize, 10),
-					width: parseInt(item.width, 10),
+                    align: 1,
+					x: parseInt(item.xPos, 10) || 0,
+					y: parseInt(item.yPos, 10) || 0,
+					fontsize: parseInt(item.fontSize, 10) || 0,
+					width: parseInt(item.width, 10) || 0,
 					label: item.label,
 					unit: item.device === 'none' ? '' : item.unit,
-					round: parseInt(item.rounding, 10),
-					page: parseInt(item.page, 10),
+					round: parseInt(item.rounding, 10) || 0,
+					page: parseInt(item.page, 10) || 0,
 					topics: [
 					{
 						brokerid: brokerId,
 						topic: `homey/${item.device}/${item.capability}/value`,
 						eventtype: 15,
+                        payload: '',
 					}],
 				};
 
@@ -1150,6 +1153,11 @@ class MyApp extends Homey.App
 
 		if (ip !== '')
 		{
+            if (_.isEmpty(deviceConfiguration))
+            {
+                return null;
+            }
+
 			try
 			{
 				// Use the local device
@@ -1183,8 +1191,8 @@ class MyApp extends Homey.App
 							{
 								brokerid: brokerItem.brokerid,
 								url: brokerItem.url,
-								port: brokerItem.port,
-								wsport: brokerItem.wsport,
+								port: parseInt(brokerItem.port, 10),
+								wsport: parseInt(brokerItem.wsport, 10),
 								username: brokerItem.username,
 								password: brokerItem.password,
 							},
@@ -2047,7 +2055,10 @@ class MyApp extends Homey.App
 	// Register a device so we receive state change events that are posted to the MQTT server
 	registerDeviceCapabilityStateChange(device, capabilityId)
 	{
-		this.deviceDispather.registerDeviceCapability(device, capabilityId);
+		this.deviceDispather.registerDeviceCapability(device, capabilityId).catch((err) =>
+        {
+            this.updateLog(`registerDeviceCapabilityStateChange: ${err.message}`, 0);
+        });
 	}
 
 	// Device Flow Card Triggers
