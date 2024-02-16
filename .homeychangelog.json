@@ -130,5 +130,8 @@
     },
     "0.3.17": {
         "en": "Added Flow action cards to chenage the LED colour. Add optional Configuration Name to to both Button and Display Configurations to help identify them (not in the device lists though). Reduce the size of some of the MQTT messages."
+    },
+    "0.4.0": {
+        "en": "Added support for pages to Display Configuration (requires firmware version 1.1 or later). Optimized the MQTT messages to reduce configuration uploads when they are switched in the app. Optimized transfers to exclude unchanged configurations."
     }
 }
