@@ -435,7 +435,7 @@ class PanelDevice extends Device
 		return this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/${buttonIdx}/toplabel`, label).catch(this.error);
 	}
 
-	async updateConnectorText(left_right, connector, label)
+	async updateConnectorLabel(left_right, connector, label)
 	{
 		const { brokerId, buttonIdx } = this.getBrokerIdAndBtnIdx(left_right, connector);
 		return this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/${buttonIdx}/label`, label).catch(this.error);
@@ -452,7 +452,7 @@ class PanelDevice extends Device
 	{
 		// Find the button connector that has this configuration
 		const connector = this.findConnectUsingConfigNo(configNo);
-		return this.updateConnectorText(left_right, connector, label);
+		return this.updateConnectorLabel(left_right, connector, label);
 	}
 
 	async updateDateAndTime(dateTime)

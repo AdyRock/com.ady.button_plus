@@ -136,5 +136,8 @@
     },
     "0.4.1": {
         "en": "Fix Select Display Page Flow action card. Fix issue with button configurations not being applied correctly."
+    },
+    "0.4.2": {
+        "en": "Return of Switch configuration by number Flow actions so they can be controlled with a variable. Fix Flow action to change a connector top label"
     }
 }

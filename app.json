@@ -1884,7 +1884,6 @@
           "en": "Send the select configuration to the display device for the selected connector",
           "nl": "Stuur de geselecteerde configuratie naar het display voor de geselecteerde connector"
         },
-        "deprecated": true,
         "args": [
           {
             "type": "number",
@@ -2002,7 +2001,6 @@
           "en": "Send the select display configuration to the device",
           "nl": "Stuur de geselecteerde display configuratie naar het apparaat"
         },
-        "deprecated": true,
         "args": [
           {
             "type": "number",
