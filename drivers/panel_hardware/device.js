@@ -384,10 +384,10 @@ class PanelDevice extends Device
 		}
 	}
 
-	getBrokerIdAndBtnIdx(left_right, connector)
+	getBrokerIdAndBtnIdx(side, connector)
 	{
 		let brokerId = 'Default';
-		const buttonIdx = connector * 2 + left_right === 'right' ? 1 : 0;
+		const buttonIdx = (connector * 2) + (side === 'right' ? 1 : 0);
 		if (this.hasCapability(`configuration_button.connector${connector}`))
 		{
 			// Get the configuration number for this connector
@@ -395,7 +395,7 @@ class PanelDevice extends Device
 			const item = this.homey.app.buttonConfigurations[configNo];
 			if (item)
 			{
-				if (left_right === 'left')
+				if (side === 'left')
 				{
 					brokerId = item.leftBrokerId;
 				}
