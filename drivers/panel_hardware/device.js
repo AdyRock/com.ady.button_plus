@@ -1038,8 +1038,8 @@ class PanelDevice extends Device
 		const parameters = _.cloneDeep(MQTTMessage);
 		parameters.connector = (MQTTMessage.idx / 2) | 0;
 		parameters.side = (MQTTMessage.idx % 2) === 0 ? 'left' : 'right';
-		const connectorType = this.getSetting(`connect${parameters.connector}Type`);
-		parameters.configNo = connectorType === 2 ? null : this.getCapabilityValue(`configuration_button.connector${parameters.connector}`);
+		parameters.connectorType = this.getSetting(`connect${parameters.connector}Type`);
+		parameters.configNo = parameters.connectorType === 2 ? this.getCapabilityValue('configuration_display') : this.getCapabilityValue(`configuration_button.connector${parameters.connector}`);
 		parameters.buttonCapability = `${parameters.side}_button.connector${parameters.connector}`;
 		parameters.value = !this.getCapabilityValue(parameters.buttonCapability);
 
@@ -1065,7 +1065,7 @@ class PanelDevice extends Device
 	{
 		// Check if a large display or if no configuration assigned to this connector
 		let config = null;
-		if (parameters.configNo !== null)
+		if ((parameters.configNo !== null) && (parameters.connectorType !== 2))
 		{
 			config = this.getConfigSide(parameters.configNo, parameters.side);
 		}
@@ -1154,43 +1154,52 @@ class PanelDevice extends Device
 					}
 				}
 			}
+        }
 
-			if (typeof value === 'boolean')
-			{
-				if (!parameters.fromButton)
-				{
-					// Set the virtual button state
-					this.setCapabilityValue(parameters.buttonCapability, value).catch(this.error);
-				}
+        if (typeof value === 'boolean')
+        {
+            if (!parameters.fromButton)
+            {
+                // Set the virtual button state
+                this.setCapabilityValue(parameters.buttonCapability, value).catch(this.error);
+            }
 
-				// and trigger the flow
-				if (value)
-				{
-					this.homey.app.triggerButtonOn(this, parameters.side === 'left', parameters.connector + 1);
-				}
-				else
-				{
-					this.homey.app.triggerButtonOff(this, parameters.side === 'left', parameters.connector + 1);
-				}
-			}
+            // and trigger the flow
+            if (value)
+            {
+                this.homey.app.triggerButtonOn(this, parameters.side === 'left', parameters.connector + 1);
+            }
+            else
+            {
+                this.homey.app.triggerButtonOff(this, parameters.side === 'left', parameters.connector + 1);
+            }
+        }
 
-			this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'clicked', value);
-			this.homey.app.publishMQTTMessage(config.brokerId, `homey/${this.id}/${parameters.idx}/value`, value).catch(this.error);
-			if ((value && config.onMessage !== '') || (!value && config.offMessage !== ''))
-			{
-				this.homey.app.publishMQTTMessage(config.brokerId, `homey/${this.id}/${parameters.idx}/label`, value ? config.onMessage : config.offMessage).catch(this.error);
-			}
+        this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'clicked', value);
 
-			if (config.onMessage === '' && config.offMessage !== '')
-			{
-				// There is only an Off message so don't latch the button state
-				if (parameters.fromButton && value)
-				{
-					// Set the button state back to false immediately
-					setImmediate(() => this.triggerCapabilityListener(parameters.buttonCapability, false).catch(this.error));
-				}
-			}
-		}
+        if (config)
+        {
+            this.homey.app.publishMQTTMessage(config.brokerId, `homey/${this.id}/${parameters.idx}/value`, value).catch(this.error);
+            if ((value && config.onMessage !== '') || (!value && config.offMessage !== ''))
+            {
+                this.homey.app.publishMQTTMessage(config.brokerId, `homey/${this.id}/${parameters.idx}/label`, value ? config.onMessage : config.offMessage).catch(this.error);
+            }
+
+            if (config.onMessage === '' && config.offMessage !== '')
+            {
+                // There is only an Off message so don't latch the button state
+                if (parameters.fromButton && value)
+                {
+                    // Set the button state back to false immediately
+                    setImmediate(() => this.triggerCapabilityListener(parameters.buttonCapability, false).catch(this.error));
+                }
+            }
+        }
+        else
+        {
+            // Set the button state back to false immediately
+            setImmediate(() => this.triggerCapabilityListener(parameters.buttonCapability, false).catch(this.error));
+        }
 	}
 
 	async processLongPressMessage(parameters)

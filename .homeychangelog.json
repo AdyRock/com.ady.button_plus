@@ -139,5 +139,8 @@
     },
     "0.4.2": {
         "en": "Return of Switch configuration by number Flow actions so they can be controlled with a variable. Fix Flow action to change a connector top label"
+    },
+    "0.4.3": {
+        "en": "Fix Flow trigger for Button trigger"
     }
 }
