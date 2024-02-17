@@ -571,6 +571,13 @@ class MyApp extends Homey.App
 				return results.filter((result) => (result.name.toLowerCase().includes(query.toLowerCase())));
 			});
 
+		this.homey.flow.getActionCard('set_display_page')
+			.registerRunListener(async (args, state) =>
+			{
+				this.log(`set_display_page ${args.pageCommand} to ${args.index}`);
+				return args.device.setSetDisplayPage(args.pageCommand, args.index);
+			});
+
 		/** * CONDITIONS ** */
 		this.homey.flow.getConditionCard('is_button_on')
 			.registerRunListener(async (args, state) =>
@@ -905,7 +912,7 @@ class MyApp extends Homey.App
 					brokerId = this.homey.settings.get('defaultBroker');
 				}
 				const capabilities = {
-                    align: 1,
+					align: 1,
 					x: parseInt(item.xPos, 10) || 0,
 					y: parseInt(item.yPos, 10) || 0,
 					fontsize: parseInt(item.fontSize, 10) || 0,
@@ -919,7 +926,7 @@ class MyApp extends Homey.App
 						brokerid: brokerId,
 						topic: `homey/${item.device}/${item.capability}/value`,
 						eventtype: 15,
-                        payload: '',
+						payload: '',
 					}],
 				};
 
@@ -969,16 +976,16 @@ class MyApp extends Homey.App
 						continue;
 					}
 				}
-                else
-                {
-                    // For deviceId type None, we need to send the Label vai MQTT so the item is displayed
-                    // Send the value to the device after a short delay to allow the device to connect to the broker
-                    mqttQueue.push({
-                        brokerId,
-                        message: `homey/${item.device}/${item.capability}/value`,
-                        value: item.unit,
-                    });
-                }
+				else
+				{
+					// For deviceId type None, we need to send the Label vai MQTT so the item is displayed
+					// Send the value to the device after a short delay to allow the device to connect to the broker
+					mqttQueue.push({
+						brokerId,
+						message: `homey/${item.device}/${item.capability}/value`,
+						value: item.unit,
+					});
+				}
 
 				sectionConfiguration.mqttdisplays.push(capabilities);
 			}
@@ -1153,10 +1160,10 @@ class MyApp extends Homey.App
 
 		if (ip !== '')
 		{
-            if (_.isEmpty(deviceConfiguration))
-            {
-                return null;
-            }
+			if (_.isEmpty(deviceConfiguration))
+			{
+				return null;
+			}
 
 			try
 			{
@@ -1564,45 +1571,45 @@ class MyApp extends Homey.App
 			{
 				this.updateLog(`setupMQTTClient.onConnect: connected to ${brokerConfig.url}:${brokerConfig.port} as ${brokerConfig.brokerid}`);
 
-                MQTTclient.subscribe('homey/click', (err) =>
-                {
-                    if (err)
-                    {
-                        this.updateLog("setupMQTTClient.onConnect 'homey/click' error: " * this.varToString(err), 0);
-                    }
-                });
+				MQTTclient.subscribe('homey/click', (err) =>
+				{
+					if (err)
+					{
+						this.updateLog("setupMQTTClient.onConnect 'homey/click' error: " * this.varToString(err), 0);
+					}
+				});
 
-                MQTTclient.subscribe('homey/longpress', (err) =>
-                {
-                    if (err)
-                    {
-                        this.updateLog("setupMQTTClient.onConnect 'homey/longpress' error: " * this.varToString(err), 0);
-                    }
-                });
+				MQTTclient.subscribe('homey/longpress', (err) =>
+				{
+					if (err)
+					{
+						this.updateLog("setupMQTTClient.onConnect 'homey/longpress' error: " * this.varToString(err), 0);
+					}
+				});
 
-                MQTTclient.subscribe('homey/clickrelease', (err) =>
-                {
-                    if (err)
-                    {
-                        this.updateLog("setupMQTTClient.onConnect 'homey/clickrelease' error: " * this.varToString(err), 0);
-                    }
-                });
+				MQTTclient.subscribe('homey/clickrelease', (err) =>
+				{
+					if (err)
+					{
+						this.updateLog("setupMQTTClient.onConnect 'homey/clickrelease' error: " * this.varToString(err), 0);
+					}
+				});
 
-                // MQTTclient.subscribe('homey/shortpress', (err) =>
-                // {
-                //     if (err)
-                //     {
-                //         this.updateLog("setupMQTTClient.onConnect 'homey/shortpress' error: " * this.varToString(err), 0);
-                //     }
-                // });
+				// MQTTclient.subscribe('homey/shortpress', (err) =>
+				// {
+				//     if (err)
+				//     {
+				//         this.updateLog("setupMQTTClient.onConnect 'homey/shortpress' error: " * this.varToString(err), 0);
+				//     }
+				// });
 
-                // MQTTclient.subscribe('homey/multipress', (err) =>
-                // {
-                //     if (err)
-                //     {
-                //         this.updateLog("setupMQTTClient.onConnect 'homey/multipress' error: " * this.varToString(err), 0);
-                //     }
-                // });
+				// MQTTclient.subscribe('homey/multipress', (err) =>
+				// {
+				//     if (err)
+				//     {
+				//         this.updateLog("setupMQTTClient.onConnect 'homey/multipress' error: " * this.varToString(err), 0);
+				//     }
+				// });
 
 				const drivers = this.homey.drivers.getDrivers();
 				for (const driver of Object.values(drivers))
@@ -2056,9 +2063,9 @@ class MyApp extends Homey.App
 	registerDeviceCapabilityStateChange(device, capabilityId)
 	{
 		this.deviceDispather.registerDeviceCapability(device, capabilityId).catch((err) =>
-        {
-            this.updateLog(`registerDeviceCapabilityStateChange: ${err.message}`, 0);
-        });
+		{
+			this.updateLog(`registerDeviceCapabilityStateChange: ${err.message}`, 0);
+		});
 	}
 
 	// Device Flow Card Triggers
