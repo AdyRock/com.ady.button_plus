@@ -135,6 +135,6 @@
         "en": "Added support for pages to Display Configuration (requires firmware version 1.1 or later). Optimized the MQTT messages to reduce configuration uploads when they are switched in the app. Optimized transfers to exclude unchanged configurations."
     },
     "0.4.1": {
-        "en": "Fix Select Display Page Flow action card."
+        "en": "Fix Select Display Page Flow action card. Fix issue with button configurations not being applied correctly."
     }
 }
