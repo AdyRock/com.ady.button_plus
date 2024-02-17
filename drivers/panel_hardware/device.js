@@ -1195,7 +1195,7 @@ class PanelDevice extends Device
                 }
             }
         }
-        else
+        else if (value)
         {
             // Set the button state back to false immediately
             setImmediate(() => this.triggerCapabilityListener(parameters.buttonCapability, false).catch(this.error));
