@@ -718,7 +718,7 @@ class PanelDevice extends Device
 					}
 
 					const sectionConfiguration = {
-						core: { ...deviceConfigurations.core },
+						core: _.cloneDeep(deviceConfigurations.core),
 					};
 
 					const brokerId = this.homey.settings.get('defaultBroker');
@@ -1035,7 +1035,7 @@ class PanelDevice extends Device
 		}
 
 		// gather the parameters from various places that we need to process the message
-		const parameters = { ...MQTTMessage };
+		const parameters = _.cloneDeep(MQTTMessage);
 		parameters.connector = (MQTTMessage.idx / 2) | 0;
 		parameters.side = (MQTTMessage.idx % 2) === 0 ? 'left' : 'right';
 		const connectorType = this.getSetting(`connect${parameters.connector}Type`);
@@ -1316,8 +1316,8 @@ class PanelDevice extends Device
 		{
 			// Create a new section configuration for the button panel by adding the core and mqttbuttons sections of the deviceConfigurations to core and mqttbuttons of a new object
 			const sectionConfiguration = {
-				core: { ...deviceConfigurations.core },
-				mqttbuttons: [...deviceConfigurations.mqttbuttons],
+				core: _.cloneDeep(deviceConfigurations.core),
+				mqttbuttons: _.cloneDeep(deviceConfigurations.mqttbuttons),
 			};
 
 			if (sectionConfiguration.mqttbuttons.length < (deviceConfigurations.info.connectors.length * 2))
@@ -1451,7 +1451,7 @@ class PanelDevice extends Device
 				if (deviceConfigurations)
 				{
 					const sectionConfiguration = {
-						mqttdisplays: { ...deviceConfigurations.mqttdisplays },
+						mqttdisplays: _.cloneDeep(deviceConfigurations.mqttdisplays),
 					};
 
 					await this.homey.app.applyDisplayConfiguration(sectionConfiguration, configNo, this.id, this.firmware);
