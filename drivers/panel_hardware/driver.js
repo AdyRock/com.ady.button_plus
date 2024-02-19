@@ -110,23 +110,24 @@ class PanelDriver extends Driver
 			connect4Type = deviceConfiguration.info.connectors[connectIdx].type;
 		}
 
-		const device = {
-			name: deviceConfiguration.core.location ? deviceConfiguration.core.location : (deviceConfiguration.core.name ? deviceConfiguration.core.name : deviceConfiguration.info.ipaddress),
-			data:
-			{
-				id: deviceConfiguration.info.id,
-			},
-			settings:
-			{
-				address: deviceConfiguration.info.ipaddress,
-				connect0Type,
-				connect1Type,
-				connect2Type,
-				connect3Type,
-				connect4Type,
-				mac: deviceConfiguration.info.mac,
-			},
-		};
+        const device = {
+            // eslint-disable-next-line no-nested-ternary
+            name: deviceConfiguration.core.location ? deviceConfiguration.core.location : (deviceConfiguration.core.name ? deviceConfiguration.core.name : deviceConfiguration.info.ipaddress),
+            data:
+            {
+                id: deviceConfiguration.info.id,
+            },
+            settings:
+            {
+                address: deviceConfiguration.info.ipaddress,
+                connect0Type,
+                connect1Type,
+                connect2Type,
+                connect3Type,
+                connect4Type,
+                mac: deviceConfiguration.info.mac,
+            },
+        };
 
 		return device;
 	}
