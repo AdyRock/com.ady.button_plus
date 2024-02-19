@@ -127,6 +127,10 @@
     "en": [
       "Button",
       "display"
+    "nl": [
+      "Knop",
+      "Display"
+    ]
     ]
   },
   "flow": {
@@ -567,10 +571,12 @@
       },
       {
         "title": {
-          "en": "A configuration button changed state"
+          "en": "A configuration button changed state",
+          "nl": "Een configuratie is van status gewisseld"
         },
         "titleFormatted": {
-          "en": "The [[left_right]] Button on [[display_button]] configuration [[config]] was [[state]]"
+          "en": "The [[left_right]] Button on [[display_button]] configuration [[config]] was [[state]]",
+          "nl": "De [[left_right]] knop op [[display_button]] configuratie [[config]] was [[state]]"
         },
         "tokens": [
           {
@@ -617,22 +623,26 @@
             "type": "dropdown",
             "name": "display_button",
             "title": {
-              "en": "Display / Button"
+              "en": "Display / Button",
+              "nl": "Display / Knop"
             },
             "placeholder": {
-              "en": "Display / Button"
+              "en": "Display / Button",
+              "nl": "Display / Knop"
             },
             "values": [
               {
                 "id": "display",
                 "title": {
-                  "en": "Display"
+                  "en": "Display",
+                  "nl": "Display"
                 }
               },
               {
                 "id": "button",
                 "title": {
-                  "en": "Button"
+                  "en": "Button",
+                  "nl": "Knop"
                 }
               }
             ]
@@ -641,10 +651,12 @@
             "type": "number",
             "name": "config",
             "title": {
-              "en": "Config Number"
+              "en": "Config Number",
+              "nl": "Configuratie nummer"
             },
             "placeholder": {
-              "en": "Config number (1-20)"
+              "en": "Config number (1-20)",
+              "nl": "Configuratie nummer (1-20)"
             },
             "min": 1,
             "max": 20,
@@ -654,28 +666,33 @@
             "type": "dropdown",
             "name": "state",
             "title": {
-              "en": "State"
+              "en": "State",
+              "nl": "Status"
             },
             "placeholder": {
-              "en": "Clicked / Released / Short Pressed / Long Pressed"
+              "en": "Clicked / Released / Short Pressed / Long Pressed",
+              "nl": "Ingedrukt / Losgelaten / Kort ingedrukt / Lang ingedrukt"
             },
             "values": [
               {
                 "id": "clicked",
                 "title": {
-                  "en": "Clicked"
+                  "en": "Clicked",
+                  "nl": "Ingedrukt"
                 }
               },
               {
                 "id": "released",
                 "title": {
-                  "en": "Released"
+                  "en": "Released",
+                  "nl": "Losgelaten"
                 }
               },
               {
                 "id": "long",
                 "title": {
-                  "en": "Long Pressed"
+                  "en": "Long Pressed",
+                  "nl": "Lang ingedrukt"
                 }
               }
             ]
@@ -690,10 +707,12 @@
       },
       {
         "title": {
-          "en": "A configuration button changed state"
+          "en": "A configuration button changed state",
+          "nl": "Een configuratie knop is van status gewisseld"
         },
         "titleFormatted": {
-          "en": "The [[left_right]] Button on [[display_button]] configuration [[config]] was [[state]]"
+          "en": "The [[left_right]] Button on [[display_button]] configuration [[config]] was [[state]]",
+          "nl": "De [[left_right]] knop op [[display_button]] configuratie [[config]] was [[state]]"
         },
         "tokens": [
           {
@@ -739,22 +758,26 @@
             "type": "dropdown",
             "name": "display_button",
             "title": {
-              "en": "Display / Button"
+              "en": "Display / Button",
+              "nl": "Display / Knop"
             },
             "placeholder": {
-              "en": "Display / Button"
+              "en": "Display / Button",
+              "nl": "Display / Knop"
             },
             "values": [
               {
                 "id": "display",
                 "title": {
-                  "en": "Display"
+                  "en": "Display",
+                  "nl": "Display"
                 }
               },
               {
                 "id": "button",
                 "title": {
-                  "en": "Button"
+                  "en": "Button",
+                  "nl": "Knop"
                 }
               }
             ]
@@ -779,28 +802,33 @@
             "type": "dropdown",
             "name": "state",
             "title": {
-              "en": "State"
+              "en": "State",
+              "nl": "Status"
             },
             "placeholder": {
-              "en": "Clicked / Released / Short Pressed / Long Pressed"
+              "en": "Clicked / Released / Short Pressed / Long Pressed",
+              "nl": "Ingedrukt / Losgelaten / Kort ingedrukt / Lang ingedrukt"
             },
             "values": [
               {
                 "id": "clicked",
                 "title": {
-                  "en": "Clicked"
+                  "en": "Clicked",
+                  "nl": "Ingedrukt"
                 }
               },
               {
                 "id": "released",
                 "title": {
-                  "en": "Released"
+                  "en": "Released",
+                  "nl": "Losgelaten"
                 }
               },
               {
                 "id": "long",
                 "title": {
-                  "en": "Long Pressed"
+                  "en": "Long Pressed",
+                  "nl": "Lang ingedrukt"
                 }
               }
             ]
@@ -2263,7 +2291,8 @@
           },
           "value": "",
           "hint": {
-            "en": "Firmware version of the device. This is read in when the devices is initialised."
+            "en": "Firmware version of the device. This is read in when the devices is initialised.",
+            "nl": "Firmware versie van het apparaat. Dit is ingelezen bij de initialisatie van het apparaat"
           }
         },
         {

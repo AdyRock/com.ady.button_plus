@@ -44,19 +44,21 @@
             "type": "dropdown",
             "name": "display_button",
             "title": {
-                "en": "Display / Button"
+                "en": "Display / Button",
+                "nl": "Display / knop"
             },
             "placeholder": {
-                "en": "Display / Button"
+                "en": "Display / Button",
+                "nl": "Display / knop"
             },
             "values": [
                 {
                     "id": "display",
-                    "title": {"en": "Display"}
+                    "title": {"en": "Display","nl": "Display"}
                 },
                 {
                     "id": "button",
-                    "title": {"en": "Button"}
+                    "title": {"en": "Button","nl": "knop"}
                 }
             ]
         },
@@ -64,10 +66,12 @@
             "type": "number",
             "name": "config",
             "title": {
-                "en": "Config Number"
+                "en": "Config Number",
+                "nl": "Configuratie nummer"
             },
             "placeholder": {
-                "en": "Config number (1-20)"
+                "en": "Config number (1-20)",
+                "nl": "Configuratie nummer (1-20)"
             },
             "min": 1,
             "max": 20,
@@ -77,23 +81,25 @@
             "type": "dropdown",
             "name": "state",
             "title": {
-                "en": "State"
+                "en": "State",
+                "nl": "Status"
             },
             "placeholder": {
-                "en": "Clicked / Released / Short Pressed / Long Pressed"
+                "en": "Clicked / Released / Short Pressed / Long Pressed",
+                "nl": "Ingedrukt / Losgelaten / Kort ingedrukt / Lang ingedrukt"
             },
             "values": [
                 {
                     "id": "clicked",
-                    "title": {"en": "Clicked"}
+                    "title": {"en": "Clicked","nl": "ingedrukt"}
                 },
                 {
                     "id": "released",
-                    "title": {"en": "Released"}
+                    "title": {"en": "Released","nl": "Losgelaten"}
                 },
                 {
                     "id": "long",
-                    "title": {"en": "Long Pressed"}
+                    "title": {"en": "Long Pressed","nl": "Lang ingedrukt"}
                 }
             ]
         },

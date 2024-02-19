@@ -1,9 +1,11 @@
 {
     "title": {
-        "en": "A configuration button changed state"
+        "en": "A configuration button changed state",
+        "nl": "Een configuratie knop is van satus gewisseld"
     },
     "titleFormatted": {
-        "en": "The [[left_right]] Button on [[display_button]] configuration [[config]] was [[state]]"
+        "en": "The [[left_right]] Button on [[display_button]] configuration [[config]] was [[state]]",
+        "nl": "De [[left_right]] knop op [[display_button]] configuratie [[config]] was [[state]]"
     },
     "tokens": [
         {
@@ -43,19 +45,21 @@
             "type": "dropdown",
             "name": "display_button",
             "title": {
-                "en": "Display / Button"
+                "en": "Display / Button",
+                "nl": "Display / Knop"
             },
             "placeholder": {
-                "en": "Display / Button"
+                "en": "Display / Button",
+                "nl": "Display / Knop"
             },
             "values": [
                 {
                     "id": "display",
-                    "title": {"en": "Display"}
+                    "title": {"en": "Display","nl": "Display"}
                 },
                 {
                     "id": "button",
-                    "title": {"en": "Button"}
+                    "title": {"en": "Button","nl": "Knop"}
                 }
             ]
         },
@@ -79,23 +83,25 @@
             "type": "dropdown",
             "name": "state",
             "title": {
-                "en": "State"
+                "en": "State",
+                "nl": "Status"
             },
             "placeholder": {
-                "en": "Clicked / Released / Short Pressed / Long Pressed"
+                "en": "Clicked / Released / Short Pressed / Long Pressed",
+                "nl": "Ingedrukt / Losgelaten / Kort ingedrukt / Lang ingedrukt"
             },
             "values": [
                 {
                     "id": "clicked",
-                    "title": {"en": "Clicked"}
+                    "title": {"en": "Clicked","nl": "Ingedrukt"}
                 },
                 {
                     "id": "released",
-                    "title": {"en": "Released"}
+                    "title": {"en": "Released","nl": "Losgelaten"}
                 },
                 {
                     "id": "long",
-                    "title": {"en": "Long Pressed"}
+                    "title": {"en": "Long Pressed","nl": "Lang ingedrukt"}
                 }
             ]
         },
