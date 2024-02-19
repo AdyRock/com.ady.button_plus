@@ -2236,6 +2236,26 @@ class MyApp extends Homey.App
 					payload: '',
 				},
 			);
+
+			// Add the LED front colour event entry
+			mqttButtons.topics.push(
+				{
+					brokerid: brokerId,
+					eventtype: 27,
+					topic: `homey/${panelId}/${buttonIdx}/front`,
+					payload: '',
+				},
+			);
+
+			// Add the LED wall colour event entry
+			mqttButtons.topics.push(
+				{
+					brokerid: brokerId,
+					eventtype: 28,
+					topic: `homey/${panelId}/${buttonIdx}/wall`,
+					payload: '',
+				},
+			);
 		}
 
 		const payload = { id: panelId, idx: buttonIdx };

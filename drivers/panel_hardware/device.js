@@ -1721,6 +1721,25 @@ class PanelDevice extends Device
 		const side = ((buttonIdx & 1) === 0) ? 'left' : 'right';
 		const config = this.getConfigSide(configNo, side);
 
+		// Send the front and wall colours to the device after a short delay to allow the device to connect to the broker
+        const frontLEDColor = parseInt(config.frontLEDColor.substring(1), 16);
+        mqttQueue.push(
+            {
+                brokerId: config.brokerId,
+                message: `homey/${this.id}/${buttonIdx}/front`,
+                value: frontLEDColor,
+            },
+        );
+
+        const wallLEDColor = parseInt(config.wallLEDColor.substring(1), 16);
+        mqttQueue.push(
+            {
+                brokerId: config.brokerId,
+                message: `homey/${this.id}/${buttonIdx}/wall`,
+                value: wallLEDColor,
+            },
+        );
+
 		// Setup value based on the configuration
 		if (config.deviceID === '_variable_')
 		{
@@ -1758,32 +1777,32 @@ class PanelDevice extends Device
 
 		// Send the value to the device after a short delay to allow the device to connect to the broker
 		mqttQueue.push(
-		{
-			brokerId: config.brokerId,
-			message: `homey/${this.id}/${buttonIdx}/value`,
-			value,
-		},
-);
+            {
+                brokerId: config.brokerId,
+                message: `homey/${this.id}/${buttonIdx}/value`,
+                value,
+            },
+        );
 
 		// Send the value to the device after a short delay to allow the device to connect to the broker
 		mqttQueue.push(
-		{
-			brokerId: config.brokerId,
-			message: `homey/${this.id}/${buttonIdx}/toplabel`,
-			value: config.topLabel,
-		},
-);
+            {
+                brokerId: config.brokerId,
+                message: `homey/${this.id}/${buttonIdx}/toplabel`,
+                value: config.topLabel,
+            },
+        );
 
 		// Send the value to the device after a short delay to allow the device to connect to the broker
 		mqttQueue.push(
-		{
-			brokerId: config.brokerId,
-			message: `homey/${this.id}/${buttonIdx}/label`,
-			value: value ? config.onMessage : config.offMessage,
-		},
-);
+            {
+                brokerId: config.brokerId,
+                message: `homey/${this.id}/${buttonIdx}/label`,
+                value: value ? config.onMessage : config.offMessage,
+            },
+        );
 
-		return mqttQueue;
+        return mqttQueue;
 	}
 
 	getConfigSide(configNo, side)
@@ -1803,6 +1822,8 @@ class PanelDevice extends Device
 				offMessage: '',
 				brokerId: 'Default',
 				dimChange: 0,
+                frontLEDColor: '#000000',
+                wallLEDColor: '#000000',
 			};
 		}
 
@@ -1815,6 +1836,8 @@ class PanelDevice extends Device
 			offMessage: buttonPanelConfiguration[`${side}OffText`],
 			brokerId: buttonPanelConfiguration[`${side}BrokerId`],
 			dimChange: buttonPanelConfiguration[`${side}DimChange`],
+            frontLEDColor: buttonPanelConfiguration[`${side}FrontLEDColor`],
+            wallLEDColor: buttonPanelConfiguration[`${side}WallLEDColor`],
 		};
 	}
 
