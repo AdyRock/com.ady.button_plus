@@ -1,135 +1,135 @@
 {
-  "id": "com.ady.button_plus",
-  "version": "0.4.3",
-  "compatibility": ">=5.0.0",
-  "sdk": 3,
-  "platforms": [
-    "local"
-  ],
-  "brandColor": "#444444",
-  "name": {
-    "en": "Button +",
-    "nl": "Button+"
-  },
-  "description": {
-    "en": "Control Button + panels",
-    "nl": "Button+ panels besturen"
-  },
-  "category": [
-    "appliances"
-  ],
-  "contributing": {
-    "donate": {
-      "paypal": {
-        "username": "adyrock"
-      }
-    }
-  },
-  "permissions": [
-    "homey:manager:api"
-  ],
-  "images": {
-    "small": "/assets/images/small.png",
-    "large": "/assets/images/large.png",
-    "xlarge": "/assets/images/xlarge.png"
-  },
-  "author": {
-    "name": "Adrian Rockall",
-    "email": "ady@rockalls.com"
-  },
-  "contributors": {
-    "developers": [
-      {
-        "name": "Vincent van den Brink"
-      }
-    ],
-    "translators": [
-      {
-        "name": "Henk_Renting"
-      }
-    ]
-  },
-  "bugs": {
-    "url": "https://github.com/AdyRock/com.ady.button_plus/issues"
-  },
-  "homepage": "https://button.plus/",
-  "support": "https://github.com/AdyRock/com.ady.button_plus/issues",
-  "homeyCommunityTopicId": 89931,
-  "api": {
-    "getDevices": {
-      "method": "post",
-      "path": "/devices",
-      "public": false
-    },
-    "getDevicesCapabilities": {
-      "method": "post",
-      "path": "/device_capabilities",
-      "public": false
-    },
-    "getZones": {
-      "method": "get",
-      "path": "/zones",
-      "public": false
-    },
-    "getButtonDevices": {
-      "method": "post",
-      "path": "/buttondevices",
-      "public": false
-    },
-    "getRunning": {
-      "method": "get",
-      "path": "/running",
-      "public": true
-    },
-    "setRunning": {
-      "method": "post",
-      "path": "/running",
-      "public": false
-    },
-    "refresh": {
-      "method": "get",
-      "path": "/refresh",
-      "public": false
-    },
-    "getSettingsChanged": {
-      "method": "get",
-      "path": "/settings_changed",
-      "public": false
-    },
-    "getLog": {
-      "method": "get",
-      "path": "/getLog",
-      "public": false
-    },
-    "getState": {
-      "method": "get",
-      "path": "/state",
-      "public": false
-    },
-    "getVariables": {
-      "method": "post",
-      "path": "/get_variables",
-      "public": false
-    },
-    "clearLog": {
-      "method": "post",
-      "path": "/clearLog",
-      "public": false
-    },
-    "sendLog": {
-      "method": "post",
-      "path": "/sendLog",
-      "public": false
-    }
-  },
-  "tags": {
-    "en": [
-      "Button",
-      "display"
-    ]
-    "nl": [
-      "Knop",
-      "Display"
-    ]
-  }
+	"id": "com.ady.button_plus",
+	"version": "0.4.3",
+	"compatibility": ">=5.0.0",
+	"sdk": 3,
+	"platforms": [
+		"local"
+	],
+	"brandColor": "#444444",
+	"name": {
+		"en": "Button +",
+		"nl": "Button+"
+	},
+	"description": {
+		"en": "Control Button + panels",
+		"nl": "Button+ panels besturen"
+	},
+	"category": [
+		"appliances"
+	],
+	"contributing": {
+		"donate": {
+			"paypal": {
+				"username": "adyrock"
+			}
+		}
+	},
+	"permissions": [
+		"homey:manager:api"
+	],
+	"images": {
+		"small": "/assets/images/small.png",
+		"large": "/assets/images/large.png",
+		"xlarge": "/assets/images/xlarge.png"
+	},
+	"author": {
+		"name": "Adrian Rockall",
+		"email": "ady@rockalls.com"
+	},
+	"contributors": {
+		"developers": [
+			{
+				"name": "Vincent van den Brink"
+			}
+		],
+		"translators": [
+			{
+				"name": "Henk_Renting"
+			}
+		]
+	},
+	"bugs": {
+		"url": "https://github.com/AdyRock/com.ady.button_plus/issues"
+	},
+	"homepage": "https://button.plus/",
+	"support": "https://github.com/AdyRock/com.ady.button_plus/issues",
+	"homeyCommunityTopicId": 89931,
+	"api": {
+		"getDevices": {
+			"method": "post",
+			"path": "/devices",
+			"public": false
+		},
+		"getDevicesCapabilities": {
+			"method": "post",
+			"path": "/device_capabilities",
+			"public": false
+		},
+		"getZones": {
+			"method": "get",
+			"path": "/zones",
+			"public": false
+		},
+		"getButtonDevices": {
+			"method": "post",
+			"path": "/buttondevices",
+			"public": false
+		},
+		"getRunning": {
+			"method": "get",
+			"path": "/running",
+			"public": true
+		},
+		"setRunning": {
+			"method": "post",
+			"path": "/running",
+			"public": false
+		},
+		"refresh": {
+			"method": "get",
+			"path": "/refresh",
+			"public": false
+		},
+		"getSettingsChanged": {
+			"method": "get",
+			"path": "/settings_changed",
+			"public": false
+		},
+		"getLog": {
+			"method": "get",
+			"path": "/getLog",
+			"public": false
+		},
+		"getState": {
+			"method": "get",
+			"path": "/state",
+			"public": false
+		},
+		"getVariables": {
+			"method": "post",
+			"path": "/get_variables",
+			"public": false
+		},
+		"clearLog": {
+			"method": "post",
+			"path": "/clearLog",
+			"public": false
+		},
+		"sendLog": {
+			"method": "post",
+			"path": "/sendLog",
+			"public": false
+		}
+	},
+	"tags": {
+		"en": [
+			"Button",
+			"display"
+		],
+		"nl": [
+			"Knop",
+			"Display"
+		]
+	}
 }

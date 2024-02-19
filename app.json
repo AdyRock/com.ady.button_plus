@@ -127,10 +127,10 @@
     "en": [
       "Button",
       "display"
+    ],
     "nl": [
       "Knop",
       "Display"
-    ]
     ]
   },
   "flow": {
@@ -571,12 +571,10 @@
       },
       {
         "title": {
-          "en": "A configuration button changed state",
-          "nl": "Een configuratie is van status gewisseld"
+          "en": "A configuration button changed state"
         },
         "titleFormatted": {
-          "en": "The [[left_right]] Button on [[display_button]] configuration [[config]] was [[state]]",
-          "nl": "De [[left_right]] knop op [[display_button]] configuratie [[config]] was [[state]]"
+          "en": "The [[left_right]] Button on [[display_button]] configuration [[config]] was [[state]]"
         },
         "tokens": [
           {
@@ -624,11 +622,11 @@
             "name": "display_button",
             "title": {
               "en": "Display / Button",
-              "nl": "Display / Knop"
+              "nl": "Display / knop"
             },
             "placeholder": {
               "en": "Display / Button",
-              "nl": "Display / Knop"
+              "nl": "Display / knop"
             },
             "values": [
               {
@@ -642,7 +640,7 @@
                 "id": "button",
                 "title": {
                   "en": "Button",
-                  "nl": "Knop"
+                  "nl": "knop"
                 }
               }
             ]
@@ -678,7 +676,7 @@
                 "id": "clicked",
                 "title": {
                   "en": "Clicked",
-                  "nl": "Ingedrukt"
+                  "nl": "ingedrukt"
                 }
               },
               {
@@ -708,7 +706,7 @@
       {
         "title": {
           "en": "A configuration button changed state",
-          "nl": "Een configuratie knop is van status gewisseld"
+          "nl": "Een configuratie knop is van satus gewisseld"
         },
         "titleFormatted": {
           "en": "The [[left_right]] Button on [[display_button]] configuration [[config]] was [[state]]",
@@ -2373,8 +2371,7 @@
           },
           "value": "",
           "hint": {
-            "en": "Firmware version of the device. This is read in when the devices is initialised.",
-            "nl": "Firmware versie van het apparaat. Dit is ingelezen bij de initialisatie van het apparaat"
+            "en": "Firmware version of the device. This is read in when the devices is initialised."
           }
         },
         {
