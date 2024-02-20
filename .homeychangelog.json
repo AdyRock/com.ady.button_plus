@@ -142,5 +142,8 @@
     },
     "0.4.3": {
         "en": "Fix Flow trigger for Button trigger"
+    },
+    "0.4.4": {
+        "en": "Fix Capability change notification. Update Dutch translations."
     }
 }
