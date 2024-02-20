@@ -1097,61 +1097,68 @@ class PanelDevice extends Device
 			else if (config.deviceID !== 'none')
 			{
 				// Find the Homey device that is defined in the configuration
-				const { homeyDeviceObject, capability } = await this.getDeviceAndCapability(config);
-				if (capability)
+				const { device, capability } = await this.getDeviceAndCapability(config);
+				if (device && capability)
 				{
-					if (config.capabilityName === 'dim')
-					{
-						// For dim cpaabilities we need to adjust the value by the amount in the dimChange field and not change the button state
-						// Get the required change from the dimChange field and convert it from a percentage to a value
-						const change = parseInt(config.dimChange, 10) / 100;
-						if ((config.dimChange.indexOf('+') >= 0) || (config.dimChange.indexOf('-') >= 0))
-						{
-							// + or - was specified so add or subtract the change from the current value
-							value = capability.value + change;
+                    try
+                    {
+                        if (config.capabilityName === 'dim')
+                        {
+                            // For dim cpaabilities we need to adjust the value by the amount in the dimChange field and not change the button state
+                            // Get the required change from the dimChange field and convert it from a percentage to a value
+                            const change = parseInt(config.dimChange, 10) / 100;
+                            if ((config.dimChange.indexOf('+') >= 0) || (config.dimChange.indexOf('-') >= 0))
+                            {
+                                // + or - was specified so add or subtract the change from the current value
+                                value = capability.value + change;
 
-							// Make sure the value is between 0 and 1
-							if (value > 1)
-							{
-								value = 1;
-							}
-							else if (value < 0)
-							{
-								value = 0;
-							}
-						}
-						else
-						{
-							// No + or - was specified so just set the value to the change
-							value = change;
-						}
+                                // Make sure the value is between 0 and 1
+                                if (value > 1)
+                                {
+                                    value = 1;
+                                }
+                                else if (value < 0)
+                                {
+                                    value = 0;
+                                }
+                            }
+                            else
+                            {
+                                // No + or - was specified so just set the value to the change
+                                value = change;
+                            }
 
-						// Set the dim capability value of the target device
-						homeyDeviceObject.setCapabilityValue(config.capabilityName, value).catch(this.error);
-						value *= 100;
+                            // Set the dim capability value of the target device
+                            device.setCapabilityValue(config.capabilityName, value).catch(this.error);
+                            value *= 100;
 
-						if (parameters.fromButton)
-						{
-							// Set the button state back to false immediately
-							setImmediate(() => this.setCapabilityValue(parameters.buttonCapability, false).catch(this.error));
-						}
-					}
-					else if (config.capabilityName === 'windowcoverings_state')
-					{
-						if (value)
-						{
-							await homeyDeviceObject.setCapabilityValue(config.capabilityName, 'up');
-						}
-						else
-						{
-							await homeyDeviceObject.setCapabilityValue(config.capabilityName, 'down');
-						}
-					}
-					else
-					{
-						value = parameters.fromButton ? parameters.value : !capability.value;
-						await homeyDeviceObject.setCapabilityValue(config.capabilityName, value);
-					}
+                            if (parameters.fromButton)
+                            {
+                                // Set the button state back to false immediately
+                                setImmediate(() => this.setCapabilityValue(parameters.buttonCapability, false).catch(this.error));
+                            }
+                        }
+                        else if (config.capabilityName === 'windowcoverings_state')
+                        {
+                            if (value)
+                            {
+                                await device.setCapabilityValue(config.capabilityName, 'up');
+                            }
+                            else
+                            {
+                                await device.setCapabilityValue(config.capabilityName, 'down');
+                            }
+                        }
+                        else
+                        {
+                            value = parameters.fromButton ? parameters.value : !capability.value;
+                            await device.setCapabilityValue(config.capabilityName, value);
+                        }
+                    }
+                    catch (error)
+                    {
+                        this.homey.app.updateLog(`Device ${device.name}: Capability ${config.capabilityName}, ${error.message}`, 0);
+                    }
 				}
 			}
         }
@@ -1257,16 +1264,16 @@ class PanelDevice extends Device
 				}
 
 				// Find the Homey device that is defined in the configuration
-				const { homeyDeviceObject, capability } = await this.getDeviceAndCapability(config);
+				const { device, capability } = await this.getDeviceAndCapability(config);
 				if (capability)
 				{
 					try
 					{
-						await homeyDeviceObject.setCapabilityValue(config.capabilityName, 'idle');
+						await device.setCapabilityValue(config.capabilityName, 'idle');
 					}
 					catch (error)
 					{
-						this.homey.app.updateLog(`Device ${homeyDeviceObject.name}: Capability ${config.capabilityName}, ${error.message}`);
+						this.homey.app.updateLog(`Device ${device.name}: Capability ${config.capabilityName}, ${error.message}`);
 					}
 				}
 			}
@@ -1844,23 +1851,23 @@ class PanelDevice extends Device
 	async getDeviceAndCapability(config)
 	{
 		// Find the Homey device that is defined in the configuration
-		const homeyDeviceObject = await this.homey.app.getHomeyDeviceById(config.deviceID);
-		if (!homeyDeviceObject)
+		const device = await this.homey.app.getHomeyDeviceById(config.deviceID);
+		if (!device)
 		{
 			// Device not found
 			this.homey.app.updateLog(`Device ${config.deviceID} not found`);
-			return { homeyDeviceObject, capability: null };
+			return { homeyDeviceObject: device, capability: null };
 		}
 
 		// Find the capability that is defined in the configuration
-		const capability = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObject, config.capabilityName);
+		const capability = await this.homey.app.getHomeyCapabilityByName(device, config.capabilityName);
 		if (!capability)
 		{
 			// Capability not found
 			this.homey.app.updateLog(`Capability ${config.capabilityName} not found`);
 		}
 
-		return { homeyDeviceObject, capability };
+		return { device, capability };
 	}
 
 	compareObjects(obj1, obj2)
