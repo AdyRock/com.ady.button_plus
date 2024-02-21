@@ -145,5 +145,8 @@
     },
     "0.4.4": {
         "en": "Fix Capability change notification. Update Dutch translations."
+    },
+    "0.4.5": {
+        "en": "Fix lost capabilities after hitting Save after modifying a parameter that causes a sort."
     }
 }
