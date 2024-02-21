@@ -248,16 +248,10 @@ class MyApp extends Homey.App
 			if ((setting === 'buttonConfigurations') || (setting === 'defaultBroker'))
 			{
 				this.buttonConfigurations = this.homey.settings.get('buttonConfigurations');
-
-				// Get devices to upload their configurations that might have changed
-				this.refreshbuttonConfigurations();
 			}
 			if ((setting === 'displayConfigurations') || (setting === 'defaultBroker'))
 			{
 				this.displayConfigurations = this.homey.settings.get('displayConfigurations');
-
-				// Get devices to upload their configurations that might have changed
-				this.refreshDisplayConfigurations();
 			}
 			if (setting === 'brokerConfigurationItems')
 			{
@@ -292,8 +286,6 @@ class MyApp extends Homey.App
 						// }
 					}
 				}
-
-				await this.refresBrokerConfigurations();
 			}
 		});
 
@@ -731,7 +723,7 @@ class MyApp extends Homey.App
 	}
 
 	// Make all the device upload their button bar configurations to the panels
-	async refreshbuttonConfigurations()
+	async uploadConfigurations()
 	{
 		// Get devices to upload their configurations
 		const drivers = this.homey.drivers.getDrivers();
@@ -740,15 +732,15 @@ class MyApp extends Homey.App
 			let devices = driver.getDevices();
 			for (let device of Object.values(devices))
 			{
-				if (device.uploadAllButtonConfigurations)
+				if (device.uploadConfigurations)
 				{
 					try
 					{
-						await device.uploadAllButtonConfigurations();
+						await device.uploadConfigurations();
 					}
 					catch (error)
 					{
-						this.updateLog(`refreshbuttonConfigurations: ${error.message}`, 0);
+						this.updateLog(`uploadConfigurations: ${error.message}`, 0);
 					}
 				}
 
@@ -758,61 +750,61 @@ class MyApp extends Homey.App
 		}
 	}
 
-	// Make all the device upload their button bar configurations to the panels
-	async refreshDisplayConfigurations()
-	{
-		// Get devices to upload their configurations
-		const drivers = this.homey.drivers.getDrivers();
-		for (const driver of Object.values(drivers))
-		{
-			let devices = driver.getDevices();
-			for (let device of Object.values(devices))
-			{
-				if (device.uploadDisplayConfigurations)
-				{
-					try
-					{
-						await device.uploadDisplayConfigurations();
-					}
-					catch (error)
-					{
-						this.updateLog(`refreshDisplayConfigurations: ${error.message}`);
-					}
-				}
+	// // Make all the device upload their button bar configurations to the panels
+	// async refreshDisplayConfigurations()
+	// {
+	// 	// Get devices to upload their configurations
+	// 	const drivers = this.homey.drivers.getDrivers();
+	// 	for (const driver of Object.values(drivers))
+	// 	{
+	// 		let devices = driver.getDevices();
+	// 		for (let device of Object.values(devices))
+	// 		{
+	// 			if (device.uploadDisplayConfigurations)
+	// 			{
+	// 				try
+	// 				{
+	// 					await device.uploadDisplayConfigurations();
+	// 				}
+	// 				catch (error)
+	// 				{
+	// 					this.updateLog(`refreshDisplayConfigurations: ${error.message}`);
+	// 				}
+	// 			}
 
-				device = null;
-			}
-			devices = null;
-		}
-	}
+	// 			device = null;
+	// 		}
+	// 		devices = null;
+	// 	}
+	// }
 
-	// Make all the device upload their broker configurations to the panels
-	async refresBrokerConfigurations()
-	{
-		// Get devices to upload their configurations
-		const drivers = this.homey.drivers.getDrivers();
-		for (const driver of Object.values(drivers))
-		{
-			let devices = driver.getDevices();
-			for (let device of Object.values(devices))
-			{
-				if (device.uploadBrokerConfigurations)
-				{
-					try
-					{
-						await device.uploadBrokerConfigurations(2);
-					}
-					catch (error)
-					{
-						this.updateLog(`uploadBrokerConfigurations: ${error.message}`);
-					}
-				}
+	// // Make all the device upload their broker configurations to the panels
+	// async refresBrokerConfigurations()
+	// {
+	// 	// Get devices to upload their configurations
+	// 	const drivers = this.homey.drivers.getDrivers();
+	// 	for (const driver of Object.values(drivers))
+	// 	{
+	// 		let devices = driver.getDevices();
+	// 		for (let device of Object.values(devices))
+	// 		{
+	// 			if (device.uploadBrokerConfigurations)
+	// 			{
+	// 				try
+	// 				{
+	// 					await device.uploadBrokerConfigurations(2);
+	// 				}
+	// 				catch (error)
+	// 				{
+	// 					this.updateLog(`uploadBrokerConfigurations: ${error.message}`);
+	// 				}
+	// 			}
 
-				device = null;
-			}
-			devices = null;
-		}
-	}
+	// 			device = null;
+	// 		}
+	// 		devices = null;
+	// 	}
+	// }
 
 	createbuttonConfigurations()
 	{

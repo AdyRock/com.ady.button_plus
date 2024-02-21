@@ -23,24 +23,14 @@ module.exports = {
         return homey.app.getButtonDevices();
     },
 
-    // Refresh device states
-    async refresh({ homey }) {
-        return homey.app.refresh();
-    },
-
     // Settings changed
-    async getSettingsChanged({ homey }) {
-        return homey.app.settingsChanged();
+    async setSettingsChanged({ homey }) {
+        return homey.app.uploadConfigurations();
     },
 
     // Log lines
     async getLog({ homey }) {
         return homey.app.getLog();
-    },
-
-    // Queue/Progress state
-    async getState({ homey }) {
-        return homey.app.getState();
     },
 
     // Get the list of variables
