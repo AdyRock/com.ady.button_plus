@@ -545,7 +545,7 @@ class MyApp extends Homey.App
 			.registerRunListener(async (args, state) =>
 			{
 				this.log(`set_connector_led_rgb ${args.left_right} connector${args.connector} to ${args.rgb}`);
-				return args.device.setConfigLEDColour(args.left_right, args.connector - 1, args.rgb);
+				return args.device.setConnectorLEDColour(args.left_right, args.connector - 1, args.rgb);
 			});
 
 		this.homey.flow.getActionCard('set_config_name_led_rgb')

@@ -148,5 +148,8 @@
     },
     "0.4.5": {
         "en": "Fix lost capabilities after hitting Save after modifying a parameter that causes a sort."
+    },
+    "0.4.6": {
+        "en": "Fixed Flow 'Set Left/Right LED colour on connector N to colour' action card which was duplicating the configuration counterpart."
     }
 }
