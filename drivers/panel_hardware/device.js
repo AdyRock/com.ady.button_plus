@@ -1071,6 +1071,7 @@ class PanelDevice extends Device
 		}
 
 		let { value } = parameters;
+        let triggerChange = true;
 
 		// Check if the button has another device and capability assigned to it
 		if (config !== null)
@@ -1151,6 +1152,9 @@ class PanelDevice extends Device
                         }
                         else
                         {
+                            // The don't trigger the button change Flow as the other device will do this
+                            triggerChange = false;
+
                             value = parameters.fromButton ? parameters.value : !capability.value;
                             await device.setCapabilityValue(config.capabilityName, value);
                         }
@@ -1171,14 +1175,17 @@ class PanelDevice extends Device
                 this.setCapabilityValue(parameters.buttonCapability, value).catch(this.error);
             }
 
-            // and trigger the flow
-            if (value)
+            if (triggerChange)
             {
-                this.homey.app.triggerButtonOn(this, parameters.side === 'left', parameters.connector + 1);
-            }
-            else
-            {
-                this.homey.app.triggerButtonOff(this, parameters.side === 'left', parameters.connector + 1);
+                // and trigger the flow
+                if (value)
+                {
+                    this.homey.app.triggerButtonOn(this, parameters.side === 'left', parameters.connector + 1);
+                }
+                else
+                {
+                    this.homey.app.triggerButtonOff(this, parameters.side === 'left', parameters.connector + 1);
+                }
             }
         }
 

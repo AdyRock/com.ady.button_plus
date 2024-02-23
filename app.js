@@ -2141,24 +2141,20 @@ class MyApp extends Homey.App
 	 * @param {Device} device - A Device instance
 	 * @param {Object} tokens - An object with tokens and their typed values, as defined in the app.json
 	 */
-	triggerFlow(trigger, device, tokens, state)
+	async triggerFlow(trigger, device, tokens, state)
 	{
 		if (trigger)
 		{
 			this.updateLog(`triggerFlow (${trigger.id})\n tokens: ${this.varToString(tokens)},\n state: ${this.varToString(state)}`);
 
-			trigger.trigger(device, tokens, state)
-				.then((result) =>
-				{
-					if (result)
-					{
-						this.updateLog(`triggerFlow result: ${this.varToString(result)}`);
-					}
-				})
-				.catch((error) =>
-				{
-					this.updateLog(`triggerFlow (${trigger.id}) Error: ${error.message}`, 0);
-				});
+			try
+            {
+                await trigger.trigger(device, tokens, state)
+            }
+			catch(error)
+            {
+                this.updateLog(`triggerFlow (${trigger.id}) Error: ${error.message}`, 0);
+            };
 		}
 	}
 
