@@ -870,7 +870,11 @@ class MyApp extends Homey.App
 			this.updateLog(`Current Config: ${sectionConfiguration}`);
 
 			// write the updated configuration back to the device
-			await this.writeDeviceConfiguration(ip, sectionConfiguration);
+			let error = await this.writeDeviceConfiguration(ip, sectionConfiguration);
+			if (error)
+			{
+				throw new Error(error);
+			}
 		}
 		catch (err)
 		{
@@ -1014,7 +1018,11 @@ class MyApp extends Homey.App
 				const mqttQue = await this.applyButtonConfiguration(panelId, deviceConfiguration.info.connectors[connectorNo].type, sectionConfiguration, connectorNo, configurationNo);
 
 				// write the updated configuration back to the device
-				await this.writeDeviceConfiguration(ip, sectionConfiguration);
+				let error = await this.writeDeviceConfiguration(ip, sectionConfiguration);
+				if (error)
+				{
+					throw new Error(error);
+				}
 
 				// Send the MQTT messages after a short delay to allow the device to connect to the broker
 				setTimeout(async () =>

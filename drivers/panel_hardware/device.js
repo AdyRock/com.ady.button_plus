@@ -540,6 +540,7 @@ class PanelDevice extends Device
 			catch (err)
 			{
 				this.homey.app.updateLog(`Error setting up pane temperature topic: ${err.message}`, 0);
+				return err.message;
 			}
 		}
 
@@ -567,6 +568,7 @@ class PanelDevice extends Device
 			catch (err)
 			{
 				this.homey.app.updateLog(`Error setting up pane temperature topic: ${err.message}`, 0);
+				return err.message;
 			}
 		}
 
@@ -695,6 +697,7 @@ class PanelDevice extends Device
 			catch (err)
 			{
 				this.homey.app.updateLog(`Error setting up pane temperature topic: ${err.message}`, 0);
+				return err.message;
 			}
 		}
 
@@ -714,6 +717,10 @@ class PanelDevice extends Device
 					{
 						// Read the current device configuration
 						deviceConfigurations = await this.homey.app.readDeviceConfiguration(this.ip);
+						if (deviceConfigurations === null)
+						{
+							return null;
+						}
 						upload = true;
 					}
 
@@ -800,6 +807,7 @@ class PanelDevice extends Device
 				catch (err)
 				{
 					this.homey.app.updateLog(`Error setting up dim topics: ${err.message}`, 0);
+					return err.message;
 				}
 			}
 		}
@@ -812,6 +820,14 @@ class PanelDevice extends Device
 		try
 		{
 			const deviceConfigurations = await this.homey.app.readDeviceConfiguration(this.ip);
+			if (deviceConfigurations === null)
+			{
+				this.setWarning('Error reading Button configuration');
+				return;
+			}
+			
+			this.setWarning(null);
+
 			if (deviceConfigurations.info && deviceConfigurations.info.firmware)
 			{
 				this.firmware = parseFloat(deviceConfigurations.info.firmware);
@@ -825,12 +841,15 @@ class PanelDevice extends Device
 			await this.uploadPanelTemperatureConfiguration(deviceConfigurations);
 			delete deviceConfigurations.info;
 
-			await this.homey.app.writeDeviceConfiguration(this.ip, deviceConfigurations);
+			return await this.homey.app.writeDeviceConfiguration(this.ip, deviceConfigurations);
 		}
 		catch (err)
 		{
 			this.homey.app.updateLog(`Error reading device configuration: ${err.message}`, 0);
+			return err.message;
 		}
+
+		return null;
 	}
 
 	async configureConnector(connectType, connector)
@@ -928,7 +947,16 @@ class PanelDevice extends Device
 	async onCapabilityDisplayConfiguration(value, opts)
 	{
 		this.homey.app.updateLog(`onCapabilityConfiguration ${value}, ${opts}`);
-		await this.homey.app.uploadDisplayConfiguration(this.ip, value, this.id, this.firmware);
+		try
+		{
+			await this.homey.app.uploadDisplayConfiguration(this.ip, value, this.id, this.firmware);
+			this.setWarning(null);
+		}
+		catch (error)
+		{
+			this.setWarning(error.message);
+			throw error;
+		}
 	}
 
 	async onCapabilityConfiguration(connector, value, opts)
@@ -960,7 +988,11 @@ class PanelDevice extends Device
 			catch (error)
 			{
 				this.homey.app.updateLog(error, 0);
+				this.setWarning(error.message);
+				return
 			}
+
+			this.setWarning(null);
 		}
 	}
 
@@ -1337,6 +1369,8 @@ class PanelDevice extends Device
 
 		if (deviceConfigurations)
 		{
+			this.setWarning(null);
+
 			// Create a new section configuration for the button panel by adding the core and mqttbuttons sections of the deviceConfigurations to core and mqttbuttons of a new object
 			const sectionConfiguration = {
 				core: _.cloneDeep(deviceConfigurations.core),
@@ -1396,15 +1430,13 @@ class PanelDevice extends Device
 
 			if (writeConfig && (sectionConfiguration.mqttbuttons.length > 0))
 			{
-				try
-				{
-					// write the updated configuration back to the device
-					await this.homey.app.writeDeviceConfiguration(this.ip, sectionConfiguration);
-					this.homey.app.updateLog(`Device configuration: ${this.homey.app.varToString(sectionConfiguration)}`);
-				}
-				catch (error)
+				// write the updated configuration back to the device
+				let error = await this.homey.app.writeDeviceConfiguration(this.ip, sectionConfiguration);
+				this.homey.app.updateLog(`Device configuration: ${this.homey.app.varToString(sectionConfiguration)}`);
+				if (error)
 				{
 					this.homey.app.updateLog(this.homey.app.varToString(error), 0);
+					return null;
 				}
 			}
 			else if (sectionConfiguration.mqttbuttons.length === 0)
@@ -1426,6 +1458,10 @@ class PanelDevice extends Device
 					this.homey.app.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value, false).catch(this.error);
 				}
 			}, 1000);
+		}
+		else
+		{
+			this.setWarning('Error reading Button configuration');
 		}
 
 		return deviceConfigurations;
@@ -1452,15 +1488,18 @@ class PanelDevice extends Device
 			try
 			{
 				await this.homey.app.applyButtonConfiguration(this.id, connectorType, sectionConfiguration, connector, configNo);
-
-				// write the updated configuration back to the device
-				await this.homey.app.writeDeviceConfiguration(this.ip, sectionConfiguration);
 			}
 			catch (error)
 			{
 				this.homey.app.updateLog(error, 0);
+				return error.message;
 			}
+
+			// write the updated configuration back to the device
+			return await this.homey.app.writeDeviceConfiguration(this.ip, sectionConfiguration);
 		}
+
+		return null;
 	}
 
 	async uploadDisplayConfigurations(deviceConfigurations)
@@ -1544,17 +1583,12 @@ class PanelDevice extends Device
 
 			if (writeConfig)
 			{
-				try
-				{
-					// write the updated configuration back to the device
-					await this.homey.app.writeDeviceConfiguration(this.ip, deviceConfigurations);
-				}
-				catch (error)
-				{
-					this.homey.app.updateLog(error.message, 0);
-				}
+				// write the updated configuration back to the device
+				return await this.homey.app.writeDeviceConfiguration(this.ip, deviceConfigurations);
 			}
 		}
+
+		return null;
 	}
 
 	async uploadBrokerConfigurations(deviceConfigurations)
@@ -1576,15 +1610,8 @@ class PanelDevice extends Device
 			return;
 		}
 
-		try
-		{
-			// write the updated configuration back to the device
-			await this.homey.app.writeDeviceConfiguration(this.ip, sectionConfiguration);
-		}
-		catch (error)
-		{
-			this.homey.app.updateLog(this.homey.app.varToString(error), 0);
-		}
+		// write the updated configuration back to the device
+		return await this.homey.app.writeDeviceConfiguration(this.ip, sectionConfiguration);
 	}
 
 	checkStateChange(deviceId, capability, value)
