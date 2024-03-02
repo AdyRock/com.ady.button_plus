@@ -151,5 +151,8 @@
     },
     "0.4.6": {
         "en": "Fixed Flow 'Set Left/Right LED colour on connector N to colour' action card which was duplicating the configuration counterpart. Fixed issue with Button changed trigger firing twice when another capability is assigned to the button."
-    }
+    },
+	"0.4.7": {
+		"en": "Improve error checking and set warning if the app fails to send a configuration to the panel."
+	}
 }
