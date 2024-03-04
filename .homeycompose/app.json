@@ -1,6 +1,6 @@
 {
 	"id": "com.ady.button_plus",
-	"version": "0.4.7",
+	"version": "0.4.8",
 	"compatibility": ">=5.0.0",
 	"sdk": 3,
 	"platforms": [

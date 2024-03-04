@@ -154,5 +154,8 @@
     },
 	"0.4.7": {
 		"en": "Improve error checking and set warning if the app fails to send a configuration to the panel."
+	},
+	"0.4.8": {
+		"en": "Fix detection of added / removed devices / zones."
 	}
 }
