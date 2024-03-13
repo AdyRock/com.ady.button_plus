@@ -64,6 +64,22 @@ class PanelDriver extends Driver
 		});
 	}
 
+	async onRepair(session, device)
+	{
+
+		session.setHandler('set_ip_setup', async () =>
+		{
+			return device.ip;
+		});
+
+		session.setHandler('set_ip_connection', async (data) =>
+		{
+			await device.repair(data.ip);
+
+			return 'OK';
+		});
+	}
+
 	async pairListDevices(ip, id)
 	{
 		const deviceConfiguration = await this.homey.app.readDeviceConfiguration(ip);

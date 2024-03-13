@@ -151,6 +151,14 @@
             "adding": "Adding device(s)"
         }
     },
+	"repair": {
+		"connect": "Repair",
+		"intro": "Use this option when you add or remove buttons or when the IP address has changed.<br><br>If the IP address has changed then correct it below.<br>Tap on repair to update the connector map and save the device settings.",
+		"title": "Repair device settings",
+		"ip_address": "IP Address",
+		"checking": "Checking connection",
+		"correct": "Successful"
+	},
     "connector": "Connector",
     "display": "Display",
     "left": "Left",

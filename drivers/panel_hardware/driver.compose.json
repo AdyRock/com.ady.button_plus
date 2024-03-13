@@ -99,6 +99,11 @@
       "id": "my_connect"
     }
   ],
+  "repair": [
+    {
+      "id": "set_ip"
+    }
+  ],
   "settings": [
     {
       "id": "address",

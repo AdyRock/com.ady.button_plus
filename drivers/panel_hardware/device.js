@@ -94,14 +94,7 @@ class PanelDevice extends Device
 		this.registerCapabilityListener('configuration_display', this.onCapabilityDisplayConfiguration.bind(this));
 
 		this.buttonTime = [];
-		await this.configureConnector(settings.connect0Type, 0);
-		await this.configureConnector(settings.connect1Type, 1);
-		await this.configureConnector(settings.connect2Type, 2);
-		await this.configureConnector(settings.connect3Type, 3);
-		await this.configureConnector(settings.connect4Type, 4);
-		await this.configureConnector(settings.connect5Type, 5);
-		await this.configureConnector(settings.connect6Type, 6);
-		await this.configureConnector(settings.connect7Type, 7);
+		await this.configureConnectors(settings);
 
 		if (!this.hasCapability('info'))
 		{
@@ -850,6 +843,53 @@ class PanelDevice extends Device
 		}
 
 		return null;
+	}
+
+	async repair(ip)
+	{
+		const deviceConfiguration = await this.homey.app.readDeviceConfiguration(ip);
+		this.homey.app.updateLog(`Device configuration: ${this.homey.app.varToString(deviceConfiguration)}`);
+
+		if (!deviceConfiguration)
+		{
+			throw new Error('Failed to read device configuration');
+		}
+
+		const thisMAC = this.getSetting('mac');
+		if (thisMAC !== deviceConfiguration.info.mac)
+		{
+			throw new Error('Device ID does not match');
+		}
+
+		let settings = {};
+
+		settings.address = ip;
+		this.ip = ip;
+
+		for (let i = 0; i < deviceConfiguration.info.connectors.length; i++)
+		{
+			let connectIdx = deviceConfiguration.info.connectors.findIndex((id) => id.id === i);
+			if (connectIdx >= 0)
+			{
+				settings[`connect${i}Type`]= deviceConfiguration.info.connectors[connectIdx].type;
+			}
+			else
+			{
+				settings[`connect${i}Type`] = 0;
+			}
+		}	
+
+		this.setSettings(settings);
+		await this.configureConnectors(settings);
+	}
+	
+	async configureConnectors(settings)
+	{
+		for (let connector = 0; connector < 8; connector++)
+		{
+			const connectType = settings[`connect${connector}Type`];
+			await this.configureConnector(connectType, connector);
+		}
 	}
 
 	async configureConnector(connectType, connector)
