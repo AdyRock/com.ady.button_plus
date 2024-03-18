@@ -20,14 +20,14 @@
                 "nl": "Groot niveau"
             },
             "hint": {
-                "en": "Level (1-100)",
-                "nl": "Niveau (1-100)"
+                "en": "Level (0-100)",
+                "nl": "Niveau (0-100)"
             },
             "placeholder": {
-                "en": "Large display level (1-100)",
-                "nl": "Groot display niveau (1-100)"
+                "en": "Large display level (0-100)",
+                "nl": "Groot display niveau (0-100)"
             },
-            "min": 1,
+            "min": 0,
             "max": 100,
             "step": 1
         },
@@ -39,14 +39,14 @@
                 "nl": "Klein niveau"
             },
             "hint": {
-                "en": "Level (1-100)",
-                "nl": "Niveau (1-100)"
+                "en": "Level (0-100)",
+                "nl": "Niveau (0-100)"
             },
             "placeholder": {
-                "en": "Large display level (1-100)",
-                "nl": "Klein display niveau (1-100)"
+                "en": "Large display level (0-100)",
+                "nl": "Klein display niveau (0-100)"
             },
-            "min": 1,
+            "min": 0,
             "max": 100,
             "step": 1
         },

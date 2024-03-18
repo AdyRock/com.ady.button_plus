@@ -157,5 +157,8 @@
 	},
 	"0.4.8": {
 		"en": "Fix detection of added / removed devices / zones."
+	},
+	"0.4.9": {
+		"en": "Changed minimum value for display brightness Flow card to 0."
 	}
 }
