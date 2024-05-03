@@ -1384,8 +1384,8 @@
           "nl": "Stel configuratie LED kleur in"
         },
         "titleFormatted": {
-          "en": "Set the [[left_right]] [[front_wall]] LED colour on [[config]] to [[rgb]]",
-          "nl": "Stel de [[left_right]] [[front_wall]] LED kleur op [[config]] in op [[rgb]]"
+          "en": "Set the [[left_right]] [[front_wall]] LED colour on [[config]] to [[rgb]]. Update configuration: [[update_configuration]]",
+          "nl": "Stel de [[left_right]] [[front_wall]] LED kleur op [[config]] in op [[rgb]]. Update configuratie: [[update_configuration]]"
         },
         "hint": {
           "en": "Sets the colour of the LED associated with the connector using the specified configuration",
@@ -1488,6 +1488,15 @@
                 }
               }
             ]
+          },
+          {
+            "type": "checkbox",
+            "name": "update_configuration",
+            "title": {
+              "en": "Update Configuration",
+              "nl": "Update Configuratie"
+            },
+            "required": false
           }
         ],
         "id": "set_config_name_led_rgb"
@@ -2282,6 +2291,28 @@
           }
         ],
         "id": "turn_on_button"
+      },
+      {
+        "title": {
+          "en": "Re-apply Configurations",
+          "nl": "Herstel Configuraties"
+        },
+        "titleFormatted": {
+          "en": "Re-apply Configurations",
+          "nl": "Herstel Configuraties"
+        },
+        "hint": {
+          "en": "Uploads the configurations to the device",
+          "nl": "Upload de configuraties naar het apparaat"
+        },
+        "args": [
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=panel_hardware"
+          }
+        ],
+        "id": "upload_gonfigurations"
       }
     ]
   },

@@ -551,8 +551,8 @@ class MyApp extends Homey.App
 		this.homey.flow.getActionCard('set_config_name_led_rgb')
 			.registerRunListener(async (args, state) =>
 			{
-				this.log(`set_config_name_led_rgb ${args.left_right} config${args.config} to ${args.rgb}`);
-				return args.device.setConfigLEDColour(args.left_right, args.config.id, args.rgb, args.front_wall ? args.front_wall : 'both');
+				this.log(`set_config_name_led_rgb ${args.left_right} config${args.config} to ${args.rgb}. Update Config ${args.update_config}`);
+				return args.device.setConfigLEDColour(args.left_right, args.config.id, args.rgb, args.front_wall ? args.front_wall : 'both', args.update_configuration ? args.update_configuration : false);
 			})
 			.registerArgumentAutocompleteListener('config', async (query, args) =>
 			{

@@ -402,7 +402,7 @@ class PanelDevice extends Device
 		return { brokerId, buttonIdx };
 	}
 
-	findConnectUsingConfigNo(configNo)
+	findConnectorUsingConfigNo(configNo)
 	{
 		// Find the button connector that has this configuration
 		for (let connector = 0; connector < 8; connector++)
@@ -437,14 +437,14 @@ class PanelDevice extends Device
 	async updateConfigTopLabel(left_right, configNo, label)
 	{
 		// Find the button connector that has this configuration
-		const connector = this.findConnectUsingConfigNo(configNo);
+		const connector = this.findConnectorUsingConfigNo(configNo);
 		return this.updateConnectorTopLabel(left_right, connector, label);
 	}
 
 	async updateConfigLabel(left_right, configNo, label)
 	{
 		// Find the button connector that has this configuration
-		const connector = this.findConnectUsingConfigNo(configNo);
+		const connector = this.findConnectorUsingConfigNo(configNo);
 		return this.updateConnectorLabel(left_right, connector, label);
 	}
 
@@ -570,6 +570,14 @@ class PanelDevice extends Device
 
 	async setConnectorLEDColour(left_right, connector, rgbString, front_wall)
 	{
+		if (this.firmware < 1.12)
+		{
+			if (front_wall !== 'both')
+			{
+				throw new Error('Firmware too old to support this feature. Set the Front / Wall to both or update the firmware to 1.12 or later');
+			}
+		}
+
 		const brokerId = this.homey.settings.get('defaultBroker');
 		let buttonNo = connector * 2;
 		if (left_right === 'right')
@@ -591,11 +599,50 @@ class PanelDevice extends Device
 		return this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/${buttonNo}/rgb`, rgb, false, false).catch(this.error);
 	}
 
-	async setConfigLEDColour(left_right, configNo, rgb, front_wall)
+	async setConfigLEDColour(left_right, configNo, rgb, front_wall, updateConfig)
 	{
 		const item = this.homey.app.buttonConfigurations[configNo];
 		if (item)
 		{
+			if (this.firmware < 1.12)
+			{
+				if (front_wall !== 'both' && !updateConfig)
+				{
+					throw new Error('Firmware too old to support this feature. Set the Front / Wall to both or set Update configuration or update the firmware to 1.12 or later');
+				}
+			}
+
+			if (updateConfig)
+			{
+				// Update the configuration with the new colour
+				if (left_right === 'left')
+				{
+					if ((front_wall === 'front') || (front_wall === 'both'))
+					{
+						item.leftFrontLEDColor = rgb;
+					}
+
+					if ((front_wall === 'wall') || (front_wall === 'both'))
+					{
+						item.leftWallLEDColor = rgb;
+					}
+				}
+				else
+				{
+					if ((front_wall === 'front') || (front_wall === 'both'))
+					{
+						item.rightFrontLEDColor = rgb;
+					}
+
+					if ((front_wall === 'wall') || (front_wall === 'both'))
+					{
+						item.rightWallLEDColor = rgb;
+					}
+				}
+
+				this.homey.settings.set('buttonConfigurations', this.homey.app.buttonConfigurations);
+			}
+
 			// Find the button connector that has this configuration
 			for (let connector = 0; connector < 8; connector++)
 			{
@@ -607,6 +654,12 @@ class PanelDevice extends Device
 					// eslint-disable-next-line eqeqeq
 					if (config == configNo)
 					{
+						if (updateConfig)
+						{
+							// Send the new configuration to the device
+							return this.uploadOneButtonConfiguration(connector, configNo);
+						}
+	
 						return this.setConnectorLEDColour(left_right, connector, rgb, front_wall);
 					}
 				}
@@ -1026,6 +1079,12 @@ class PanelDevice extends Device
 
 				if (configNo !== null)
 				{
+					if (this.firmware < 1.12)
+					{
+						// Upload the button configuration
+						await this.uploadOneButtonConfiguration(connector, value);
+					}
+
 					mqttQue = await this.setupConnectorMQTTmessages(configNo, connector, connectorType);
 
 					for (const mqttMsg of mqttQue)
@@ -1854,26 +1913,29 @@ class PanelDevice extends Device
 
 		if (value)
 		{
-			// Send the front and wall colours to the device after a short delay to allow the device to connect to the broker
-			const frontLEDColor = parseInt(config.frontLEDColor.substring(1), 16);
-			mqttQueue.push(
-				{
-					brokerId: config.brokerId,
-					message: `homey/${this.id}/${buttonIdx}/front`,
-					value: frontLEDColor,
-					retain: false,
-				},
-			);
+			if (this.firmware >= 1.2)
+			{
+				// Send the front and wall colours to the device after a short delay to allow the device to connect to the broker
+				const frontLEDColor = parseInt(config.frontLEDColor.substring(1), 16);
+				mqttQueue.push(
+					{
+						brokerId: config.brokerId,
+						message: `homey/${this.id}/${buttonIdx}/front`,
+						value: frontLEDColor,
+						retain: false,
+					},
+				);
 
-			const wallLEDColor = parseInt(config.wallLEDColor.substring(1), 16);
-			mqttQueue.push(
-				{
-					brokerId: config.brokerId,
-					message: `homey/${this.id}/${buttonIdx}/wall`,
-					value: wallLEDColor,
-					retain: false,
-				},
-			);
+				const wallLEDColor = parseInt(config.wallLEDColor.substring(1), 16);
+				mqttQueue.push(
+					{
+						brokerId: config.brokerId,
+						message: `homey/${this.id}/${buttonIdx}/wall`,
+						value: wallLEDColor,
+						retain: false,
+					},
+				);
+			}
 		}
 
 		// Send the value to the device after a short delay to allow the device to connect to the broker
