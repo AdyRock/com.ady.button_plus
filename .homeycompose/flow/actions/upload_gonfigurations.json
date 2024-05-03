@@ -1,0 +1,21 @@
+{
+    "title": {
+        "en": "Re-apply Configurations",
+        "nl":"Herstel Configuraties"
+    },
+    "titleFormatted": {
+        "en": "Re-apply Configurations",
+        "nl":"Herstel Configuraties"
+    },
+    "hint": {
+        "en": "Uploads the configurations to the device",
+		"nl": "Upload de configuraties naar het apparaat"
+    },
+    "args": [
+        {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=panel_hardware"
+        }
+    ]
+}

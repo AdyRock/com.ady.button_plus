@@ -568,7 +568,7 @@ class PanelDevice extends Device
 		return null;
 	}
 
-	async setConnectorLEDColour(left_right, connector, rgbString)
+	async setConnectorLEDColour(left_right, connector, rgbString, front_wall)
 	{
 		const brokerId = this.homey.settings.get('defaultBroker');
 		let buttonNo = connector * 2;
@@ -579,10 +579,19 @@ class PanelDevice extends Device
 		// Remove the # from rgbString and convert it to a number
 		rgbString = rgbString.replace('#', '');
 		const rgb = parseInt(rgbString, 16);
-		return this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/${buttonNo}/rgb`, rgb).catch(this.error);
+		if (front_wall === 'front')
+		{
+			return this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/${buttonNo}/front`, rgb, false, false).catch(this.error);
+		}
+		if (front_wall === 'wall')
+		{
+			return this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/${buttonNo}/wall`, rgb, false, false).catch(this.error);
+		}
+
+		return this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/${buttonNo}/rgb`, rgb, false, false).catch(this.error);
 	}
 
-	async setConfigLEDColour(left_right, configNo, rgb)
+	async setConfigLEDColour(left_right, configNo, rgb, front_wall)
 	{
 		const item = this.homey.app.buttonConfigurations[configNo];
 		if (item)
@@ -598,7 +607,7 @@ class PanelDevice extends Device
 					// eslint-disable-next-line eqeqeq
 					if (config == configNo)
 					{
-						return this.setConnectorLEDColour(left_right, connector, rgb);
+						return this.setConnectorLEDColour(left_right, connector, rgb, front_wall);
 					}
 				}
 			}
@@ -1021,7 +1030,7 @@ class PanelDevice extends Device
 
 					for (const mqttMsg of mqttQue)
 					{
-						this.homey.app.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value, false).catch(this.error);
+						this.homey.app.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value, false, mqttMsg.retain).catch(this.error);
 					}
 				}
 			}
@@ -1297,10 +1306,7 @@ class PanelDevice extends Device
 		{
 			const value = this.getCapabilityValue(`${parameters.side}_button.connector${parameters.connector}`);
 			this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'long', value);
-		}
 
-		if (parameters.configNo !== null)
-		{
 			const buttonPanelConfiguration = this.homey.app.buttonConfigurations[parameters.configNo];
 			const capability = parameters.side === 'left' ? buttonPanelConfiguration.leftCapability : buttonPanelConfiguration.rightCapability;
 
@@ -1802,25 +1808,6 @@ class PanelDevice extends Device
 		const side = ((buttonIdx & 1) === 0) ? 'left' : 'right';
 		const config = this.getConfigSide(configNo, side);
 
-		// Send the front and wall colours to the device after a short delay to allow the device to connect to the broker
-        const frontLEDColor = parseInt(config.frontLEDColor.substring(1), 16);
-        mqttQueue.push(
-            {
-                brokerId: config.brokerId,
-                message: `homey/${this.id}/${buttonIdx}/front`,
-                value: frontLEDColor,
-            },
-        );
-
-        const wallLEDColor = parseInt(config.wallLEDColor.substring(1), 16);
-        mqttQueue.push(
-            {
-                brokerId: config.brokerId,
-                message: `homey/${this.id}/${buttonIdx}/wall`,
-                value: wallLEDColor,
-            },
-        );
-
 		// Setup value based on the configuration
 		if (config.deviceID === '_variable_')
 		{
@@ -1864,6 +1851,30 @@ class PanelDevice extends Device
                 value,
             },
         );
+
+		if (value)
+		{
+			// Send the front and wall colours to the device after a short delay to allow the device to connect to the broker
+			const frontLEDColor = parseInt(config.frontLEDColor.substring(1), 16);
+			mqttQueue.push(
+				{
+					brokerId: config.brokerId,
+					message: `homey/${this.id}/${buttonIdx}/front`,
+					value: frontLEDColor,
+					retain: false,
+				},
+			);
+
+			const wallLEDColor = parseInt(config.wallLEDColor.substring(1), 16);
+			mqttQueue.push(
+				{
+					brokerId: config.brokerId,
+					message: `homey/${this.id}/${buttonIdx}/wall`,
+					value: wallLEDColor,
+					retain: false,
+				},
+			);
+		}
 
 		// Send the value to the device after a short delay to allow the device to connect to the broker
 		mqttQueue.push(

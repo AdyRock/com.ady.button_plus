@@ -4,8 +4,8 @@
         "nl": "Stel connector LED kleur in"
     },
     "titleFormatted": {
-        "en": "Set the [[left_right]] LED colour on connector [[connector]] to [[rgb]]",
-        "nl": "Stel de [[left_right]] LED kleur op connector [[connector]] in op [[rgb]]"
+        "en": "Set the [[left_right]] [[front_wall]] LED colour on connector [[connector]] to [[rgb]]",
+        "nl": "Stel de [[left_right]] [[front_wall]] LED kleur op connector [[connector]] in op [[rgb]]"
     },
     "hint": {
         "en": "Sets the colour of the specified LED",
@@ -71,6 +71,42 @@
                 "nl": "Tekst"
             }
         },
+		{
+			"type": "dropdown",
+			"name": "front_wall",
+			"title": {
+				"en": "Front / Wall",
+				"nl": "Voor / Muur"
+			},
+			"placeholder": {
+				"en": "Front / Wall",
+				"nl": "Voor / Muur"
+			},
+			"required": false,
+			"values": [
+				{
+					"id": "both",
+					"title": {
+						"en": "Both",
+						"nl": "Beide"
+					}
+				},
+				{
+					"id": "front",
+					"title": {
+						"en": "Front",
+						"nl": "Voor"
+					}
+				},
+				{
+					"id": "wall",
+					"title": {
+						"en": "Wall",
+						"nl": "Muur"
+					}
+				}
+			]
+		},
         {
             "type": "device",
             "name": "device",

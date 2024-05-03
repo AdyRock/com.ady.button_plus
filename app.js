@@ -545,14 +545,14 @@ class MyApp extends Homey.App
 			.registerRunListener(async (args, state) =>
 			{
 				this.log(`set_connector_led_rgb ${args.left_right} connector${args.connector} to ${args.rgb}`);
-				return args.device.setConnectorLEDColour(args.left_right, args.connector - 1, args.rgb);
+				return args.device.setConnectorLEDColour(args.left_right, args.connector - 1, args.rgb, args.front_wall ? args.front_wall : 'both');
 			});
 
 		this.homey.flow.getActionCard('set_config_name_led_rgb')
 			.registerRunListener(async (args, state) =>
 			{
 				this.log(`set_config_name_led_rgb ${args.left_right} config${args.config} to ${args.rgb}`);
-				return args.device.setConfigLEDColour(args.left_right, args.config.id, args.rgb);
+				return args.device.setConfigLEDColour(args.left_right, args.config.id, args.rgb, args.front_wall ? args.front_wall : 'both');
 			})
 			.registerArgumentAutocompleteListener('config', async (query, args) =>
 			{
@@ -569,6 +569,14 @@ class MyApp extends Homey.App
 				this.log(`set_display_page ${args.pageCommand} to ${args.index}`);
 				return args.device.setSetDisplayPage(args.pageCommand, args.index);
 			});
+
+		this.homey.flow.getActionCard('upload_gonfigurations')
+			.registerRunListener(async (args, state) =>
+			{
+				this.log(`upload_gonfigurations`);
+				return args.device.uploadConfigurations();
+			});
+
 
 		/** * CONDITIONS ** */
 		this.homey.flow.getConditionCard('is_button_on')
@@ -1783,7 +1791,7 @@ class MyApp extends Homey.App
 	}
 
 	// eslint-disable-next-line camelcase
-	async publishMQTTMessage(MQTT_Id, topic, message, Ignoresame = true)
+	async publishMQTTMessage(MQTT_Id, topic, message, Ignoresame = true, Retain = true)
 	{
 		if (MQTT_Id === 'Default')
 		{
@@ -1794,7 +1802,7 @@ class MyApp extends Homey.App
 
 		const lastMQTTData = this.lastMQTTData.get(`${MQTT_Id}_${topic}`);
 		// eslint-disable-next-line eqeqeq
-		if (Ignoresame && (lastMQTTData == data))
+		if (Retain && Ignoresame && (lastMQTTData == data))
 		{
 			this.updateLog(`publishMQTTMessage: ${MQTT_Id}_${topic}, ${data}, ignored, same as previous value`);
 			return;
@@ -1808,7 +1816,7 @@ class MyApp extends Homey.App
 			const MQTTclient = this.MQTTClients.get(MQTT_Id);
 			if (MQTTclient)
 			{
-				await MQTTclient.publish(topic, data, { qos: 1, retain: true });
+				await MQTTclient.publish(topic, data, { qos: 1, retain: Retain });
 			}
 		}
 		catch (err)
@@ -2237,7 +2245,7 @@ class MyApp extends Homey.App
 			mqttButtons.topics.push(
 				{
 					brokerid: brokerId,
-					eventtype: 27,
+					eventtype: 28,
 					topic: `homey/${panelId}/${buttonIdx}/front`,
 					payload: '',
 				},
@@ -2247,7 +2255,7 @@ class MyApp extends Homey.App
 			mqttButtons.topics.push(
 				{
 					brokerid: brokerId,
-					eventtype: 28,
+					eventtype: 29,
 					topic: `homey/${panelId}/${buttonIdx}/wall`,
 					payload: '',
 				},
