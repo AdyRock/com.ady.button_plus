@@ -162,6 +162,6 @@
 		"en": "Changed minimum value for display brightness Flow card to 0."
 	},
 	"0.4.10": {
-		"en": "Added Flow action card to re-apply all configurations to a device."
+		"en": "Added Flow action card to re-apply all configurations to a device. Fix LED colour when switching button configurations."
 	}
 }
