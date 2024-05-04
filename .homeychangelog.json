@@ -163,5 +163,8 @@
 	},
 	"0.4.10": {
 		"en": "Added Flow action card to re-apply all configurations to a device. Fix LED colour when switching button configurations."
+	},
+	"0.4.11": {
+		"en": "Fix issue when settings a button configuration from a FLow card."
 	}
 }

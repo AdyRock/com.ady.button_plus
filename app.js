@@ -2201,6 +2201,11 @@ class MyApp extends Homey.App
 		// Only add the top label, label and value if the connector type is 1
 		if (connectorType === 1)
 		{
+			if (mqttButtons.topics === undefined)
+			{
+				mqttButtons.topics = [];
+			}
+
 			// Add the Top Label event entry
 			mqttButtons.topics.push(
 				{
