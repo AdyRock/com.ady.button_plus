@@ -1082,7 +1082,7 @@ class PanelDevice extends Device
 
 				if (configNo !== null)
 				{
-					if (this.firmware < 1.12)
+					if (this.firmware < 1.13)
 					{
 						// Upload the button configuration
 						await this.uploadOneButtonConfiguration(connector, value);
