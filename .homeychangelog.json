@@ -166,5 +166,8 @@
 	},
 	"0.4.11": {
 		"en": "Fix issue when settings a button configuration from a FLow card."
+	},
+	"0.4.12": {
+		"en": "Added brightness support when used with firmware version 1.12."
 	}
 }

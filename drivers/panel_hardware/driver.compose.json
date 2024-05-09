@@ -36,9 +36,7 @@
     "right_button.connector6",
     "left_button.connector7",
     "right_button.connector7",
-    "dim.large",
-    "dim.small",
-    "dim.led",
+    "dim",
     "measure_temperature",
     "date",
     "time",
@@ -46,24 +44,6 @@
     "button.update_firmware"
   ],
   "capabilitiesOptions": {
-    "dim.large": {
-      "title": {
-        "en": "Large display",
-        "nl": "Grote display"
-      }
-    },
-    "dim.small": {
-      "title": {
-        "en": "Mini display",
-        "nl": "Kleine display"
-      }
-    },
-    "dim.led": {
-      "title": {
-        "en": "LED",
-        "nl": "LED"
-      }
-    },
     "button.update_firmware": {
       "maintenanceAction": true,
       "title": {

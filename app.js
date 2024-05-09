@@ -319,24 +319,6 @@ class MyApp extends Homey.App
 				return ((args.left_right === state.left_right) && (args.connector === state.connector));
 			});
 
-		// this.triggerDimLargeChanged = this.homey.flow.getDeviceTriggerCard('dim.large_changed')
-		//     .registerRunListener((args, state) =>
-		//     {
-		//         return true;
-		//     });
-
-		// this.triggerDimMiniChanged = this.homey.flow.getDeviceTriggerCard('dim.small_changed')
-		//     .registerRunListener((args, state) =>
-		//     {
-		//         return true;
-		//     });
-
-		// this.triggerDimLEDChanged = this.homey.flow.getDeviceTriggerCard('dim.led_changed')
-		//     .registerRunListener((args, state) =>
-		//     {
-		//         return true;
-		//     });
-
 		// This flow is deprecated as it is replaced by the config_name_button_change flow
 		this.triggerConfigButtonChanged = this.homey.flow.getDeviceTriggerCard('config_button_change')
 			.registerRunListener((args, state) =>
@@ -431,48 +413,6 @@ class MyApp extends Homey.App
 				this.log(`${args.left_right}.connector${args.connector}`, args);
 				return args.device.triggerCapabilityListener(`${args.left_right}_button.connector${args.connector - 1}`, false);
 			});
-
-		// this.homey.flow.getActionCard('dim.large')
-		//     .registerRunListener(async (args, state) =>
-		//     {
-		//         this.log(`dim.large Flow Action ${args.dim}`);
-		//         return args.device.triggerCapabilityListener('dim.large', args.dim > 1 ? args.dim / 100 : args.dim);
-		//     });
-
-		// this.homey.flow.getActionCard('dim.small')
-		//     .registerRunListener(async (args, state) =>
-		//     {
-		//         this.log(`dim.small Flow Action ${args.dim}`);
-		//         return args.device.triggerCapabilityListener('dim.small', args.dim > 1 ? args.dim / 100 : args.dim);
-		//     });
-
-		// this.homey.flow.getActionCard('dim.led')
-		//     .registerRunListener(async (args, state) =>
-		//     {
-		//         this.log(`dim.led Flow Action ${args.dim}`);
-		//         return args.device.triggerCapabilityListener('dim.led', args.dim > 1 ? args.dim / 100 : args.dim);
-		//     });
-
-		// this.homey.flow.getActionCard('dim.large_relative')
-		//     .registerRunListener(async (args, state) =>
-		//     {
-		//         this.log('dim.large_relative');
-		//         return args.device.triggerCapabilityListener('dim.large', args.dim > 1 ? args.dim / 100 : args.dim);
-		//     });
-
-		// this.homey.flow.getActionCard('dim.small_relative')
-		//     .registerRunListener(async (args, state) =>
-		//     {
-		//         this.log('dim.small_relative');
-		//         return args.device.triggerCapabilityListener('dim.small', args.dim > 1 ? args.dim / 100 : args.dim);
-		//     });
-
-		// this.homey.flow.getActionCard('dim.led_relative')
-		//     .registerRunListener(async (args, state) =>
-		//     {
-		//         this.log('dim.led_relative');
-		//         return args.device.triggerCapabilityListener('dim.led', args.dim > 1 ? args.dim / 100 : args.dim);
-		//     });
 
 		this.homey.flow.getActionCard('set_connector_button_top_label')
 			.registerRunListener(async (args, state) =>
@@ -1005,7 +945,7 @@ class MyApp extends Homey.App
 		}, 1000);
 	}
 
-	async uploadButtonPanelConfiguration(ip, panelId, connectorNo, configurationNo)
+	async uploadButtonPanelConfiguration(ip, panelId, connectorNo, configurationNo, firmwareVersion)
 	{
 		try
 		{
@@ -1019,8 +959,11 @@ class MyApp extends Homey.App
 					mqttbuttons: [...deviceConfiguration.mqttbuttons],
 				};
 
-				// Old firmware only paresd buttons if the core section was present
-				sectionConfiguration.core = {};
+				if (firmwareVersion < 1.09)
+				{
+					// Old firmware only paresd buttons if the core section was present
+					sectionConfiguration.core = {};
+				}
 
 				// apply the new configuration
 				const mqttQue = await this.applyButtonConfiguration(panelId, deviceConfiguration.info.connectors[connectorNo].type, sectionConfiguration, connectorNo, configurationNo);
@@ -2129,25 +2072,6 @@ class MyApp extends Homey.App
 			state: button_state,
 		};
 		this.triggerFlow(this.triggerConfigButtonChanged, device, tokens, state);
-		return this;
-	}
-
-	triggerDim(device, subdevice, dim)
-	{
-		const tokens = { dim };
-		const state = { dim };
-		if (subdevice === 'largedisplay')
-		{
-			this.triggerFlow(this.triggerDimLargeChanged, device, tokens, state);
-		}
-		else if (subdevice === 'minidisplay')
-		{
-			this.triggerFlow(this.triggerDimMiniChanged, device, tokens, state);
-		}
-		else if (subdevice === 'leds')
-		{
-			this.triggerFlow(this.triggerDimLEDChanged, device, tokens, state);
-		}
 		return this;
 	}
 
