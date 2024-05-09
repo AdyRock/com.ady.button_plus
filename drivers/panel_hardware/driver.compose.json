@@ -120,7 +120,8 @@
       },
       "value": "",
       "hint": {
-        "en": "Firmware version of the device. This is read in when the devices is initialised."
+        "en": "Firmware version of the device. This is read in when the devices is initialised.",
+		"nl": "Firmware versie van het apparaat. Deze is uitgelezen toen het apparaat werd geïnitialiseerd"
       }
     },
     {
