@@ -551,10 +551,12 @@
       },
       {
         "title": {
-          "en": "A configuration button changed state"
+          "en": "A configuration button changed state",
+          "nl": "Een configuratiebutton is van status veranderd"
         },
         "titleFormatted": {
-          "en": "The [[left_right]] Button on [[display_button]] configuration [[config]] was [[state]]"
+          "en": "The [[left_right]] Button on [[display_button]] configuration [[config]] was [[state]]",
+          "nl": "De [[left_right]] knop op [[display_button]] configuratie [[config]] was [[state]]"
         },
         "tokens": [
           {
@@ -2439,7 +2441,8 @@
           },
           "value": "",
           "hint": {
-            "en": "Firmware version of the device. This is read in when the devices is initialised."
+            "en": "Firmware version of the device. This is read in when the devices is initialised.",
+            "nl": "Firmware versie van het apparaat. Deze is uitgelezen toen het apparaat werd geïnitialiseerd"
           }
         },
         {
