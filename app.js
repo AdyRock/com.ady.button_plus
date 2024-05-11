@@ -474,6 +474,7 @@ class MyApp extends Homey.App
 				return results.filter((result) => (result.name.toLowerCase().includes(query.toLowerCase())));
 			});
 
+		// This action is deprecated as it is replaced by standard dim capability
 		this.homey.flow.getActionCard('set_dim')
 			.registerRunListener(async (args, state) =>
 			{
@@ -868,7 +869,7 @@ class MyApp extends Homey.App
 					topics: [
 					{
 						brokerid: brokerId,
-						topic: `homey/${item.device}/${item.capability}/value`,
+						topic: `homey/${item.device}/${item.capability}`,
 						eventtype: 15,
 						payload: '',
 					}],
@@ -883,7 +884,7 @@ class MyApp extends Homey.App
 						// Send the value to the device after a short delay to allow the device to connect to the broker
 						mqttQueue.push({
 							brokerId,
-							message: `homey/${item.device}/${item.capability}/value`,
+							message: `homey/${item.device}/${item.capability}`,
 							value: variable.value,
 						});
 					}
@@ -907,7 +908,7 @@ class MyApp extends Homey.App
 								// Send the value to the device after a short delay to allow the device to connect to the broker
 								mqttQueue.push({
 									brokerId,
-									message: `homey/${item.device}/${item.capability}/value`,
+									message: `homey/${item.device}/${item.capability}`,
 									value,
 								});
 
@@ -926,7 +927,7 @@ class MyApp extends Homey.App
 					// Send the value to the device after a short delay to allow the device to connect to the broker
 					mqttQueue.push({
 						brokerId,
-						message: `homey/${item.device}/${item.capability}/value`,
+						message: `homey/${item.device}/${item.capability}`,
 						value: item.unit,
 					});
 				}
@@ -966,7 +967,7 @@ class MyApp extends Homey.App
 				}
 
 				// apply the new configuration
-				const mqttQue = await this.applyButtonConfiguration(panelId, deviceConfiguration.info.connectors[connectorNo].type, sectionConfiguration, connectorNo, configurationNo);
+				const mqttQue = await this.applyButtonConfiguration(panelId, deviceConfiguration.info.connectors[connectorNo].type, sectionConfiguration, connectorNo, configurationNo, firmwareVersion);
 
 				// write the updated configuration back to the device
 				let error = await this.writeDeviceConfiguration(ip, sectionConfiguration);
@@ -992,7 +993,7 @@ class MyApp extends Homey.App
 		}
 	}
 
-	async applyButtonConfiguration(panelId, connectorType, sectionConfiguration, connectorNo, configurationNo)
+	async applyButtonConfiguration(panelId, connectorType, sectionConfiguration, connectorNo, configurationNo, firmwareVersion)
 	{
 		const buttonIdx = connectorNo * 2;
 		let arrayIdx = 0;
@@ -1029,8 +1030,8 @@ class MyApp extends Homey.App
 					{
 						try
 						{
-							this.setupButtonConfigSection(ButtonPanelConfiguration, panelId, buttonIdx, sectionConfiguration.mqttbuttons[arrayIdx], connectorType);
-							this.setupButtonConfigSection(ButtonPanelConfiguration, panelId, buttonIdx + 1, sectionConfiguration.mqttbuttons[arrayIdx + 1], connectorType);
+							this.setupButtonConfigSection(ButtonPanelConfiguration, panelId, buttonIdx, sectionConfiguration.mqttbuttons[arrayIdx], connectorType, firmwareVersion);
+							this.setupButtonConfigSection(ButtonPanelConfiguration, panelId, buttonIdx + 1, sectionConfiguration.mqttbuttons[arrayIdx + 1], connectorType, firmwareVersion);
 						}
 						catch (err)
 						{
@@ -1042,8 +1043,8 @@ class MyApp extends Homey.App
 		}
 		else if (connectorType === 2)
 		{
-			this.setupButtonMQTTList(null, panelId, buttonIdx, sectionConfiguration.mqttbuttons[arrayIdx], connectorType);
-			this.setupButtonMQTTList(null, panelId, buttonIdx + 1, sectionConfiguration.mqttbuttons[arrayIdx + 1], connectorType);
+			this.setupButtonMQTTList(null, panelId, buttonIdx, sectionConfiguration.mqttbuttons[arrayIdx], connectorType, firmwareVersion);
+			this.setupButtonMQTTList(null, panelId, buttonIdx + 1, sectionConfiguration.mqttbuttons[arrayIdx + 1], connectorType, firmwareVersion);
 		}
 	}
 
@@ -2098,7 +2099,7 @@ class MyApp extends Homey.App
 		}
 	}
 
-	setupButtonConfigSection(ButtonPanelConfiguration, panelId, buttonIdx, mqttButtons, connectorType)
+	setupButtonConfigSection(ButtonPanelConfiguration, panelId, buttonIdx, mqttButtons, connectorType, firmwareVersion)
 	{
 		if (connectorType === 1)
 		{
@@ -2115,10 +2116,10 @@ class MyApp extends Homey.App
 			mqttButtons.ledcolorwall = wallLEDColor;
 		}
 
-		this.setupButtonMQTTList(ButtonPanelConfiguration, panelId, buttonIdx, mqttButtons, connectorType);
+		this.setupButtonMQTTList(ButtonPanelConfiguration, panelId, buttonIdx, mqttButtons, connectorType, firmwareVersion);
 	}
 
-	setupButtonMQTTList(ButtonPanelConfiguration, panelId, buttonIdx, mqttButtons, connectorType)
+	setupButtonMQTTList(ButtonPanelConfiguration, panelId, buttonIdx, mqttButtons, connectorType, firmwareVersion)
 	{
 		const brokerId = this.getBrokerId(ButtonPanelConfiguration ? ButtonPanelConfiguration[(buttonIdx & 1) === 0 ? 'leftBrokerId' : 'rightBrokerId'] : 'Default');
 
@@ -2150,15 +2151,40 @@ class MyApp extends Homey.App
 				},
 			);
 
-			// Add the LED on / off event entry
-			mqttButtons.topics.push(
-				{
-					brokerid: brokerId,
-					eventtype: 14,
-					topic: `homey/${panelId}/${buttonIdx}/value`,
-					payload: true,
-				},
-			);
+			if (firmwareVersion < 1.12)
+			{
+				// Add the LED on / off event entry
+				mqttButtons.topics.push(
+					{
+						brokerid: brokerId,
+						eventtype: 14,
+						topic: `homey/${panelId}/${buttonIdx}/led`,
+						payload: true,
+					},
+				);
+			}
+			else
+			{
+				// Add the LED front colour event entry
+				mqttButtons.topics.push(
+					{
+						brokerid: brokerId,
+						eventtype: 28,
+						topic: `homey/${panelId}/${buttonIdx}/front`,
+						payload: '',
+					},
+				);
+
+				// Add the LED wall colour event entry
+				mqttButtons.topics.push(
+					{
+						brokerid: brokerId,
+						eventtype: 29,
+						topic: `homey/${panelId}/${buttonIdx}/wall`,
+						payload: '',
+					},
+				);
+			}
 
 			// Add the LED colour event entry
 			mqttButtons.topics.push(
@@ -2166,26 +2192,6 @@ class MyApp extends Homey.App
 					brokerid: brokerId,
 					eventtype: 13,
 					topic: `homey/${panelId}/${buttonIdx}/rgb`,
-					payload: '',
-				},
-			);
-
-			// Add the LED front colour event entry
-			mqttButtons.topics.push(
-				{
-					brokerid: brokerId,
-					eventtype: 28,
-					topic: `homey/${panelId}/${buttonIdx}/front`,
-					payload: '',
-				},
-			);
-
-			// Add the LED wall colour event entry
-			mqttButtons.topics.push(
-				{
-					brokerid: brokerId,
-					eventtype: 29,
-					topic: `homey/${panelId}/${buttonIdx}/wall`,
 					payload: '',
 				},
 			);
