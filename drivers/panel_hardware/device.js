@@ -587,7 +587,7 @@ class PanelDevice extends Device
 		return this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/${buttonNo}/rgb`, rgb, false, false).catch(this.error);
 	}
 
-	async setConfigLEDColour(left_right, configNo, rgb, front_wall, updateConfig)
+	async setConfigLEDColour(left_right, configNo, rgb, front_wall, updateConfig, On_Off)
 	{
 		const item = this.homey.app.buttonConfigurations[configNo];
 		if (item)
@@ -607,24 +607,24 @@ class PanelDevice extends Device
 				{
 					if ((front_wall === 'front') || (front_wall === 'both'))
 					{
-						item.leftFrontLEDColor = rgb;
+						On_Off ? item.leftFrontLEDOnColor = rgb : item.leftFrontLEDOffColor = rgb;
 					}
 
 					if ((front_wall === 'wall') || (front_wall === 'both'))
 					{
-						item.leftWallLEDColor = rgb;
+						On_Off ? item.leftWallLEDOnColor = rgb : item.leftWallLEDOffColor = rgb;
 					}
 				}
 				else
 				{
 					if ((front_wall === 'front') || (front_wall === 'both'))
 					{
-						item.rightFrontLEDColor = rgb;
+						On_Off ? item.rightFrontLEDOnColor = rgb : item.rightFrontLEDOffColor = rgb;
 					}
 
 					if ((front_wall === 'wall') || (front_wall === 'both'))
 					{
-						item.rightWallLEDColor = rgb;
+						On_Off ? item.rightWallLEDOnColor = rgb : item.rightWallLEDOffColor = rgb;
 					}
 				}
 
@@ -1051,7 +1051,7 @@ class PanelDevice extends Device
 		this.homey.app.updateLog(`onCapabilityConfiguration ${value}, ${opts}`);
 		try
 		{
-			await this.homey.app.uploadDisplayConfiguration(this.ip, value, this.id, this.firmwareVersion);
+			await this.homey.app.uploadDisplayConfiguration(this.ip, value, this.firmwareVersion);
 			this.setWarning(null);
 		}
 		catch (error)
@@ -1606,7 +1606,7 @@ class PanelDevice extends Device
 			}
 
 			// write the updated configuration back to the device
-			return await this.homey.app.writeDeviceConfiguration(this.ip, sectionConfiguration);
+//			return await this.homey.app.writeDeviceConfiguration(this.ip, sectionConfiguration);
 		}
 
 		return null;
@@ -1626,7 +1626,7 @@ class PanelDevice extends Device
 						mqttdisplays: _.cloneDeep(deviceConfigurations.mqttdisplays),
 					};
 
-					await this.homey.app.applyDisplayConfiguration(sectionConfiguration, configNo, this.id, this.firmwareVersion);
+					await this.homey.app.applyDisplayConfiguration(sectionConfiguration, configNo, this.firmwareVersion);
 
 					// Check if the display configuration has changed
 					if (this.compareObjects(sectionConfiguration.mqttdisplays, deviceConfigurations.mqttdisplays))
@@ -1642,7 +1642,7 @@ class PanelDevice extends Device
 				}
 				else
 				{
-					await this.homey.app.uploadDisplayConfiguration(this.ip, configNo, this.id, this.firmwareVersion);
+					await this.homey.app.uploadDisplayConfiguration(this.ip, configNo, this.firmwareVersion);
 				}
 			}
 			catch (error)
@@ -1948,8 +1948,10 @@ class PanelDevice extends Device
 				offMessage: '',
 				brokerId: 'Default',
 				dimChange: 0,
-                frontLEDColor: '#000000',
-                wallLEDColor: '#000000',
+                frontLEDOnColor: '#000000',
+                wallLEDOnColor: '#000000',
+				frontLEDOffColor: '#000000',
+				wallLEDOffColor: '#000000',
 			};
 		}
 
@@ -1962,8 +1964,10 @@ class PanelDevice extends Device
 			offMessage: buttonPanelConfiguration[`${side}OffText`],
 			brokerId: buttonPanelConfiguration[`${side}BrokerId`],
 			dimChange: buttonPanelConfiguration[`${side}DimChange`],
-            frontLEDColor: buttonPanelConfiguration[`${side}FrontLEDColor`],
-            wallLEDColor: buttonPanelConfiguration[`${side}WallLEDColor`],
+            frontLEDOnColor: buttonPanelConfiguration[`${side}FrontLEDOnColor`],
+            wallLEDOnColor: buttonPanelConfiguration[`${side}WallLEDOnColor`],
+			frontLEDOffColor: buttonPanelConfiguration[`${side}FrontLEDOffColor`],
+			wallLEDOffColor: buttonPanelConfiguration[`${side}WallLEDOffColor`],
 		};
 	}
 
@@ -2068,72 +2072,74 @@ class PanelDevice extends Device
 			if (value)
 			{
 				// Send the front and wall colours to the device after a short delay to allow the device to connect to the broker
-				const frontLEDColor = parseInt(config.frontLEDColor.substring(1), 16);
+				const frontLEDOnColor = parseInt(config.frontLEDOnColor.substring(1), 16);
 				if (mqttQueue)
 				{
 					mqttQueue.push(
 						{
 							brokerId: config.brokerId,
 							message: `homey/${this.id}/${buttonIdx}/front`,
-							value: frontLEDColor,
+							value: frontLEDOnColor,
 							retain: false,
 						},
 					);
 				}
 				else
 				{
-					this.homey.app.publishMQTTMessage(config.brokerId, `homey/${this.id}/${buttonIdx}/front`, frontLEDColor).catch(this.error);
+					this.homey.app.publishMQTTMessage(config.brokerId, `homey/${this.id}/${buttonIdx}/front`, frontLEDOnColor).catch(this.error);
 				}
-				const wallLEDColor = parseInt(config.wallLEDColor.substring(1), 16);
+				const wallLEDOnColor = parseInt(config.wallLEDOnColor.substring(1), 16);
 				if (mqttQueue)
 				{
 					mqttQueue.push(
 						{
 							brokerId: config.brokerId,
 							message: `homey/${this.id}/${buttonIdx}/wall`,
-							value: wallLEDColor,
+							value: wallLEDOnColor,
 							retain: false,
 						},
 					);
 				}
 				else
 				{
-					this.homey.app.publishMQTTMessage(config.brokerId, `homey/${this.id}/${buttonIdx}/wall`, wallLEDColor).catch(this.error);
+					this.homey.app.publishMQTTMessage(config.brokerId, `homey/${this.id}/${buttonIdx}/wall`, wallLEDOnColor).catch(this.error);
 				}
 			}
 			else
 			{
 				// Send 0 to the front and wall colours of the device after a short delay to allow the device to connect to the broker
+				const frontLEDOffColor = parseInt(config.frontLEDOffColor.substring(1), 16);
 				if (mqttQueue)
 				{
 					mqttQueue.push(
 						{
 							brokerId: config.brokerId,
 							message: `homey/${this.id}/${buttonIdx}/front`,
-							value: 0,
+							value: frontLEDOffColor,
 							retain: false,
 						},
 					);
 				}
 				else
 				{
-					this.homey.app.publishMQTTMessage(config.brokerId, `homey/${this.id}/${buttonIdx}/front`, 0).catch(this.error);
+					this.homey.app.publishMQTTMessage(config.brokerId, `homey/${this.id}/${buttonIdx}/front`, frontLEDOffColor).catch(this.error);
 				}
 
+				const wallLEDOffColor = parseInt(config.wallLEDOffColor.substring(1), 16);
 				if (mqttQueue)
 				{
 					mqttQueue.push(
 						{
 							brokerId: config.brokerId,
 							message: `homey/${this.id}/${buttonIdx}/wall`,
-							value: 0,
+							value: wallLEDOffColor,
 							retain: false,
 						},
 					);
 				}
 				else
 				{
-					this.homey.app.publishMQTTMessage(config.brokerId, `homey/${this.id}/${buttonIdx}/wall`, 0).catch(this.error);
+					this.homey.app.publishMQTTMessage(config.brokerId, `homey/${this.id}/${buttonIdx}/wall`, wallLEDOffColor).catch(this.error);
 				}
 			}
 		}	

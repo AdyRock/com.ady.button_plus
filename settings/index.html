@@ -170,19 +170,33 @@
 								</label>
 								<input class="homey-form-input" id="leftOffText" type="text" maxlength="20" value />
 
-								<label class="homey-form-label" id="leftFrontLEDColorLabel" for="leftFrontLEDColor"><span data-i18n="settings.frontLEDColor"></span>
+								<label class="homey-form-label" id="leftFrontLEDOnColorLabel" for="leftFrontLEDOnColor"><span data-i18n="settings.frontLEDOnColor"></span>
 									<div class="tooltip"><i class="fi fi-rr-info"></i>
-										<span class="tooltiptext" data-i18n="settings.frontLEDColorExplanation"></span>
+										<span class="tooltiptext" data-i18n="settings.frontLEDOnColorExplanation"></span>
 									</div>
 								</label>
-								<input class="homey-form-input" id="leftFrontLEDColor" type="color" value=#ff0000 />
+								<input class="homey-form-input" id="leftFrontLEDOnColor" type="color" value=#ff0000 />
 
-								<label class="homey-form-label" id="leftWallLEDColorLabel" for="leftFrontLEDColor"><span data-i18n="settings.wallLEDColor"></span>
+								<label class="homey-form-label" id="leftWallLEDOnColorLabel" for="leftFrontLEDOnColor"><span data-i18n="settings.wallLEDOnColor"></span>
 									<div class="tooltip"><i class="fi fi-rr-info"></i>
-										<span class="tooltiptext" data-i18n="settings.wallLEDColorExplanation"></span>
+										<span class="tooltiptext" data-i18n="settings.wallLEDOnColorExplanation"></span>
 									</div>
 								</label>
-								<input class="homey-form-input" id="leftWallLEDColor" type="color" value=#ff0000 />
+								<input class="homey-form-input" id="leftWallLEDOnColor" type="color" value=#ff0000 />
+
+								<label class="homey-form-label" id="leftFrontLEDOffColorLabel" for="leftFrontLEDOffColor"><span data-i18n="settings.frontLEDOffColor"></span>
+									<div class="tooltip"><i class="fi fi-rr-info"></i>
+										<span class="tooltiptext" data-i18n="settings.frontLEDOffColorExplanation"></span>
+									</div>
+								</label>
+								<input class="homey-form-input" id="leftFrontLEDOffColor" type="color" value=#ff0000 />
+
+								<label class="homey-form-label" id="leftWallLEDOffColorLabel" for="leftFrontLEDOffColor"><span data-i18n="settings.wallLEDOffColor"></span>
+									<div class="tooltip"><i class="fi fi-rr-info"></i>
+										<span class="tooltiptext" data-i18n="settings.wallLEDOffColorExplanation"></span>
+									</div>
+								</label>
+								<input class="homey-form-input" id="leftWallLEDOffColor" type="color" value=#ff0000 />
 
 								<span>
 									<div id="leftBrokerIdDiv">
@@ -266,20 +280,34 @@
 								</label>
 								<input class="homey-form-input" id="rightOffText" type="text" maxlength="20" value />
 
-								<label class="homey-form-label" id="rightFrontLEDColorLabel" for="rightFrontLEDColor"><span data-i18n="settings.frontLEDColor"></span>
+								<label class="homey-form-label" id="rightFrontLEDOnColorLabel" for="rightFrontLEDOnColor"><span data-i18n="settings.frontLEDOnColor"></span>
 									<div class="tooltip"><i class="fi fi-rr-info"></i>
-										<span class="tooltiptext" data-i18n="settings.frontLEDColorExplanation"></span>
+										<span class="tooltiptext" data-i18n="settings.frontLEDOnColorExplanation"></span>
 									</div>
 								</label>
-								<input class="homey-form-input" id="rightFrontLEDColor" type="color" value=#ff0000 />
+								<input class="homey-form-input" id="rightFrontLEDOnColor" type="color" value=#ff0000 />
 
-								<label class="homey-form-label" id="rightWallLEDColorLabel" for="rightFrontLEDColor"><span data-i18n="settings.wallLEDColor"></span>
+								<label class="homey-form-label" id="rightWallLEDOnColorLabel" for="rightWallLEDOnColor"><span data-i18n="settings.wallLEDOnColor"></span>
 									<div class="tooltip"><i class="fi fi-rr-info"></i>
-										<span class="tooltiptext" data-i18n="settings.wallLEDColorExplanation"></span>
+										<span class="tooltiptext" data-i18n="settings.wallLEDOnColorExplanation"></span>
 									</div>
 								</label>
-								<input class="homey-form-input" id="rightWallLEDColor" type="color" value=#ff0000 />
+								<input class="homey-form-input" id="rightWallLEDOnColor" type="color" value=#ff0000 />
 
+								<label class="homey-form-label" id="rightFrontLEDOffColorLabel" for="rightFrontLEDOffColor"><span data-i18n="settings.frontLEDOffColor"></span>
+									<div class="tooltip"><i class="fi fi-rr-info"></i>
+										<span class="tooltiptext" data-i18n="settings.frontLEDOffColorExplanation"></span>
+									</div>
+								</label>
+								<input class="homey-form-input" id="rightFrontLEDOffColor" type="color" value=#000000 />
+
+								<label class="homey-form-label" id="rightWallLEDOffColorLabel" for="rightWallLEDOffColor"><span data-i18n="settings.wallLEDOffColor"></span>
+									<div class="tooltip"><i class="fi fi-rr-info"></i>
+										<span class="tooltiptext" data-i18n="settings.wallLEDOffColorExplanation"></span>
+									</div>
+								</label>
+								<input class="homey-form-input" id="rightWallLEDOffColor" type="color" value=#000000 />
+								
 								<span>
 									<div id="rightBrokerIdDiv">
 										<label class="homey-form-label" for="rightBrokerId"><span data-i18n="settings.brokerId"></span>
@@ -417,8 +445,10 @@
 		var leftCapabilityElement = document.getElementById('leftCapability');
 		var leftBrokerIdElement = document.getElementById('leftBrokerId');
 		var newLeftCustomMQTTItemButton = document.getElementById('newLeftCustomMQTTItem');
-		var leftFrontLEDColorElement = document.getElementById('leftFrontLEDColor');
-		var leftWallLEDColorElement = document.getElementById('leftWallLEDColor');
+		var leftFrontLEDOnColorElement = document.getElementById('leftFrontLEDOnColor');
+		var leftWallLEDOnColorElement = document.getElementById('leftWallLEDOnColor');
+		var leftFrontLEDOffColorElement = document.getElementById('leftFrontLEDOffColor');
+		var leftWallLEDOffColorElement = document.getElementById('leftWallLEDOffColor');
 
 		var rightTopTextElement = document.getElementById('rightTopText');
 		var rightOnTextElement = document.getElementById('rightOnText');
@@ -428,8 +458,10 @@
 		var rightCapabilityElement = document.getElementById('rightCapability');
 		var rightBrokerIdElement = document.getElementById('rightBrokerId');
 		var newRightCustomMQTTItemButton = document.getElementById('newRightCustomMQTTItem');
-		var rightFrontLEDColorElement = document.getElementById('rightFrontLEDColor');
-		var rightWallLEDColorElement = document.getElementById('rightWallLEDColor');
+		var rightFrontLEDOnColorElement = document.getElementById('rightFrontLEDOnColor');
+		var rightWallLEDOnColorElement = document.getElementById('rightWallLEDOnColor');
+		var rightFrontLEDOffColorElement = document.getElementById('rightFrontLEDOffColor');
+		var rightWallLEDOffColorElement = document.getElementById('rightWallLEDOffColor');
 		var copyButtonConfigElement = document.getElementById('copyButtonConfig');
 		var pasteButtonConfigElement = document.getElementById('pasteButtonConfig');
 
@@ -734,8 +766,10 @@
 
 					ButtonPanelConfiguration.leftBrokerId = leftBrokerIdElement.value;
 					ButtonPanelConfiguration.leftDimChange = leftDimChangeElement.value;
-					ButtonPanelConfiguration.leftFrontLEDColor = leftFrontLEDColorElement.value;
-					ButtonPanelConfiguration.leftWallLEDColor = leftWallLEDColorElement.value;
+					ButtonPanelConfiguration.leftFrontLEDOnColor = leftFrontLEDOnColorElement.value;
+					ButtonPanelConfiguration.leftWallLEDOnColor = leftWallLEDOnColorElement.value;
+					ButtonPanelConfiguration.leftFrontLEDOffColor = leftFrontLEDOffColorElement.value;
+					ButtonPanelConfiguration.leftWallLEDOffColor = leftWallLEDOffColorElement.value;
 
 					ButtonPanelConfiguration.rightTopText = rightTopTextElement.value;
 					ButtonPanelConfiguration.rightOnText = rightOnTextElement.value;
@@ -765,8 +799,10 @@
 
 					ButtonPanelConfiguration.rightBrokerId = rightBrokerIdElement.value;
 					ButtonPanelConfiguration.rightDimChange = rightDimChangeElement.value;
-					ButtonPanelConfiguration.rightFrontLEDColor = rightFrontLEDColorElement.value;
-					ButtonPanelConfiguration.rightWallLEDColor = rightWallLEDColorElement.value;
+					ButtonPanelConfiguration.rightFrontLEDOnColor = rightFrontLEDOnColorElement.value;
+					ButtonPanelConfiguration.rightWallLEDOnColor = rightWallLEDOnColorElement.value;
+					ButtonPanelConfiguration.rightFrontLEDOffColor = rightFrontLEDOffColorElement.value;
+					ButtonPanelConfiguration.rightWallLEDOffColor = rightWallLEDOffColorElement.value;
 
 					await Homey.set('buttonConfigurations', localButtonConfigurations);
 
@@ -826,8 +862,10 @@
 				}
 				buttonPanelConfiguration.leftBrokerId = leftBrokerIdElement.value;
 				buttonPanelConfiguration.leftDimChange = leftDimChangeElement.value;
-				buttonPanelConfiguration.leftFrontLEDColor = leftFrontLEDColorElement.value;
-				buttonPanelConfiguration.leftWallLEDColor = leftWallLEDColorElement.value;
+				buttonPanelConfiguration.leftFrontLEDOnColor = leftFrontLEDOnColorElement.value;
+				buttonPanelConfiguration.leftWallLEDOnColor = leftWallLEDOnColorElement.value;
+				buttonPanelConfiguration.leftFrontLEDOffColor = leftFrontLEDOffColorElement.value;
+				buttonPanelConfiguration.leftWallLEDOffColor = leftWallLEDOffColorElement.value;
 				buttonPanelConfiguration.leftCustomMQTTTopics = buttonPanelConfiguration.leftCustomMQTTTopics;
 
 				buttonPanelConfiguration.rightTopText = rightTopTextElement.value;
@@ -853,8 +891,10 @@
 				}
 				buttonPanelConfiguration.rightBrokerId = rightBrokerIdElement.value;
 				buttonPanelConfiguration.rightDimChange = rightDimChangeElement.value;
-				buttonPanelConfiguration.rightFrontLEDColor = rightFrontLEDColorElement.value;
-				buttonPanelConfiguration.rightWallLEDColor = rightWallLEDColorElement.value;
+				buttonPanelConfiguration.rightFrontLEDOnColor = rightFrontLEDOnColorElement.value;
+				buttonPanelConfiguration.rightWallLEDOnColor = rightWallLEDOnColorElement.value;
+				buttonPanelConfiguration.rightFrontLEDOffColor = rightFrontLEDOffColorElement.value;
+				buttonPanelConfiguration.rightWallLEDOffColor = rightWallLEDOffColorElement.value;
 				buttonPanelConfiguration.rightCustomMQTTTopics = buttonPanelConfiguration.rightCustomMQTTTopics;
 
 				// Fetch the new configuration
@@ -907,16 +947,28 @@
 				ButtonPanelConfiguration.leftDimChange = leftDimChangelement.value;
 			});
 
-			leftFrontLEDColorElement.addEventListener('change', function(e)
+			leftFrontLEDOnColorElement.addEventListener('change', function(e)
 			{
 				var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-				ButtonPanelConfiguration.leftFrontLEDColor = leftFrontLEDColorElement.value;
+				ButtonPanelConfiguration.leftFrontLEDOnColor = leftFrontLEDOnColorElement.value;
 			});
 
-			leftWallLEDColorElement.addEventListener('change', function(e)
+			leftWallLEDOnColorElement.addEventListener('change', function(e)
 			{
 				var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-				ButtonPanelConfiguration.leftWallLEDColor = leftWallLEDColorElement.value;
+				ButtonPanelConfiguration.leftWallLEDOnColor = leftWallLEDOnColorElement.value;
+			});
+
+			leftFrontLEDOffColorElement.addEventListener('change', function(e)
+			{
+				var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+				ButtonPanelConfiguration.leftFrontLEDOffColor = leftFrontLEDOffColorElement.value;
+			});
+
+			leftWallLEDOffColorElement.addEventListener('change', function(e)
+			{
+				var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+				ButtonPanelConfiguration.leftWallLEDOffColor = leftWallLEDOffColorElement.value;
 			});
 
 			rightTopTextElement.addEventListener('change', function(e)
@@ -943,16 +995,28 @@
 				ButtonPanelConfiguration.rightDimChange = rightDimChangelement.value;
 			});
 
-			rightFrontLEDColorElement.addEventListener('change', function(e)
+			rightFrontLEDOnColorElement.addEventListener('change', function(e)
 			{
 				var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-				ButtonPanelConfiguration.rightFrontLEDColor = rightFrontLEDColorElement.value;
+				ButtonPanelConfiguration.rightFrontLEDOnColor = rightFrontLEDOnColorElement.value;
 			});
 
-			rightWallLEDColorElement.addEventListener('change', function(e)
+			rightWallLEDOnColorElement.addEventListener('change', function(e)
 			{
 				var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-				ButtonPanelConfiguration.rightWallLEDColor = rightWallLEDColorElement.value;
+				ButtonPanelConfiguration.rightWallLEDOnColor = rightWallLEDOnColorElement.value;
+			});
+
+			rightFrontLEDOffColorElement.addEventListener('change', function(e)
+			{
+				var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+				ButtonPanelConfiguration.rightFrontLEDOffColor = rightFrontLEDOffColorElement.value;
+			});
+
+			rightWallLEDOffColorElement.addEventListener('change', function(e)
+			{
+				var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+				ButtonPanelConfiguration.rightWallLEDOffColor = rightWallLEDOffColorElement.value;
 			});
 
 			leftDeviceElement.addEventListener('change', function(e)
@@ -1096,8 +1160,10 @@
 					if (newButtonPanelConfiguration.leftCapabilityName !== undefined) buttonPanelConfiguration.leftCapabilityName = newButtonPanelConfiguration.leftCapabilityName;
 					if (newButtonPanelConfiguration.leftBrokerId !== undefined) buttonPanelConfiguration.leftBrokerId = newButtonPanelConfiguration.leftBrokerId;
 					if (newButtonPanelConfiguration.leftDimChange !== undefined) buttonPanelConfiguration.leftDimChange = newButtonPanelConfiguration.leftDimChange;
-					if (newButtonPanelConfiguration.leftFrontLEDColor !== undefined) buttonPanelConfiguration.leftFrontLEDColor = newButtonPanelConfiguration.leftFrontLEDColor;
-					if (newButtonPanelConfiguration.leftWallLEDColor !== undefined) buttonPanelConfiguration.leftWallLEDColor = newButtonPanelConfiguration.leftWallLEDColor;
+					if (newButtonPanelConfiguration.leftFrontLEDOnColor !== undefined) buttonPanelConfiguration.leftFrontLEDOnColor = newButtonPanelConfiguration.leftFrontLEDOnColor;
+					if (newButtonPanelConfiguration.leftWallLEDOnColor !== undefined) buttonPanelConfiguration.leftWallLEDOnColor = newButtonPanelConfiguration.leftWallLEDOnColor;
+					if (newButtonPanelConfiguration.leftFrontLEDOffColor !== undefined) buttonPanelConfiguration.leftFrontLEDOffColor = newButtonPanelConfiguration.leftFrontLEDOffColor;
+					if (newButtonPanelConfiguration.leftWallLEDOffColor !== undefined) buttonPanelConfiguration.leftWallLEDOffColor = newButtonPanelConfiguration.leftWallLEDOffColor;
 					if (newButtonPanelConfiguration.leftCustomMQTTTopics !== undefined) buttonPanelConfiguration.leftCustomMQTTTopics = newButtonPanelConfiguration.leftCustomMQTTTopics;
 
 					if (newButtonPanelConfiguration.rightTopText !== undefined) buttonPanelConfiguration.rightTopText = newButtonPanelConfiguration.rightTopText;
@@ -1109,8 +1175,10 @@
 					if (newButtonPanelConfiguration.rightCapabilityName !== undefined) buttonPanelConfiguration.rightCapabilityName = newButtonPanelConfiguration.rightCapabilityName;
 					if (newButtonPanelConfiguration.rightBrokerId !== undefined) buttonPanelConfiguration.rightBrokerId = newButtonPanelConfiguration.rightBrokerId;
 					if (newButtonPanelConfiguration.rightDimChange !== undefined) buttonPanelConfiguration.rightDimChange = newButtonPanelConfiguration.rightDimChange;
-					if (newButtonPanelConfiguration.rightFrontLEDColor !== undefined) buttonPanelConfiguration.rightFrontLEDColor = newButtonPanelConfiguration.rightFrontLEDColor;
-					if (newButtonPanelConfiguration.rightWallLEDColor !== undefined) buttonPanelConfiguration.rightWallLEDColor = newButtonPanelConfiguration.rightWallLEDColor;
+					if (newButtonPanelConfiguration.rightFrontLEDOnColor !== undefined) buttonPanelConfiguration.rightFrontLEDOnColor = newButtonPanelConfiguration.rightFrontLEDOnColor;
+					if (newButtonPanelConfiguration.rightWallLEDOnColor !== undefined) buttonPanelConfiguration.rightWallLEDOnColor = newButtonPanelConfiguration.rightWallLEDOnColor;
+					if (newButtonPanelConfiguration.rightFrontLEDOffColor !== undefined) buttonPanelConfiguration.rightFrontLEDOffColor = newButtonPanelConfiguration.rightFrontLEDOffColor;
+					if (newButtonPanelConfiguration.rightWallLEDOffColor !== undefined) buttonPanelConfiguration.rightWallLEDOffColor = newButtonPanelConfiguration.rightWallLEDOffColor;
 					if (newButtonPanelConfiguration.rightCustomMQTTTopics !== undefined) buttonPanelConfiguration.rightCustomMQTTTopics = newButtonPanelConfiguration.rightCustomMQTTTopics;
 
 					// Update the controls
@@ -1739,8 +1807,10 @@
 				leftCapabilityElement.value = "";
 				leftBrokerIdElement.value = 'Default';
 				leftDimChangeElement.value = "+10";
-				leftFrontLEDColorElement.value = "#ff0000";
-				leftWallLEDColorElement.value = "#ff0000";
+				leftFrontLEDOnColorElement.value = "#ff0000";
+				leftWallLEDOnColorElement.value = "#ff0000";
+				leftFrontLEDOffColorElement.value = "#000000";
+				leftWallLEDOffColorElement.value = "#000000";
 
 				rightTopTextElement.value = "";
 				rightOnTextElement.value = "";
@@ -1749,8 +1819,10 @@
 				rightCapabilityElement.value = "";
 				rightBrokerIdElement.value = 'Default';
 				rightDimChangeElement.value = "-10";
-				rightFrontLEDColorElement.value = "#ff0000";
-				rightWallLEDColorElement.value = "#ff0000";
+				rightFrontLEDOnColorElement.value = "#ff0000";
+				rightWallLEDOnColorElement.value = "#ff0000";
+				rightFrontLEDOffColorElement.value = "#000000";
+				rightWallLEDOffColorElement.value = "#000000";
 			}
 			else
 			{
@@ -1786,8 +1858,10 @@
 				getCapabilities("left", leftDeviceElement.value, ButtonPanelConfiguration.leftCapability, ButtonPanelConfiguration.leftCapabilityName);
 				leftBrokerIdElement.value = ButtonPanelConfiguration.leftBrokerId;
 				leftDimChangeElement.value = ButtonPanelConfiguration.leftDimChange;
-				leftFrontLEDColorElement.value = ButtonPanelConfiguration.leftFrontLEDColor;
-				leftWallLEDColorElement.value = ButtonPanelConfiguration.leftWallLEDColor;
+				leftFrontLEDOnColorElement.value = ButtonPanelConfiguration.leftFrontLEDOnColor;
+				leftWallLEDOnColorElement.value = ButtonPanelConfiguration.leftWallLEDOnColor;
+				leftFrontLEDOffColorElement.value = ButtonPanelConfiguration.leftFrontLEDOffColor;
+				leftWallLEDOffColorElement.value = ButtonPanelConfiguration.leftWallLEDOffColor;
 
 				rightTopTextElement.value = ButtonPanelConfiguration.rightTopText;
 				document.getElementById(`buttonRightLegend`).innerHTML = `<b><em>${Homey.__("settings.RightPanel")}</em></b> - ${rightTopTextElement.value}`;
@@ -1812,8 +1886,10 @@
 				getCapabilities("right", rightDeviceElement.value, ButtonPanelConfiguration.rightCapability, ButtonPanelConfiguration.rightCapabilityName);
 				rightBrokerIdElement.value = ButtonPanelConfiguration.rightBrokerId;
 				rightDimChangeElement.value = ButtonPanelConfiguration.rightDimChange;
-				rightFrontLEDColorElement.value = ButtonPanelConfiguration.rightFrontLEDColor;
-				rightWallLEDColorElement.value = ButtonPanelConfiguration.rightWallLEDColor;
+				rightFrontLEDOnColorElement.value = ButtonPanelConfiguration.rightFrontLEDOnColor;
+				rightWallLEDOnColorElement.value = ButtonPanelConfiguration.rightWallLEDOnColor;
+				rightFrontLEDOffColorElement.value = ButtonPanelConfiguration.rightFrontLEDOffColor;
+				rightWallLEDOffColorElement.value = ButtonPanelConfiguration.rightWallLEDOffColor;
 			}
 		}
 

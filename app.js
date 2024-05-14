@@ -139,14 +139,37 @@ class MyApp extends Homey.App
 					buttonConfiguration.rightCustomMQTTTopics = [];
 				}
 
-				if (!buttonConfiguration.leftFrontLEDColor)
+				if (!buttonConfiguration.leftFrontLEDOnColor)
 				{
-					buttonConfiguration.leftFrontLEDColor = '#ff0000';
-					buttonConfiguration.leftWallLEDColor = '#ff0000';
-					buttonConfiguration.rightFrontLEDColor = '#ff0000';
-					buttonConfiguration.rightWallLEDColor = '#ff0000';
+					if (!buttonConfiguration.leftFrontLEDColor)
+					{
+						buttonConfiguration.leftFrontLEDOnColor = '#ff0000';
+						buttonConfiguration.leftWallLEDOnColor = '#ff0000';
+						buttonConfiguration.rightFrontLEDOnColor = '#ff0000';
+						buttonConfiguration.rightWallLEDOnColor = '#ff0000';
+					}
+					else
+					{
+						buttonConfiguration.leftFrontLEDOnColor = buttonConfiguration.leftFrontLEDColor;
+						buttonConfiguration.leftWallLEDOnColor = buttonConfiguration.leftWallLEDColor;
+						buttonConfiguration.rightFrontLEDOnColor = buttonConfiguration.rightFrontLEDColor;
+						buttonConfiguration.rightWallLEDOnColor = buttonConfiguration.rightWallLEDColor;
+
+						delete buttonConfiguration.leftFrontLEDColor;
+						delete buttonConfiguration.leftWallLEDColor;
+						delete buttonConfiguration.rightFrontLEDColor;
+						delete buttonConfiguration.rightWallLEDColor;
+					}
 				}
 
+				if (!buttonConfiguration.leftFrontLEDOffColor)
+				{
+					buttonConfiguration.leftFrontLEDOffColor = '#000000';
+					buttonConfiguration.leftWallLEDOffColor = '#000000';
+					buttonConfiguration.rightFrontLEDOffColor = '#000000';
+					buttonConfiguration.rightWallLEDOffColor = '#000000';
+				}
+	
 				if (!buttonConfiguration.leftLongDelay)
 				{
 					buttonConfiguration.leftLongDelay = '75';
@@ -493,7 +516,7 @@ class MyApp extends Homey.App
 			.registerRunListener(async (args, state) =>
 			{
 				this.log(`set_config_name_led_rgb ${args.left_right} config${args.config} to ${args.rgb}. Update Config ${args.update_config}`);
-				return args.device.setConfigLEDColour(args.left_right, args.config.id, args.rgb, args.front_wall ? args.front_wall : 'both', args.update_configuration ? args.update_configuration : false);
+				return args.device.setConfigLEDColour(args.left_right, args.config.id, args.rgb, args.front_wall ? args.front_wall : 'both', args.update_configuration ? args.update_configuration : false, args.on_off ? args.on_off : true);
 			})
 			.registerArgumentAutocompleteListener('config', async (query, args) =>
 			{
@@ -772,8 +795,10 @@ class MyApp extends Homey.App
 				leftCapability: '',
 				leftbrokerid: 'Default',
 				leftDimChange: '-10',
-				leftFrontLEDColor: '#ff0000',
-				leftWallLEDColor: '#ff0000',
+				leftFrontLEDOnColor: '#ff0000',
+				leftWallLEDOnColor: '#ff0000',
+				leftFrontLEDOffColor: '#000000',
+				leftWallLEDOffColor: '#000000',
 				leftCustomMQTTTopics: [],
 				rightTopText: '',
 				rightOnText: '',
@@ -782,8 +807,10 @@ class MyApp extends Homey.App
 				rightCapability: '',
 				rightbrokerid: 'Default',
 				rightDimChange: '+10',
-				rightFrontLEDColor: '#ff0000',
-				rightWallLEDColor: '#ff0000',
+				rightFrontLEDOnColor: '#ff0000',
+				rightWallLEDOnColor: '#ff0000',
+				rightFrontLEDOffColor: '#000000',
+				rightWallLEDOffColor: '#000000',
 				rightCustomMQTTTopics: [],
 			};
 			this.buttonConfigurations.push(ButtonPanelConfiguration);
@@ -809,13 +836,13 @@ class MyApp extends Homey.App
 		this.homey.settings.set('displayConfigurations', this.displayConfigurations);
 	}
 
-	async uploadDisplayConfiguration(ip, configurationNo, panelId, firmwareVersion)
+	async uploadDisplayConfiguration(ip, configurationNo, firmwareVersion)
 	{
 		try
 		{
 			// apply the new configuration
 			const sectionConfiguration = {};
-			await this.applyDisplayConfiguration(sectionConfiguration, configurationNo, panelId, firmwareVersion);
+			await this.applyDisplayConfiguration(sectionConfiguration, configurationNo, firmwareVersion);
 			this.updateLog(`Current Config: ${sectionConfiguration}`);
 
 			// write the updated configuration back to the device
@@ -832,7 +859,7 @@ class MyApp extends Homey.App
 		}
 	}
 
-	async applyDisplayConfiguration(sectionConfiguration, configurationNo, panelId, firmwareVersion)
+	async applyDisplayConfiguration(sectionConfiguration, configurationNo, firmwareVersion)
 	{
 		// Get the specified user configuration
 		const displayConfiguration = this.displayConfigurations[configurationNo];
@@ -2109,11 +2136,11 @@ class MyApp extends Homey.App
 			mqttButtons.longrepeat = 15;
 			mqttButtons.id = buttonIdx;
 
-			// Convert the '#000000' string to a long for the LED color
-			const frontLEDColor = parseInt(ButtonPanelConfiguration ? ButtonPanelConfiguration[(buttonIdx & 1) === 0 ? 'leftFrontLEDColor' : 'rightFrontLEDColor'].substring(1) : '0', 16);
-			const wallLEDColor = parseInt(ButtonPanelConfiguration ? ButtonPanelConfiguration[(buttonIdx & 1) === 0 ? 'leftWallLEDColor' : 'rightWallLEDColor'].substring(1) : '0', 16);
-			mqttButtons.ledcolorfront = frontLEDColor;
-			mqttButtons.ledcolorwall = wallLEDColor;
+			// // Convert the '#000000' string to a long for the LED color
+			// const frontLEDOnColor = parseInt(ButtonPanelConfiguration ? ButtonPanelConfiguration[(buttonIdx & 1) === 0 ? 'leftFrontLEDOnColor' : 'rightFrontLEDOnColor'].substring(1) : '0', 16);
+			// const wallLEDOnColor = parseInt(ButtonPanelConfiguration ? ButtonPanelConfiguration[(buttonIdx & 1) === 0 ? 'leftWallLEDOnColor' : 'rightWallLEDOnColor'].substring(1) : '0', 16);
+			// mqttButtons.LEDColorfront = frontLEDOnColor;
+			// mqttButtons.LEDColorwall = wallLEDOnColor;
 		}
 
 		this.setupButtonMQTTList(ButtonPanelConfiguration, panelId, buttonIdx, mqttButtons, connectorType, firmwareVersion);

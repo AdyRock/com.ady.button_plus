@@ -4,8 +4,8 @@
         "nl": "Stel configuratie LED kleur in"
     },
     "titleFormatted": {
-        "en": "Set the [[left_right]] [[front_wall]] LED colour on [[config]] to [[rgb]]. Update configuration: [[update_configuration]]",
-        "nl": "Stel de [[left_right]] [[front_wall]] LED kleur op [[config]] in op [[rgb]]. Update configuratie: [[update_configuration]]"
+        "en": "Set the [[left_right]] [[front_wall]] [[on_off]] LED colour on [[config]] to [[rgb]]. Update configuration: [[update_configuration]]",
+        "nl": "Stel de [[left_right]] [[front_wall]] [[on_off]] LED kleur op [[config]] in op [[rgb]]. Update configuratie: [[update_configuration]]"
     },
     "hint": {
         "en": "Sets the colour of the LED associated with the connector using the specified configuration",
@@ -115,6 +115,15 @@
 			"title": {
 				"en": "Update Configuration",
 				"nl": "Update Configuratie"
+			},
+			"required": false
+		},
+		{
+			"type": "checkbox",
+			"name": "on_off",
+			"title": {
+				"en": "On colour",
+				"nl": "Aan kleur"
 			},
 			"required": false
 		}
