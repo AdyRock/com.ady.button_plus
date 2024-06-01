@@ -198,6 +198,15 @@
 								</label>
 								<input class="homey-form-input" id="leftWallLEDOffColor" type="color" value=#ff0000 />
 
+								<label class="homey-form-checkbox">
+									<input class="homey-form-checkbox-input" id="leftDisableLongRepeat" type="checkbox" value="auto" />
+									<span class="homey-form-checkbox-checkmark"></span>
+									<span class="homey-form-checkbox-text"><span data-i18n="settings.longRepeat"></span></span>
+									<div class="tooltip"><i class="fi fi-rr-info"></i>
+										<span class="tooltiptext" data-i18n="settings.longRepeatExplanation"></span>
+									</div>
+								</label>
+
 								<span>
 									<div id="leftBrokerIdDiv">
 										<label class="homey-form-label" for="leftBrokerId"><span data-i18n="settings.brokerId"></span>
@@ -307,7 +316,16 @@
 									</div>
 								</label>
 								<input class="homey-form-input" id="rightWallLEDOffColor" type="color" value=#000000 />
-								
+
+								<label class="homey-form-checkbox">
+									<input class="homey-form-checkbox-input" id="rightLongRepeat" type="checkbox" value="auto" />
+									<span class="homey-form-checkbox-checkmark"></span>
+									<span class="homey-form-checkbox-text"><span data-i18n="settings.longRepeat"></span></span>
+									<div class="tooltip"><i class="fi fi-rr-info"></i>
+										<span class="tooltiptext" data-i18n="settings.longRepeatExplanation"></span>
+									</div>
+								</label>
+												
 								<span>
 									<div id="rightBrokerIdDiv">
 										<label class="homey-form-label" for="rightBrokerId"><span data-i18n="settings.brokerId"></span>
@@ -449,6 +467,7 @@
 		var leftWallLEDOnColorElement = document.getElementById('leftWallLEDOnColor');
 		var leftFrontLEDOffColorElement = document.getElementById('leftFrontLEDOffColor');
 		var leftWallLEDOffColorElement = document.getElementById('leftWallLEDOffColor');
+		var leftLongRepeatElement = document.getElementById('leftDisableLongRepeat');
 
 		var rightTopTextElement = document.getElementById('rightTopText');
 		var rightOnTextElement = document.getElementById('rightOnText');
@@ -462,6 +481,8 @@
 		var rightWallLEDOnColorElement = document.getElementById('rightWallLEDOnColor');
 		var rightFrontLEDOffColorElement = document.getElementById('rightFrontLEDOffColor');
 		var rightWallLEDOffColorElement = document.getElementById('rightWallLEDOffColor');
+		var rightLongRepeatElement = document.getElementById('rightLongRepeat');
+
 		var copyButtonConfigElement = document.getElementById('copyButtonConfig');
 		var pasteButtonConfigElement = document.getElementById('pasteButtonConfig');
 
@@ -770,6 +791,7 @@
 					ButtonPanelConfiguration.leftWallLEDOnColor = leftWallLEDOnColorElement.value;
 					ButtonPanelConfiguration.leftFrontLEDOffColor = leftFrontLEDOffColorElement.value;
 					ButtonPanelConfiguration.leftWallLEDOffColor = leftWallLEDOffColorElement.value;
+					ButtonPanelConfiguration.leftDisableLongRepeat = !leftLongRepeatElement.checked;
 
 					ButtonPanelConfiguration.rightTopText = rightTopTextElement.value;
 					ButtonPanelConfiguration.rightOnText = rightOnTextElement.value;
@@ -803,6 +825,7 @@
 					ButtonPanelConfiguration.rightWallLEDOnColor = rightWallLEDOnColorElement.value;
 					ButtonPanelConfiguration.rightFrontLEDOffColor = rightFrontLEDOffColorElement.value;
 					ButtonPanelConfiguration.rightWallLEDOffColor = rightWallLEDOffColorElement.value;
+					ButtonPanelConfiguration.rightLongRepeat = !rightLongRepeatElement.checked;
 
 					await Homey.set('buttonConfigurations', localButtonConfigurations);
 
@@ -867,6 +890,7 @@
 				buttonPanelConfiguration.leftFrontLEDOffColor = leftFrontLEDOffColorElement.value;
 				buttonPanelConfiguration.leftWallLEDOffColor = leftWallLEDOffColorElement.value;
 				buttonPanelConfiguration.leftCustomMQTTTopics = buttonPanelConfiguration.leftCustomMQTTTopics;
+				buttonPanelConfiguration.leftDisableLongRepeat = !leftLongRepeatElement.checked;
 
 				buttonPanelConfiguration.rightTopText = rightTopTextElement.value;
 				buttonPanelConfiguration.rightOnText = rightOnTextElement.value;
@@ -896,6 +920,7 @@
 				buttonPanelConfiguration.rightFrontLEDOffColor = rightFrontLEDOffColorElement.value;
 				buttonPanelConfiguration.rightWallLEDOffColor = rightWallLEDOffColorElement.value;
 				buttonPanelConfiguration.rightCustomMQTTTopics = buttonPanelConfiguration.rightCustomMQTTTopics;
+				buttonPanelConfiguration.rightLongRepeat = !rightLongRepeatElement.checked;
 
 				// Fetch the new configuration
 				updateButtonPanelConfiguration();
@@ -971,6 +996,12 @@
 				ButtonPanelConfiguration.leftWallLEDOffColor = leftWallLEDOffColorElement.value;
 			});
 
+			leftLongRepeatElement.addEventListener('change', function(e)
+			{
+				var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+				ButtonPanelConfiguration.leftDisableLongRepeat = !leftLongRepeatElement.checked;
+			});
+
 			rightTopTextElement.addEventListener('change', function(e)
 			{
 				var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
@@ -1017,6 +1048,12 @@
 			{
 				var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
 				ButtonPanelConfiguration.rightWallLEDOffColor = rightWallLEDOffColorElement.value;
+			});
+
+			rightLongRepeatElement.addEventListener('change', function(e)
+			{
+				var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+				ButtonPanelConfiguration.rightLongRepeat = !rightLongRepeatElement.checked;
 			});
 
 			leftDeviceElement.addEventListener('change', function(e)
@@ -1165,6 +1202,7 @@
 					if (newButtonPanelConfiguration.leftFrontLEDOffColor !== undefined) buttonPanelConfiguration.leftFrontLEDOffColor = newButtonPanelConfiguration.leftFrontLEDOffColor;
 					if (newButtonPanelConfiguration.leftWallLEDOffColor !== undefined) buttonPanelConfiguration.leftWallLEDOffColor = newButtonPanelConfiguration.leftWallLEDOffColor;
 					if (newButtonPanelConfiguration.leftCustomMQTTTopics !== undefined) buttonPanelConfiguration.leftCustomMQTTTopics = newButtonPanelConfiguration.leftCustomMQTTTopics;
+					if (newButtonPanelConfiguration.leftDisableLongRepeat !== undefined) buttonPanelConfiguration.leftDisableLongRepeat = newButtonPanelConfiguration.leftDisableLongRepeat;
 
 					if (newButtonPanelConfiguration.rightTopText !== undefined) buttonPanelConfiguration.rightTopText = newButtonPanelConfiguration.rightTopText;
 					if (newButtonPanelConfiguration.rightOnText !== undefined) buttonPanelConfiguration.rightOnText = newButtonPanelConfiguration.rightOnText;
@@ -1180,6 +1218,7 @@
 					if (newButtonPanelConfiguration.rightFrontLEDOffColor !== undefined) buttonPanelConfiguration.rightFrontLEDOffColor = newButtonPanelConfiguration.rightFrontLEDOffColor;
 					if (newButtonPanelConfiguration.rightWallLEDOffColor !== undefined) buttonPanelConfiguration.rightWallLEDOffColor = newButtonPanelConfiguration.rightWallLEDOffColor;
 					if (newButtonPanelConfiguration.rightCustomMQTTTopics !== undefined) buttonPanelConfiguration.rightCustomMQTTTopics = newButtonPanelConfiguration.rightCustomMQTTTopics;
+					if (newButtonPanelConfiguration.rightLongRepeat !== undefined) buttonPanelConfiguration.rightLongRepeat = newButtonPanelConfiguration.rightLongRepeat;
 
 					// Update the controls
 					updateButtonPanelConfiguration();
@@ -1811,6 +1850,7 @@
 				leftWallLEDOnColorElement.value = "#ff0000";
 				leftFrontLEDOffColorElement.value = "#000000";
 				leftWallLEDOffColorElement.value = "#000000";
+				leftLongRepeatElement.checked = true;
 
 				rightTopTextElement.value = "";
 				rightOnTextElement.value = "";
@@ -1823,6 +1863,7 @@
 				rightWallLEDOnColorElement.value = "#ff0000";
 				rightFrontLEDOffColorElement.value = "#000000";
 				rightWallLEDOffColorElement.value = "#000000";
+				rightLongRepeatElement.checked = true;
 			}
 			else
 			{
@@ -1862,12 +1903,14 @@
 				leftWallLEDOnColorElement.value = ButtonPanelConfiguration.leftWallLEDOnColor;
 				leftFrontLEDOffColorElement.value = ButtonPanelConfiguration.leftFrontLEDOffColor;
 				leftWallLEDOffColorElement.value = ButtonPanelConfiguration.leftWallLEDOffColor;
+				leftLongRepeatElement.checked = !ButtonPanelConfiguration.leftDisableLongRepeat;
 
 				rightTopTextElement.value = ButtonPanelConfiguration.rightTopText;
 				document.getElementById(`buttonRightLegend`).innerHTML = `<b><em>${Homey.__("settings.RightPanel")}</em></b> - ${rightTopTextElement.value}`;
 				rightOnTextElement.value = ButtonPanelConfiguration.rightOnText;
 				rightOffTextElement.value = ButtonPanelConfiguration.rightOffText;
 				rightDeviceElement.value = ButtonPanelConfiguration.rightDevice;
+
 				// If the element is not in the list, add it
 				if (rightDeviceElement.value != ButtonPanelConfiguration.rightDevice)
 				{
@@ -1890,6 +1933,7 @@
 				rightWallLEDOnColorElement.value = ButtonPanelConfiguration.rightWallLEDOnColor;
 				rightFrontLEDOffColorElement.value = ButtonPanelConfiguration.rightFrontLEDOffColor;
 				rightWallLEDOffColorElement.value = ButtonPanelConfiguration.rightWallLEDOffColor;
+				rightLongRepeatElement.checked = !ButtonPanelConfiguration.rightLongRepeat;
 			}
 		}
 

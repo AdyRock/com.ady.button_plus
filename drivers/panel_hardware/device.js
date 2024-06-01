@@ -562,7 +562,7 @@ class PanelDevice extends Device
 		{
 			if (front_wall !== 'both')
 			{
-				throw new Error('Firmware too old to support this feature. Set the Front / Wall to both or update the firmware to 1.12 or later');
+				throw new Error(`Firmware ${this.firmwareVersion} is too old to support this feature. Set the Front / Wall to both or update the firmware to 1.12 or later`);
 			}
 		}
 
@@ -1357,15 +1357,24 @@ class PanelDevice extends Device
 
 	async processLongPressMessage(parameters)
 	{
+		let buttonPanelConfiguration = null;
+		if (parameters.configNo !== null)
+		{
+			buttonPanelConfiguration = this.homey.app.buttonConfigurations[parameters.configNo];
+			if (buttonPanelConfiguration[`${parameters.side}DisableLongRepeat`] && this.longPressOccurred.get(`${parameters.connector}_${parameters.side}`))
+			{
+				return null;
+			}
+		}
+
 		this.longPressOccurred.set(`${parameters.connector}_${parameters.side}`, true);
 		this.homey.app.triggerButtonLongPress(this, parameters.side === 'left', parameters.connector + 1);
 
-		if (parameters.configNo !== null)
+		if (buttonPanelConfiguration !== null)
 		{
 			const value = this.getCapabilityValue(`${parameters.side}_button.connector${parameters.connector}`);
 			this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'long', value);
 
-			const buttonPanelConfiguration = this.homey.app.buttonConfigurations[parameters.configNo];
 			const capability = parameters.side === 'left' ? buttonPanelConfiguration.leftCapability : buttonPanelConfiguration.rightCapability;
 
 			if (capability === 'dim')
