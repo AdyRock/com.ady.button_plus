@@ -7,6 +7,7 @@
         "en": "The [[left_right]] Button on connector [[connector]] was pressed for a long time",
         "nl": "De [[left_right]] knop op connector [[connector]] is ingedrukt gehouden"
     },
+	"highlight": true,
     "tokens": [
         {
             "name": "left_right",
@@ -25,6 +26,15 @@
                 "nl": "Connector nummer"
             },
             "example": "1"
+        },
+        {
+            "name": "repeatCount",
+            "type": "number",
+            "title": {
+                "en": "Number of repeats",
+				"nl": "Aantal herhalingen"
+            },
+            "example": "0 = first press, 1 = second press, etc."
         }
     ],
     "args": [

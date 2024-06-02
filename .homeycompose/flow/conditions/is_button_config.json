@@ -17,11 +17,11 @@
                 "nl": "Config nummer"
             },
             "placeholder": {
-                "en": "Config number (1-20)",
-                "nl": "Config nummer (1-20)"
+                "en": "Config number (1-40)",
+                "nl": "Config nummer (1-40)"
             },
             "min": 1,
-            "max": 20,
+            "max": 40,
             "step": 1
         },
         {

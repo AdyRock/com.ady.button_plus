@@ -175,5 +175,8 @@
 	},
 	"0.5.1": {
 		"en": "Added option to enable / disable long press auto-repeat."
+	},
+	"0.5.2": {
+		"en": "Increased Button Configurations to 40. Added Repeat count token to the Long Press trigger."
 	}
 }

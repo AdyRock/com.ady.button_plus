@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.ady.button_plus",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "platforms": [
@@ -124,6 +124,7 @@
           "en": "The [[left_right]] Button on connector [[connector]] was turned On or off",
           "nl": "De [[left_right]] knop op connector [[connector]] is aan of uit gezet"
         },
+        "highlight": true,
         "tokens": [
           {
             "name": "left_right",
@@ -218,6 +219,7 @@
           "en": "The [[left_right]] Button on connector [[connector]] was pressed for a long time",
           "nl": "De [[left_right]] knop op connector [[connector]] is ingedrukt gehouden"
         },
+        "highlight": true,
         "tokens": [
           {
             "name": "left_right",
@@ -236,6 +238,15 @@
               "nl": "Connector nummer"
             },
             "example": "1"
+          },
+          {
+            "name": "repeatCount",
+            "type": "number",
+            "title": {
+              "en": "Number of repeats",
+              "nl": "Aantal herhalingen"
+            },
+            "example": "0 = first press, 1 = second press, etc."
           }
         ],
         "args": [
@@ -635,11 +646,11 @@
               "nl": "Configuratie nummer"
             },
             "placeholder": {
-              "en": "Config number (1-20)",
-              "nl": "Configuratie nummer (1-20)"
+              "en": "Config number (1-40)",
+              "nl": "Configuratie nummer (1-40)"
             },
             "min": 1,
-            "max": 20,
+            "max": 40,
             "step": 1
           },
           {
@@ -842,11 +853,11 @@
               "nl": "Config nummer"
             },
             "placeholder": {
-              "en": "Config number (1-20)",
-              "nl": "Config nummer (1-20)"
+              "en": "Config number (1-40)",
+              "nl": "Config nummer (1-40)"
             },
             "min": 1,
-            "max": 20,
+            "max": 40,
             "step": 1
           },
           {
@@ -1111,15 +1122,15 @@
               "nl": "Configuratie nummer"
             },
             "hint": {
-              "en": "Configuration number (1-20)",
-              "nl": "Configuratie nummer (1-20)"
+              "en": "Configuration number (1-40)",
+              "nl": "Configuratie nummer (1-40)"
             },
             "placeholder": {
-              "en": "configuration number (1-20)",
-              "nl": "Configuratie nummer (1-20)"
+              "en": "configuration number (1-40)",
+              "nl": "Configuratie nummer (1-40)"
             },
             "min": 1,
-            "max": 20,
+            "max": 40,
             "step": 1
           },
           {
@@ -1193,15 +1204,15 @@
               "nl": "Configuratie nummer"
             },
             "hint": {
-              "en": "Configuration number (1-20)",
-              "nl": "Configuratie nummer (1-20)"
+              "en": "Configuration number (1-40)",
+              "nl": "Configuratie nummer (1-40)"
             },
             "placeholder": {
-              "en": "configuration number (1-20)",
-              "nl": "Configuratie nummer (1-20)"
+              "en": "configuration number (1-40)",
+              "nl": "Configuratie nummer (1-40)"
             },
             "min": 1,
-            "max": 20,
+            "max": 40,
             "step": 1
           },
           {
@@ -2010,15 +2021,15 @@
               "nl": "Configuratie nummer"
             },
             "hint": {
-              "en": "Button configuration number to switch to (1-20)",
-              "nl": "Knop configuratie nummer om naar te wisselen (1-20)"
+              "en": "Button configuration number to switch to (1-40)",
+              "nl": "Knop configuratie nummer om naar te wisselen (1-40)"
             },
             "placeholder": {
-              "en": "Configuration number (1-20)",
-              "nl": "Configuratie nummer (1-20)"
+              "en": "Configuration number (1-40)",
+              "nl": "Configuratie nummer (1-40)"
             },
             "min": 1,
-            "max": 20,
+            "max": 40,
             "step": 1
           },
           {
@@ -2108,15 +2119,15 @@
               "nl": "Configuratie nummer"
             },
             "hint": {
-              "en": "Configuration number (1-20)",
-              "nl": "Configuratie nummer (1-20)"
+              "en": "Configuration number (1-40)",
+              "nl": "Configuratie nummer (1-40)"
             },
             "placeholder": {
-              "en": "Configuration number (1-20)",
-              "nl": "Configuratie nummer (1-20)"
+              "en": "Configuration number (1-40)",
+              "nl": "Configuratie nummer (1-40)"
             },
             "min": 1,
-            "max": 20,
+            "max": 40,
             "step": 1
           },
           {
@@ -2852,6 +2863,146 @@
             "en": "Button Config. 20",
             "nl": "Configuratie 20"
           }
+        },
+        {
+          "id": "20",
+          "title": {
+            "en": "Button Config. 21",
+            "nl": "Configuratie 21"
+          }
+        },
+        {
+          "id": "21",
+          "title": {
+            "en": "Button Config. 22",
+            "nl": "Configuratie 22"
+          }
+        },
+        {
+          "id": "22",
+          "title": {
+            "en": "Button Config. 23",
+            "nl": "Configuratie 23"
+          }
+        },
+        {
+          "id": "23",
+          "title": {
+            "en": "Button Config. 24",
+            "nl": "Configuratie 24"
+          }
+        },
+        {
+          "id": "24",
+          "title": {
+            "en": "Button Config. 25",
+            "nl": "Configuratie 25"
+          }
+        },
+        {
+          "id": "25",
+          "title": {
+            "en": "Button Config. 26",
+            "nl": "Configuratie 26"
+          }
+        },
+        {
+          "id": "26",
+          "title": {
+            "en": "Button Config. 27",
+            "nl": "Configuratie 27"
+          }
+        },
+        {
+          "id": "27",
+          "title": {
+            "en": "Button Config. 28",
+            "nl": "Configuratie 28"
+          }
+        },
+        {
+          "id": "28",
+          "title": {
+            "en": "Button Config. 29",
+            "nl": "Configuratie 29"
+          }
+        },
+        {
+          "id": "29",
+          "title": {
+            "en": "Button Config. 30",
+            "nl": "Configuratie 30"
+          }
+        },
+        {
+          "id": "30",
+          "title": {
+            "en": "Button Config. 31",
+            "nl": "Configuratie 31"
+          }
+        },
+        {
+          "id": "31",
+          "title": {
+            "en": "Button Config. 32",
+            "nl": "Configuratie 32"
+          }
+        },
+        {
+          "id": "32",
+          "title": {
+            "en": "Button Config. 33",
+            "nl": "Configuratie 33"
+          }
+        },
+        {
+          "id": "33",
+          "title": {
+            "en": "Button Config. 34",
+            "nl": "Configuratie 34"
+          }
+        },
+        {
+          "id": "34",
+          "title": {
+            "en": "Button Config. 35",
+            "nl": "Configuratie 35"
+          }
+        },
+        {
+          "id": "35",
+          "title": {
+            "en": "Button Config. 36",
+            "nl": "Configuratie 36"
+          }
+        },
+        {
+          "id": "36",
+          "title": {
+            "en": "Button Config. 37",
+            "nl": "Configuratie 37"
+          }
+        },
+        {
+          "id": "37",
+          "title": {
+            "en": "Button Config. 38",
+            "nl": "Configuratie 38"
+          }
+        },
+        {
+          "id": "38",
+          "title": {
+            "en": "Button Config. 39",
+            "nl": "Configuratie 39"
+          }
+        },
+        {
+          "id": "39",
+          "title": {
+            "en": "Button Config. 40",
+            "nl": "Configuratie 40"
+          }
         }
       ]
     },
@@ -3003,6 +3154,146 @@
           "title": {
             "en": "Button Config. 20",
             "nl": "Button Config. 20"
+          }
+        },
+        {
+          "id": "20",
+          "title": {
+            "en": "Button Config. 21",
+            "nl": "Button Config. 21"
+          }
+        },
+        {
+          "id": "21",
+          "title": {
+            "en": "Button Config. 22",
+            "nl": "Button Config. 22"
+          }
+        },
+        {
+          "id": "22",
+          "title": {
+            "en": "Button Config. 23",
+            "nl": "Button Config. 23"
+          }
+        },
+        {
+          "id": "23",
+          "title": {
+            "en": "Button Config. 24",
+            "nl": "Button Config. 24"
+          }
+        },
+        {
+          "id": "24",
+          "title": {
+            "en": "Button Config. 25",
+            "nl": "Button Config. 25"
+          }
+        },
+        {
+          "id": "25",
+          "title": {
+            "en": "Button Config. 26",
+            "nl": "Button Config. 26"
+          }
+        },
+        {
+          "id": "26",
+          "title": {
+            "en": "Button Config. 27",
+            "nl": "Button Config. 27"
+          }
+        },
+        {
+          "id": "27",
+          "title": {
+            "en": "Button Config. 28",
+            "nl": "Button Config. 28"
+          }
+        },
+        {
+          "id": "28",
+          "title": {
+            "en": "Button Config. 29",
+            "nl": "Button Config. 29"
+          }
+        },
+        {
+          "id": "29",
+          "title": {
+            "en": "Button Config. 30",
+            "nl": "Button Config. 30"
+          }
+        },
+        {
+          "id": "30",
+          "title": {
+            "en": "Button Config. 31",
+            "nl": "Button Config. 31"
+          }
+        },
+        {
+          "id": "31",
+          "title": {
+            "en": "Button Config. 32",
+            "nl": "Button Config. 32"
+          }
+        },
+        {
+          "id": "32",
+          "title": {
+            "en": "Button Config. 33",
+            "nl": "Button Config. 33"
+          }
+        },
+        {
+          "id": "33",
+          "title": {
+            "en": "Button Config. 34",
+            "nl": "Button Config. 34"
+          }
+        },
+        {
+          "id": "34",
+          "title": {
+            "en": "Button Config. 35",
+            "nl": "Button Config. 35"
+          }
+        },
+        {
+          "id": "35",
+          "title": {
+            "en": "Button Config. 36",
+            "nl": "Button Config. 36"
+          }
+        },
+        {
+          "id": "36",
+          "title": {
+            "en": "Button Config. 37",
+            "nl": "Button Config. 37"
+          }
+        },
+        {
+          "id": "37",
+          "title": {
+            "en": "Button Config. 38",
+            "nl": "Button Config. 38"
+          }
+        },
+        {
+          "id": "38",
+          "title": {
+            "en": "Button Config. 39",
+            "nl": "Button Config. 39"
+          }
+        },
+        {
+          "id": "39",
+          "title": {
+            "en": "Button Config. 40",
+            "nl": "Button Config. 40"
           }
         }
       ]

@@ -1357,18 +1357,24 @@ class PanelDevice extends Device
 
 	async processLongPressMessage(parameters)
 	{
+		let repeatCount = this.longPressOccurred.get(`${parameters.connector}_${parameters.side}`);
+		if (repeatCount === undefined)
+		{
+			repeatCount = 0;
+		}
+
 		let buttonPanelConfiguration = null;
 		if (parameters.configNo !== null)
 		{
 			buttonPanelConfiguration = this.homey.app.buttonConfigurations[parameters.configNo];
-			if (buttonPanelConfiguration[`${parameters.side}DisableLongRepeat`] && this.longPressOccurred.get(`${parameters.connector}_${parameters.side}`))
+			if (buttonPanelConfiguration[`${parameters.side}DisableLongRepeat`] && (repeatCount > 0))
 			{
 				return null;
 			}
 		}
 
-		this.longPressOccurred.set(`${parameters.connector}_${parameters.side}`, true);
-		this.homey.app.triggerButtonLongPress(this, parameters.side === 'left', parameters.connector + 1);
+		this.longPressOccurred.set(`${parameters.connector}_${parameters.side}`, repeatCount + 1);
+		this.homey.app.triggerButtonLongPress(this, parameters.side === 'left', parameters.connector + 1, repeatCount);
 
 		if (buttonPanelConfiguration !== null)
 		{
@@ -1407,7 +1413,7 @@ class PanelDevice extends Device
 		}
 		else if (config)
 		{
-			if (this.longPressOccurred && this.longPressOccurred.get(`${parameters.connector}_${parameters.side}`) && (config.capabilityName === 'windowcoverings_state'))
+			if (this.longPressOccurred && (this.longPressOccurred.get(`${parameters.connector}_${parameters.side}`) > 0) && (config.capabilityName === 'windowcoverings_state'))
 			{
 				// Send the pause command to the device if the LongPress was received
 				if (config.deviceID === 'customMQTT')
@@ -1440,7 +1446,7 @@ class PanelDevice extends Device
 		if (this.longPressOccurred)
 		{
 			// Record that the long press has finished
-			this.longPressOccurred.set(`${parameters.connector}_${parameters.side}`, false);
+			this.longPressOccurred.set(`${parameters.connector}_${parameters.side}`, 0);
 		}
 	}
 

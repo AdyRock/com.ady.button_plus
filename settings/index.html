@@ -439,6 +439,8 @@
 
 	<script type="text/javascript">
 		// General declarations
+		const MAX_BUTTON_CONFIGURATIONS = 40;
+		const MAX_DISPLAY_CONFIGURATIONS = 20;
 		var buttonDevicesArray = [];
 		var buttonDevicesFetched = false;
 		var variablesArray = [];
@@ -533,8 +535,8 @@
 
 			getButtonList();
 
-			fillConfigElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations);
-			fillConfigElement(displayConfigurationNoElement, Homey.__("settings.displayConfig"), localDisplayConfigurations);
+			fillConfigElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
+			fillConfigElement(displayConfigurationNoElement, Homey.__("settings.displayConfig"), localDisplayConfigurations, MAX_DISPLAY_CONFIGURATIONS);
 
 			getDevices();
 
@@ -1497,13 +1499,13 @@
 			}
 		}
 
-		function fillConfigElement(element, txt, configurations)
+		function fillConfigElement(element, txt, configurations, NumConfigurations)
 		{
 			//fill the device lists with devices
 			element.innerHTML = "";
 
 			var option = document.createElement("option");
-			for (let i = 0; i < 20; i++)
+			for (let i = 0; i < NumConfigurations; i++)
 			{
 				let config = configurations[i];
 
@@ -1836,7 +1838,7 @@
 
 			if (buttonConfigurationNoElement.value == "")
 			{
-				fillConfigElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations);
+				fillConfigElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
 
 				configNameElement.value = "";
 				leftTopTextElement.value = "";
@@ -1869,7 +1871,7 @@
 			{
 				currentButtonConfigurationNo = buttonConfigurationNoElement.value;
 
-				fillConfigElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations);
+				fillConfigElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
 
 				buttonConfigurationNoElement.value = currentButtonConfigurationNo;
 

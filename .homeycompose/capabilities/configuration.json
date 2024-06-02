@@ -147,6 +147,147 @@
                 "en": "Button Config. 20",
                 "nl": "Configuratie 20"
             }
-        }
+        },
+		{
+			"id": "20",
+			"title": {
+				"en": "Button Config. 21",
+				"nl": "Configuratie 21"
+			}
+		},
+		{
+			"id": "21",
+			"title": {
+				"en": "Button Config. 22",
+				"nl": "Configuratie 22"
+			}
+		},
+		{
+			"id": "22",
+			"title": {
+				"en": "Button Config. 23",
+				"nl": "Configuratie 23"
+			}
+		},
+		{
+			"id": "23",
+			"title": {
+				"en": "Button Config. 24",
+				"nl": "Configuratie 24"
+			}
+		},
+		{
+			"id": "24",
+			"title": {
+				"en": "Button Config. 25",
+				"nl": "Configuratie 25"
+			}
+		},
+		{
+			"id": "25",
+			"title": {
+				"en": "Button Config. 26",
+				"nl": "Configuratie 26"
+			}
+		},
+		{
+			"id": "26",
+			"title": {
+				"en": "Button Config. 27",
+				"nl": "Configuratie 27"
+			}
+		},
+		{
+			"id": "27",
+			"title": {
+				"en": "Button Config. 28",
+				"nl": "Configuratie 28"
+			}
+		},
+		{
+			"id": "28",
+			"title": {
+				"en": "Button Config. 29",
+				"nl": "Configuratie 29"
+			}
+		},
+		{
+			"id": "29",
+			"title": {
+				"en": "Button Config. 30",
+				"nl": "Configuratie 30"
+			}
+		},
+		{
+			"id": "30",
+			"title": {
+				"en": "Button Config. 31",
+				"nl": "Configuratie 31"
+			}
+		},
+		{
+			"id": "31",
+			"title": {
+				"en": "Button Config. 32",
+				"nl": "Configuratie 32"
+			}
+		},
+		{
+			"id": "32",
+			"title": {
+				"en": "Button Config. 33",
+				"nl": "Configuratie 33"
+			}
+		},
+		{
+			"id": "33",
+			"title": {
+				"en": "Button Config. 34",
+				"nl": "Configuratie 34"
+			}
+		},
+		{
+			"id": "34",
+			"title": {
+				"en": "Button Config. 35",
+				"nl": "Configuratie 35"
+			}
+		},
+		{
+			"id": "35",
+			"title": {
+				"en": "Button Config. 36",
+				"nl": "Configuratie 36"
+			}
+		},
+		{
+			"id": "36",
+			"title": {
+				"en": "Button Config. 37",
+				"nl": "Configuratie 37"
+			}
+		},
+		{
+			"id": "37",
+			"title": {
+				"en": "Button Config. 38",
+				"nl": "Configuratie 38"
+			}
+		},
+		{
+			"id": "38",
+			"title": {
+				"en": "Button Config. 39",
+				"nl": "Configuratie 39"
+			}
+		},
+		{
+			"id": "39",
+			"title": {
+				"en": "Button Config. 40",
+				"nl": "Configuratie 40"
+			}
+		}
+
     ]
 }

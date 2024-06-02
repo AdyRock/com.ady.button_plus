@@ -25,7 +25,8 @@ const DeviceDispatcher = require('./lib/DeviceStateChangedDispatcher');
 const VariableDispatcher = require('./lib/variables');
 const _ = require('lodash');
 
-const MAX_CONFIGURATIONS = 20;
+const MAX_BUTTON_CONFIGURATIONS = 40;
+const MAX_DISPLAY_CONFIGURATIONS = 20;
 
 class MyApp extends Homey.App
 {
@@ -97,7 +98,7 @@ class MyApp extends Homey.App
 		}
 
 		this.buttonConfigurations = this.homey.settings.get('buttonConfigurations');
-		if (!this.buttonConfigurations || this.buttonConfigurations.length < MAX_CONFIGURATIONS)
+		if (!this.buttonConfigurations || this.buttonConfigurations.length < MAX_BUTTON_CONFIGURATIONS)
 		{
 			// Create the default button bar configurations
 			this.createbuttonConfigurations();
@@ -195,7 +196,7 @@ class MyApp extends Homey.App
 		}
 
 		this.displayConfigurations = this.homey.settings.get('displayConfigurations');
-		if (!this.displayConfigurations || this.displayConfigurations.length < MAX_CONFIGURATIONS)
+		if (!this.displayConfigurations || this.displayConfigurations.length < MAX_DISPLAY_CONFIGURATIONS)
 		{
 			// Create the default display configurations
 			this.createDisplayConfigurations();
@@ -785,7 +786,7 @@ class MyApp extends Homey.App
 			this.buttonConfigurations = [];
 		}
 
-		for (let i = this.buttonConfigurations.length; i < MAX_CONFIGURATIONS; i++)
+		for (let i = this.buttonConfigurations.length; i < MAX_BUTTON_CONFIGURATIONS; i++)
 		{
 			const ButtonPanelConfiguration = {
 				leftTopText: '',
@@ -825,7 +826,7 @@ class MyApp extends Homey.App
 			this.displayConfigurations = [];
 		}
 
-		for (let i = this.displayConfigurations.length; i < MAX_CONFIGURATIONS; i++)
+		for (let i = this.displayConfigurations.length; i < MAX_DISPLAY_CONFIGURATIONS; i++)
 		{
 			const displayConfiguration = {
 				items: [],
@@ -2074,9 +2075,9 @@ class MyApp extends Homey.App
 		return this;
 	}
 
-	triggerButtonLongPress(device, leftright, connector)
+	triggerButtonLongPress(device, leftright, connector, repeatCount)
 	{
-		const tokens = { left_right: leftright, connector };
+		const tokens = { left_right: leftright, connector, repeatCount };
 		const state = { left_right: leftright ? 'left' : 'right', connector };
 		this.triggerFlow(this._triggerButtonLongPress, device, tokens, state);
 		return this;

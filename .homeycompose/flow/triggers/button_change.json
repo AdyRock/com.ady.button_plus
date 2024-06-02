@@ -7,6 +7,7 @@
         "en": "The [[left_right]] Button on connector [[connector]] was turned On or off",
         "nl": "De [[left_right]] knop op connector [[connector]] is aan of uit gezet"
     },
+	"highlight": true,
     "tokens": [
         {
             "name": "left_right",
