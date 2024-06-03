@@ -1210,7 +1210,7 @@ class MyApp extends Homey.App
 
 	async updateFirmware(ip)
 	{
-		return this.httpHelperLocal.get(`http://${ip}/updatefirmware`);
+		return this.httpHelperLocal.post(`http://${ip}/updatefirmware`);
 	}
 
 	async getHomeyDevices({ type = '', ids = null })
