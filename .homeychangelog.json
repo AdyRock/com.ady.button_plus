@@ -178,5 +178,8 @@
 	},
 	"0.5.2": {
 		"en": "Increased Button Configurations to 40. Added Repeat count token to the Long Press trigger."
+	},
+	"0.5.3": {
+		"en": "Fixed Firmware Update command for new firmware versions."
 	}
 }
