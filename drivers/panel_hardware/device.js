@@ -1579,7 +1579,7 @@ class PanelDevice extends Device
 				{
 					this.homey.app.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value, false).catch(this.error);
 				}
-			}, 1000);
+			}, 5000);
 		}
 		else
 		{

@@ -181,5 +181,8 @@
 	},
 	"0.5.3": {
 		"en": "Fixed Firmware Update command for new firmware versions."
+	},
+	"0.5.4": {
+		"en": "Fix Apply Configurations function."
 	}
 }

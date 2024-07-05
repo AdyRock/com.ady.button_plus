@@ -2150,14 +2150,15 @@ class MyApp extends Homey.App
 	setupButtonMQTTList(ButtonPanelConfiguration, panelId, buttonIdx, mqttButtons, connectorType, firmwareVersion)
 	{
 		const brokerId = this.getBrokerId(ButtonPanelConfiguration ? ButtonPanelConfiguration[(buttonIdx & 1) === 0 ? 'leftBrokerId' : 'rightBrokerId'] : 'Default');
+		mqttButtons.topics = [];
 
 		// Only add the top label, label and value if the connector type is 1
 		if (connectorType === 1)
 		{
-			if (mqttButtons.topics === undefined)
-			{
-				mqttButtons.topics = [];
-			}
+			// if (mqttButtons.topics === undefined)
+			// {
+			// 	mqttButtons.topics = [];
+			// }
 
 			// Add the Top Label event entry
 			mqttButtons.topics.push(
@@ -2225,7 +2226,7 @@ class MyApp extends Homey.App
 			);
 		}
 
-		const payload = { id: panelId, idx: buttonIdx };
+		const payload = '{ id: panelId, idx: buttonIdx }';
 
 		// Add the click event entry
 		mqttButtons.topics.push(
