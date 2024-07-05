@@ -184,5 +184,8 @@
 	},
 	"0.5.4": {
 		"en": "Fix Apply Configurations function."
+	},
+	"0.5.5": {
+		"en": "Fix regression to MQTT payload in last update."
 	}
 }

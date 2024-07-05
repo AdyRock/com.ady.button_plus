@@ -896,11 +896,27 @@ class PanelDevice extends Device
 			await this.uploadPanelTemperatureConfiguration(deviceConfigurations);
 			delete deviceConfigurations.info;
 
-			return await this.homey.app.writeDeviceConfiguration(this.ip, deviceConfigurations);
+			let tries = 3;
+			let error = null;
+			while (tries > 0)
+			{
+				error = await this.homey.app.writeDeviceConfiguration(this.ip, deviceConfigurations)
+				if (error == null)
+				{
+					break;
+				}
+				tries--;
+			};
+
+			if (error)
+			{
+				this.setWarning(error);	
+			}
 		}
 		catch (err)
 		{
 			this.homey.app.updateLog(`Error reading device configuration: ${err.message}`, 0);
+			this.setWarning(err.message);	
 			return err.message;
 		}
 

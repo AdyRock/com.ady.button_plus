@@ -2226,7 +2226,7 @@ class MyApp extends Homey.App
 			);
 		}
 
-		const payload = '{ id: panelId, idx: buttonIdx }';
+		const payload = { id: panelId, idx: buttonIdx };
 
 		// Add the click event entry
 		mqttButtons.topics.push(
