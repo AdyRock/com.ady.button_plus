@@ -2419,7 +2419,7 @@
 					{
 						const capability = document.getElementById(`display${itemNo}Capability`).value;
 						const capabilityElement = document.getElementById(`display${itemNo}Capability`);
-						newLabel = capabilityElement.options[capabilityElement.selectedIndex].text;
+						newLabel = capabilityElement.options && capabilityElement.options.length > 0 ? capabilityElement.options[capabilityElement.selectedIndex].text : device;
 					}
 				}
 			}
