@@ -143,7 +143,11 @@
         "configName": "Configuration Name",
         "configNameExplanation": "Enter a name for the configuration. This is optional but it will help you identify the configuration if you have more than one.",
 		"longRepeat": "Long Press Repeat",
-		"longRepeatExplanation": "Enable long press to repeat."
+		"longRepeatExplanation": "Enable long press to repeat.",
+		"boxType": "Box Type",
+		"boxTypeExplanation": "Select the type of box to display the value in.",
+		"boxTypeUnderlined": "Standard box with line",
+		"boxTypeNotUnderlined": "Standard box without line"
     },
     "pair": {
         "manual_add":{

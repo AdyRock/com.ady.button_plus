@@ -141,7 +141,11 @@
         "screenNo": "Scherm index",
         "screenNoExplanation": "Slecteer het scherm index om het item op weer te geven. De standaard is scherm 1. Als er meer dan 1 scherm is, kun je schermen wisselen met de linker- en rechterknoppen op het display.",
         "configName": "Configuratie naam",
-        "configNameExplanation": "Geef een naam op voor de configuratie. Dit is optioneel maar het helpt je om de configuratie te indentificeren als je er meer dan een hebt."
+        "configNameExplanation": "Geef een naam op voor de configuratie. Dit is optioneel maar het helpt je om de configuratie te indentificeren als je er meer dan een hebt.",
+		"boxType": "Box type",
+		"boxTypeExplanation": "Selecteer het type box om weer te geven op het display. De inhoud van de keuzelijst hangt af van het device dat je hebt geselecteerd.",
+		"boxTypeUnderlined": "Onderstreept",
+		"boxTypeNotUnderlined": "Niet onderstreept"
     },
     "pair": {
         "manual_add":{

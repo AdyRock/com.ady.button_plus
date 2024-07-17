@@ -769,13 +769,17 @@
 					if (leftDeviceElement.selectedIndex >= 0)
 					{
 						ButtonPanelConfiguration.leftDeviceName = leftDeviceElement.options && leftDeviceElement.options[leftDeviceElement.selectedIndex] ? leftDeviceElement.options[leftDeviceElement.selectedIndex].text : leftDeviceElement.value;
-						// Remove any leading spaces from the device name
-						ButtonPanelConfiguration.leftDeviceName = ButtonPanelConfiguration.leftDeviceName.trim();
 					}
 					else
 					{
 						ButtonPanelConfiguration.leftDeviceName = leftDeviceElement.value;
 					}
+
+					// Remove any leading spaces from the device name
+					ButtonPanelConfiguration.leftDeviceName = ButtonPanelConfiguration.leftDeviceName.trim();
+
+					// Remove all occurrences of ' (Missing Devices)' from the capability name
+					ButtonPanelConfiguration.leftDeviceName = ButtonPanelConfiguration.leftDeviceName.replace(/ \(Missing Devices\)/g, '');
 
 					ButtonPanelConfiguration.leftCapability = leftCapabilityElement.value;
 					if (leftCapabilityElement.selectedIndex >= 0)
@@ -786,6 +790,9 @@
 					{
 						ButtonPanelConfiguration.leftCapabilityName = leftCapabilityElement.value;
 					}
+
+					// Remove ' (Missing)' from the capability name
+					ButtonPanelConfiguration.leftCapabilityName = ButtonPanelConfiguration.leftCapabilityName.replace(/ \(Missing\)/g, '');
 
 					ButtonPanelConfiguration.leftBrokerId = leftBrokerIdElement.value;
 					ButtonPanelConfiguration.leftDimChange = leftDimChangeElement.value;
@@ -803,13 +810,17 @@
 					if (rightDeviceElement.selectedIndex >= 0)
 					{
 						ButtonPanelConfiguration.rightDeviceName = rightDeviceElement.options && rightDeviceElement.options[rightDeviceElement.selectedIndex] ? rightDeviceElement.options[rightDeviceElement.selectedIndex].text : rightDeviceElement.value;
-						// Remove any leading spaces from the device name
-						ButtonPanelConfiguration.rightDeviceName = ButtonPanelConfiguration.rightDeviceName.trim();
 					}
 					else
 					{
 						ButtonPanelConfiguration.rightDeviceName = rightDeviceElement.value;
 					}
+
+					// Remove any leading spaces from the device name
+					ButtonPanelConfiguration.rightDeviceName = ButtonPanelConfiguration.rightDeviceName.trim();
+
+					// Remove ' (Missing Devices)' from the capability name
+					ButtonPanelConfiguration.rightDeviceName = ButtonPanelConfiguration.rightDeviceName.replace(/ \(Missing Devices\)/g, '');
 
 					ButtonPanelConfiguration.rightCapability = rightCapabilityElement.value;
 					if (rightCapabilityElement.selectedIndex >= 0)
@@ -820,6 +831,9 @@
 					{
 						ButtonPanelConfiguration.rightCapabilityName = rightCapabilityElement.value;
 					}
+
+					// Remove ' (Missing)' from the capability name
+					ButtonPanelConfiguration.rightCapabilityName = ButtonPanelConfiguration.rightCapabilityName.replace(/ \(Missing\)/g, '');
 
 					ButtonPanelConfiguration.rightBrokerId = rightBrokerIdElement.value;
 					ButtonPanelConfiguration.rightDimChange = rightDimChangeElement.value;
@@ -876,6 +890,10 @@
 				{
 					buttonPanelConfiguration.leftDeviceName = leftDeviceElement.value;
 				}
+
+				// Remove all occurrences of ' (Missing Devices)' from the capability name
+				buttonPanelConfiguration.leftDeviceName = buttonPanelConfiguration.leftDeviceName.replace(/ \(Missing Devices\)/g, '');
+
 				buttonPanelConfiguration.leftCapability = leftCapabilityElement.value;
 				if (leftCapabilityElement.selectedIndex >= 0)
 				{
@@ -885,6 +903,10 @@
 				{
 					buttonPanelConfiguration.leftCapabilityName = leftCapabilityElement.value;
 				}
+
+				// Remove all occurrences of ' (Missing)' from the capability name
+				buttonPanelConfiguration.leftCapabilityName = buttonPanelConfiguration.leftCapabilityName.replace(/ \(Missing\)/g, '');
+
 				buttonPanelConfiguration.leftBrokerId = leftBrokerIdElement.value;
 				buttonPanelConfiguration.leftDimChange = leftDimChangeElement.value;
 				buttonPanelConfiguration.leftFrontLEDOnColor = leftFrontLEDOnColorElement.value;
@@ -906,7 +928,12 @@
 				{
 					buttonPanelConfiguration.rightDeviceName = rightDeviceElement.value;
 				}
+
+				// Remove all occurrences of ' (Missing Devices)' from the capability name
+				buttonPanelConfiguration.rightDeviceName = buttonPanelConfiguration.rightDeviceName.replace(/ \(Missing Devices\)/g, '');
+
 				buttonPanelConfiguration.rightCapability = rightCapabilityElement.value;
+
 				if (rightCapabilityElement.selectedIndex >= 0)
 				{
 					buttonPanelConfiguration.rightCapabilityName = rightCapabilityElement.options[rightCapabilityElement.selectedIndex].text;
@@ -915,6 +942,10 @@
 				{
 					buttonPanelConfiguration.rightCapabilityName = rightCapabilityElement.value;
 				}
+
+				// Remove all occurrences of ' (Missing)' from the capability name
+				buttonPanelConfiguration.rightCapabilityName = buttonPanelConfiguration.rightCapabilityName.replace(/ \(Missing\)/g, '');
+
 				buttonPanelConfiguration.rightBrokerId = rightBrokerIdElement.value;
 				buttonPanelConfiguration.rightDimChange = rightDimChangeElement.value;
 				buttonPanelConfiguration.rightFrontLEDOnColor = rightFrontLEDOnColorElement.value;
@@ -1073,6 +1104,9 @@
 				{
 					ButtonPanelConfiguration.leftDeviceName = leftDeviceElement.value;
 				}
+
+				// Remove all occurrences of ' (Missing Devices)' from the capability name
+				ButtonPanelConfiguration.leftDeviceName = ButtonPanelConfiguration.leftDeviceName.replace(/ \(Missing Devices\)/g, '');
 
 				// Remove any leading spaces from the device name
 				ButtonPanelConfiguration.leftDeviceName = ButtonPanelConfiguration.leftDeviceName.trim();
@@ -1651,6 +1685,9 @@
 
 		function fillButtonVariablesElement(side, capabilityElement, selectedCapability, selectedCapabilityName)
 		{
+			// Remove the ' (Missing)' from the selectedCapabilityName
+			selectedCapabilityName = selectedCapabilityName.replace(/ \(Missing\)/g, "");
+
 			for (const variable of variablesArray)
 			{
 				if (variable.type === "boolean")
@@ -1680,6 +1717,9 @@
 
 		function getCapabilities(side, deviceId, selectedCapability, selectedCapabilityName)
 		{
+			// Remove any ' (Missing)' text from the selectedCapabilityName
+			selectedCapabilityName = selectedCapabilityName.replace(/ \(Missing\)/g, "");
+
 			// Clear the list options
 			let capabilityElement = document.getElementById(`${side}Capability`);
 			capabilityElement.innerHTML = "";
@@ -1751,6 +1791,9 @@
 				const zoneName = device.zone.name ?? device.zoneName;
 				if (zoneName === "Missing Devices")
 				{
+					// Remove ' (Missing Devices)' from the selectedCapabilityName
+					selectedCapabilityName = selectedCapabilityName.replace(/ \(Missing Devices\)/g, "");
+
 					// There won't be any capabilities defined for this device, so add the capability for the missing device from the ButtonPanelConfiguration.'side'Capability setting
 					var option = document.createElement("option");
 					option.text = selectedCapabilityName;
@@ -1878,6 +1921,7 @@
 				let ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
 				configNameElement.value = ButtonPanelConfiguration.name ? ButtonPanelConfiguration.name : "";
 
+				// Fill left button panel
 				leftTopTextElement.value = ButtonPanelConfiguration.leftTopText;
 				document.getElementById(`buttonLeftLegend`).innerHTML = `<b><em>${Homey.__("settings.LeftPanel")}</em></b> - ${leftTopTextElement.value}`;
 				leftOnTextElement.value = ButtonPanelConfiguration.leftOnText;
@@ -1889,8 +1933,13 @@
 					if (buttonDevicesArray.findIndex((device) => device.id === ButtonPanelConfiguration.leftDevice) < 0)
 					{
 						var name = ButtonPanelConfiguration.leftDeviceName ? ButtonPanelConfiguration.leftDeviceName : ButtonPanelConfiguration.leftDevice;
+						
 						// Remove any leading spaces from the device name
 						name = name.trim();
+
+						// Remove all occurrences of ' (Missing Devices)' from the name
+						name = name.replace(/ \(Missing Devices\)/g, "");
+
 						buttonDevicesArray.push({ id: ButtonPanelConfiguration.leftDevice, name, zone: { name: "Missing Devices" } });
 						buttonDevicesArray = sortDevices(buttonDevicesArray);
 						fillButtonDevices();
@@ -1907,6 +1956,7 @@
 				leftWallLEDOffColorElement.value = ButtonPanelConfiguration.leftWallLEDOffColor;
 				leftLongRepeatElement.checked = !ButtonPanelConfiguration.leftDisableLongRepeat;
 
+				// Fill right button panel
 				rightTopTextElement.value = ButtonPanelConfiguration.rightTopText;
 				document.getElementById(`buttonRightLegend`).innerHTML = `<b><em>${Homey.__("settings.RightPanel")}</em></b> - ${rightTopTextElement.value}`;
 				rightOnTextElement.value = ButtonPanelConfiguration.rightOnText;
@@ -1917,8 +1967,13 @@
 				if (rightDeviceElement.value != ButtonPanelConfiguration.rightDevice)
 				{
 					var name = ButtonPanelConfiguration.rightDeviceName ? ButtonPanelConfiguration.rightDeviceName : ButtonPanelConfiguration.rightDevice;
+					
 					// Remove any leading spaces from the device name
 					name = name.trim();
+
+					// Remove all occurrences of ' (Missing Devices)' from the name
+					name = name.replace(/ \(Missing Devices\)/g, "");
+					
 					if (buttonDevicesArray.findIndex((device) => device.id === ButtonPanelConfiguration.rightDevice) < 0)
 					{
 						buttonDevicesArray.push({ id: ButtonPanelConfiguration.rightDevice, name, zone: { name: "Missing Devices" } });
@@ -2151,6 +2206,7 @@
 
 				document.getElementById(`display${itemNo}FontSize`).value = item.fontSize;
 				document.getElementById(`display${itemNo}BrokerId`).value = item.brokerId;
+				document.getElementById(`display${itemNo}BoxType`).value = item.boxType || 0;
 			}
 
 			fillDisplayDevices();
@@ -2173,6 +2229,7 @@
 				deleteItem: Homey.__("settings.deleteItem"),
 				brokerId: Homey.__("settings.brokerId"),
 				page: Homey.__("settings.page"),
+				boxType: Homey.__("settings.boxType"),
 			}
 			const ctrlExplanations = {
 				device: Homey.__("settings.deviceDExplanation"),
@@ -2188,9 +2245,12 @@
 				deleteItem: Homey.__("settings.deleteItemExplanation"),
 				brokerId: Homey.__("settings.brokerIdExplanation"),
 				page: Homey.__("settings.pageExplanation"),
+				boxType: Homey.__("settings.boxTypeExplanation"),
 			}
 			const itemLegend = Homey.__("settings.displayItemlegend", { itemNo: itemNo + 1 });
 			const itemLegendName = item.label ? item.label : (item.device === 'none' ? item.text : item.capabilityName);
+			const underlined = Homey.__("settings.boxTypeUnderlined");
+			const notUnderlined = Homey.__("settings.boxTypeNotUnderlined");
 
 			if (typeof item.page === 'undefined')
 			{
@@ -2275,7 +2335,7 @@
 									<span class="tooltiptext">${ctrlExplanations.rounding}</span>
 								</div>
 							</label>
-							<input class="homey-form-input" id="display${itemNo}Rounding" type="number" value="${item.rounding}" />
+							<input class="homey-form-input" id="display${itemNo}Rounding" type="number" value="${item.rounding || 0}" />
 							<label class="homey-form-label" for="display${itemNo}FontSize">${ctrlLabels.fontSize}
 								<div class="tooltip"><i class="fi fi-rr-info"></i>
 									<span class="tooltiptext">${ctrlExplanations.fontSize}</span>
@@ -2286,6 +2346,15 @@
 								<option value=2>2</option>
 								<option value=3>3</option>
 								<option value=4>4</option>
+							</select>
+							<label class="homey-form-label" for="display${itemNo}BoxType">${ctrlLabels.boxType}
+								<div class="tooltip"><i class="fi fi-rr-info"></i>
+									<span class="tooltiptext">${ctrlExplanations.boxType}</span>
+								</div>
+							</label>
+							<select class="homey-form-select" id="display${itemNo}BoxType">
+								<option value=0>${underlined}</option>
+								<option value=1>${notUnderlined}</option>
 							</select>
 							<label class="homey-form-label" for="display${itemNo}BrokerId">${ctrlLabels.brokerId}
 								<div class="tooltip"><i class="fi fi-rr-info"></i>
@@ -2614,6 +2683,9 @@
 					if (deviceElement.selectedIndex >= 0)
 					{
 						displayConfiguration.items[itemNo].deviceName = deviceElement.options[deviceElement.selectedIndex].text;
+						
+						// Remove ' (Missing Devices)' from the device name
+						displayConfiguration.items[itemNo].deviceName = displayConfiguration.items[itemNo].deviceName.replace(/ \(Missing Devices\)/g, '');
 					}
 					else
 					{
@@ -2624,6 +2696,9 @@
 					if (document.getElementById(`display${itemNo}Capability`).selectedIndex >= 0)
 					{
 						displayConfiguration.items[itemNo].capabilityName = document.getElementById(`display${itemNo}Capability`).options[document.getElementById(`display${itemNo}Capability`).selectedIndex].text;
+
+						// Remove ' (Missing)' from the capability name
+						displayConfiguration.items[itemNo].capabilityName = displayConfiguration.items[itemNo].capabilityName.replace(/ \(Missing\)/g, '');
 					}
 					else
 					{
@@ -2639,6 +2714,7 @@
 					displayConfiguration.items[itemNo].fontSize = document.getElementById(`display${itemNo}FontSize`).value;
 					displayConfiguration.items[itemNo].brokerId = document.getElementById(`display${itemNo}BrokerId`).value;
 					displayConfiguration.items[itemNo].page = document.getElementById(`display${itemNo}page`).value - 1;
+					displayConfiguration.items[itemNo].boxType = document.getElementById(`display${itemNo}BoxType`).value;
 				}
 			}
 		}

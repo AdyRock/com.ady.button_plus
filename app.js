@@ -894,6 +894,7 @@ class MyApp extends Homey.App
 					unit: item.device === 'none' ? '' : item.unit,
 					round: parseInt(item.rounding, 10) || 0,
 					page: parseInt(item.page, 10) || 0,
+					boxtype: parseInt(item.boxType, 10) || 0,
 					topics: [
 					{
 						brokerid: brokerId,
