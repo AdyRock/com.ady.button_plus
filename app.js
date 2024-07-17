@@ -879,6 +879,38 @@ class MyApp extends Homey.App
 					continue;
 				}
 
+				if (item.device === 'customMQTT')
+				{
+					// Custom MQTT topic
+					const capabilities = {
+						align: 1,
+						x: parseInt(item.xPos, 10) || 0,
+						y: parseInt(item.yPos, 10) || 0,
+						fontsize: parseInt(item.fontSize, 10) || 0,
+						width: parseInt(item.width, 10) || 0,
+						label: item.label,
+						unit: item.unit,
+						round: parseInt(item.rounding, 10) || 0,
+						page: parseInt(item.page, 10) || 0,
+						boxtype: parseInt(item.boxType, 10) || 0,
+						topics: [],
+					};
+
+					// Setup the custom MQTT topic
+					for (const customTopic of item.customMQTTTopics)
+					{
+						capabilities.topics.push({
+							brokerid: customTopic.brokerId === 'Default' ? this.homey.settings.get('defaultBroker') : customTopic.brokerId,
+							topic: customTopic.topic,
+							eventtype: customTopic.type,
+							payload: customTopic.payload,
+						});
+					}
+
+					sectionConfiguration.mqttdisplays.push(capabilities);
+					continue;
+				}
+
 				let { brokerId } = item;
 				if (brokerId === 'Default')
 				{

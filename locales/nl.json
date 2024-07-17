@@ -145,7 +145,10 @@
 		"boxType": "Box type",
 		"boxTypeExplanation": "Selecteer het type box om weer te geven op het display. De inhoud van de keuzelijst hangt af van het device dat je hebt geselecteerd.",
 		"boxTypeUnderlined": "Onderstreept",
-		"boxTypeNotUnderlined": "Niet onderstreept"
+		"boxTypeNotUnderlined": "Niet onderstreept",
+		"customMQTTTopic": "Aangepast MQTT Topic",
+		"customMQTTTopicExplanation": "Selecteer het aangepaste MQTT topic om te gebruiken.",
+		"value": "Waarde"
     },
     "pair": {
         "manual_add":{

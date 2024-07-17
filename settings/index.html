@@ -492,6 +492,7 @@
 		var localButtonConfigurations = [];
 		var currentButtonConfigurationNo = 0;
 		var customMQTTItemsElements = [];
+		var customDisplayMQTTItemsElements = [];
 
 		var openWebViewElement = document.getElementById('openwebview');
 		var webViewIpElement = document.getElementById('webviewip');
@@ -612,6 +613,15 @@
 							option.value = brokerItem.brokerid;
 							option.text = brokerItem.brokerid;
 							customMQTTItemsElements[k].add(option);
+						}
+
+						// Add the broker to the custom display MQTT topic broker lists
+						for (let k = 0; k < customDisplayMQTTItemsElements.length; k++)
+						{
+							var option = document.createElement("option");
+							option.value = brokerItem.brokerid;
+							option.text = brokerItem.brokerid;
+							customDisplayMQTTItemsElements[k].add(option);
 						}
 
 						if (displayConfigurationsFetched)
@@ -1398,6 +1408,7 @@
 							fontSize: 1,
 							brokerId: 'Default',
 							page: 0,
+							customMQTTTopics: [],
 						};
 
 						// Add the new display item to the local display configuration
@@ -1718,7 +1729,7 @@
 		function getCapabilities(side, deviceId, selectedCapability, selectedCapabilityName)
 		{
 			// Remove any ' (Missing)' text from the selectedCapabilityName
-			selectedCapabilityName = selectedCapabilityName.replace(/ \(Missing\)/g, "");
+			selectedCapabilityName = selectedCapabilityName ? selectedCapabilityName.replace(/ \(Missing\)/g, "") : selectedCapabilityName;
 
 			// Clear the list options
 			let capabilityElement = document.getElementById(`${side}Capability`);
@@ -2207,10 +2218,222 @@
 				document.getElementById(`display${itemNo}FontSize`).value = item.fontSize;
 				document.getElementById(`display${itemNo}BrokerId`).value = item.brokerId;
 				document.getElementById(`display${itemNo}BoxType`).value = item.boxType || 0;
+//				document.getElementById(`display${itemNo}CustomMQTTTopic`).value = item.customMQTTTopic || "";
 			}
 
 			fillDisplayDevices();
+
+			for (var itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
+			{
+				const item = displayConfiguration.items[itemNo];
+
+				drawDisplayCustomMQTTTopics(itemNo, item.customMQTTTopics);
+			}
 		}
+
+		
+		function newDisplayMQTTTopic(Item)
+		{
+			var displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+			if (displayConfiguration)
+			{
+				// Save the current settings
+				storeDisplayCustomMQTTItems(Item, displayConfiguration.items[Item].customMQTTTopics);
+
+				var customMQTTItem = {
+					id: '',
+					type: 0,
+					topic: "",
+					payload: "",
+					brokerId: 'Default',
+					enable: true,
+				};
+				
+				// make sure the customMQTTTopics is an array
+				if (!displayConfiguration.items[Item].customMQTTTopics || (Array.isArray(displayConfiguration.items[Item].customMQTTTopics) === false))
+				{
+					displayConfiguration.items[Item].customMQTTTopics = [];
+				}
+				
+
+				displayConfiguration.items[Item].customMQTTTopics.push(customMQTTItem);
+				drawDisplayCustomMQTTTopics(Item, displayConfiguration.items[Item].customMQTTTopics);
+			}
+		};
+
+		/// Custom MQTT code
+		function drawDisplayCustomMQTTTopics(Item, Topics)
+		{
+			if (!Topics || Topics.length === 0) return;
+			
+			document.getElementById(`display${Item}CustomMQTTTopicsSection`).innerHTML = "";
+			customDisplayMQTTItemsElements = [];
+
+			for (var itemNo = 0; itemNo < Topics.length; itemNo++)
+			{
+				const topic = Topics[itemNo];
+				insertDisplayCustomMQTTTopicSection(topic, itemNo, Item);
+			}
+
+			// Set the value for the brokerID in each custom MQTT topics section
+			for (var itemNo = 0; itemNo < Topics.length; itemNo++)
+			{
+				const topic = Topics[itemNo];
+				document.getElementById(`display${Item}CustomMQTT${itemNo}BrokerId`).value = topic.brokerId;
+			}
+			
+
+			var tooltips = document.querySelectorAll(".tooltip");
+			tooltips.forEach(function(tooltip, index)
+			{
+				// Set a mouse over function for each tooltop element
+				tooltip.addEventListener("mouseover", position_tooltip); // On hover, launch the function below
+			})
+		}
+
+		function insertDisplayCustomMQTTTopicSection(Topic, ItemNo, Item)
+		{
+			const ctrlLabels = {
+				brokerId: Homey.__("settings.brokerId"),
+				brokerIdExplanation: Homey.__("settings.brokerIdExplanation"),
+				id: Homey.__("settings.MQTTId"),
+				idExplanation: Homey.__("settings.MQTTIdExplanation"),
+				type: Homey.__("settings.type"),
+				typeExplanation: Homey.__("settings.typeExplanation"),
+				topic: Homey.__("settings.topic"),
+				topicExplanation: Homey.__("settings.topicExplanation"),
+				payload: Homey.__("settings.payload"),
+				payloadExplanation: Homey.__("settings.payloadExplanation"),
+				enabled: Homey.__("settings.enabled"),
+				value: Homey.__("settings.value"),
+				label: Homey.__("settings.label"),
+				unit: Homey.__("settings.unit"),
+			};
+			const itemLegend = Homey.__("settings.customMQTTItemlegend", { itemNo: ItemNo + 1 });
+			const enableOption = Topic.enabled ? "checked" : "";
+
+			var section = document.getElementById(`display${Item}CustomMQTTTopicsSection`).innerHTML;
+			section = section +
+				`<div class="horizontalcontainer">
+					<div class="horizontalgroup">
+						<legend class="homey-subtitle">${itemLegend}</legend>
+
+						<label class="homey-form-label" for="display${Item}CustomMQTT${ItemNo}Id">${ctrlLabels.id}
+							<div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
+								<span class="tooltiptext">${ctrlLabels.idExplanation}</span>
+							</div>
+						</label>
+						<input class="homey-form-input" id="display${Item}CustomMQTT${ItemNo}Id" type="text" value="${Topic.id}"/>
+
+						<label class="homey-form-label" for="display${Item}CustomMQTT${ItemNo}Type">${ctrlLabels.type}
+							<div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
+								<span class="tooltiptext">${ctrlLabels.typeExplanation}</span>
+							</div>
+						</label>
+						<select class="homey-form-select" id="display${Item}CustomMQTT${ItemNo}Type">
+							<option value=15>${ctrlLabels.value}</option>
+							<option value=16>${ctrlLabels.label}</option>
+							<option value=17>${ctrlLabels.unit}</option>
+						</select><br>
+
+						<label class="homey-form-label" for="display${Item}CustomMQTT${ItemNo}topic">${ctrlLabels.topic}
+							<div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
+								<span class="tooltiptext">${ctrlLabels.topicExplanation}</span>
+							</div>
+						</label>
+						<input class="homey-form-input" id="display${Item}CustomMQTT${ItemNo}topic" type="text" value="${Topic.topic}" />
+
+						<label class="homey-form-label" for="display${Item}CustomMQTT${ItemNo}payload">${ctrlLabels.payload}
+							<div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
+								<span class="tooltiptext">${ctrlLabels.payloadExplanation}</span>
+							</div>
+						</label>
+						<input class="homey-form-input" id="display${Item}CustomMQTT${ItemNo}payload" type="text" value="${Topic.payload}" />
+
+						<label class="homey-form-label" for="display${Item}CustomMQTT${ItemNo}BrokerId">${ctrlLabels.brokerId}
+							<div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
+								<span class="tooltiptext">${ctrlLabels.brokerIdExplanation}</span>
+							</div>
+						</label>
+						<select class="homey-form-select" id="display${Item}CustomMQTT${ItemNo}BrokerId">
+						</select><br>
+
+						<label class="homey-form-checkbox">
+							<input class="homey-form-checkbox-input" id="display${Item}CustomMQTT${ItemNo}Enabled" type="checkbox" ${enableOption}/>
+							<span class="homey-form-checkbox-checkmark"></span>
+							<span class="homey-form-checkbox-text">${ctrlLabels.enabled}</span>
+						</label>
+
+						<p><button class="homey-button-secondary-shadow" id="display${Item}DeleteItem${ItemNo}" onClick="deleteDisplayCustomMQTTItem(${ItemNo}, ${Item})" style="font-size: 30px;"><i class="fi fi-rr-trash"></i> </button></p>
+					</div>
+				</div>`;
+
+			document.getElementById(`display${Item}CustomMQTTTopicsSection`).innerHTML = section;
+			const idx = customDisplayMQTTItemsElements.push(document.getElementById(`display${Item}CustomMQTT${ItemNo}BrokerId`)) - 1;
+
+			// Add the brokers to the broker list
+			var option = document.createElement("option");
+			option.text = 'Default';
+			option.value = 'Default';
+			customDisplayMQTTItemsElements[idx].add(option);
+			
+			for (var brokerNo = 0; brokerNo < localBrokerItems.length; brokerNo++)
+			{
+				const brokerItem = localBrokerItems[brokerNo];
+				option = document.createElement("option");
+				option.text = brokerItem.brokerid;
+				option.value = brokerItem.brokerid;
+				customDisplayMQTTItemsElements[idx].add(option);
+			}
+		}
+
+
+		// Delete the specified custom item from the display panel configuration and redraw the list
+		function deleteDisplayCustomMQTTItem(ItemNo, Item)
+		{
+			var displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+			const customMQTTTopics = displayConfiguration.items[Item].customMQTTTopics;
+
+			customMQTTTopics.splice(ItemNo, 1);
+			drawDisplayCustomMQTTTopics(Item, customMQTTTopics);
+		}
+
+		//  Copy the contents of the specified custom item controls to the display panel configuration
+		function storeDisplayCustomMQTTItem(Item, Topics, itemNo)
+		{
+			if (!Topics)
+			{
+				Topics = [];
+			}
+
+			// Fetch the item from the array or create a new one
+			let item = Topics[itemNo];
+			if (!item)
+			{
+				item = {};
+				Topics.push(item);
+			}
+
+			// Update the item
+			item.id = document.getElementById(`display${Item}CustomMQTT${itemNo}Id`).value;
+			item.type = document.getElementById(`display${Item}CustomMQTT${itemNo}Type`).value;
+			item.topic = document.getElementById(`display${Item}CustomMQTT${itemNo}topic`).value;
+			item.payload = document.getElementById(`display${Item}CustomMQTT${itemNo}payload`).value;
+			item.brokerId = document.getElementById(`display${Item}CustomMQTT${itemNo}BrokerId`).value;
+			item.enabled = document.getElementById(`display${Item}CustomMQTT${itemNo}Enabled`).checked;
+		}
+
+		// Copy the contents of the all the custom items controls to the button panel configuration
+		function storeDisplayCustomMQTTItems(Item, Topics)
+		{
+			if (!Topics || Topics.length === 0) return;
+
+			for (var itemNo = 0; itemNo < Topics.length; itemNo++)
+			{
+				storeDisplayCustomMQTTItem(Item, Topics, itemNo);
+			}
+		}
+
 
 		function insertDisplayItemSection(item, itemNo, expanded = false)
 		{
@@ -2230,6 +2453,8 @@
 				brokerId: Homey.__("settings.brokerId"),
 				page: Homey.__("settings.page"),
 				boxType: Homey.__("settings.boxType"),
+				customMQTTTopic: Homey.__("settings.customMQTTTopic"),
+				newCustomMQTTItem: Homey.__("settings.newCustomMQTTItem"),
 			}
 			const ctrlExplanations = {
 				device: Homey.__("settings.deviceDExplanation"),
@@ -2246,6 +2471,7 @@
 				brokerId: Homey.__("settings.brokerIdExplanation"),
 				page: Homey.__("settings.pageExplanation"),
 				boxType: Homey.__("settings.boxTypeExplanation"),
+				customMQTTTopic: Homey.__("settings.customMQTTTopicExplanation"),
 			}
 			const itemLegend = Homey.__("settings.displayItemlegend", { itemNo: itemNo + 1 });
 			const itemLegendName = item.label ? item.label : (item.device === 'none' ? item.text : item.capabilityName);
@@ -2288,6 +2514,11 @@
 								</label>
 								<select class="homey-form-select" id="display${itemNo}Capability" onChange="selectDisplayCapability(this, ${itemNo})">
 								</select>
+							</div>
+							<div id="display${itemNo}CustomMQTTTopicDiv">
+								<br>
+								<div id="display${itemNo}CustomMQTTTopicsSection"></div>
+								<p><button class="homey-button-secondary-shadow" id="newDisplayCustomMQTTItem" onClick="newDisplayMQTTTopic(${itemNo})">${ctrlLabels.newCustomMQTTItem}</button></p>
 							</div>
 							<br>
 							<label class="homey-form-label" for="display${itemNo}Label">${ctrlLabels.label}
@@ -2524,6 +2755,15 @@
 			var capabilitiesElement = document.getElementById(`display${itemNo}Capability`);
 			capabilitiesElement.innerHTML = "";
 
+			if (deviceId === 'customMQTT')
+			{
+				document.getElementById(`display${itemNo}CustomMQTTTopicDiv`).style.display = itemDisplyType;
+			}
+			else
+			{
+				document.getElementById(`display${itemNo}CustomMQTTTopicDiv`).style.display = "none";
+			}
+
 			if (deviceId === 'customMQTT' || deviceId === 'none')
 			{
 				document.getElementById(`display${itemNo}CapabilityDiv`).style.display = "none";
@@ -2715,6 +2955,8 @@
 					displayConfiguration.items[itemNo].brokerId = document.getElementById(`display${itemNo}BrokerId`).value;
 					displayConfiguration.items[itemNo].page = document.getElementById(`display${itemNo}page`).value - 1;
 					displayConfiguration.items[itemNo].boxType = document.getElementById(`display${itemNo}BoxType`).value;
+
+					storeDisplayCustomMQTTItems(itemNo, displayConfiguration.items[itemNo].customMQTTTopics);
 				}
 			}
 		}
@@ -2867,6 +3109,12 @@
 				customMQTTItemsElements[k].options[itemNo].text = document.getElementById(`broker${itemNo}Id`).value;
 			}
 
+			// Update the broker in the all the custom disply MQTT topics in the panel config
+			for (let k = 0; k < customDisplayMQTTItemsElements.length; k++)
+			{
+				customDisplayMQTTItemsElements[k].options[itemNo].text = document.getElementById(`broker${itemNo}Id`).value;
+			}
+
 			// Update the broker lists in the display config
 			const displayConfig = localDisplayConfigurations[currentDisplayConfigurationNo];
 			for (var displayItemNo = 0; displayItemNo < displayConfig.items.length; displayItemNo++)
@@ -2910,6 +3158,11 @@
 			for (let k = 0; k < customMQTTItemsElements.length; k++)
 			{
 				customMQTTItemsElements[k].length = 0;
+			}
+
+			for (let k = 0; k < customDisplayMQTTItemsElements.length; k++)
+			{
+				customDisplayMQTTItemsElements[k].length = 0;
 			}
 
 			// Reset the default broker list
@@ -3003,6 +3256,15 @@
 				customMQTTItemsElements[k].add(option);
 			}
 
+			// Add the new broker to the custom display MQTT topic broker lists
+			for (let k = 0; k < customDisplayMQTTItemsElements.length; k++)
+			{
+				var option = document.createElement("option");
+				option.value = brokerItem.brokerid;
+				option.text = brokerItem.brokerid;
+				customDisplayMQTTItemsElements[k].add(option);
+			}
+
 			// Add the new broker to the display config broker lists
 			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
 			for (let j = 0; j < displayConfiguration.items.length; j++)
@@ -3029,6 +3291,12 @@
 			for (let k = 0; k < customMQTTItemsElements.length; k++)
 			{
 				customMQTTItemsElements[k].remove(itemNo);
+			}
+
+			// Remove the broker from the all the custom display MQTT topics in the panel config
+			for (let k = 0; k < customDisplayMQTTItemsElements.length; k++)
+			{
+				customDisplayMQTTItemsElements[k].remove(itemNo);
 			}
 
 			// Remove the broker from all the lists in the display config items

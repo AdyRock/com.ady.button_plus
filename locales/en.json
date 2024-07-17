@@ -20,6 +20,7 @@
         "toplabelDisplayExplanation": "The Label is optional text to shown above the value on the display to identify it.",
         "text": "Text",
         "textExplanation": "The text to show on the display",
+		"label": "Label",
         "labelOn": "Label for On state.",
         "labelOnExplanation": "The labels to show when the button is in the On state. If blank, the button will not latch, so it will switch back to the Off state when released.",
         "labelOff": "Label for Off state",
@@ -147,7 +148,10 @@
 		"boxType": "Box Type",
 		"boxTypeExplanation": "Select the type of box to display the value in.",
 		"boxTypeUnderlined": "Standard box with line",
-		"boxTypeNotUnderlined": "Standard box without line"
+		"boxTypeNotUnderlined": "Standard box without line",
+		"customMQTTTopic": "Custom MQTT Topic",
+		"customMQTTTopicExplanation": "This is an optional custom MQTT topic that will be published when the button is pressed.",
+		"value": "Value"
     },
     "pair": {
         "manual_add":{
