@@ -1426,6 +1426,8 @@
 				var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
 				if (ButtonPanelConfiguration)
 				{
+					storeCustomMQTTItems("left", ButtonPanelConfiguration);
+
 					var customMQTTItem = {
 						id: '',
 						type: 0,
@@ -1445,6 +1447,7 @@
 				var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
 				if (ButtonPanelConfiguration)
 				{
+					storeCustomMQTTItems("right", ButtonPanelConfiguration);
 					var customMQTTItem = {
 						id: '',
 						type: 0,
@@ -2281,7 +2284,6 @@
 				const topic = Topics[itemNo];
 				document.getElementById(`display${Item}CustomMQTT${itemNo}BrokerId`).value = topic.brokerId;
 			}
-			
 
 			var tooltips = document.querySelectorAll(".tooltip");
 			tooltips.forEach(function(tooltip, index)
@@ -3368,8 +3370,15 @@
 
 			for (var itemNo = 0; itemNo < customMQTTTopics.length; itemNo++)
 			{
-				const item = customMQTTTopics[itemNo];
-				insertCustomMQTTTopicSection(item, itemNo, side);
+				const topic = customMQTTTopics[itemNo];
+				insertCustomMQTTTopicSection(topic, itemNo, side);
+			}
+
+			// Set the value for the brokerID in each custom MQTT topics section
+			for (var itemNo = 0; itemNo < customMQTTTopics.length; itemNo++)
+			{
+				const topic = customMQTTTopics[itemNo];
+				document.getElementById(`${side}CustomMQTT${itemNo}BrokerId`).value = topic.brokerId;
 			}
 
 			var tooltips = document.querySelectorAll(".tooltip");
@@ -3380,7 +3389,7 @@
 			})
 		}
 
-		function insertCustomMQTTTopicSection(item, itemNo, side)
+		function insertCustomMQTTTopicSection(Topic, ItemNo, Side)
 		{
 			const ctrlLabels = {
 				brokerId: Homey.__("settings.brokerId"),
@@ -3398,77 +3407,81 @@
 				longPress: Homey.__("settings.longPress"),
 				led: Homey.__("settings.led"),
 			};
-			const itemLegend = Homey.__("settings.customMQTTItemlegend", { itemNo: itemNo + 1 });
-			const enableOption = item.enabled ? "checked" : "";
+			const itemLegend = Homey.__("settings.customMQTTItemlegend", { itemNo: ItemNo + 1 });
+			const enableOption = Topic.enabled ? "checked" : "";
 
-			var section = document.getElementById(`${side}CustomMQTTTopicsSection`).innerHTML;
+			var section = document.getElementById(`${Side}CustomMQTTTopicsSection`).innerHTML;
 			section = section +
 				`<div class="horizontalcontainer">
 					<div class="horizontalgroup">
 						<legend class="homey-subtitle">${itemLegend}</legend>
 
-						<label class="homey-form-label" for="${side}CustomMQTT${itemNo}Id">${ctrlLabels.id}
+						<label class="homey-form-label" for="${Side}CustomMQTT${ItemNo}Id">${ctrlLabels.id}
 							<div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
 								<span class="tooltiptext">${ctrlLabels.idExplanation}</span>
 							</div>
 						</label>
-						<input class="homey-form-input" id="${side}CustomMQTT${itemNo}Id" type="text" value="${item.id}"/>
+						<input class="homey-form-input" id="${Side}CustomMQTT${ItemNo}Id" type="text" value="${Topic.id}"/>
 
-						<label class="homey-form-label" for="${side}CustomMQTT${itemNo}Type">${ctrlLabels.type}
+						<label class="homey-form-label" for="${Side}CustomMQTT${ItemNo}Type">${ctrlLabels.type}
 							<div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
 								<span class="tooltiptext">${ctrlLabels.typeExplanation}</span>
 							</div>
 						</label>
-						<select class="homey-form-select" id="${side}CustomMQTT${itemNo}Type">
+						<select class="homey-form-select" id="${Side}CustomMQTT${ItemNo}Type">
 							<option value=0>${ctrlLabels.click}</option>
 							<option value=1>${ctrlLabels.longPress}</option>
 							<option value=14>${ctrlLabels.led}</option>
 						</select><br>
 
-						<label class="homey-form-label" for="${side}CustomMQTT${itemNo}topic">${ctrlLabels.topic}
+						<label class="homey-form-label" for="${Side}CustomMQTT${ItemNo}topic">${ctrlLabels.topic}
 							<div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
 								<span class="tooltiptext">${ctrlLabels.topicExplanation}</span>
 							</div>
 						</label>
-						<input class="homey-form-input" id="${side}CustomMQTT${itemNo}topic" type="text" value="${item.topic}" />
+						<input class="homey-form-input" id="${Side}CustomMQTT${ItemNo}topic" type="text" value="${Topic.topic}" />
 
-						<label class="homey-form-label" for="${side}CustomMQTT${itemNo}payload">${ctrlLabels.payload}
+						<label class="homey-form-label" for="${Side}CustomMQTT${ItemNo}payload">${ctrlLabels.payload}
 							<div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
 								<span class="tooltiptext">${ctrlLabels.payloadExplanation}</span>
 							</div>
 						</label>
-						<input class="homey-form-input" id="${side}CustomMQTT${itemNo}payload" type="text" value="${item.payload}" />
+						<input class="homey-form-input" id="${Side}CustomMQTT${ItemNo}payload" type="text" value="${Topic.payload}" />
 
-						<label class="homey-form-label" for="${side}CustomMQTT${itemNo}BrokerId">${ctrlLabels.brokerId}
+						<label class="homey-form-label" for="${Side}CustomMQTT${ItemNo}BrokerId">${ctrlLabels.brokerId}
 							<div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
 								<span class="tooltiptext">${ctrlLabels.brokerIdExplanation}</span>
 							</div>
 						</label>
-						<select class="homey-form-select" id="${side}CustomMQTT${itemNo}BrokerId">
+						<select class="homey-form-select" id="${Side}CustomMQTT${ItemNo}BrokerId">
 						</select><br>
 
 						<label class="homey-form-checkbox">
-							<input class="homey-form-checkbox-input" id="${side}CustomMQTT${itemNo}Enabled" type="checkbox" ${enableOption}/>
+							<input class="homey-form-checkbox-input" id="${Side}CustomMQTT${ItemNo}Enabled" type="checkbox" ${enableOption}/>
 							<span class="homey-form-checkbox-checkmark"></span>
 							<span class="homey-form-checkbox-text">${ctrlLabels.enabled}</span>
 						</label>
 
-						<p><button class="homey-button-secondary-shadow" id="${side}DeleteItem${itemNo}" onClick="deleteCustomMQTTItem(${itemNo}, '${side}')" style="font-size: 30px;"><i class="fi fi-rr-trash"></i> </button></p>
+						<p><button class="homey-button-secondary-shadow" id="${Side}DeleteItem${ItemNo}" onClick="deleteCustomMQTTItem(${ItemNo}, '${Side}')" style="font-size: 30px;"><i class="fi fi-rr-trash"></i> </button></p>
 					</div>
 				</div>`;
 
-			document.getElementById(`${side}CustomMQTTTopicsSection`).innerHTML = section;
-			customMQTTItemsElements.push(document.getElementById(`${side}CustomMQTT${itemNo}BrokerId`));
+			document.getElementById(`${Side}CustomMQTTTopicsSection`).innerHTML = section;
+			customMQTTItemsElements.push(document.getElementById(`${Side}CustomMQTT${ItemNo}BrokerId`));
 
 			// Add the brokers to the broker list
+			var option = document.createElement("option");
+			option.text = 'Default';
+			option.value = 'Default';
+			customMQTTItemsElements[ItemNo].add(option);
 			for (var brokerNo = 0; brokerNo < localBrokerItems.length; brokerNo++)
 			{
 				const brokerItem = localBrokerItems[brokerNo];
 				var option = document.createElement("option");
 				option.text = brokerItem.brokerid;
 				option.value = brokerItem.brokerid;
-				customMQTTItemsElements[itemNo].add(option);
-				customMQTTItemsElements[itemNo].value = item.brokerId;
+				customMQTTItemsElements[ItemNo].add(option);
+				customMQTTItemsElements[ItemNo].value = Topic.brokerId;
 			}
 		}
 
