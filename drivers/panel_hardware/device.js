@@ -520,7 +520,7 @@ class PanelDevice extends Device
 		return null;
 	}
 
-	async setDimLevel(large, mini)
+	async setDimLevel(large, mini, led)
 	{
 		if (this.ip !== '')
 		{
@@ -542,9 +542,21 @@ class PanelDevice extends Device
 				else
 				{
 					const brokerId = this.homey.settings.get('defaultBroker');
-					this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/brightness/large`, large, false, false).catch(this.error);
-					this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/brightness/mini`, mini, false, false).catch(this.error);
+					if (large != undefined)
+					{
+						this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/brightness/large`, large, false, false).catch(this.error);
+					}
+					if (mini != undefined)
+					{
+						this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/brightness/mini`, mini, false, false).catch(this.error);
+					}
+					if (led != undefined)
+					{
+						this.homey.app.publishMQTTMessage(brokerId, `homey/${this.id}/brightness/led`, led, false, false).catch(this.error);
+					}
 				}
+
+				this.setCapabilityValue('dim', (large || mini || led || 0) / 100).catch(this.error);
 			}
 			catch (err)
 			{
@@ -784,6 +796,12 @@ class PanelDevice extends Device
 						topic: `homey/${this.id}/brightness/mini`,
 						payload: '',
 						eventtype: 25,
+					},
+					{
+						brokerid: brokerId,
+						topic: `homey/${this.id}/brightness/led`,
+						payload: '',
+						eventtype: 27,
 					},
 					{
 						brokerid: brokerId,

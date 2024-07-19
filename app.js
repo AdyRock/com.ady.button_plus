@@ -502,8 +502,8 @@ class MyApp extends Homey.App
 		this.homey.flow.getActionCard('set_dim')
 			.registerRunListener(async (args, state) =>
 			{
-				this.log(`set_dim ${args.large} to ${args.mini}`);
-				return args.device.setDimLevel(args.large, args.mini);
+				this.log(`set_dim to ${args.large}, ${args.mini}, ${args.led}`);
+				return args.device.setDimLevel(args.large, args.mini, args.led);
 			});
 
 		this.homey.flow.getActionCard('set_connector_led_rgb')
