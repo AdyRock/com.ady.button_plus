@@ -1313,14 +1313,23 @@ class PanelDevice extends Device
                         }
                         else if (config.capabilityName === 'windowcoverings_state')
                         {
-                            if (value)
+                            if (capability.value !== null)
                             {
+								await device.setCapabilityValue(config.capabilityName, 'idle');
+
+								// don't make any further changes to the button state
+								return;
+                            }
+                            else if (value)
+                            {
+								// Set the new state to up
                                 await device.setCapabilityValue(config.capabilityName, 'up');
                             }
-                            else
-                            {
+							else
+							{
+								// Set the new state to down
                                 await device.setCapabilityValue(config.capabilityName, 'down');
-                            }
+							}
                         }
                         else
                         {
@@ -1943,6 +1952,14 @@ class PanelDevice extends Device
 				{
 					this.homey.app.registerDeviceCapabilityStateChange(device, config.capabilityName);
 					value = capability.value;
+					if (value === 'up')
+					{
+						value = true;
+					}
+					else if (value === 'down')
+					{
+						value = false;
+					}
 					await this.setCapabilityValue(`${side}_button.connector${parseInt(buttonIdx / 2, 10)}`, value);
 				}
 			}
@@ -2118,7 +2135,7 @@ class PanelDevice extends Device
 	{
 		if (this.firmwareVersion >= 1.12)
 		{
-			if (value)
+			if ((value === true) || (value === 'up'))
 			{
 				// Send the front and wall colours to the device after a short delay to allow the device to connect to the broker
 				const frontLEDOnColor = parseInt(config.frontLEDOnColor.substring(1), 16);
