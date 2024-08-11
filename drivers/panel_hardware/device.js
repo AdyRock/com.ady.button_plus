@@ -492,7 +492,8 @@ class PanelDevice extends Device
 				}
 				else
 				{
-					delete deviceConfigurations.core.statusbar;
+					// Add the statusbar entry to the deviceConfigurations
+					deviceConfigurations.core = { statusbar };					
 				}
 				return null;
 			}
@@ -877,11 +878,19 @@ class PanelDevice extends Device
 	{
 		try
 		{
-			const deviceConfigurations = await this.homey.app.readDeviceConfiguration(this.ip);
+			let deviceConfigurations = await this.homey.app.readDeviceConfiguration(this.ip);
 			if (deviceConfigurations === null)
 			{
-				this.setWarning('Error reading Button configuration');
-				return;
+				// Start with a fresh configuration
+				deviceConfigurations = {};
+			}
+
+			// If a string was returned, it is an error message
+			if (typeof deviceConfigurations === 'string')
+			{
+				this.homey.app.updateLog('Error reading device configuration: ' + deviceConfigurations, 0);
+				// Start with a fresh configuration
+				deviceConfigurations = {};
 			}
 			
 			this.setWarning(null);
@@ -1538,14 +1547,16 @@ class PanelDevice extends Device
 
 			// Create a new section configuration for the button panel by adding the core and mqttbuttons sections of the deviceConfigurations to core and mqttbuttons of a new object
 			const sectionConfiguration = {
-				core: _.cloneDeep(deviceConfigurations.core),
-				mqttbuttons: _.cloneDeep(deviceConfigurations.mqttbuttons),
+				core: deviceConfigurations.core ? _.cloneDeep(deviceConfigurations.core) : {},
+				mqttbuttons: deviceConfigurations.mqttbuttons ? _.cloneDeep(deviceConfigurations.mqttbuttons) : [],
 			};
 
-			if (sectionConfiguration.mqttbuttons.length < (deviceConfigurations.info.connectors.length * 2))
+			if (!deviceConfigurations.info || deviceConfigurations.info.connectors || (sectionConfiguration.mqttbuttons.length < (deviceConfigurations.info.connectors.length * 2)))
 			{
 				// Add the missing mqttbuttons
-				for (let i = sectionConfiguration.mqttbuttons.length; i < (deviceConfigurations.info.connectors.length * 2); i++)
+				let numConnectors = deviceConfigurations.info ? deviceConfigurations.info.connectors.length * 2 : 8;
+				let startConnector = deviceConfigurations.info ? sectionConfiguration.mqttbuttons.length : 0;
+				for (let i = startConnector; i < numConnectors; i++)
 				{
 					sectionConfiguration.mqttbuttons.push(
 						{
@@ -1584,12 +1595,16 @@ class PanelDevice extends Device
 					this.homey.app.updateLog(error, 0);
 				}
 			}
-			for (let i = sectionConfiguration.mqttbuttons.length - 1; i >= 0; i--)
+
+			if (deviceConfigurations.mqttbuttons)
 			{
-				if (this.compareObjects(sectionConfiguration.mqttbuttons[i], deviceConfigurations.mqttbuttons[i]))
+				for (let i = sectionConfiguration.mqttbuttons.length - 1; i >= 0; i--)
 				{
-					// No changes have been made to the configuration so remove it from the sectionConfiguration so is doesn't write
-					sectionConfiguration.mqttbuttons.splice(i, 1);
+					if (this.compareObjects(sectionConfiguration.mqttbuttons[i], deviceConfigurations.mqttbuttons[i]))
+					{
+						// No changes have been made to the configuration so remove it from the sectionConfiguration so is doesn't write
+						sectionConfiguration.mqttbuttons.splice(i, 1);
+					}
 				}
 			}
 
