@@ -195,6 +195,6 @@
 		"en": "Added custom MQTT topics to display configuration. Added LED to the set dim level action card and made all parameter optional."
 	},
 	"0.5.8": {
-		"en": "Fixed windowcoverings_state handling for buttons and added a stop feature when the button pressed for the second time."
+		"en": "Fixed windowcoverings_state handling for buttons and added a stop feature when the button pressed for the second time. Fixe date & time not updating on the display. Improve handling of a bad configuration that is read back from the display."
 	}
 }
