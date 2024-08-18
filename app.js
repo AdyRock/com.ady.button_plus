@@ -608,7 +608,7 @@ class MyApp extends Homey.App
 		{
 			if (data)
 			{
-				if (data.count > data.limit - 5)
+				if (data.count > data.limit - 1)
 				{
 					this.diagLog = '';
 				}
@@ -624,20 +624,21 @@ class MyApp extends Homey.App
 		{
 			if (data)
 			{
-				if (data.count > data.limit - 5)
+				if (data.count >= data.limit - 1)
 				{
-					this.updateLog('Closing server', 0);
+					this.updateLog('Closing MQTT server', 0);
 					if (this.server && this.server.listening)
 					{
 						aedes.close((err) =>
 						{
-							this.updateLog(`Server closed: ${err}`, 0);
-						});
-						setTimeout(() =>
-						{
+							this.updateLog(`MQTT Server closed: ${err ? err : 'Success'}`, 0);
 							this.server.close();
-							this.server.listen(this.pushServerPort);
-						}, 300000);
+							setTimeout(() =>
+							{
+								this.updateLog('Restarting MQTT Server', 0);
+								this.server.listen(this.pushServerPort);
+							}, 300000);
+						});
 					}
 				}
 				this.updateLog(`cpuwarn! ${data.count} of ${data.limit}`, 0);

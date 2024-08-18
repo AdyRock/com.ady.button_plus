@@ -196,5 +196,8 @@
 	},
 	"0.5.8": {
 		"en": "Fixed windowcoverings_state handling for buttons and added a stop feature when the button pressed for the second time. Fixe date & time not updating on the display. Improve handling of a bad configuration that is read back from the display."
+	},
+	"0.5.9": {
+		"en": "Change cpu_warn handling as Homey 2023 only gives 5 warning and not 20 that older Homeys gave."
 	}
 }
