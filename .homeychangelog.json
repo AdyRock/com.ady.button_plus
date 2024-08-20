@@ -199,5 +199,8 @@
 	},
 	"0.5.9": {
 		"en": "Change cpu_warn handling as Homey 2023 only gives 5 warning and not 20 that older Homeys gave."
+	},
+	"0.5.10": {
+		"en": "Added font size 5 to display configureations."
 	}
 }
