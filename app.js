@@ -170,7 +170,7 @@ class MyApp extends Homey.App
 					buttonConfiguration.rightFrontLEDOffColor = '#000000';
 					buttonConfiguration.rightWallLEDOffColor = '#000000';
 				}
-	
+
 				if (!buttonConfiguration.leftLongDelay)
 				{
 					buttonConfiguration.leftLongDelay = '75';
@@ -183,12 +183,12 @@ class MyApp extends Homey.App
 
 				if (!buttonConfiguration.leftLongRepeat)
 				{
-					buttonConfiguration.leftLongRepeat = '15';
+					buttonConfiguration.leftLongRepeat = '25';
 				}
 
 				if (!buttonConfiguration.rightLongRepeat)
 				{
-					buttonConfiguration.rightLongRepeat = '15';
+					buttonConfiguration.rightLongRepeat = '25';
 				}
 			}
 
@@ -608,7 +608,7 @@ class MyApp extends Homey.App
 		{
 			if (data)
 			{
-				if (data.count > data.limit - 1)
+				if (data.count > data.limit / 2)
 				{
 					this.diagLog = '';
 				}
@@ -874,10 +874,21 @@ class MyApp extends Homey.App
 			for (let itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
 			{
 				const item = displayConfiguration.items[itemNo];
+				let page = 0;
+				if (item.page)
+				{
+					page = parseInt(item.page, 10);
+				}
 				if ((firmwareVersion < 1.09) && (parseInt(item.page, 10) > 0))
 				{
 					// Page support was added in firmware 1.09 so skip any items with a page number > 0
 					continue;
+				}
+
+				if ((firmwareVersion >= 2) && ((!displayConfiguration.version || displayConfiguration.version < 2)))
+				{
+					// From firmware version 2 page 0 means all pages so increment the page number for older configurations
+					page++;
 				}
 
 				if (item.device === 'customMQTT')
@@ -892,7 +903,7 @@ class MyApp extends Homey.App
 						label: item.label,
 						unit: item.unit,
 						round: parseInt(item.rounding, 10) || 0,
-						page: parseInt(item.page, 10) || 0,
+						page,
 						boxtype: parseInt(item.boxType, 10) || 0,
 						topics: [],
 					};
@@ -1092,8 +1103,8 @@ class MyApp extends Homey.App
 					{
 						try
 						{
-							this.setupButtonConfigSection(ButtonPanelConfiguration, panelId, buttonIdx, sectionConfiguration.mqttbuttons[arrayIdx], connectorType, firmwareVersion);
-							this.setupButtonConfigSection(ButtonPanelConfiguration, panelId, buttonIdx + 1, sectionConfiguration.mqttbuttons[arrayIdx + 1], connectorType, firmwareVersion);
+							this.setupButtonConfigSection(ButtonPanelConfiguration, panelId, buttonIdx, sectionConfiguration.mqttbuttons[arrayIdx], connectorType, firmwareVersion, ButtonPanelConfiguration.leftVersion >= 2 ? ButtonPanelConfiguration.leftPageNum : 0);
+							this.setupButtonConfigSection(ButtonPanelConfiguration, panelId, buttonIdx + 1, sectionConfiguration.mqttbuttons[arrayIdx + 1], connectorType, firmwareVersion, ButtonPanelConfiguration.rightVersion >= 2 ? ButtonPanelConfiguration.rightPageNum : 0);
 						}
 						catch (err)
 						{
@@ -1462,7 +1473,7 @@ class MyApp extends Homey.App
 
 	async setupMDNS()
 	{
-		this.mDNSPanels = this.homey.settings.get('gateways');
+		// this.mDNSPanels = this.homey.settings.get('gateways');
 		this.mDNSPanels = [];
 
 		// setup the mDNS discovery for local gateways
@@ -2113,7 +2124,7 @@ class MyApp extends Homey.App
 	{
 		const tokens = { left_right: leftright, connector, repeatCount };
 		const state = { left_right: leftright ? 'left' : 'right', connector };
-		this.triggerFlow(this._triggerButtonLongPress, device, tokens, state);
+		this.triggerFlow(this._triggerButtonLongPress, device, tokens, state, (repeatCount & 3) === 0);
 		return this;
 	}
 
@@ -2144,11 +2155,14 @@ class MyApp extends Homey.App
 	 * @param {Device} device - A Device instance
 	 * @param {Object} tokens - An object with tokens and their typed values, as defined in the app.json
 	 */
-	async triggerFlow(trigger, device, tokens, state)
+	async triggerFlow(trigger, device, tokens, state, log = true)
 	{
 		if (trigger)
 		{
-			this.updateLog(`triggerFlow (${trigger.id})\n tokens: ${this.varToString(tokens)},\n state: ${this.varToString(state)}`);
+			if (log)
+			{
+				this.updateLog(`triggerFlow (${trigger.id})\n tokens: ${this.varToString(tokens)},\n state: ${this.varToString(state)}`);
+			}
 
 			try
             {
@@ -2161,15 +2175,20 @@ class MyApp extends Homey.App
 		}
 	}
 
-	setupButtonConfigSection(ButtonPanelConfiguration, panelId, buttonIdx, mqttButtons, connectorType, firmwareVersion)
+	setupButtonConfigSection(ButtonPanelConfiguration, panelId, buttonIdx, mqttButtons, connectorType, firmwareVersion, pageNum)
 	{
 		if (connectorType === 1)
 		{
 			mqttButtons.toplabel = '';
 			mqttButtons.label = '';
 			mqttButtons.longdelay = 75;
-			mqttButtons.longrepeat = 15;
+			mqttButtons.longrepeat = 25;
 			mqttButtons.id = buttonIdx;
+
+			if (firmwareVersion >= 2)
+			{
+				mqttButtons.page = pageNum;
+			}
 
 			// // Convert the '#000000' string to a long for the LED color
 			// const frontLEDOnColor = parseInt(ButtonPanelConfiguration ? ButtonPanelConfiguration[(buttonIdx & 1) === 0 ? 'leftFrontLEDOnColor' : 'rightFrontLEDOnColor'].substring(1) : '0', 16);
@@ -2228,36 +2247,73 @@ class MyApp extends Homey.App
 			}
 			else
 			{
-				// Add the LED front colour event entry
-				mqttButtons.topics.push(
-					{
-						brokerid: brokerId,
-						eventtype: 28,
-						topic: `homey/${panelId}/${buttonIdx}/front`,
-						payload: '',
-					},
-				);
+				if (firmwareVersion >= 2)
+				{
+					mqttButtons.leds = [];
 
-				// Add the LED wall colour event entry
-				mqttButtons.topics.push(
-					{
-						brokerid: brokerId,
-						eventtype: 29,
-						topic: `homey/${panelId}/${buttonIdx}/wall`,
-						payload: '',
-					},
-				);
+					// Add the LED front colour event entry
+					mqttButtons.leds.push(
+						{
+							frontwall: 'front',
+							topics: [
+								{
+									brokerid: brokerId,
+									eventtype: 13,
+									topic: `homey/${panelId}/${buttonIdx}/front`,
+									payload: true,
+								},
+							]
+						}
+					);
+
+					// Add the LED wall colour event entry
+					mqttButtons.leds.push(
+						{
+							frontwall: 'wall',
+							topics: [
+								{
+									brokerid: brokerId,
+									eventtype: 13,
+									topic: `homey/${panelId}/${buttonIdx}/wall`,
+									payload: true,
+								},
+							]
+						}
+					);
+				}
+				else
+				{
+					// Add the LED front colour event entry
+					mqttButtons.topics.push(
+						{
+							brokerid: brokerId,
+							eventtype: 28,
+							topic: `homey/${panelId}/${buttonIdx}/front`,
+							payload: '',
+						},
+					);
+
+					// Add the LED wall colour event entry
+					mqttButtons.topics.push(
+						{
+							brokerid: brokerId,
+							eventtype: 29,
+							topic: `homey/${panelId}/${buttonIdx}/wall`,
+							payload: '',
+						},
+					);
+				}
 			}
 
-			// Add the LED colour event entry
-			mqttButtons.topics.push(
-				{
-					brokerid: brokerId,
-					eventtype: 13,
-					topic: `homey/${panelId}/${buttonIdx}/rgb`,
-					payload: '',
-				},
-			);
+			// // Add the LED colour event entry
+			// mqttButtons.topics.push(
+			// 	{
+			// 		brokerid: brokerId,
+			// 		eventtype: 13,
+			// 		topic: `homey/${panelId}/${buttonIdx}/rgb`,
+			// 		payload: '',
+			// 	},
+			// );
 		}
 
 		const payload = { id: panelId, idx: buttonIdx };

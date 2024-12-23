@@ -16,6 +16,7 @@ class PanelDevice extends Device
 	{
 		this.initFinished = false;
 		this.longPressOccurred = new Map();
+		this.barConfigured = [false, false, false, false, false, false, false, false];
 
 		const { id } = this.getData();
 		this.id = id;
@@ -493,7 +494,7 @@ class PanelDevice extends Device
 				else
 				{
 					// Add the statusbar entry to the deviceConfigurations
-					deviceConfigurations.core = { statusbar };					
+					deviceConfigurations.core = { statusbar };
 				}
 				return null;
 			}
@@ -536,7 +537,7 @@ class PanelDevice extends Device
 							brightnessminidisplay: mini,
 						},
 					};
-	
+
 					this.homey.app.updateLog(`writeCore ${this.homey.app.varToString(sectionConfiguration)}`);
 					return await await this.homey.app.writeDeviceConfiguration(this.ip, sectionConfiguration);
 				}
@@ -660,7 +661,7 @@ class PanelDevice extends Device
 							// Send the new configuration to the device
 							return this.uploadOneButtonConfiguration(connector, configNo, this.firmwareVersion);
 						}
-	
+
 						return this.setConnectorLEDColour(left_right, connector, rgb, front_wall);
 					}
 				}
@@ -892,7 +893,7 @@ class PanelDevice extends Device
 				// Start with a fresh configuration
 				deviceConfigurations = {};
 			}
-			
+
 			this.setWarning(null);
 
 			if (deviceConfigurations.info && deviceConfigurations.info.firmware)
@@ -912,7 +913,7 @@ class PanelDevice extends Device
 					{
 						await this.addCapability('dim');
 					}
-				}	
+				}
 			}
 
 			await this.updateStatusBar(deviceConfigurations);
@@ -937,13 +938,13 @@ class PanelDevice extends Device
 
 			if (error)
 			{
-				this.setWarning(error);	
+				this.setWarning(error);
 			}
 		}
 		catch (err)
 		{
 			this.homey.app.updateLog(`Error reading device configuration: ${err.message}`, 0);
-			this.setWarning(err.message);	
+			this.setWarning(err.message);
 			return err.message;
 		}
 
@@ -982,12 +983,12 @@ class PanelDevice extends Device
 			{
 				settings[`connect${i}Type`] = 0;
 			}
-		}	
+		}
 
 		this.setSettings(settings);
 		await this.configureConnectors(settings);
 	}
-	
+
 	async configureConnectors(settings)
 	{
 		for (let connector = 0; connector < 8; connector++)
@@ -1080,6 +1081,9 @@ class PanelDevice extends Device
 				await this.registerCapabilityListener(`left_button.connector${connector}`, this.onCapabilityLeftButton.bind(this, connector));
 				await this.registerCapabilityListener(`right_button.connector${connector}`, this.onCapabilityRightButton.bind(this, connector));
 
+				const configNo = this.getCapabilityValue(`configuration_button.connector${connector}`);
+				this.barConfigured[connector] = configNo !== null;
+
 				// await this.syncCapability(connector);
 			}
 		}
@@ -1120,10 +1124,11 @@ class PanelDevice extends Device
 
 				if (configNo !== null)
 				{
-					if (this.firmwareVersion < 1.12)
+					if ((this.firmwareVersion < 1.12) || (this.barConfigured[connector] === false))
 					{
 						// Upload the button configuration
 						await this.uploadOneButtonConfiguration(connector, value, this.firmwareVersion);
+						this.barConfigured[connector] = true;
 					}
 
 					mqttQue = await this.setupConnectorMQTTmessages(configNo, connector, connectorType);
@@ -1206,10 +1211,10 @@ class PanelDevice extends Device
 			return;
 		}
 
-		this.homey.app.updateLog(`Panel processing MQTT message: ${topic}`);
-
 		if (MQTTMessage.idx === undefined)
 		{
+			this.homey.app.updateLog(`Panel processing MQTT message: ${topic}`);
+
 			// If the message has no button number then ignore it as we don't know which button it is for
 			this.homey.app.updateLog('The MQTT payload has no connector number');
 			return;
@@ -1227,6 +1232,8 @@ class PanelDevice extends Device
 		// Now process the message
 		if (topic === 'homey/click')
 		{
+			this.homey.app.updateLog(`Panel processing MQTT message: ${topic}`);
+
 			// The button was pressed
 			this.processClickMessage(parameters);
 		}
@@ -1237,6 +1244,8 @@ class PanelDevice extends Device
 		}
 		else if (topic === 'homey/clickrelease')
 		{
+			this.homey.app.updateLog(`Panel processing MQTT message: ${topic}`);
+
 			// The button has been released
 			this.processReleaseMessage(parameters);
 		}
@@ -1425,13 +1434,21 @@ class PanelDevice extends Device
 			}
 		}
 
+		if (repeatCount === 0)
+		{
+			this.homey.app.updateLog(`Panel processing MQTT message: ${parameters}`);
+		}
+
 		this.longPressOccurred.set(`${parameters.connector}_${parameters.side}`, repeatCount + 1);
 		this.homey.app.triggerButtonLongPress(this, parameters.side === 'left', parameters.connector + 1, repeatCount);
 
 		if (buttonPanelConfiguration !== null)
 		{
 			const value = this.getCapabilityValue(`${parameters.side}_button.connector${parameters.connector}`);
-			this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'long', value);
+			if (repeatCount === 0)
+			{
+				this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'long', value);
+			}
 
 			const capability = parameters.side === 'left' ? buttonPanelConfiguration.leftCapability : buttonPanelConfiguration.rightCapability;
 
@@ -1975,6 +1992,11 @@ class PanelDevice extends Device
 					{
 						value = false;
 					}
+					else
+					{
+						// for idle use the last value
+						value = this.getCapabilityValue(`${side}_button.connector${parseInt(buttonIdx / 2, 10)}`);
+					}
 					await this.setCapabilityValue(`${side}_button.connector${parseInt(buttonIdx / 2, 10)}`, value);
 				}
 			}
@@ -2049,6 +2071,7 @@ class PanelDevice extends Device
             wallLEDOnColor: buttonPanelConfiguration[`${side}WallLEDOnColor`],
 			frontLEDOffColor: buttonPanelConfiguration[`${side}FrontLEDOffColor`],
 			wallLEDOffColor: buttonPanelConfiguration[`${side}WallLEDOffColor`],
+			page: buttonPanelConfiguration[`${side}PageNum`],
 		};
 	}
 
@@ -2223,7 +2246,7 @@ class PanelDevice extends Device
 					this.homey.app.publishMQTTMessage(config.brokerId, `homey/${this.id}/${buttonIdx}/wall`, wallLEDOffColor).catch(this.error);
 				}
 			}
-		}	
+		}
 		else
 		{
 			// Send the value to the device after a short delay to allow the device to connect to the broker

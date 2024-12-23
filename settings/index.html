@@ -112,6 +112,14 @@
 									<span class="icon" style='font-size:30px;'>&#8628;</span>
 								</summary>
 								<hr>
+
+								<label class="homey-form-label" for="leftPageNum"><span data-i18n="settings.page"></span>
+									<div class="tooltip"><i class="fi fi-rr-info"></i>
+										<span class="tooltiptext" data-i18n="settings.pageExplanation"></span>
+									</div>
+								</label>
+								<input class="homey-form-input" id="leftPageNum" type="number"value />
+
 								<label class="homey-form-label" for="leftDevice"><span data-i18n="settings.device"></span>
 									<div class="tooltip"><i class="fi fi-rr-info"></i>
 										<span class="tooltiptext" data-i18n="settings.deviceExplanation"></span>
@@ -235,6 +243,14 @@
 									<span class="icon" style='font-size:30px;'>&#8628;</span>
 								</summary>
 								<hr>
+
+								<label class="homey-form-label" for="rightPageNum"><span data-i18n="settings.page"></span>
+									<div class="tooltip"><i class="fi fi-rr-info"></i>
+										<span class="tooltiptext" data-i18n="settings.pageExplanation"></span>
+									</div>
+								</label>
+								<input class="homey-form-input" id="rightPageNum" type="number" value />
+
 								<label class="homey-form-label" for="rightDevice"><span data-i18n="settings.device"></span></label>
 								<select class="homey-form-select" id="rightDevice">
 									<option value selected disabled hidden><span data-i18n="settings.selectDevice"></span></option>
@@ -325,7 +341,7 @@
 										<span class="tooltiptext" data-i18n="settings.longRepeatExplanation"></span>
 									</div>
 								</label>
-												
+
 								<span>
 									<div id="rightBrokerIdDiv">
 										<label class="homey-form-label" for="rightBrokerId"><span data-i18n="settings.brokerId"></span>
@@ -461,6 +477,7 @@
 		var leftOnTextElement = document.getElementById('leftOnText');
 		var leftOffTextElement = document.getElementById('leftOffText');
 		var leftDimChangeElement = document.getElementById('leftDimChange');
+		var leftPageNumElement = document.getElementById('leftPageNum');
 		var leftDeviceElement = document.getElementById('leftDevice');
 		var leftCapabilityElement = document.getElementById('leftCapability');
 		var leftBrokerIdElement = document.getElementById('leftBrokerId');
@@ -475,6 +492,7 @@
 		var rightOnTextElement = document.getElementById('rightOnText');
 		var rightOffTextElement = document.getElementById('rightOffText');
 		var rightDimChangeElement = document.getElementById('rightDimChange');
+		var rightPageNumElement = document.getElementById('rightPageNum');
 		var rightDeviceElement = document.getElementById('rightDevice');
 		var rightCapabilityElement = document.getElementById('rightCapability');
 		var rightBrokerIdElement = document.getElementById('rightBrokerId');
@@ -536,8 +554,8 @@
 
 			getButtonList();
 
-			fillConfigElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
-			fillConfigElement(displayConfigurationNoElement, Homey.__("settings.displayConfig"), localDisplayConfigurations, MAX_DISPLAY_CONFIGURATIONS);
+			fillButtonConfigListElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
+			fillButtonConfigListElement(displayConfigurationNoElement, Homey.__("settings.displayConfig"), localDisplayConfigurations, MAX_DISPLAY_CONFIGURATIONS);
 
 			getDevices();
 
@@ -775,6 +793,7 @@
 					ButtonPanelConfiguration.leftOnText = leftOnTextElement.value;
 					ButtonPanelConfiguration.leftOffText = leftOffTextElement.value;
 					ButtonPanelConfiguration.leftDevice = leftDeviceElement.value;
+					ButtonPanelConfiguration.leftPageNum = leftPageNumElement.value;
 
 					if (leftDeviceElement.selectedIndex >= 0)
 					{
@@ -815,8 +834,9 @@
 					ButtonPanelConfiguration.rightTopText = rightTopTextElement.value;
 					ButtonPanelConfiguration.rightOnText = rightOnTextElement.value;
 					ButtonPanelConfiguration.rightOffText = rightOffTextElement.value;
-
+					ButtonPanelConfiguration.rightPageNum = rightPageNumElement.value;
 					ButtonPanelConfiguration.rightDevice = rightDeviceElement.value;
+
 					if (rightDeviceElement.selectedIndex >= 0)
 					{
 						ButtonPanelConfiguration.rightDeviceName = rightDeviceElement.options && rightDeviceElement.options[rightDeviceElement.selectedIndex] ? rightDeviceElement.options[rightDeviceElement.selectedIndex].text : rightDeviceElement.value;
@@ -891,6 +911,7 @@
 				buttonPanelConfiguration.leftTopText = leftTopTextElement.value;
 				buttonPanelConfiguration.leftOnText = leftOnTextElement.value;
 				buttonPanelConfiguration.leftOffText = leftOffTextElement.value;
+				buttonPanelConfiguration.leftPageNum = leftPageNumElement.value;
 				buttonPanelConfiguration.leftDevice = leftDeviceElement.value;
 				if (leftDeviceElement.selectedIndex >= 0)
 				{
@@ -929,6 +950,7 @@
 				buttonPanelConfiguration.rightTopText = rightTopTextElement.value;
 				buttonPanelConfiguration.rightOnText = rightOnTextElement.value;
 				buttonPanelConfiguration.rightOffText = rightOffTextElement.value;
+				buttonPanelConfiguration.rightPageNum = rightPageNumElement.value;
 				buttonPanelConfiguration.rightDevice = rightDeviceElement.value;
 				if (rightDeviceElement.selectedIndex >= 0)
 				{
@@ -967,6 +989,13 @@
 
 				// Fetch the new configuration
 				updateButtonPanelConfiguration();
+			});
+
+			leftPageNumElement.addEventListener('change', function(e)
+			{
+				var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+				ButtonPanelConfiguration.leftPageNum = leftPageNumElement.value;
+				ButtonPanelConfiguration.leftVersion = 2;
 			});
 
 			leftTopTextElement.addEventListener('change', function(e)
@@ -1043,6 +1072,13 @@
 			{
 				var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
 				ButtonPanelConfiguration.leftDisableLongRepeat = !leftLongRepeatElement.checked;
+			});
+
+			rightPageNumElement.addEventListener('change', function(e)
+			{
+				var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+				ButtonPanelConfiguration.rightPageNum = rightPageNumElement.value;
+				ButtonPanelConfiguration.rightVersion = 2;
 			});
 
 			rightTopTextElement.addEventListener('change', function(e)
@@ -1237,6 +1273,7 @@
 					if (newButtonPanelConfiguration.leftTopText !== undefined) buttonPanelConfiguration.leftTopText = newButtonPanelConfiguration.leftTopText;
 					if (newButtonPanelConfiguration.leftOnText !== undefined) buttonPanelConfiguration.leftOnText = newButtonPanelConfiguration.leftOnText;
 					if (newButtonPanelConfiguration.leftOffText !== undefined) buttonPanelConfiguration.leftOffText = newButtonPanelConfiguration.leftOffText;
+					if (newButtonPanelConfiguration.leftPageNum !== undefined) buttonPanelConfiguration.leftPageNum = newButtonPanelConfiguration.leftPageNum;
 					if (newButtonPanelConfiguration.leftDevice !== undefined) buttonPanelConfiguration.leftDevice = newButtonPanelConfiguration.leftDevice;
 					if (newButtonPanelConfiguration.leftDeviceName !== undefined) buttonPanelConfiguration.leftDevice = newButtonPanelConfiguration.leftDeviceName;
 					if (newButtonPanelConfiguration.leftCapability !== undefined) buttonPanelConfiguration.leftCapability = newButtonPanelConfiguration.leftCapability;
@@ -1253,6 +1290,7 @@
 					if (newButtonPanelConfiguration.rightTopText !== undefined) buttonPanelConfiguration.rightTopText = newButtonPanelConfiguration.rightTopText;
 					if (newButtonPanelConfiguration.rightOnText !== undefined) buttonPanelConfiguration.rightOnText = newButtonPanelConfiguration.rightOnText;
 					if (newButtonPanelConfiguration.rightOffText !== undefined) buttonPanelConfiguration.rightOffText = newButtonPanelConfiguration.rightOffText;
+					if (newButtonPanelConfiguration.rightPageNum !== undefined) buttonPanelConfiguration.rightPageNum = newButtonPanelConfiguration.rightPageNum;
 					if (newButtonPanelConfiguration.rightDevice !== undefined) buttonPanelConfiguration.rightDevice = newButtonPanelConfiguration.rightDevice;
 					if (newButtonPanelConfiguration.rightDeviceName !== undefined) buttonPanelConfiguration.rightDevice = newButtonPanelConfiguration.rightDeviceName;
 					if (newButtonPanelConfiguration.rightCapability !== undefined) buttonPanelConfiguration.rightCapability = newButtonPanelConfiguration.rightCapability;
@@ -1547,9 +1585,9 @@
 			}
 		}
 
-		function fillConfigElement(element, txt, configurations, NumConfigurations)
+		function fillButtonConfigListElement(element, txt, configurations, NumConfigurations)
 		{
-			//fill the device lists with devices
+			//fill the configuration list with configuration number / names
 			element.innerHTML = "";
 
 			var option = document.createElement("option");
@@ -1582,6 +1620,11 @@
 					}
 				}
 			}
+		}
+
+		function onButtonPageChange(element, side)
+		{
+
 		}
 
 		function onButtonLabelChange(element, side)
@@ -1895,12 +1938,13 @@
 
 			if (buttonConfigurationNoElement.value == "")
 			{
-				fillConfigElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
+				fillButtonConfigListElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
 
 				configNameElement.value = "";
 				leftTopTextElement.value = "";
 				leftOnTextElement.value = "";
 				leftOffTextElement.value = "";
+				leftPageNumElement.value = 0;
 				leftDeviceElement.value = "";
 				leftCapabilityElement.value = "";
 				leftBrokerIdElement.value = 'Default';
@@ -1914,6 +1958,7 @@
 				rightTopTextElement.value = "";
 				rightOnTextElement.value = "";
 				rightOffTextElement.value = "";
+				rightPageNumElement.value = 0;
 				rightDeviceElement.value = "";
 				rightCapabilityElement.value = "";
 				rightBrokerIdElement.value = 'Default';
@@ -1928,7 +1973,7 @@
 			{
 				currentButtonConfigurationNo = buttonConfigurationNoElement.value;
 
-				fillConfigElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
+				fillButtonConfigListElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
 
 				buttonConfigurationNoElement.value = currentButtonConfigurationNo;
 
@@ -1940,6 +1985,7 @@
 				document.getElementById(`buttonLeftLegend`).innerHTML = `<b><em>${Homey.__("settings.LeftPanel")}</em></b> - ${leftTopTextElement.value}`;
 				leftOnTextElement.value = ButtonPanelConfiguration.leftOnText;
 				leftOffTextElement.value = ButtonPanelConfiguration.leftOffText;
+				leftPageNumElement.value = ButtonPanelConfiguration.leftPageNum;
 				leftDeviceElement.value = ButtonPanelConfiguration.leftDevice;
 				// If the element is not in the list, add it
 				if (leftDeviceElement.value != ButtonPanelConfiguration.leftDevice)
@@ -1947,7 +1993,7 @@
 					if (buttonDevicesArray.findIndex((device) => device.id === ButtonPanelConfiguration.leftDevice) < 0)
 					{
 						var name = ButtonPanelConfiguration.leftDeviceName ? ButtonPanelConfiguration.leftDeviceName : ButtonPanelConfiguration.leftDevice;
-						
+
 						// Remove any leading spaces from the device name
 						name = name.trim();
 
@@ -1975,19 +2021,20 @@
 				document.getElementById(`buttonRightLegend`).innerHTML = `<b><em>${Homey.__("settings.RightPanel")}</em></b> - ${rightTopTextElement.value}`;
 				rightOnTextElement.value = ButtonPanelConfiguration.rightOnText;
 				rightOffTextElement.value = ButtonPanelConfiguration.rightOffText;
+				rightPageNumElement.value = ButtonPanelConfiguration.rightPageNum;
 				rightDeviceElement.value = ButtonPanelConfiguration.rightDevice;
 
 				// If the element is not in the list, add it
 				if (rightDeviceElement.value != ButtonPanelConfiguration.rightDevice)
 				{
 					var name = ButtonPanelConfiguration.rightDeviceName ? ButtonPanelConfiguration.rightDeviceName : ButtonPanelConfiguration.rightDevice;
-					
+
 					// Remove any leading spaces from the device name
 					name = name.trim();
 
 					// Remove all occurrences of ' (Missing Devices)' from the name
 					name = name.replace(/ \(Missing Devices\)/g, "");
-					
+
 					if (buttonDevicesArray.findIndex((device) => device.id === ButtonPanelConfiguration.rightDevice) < 0)
 					{
 						buttonDevicesArray.push({ id: ButtonPanelConfiguration.rightDevice, name, zone: { name: "Missing Devices" } });
@@ -2184,7 +2231,7 @@
 					}
 
 					page = item.page;
-					htmlText += `<div class="horizontalcontainer"><div class="horizontalgroup"><h2>${Homey.__("settings.page")} ${item.page + 1} <div class="tooltip"><i class="fi fi-rr-info"></i><span class="tooltiptext">${Homey.__("settings.pageExplanation")}</span></div></h2>`;
+					htmlText += `<div class="horizontalcontainer"><div class="horizontalgroup"><h2>${Homey.__("settings.page")} ${item.page === 0 ? 'All' : item.page} <div class="tooltip"><i class="fi fi-rr-info"></i><span class="tooltiptext">${Homey.__("settings.pageExplanation")}</span></div></h2>`;
 				}
 
 				htmlText += insertDisplayItemSection(item, itemNo, (item.itemId === expandItemId));
@@ -2234,7 +2281,7 @@
 			}
 		}
 
-		
+
 		function newDisplayMQTTTopic(Item)
 		{
 			var displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
@@ -2251,13 +2298,13 @@
 					brokerId: 'Default',
 					enable: true,
 				};
-				
+
 				// make sure the customMQTTTopics is an array
 				if (!displayConfiguration.items[Item].customMQTTTopics || (Array.isArray(displayConfiguration.items[Item].customMQTTTopics) === false))
 				{
 					displayConfiguration.items[Item].customMQTTTopics = [];
 				}
-				
+
 
 				displayConfiguration.items[Item].customMQTTTopics.push(customMQTTItem);
 				drawDisplayCustomMQTTTopics(Item, displayConfiguration.items[Item].customMQTTTopics);
@@ -2268,7 +2315,7 @@
 		function drawDisplayCustomMQTTTopics(Item, Topics)
 		{
 			if (!Topics || Topics.length === 0) return;
-			
+
 			document.getElementById(`display${Item}CustomMQTTTopicsSection`).innerHTML = "";
 			customDisplayMQTTItemsElements = [];
 
@@ -2378,7 +2425,7 @@
 			option.text = 'Default';
 			option.value = 'Default';
 			customDisplayMQTTItemsElements[idx].add(option);
-			
+
 			for (var brokerNo = 0; brokerNo < localBrokerItems.length; brokerNo++)
 			{
 				const brokerItem = localBrokerItems[brokerNo];
@@ -2499,7 +2546,7 @@
 									<span class="tooltiptext">${ctrlExplanations.page}</span>
 								</div>
 							</label>
-							<input class="homey-form-input" id="display${itemNo}page" onChange="redisplayDisplyConfig(${itemNo})" type="number" value="${item.page + 1}" />
+							<input class="homey-form-input" id="display${itemNo}page" onChange="redisplayDisplyConfig(${itemNo})" type="number" value="${item.page}" />
 							<label class="homey-form-label" for="display${itemNo}Device">${ctrlLabels.device}
 								<div class="tooltip"><i class="fi fi-rr-info"></i>
 									<span class="tooltiptext">${ctrlExplanations.device}</span>
@@ -2916,6 +2963,7 @@
 
 			if (displayConfiguration != null)
 			{
+				displayConfiguration.version = 2;
 				displayConfiguration.name = displayConfigNameElement.value;
 
 				for (var itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
@@ -2926,7 +2974,7 @@
 					if (deviceElement.selectedIndex >= 0)
 					{
 						displayConfiguration.items[itemNo].deviceName = deviceElement.options[deviceElement.selectedIndex].text;
-						
+
 						// Remove ' (Missing Devices)' from the device name
 						displayConfiguration.items[itemNo].deviceName = displayConfiguration.items[itemNo].deviceName.replace(/ \(Missing Devices\)/g, '');
 					}
@@ -2956,7 +3004,7 @@
 					displayConfiguration.items[itemNo].rounding = document.getElementById(`display${itemNo}Rounding`).value;
 					displayConfiguration.items[itemNo].fontSize = document.getElementById(`display${itemNo}FontSize`).value;
 					displayConfiguration.items[itemNo].brokerId = document.getElementById(`display${itemNo}BrokerId`).value;
-					displayConfiguration.items[itemNo].page = document.getElementById(`display${itemNo}page`).value - 1;
+					displayConfiguration.items[itemNo].page = document.getElementById(`display${itemNo}page`).value;
 					displayConfiguration.items[itemNo].boxType = document.getElementById(`display${itemNo}BoxType`).value;
 
 					storeDisplayCustomMQTTItems(itemNo, displayConfiguration.items[itemNo].customMQTTTopics);
