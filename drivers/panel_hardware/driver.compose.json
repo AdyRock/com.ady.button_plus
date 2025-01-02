@@ -1,372 +1,382 @@
 {
-  "name": {
-    "en": "Button Panel",
-    "nl": "Button+ panel"
-  },
-  "platforms": [
-    "local"
-  ],
-  "connectivity": [
-    "lan"
-  ],
-  "class": "button",
-  "capabilities": [
-    "configuration_display",
-    "configuration_button.connector0",
-    "configuration_button.connector1",
-    "configuration_button.connector2",
-    "configuration_button.connector3",
-    "configuration_button.connector4",
-    "configuration_button.connector5",
-    "configuration_button.connector6",
-    "configuration_button.connector7",
-    "left_button.connector0",
-    "right_button.connector0",
-    "left_button.connector1",
-    "right_button.connector1",
-    "left_button.connector2",
-    "right_button.connector2",
-    "left_button.connector3",
-    "right_button.connector3",
-    "left_button.connector4",
-    "right_button.connector4",
-    "left_button.connector5",
-    "right_button.connector5",
-    "left_button.connector6",
-    "right_button.connector6",
-    "left_button.connector7",
-    "right_button.connector7",
-    "dim",
-    "measure_temperature",
-    "date",
-    "time",
-    "info",
-    "button.update_firmware"
-  ],
-  "capabilitiesOptions": {
-    "button.update_firmware": {
-      "maintenanceAction": true,
-      "title": {
-        "en": "Update firmware",
-        "nl": "Firmware bijwerken"
-      },
-      "desc": {
-        "en": "Update the firmware of the device",
-        "nl": "Firmware van het apparaat bijwerken"
-      }
-    },
-    "button.apply_config": {
-      "maintenanceAction": true,
-      "title": {
-        "en": "Re-apply configurations",
-        "nl": "Configuraties opnieuw toepassen"
-      },
-      "desc": {
-        "en": "Send the configuration to the device again",
-        "nl": "Stuur de configuratie opnieuw naar het apparaat"
-      }
-    }
-  },
-  "pair": [
-    {
-      "id": "list_devices",
-      "template": "list_devices",
-      "navigation": {
-        "next": "my_connect"
-      }
-    },
-    {
-      "id": "my_connect"
-    }
-  ],
-  "repair": [
-    {
-      "id": "set_ip"
-    }
-  ],
-  "settings": [
-    {
-      "id": "address",
-      "type": "text",
-      "label": {
-        "en": "IP address",
-        "nl": "IP adres"
-      },
-      "value": "",
-      "hint": {
-        "en": "IP address of the device",
-        "nl": "IP adres van het apparaat"
-      }
-    },
-    {
-      "id": "mac",
-      "type": "text",
-      "label": {
-        "en": "MAC address",
-        "nl": "MAC adres"
-      },
-      "value": "",
-      "hint": {
-        "en": "MAC address of the device",
-        "nl": "MAC adres van het apparaat"
-      }
-    },
-    {
-      "id": "firmware",
-      "type": "label",
-      "label": {
-        "en": "Firmware version",
-        "nl": "Firmware versie"
-      },
-      "value": "",
-      "hint": {
-        "en": "Firmware version of the device. This is read in when the devices is initialised.",
-		"nl": "Firmware versie van het apparaat. Deze is uitgelezen toen het apparaat werd geïnitialiseerd"
-      }
-    },
-    {
-      "id": "statusbar",
-      "type": "dropdown",
-      "label": {
-        "en": "Status bar",
-        "nl": "Status balk"
-      },
-      "hint": {
-        "en": "The status bar shows the IP address",
-        "nl": "De status balk toont het IP adres"
-      },
-      "value": "2",
-      "values": [
-        {
-          "id": "0",
-          "label": {
-            "en": "Off",
-            "nl": "Uit"
-          }
-        },
-        {
-          "id": "1",
-          "label": {
-            "en": "Top",
-            "nl": "Boven"
-          }
-        },
-        {
-          "id": "2",
-          "label": {
-            "en": "Bottom",
-            "nl": "Onder"
-          }
-        }
-      ]
-    },
-    {
-      "id": "temperatureCalibration",
-      "type": "number",
-      "label": {
-        "en": "Temperature calibration",
-        "nl": "Temperatuur kalibratie"
-      },
-      "value": 0,
-      "units": "°C",
-      "step": 0.1,
-      "hint": {
-        "en": "A value to add to the temperature measurement to correct for internal heat",
-        "nl": "Een waarde die bij de temperatuur meting wordt opgeteld om te corrigeren voor interne warmte"
-      }
-    },
-    {
-      "type": "group",
-      "label": {
-        "en": "Date and Time Format",
-        "nl": "Datum en Tijd Formaat"
-      },
-      "children": [
-        {
-          "id": "dateFormat",
-          "type": "dropdown",
-          "label": {
-            "en": "Date format",
-            "nl": "Datum formaat"
-          },
-          "hint": {
-            "en": "This is the format for the day of the month",
-            "nl": "Dit is het formaat voor de dag van de maand"
-          },
-          "value": "2-digit",
-          "values": [
-            {
-              "id": "2-digit",
-              "label": {
-                "en": "2 digit (01)",
-                "nl": "2 cijfers (01)"
-              }
-            },
-            {
-              "id": "numeric",
-              "label": {
-                "en": "1 or 2 digit (1 or 11)",
-                "nl": "1 of 2 cijfers (1 of 11)"
-              }
-            }
-          ]
-        },
-        {
-          "id": "monthFormat",
-          "type": "dropdown",
-          "label": {
-            "en": "Month format",
-            "nl": "Maand formaat"
-          },
-          "hint": {
-            "en": "This is the format for the month",
-            "nl": "Dit is het formaat voor de maand"
-          },
-          "value": "short",
-          "values": [
-            {
-              "id": "short",
-              "label": {
-                "en": "short (Jan)",
-                "nl": "kort (jan)"
-              }
-            },
-            {
-              "id": "long",
-              "label": {
-                "en": "long (January)",
-                "nl": "lang (januari)"
-              }
-            },
-            {
-              "id": "2-digit",
-              "label": {
-                "en": "2 digit (01)",
-                "nl": "2 cijfers (01)"
-              }
-            },
-            {
-              "id": "numeric",
-              "label": {
-                "en": "1 or 2 digit (1 or 11)",
-                "nl": "1 of 2 cijfers (1 of 11)"
-              }
-            }
-          ]
-        },
-        {
-          "id": "yearFormat",
-          "type": "dropdown",
-          "label": {
-            "en": "Year format",
-            "nl": "Jaar formaat"
-          },
-          "hint": {
-            "en": "This is the format for the year",
-            "nl": "Dit is het formaat voor het jaar"
-          },
-          "value": "numeric",
-          "values": [
-            {
-              "id": "2-digit",
-              "label": {
-                "en": "2 digit",
-                "nl": "2 cijfers"
-              }
-            },
-            {
-              "id": "numeric",
-              "label": {
-                "en": "4 digit",
-                "nl": "4 cijfers"
-              }
-            }
-          ]
-        },
-        {
-          "id": "timeFormat",
-          "type": "dropdown",
-          "label": {
-            "en": "Time format",
-            "nl": "Tijd formaat"
-          },
-          "hint": {
-            "en": "This is the format for the time",
-            "nl": "Dit is het formaat voor de tijd"
-          },
-          "value": "T24",
-          "values": [
-            {
-              "id": "T24",
-              "label": {
-                "en": "24h",
-                "nl": "24u"
-              }
-            },
-            {
-              "id": "T12",
-              "label": {
-                "en": "12h",
-                "nl": "12u"
-              }
-            }
-          ]
-        },
-        {
-          "id": "weekdayFormat",
-          "type": "dropdown",
-          "label": {
-            "en": "Week day format",
-            "nl": "Week dag formaat"
-          },
-          "hint": {
-            "en": "This is the format for the day of the week",
-            "nl": "Dit is het formaat voor de dag van de week"
-          },
-          "value": "long",
-          "values": [
-            {
-              "id": "none",
-              "label": {
-                "en": "Not displayed",
-                "nl": "Niet weergegeven"
-              }
-            },
-            {
-              "id": "long",
-              "label": {
-                "en": "Long (Monday)",
-                "nl": "Lang (maandag)"
-              }
-            },
-            {
-              "id": "short",
-              "label": {
-                "en": "Short (Mon)",
-                "nl": "Kort (ma)"
-              }
-            }
-          ]
-        },
-        {
-          "id": "langCode",
-          "type": "text",
-          "label": {
-            "en": "Language code",
-            "nl": "Taal code"
-          },
-          "hint": {
-            "en": "This is the 2 digit language code of the language you want to use for the date format (e.g. en, nl, de, fr, ...)",
-            "nl": "Dit is de 2 letter taalcode van de taal die je wil gebruiken voor het datum formaat (bijv. en, nl, de, fr, ...)"
-          },
-          "value": "en"
-        }
-      ]
-    }
-  ],
-  "images": {
-    "small": "{{driverAssetsPath}}/images/small.png",
-    "large": "{{driverAssetsPath}}/images/large.png",
-    "xlarge": "{{driverAssetsPath}}/images/xlarge.png"
-  }
+	"name": {
+		"en": "Button Panel",
+		"nl": "Button+ panel"
+	},
+	"platforms": [
+		"local"
+	],
+	"connectivity": [
+		"lan"
+	],
+	"class": "button",
+	"capabilities": [
+		"configuration_display",
+		"configuration_button.connector0",
+		"configuration_button.connector1",
+		"configuration_button.connector2",
+		"configuration_button.connector3",
+		"configuration_button.connector4",
+		"configuration_button.connector5",
+		"configuration_button.connector6",
+		"configuration_button.connector7",
+		"previous_page_button",
+		"next_page_button",
+		"left_button.connector0",
+		"right_button.connector0",
+		"left_button.connector1",
+		"right_button.connector1",
+		"left_button.connector2",
+		"right_button.connector2",
+		"left_button.connector3",
+		"right_button.connector3",
+		"left_button.connector4",
+		"right_button.connector4",
+		"left_button.connector5",
+		"right_button.connector5",
+		"left_button.connector6",
+		"right_button.connector6",
+		"left_button.connector7",
+		"right_button.connector7",
+		"dim",
+		"page",
+		"page.max",
+		"measure_temperature",
+		"date",
+		"time",
+		"info",
+		"button.update_firmware"
+	],
+	"capabilitiesOptions": {
+		"button.update_firmware": {
+			"maintenanceAction": true,
+			"title": {
+				"en": "Update firmware",
+				"nl": "Firmware bijwerken"
+			},
+			"desc": {
+				"en": "Update the firmware of the device",
+				"nl": "Firmware van het apparaat bijwerken"
+			}
+		},
+		"page.max": {
+			"title": {
+				"en": "Pages",
+				"nl": "Pagina's"
+			}
+		},
+		"button.apply_config": {
+			"maintenanceAction": true,
+			"title": {
+				"en": "Re-apply configurations",
+				"nl": "Configuraties opnieuw toepassen"
+			},
+			"desc": {
+				"en": "Send the configuration to the device again",
+				"nl": "Stuur de configuratie opnieuw naar het apparaat"
+			}
+		}
+	},
+	"pair": [
+		{
+			"id": "list_devices",
+			"template": "list_devices",
+			"navigation": {
+				"next": "my_connect"
+			}
+		},
+		{
+			"id": "my_connect"
+		}
+	],
+	"repair": [
+		{
+			"id": "set_ip"
+		}
+	],
+	"settings": [
+		{
+			"id": "address",
+			"type": "text",
+			"label": {
+				"en": "IP address",
+				"nl": "IP adres"
+			},
+			"value": "",
+			"hint": {
+				"en": "IP address of the device",
+				"nl": "IP adres van het apparaat"
+			}
+		},
+		{
+			"id": "mac",
+			"type": "text",
+			"label": {
+				"en": "MAC address",
+				"nl": "MAC adres"
+			},
+			"value": "",
+			"hint": {
+				"en": "MAC address of the device",
+				"nl": "MAC adres van het apparaat"
+			}
+		},
+		{
+			"id": "firmware",
+			"type": "label",
+			"label": {
+				"en": "Firmware version",
+				"nl": "Firmware versie"
+			},
+			"value": "",
+			"hint": {
+				"en": "Firmware version of the device. This is read in when the devices is initialised.",
+				"nl": "Firmware versie van het apparaat. Deze is uitgelezen toen het apparaat werd geïnitialiseerd"
+			}
+		},
+		{
+			"id": "statusbar",
+			"type": "dropdown",
+			"label": {
+				"en": "Status bar",
+				"nl": "Status balk"
+			},
+			"hint": {
+				"en": "The status bar shows the IP address",
+				"nl": "De status balk toont het IP adres"
+			},
+			"value": "2",
+			"values": [
+				{
+					"id": "0",
+					"label": {
+						"en": "Off",
+						"nl": "Uit"
+					}
+				},
+				{
+					"id": "1",
+					"label": {
+						"en": "Top",
+						"nl": "Boven"
+					}
+				},
+				{
+					"id": "2",
+					"label": {
+						"en": "Bottom",
+						"nl": "Onder"
+					}
+				}
+			]
+		},
+		{
+			"id": "temperatureCalibration",
+			"type": "number",
+			"label": {
+				"en": "Temperature calibration",
+				"nl": "Temperatuur kalibratie"
+			},
+			"value": 0,
+			"units": "°C",
+			"step": 0.1,
+			"hint": {
+				"en": "A value to add to the temperature measurement to correct for internal heat",
+				"nl": "Een waarde die bij de temperatuur meting wordt opgeteld om te corrigeren voor interne warmte"
+			}
+		},
+		{
+			"type": "group",
+			"label": {
+				"en": "Date and Time Format",
+				"nl": "Datum en Tijd Formaat"
+			},
+			"children": [
+				{
+					"id": "dateFormat",
+					"type": "dropdown",
+					"label": {
+						"en": "Date format",
+						"nl": "Datum formaat"
+					},
+					"hint": {
+						"en": "This is the format for the day of the month",
+						"nl": "Dit is het formaat voor de dag van de maand"
+					},
+					"value": "2-digit",
+					"values": [
+						{
+							"id": "2-digit",
+							"label": {
+								"en": "2 digit (01)",
+								"nl": "2 cijfers (01)"
+							}
+						},
+						{
+							"id": "numeric",
+							"label": {
+								"en": "1 or 2 digit (1 or 11)",
+								"nl": "1 of 2 cijfers (1 of 11)"
+							}
+						}
+					]
+				},
+				{
+					"id": "monthFormat",
+					"type": "dropdown",
+					"label": {
+						"en": "Month format",
+						"nl": "Maand formaat"
+					},
+					"hint": {
+						"en": "This is the format for the month",
+						"nl": "Dit is het formaat voor de maand"
+					},
+					"value": "short",
+					"values": [
+						{
+							"id": "short",
+							"label": {
+								"en": "short (Jan)",
+								"nl": "kort (jan)"
+							}
+						},
+						{
+							"id": "long",
+							"label": {
+								"en": "long (January)",
+								"nl": "lang (januari)"
+							}
+						},
+						{
+							"id": "2-digit",
+							"label": {
+								"en": "2 digit (01)",
+								"nl": "2 cijfers (01)"
+							}
+						},
+						{
+							"id": "numeric",
+							"label": {
+								"en": "1 or 2 digit (1 or 11)",
+								"nl": "1 of 2 cijfers (1 of 11)"
+							}
+						}
+					]
+				},
+				{
+					"id": "yearFormat",
+					"type": "dropdown",
+					"label": {
+						"en": "Year format",
+						"nl": "Jaar formaat"
+					},
+					"hint": {
+						"en": "This is the format for the year",
+						"nl": "Dit is het formaat voor het jaar"
+					},
+					"value": "numeric",
+					"values": [
+						{
+							"id": "2-digit",
+							"label": {
+								"en": "2 digit",
+								"nl": "2 cijfers"
+							}
+						},
+						{
+							"id": "numeric",
+							"label": {
+								"en": "4 digit",
+								"nl": "4 cijfers"
+							}
+						}
+					]
+				},
+				{
+					"id": "timeFormat",
+					"type": "dropdown",
+					"label": {
+						"en": "Time format",
+						"nl": "Tijd formaat"
+					},
+					"hint": {
+						"en": "This is the format for the time",
+						"nl": "Dit is het formaat voor de tijd"
+					},
+					"value": "T24",
+					"values": [
+						{
+							"id": "T24",
+							"label": {
+								"en": "24h",
+								"nl": "24u"
+							}
+						},
+						{
+							"id": "T12",
+							"label": {
+								"en": "12h",
+								"nl": "12u"
+							}
+						}
+					]
+				},
+				{
+					"id": "weekdayFormat",
+					"type": "dropdown",
+					"label": {
+						"en": "Week day format",
+						"nl": "Week dag formaat"
+					},
+					"hint": {
+						"en": "This is the format for the day of the week",
+						"nl": "Dit is het formaat voor de dag van de week"
+					},
+					"value": "long",
+					"values": [
+						{
+							"id": "none",
+							"label": {
+								"en": "Not displayed",
+								"nl": "Niet weergegeven"
+							}
+						},
+						{
+							"id": "long",
+							"label": {
+								"en": "Long (Monday)",
+								"nl": "Lang (maandag)"
+							}
+						},
+						{
+							"id": "short",
+							"label": {
+								"en": "Short (Mon)",
+								"nl": "Kort (ma)"
+							}
+						}
+					]
+				},
+				{
+					"id": "langCode",
+					"type": "text",
+					"label": {
+						"en": "Language code",
+						"nl": "Taal code"
+					},
+					"hint": {
+						"en": "This is the 2 digit language code of the language you want to use for the date format (e.g. en, nl, de, fr, ...)",
+						"nl": "Dit is de 2 letter taalcode van de taal die je wil gebruiken voor het datum formaat (bijv. en, nl, de, fr, ...)"
+					},
+					"value": "en"
+				}
+			]
+		}
+	],
+	"images": {
+		"small": "{{driverAssetsPath}}/images/small.png",
+		"large": "{{driverAssetsPath}}/images/large.png",
+		"xlarge": "{{driverAssetsPath}}/images/xlarge.png"
+	}
 }

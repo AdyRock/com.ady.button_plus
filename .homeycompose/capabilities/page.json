@@ -1,0 +1,10 @@
+{
+    "type": "string",
+    "title": {
+        "en": "Page",
+        "nl": "Pagina"
+    },
+    "getable": true,
+    "setable": false,
+    "icon": "/assets/page.svg"
+}

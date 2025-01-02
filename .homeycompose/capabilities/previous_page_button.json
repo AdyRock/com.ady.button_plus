@@ -1,0 +1,11 @@
+{
+    "type": "boolean",
+    "getable": false,
+    "setable": true,
+    "uiComponent": "button",
+    "title": {
+        "en": "Previous Page",
+        "nl": "Vorige pagina"
+    },
+    "icon": "/assets/previous_page.svg"
+}

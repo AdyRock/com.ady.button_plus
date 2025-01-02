@@ -25,7 +25,16 @@
                 "nl": "Connector nummer"
             },
             "example": "1"
-        }
+        },
+		{
+			"name": "page",
+			"type": "number",
+			"title": {
+				"en": "Page",
+				"nl": "Pagina"
+			},
+			"example": "1"
+		}
     ],
     "args": [
         {
@@ -40,7 +49,14 @@
                 "nl": "Links / Rechts"
             },
             "values": [
-                {
+				{
+					"id": "any",
+					"title": {
+						"en": "Any",
+						"nl": "Elke"
+					}
+				},
+				{
                     "id": "left",
                     "title": {"en": "Left","nl": "Links"}
                 },
@@ -58,14 +74,14 @@
                 "nl": "Connector nummer"
             },
             "hint": {
-                "en": "The connector number (1-4)",
-                "nl": "Het connector nummer (1-4)"
+                "en": "The connector number (1-4). Use 0 for any connector.",
+                "nl": "Het connector nummer (1-4). Gebruik 0 voor elke connector."
             },
             "placeholder": {
-                "en": "Connector number (1-4)",
-                "nl": "Connector nummer (1-4)"
+                "en": "Connector number",
+                "nl": "Connector nummer"
             },
-            "min": 1,
+            "min": 0,
             "max": 4,
             "step": 1
         },

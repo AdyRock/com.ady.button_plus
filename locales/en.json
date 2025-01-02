@@ -13,8 +13,8 @@
         "displayExplanation": "Display Configrations can be applied to one or more large Button+ displays to determine what is displayed.<br>You define the X and Y position of the top left corner of the item and it's width all as a percentage of the display width.<br>You can define multiple items to display but make sure they all fit.",
         "brokerExplanation": "You can define multiple brokers to connect to.<br>Each broker can have multiple devices and each device can have multiple capabilities.<br>Brokers can be enabled or disabled and if disabled, no features will be published to it.<br>You can change which broker is the used for the 'Default' setting here. This broker is also used where no other broker definition is available",
         "panelSettings": "Button Settings",
-        "LeftPanel": "Left Button",
-        "RightPanel": "Right Button",
+        "leftPanel": "Left Button",
+        "rightPanel": "Right Button",
         "topLabel": "Top Label",
         "topLabelExplanation": "The Top Label is shown along the top of the mini display. It can be used to show the name of the device or flow that is controlled by the button.",
         "toplabelDisplayExplanation": "The Label is optional text to shown above the value on the display to identify it.",
@@ -51,7 +51,7 @@
         "deleteItem": "Delete Item",
         "deleteItemExplanation": "Delete this display item",
         "saveError1": "Error saving configurations",
-        "dimValue": "Dim Change",
+        "dimChange": "Dim Change",
         "dimError": "Dim __leftRight__ Change must be between ±1 and ±100. Please correct and try again.",
         "brokerId": "Broker ID",
         "brokerIdExplanation": "Select the Broker ID that you wan to send and receive messages from.",
@@ -151,8 +151,11 @@
 		"boxTypeNotUnderlined": "Standard box without line",
 		"customMQTTTopic": "Custom MQTT Topic",
 		"customMQTTTopicExplanation": "This is an optional custom MQTT topic that will be published when the button is pressed.",
-		"value": "Value"
-    },
+		"value": "Value",
+		"buttonPageExplanation": "Select which page the item should appear on (requires firmware 2.0.0 or later).<br>The default is page 0, which shows on all pages.<br>If there is more than 1 page, you can switch pages with the left or right Display buttons.",
+		"addPage": "Add Page",
+		"pageError": "The new page number must be greater than 0 and less than the number of pages."
+	},
     "pair": {
         "manual_add":{
             "connect": "Connect",

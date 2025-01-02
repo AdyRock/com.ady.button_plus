@@ -16,7 +16,16 @@
                 "nl": "Status"
             },
             "example": "true"
-        }
+        },
+		{
+			"name": "page",
+			"type": "number",
+			"title": {
+				"en": "Page",
+				"nl": "Pagina"
+			},
+			"example": "1"
+		}
     ],
     "deprecated": true,
     "args": [

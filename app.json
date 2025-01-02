@@ -152,6 +152,15 @@
               "nl": "Status"
             },
             "example": "true"
+          },
+          {
+            "name": "page",
+            "type": "number",
+            "title": {
+              "en": "Page",
+              "nl": "Pagina"
+            },
+            "example": "1"
           }
         ],
         "args": [
@@ -167,6 +176,13 @@
               "nl": "Links / Rechts"
             },
             "values": [
+              {
+                "id": "any",
+                "title": {
+                  "en": "Any",
+                  "nl": "Elke"
+                }
+              },
               {
                 "id": "left",
                 "title": {
@@ -191,14 +207,14 @@
               "nl": "Connector nummer"
             },
             "hint": {
-              "en": "The connector number (1-4)",
-              "nl": "Het connector nummer (1-4)"
+              "en": "The connector number (1-4). Use 0 for any connector.",
+              "nl": "Het connector nummer (1-4). Gebruik 0 voor elke connector."
             },
             "placeholder": {
-              "en": "Connector number (1-4)",
-              "nl": "Connector nummer (1-4)"
+              "en": "Connector number",
+              "nl": "Connector nummer"
             },
-            "min": 1,
+            "min": 0,
             "max": 4,
             "step": 1
           },
@@ -247,6 +263,15 @@
               "nl": "Aantal herhalingen"
             },
             "example": "0 = first press, 1 = second press, etc."
+          },
+          {
+            "name": "page",
+            "type": "number",
+            "title": {
+              "en": "Page",
+              "nl": "Pagina"
+            },
+            "example": "1"
           }
         ],
         "args": [
@@ -262,6 +287,13 @@
               "nl": "Links / Rechts"
             },
             "values": [
+              {
+                "id": "any",
+                "title": {
+                  "en": "Any",
+                  "nl": "Elke"
+                }
+              },
               {
                 "id": "left",
                 "title": {
@@ -286,14 +318,14 @@
               "nl": "Connector nummer"
             },
             "hint": {
-              "en": "The connector number (1-4)",
-              "nl": "Het connector nummer (1-4)"
+              "en": "The connector number (1-4). Use 0 for any connector.",
+              "nl": "Het connector nummer (1-4). Gebruik 0 voor elke connector."
             },
             "placeholder": {
-              "en": "Connector number (1-4)",
-              "nl": "Connector nummer (1-4)"
+              "en": "Connector number",
+              "nl": "Connector nummer"
             },
-            "min": 1,
+            "min": 0,
             "max": 4,
             "step": 1
           },
@@ -332,6 +364,15 @@
               "nl": "Connector nummer"
             },
             "example": "1"
+          },
+          {
+            "name": "page",
+            "type": "number",
+            "title": {
+              "en": "Page",
+              "nl": "Pagina"
+            },
+            "example": "1"
           }
         ],
         "args": [
@@ -347,6 +388,13 @@
               "nl": "Links / Rechts"
             },
             "values": [
+              {
+                "id": "any",
+                "title": {
+                  "en": "Any",
+                  "nl": "Elke"
+                }
+              },
               {
                 "id": "left",
                 "title": {
@@ -371,14 +419,14 @@
               "nl": "Connector nummer"
             },
             "hint": {
-              "en": "The connector number (1-4)",
-              "nl": "Het connector nummer (1-4)"
+              "en": "The connector number (1-4). Use 0 for any connector.",
+              "nl": "Het connector nummer (1-4). Gebruik 0 voor elke connector."
             },
             "placeholder": {
-              "en": "Connector number (1-4)",
-              "nl": "Connector nummer (1-4)"
+              "en": "Connector number",
+              "nl": "Connector nummer"
             },
-            "min": 1,
+            "min": 0,
             "max": 4,
             "step": 1
           },
@@ -417,6 +465,15 @@
               "nl": "Connector nummer"
             },
             "example": "1"
+          },
+          {
+            "name": "page",
+            "type": "number",
+            "title": {
+              "en": "Page",
+              "nl": "Pagina"
+            },
+            "example": "1"
           }
         ],
         "args": [
@@ -432,6 +489,13 @@
               "nl": "Links / Rechts"
             },
             "values": [
+              {
+                "id": "any",
+                "title": {
+                  "en": "Any",
+                  "nl": "Elke"
+                }
+              },
               {
                 "id": "left",
                 "title": {
@@ -456,14 +520,14 @@
               "nl": "Connector nummer"
             },
             "hint": {
-              "en": "The connector number (1-4)",
-              "nl": "Het connector nummer (1-4)"
+              "en": "The connector number (1-4). Use 0 for any connector.",
+              "nl": "Het connector nummer (1-4). Gebruik 0 voor elke connector."
             },
             "placeholder": {
-              "en": "Connector number (1-4)",
-              "nl": "Connector nummer (1-4)"
+              "en": "Connector number",
+              "nl": "Connector nummer"
             },
-            "min": 1,
+            "min": 0,
             "max": 4,
             "step": 1
           },
@@ -502,6 +566,15 @@
               "nl": "Connector nummer"
             },
             "example": "1"
+          },
+          {
+            "name": "page",
+            "type": "number",
+            "title": {
+              "en": "Page",
+              "nl": "Pagina"
+            },
+            "example": "1"
           }
         ],
         "args": [
@@ -517,6 +590,13 @@
               "nl": "Links / Rechts"
             },
             "values": [
+              {
+                "id": "any",
+                "title": {
+                  "en": "Any",
+                  "nl": "Elke"
+                }
+              },
               {
                 "id": "left",
                 "title": {
@@ -541,14 +621,14 @@
               "nl": "Connector nummer"
             },
             "hint": {
-              "en": "The connector number (1-4)",
-              "nl": "Het connector nummer (1-4)"
+              "en": "The connector number (1-4). Use 0 for any connector.",
+              "nl": "Het connector nummer (1-4). Gebruik 0 voor elke connector."
             },
             "placeholder": {
-              "en": "Connector number (1-4)",
-              "nl": "Connector nummer (1-4)"
+              "en": "Connector number",
+              "nl": "Connector nummer"
             },
-            "min": 1,
+            "min": 0,
             "max": 4,
             "step": 1
           },
@@ -578,6 +658,15 @@
               "nl": "Status"
             },
             "example": "true"
+          },
+          {
+            "name": "page",
+            "type": "number",
+            "title": {
+              "en": "Page",
+              "nl": "Pagina"
+            },
+            "example": "1"
           }
         ],
         "deprecated": true,
@@ -714,6 +803,15 @@
               "nl": "Status"
             },
             "example": "true"
+          },
+          {
+            "name": "page",
+            "type": "number",
+            "title": {
+              "en": "Page",
+              "nl": "Pagina"
+            },
+            "example": "1"
           }
         ],
         "args": [
@@ -2383,6 +2481,8 @@
         "configuration_button.connector5",
         "configuration_button.connector6",
         "configuration_button.connector7",
+        "previous_page_button",
+        "next_page_button",
         "left_button.connector0",
         "right_button.connector0",
         "left_button.connector1",
@@ -2400,6 +2500,8 @@
         "left_button.connector7",
         "right_button.connector7",
         "dim",
+        "page",
+        "page.max",
         "measure_temperature",
         "date",
         "time",
@@ -2416,6 +2518,12 @@
           "desc": {
             "en": "Update the firmware of the device",
             "nl": "Firmware van het apparaat bijwerken"
+          }
+        },
+        "page.max": {
+          "title": {
+            "en": "Pages",
+            "nl": "Pagina's"
           }
         },
         "button.apply_config": {
@@ -3502,6 +3610,38 @@
         "nl": "Linker knop"
       },
       "icon": "/assets/left_arrow.svg"
+    },
+    "next_page_button": {
+      "type": "boolean",
+      "getable": false,
+      "setable": true,
+      "uiComponent": "button",
+      "title": {
+        "en": "Next Page",
+        "nl": "Volgende Pagina"
+      },
+      "icon": "/assets/next_page.svg"
+    },
+    "page": {
+      "type": "string",
+      "title": {
+        "en": "Page",
+        "nl": "Pagina"
+      },
+      "getable": true,
+      "setable": false,
+      "icon": "/assets/page.svg"
+    },
+    "previous_page_button": {
+      "type": "boolean",
+      "getable": false,
+      "setable": true,
+      "uiComponent": "button",
+      "title": {
+        "en": "Previous Page",
+        "nl": "Vorige pagina"
+      },
+      "icon": "/assets/previous_page.svg"
     },
     "right_button": {
       "type": "boolean",
