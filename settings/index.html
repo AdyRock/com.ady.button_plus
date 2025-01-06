@@ -414,6 +414,7 @@
 
 				}
 			});
+
 			function storeButtonSettings(ButtonPanelConfiguration)
 			{
 				for (page = 0; page < ButtonPanelConfiguration.length; page++)
@@ -499,7 +500,7 @@
 				ButtonPanelConfiguration[`${side}DisableLongRepeat`] = !longRepeatElement.checked;
 			};
 
-			// Button Bar Config code
+			// Read the button configuration from the settings and write the controls
 			Homey.get('buttonConfigurations', function (err, buttonConfigurations)
 			{
 				if (err) return Homey.alert(err);
@@ -516,12 +517,8 @@
 				// Get the current configuration
 				var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
 
-				// if localButtonConfigurations is an array, then set numPage to the length of the array otherwise set numPage to 1
-				var numPages = Array.isArray(buttonPanelConfiguration) ? buttonPanelConfiguration.length : 1;
-
-				writeButtonsections(numPages);
+				writeButtonsections(buttonPanelConfiguration.length);
 				updateButtonPanelControls();
-				setupButtonBrokerItems();
 			});
 
 			buttonConfigurationNoElement.addEventListener('change', function (e)
@@ -542,7 +539,6 @@
 				var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
 
 				writeButtonsections(buttonPanelConfiguration.length);
-
 				updateButtonPanelControls();
 			});
 
@@ -805,7 +801,6 @@
 				// Create and display the new page
 				writeButtonsections(buttonPanelConfiguration.length);
 				updateButtonPanelControls();
-				setupButtonBrokerItems();
 			});
 
 			copyButtonConfigElement.addEventListener('click', function (e)
@@ -878,6 +873,7 @@
 					if (newButtonPanelConfiguration.rightLongRepeat !== undefined) buttonPanelConfiguration.rightLongRepeat = newButtonPanelConfiguration.rightLongRepeat;
 
 					// Update the controls
+					writeButtonsections(buttonPanelConfiguration.length);
 					updateButtonPanelControls();
 				}
 				catch (err)
@@ -952,6 +948,10 @@
 					localBrokerItems = newConfigurations.brokerItems;
 
 					// Update the controls
+					// Get the current configuration
+					var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+
+					writeButtonsections(buttonPanelConfiguration.length);
 					updateButtonPanelControls();
 					updateDisplayConfiguration();
 					drawBrokerItems();
@@ -1239,6 +1239,7 @@
 			});
 		}
 
+		// Fetch the devices and then update the displays
 		function getDevices()
 		{
 			Homey.api('POST', '/Devices/', {}, function (err, devices)
@@ -1253,7 +1254,12 @@
 
 				buttonDevicesArray = sortDevices(filterButtonDevices(devices));
 				buttonDevicesFetched = true;
-				fillButtonDevices();
+
+				// Get the current configuration
+				var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+
+				writeButtonsections(buttonPanelConfiguration.length);
+				updateButtonPanelControls();
 			});
 		}
 
@@ -1508,6 +1514,7 @@
 
 		}
 
+		// If the config and devices have been fetched, update all the control values
 		function updateButtonPanelControls()
 		{
 			if ((buttonConfigurationsFetched == false) || (buttonDevicesFetched == false)) return;
@@ -1520,8 +1527,6 @@
 
 			let config = localButtonConfigurations[currentButtonConfigurationNo];
 
-			fillButtonDevices();
-
 			for (let page = 0; page < config.length; page++)
 			{
 				document.getElementById(`${page}PageNum`).value = page === 0 ? 'Default' : config[page].PageNum;
@@ -1530,15 +1535,16 @@
 				updateButtonPanelControlsSection("right", page, config[page]);
 			}
 
+			fillButtonDevices();
 			setupButtonBrokerItems();
-
 		}
 
+		// Update the controls for the specified side and page
 		function updateButtonPanelControlsSection(side, page, ButtonPanelConfiguration)
 		{
 			if (buttonConfigurationNoElement.value == "")
 			{
-				fillButtonConfigListElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
+				// fillButtonConfigListElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
 
 				configNameElement.value = "";
 				document.getElementById(`${side}${page}TopText`).value = "";
@@ -1558,7 +1564,7 @@
 			{
 				currentButtonConfigurationNo = buttonConfigurationNoElement.value;
 
-				fillButtonConfigListElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
+				// fillButtonConfigListElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
 
 				buttonConfigurationNoElement.value = currentButtonConfigurationNo;
 
@@ -1689,8 +1695,7 @@
 			}
 		}
 
-		// Code for Displaypanel configuration
-
+		// Store the current display settings and then apply the new ones
 		function redisplayDisplyConfig(activeItemNo = -1)
 		{
 			// Store the current configuration
@@ -1700,6 +1705,7 @@
 			updateDisplayConfiguration(activeItemNo);
 		}
 
+		// If the config has been fetched, update all the control values
 		function updateDisplayConfiguration(expandItem = -1)
 		{
 			if (displayConfigurationsFetched)
@@ -1722,12 +1728,11 @@
 					}
 				}
 
-				// displayCapabilityItems = [];
-
 				drawDisplayConfiguration(displayConfiguration, expandItemId);
 			}
 		}
 
+		// Create all the display items for the specified display configuration
 		function drawDisplayConfiguration(displayConfiguration, expandItemId = -1)
 		{
 			// Sort the display items by page number, then by Y position and finally by X position
@@ -2032,6 +2037,7 @@
 		}
 
 
+		// Add the HTML for the specified display item
 		function insertDisplayItemSection(item, itemNo, expanded = false)
 		{
 			var section = ""; // document.getElementById('displayItemsSection').innerHTML;
@@ -2211,6 +2217,7 @@
 			// }, 100);
 		}
 
+		// Ensure that the display item's legend is always up-to-date with the latest label, position, and size values.
 		function onDisplayLabelChange(element, itemNo)
 		{
 			let newLabel = element.value;
@@ -2301,6 +2308,7 @@
 
 		window.addEventListener("scroll", makeSummarySticky);
 
+		// if the display configuration has been fetched, update the display controls
 		function fillDisplayDevices()
 		{
 			if (displayDevicesFetched)
@@ -3383,7 +3391,6 @@
 			// Create and display the new page
 			writeButtonsections(buttonPanelConfiguration.length);
 			updateButtonPanelControls();
-			setupButtonBrokerItems();
 		}
 
 		function onButtonPageChange(Element, page)
@@ -3438,9 +3445,9 @@
 			// Redisplay the pages
 			writeButtonsections(buttonPanelConfiguration.length);
 			updateButtonPanelControls();
-			setupButtonBrokerItems();
 		}
 
+		// Create the HTML for the button sections. Note this just creates the framework, the controls values are set using updateButtonPanelControls
 		function writeButtonsections(numPages)
 		{
 			// Write the button sections
@@ -3480,6 +3487,7 @@
 			document.getElementById('buttonItemsSection').innerHTML = html;
 		}
 
+		// Create the HTML for the button page and side
 		function getButtonHtml(side, page)
 		{
 			const leftPanelText = Homey.__("settings.leftPanel");

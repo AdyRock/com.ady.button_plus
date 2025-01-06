@@ -857,13 +857,13 @@ class MyApp extends Homey.App
 		this.homey.settings.set('displayConfigurations', this.displayConfigurations);
 	}
 
-	async uploadDisplayConfiguration(ip, configurationNo, firmwareVersion)
+	async uploadDisplayConfiguration(ip, configurationNo, firmwareVersion, ButtonDevice)
 	{
 		try
 		{
 			// apply the new configuration
 			const sectionConfiguration = {};
-			await this.applyDisplayConfiguration(sectionConfiguration, configurationNo, firmwareVersion);
+			await this.applyDisplayConfiguration(sectionConfiguration, configurationNo, firmwareVersion, ButtonDevice);
 			this.updateLog(`Current Config: ${sectionConfiguration}`);
 
 			// write the updated configuration back to the device
@@ -1049,7 +1049,7 @@ class MyApp extends Homey.App
 			{
 				this.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value).catch(this.error);
 			}
-		}, 5000);
+		}, 10000);
 
 		return maxPages;
 	}
@@ -1219,8 +1219,8 @@ class MyApp extends Homey.App
 					sectionConfiguration.buttons[arrayIdx] = {};
 					button = sectionConfiguration.buttons[arrayIdx];
 				}
-				this.setupButtonMQTTList(null, panelId, buttonIdx, button, connectorType, firmwareVersion, 0);
-				this.setupButtonMQTTList(null, panelId, buttonIdx + 1, button, connectorType, firmwareVersion, 0);
+				this.setupButtonMQTTTopicList(null, panelId, buttonIdx, button, connectorType, firmwareVersion, 0);
+				this.setupButtonMQTTTopicList(null, panelId, buttonIdx + 1, button, connectorType, firmwareVersion, 0);
 			}
 		}
 
@@ -1811,25 +1811,6 @@ class MyApp extends Homey.App
 									continue;
 								}
 
-								// next part is the device id
-								if (device.__id === deviceId)
-								{
-									if (driver.id === 'panel_hardware' && topicParts[2] === 'button_temperature')
-									{
-										// Add the temperature calibration offset to the value
-										const temperature = mqttMessage + device.temperatureCalibration;
-										device.setCapabilityValue('measure_temperature', temperature).catch(device.error);
-
-										// request the device to check the state change
-										device.checkStateChange(deviceId, 'measure_temperature', temperature);
-									}
-									else
-									{
-										device.setCapabilityValue(topicParts[2], mqttMessage).catch(device.error);
-									}
-									return;
-								}
-
 								if (await device.checkCoreMQTTMessage(topicParts, mqttMessage))
 								{
 									return;
@@ -2262,12 +2243,13 @@ class MyApp extends Homey.App
 	// returns true if a button was added
 	setupButtonConfigSection(ButtonPanelConfiguration, panelId, buttonIdx, sectionConfiguration, connectorType, firmwareVersion, page)
 	{
-		let buttons = sectionConfiguration.buttons[sectionConfiguration.buttons.length - 1];
-
-		if (!buttons)
+		// Make sure there is a button for this index
+		let button = sectionConfiguration.buttons[buttonIdx]
+		if (!button)
 		{
-			buttons = {};
-			sectionConfiguration.buttons.push(buttons);
+			// Create the button object
+			button = {};
+			sectionConfiguration.buttons.push(button);
 		}
 
 		if (connectorType === 1)
@@ -2284,32 +2266,29 @@ class MyApp extends Homey.App
 						return false;
 					}
 				}
-				else
+				else if (page < 0)
 				{
 					page = 0;
 				}
 
-				sectionConfiguration.buttons.push(
+				// Update the button object
+				button.label= ``;
+				button.toplabel = '';
+				button.topics= [];
+				button.page = page;
+				button.position= buttonIdx + 1;
+				button.leds = [
 					{
-						label: `Btn_${buttonIdx}`,
-						toplabel: 'Label',
+						frontwall: 'front',
+						onrgb: 0,
 						topics: [],
-						page,
-						position: buttonIdx + 1,
-						leds: [
-							{
-								frontwall: 'front',
-								onrgb: 0,
-								topics: [],
-							},
-							{
-								frontwall: 'wall',
-								onrgb: 0,
-								topics: [],
-							}
-						],
 					},
-				);
+					{
+						frontwall: 'wall',
+						onrgb: 0,
+						topics: [],
+					}
+				];
 			}
 			else
 			{
@@ -2319,40 +2298,26 @@ class MyApp extends Homey.App
 					return false;
 				}
 
-				// Older firmware versions don't support pages so only add page 0
-				sectionConfiguration.buttons.push(
-					{
-						id: buttonIdx,
-						label: `Btn_${buttonIdx}`,
-						toplabel: 'Label',
-						topics: [],
-					},
-				);
+				button.label = `Btn_${buttonIdx}`;
+				button.toplabel = 'Label';
+				button.topics = [];
 			}
-
-			buttons.toplabel = '';
-			buttons.label = '';
-
-			// // Convert the '#000000' string to a long for the LED color
-			// const frontLEDOnColor = parseInt(ButtonPanelConfiguration ? ButtonPanelConfiguration[(buttonIdx & 1) === 0 ? 'leftFrontLEDOnColor' : 'rightFrontLEDOnColor'].substring(1) : '0', 16);
-			// const wallLEDOnColor = parseInt(ButtonPanelConfiguration ? ButtonPanelConfiguration[(buttonIdx & 1) === 0 ? 'leftWallLEDOnColor' : 'rightWallLEDOnColor'].substring(1) : '0', 16);
-			// buttons.LEDColorfront = frontLEDOnColor;
-			// buttons.LEDColorwall = wallLEDOnColor;
 		}
 
-		buttons.longdelay = 75;
-		buttons.longrepeat = 50;
-		buttons.id = buttonIdx;
+		button.longdelay = 75;
+		button.longrepeat = 50;
+//		button.id = buttonIdx;
 
-		this.setupButtonMQTTList(ButtonPanelConfiguration, panelId, buttonIdx, buttons, connectorType, firmwareVersion, page);
+		this.setupButtonMQTTTopicList(ButtonPanelConfiguration, panelId, buttonIdx, button, connectorType, firmwareVersion, page);
 
 		return true;
 	}
 
-	setupButtonMQTTList(ButtonPanelConfiguration, panelId, buttonIdx, buttons, connectorType, firmwareVersion, page)
+	setupButtonMQTTTopicList(ButtonPanelConfiguration, panelId, buttonIdx, buttons, connectorType, firmwareVersion, page)
 	{
 		if (checkSEMVerGreaterOrEqual(firmwareVersion, '2.0.0'))
 		{
+			// Version 2 automatically creates the topics
 			return;
 		}
 
@@ -2368,17 +2333,12 @@ class MyApp extends Homey.App
 		// Only add the top label, label and value if the connector type is 1
 		if (connectorType === 1)
 		{
-			// if (buttons.topics === undefined)
-			// {
-			// 	buttons.topics = [];
-			// }
-
 			// Add the Top Label event entry
 			buttons.topics.push(
 				{
 					brokerid: brokerId,
 					eventtype: 12,
-					topic: `buttonplus/${panelId}/button/${buttonIdx}-${page}/toplabel/set`,
+					topic: `buttonplus/${panelId}/button/${buttonIdx + 1}-${page}/toplabel/set`,
 					payload: '',
 				},
 			);
@@ -2388,7 +2348,7 @@ class MyApp extends Homey.App
 				{
 					brokerid: brokerId,
 					eventtype: 11,
-					topic: `buttonplus/${panelId}/button/${buttonIdx}-${page}/label/set`,
+					topic: `buttonplus/${panelId}/button/${buttonIdx + 1}-${page}/label/set`,
 					payload: '',
 				},
 			);
@@ -2400,7 +2360,29 @@ class MyApp extends Homey.App
 					{
 						brokerid: brokerId,
 						eventtype: 14,
-						topic: `buttonplus/${panelId}/button/${buttonIdx}-${page}/led`,
+						topic: `buttonplus/${panelId}/button/${buttonIdx + 1}-${page}/led`,
+						payload: true,
+					},
+				);
+			}
+			else
+			{
+				// Add the front LED colour event entry
+				buttons.topics.push(
+					{
+						brokerid: brokerId,
+						eventtype: 28,
+						topic: `buttonplus/${panelId}/button/${buttonIdx + 1}-${page}/led/front/rgb/set`,
+						payload: true,
+					},
+				);
+
+				// Add the wall LED colour event entry
+				buttons.topics.push(
+					{
+						brokerid: brokerId,
+						eventtype: 29,
+						topic: `buttonplus/${panelId}/button/${buttonIdx + 1}-${page}/led/wall/rgb/set`,
 						payload: true,
 					},
 				);
@@ -2412,7 +2394,7 @@ class MyApp extends Homey.App
 			{
 				brokerid: brokerId,
 				eventtype: 0,
-				topic: `buttonplus/${panelId}/button/${buttonIdx}-${page}/pushbutton`,
+				topic: `buttonplus/${panelId}/button/${buttonIdx + 1}-${page}/pushbutton`,
 				payload: '{"event_type": "click"}',
 			},
 		);
@@ -2422,7 +2404,7 @@ class MyApp extends Homey.App
 			{
 				brokerid: brokerId,
 				eventtype: 1,
-				topic: `buttonplus/${panelId}/button/${buttonIdx}-${page}/pushbutton`,
+				topic: `buttonplus/${panelId}/button/${buttonIdx + 1}-${page}/pushbutton`,
 				payload: '{"event_type": "longpress"}',
 			},
 		);
@@ -2432,8 +2414,8 @@ class MyApp extends Homey.App
 			{
 				brokerid: brokerId,
 				eventtype: 2,
-				topic: `buttonplus/${panelId}/button/${buttonIdx}-${page}/pushbutton`,
-				payload: '{"event_type": "clickrelease"}',
+				topic: `buttonplus/${panelId}/button/${buttonIdx + 1}-${page}/pushbutton`,
+				payload: '{"event_type": "release"}',
 			},
 		);
 	}

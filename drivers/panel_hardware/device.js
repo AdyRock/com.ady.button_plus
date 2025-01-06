@@ -17,11 +17,12 @@ class PanelDevice extends Device
 	{
 		this.initFinished = false;
 		this.longPressOccurred = new Map();
+		this.buttonValues = new Map();
 		this.barConfigured = [false, false, false, false, false, false, false, false];
 		this.page = 1;
 
 		const { id } = this.getData();
-		this.id = id;
+		this.buttonId = id;
 
 		const settings = this.getSettings();
 
@@ -229,28 +230,53 @@ class PanelDevice extends Device
 		this.log('PanelDevice hardware initialization completed');
 	}
 
-	async setupMQTTSubscriptions(brokerId)
+	async setupMQTTSubscriptions(brokerOrStringId)
 	{
-		const mqttClient = this.homey.app.getMqttClient(brokerId);
+		let mqttClient = null;
+
+		// If the brokerId is a string then get the MQTT client
+		if (typeof brokerOrStringId === 'string')
+		{
+			mqttClient = this.homey.app.getMqttClient(brokerOrStringId);
+		}
+		else
+		{
+			mqttClient = brokerOrStringId;
+		}
 
 		if (!mqttClient)
 		{
+			this.homey.app.updateLog(`setupMQTTSubscriptions: MQTT client not found for brokerId: ${brokerOrStringId}`, 0);
+
+			if (this.setupSubsTimer)
+			{
+				this.homey.clearTimeout(this.setupSubsTimer);
+				this.setupSubsTimer = null;
+			}
+
+			// try again in 30 seconds
+			this.setupSubsTimer = this.homey.setTimeout(() =>
+			{
+				this.setupSubsTimer = null;
+				this.setupMQTTSubscriptions(brokerOrStringId).catch(this.error);
+			}, 30000);
+
 			return;
 		}
 
 		if (checkSEMVerGreaterOrEqual(this.firmwareVersion, '1.12.0'))
 		{
 			let value = this.getCapabilityValue('dim');
-			this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.id}/brightness/set`, value * 255).catch(this.error);
+			this.homey.app.publishMQTTMessage(brokerOrStringId, `buttonplus/${this.buttonId}/brightness/set`, value * 255).catch(this.error);
 
 			value = 1;
 			if (this.page !== null)
 			{
 				value = `${this.page - 1}`;
 			}
-			this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.id}/page/set`, value);
+			this.homey.app.publishMQTTMessage(brokerOrStringId, `buttonplus/${this.buttonId}/page/set`, value);
 
-			mqttClient.subscribe(`buttonplus/${this.id}/page/state`, (err) =>
+			mqttClient.subscribe(`buttonplus/${this.buttonId}/page/state`, (err) =>
 			{
 				if (err)
 				{
@@ -258,7 +284,7 @@ class PanelDevice extends Device
 				}
 			});
 
-			mqttClient.subscribe(`buttonplus/${this.id}/button/#`, (err) =>
+			mqttClient.subscribe(`buttonplus/${this.buttonId}/#`, (err) =>
 			{
 				if (err)
 				{
@@ -278,7 +304,7 @@ class PanelDevice extends Device
 
 		// Publish the new value to the MQTT broker
 		const brokerId = this.homey.settings.get('defaultBroker');
-		this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.id}/brightness/set`, value * 100).catch(this.error);
+		this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/brightness/set`, value * 100).catch(this.error);
 	}
 
 	/**
@@ -474,13 +500,13 @@ class PanelDevice extends Device
 	async updateConnectorTopLabel(left_right, connector, page, label)
 	{
 		const { brokerId, buttonIdx } = this.getBrokerIdAndBtnIdx(left_right, connector);
-		return this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.id}/button/${buttonIdx}-${page}/toplabel/set`, label).catch(this.error);
+		return this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/toplabel/set`, label).catch(this.error);
 	}
 
 	async updateConnectorLabel(left_right, connector, pageNum, label)
 	{
 		const { brokerId, buttonIdx } = this.getBrokerIdAndBtnIdx(left_right, connector);
-		return this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.id}/button/${buttonIdx}-${pageNum}/label/set`, label).catch(this.error);
+		return this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${pageNum}/label/set`, label).catch(this.error);
 	}
 
 	async updateConfigTopLabel(left_right, configNo, label)
@@ -530,7 +556,7 @@ class PanelDevice extends Device
 			{
 				// get the time in the local format, but exclude seconds
 				// eslint-disable-next-line object-curly-newline
-				time = dateTime.toLocaleTimeString(this.langCode, { hour12: false, hour: '2-digit', minute: '2-digit' });
+				time = dateTime.toLocaleTimeString(this.langCode, { hourCycle: 'h23', hour: '2-digit', minute: '2-digit' });
 			}
 			else
 			{
@@ -614,15 +640,15 @@ class PanelDevice extends Device
 					const brokerId = this.homey.settings.get('defaultBroker');
 					if (large != undefined)
 					{
-						this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.id}/brightness/large`, large, false, false).catch(this.error);
+						this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/brightness/large`, large, false, false).catch(this.error);
 					}
 					if (mini != undefined)
 					{
-						this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.id}/brightness/mini`, mini, false, false).catch(this.error);
+						this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/brightness/mini`, mini, false, false).catch(this.error);
 					}
 					if (led != undefined)
 					{
-						this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.id}/brightness/led`, led, false, false).catch(this.error);
+						this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/brightness/led`, led, false, false).catch(this.error);
 					}
 				}
 
@@ -659,14 +685,14 @@ class PanelDevice extends Device
 		const rgb = parseInt(rgbString, 16);
 		if ((front_wall === 'front') || (front_wall === 'both'))
 		{
-			return this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.id}/button/${buttonNo}-${page}/led/front/rgb/set`, rgb, false, false).catch(this.error);
+			return this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/button/${buttonNo}-${page}/led/front/rgb/set`, rgb, false, false).catch(this.error);
 		}
 		if ((front_wall === 'wall') || (front_wall === 'both'))
 		{
-			return this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.id}/button/${buttonNo}-${page}/led/wall/rgb/set`, rgb, false, false).catch(this.error);
+			return this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/button/${buttonNo}-${page}/led/wall/rgb/set`, rgb, false, false).catch(this.error);
 		}
 
-//		return this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.id}/${buttonNo}-${page}led/rgb`, rgb, false, false).catch(this.error);
+//		return this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/${buttonNo}-${page}led/rgb`, rgb, false, false).catch(this.error);
 	}
 
 	async setConfigLEDColour(left_right, configNo, rgb, front_wall, updateConfig, On_Off)
@@ -764,68 +790,59 @@ class PanelDevice extends Device
 			pageCommand = `${this.page - 1}`;
 		}
 
-		this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.id}/page/set`, pageCommand).catch(this.error);
+		this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/page/set`, pageCommand).catch(this.error);
 	}
 
 	async uploadPanelTemperatureConfiguration(deviceConfigurations)
 	{
-		if (this.ip !== '')
+		if (!checkSEMVerGreaterOrEqual(this.firmwareVersion, '2.0.0'))
 		{
-			try
+			// Only required for firmware versions less than 2.0.0
+			if (this.ip !== '')
 			{
-				// Add the temperature event entry
-				const brokerId = this.homey.settings.get('defaultBroker');
-				const sectionConfiguration = {
-					sensors: [
-					{
-						sensorid: 1,
-						interval: 10,
-						topic:
+				try
+				{
+					// Add the temperature event entry
+					const brokerId = this.homey.settings.get('defaultBroker');
+					const sectionConfiguration = {
+						sensors: [
 						{
-							brokerid: brokerId,
-							topic: `buttonplus/${this.__id}/button_temperature`,
-							payload: '',
-							eventtype: 18,
-						},
-					}],
-				};
+							sensorid: 1,
+							interval: 30,
+							topic:
+							{
+								brokerid: brokerId,
+								topic: `buttonplus/${this.buttonId}/sensor/1`,
+								payload: '',
+								eventtype: 18,
+							},
+						}],
+					};
 
-				const MQTTclient = this.homey.app.MQTTClients.get(brokerId);
-				if (MQTTclient)
-				{
-					// MQTTclient.subscribe(`buttonplus/${this.__id}/button_temperature`, (err) =>
-					// {
-					// 	if (err)
-					// 	{
-					// 		this.homey.app.updateLog("setupMQTTClient.onConnect 'buttonplus/sensorvalue' error: " * this.homey.app.varToString(err), 0);
-					// 	}
-					// });
-				}
-
-				if (deviceConfigurations)
-				{
-					// Check if the configuration is the same
-					if (this.compareObjects(sectionConfiguration.sensors, deviceConfigurations.sensors))
+					if (deviceConfigurations)
 					{
-						delete deviceConfigurations.sensors;
+						// Check if the configuration is the same
+						if (this.compareObjects(sectionConfiguration.sensors, deviceConfigurations.sensors))
+						{
+							delete deviceConfigurations.sensors;
+						}
+						else
+						{
+							deviceConfigurations.sensors = sectionConfiguration.sensors;
+						}
+						return null;
 					}
-					else
-					{
-						deviceConfigurations.sensors = sectionConfiguration.sensors;
-					}
-					return null;
-				}
 
-				this.homey.app.updateLog(`writeSensorConfig: ${this.homey.app.varToString(sectionConfiguration)}`);
-				return await await this.homey.app.writeDeviceConfiguration(this.ip, sectionConfiguration, this.firmwareVersion);
-			}
-			catch (err)
-			{
-				this.homey.app.updateLog(`Error setting up pane temperature topic: ${err.message}`, 0);
-				return err.message;
+					this.homey.app.updateLog(`writeSensorConfig: ${this.homey.app.varToString(sectionConfiguration)}`);
+					return await await this.homey.app.writeDeviceConfiguration(this.ip, sectionConfiguration, this.firmwareVersion);
+				}
+				catch (err)
+				{
+					this.homey.app.updateLog(`Error setting up pane temperature topic: ${err.message}`, 0);
+					return err.message;
+				}
 			}
 		}
-
 		return null;
 	}
 
@@ -857,19 +874,19 @@ class PanelDevice extends Device
 					sectionConfiguration.core.topics = [
 					{
 						brokerid: brokerId,
-						topic: `buttonplus/${this.id}/brightness/large`,
+						topic: `buttonplus/${this.buttonId}/brightness/large`,
 						payload: '',
 						eventtype: 24,
 					},
 					{
 						brokerid: brokerId,
-						topic: `buttonplus/${this.id}/brightness/mini`,
+						topic: `buttonplus/${this.buttonId}/brightness/mini`,
 						payload: '',
 						eventtype: 25,
 					},
 					{
 						brokerid: brokerId,
-						topic: `buttonplus/${this.id}/brightness/led`,
+						topic: `buttonplus/${this.buttonId}/brightness/led`,
 						payload: '',
 						eventtype: 27,
 					}];
@@ -879,7 +896,7 @@ class PanelDevice extends Device
 						sectionConfiguration.core.topics.push(
 						{
 							brokerid: brokerId,
-							topic: `buttonplus/${this.id}/page/state`,
+							topic: `buttonplus/${this.buttonId}/page/state`,
 							payload: '',
 							eventtype: 6,
 						});
@@ -887,7 +904,7 @@ class PanelDevice extends Device
 						sectionConfiguration.core.topics.push(
 						{
 							brokerid: brokerId,
-							topic: `buttonplus/${this.id}/page/set`,
+							topic: `buttonplus/${this.buttonId}/page/set`,
 							payload: '',
 							eventtype: 20,
 							retain: false,
@@ -902,7 +919,7 @@ class PanelDevice extends Device
 							sectionConfiguration.core.topics.push(
 							{
 								brokerid: brokerId,
-								topic: `buttonplus/${this.id}/brightness/set`,
+								topic: `buttonplus/${this.buttonId}/brightness/set`,
 								payload: '',
 								eventtype: 26,
 							});
@@ -911,11 +928,11 @@ class PanelDevice extends Device
 						const MQTTclient = this.homey.app.MQTTClients.get(brokerId);
 						if (MQTTclient)
 						{
-							MQTTclient.subscribe(`buttonplus/${this.id}/brightness/set`, (err) =>
+							MQTTclient.subscribe(`buttonplus/${this.buttonId}/brightness/set`, (err) =>
 							{
 								if (err)
 								{
-									this.homey.app.updateLog(`setupMQTTClient.onConnect 'buttonplus/${this.id}/brightness' error:  ${this.homey.app.varToString(err)}`, 0);
+									this.homey.app.updateLog(`setupMQTTClient.onConnect 'buttonplus/${this.buttonId}/brightness' error:  ${this.homey.app.varToString(err)}`, 0);
 								}
 							});
 						}
@@ -1018,7 +1035,9 @@ class PanelDevice extends Device
 						{
 							this.homey.app.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value, false).catch(this.error);
 						}
-					}, 5000);
+
+						mqttQue = null;
+					}, 15000);
 
 					await this.setupMQTTSubscriptions('Default');
 
@@ -1194,7 +1213,7 @@ class PanelDevice extends Device
 		this.homey.app.updateLog(`onCapabilityConfiguration ${value}, ${opts}`);
 		try
 		{
-			await this.homey.app.uploadDisplayConfiguration(this.ip, value, this.firmwareVersion);
+			await this.homey.app.uploadDisplayConfiguration(this.ip, value, this.firmwareVersion, this);
 			this.setWarning(null);
 		}
 		catch (error)
@@ -1212,51 +1231,53 @@ class PanelDevice extends Device
 		if (connectorType === 1)
 		{
 			// Button bar
-			const configNo = parseInt(value, 10);
-
 			try
 			{
+				if (!this.firmwareVersion)
+				{
+					// Fetch the button + configuration from the device
+					return await this.uploadConfigurations();
+				}
+
 				let mqttQue = [];
 
-				if (configNo !== null)
+				if (checkSEMVerGreaterOrEqual(this.firmwareVersion, '2.0.0'))
 				{
-					// Get the button page configuration
-					let buttonPanelConfiguration = this.homey.app.buttonConfigurations[configNo];
-					if (!buttonPanelConfiguration)
-					{
-						throw new Error('Invalid configuration number');
-					}
+					mqttQue = mqttQue.concat(await this.uploadAllButtonConfigurations(null));
+				}
+				else
+				{
+					const configNo = parseInt(value, 10);
 
-					if (!this.firmwareVersion)
+					if (configNo !== null)
 					{
-						// Fetch the button + configuration from the device
-						return await this.uploadConfigurations();
-					}
+						// Get the button page configuration
+						let buttonPanelConfiguration = this.homey.app.buttonConfigurations[configNo];
+						if (!buttonPanelConfiguration)
+						{
+							throw new Error('Invalid configuration number');
+						}
 
-					if (checkSEMVerGreaterOrEqual(this.firmwareVersion, '2.0.0'))
-					{
-						this.barConfigured[connector] = false;
-					}
+						if ((!checkSEMVerGreaterOrEqual(this.firmwareVersion, '1.12.0')) || (this.barConfigured[connector] === false))
+						{
+							// Upload the button configuration
+							await this.uploadOneButtonConfiguration(connector, value, this.firmwareVersion);
+							this.barConfigured[connector] = true;
+						}
 
-					if ((!checkSEMVerGreaterOrEqual(this.firmwareVersion, '1.12.0')) || (this.barConfigured[connector] === false))
-					{
-						// Upload the button configuration
-						await this.uploadOneButtonConfiguration(connector, value, this.firmwareVersion);
-						this.barConfigured[connector] = true;
-					}
+						// for each page in the configuration
+						for (let page = 0; page < buttonPanelConfiguration.length; page++)
+						{
+							let config = buttonPanelConfiguration[page]
 
-					// for each page in the configuration
-					for (let page = 0; page < buttonPanelConfiguration.length; page++)
-					{
-						let config = buttonPanelConfiguration[page]
-
-						mqttQue = await this.setupConnectorMQTTmessages(config, page, connector, connectorType);
+							mqttQue = await this.setupConnectorMQTTmessages(config, page, connector, connectorType);
+						}
 					}
+				}
 
-					for (const mqttMsg of mqttQue)
-					{
-						this.homey.app.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value, false, mqttMsg.retain).catch(this.error);
-					}
+				for (const mqttMsg of mqttQue)
+				{
+					this.homey.app.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value, false, mqttMsg.retain).catch(this.error);
 				}
 			}
 			catch (error)
@@ -1265,9 +1286,9 @@ class PanelDevice extends Device
 				this.setWarning(error.message);
 				return
 			}
-
-			this.setWarning(null);
 		}
+
+		this.setWarning(null);
 	}
 
 	async onCapabilityNextPage(value, opts)
@@ -1299,6 +1320,7 @@ class PanelDevice extends Device
 	async onCapabilityLeftButton(connector, value, opts)
 	{
 		this.homey.app.updateLog(`onCapabilityLeftButton ${connector}, ${value}, ${opts}`);
+		this.buttonValues.set(`left_${connector}_${this.page}`, value);
 
 		// Setup parameters and call procesButtonClick
 		const parameters = {};
@@ -1314,6 +1336,8 @@ class PanelDevice extends Device
 	async onCapabilityRightButton(connector, value, opts)
 	{
 		this.homey.app.updateLog(`onCapabilityLeftButton ${connector}, ${value}, ${opts}`);
+		this.buttonValues.set(`right_${connector}_${this.page}`, value);
+
 		// Setup parameters and call procesButtonClick
 		const parameters = {};
 		parameters.connector = connector;
@@ -1341,7 +1365,7 @@ class PanelDevice extends Device
 
 	async checkCoreMQTTMessage(topicParts, value)
 	{
-		if (topicParts[1] === this.id)
+		if (topicParts[1] === this.buttonId)
 		{
 			if ((topicParts[2] === 'page') && (topicParts[3] === 'state'))
 			{
@@ -1356,13 +1380,23 @@ class PanelDevice extends Device
 					this.setCapabilityValue('page', `${page}`).catch(this.error);
 				}
 			}
+			else if ((topicParts[2] === 'sensor') && (topicParts[3] === '1'))
+			{
+				// Update the temperature capability
+				// Add the temperature calibration offset to the value
+				const temperature = value + this.temperatureCalibration;
+				this.setCapabilityValue('measure_temperature', temperature).catch(this.error);
+
+				const configNo = this.getCapabilityValue('configuration_display');
+				this.checkStateChangeForDisplay(configNo, this.__id, 'measure_temperature', temperature);
+			}
 		}
 	}
 
 	async processMQTTMessage(MQTTMessage)
 	{
 		// eslint-disable-next-line eqeqeq
-		if (!MQTTMessage || MQTTMessage.id != this.id)
+		if (!MQTTMessage || MQTTMessage.id != this.buttonId)
 		{
 			// Message is not for this device
 			return;
@@ -1384,7 +1418,7 @@ class PanelDevice extends Device
 		parameters.connectorType = this.getSetting(`connect${parameters.connector}Type`);
 		parameters.configNo = parameters.connectorType === 2 ? this.getCapabilityValue('configuration_display') : this.getCapabilityValue(`configuration_button.connector${parameters.connector}`);
 		parameters.buttonCapability = `${parameters.side}_button.connector${parameters.connector}`;
-		parameters.value = !this.getCapabilityValue(parameters.buttonCapability);
+		parameters.value = !this.buttonValues.get(`${parameters.side}_${parameters.connector}_${parameters.page}`);
 
 		// Now process the message
 		if (MQTTMessage.event === 'click')
@@ -1484,7 +1518,7 @@ class PanelDevice extends Device
 							device.setCapabilityValue(config.capabilityName, value).catch(this.error);
 							value *= 100;
 
-							if (parameters.fromButton && (this.page === parameters.page))
+							if (parameters.fromButton && ((parameters.page === 0) || (this.page === parameters.page)))
 							{
 								// Set the button state back to false immediately
 								setImmediate(() => this.setCapabilityValue(parameters.buttonCapability, false).catch(this.error));
@@ -1492,14 +1526,14 @@ class PanelDevice extends Device
                         }
                         else if (config.capabilityName === 'windowcoverings_state')
                         {
-                            if (capability.value !== null)
-                            {
-								await device.setCapabilityValue(config.capabilityName, 'idle');
+                            // if (capability.value !== null)
+                            // {
+							// 	await device.setCapabilityValue(config.capabilityName, 'idle');
 
-								// don't make any further changes to the button state
-								return;
-                            }
-                            else if (value)
+							// 	// don't make any further changes to the button state
+							// 	return;
+                            // }
+                            if (value)
                             {
 								// Set the new state to up
                                 await device.setCapabilityValue(config.capabilityName, 'up');
@@ -1529,11 +1563,13 @@ class PanelDevice extends Device
 
         if (typeof value === 'boolean')
         {
-            if (!parameters.fromButton && (this.page === parameters.page))
+			if (!parameters.fromButton && ((parameters.page === 0) || (this.page === parameters.page)))
             {
                 // Set the virtual button state
                 this.setCapabilityValue(parameters.buttonCapability, value).catch(this.error);
             }
+
+			this.buttonValues.set(`${parameters.side}_${parameters.connector}_${parameters.page}`, value);
 
             if (triggerChange)
             {
@@ -1554,16 +1590,13 @@ class PanelDevice extends Device
         if (config)
         {
 			let buttonIdx = parameters.idx;
-			if (checkSEMVerGreaterOrEqual(this.firmwareVersion, '2.0.0'))
-			{
-				buttonIdx++;
-			}
+			buttonIdx++;
 
 			this.setLEDOnOff(config, null, buttonIdx, parameters.page, value);
-			// this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.id}/${parameters.idx}`, value).catch(this.error);
+			// this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/${parameters.idx}`, value).catch(this.error);
             if ((value && config.onMessage !== '') || (!value && config.offMessage !== ''))
             {
-				this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.id}/button/${buttonIdx}-${parameters.page}/label/set`, value ? config.onMessage : config.offMessage).catch(this.error);
+				this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/label/set`, value ? config.onMessage : config.offMessage).catch(this.error);
             }
 
             if (config.onMessage === '' && config.offMessage !== '')
@@ -1585,7 +1618,7 @@ class PanelDevice extends Device
 
 	async processLongPressMessage(parameters)
 	{
-		let repeatCount = this.longPressOccurred.get(`${parameters.connector}_${parameters.side}`);
+		let repeatCount = this.longPressOccurred.get(`${parameters.connector}_${parameters.side}_${page}`);
 		if (repeatCount === undefined)
 		{
 			repeatCount = 0;
@@ -1606,12 +1639,13 @@ class PanelDevice extends Device
 			this.homey.app.updateLog(`Panel processing MQTT message: ${parameters}`);
 		}
 
-		this.longPressOccurred.set(`${parameters.connector}_${parameters.side}`, repeatCount + 1);
+		this.longPressOccurred.set(`${parameters.connector}_${parameters.side}_${page}`, repeatCount + 1);
 		this.homey.app.triggerButtonLongPress(this, parameters.side === 'left', parameters.connector + 1, repeatCount, parameters.page);
 
 		if (buttonPanelConfiguration !== null)
 		{
-			const value = this.getCapabilityValue(`${parameters.side}_button.connector${parameters.connector}`);
+			const value = this.buttonValues.get(`${parameters.side}_${parameters.connector}_${parameters.page}`);
+
 			if (repeatCount === 0)
 			{
 				this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'long', value, parameters.page);
@@ -1632,10 +1666,7 @@ class PanelDevice extends Device
 	async processReleaseMessage(parameters)
 	{
 		let buttonIdx = parameters.idx;
-		if (checkSEMVerGreaterOrEqual(this.firmwareVersion, '2.0.0'))
-		{
-			buttonIdx++;
-		}
+		buttonIdx++;
 
 		this.homey.app.triggerButtonRelease(this, parameters.side === 'left', parameters.connector + 1, parameters.page);
 
@@ -1643,7 +1674,7 @@ class PanelDevice extends Device
 
 		if (parameters.configNo !== null)
 		{
-			const value = this.getCapabilityValue(`${parameters.side}_button.connector${parameters.connector}`);
+			const value = this.buttonValues.get(`${parameters.side}_${parameters.connector}_${parameters.page}`) || false;
 			this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'released', value, parameters.page);
 		}
 
@@ -1651,11 +1682,16 @@ class PanelDevice extends Device
 		if ((parameters.connectorType === 2) || (parameters.configNo === null))
 		{
 			this.setLEDOnOff(config, null, buttonIdx, parameters.page, false);
-			this.setCapabilityValue(`${parameters.side}_button.connector${parameters.connector}`, false);
+			if (parameters.page === this.page)
+			{
+				this.setCapabilityValue(`${parameters.side}_button.connector${parameters.connector}`, false);
+			}
+
+			this.buttonValues.set(`${parameters.side}_${parameters.connector}_${parameters.page}`, false);
 		}
 		else if (config)
 		{
-			if (this.longPressOccurred && (this.longPressOccurred.get(`${parameters.connector}_${parameters.side}`) > 0) && (config.capabilityName === 'windowcoverings_state'))
+			if (this.longPressOccurred && (this.longPressOccurred.get(`${parameters.connector}_${parameters.side}_${parameters.page}`) > 0) && (config.capabilityName === 'windowcoverings_state'))
 			{
 				// Send the pause command to the device if the LongPress was received
 				if (config.deviceID === 'customMQTT')
@@ -1666,7 +1702,7 @@ class PanelDevice extends Device
 
 				// Find the Homey device that is defined in the configuration
 				const { device, capability } = await this.getDeviceAndCapability(config);
-				if (capability && (this.page === parameters.page))
+				if (capability && ((parameters.page === 0) || (this.page === parameters.page)))
 				{
 					try
 					{
@@ -1681,14 +1717,20 @@ class PanelDevice extends Device
 			else if (config.onMessage === '' && config.offMessage !== '')
 			{
 				// There is only an Off message so don't latch the button state
-				this.triggerCapabilityListener(parameters.buttonCapability, false).catch(this.error);
+				this.setLEDOnOff(config, null, buttonIdx, parameters.page, false);
+				if (parameters.page === this.page)
+				{
+					this.setCapabilityValue(`${parameters.side}_button.connector${parameters.connector}`, false);
+				}
+
+				this.buttonValues.set(`${parameters.side}_${parameters.connector}_${parameters.page}`, false);
 			}
 		}
 
 		if (this.longPressOccurred)
 		{
 			// Record that the long press has finished
-			this.longPressOccurred.set(`${parameters.connector}_${parameters.side}`, 0);
+			this.longPressOccurred.set(`${parameters.connector}_${parameters.side}_${parameters.page}`, 0);
 		}
 	}
 
@@ -1742,13 +1784,12 @@ class PanelDevice extends Device
 	{
 		let writeConfig = false;
 		let mqttQue = [];
-		let firmwareVersion = '0.0.0';
 		if (!deviceConfigurations)
 		{
 			// download the current configuration from the device
 			deviceConfigurations = await this.homey.app.readDeviceConfiguration(this.ip);
 			writeConfig = true;
-			firmwareVersion = deviceConfigurations.info.firmware;
+			this.firmwareVersion = deviceConfigurations.info.firmware;
 		}
 
 		if (deviceConfigurations)
@@ -1761,40 +1802,10 @@ class PanelDevice extends Device
 				buttons: [],
 			};
 
-			// // Create the framework for the left and right buttons section
-			// let numConnectors = deviceConfigurations.info ? deviceConfigurations.info.connectors.length * 2 : 8;
-			// for (let i = 0; i < numConnectors; i++)
-			// {
-			// 	if (this.firmwareVersion >= 2)
-			// 	{
-			// 		sectionConfiguration.buttons.push(
-			// 			{
-			// 				buttonid: `${i}-0`,
-			// 				label: `Btn_${i}`,
-			// 				toplabel: 'Label',
-			// 				topics: [],
-			// 				page: 0,
-			// 				position: i + 1,
-			// 			},
-			// 		);
-			// 	}
-			// 	else
-			// 	{
-			// 		sectionConfiguration.buttons.push(
-			// 			{
-			// 				id: i,
-			// 				label: `Btn_${i}`,
-			// 				toplabel: 'Label',
-			// 				topics: [],
-			// 			},
-			// 		);
-			// 	}
-			// }
-
 			for (let i = 0; i < (deviceConfigurations.info.connectors.length); i++)
 			{
 				const connectorType = this.getSetting(`connect${i}Type`);
-				let configNo = 0;
+				let configNo = null;
 				if (this.hasCapability(`configuration_button.connector${i}`))
 				{
 					// apply the new configuration to this button bar section
@@ -1803,36 +1814,17 @@ class PanelDevice extends Device
 
 				try
 				{
-					if (configNo !== null)
+					let numPages = await this.homey.app.applyButtonConfiguration(this.buttonId, connectorType, sectionConfiguration, i, configNo, this.firmwareVersion);
+					if (numPages > this.numPages)
 					{
-						// Get the button page configuration
-						let buttonPanelConfiguration = this.homey.app.buttonConfigurations[configNo];
-						if (!buttonPanelConfiguration)
-						{
-							throw new Error('Invalid configuration number');
-						}
-
-						let numPages = await this.homey.app.applyButtonConfiguration(this.id, connectorType, sectionConfiguration, i, configNo, this.firmwareVersion);
-						if (numPages > this.numPages)
-						{
-							this.numPages = numPages;
-						}
-
-						if (connectorType === 1)
-						{
-							for (let page = 0; page < buttonPanelConfiguration.length; page++)
-							{
-								mqttQue = mqttQue.concat(await this.setupConnectorMQTTmessages(buttonPanelConfiguration, page, i));
-							}
-						}
+						this.numPages = numPages;
 					}
-					else
+
+					let buttonPanelConfiguration = configNo ? this.homey.app.buttonConfigurations[configNo] : null;
+					let pages = buttonPanelConfiguration ? buttonPanelConfiguration.length : 1;
+					for (let page = 0; page < pages; page++)
 					{
-						let numPages = await this.homey.app.applyButtonConfiguration(this.id, connectorType, sectionConfiguration, i, configNo, this.firmwareVersion);
-						if (numPages > this.numPages)
-						{
-							this.numPages = numPages;
-						}
+						mqttQue = mqttQue.concat(await this.setupConnectorMQTTmessages(buttonPanelConfiguration, page, i));
 					}
 				}
 				catch (error)
@@ -1906,7 +1898,7 @@ class PanelDevice extends Device
 		{
 			try
 			{
-				await this.homey.app.applyButtonConfiguration(this.id, connectorType, sectionConfiguration, connector, configNo, firmwareVersion);
+				await this.homey.app.applyButtonConfiguration(this.buttonId, connectorType, sectionConfiguration, connector, configNo, firmwareVersion);
 			}
 			catch (error)
 			{
@@ -2113,11 +2105,13 @@ class PanelDevice extends Device
 								this.homey.app.triggerButtonOff(this, true, connector + 1, page);
 							}
 
-							if (this.page === page)
+							if ((page === 0) || (this.page === page))
 							{
 								// Set the device button state
 								this.setCapabilityValue(`${side}_button.connector${connector}`, value).catch(this.error);
 							}
+
+							this.buttonValues.set(`${side}_${connector}_${page}`, value);
 						}
 						else
 						{
@@ -2125,7 +2119,7 @@ class PanelDevice extends Device
 						}
 						if (config.onMessage !== '' || config.offMessage !== '')
 						{
-							this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.id}/button/${buttonIdx}-${page}/label/set`, value ? config.onMessage : config.offMessage).catch(this.error);
+							this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/label/set`, value ? config.onMessage : config.offMessage).catch(this.error);
 						}
 					}
 
@@ -2157,24 +2151,26 @@ class PanelDevice extends Device
 				let homeyDeviceObject = await this.homey.app.getHomeyDeviceById(displayItem.device);
 				if (homeyDeviceObject)
 				{
+					let homeyDeviceObjectId = homeyDeviceObject.id;
 					if (homeyDeviceObject.driverId === 'homey:app:com.ady.button_plus:panel_hardware')
 					{
-						homeyDeviceObject = await this.homey.app.getHomeyDeviceById(this.__id);
+						homeyDeviceObject = this;
+						homeyDeviceObjectId = this.__id;
 					}
-				}
 
-				if ((homeyDeviceObject.id === deviceId) && (displayItem.capability === capability))
-				{
-					// Check if the value is different from the last time we published it
-					if (capability === 'dim')
+					if ((homeyDeviceObjectId === deviceId) && (displayItem.capability === capability))
 					{
-						// convert dim value to percentage
-						value *= 100;
-					}
+						// Check if the value is different from the last time we published it
+						if (capability === 'dim')
+						{
+							// convert dim value to percentage
+							value *= 100;
+						}
 
-					// Publish to MQTT
-					const { brokerId } = displayItem;
-					this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${deviceId}/${capability}`, value).catch(this.error);
+						// Publish to MQTT
+						const { brokerId } = displayItem;
+						this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${deviceId}/${capability}`, value).catch(this.error);
+					}
 				}
 			}
 		}
@@ -2182,11 +2178,6 @@ class PanelDevice extends Device
 
 	async setupConnectorMQTTmessages(config, page, connector)
 	{
-		if (config === null)
-		{
-			return [];
-		}
-
 		let mqttQue = [];
 
 		mqttQue = mqttQue.concat(await this.publishButtonMQTTmessages(config, page, connector * 2));
@@ -2207,14 +2198,11 @@ class PanelDevice extends Device
 		}
 
 		const side = ((buttonIdx & 1) === 0) ? 'left' : 'right';
-		const sideConfig = this.getConfigPageSide(config[page], page, side);
+		const sideConfig = this.getConfigPageSide(config ? config[page] : null, page, side);
 
 		const connector = parseInt(buttonIdx / 2, 10);
 
-		if (checkSEMVerGreaterOrEqual(this.firmwareVersion, '2.0.0'))
-		{
-			buttonIdx += 1;
-		}
+		buttonIdx += 1;
 
 		// Setup value based on the configuration
 		if (sideConfig.deviceID === '_variable_')
@@ -2226,11 +2214,13 @@ class PanelDevice extends Device
 				value = variable.value;
 			}
 
-			if (this.page === page)
+			if ((page === 0) || (this.page === page))
 			{
 				// Set the device button state
 				this.setCapabilityValue(`${side}_button.connector${connector}`, value).catch(this.error);
 			}
+
+			this.buttonValues.set(`${side}_${connector}_${page}`, value);
 		}
 		else if (sideConfig.deviceID !== 'none')
 		{
@@ -2255,13 +2245,16 @@ class PanelDevice extends Device
 						else
 						{
 							// for idle use the last value
-							value = this.getCapabilityValue(`${side}_button.connector${connector}`);
+							value = this.buttonValues.get(`${side}_${connector}_${page}`);
+
 						}
 					}
-					if (this.page === page)
+					if ((page === 0) || (this.page === page))
 					{
 						await this.setCapabilityValue(`${side}_button.connector${connector}`, value);
 					}
+
+					this.buttonValues.set(`${side}_${connector}_${page}`, value);
 				}
 			}
 			catch (err)
@@ -2271,13 +2264,7 @@ class PanelDevice extends Device
 		}
 		else
 		{
-			if (checkSEMVerGreaterOrEqual(this.firmwareVersion, '2.0.0') && (config.length > 1))
-			{
-				// don't send the message as the button state is not set
-				return mqttQueue;
-			}
-
-			value = this.getCapabilityValue(`${side}_button.connector${connector}`);
+			value = this.buttonValues.get(`${side}_${connector}_${page}`) | false;
 		}
 
 		// Add the front and wall colours or the on/off state to the message queue based on the on/off value and firmware version
@@ -2287,7 +2274,7 @@ class PanelDevice extends Device
 		mqttQueue.push(
             {
                 brokerId: sideConfig.brokerId,
-				message: `buttonplus/${this.id}/button/${buttonIdx}-${page}/toplabel/set`,
+				message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/toplabel/set`,
                 value: sideConfig.topLabel,
             },
         );
@@ -2296,7 +2283,7 @@ class PanelDevice extends Device
 		mqttQueue.push(
             {
                 brokerId: sideConfig.brokerId,
-				message: `buttonplus/${this.id}/button/${buttonIdx}-${page}/label/set`,
+				message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/label/set`,
                 value: value ? sideConfig.onMessage : sideConfig.offMessage,
             },
         );
@@ -2458,7 +2445,7 @@ class PanelDevice extends Device
 						mqttQueue.push(
 							{
 								brokerId: config.brokerId,
-								message: `buttonplus/${this.id}/button/${buttonIdx}-${page}/led/front/rgb/set`,
+								message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/front/rgb/set`,
 								value: frontLEDOnColor,
 								retain: false,
 							},
@@ -2466,7 +2453,7 @@ class PanelDevice extends Device
 					}
 					else
 					{
-						this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.id}/button/${buttonIdx}-${page}/led/front/rgb/set`, frontLEDOnColor).catch(this.error);
+						this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/front/rgb/set`, frontLEDOnColor).catch(this.error);
 					}
 				}
 
@@ -2478,7 +2465,7 @@ class PanelDevice extends Device
 						mqttQueue.push(
 							{
 								brokerId: config.brokerId,
-								message: `buttonplus/${this.id}/button/${buttonIdx}-${page}/led/wall/rgb/set`,
+								message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/wall/rgb/set`,
 								value: wallLEDOnColor,
 								retain: false,
 							},
@@ -2486,7 +2473,7 @@ class PanelDevice extends Device
 					}
 					else
 					{
-						this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.id}/button/${buttonIdx}-${page}/led/wall/rgb/set`, wallLEDOnColor).catch(this.error);
+						this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/wall/rgb/set`, wallLEDOnColor).catch(this.error);
 					}
 				}
 			}
@@ -2501,7 +2488,7 @@ class PanelDevice extends Device
 						mqttQueue.push(
 							{
 								brokerId: config.brokerId,
-								message: `buttonplus/${this.id}/button/${buttonIdx}-${page}/led/front/rgb/set`,
+								message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/front/rgb/set`,
 								value: frontLEDOffColor,
 								retain: false,
 							},
@@ -2509,7 +2496,7 @@ class PanelDevice extends Device
 					}
 					else
 					{
-						this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.id}/button/${buttonIdx}-${page}/led/front/rgb/set`, frontLEDOffColor).catch(this.error);
+						this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/front/rgb/set`, frontLEDOffColor).catch(this.error);
 					}
 				}
 
@@ -2521,7 +2508,7 @@ class PanelDevice extends Device
 						mqttQueue.push(
 							{
 								brokerId: config.brokerId,
-								message: `buttonplus/${this.id}/button/${buttonIdx}-${page}/led/wall/rgb/set`,
+								message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/wall/rgb/set`,
 								value: wallLEDOffColor,
 								retain: false,
 							},
@@ -2529,7 +2516,7 @@ class PanelDevice extends Device
 					}
 					else
 					{
-						this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.id}/button/${buttonIdx}-${page}/led/wall/rgb/set`, wallLEDOffColor).catch(this.error);
+						this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/wall/rgb/set`, wallLEDOffColor).catch(this.error);
 					}
 				}
 			}
@@ -2542,14 +2529,14 @@ class PanelDevice extends Device
 				mqttQueue.push(
 					{
 						brokerId: config.brokerId,
-						message: `buttonplus/${this.id}/button/${buttonIdx}-${page}`,
+						message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}`,
 						value,
 					},
 				);
 			}
 			else
 			{
-				this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.id}/${buttonIdx}-${page}`, value).catch(this.error);
+				this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/${buttonIdx}-${page}`, value).catch(this.error);
 			}
 		}
 	}
