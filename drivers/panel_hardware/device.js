@@ -2086,10 +2086,7 @@ class PanelDevice extends Device
 				if ((config.deviceID === deviceId) && (config.capabilityName === capability))
 				{
 					let buttonIdx = connector * 2 + (side === 'left' ? 0 : 1);
-					if (checkSEMVerGreaterOrEqual(this.firmwareVersion, '2.0.0'))
-					{
-						buttonIdx += 1;
-					}
+					buttonIdx += 1;
 
 					if (config.capabilityName !== 'dim')
 					{
