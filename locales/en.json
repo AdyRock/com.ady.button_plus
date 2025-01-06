@@ -154,7 +154,8 @@
 		"value": "Value",
 		"buttonPageExplanation": "Select which page the item should appear on (requires firmware 2.0.0 or later).<br>The default is page 0, which shows on all pages.<br>If there is more than 1 page, you can switch pages with the left or right Display buttons.",
 		"addPage": "Add Page",
-		"pageError": "The new page number must be greater than 0 and less than the number of pages."
+		"pageError": "The new page number must be greater than 0 and less than the number of pages.",
+		"getListeners": "Get Listeners"
 	},
     "pair": {
         "manual_add":{

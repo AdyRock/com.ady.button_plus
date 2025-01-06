@@ -667,6 +667,18 @@ class MyApp extends Homey.App
 
 	async syncTime()
 	{
+		if (this.checkAPIConnection())
+		{
+			// The API wasn't connected so reregister the notifications
+
+
+
+
+
+
+
+		}
+
 		if (this.dateTimer !== null)
 		{
 			this.homey.clearTimeout(this.dateTimer);
@@ -1382,6 +1394,11 @@ class MyApp extends Homey.App
 		return this.httpHelperLocal.post(`http://${ip}/updatefirmware`);
 	}
 
+	async checkAPIConnection()
+	{
+		return this.deviceManager.checkAPIConnection();
+	}
+
 	async getHomeyDevices({ type = '', ids = null })
 	{
 		if (this.deviceManager)
@@ -1393,10 +1410,11 @@ class MyApp extends Homey.App
 				{
 					devices = this.deviceManager.devices;
 				}
-				else
+
+				// If no devices are found return an empty object
+				if (!devices)
 				{
-					const api = await HomeyAPI.forCurrentHomey(this.homey);
-					devices = await api.devices.getDevices();
+					return {};
 				}
 
 				// Sort the devices by name
@@ -2147,6 +2165,12 @@ class MyApp extends Homey.App
 		}
 
 		throw new Error(this.homey.__('settings.logSendFailed') + error.message);
+	}
+
+	// Get the registered capability listeners
+	getCapabilityListeners()
+	{
+		return this.deviceDispather.getListeners();
 	}
 
 	// Register a device so we receive state change events that are posted to the MQTT server

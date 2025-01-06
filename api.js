@@ -47,4 +47,11 @@ module.exports = {
     async sendLog({ homey, body }) {
         return homey.app.sendLog(body);
     },
+
+	// Get the list of capability listeners
+	async getCapabilityListeners({ homey }) {
+		const listeners = homey.app.getCapabilityListeners();
+		const obj = Object.fromEntries(listeners);
+		return obj;
+	}
 };

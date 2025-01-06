@@ -83,6 +83,8 @@
 							data-i18n="settings.clearLog"></span></button>
 					<button class="homey-button-secondary-shadow" id="sendLog"><span
 							data-i18n="settings.sendLog"></span></button>
+					<button class="homey-button-secondary-shadow" id="getListeners"><span
+							data-i18n="settings.getListeners"></span></button>
 				</p>
 				<div class="field row">
 					<textarea id="diagLog" class="homey-form-textarea"></textarea>
@@ -276,6 +278,7 @@
 		var descriptionElement = document.getElementById('description');
 		var clearLogElement = document.getElementById('clearLog');
 		var sendLogElement = document.getElementById('sendLog');
+		var getListenersElement = document.getElementById('getListeners');
 
 		var copyTextElement = document.getElementById('copyText');
 		var importElement = document.getElementById('import');
@@ -372,6 +375,23 @@
 								Homey.alert(Homey.__("settings.logSent"));
 							}
 						});
+					}
+				});
+			});
+
+			getListenersElement.addEventListener('click', function (e)
+			{
+
+				Homey.api('GET', '/get_capability_listeners/', { notify: true }, function (err, result)
+				{
+					if (err)
+					{
+						Homey.alert(err);
+					}
+					else
+					{
+						// Add the listeners to the log view
+						diagLogElement.value += JSON.stringify(result, null, 2);
 					}
 				});
 			});
@@ -542,30 +562,6 @@
 				updateButtonPanelControls();
 			});
 
-			// leftPageNumElement.addEventListener('change', function (e)
-			// {
-			// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			// 	ButtonPanelConfiguration.leftPageNum = leftPageNumElement.value;
-			// 	ButtonPanelConfiguration.leftVersion = 2;
-			// });
-
-			// leftTopTextElement.addEventListener('change', function (e)
-			// {
-			// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			// 	ButtonPanelConfiguration.leftTopText = leftTopTextElement.value;
-			// });
-
-			// configNameElement.addEventListener('change', function (e)
-			// {
-			// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			// 	ButtonPanelConfiguration.name = configNameElement.value;
-
-			// 	// Update the configuration list
-			// 	let txt = Homey.__("settings.buttonConfig");
-			// 	var option = buttonConfigurationNoElement.options[buttonConfigurationNoElement.selectedIndex];
-			// 	option.text = `${txt} ${parseInt(currentDisplayConfigurationNo, 10) + 1} - ${configNameElement.value}`
-			// });
-
 			displayConfigNameElement.addEventListener('change', function (e)
 			{
 				var DisplayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
@@ -576,208 +572,6 @@
 				var option = displayConfigurationNoElement.options[displayConfigurationNoElement.selectedIndex];
 				option.text = `${txt} ${parseInt(currentDisplayConfigurationNo, 10) + 1} - ${displayConfigNameElement.value}`
 			});
-
-			// leftOnTextElement.addEventListener('change', function (e)
-			// {
-			// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			// 	ButtonPanelConfiguration.leftOnText = leftOnTextElement.value;
-			// });
-
-			// leftOffTextElement.addEventListener('change', function (e)
-			// {
-			// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			// 	ButtonPanelConfiguration.leftOffText = leftOffTextElement.value;
-			// });
-
-			// leftDimChangeElement.addEventListener('change', function (e)
-			// {
-			// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			// 	ButtonPanelConfiguration.leftDimChange = leftDimChangelement.value;
-			// });
-
-			// leftFrontLEDOnColorElement.addEventListener('change', function (e)
-			// {
-			// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			// 	ButtonPanelConfiguration.leftFrontLEDOnColor = leftFrontLEDOnColorElement.value;
-			// });
-
-			// leftWallLEDOnColorElement.addEventListener('change', function (e)
-			// {
-			// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			// 	ButtonPanelConfiguration.leftWallLEDOnColor = leftWallLEDOnColorElement.value;
-			// });
-
-			// leftFrontLEDOffColorElement.addEventListener('change', function (e)
-			// {
-			// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			// 	ButtonPanelConfiguration.leftFrontLEDOffColor = leftFrontLEDOffColorElement.value;
-			// });
-
-			// leftWallLEDOffColorElement.addEventListener('change', function (e)
-			// {
-			// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			// 	ButtonPanelConfiguration.leftWallLEDOffColor = leftWallLEDOffColorElement.value;
-			// });
-
-			// leftLongRepeatElement.addEventListener('change', function (e)
-			// {
-			// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			// 	ButtonPanelConfiguration.leftDisableLongRepeat = !leftLongRepeatElement.checked;
-			// });
-
-			// rightPageNumElement.addEventListener('change', function (e)
-			// {
-			// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			// 	ButtonPanelConfiguration.rightPageNum = rightPageNumElement.value;
-			// 	ButtonPanelConfiguration.rightVersion = 2;
-			// });
-
-			// rightTopTextElement.addEventListener('change', function (e)
-			// {
-			// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			// 	ButtonPanelConfiguration.rightTopText = rightTopTextElement.value;
-			// });
-
-			// rightOnTextElement.addEventListener('change', function (e)
-			// {
-			// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			// 	ButtonPanelConfiguration.rightOnText = rightOnTextElement.value;
-			// });
-
-			// rightOffTextElement.addEventListener('change', function (e)
-			// {
-			// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			// 	ButtonPanelConfiguration.rightOffText = rightOffTextElement.value;
-			// });
-
-			// rightDimChangeElement.addEventListener('change', function (e)
-			// {
-			// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			// 	ButtonPanelConfiguration.rightDimChange = rightDimChangelement.value;
-			// });
-
-			// rightFrontLEDOnColorElement.addEventListener('change', function (e)
-			// {
-			// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			// 	ButtonPanelConfiguration.rightFrontLEDOnColor = rightFrontLEDOnColorElement.value;
-			// });
-
-			// rightWallLEDOnColorElement.addEventListener('change', function (e)
-			// {
-			// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			// 	ButtonPanelConfiguration.rightWallLEDOnColor = rightWallLEDOnColorElement.value;
-			// });
-
-			// rightFrontLEDOffColorElement.addEventListener('change', function (e)
-			// {
-			// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			// 	ButtonPanelConfiguration.rightFrontLEDOffColor = rightFrontLEDOffColorElement.value;
-			// });
-
-			// rightWallLEDOffColorElement.addEventListener('change', function (e)
-			// {
-			// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			// 	ButtonPanelConfiguration.rightWallLEDOffColor = rightWallLEDOffColorElement.value;
-			// });
-
-			// rightLongRepeatElement.addEventListener('change', function (e)
-			// {
-			// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			// 	ButtonPanelConfiguration.rightLongRepeat = !rightLongRepeatElement.checked;
-			// });
-
-			// leftDeviceElement.addEventListener('change', function (e)
-			// {
-			// 	// Get the current button configuration
-			// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-
-			// 	// Update the device in the local configuration
-			// 	ButtonPanelConfiguration.leftDevice = leftDeviceElement.value;
-			// 	if (leftDeviceElement.selectedIndex >= 0)
-			// 	{
-			// 		ButtonPanelConfiguration.leftDeviceName = leftDeviceElement.options[leftDeviceElement.selectedIndex].text;
-			// 	}
-			// 	else
-			// 	{
-			// 		ButtonPanelConfiguration.leftDeviceName = leftDeviceElement.value;
-			// 	}
-
-			// 	// Remove all occurrences of ' (Missing Devices)' from the capability name
-			// 	ButtonPanelConfiguration.leftDeviceName = ButtonPanelConfiguration.leftDeviceName.replace(/ \(Missing Devices\)/g, '');
-
-			// 	// Remove any leading spaces from the device name
-			// 	ButtonPanelConfiguration.leftDeviceName = ButtonPanelConfiguration.leftDeviceName.trim();
-
-			// 	// Update the capabilities
-			// 	getCapabilities("left", leftDeviceElement.value, ButtonPanelConfiguration.leftCapability, ButtonPanelConfiguration.leftCapabilityName);
-			// });
-
-			// rightDeviceElement.addEventListener('change', function (e)
-			// {
-			// 	// Get the current button configuration
-			// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-
-			// 	// Update the device in the local configuration
-			// 	ButtonPanelConfiguration.rightDevice = rightDeviceElement.value;
-			// 	if (rightDeviceElement.selectedIndex >= 0)
-			// 	{
-			// 		ButtonPanelConfiguration.rightDeviceName = rightDeviceElement.options[rightDeviceElement.selectedIndex].text;
-			// 	}
-			// 	else
-			// 	{
-			// 		ButtonPanelConfiguration.rightDeviceName = rightDeviceElement.value;
-			// 	}
-
-			// 	// Remove any leading spaces from the device name
-			// 	ButtonPanelConfiguration.rightDeviceName = ButtonPanelConfiguration.rightDeviceName.trim();
-
-			// 	// Update the capabilities
-			// 	getCapabilities("right", rightDeviceElement.value, ButtonPanelConfiguration.rightCapability, ButtonPanelConfiguration.rightCapabilityName);
-			// });
-
-			// leftCapabilityElement.addEventListener('change', function (e)
-			// {
-			// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			// 	ButtonPanelConfiguration.leftCapability = leftCapabilityElement.value;
-			// 	if (leftCapabilityElement.selectedIndex >= 0)
-			// 	{
-			// 		ButtonPanelConfiguration.leftCapabilityName = leftCapabilityElement.options[leftCapabilityElement.selectedIndex].text;
-			// 	}
-			// 	else
-			// 	{
-			// 		ButtonPanelConfiguration.leftCapabilityName = leftCapabilityElement.value;
-			// 	}
-
-			// 	capabilityChanged("left", leftCapabilityElement.value);
-			// });
-
-			// rightCapabilityElement.addEventListener('change', function (e)
-			// {
-			// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			// 	ButtonPanelConfiguration.rightCapability = rightCapabilityElement.value;
-			// 	if (rightCapabilityElement.selectedIndex >= 0)
-			// 	{
-			// 		ButtonPanelConfiguration.rightCapabilityName = rightCapabilityElement.options[rightCapabilityElement.selectedIndex].text;
-			// 	}
-			// 	else
-			// 	{
-			// 		ButtonPanelConfiguration.rightCapabilityName = rightCapabilityElement.value;
-			// 	}
-
-			// 	capabilityChanged("right", rightCapabilityElement.value);
-			// });
-
-			// leftBrokerIdElement.addEventListener('change', function (e)
-			// {
-			// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			// 	ButtonPanelConfiguration.leftBrokerId = leftBrokerIdElement.value;
-			// });
-
-			// rightBrokerIdElement.addEventListener('change', function (e)
-			// {
-			// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			// 	ButtonPanelConfiguration.rightBrokerId = rightBrokerIdElement.value;
-			// });
 
 			// Display Config code
 
@@ -809,8 +603,10 @@
 				{
 					// Copy the current button configuration to the clipboard in JSON format
 					var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-					buttonPanelConfiguration.copySource = "ButtonPanel";
-					const jsonString = JSON.stringify(buttonPanelConfiguration, null, 2);
+					var copy = {};
+					copy.copySource = "ButtonPanel";
+					copy.butons = buttonPanelConfiguration;
+					const jsonString = JSON.stringify(copy, null, 2);
 
 					copyTextElement.value = jsonString;
 
@@ -828,50 +624,59 @@
 				try
 				{
 					// Parse the JSON string
-					const newButtonPanelConfiguration = JSON.parse(copyTextElement.value);
-					if (newButtonPanelConfiguration.copySource !== "ButtonPanel")
+					const copy = JSON.parse(copyTextElement.value);
+					if (copy.copySource !== "ButtonPanel")
 					{
 						Homey.alert(Homey.__("settings.clipboardError", { error: "Invalid source" }));
 						return;
 					}
 
 					let buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+					let newButtonPanelConfiguration = copy.butons;
 
-					if (newButtonPanelConfiguration.PageNum !== undefined) buttonPanelConfiguration.PageNum = newButtonPanelConfiguration.PageNum;
+					for (let page = 0; page < newButtonPanelConfiguration.length; page++)
+					{
+						// if the page doesn't exist, add it
+						if (!buttonPanelConfiguration[page])
+						{
+							buttonPanelConfiguration[page] = {};
+						}
 
-					// Copy the values from the new configuration to the current configuration
-					if (newButtonPanelConfiguration.leftTopText !== undefined) buttonPanelConfiguration.leftTopText = newButtonPanelConfiguration.leftTopText;
-					if (newButtonPanelConfiguration.leftOnText !== undefined) buttonPanelConfiguration.leftOnText = newButtonPanelConfiguration.leftOnText;
-					if (newButtonPanelConfiguration.leftOffText !== undefined) buttonPanelConfiguration.leftOffText = newButtonPanelConfiguration.leftOffText;
-					if (newButtonPanelConfiguration.leftDevice !== undefined) buttonPanelConfiguration.leftDevice = newButtonPanelConfiguration.leftDevice;
-					if (newButtonPanelConfiguration.leftDeviceName !== undefined) buttonPanelConfiguration.leftDevice = newButtonPanelConfiguration.leftDeviceName;
-					if (newButtonPanelConfiguration.leftCapability !== undefined) buttonPanelConfiguration.leftCapability = newButtonPanelConfiguration.leftCapability;
-					if (newButtonPanelConfiguration.leftCapabilityName !== undefined) buttonPanelConfiguration.leftCapabilityName = newButtonPanelConfiguration.leftCapabilityName;
-					if (newButtonPanelConfiguration.leftBrokerId !== undefined) buttonPanelConfiguration.leftBrokerId = newButtonPanelConfiguration.leftBrokerId;
-					if (newButtonPanelConfiguration.leftDimChange !== undefined) buttonPanelConfiguration.leftDimChange = newButtonPanelConfiguration.leftDimChange;
-					if (newButtonPanelConfiguration.leftFrontLEDOnColor !== undefined) buttonPanelConfiguration.leftFrontLEDOnColor = newButtonPanelConfiguration.leftFrontLEDOnColor;
-					if (newButtonPanelConfiguration.leftWallLEDOnColor !== undefined) buttonPanelConfiguration.leftWallLEDOnColor = newButtonPanelConfiguration.leftWallLEDOnColor;
-					if (newButtonPanelConfiguration.leftFrontLEDOffColor !== undefined) buttonPanelConfiguration.leftFrontLEDOffColor = newButtonPanelConfiguration.leftFrontLEDOffColor;
-					if (newButtonPanelConfiguration.leftWallLEDOffColor !== undefined) buttonPanelConfiguration.leftWallLEDOffColor = newButtonPanelConfiguration.leftWallLEDOffColor;
-					if (newButtonPanelConfiguration.leftCustomMQTTTopics !== undefined) buttonPanelConfiguration.leftCustomMQTTTopics = newButtonPanelConfiguration.leftCustomMQTTTopics;
-					if (newButtonPanelConfiguration.leftDisableLongRepeat !== undefined) buttonPanelConfiguration.leftDisableLongRepeat = newButtonPanelConfiguration.leftDisableLongRepeat;
+						// Copy the values from the new configuration to the current configuration
+						buttonPanelConfiguration[page].PageNum = page;
 
-					if (newButtonPanelConfiguration.rightTopText !== undefined) buttonPanelConfiguration.rightTopText = newButtonPanelConfiguration.rightTopText;
-					if (newButtonPanelConfiguration.rightOnText !== undefined) buttonPanelConfiguration.rightOnText = newButtonPanelConfiguration.rightOnText;
-					if (newButtonPanelConfiguration.rightOffText !== undefined) buttonPanelConfiguration.rightOffText = newButtonPanelConfiguration.rightOffText;
-					if (newButtonPanelConfiguration.rightDevice !== undefined) buttonPanelConfiguration.rightDevice = newButtonPanelConfiguration.rightDevice;
-					if (newButtonPanelConfiguration.rightDeviceName !== undefined) buttonPanelConfiguration.rightDevice = newButtonPanelConfiguration.rightDeviceName;
-					if (newButtonPanelConfiguration.rightCapability !== undefined) buttonPanelConfiguration.rightCapability = newButtonPanelConfiguration.rightCapability;
-					if (newButtonPanelConfiguration.rightCapabilityName !== undefined) buttonPanelConfiguration.rightCapabilityName = newButtonPanelConfiguration.rightCapabilityName;
-					if (newButtonPanelConfiguration.rightBrokerId !== undefined) buttonPanelConfiguration.rightBrokerId = newButtonPanelConfiguration.rightBrokerId;
-					if (newButtonPanelConfiguration.rightDimChange !== undefined) buttonPanelConfiguration.rightDimChange = newButtonPanelConfiguration.rightDimChange;
-					if (newButtonPanelConfiguration.rightFrontLEDOnColor !== undefined) buttonPanelConfiguration.rightFrontLEDOnColor = newButtonPanelConfiguration.rightFrontLEDOnColor;
-					if (newButtonPanelConfiguration.rightWallLEDOnColor !== undefined) buttonPanelConfiguration.rightWallLEDOnColor = newButtonPanelConfiguration.rightWallLEDOnColor;
-					if (newButtonPanelConfiguration.rightFrontLEDOffColor !== undefined) buttonPanelConfiguration.rightFrontLEDOffColor = newButtonPanelConfiguration.rightFrontLEDOffColor;
-					if (newButtonPanelConfiguration.rightWallLEDOffColor !== undefined) buttonPanelConfiguration.rightWallLEDOffColor = newButtonPanelConfiguration.rightWallLEDOffColor;
-					if (newButtonPanelConfiguration.rightCustomMQTTTopics !== undefined) buttonPanelConfiguration.rightCustomMQTTTopics = newButtonPanelConfiguration.rightCustomMQTTTopics;
-					if (newButtonPanelConfiguration.rightLongRepeat !== undefined) buttonPanelConfiguration.rightLongRepeat = newButtonPanelConfiguration.rightLongRepeat;
+						if (newButtonPanelConfiguration[page].leftTopText !== undefined) buttonPanelConfiguration[page].leftTopText = newButtonPanelConfiguration[page].leftTopText;
+						if (newButtonPanelConfiguration[page].leftOnText !== undefined) buttonPanelConfiguration[page].leftOnText = newButtonPanelConfiguration[page].leftOnText;
+						if (newButtonPanelConfiguration[page].leftOffText !== undefined) buttonPanelConfiguration[page].leftOffText = newButtonPanelConfiguration[page].leftOffText;
+						if (newButtonPanelConfiguration[page].leftDevice !== undefined) buttonPanelConfiguration[page].leftDevice = newButtonPanelConfiguration[page].leftDevice;
+						if (newButtonPanelConfiguration[page].leftDeviceName !== undefined) buttonPanelConfiguration[page].leftDeviceName = newButtonPanelConfiguration[page].leftDeviceName;
+						if (newButtonPanelConfiguration[page].leftCapability !== undefined) buttonPanelConfiguration[page].leftCapability = newButtonPanelConfiguration[page].leftCapability;
+						if (newButtonPanelConfiguration[page].leftCapabilityName !== undefined) buttonPanelConfiguration[page].leftCapabilityName = newButtonPanelConfiguration[page].leftCapabilityName;
+						if (newButtonPanelConfiguration[page].leftBrokerId !== undefined) buttonPanelConfiguration[page].leftBrokerId = newButtonPanelConfiguration[page].leftBrokerId;
+						if (newButtonPanelConfiguration[page].leftDimChange !== undefined) buttonPanelConfiguration[page].leftDimChange = newButtonPanelConfiguration[page].leftDimChange;
+						if (newButtonPanelConfiguration[page].leftFrontLEDOnColor !== undefined) buttonPanelConfiguration[page].leftFrontLEDOnColor = newButtonPanelConfiguration[page].leftFrontLEDOnColor;
+						if (newButtonPanelConfiguration[page].leftWallLEDOnColor !== undefined) buttonPanelConfiguration[page].leftWallLEDOnColor = newButtonPanelConfiguration[page].leftWallLEDOnColor;
+						if (newButtonPanelConfiguration[page].leftFrontLEDOffColor !== undefined) buttonPanelConfiguration[page].leftFrontLEDOffColor = newButtonPanelConfiguration[page].leftFrontLEDOffColor;
+						if (newButtonPanelConfiguration[page].leftWallLEDOffColor !== undefined) buttonPanelConfiguration[page].leftWallLEDOffColor = newButtonPanelConfiguration[page].leftWallLEDOffColor;
+						if (newButtonPanelConfiguration[page].leftCustomMQTTTopics !== undefined) buttonPanelConfiguration[page].leftCustomMQTTTopics = newButtonPanelConfiguration[page].leftCustomMQTTTopics;
+						if (newButtonPanelConfiguration[page].leftDisableLongRepeat !== undefined) buttonPanelConfiguration[page].leftDisableLongRepeat = newButtonPanelConfiguration[page].leftDisableLongRepeat;
 
+						if (newButtonPanelConfiguration[page].rightTopText !== undefined) buttonPanelConfiguration[page].rightTopText = newButtonPanelConfiguration[page].rightTopText;
+						if (newButtonPanelConfiguration[page].rightOnText !== undefined) buttonPanelConfiguration[page].rightOnText = newButtonPanelConfiguration[page].rightOnText;
+						if (newButtonPanelConfiguration[page].rightOffText !== undefined) buttonPanelConfiguration[page].rightOffText = newButtonPanelConfiguration[page].rightOffText;
+						if (newButtonPanelConfiguration[page].rightDevice !== undefined) buttonPanelConfiguration[page].rightDevice = newButtonPanelConfiguration[page].rightDevice;
+						if (newButtonPanelConfiguration[page].rightDeviceName !== undefined) buttonPanelConfiguration[page].rightDeviceName = newButtonPanelConfiguration[page].rightDeviceName;
+						if (newButtonPanelConfiguration[page].rightCapability !== undefined) buttonPanelConfiguration[page].rightCapability = newButtonPanelConfiguration[page].rightCapability;
+						if (newButtonPanelConfiguration[page].rightCapabilityName !== undefined) buttonPanelConfiguration[page].rightCapabilityName = newButtonPanelConfiguration[page].rightCapabilityName;
+						if (newButtonPanelConfiguration[page].rightBrokerId !== undefined) buttonPanelConfiguration[page].rightBrokerId = newButtonPanelConfiguration[page].rightBrokerId;
+						if (newButtonPanelConfiguration[page].rightDimChange !== undefined) buttonPanelConfiguration[page].rightDimChange = newButtonPanelConfiguration[page].rightDimChange;
+						if (newButtonPanelConfiguration[page].rightFrontLEDOnColor !== undefined) buttonPanelConfiguration[page].rightFrontLEDOnColor = newButtonPanelConfiguration[page].rightFrontLEDOnColor;
+						if (newButtonPanelConfiguration[page].rightWallLEDOnColor !== undefined) buttonPanelConfiguration[page].rightWallLEDOnColor = newButtonPanelConfiguration[page].rightWallLEDOnColor;
+						if (newButtonPanelConfiguration[page].rightFrontLEDOffColor !== undefined) buttonPanelConfiguration[page].rightFrontLEDOffColor = newButtonPanelConfiguration[page].rightFrontLEDOffColor;
+						if (newButtonPanelConfiguration[page].rightWallLEDOffColor !== undefined) buttonPanelConfiguration[page].rightWallLEDOffColor = newButtonPanelConfiguration[page].rightWallLEDOffColor;
+						if (newButtonPanelConfiguration[page].rightCustomMQTTTopics !== undefined) buttonPanelConfiguration[page].rightCustomMQTTTopics = newButtonPanelConfiguration[page].rightCustomMQTTTopics;
+						if (newButtonPanelConfiguration[page].rightLongRepeat !== undefined) buttonPanelConfiguration[page].rightLongRepeat = newButtonPanelConfiguration[page].rightLongRepeat;
+					}
 					// Update the controls
 					writeButtonsections(buttonPanelConfiguration.length);
 					updateButtonPanelControls();
