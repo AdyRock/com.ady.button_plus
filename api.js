@@ -52,6 +52,7 @@ module.exports = {
 	async getCapabilityListeners({ homey }) {
 		const listeners = homey.app.getCapabilityListeners();
 		const obj = Object.fromEntries(listeners);
+		homey.app.updateLog(`getCapabilityListeners: ${JSON.stringify(obj)}`);
 		return obj;
 	}
 };
