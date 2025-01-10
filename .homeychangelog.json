@@ -211,5 +211,8 @@
 	},
 	"0.7.4": {
 		"en": "Fix for the button set LED colour Flow card."
+	},
+	"0.7.5": {
+		"en": "Fixed Send Log feature."
 	}
 }

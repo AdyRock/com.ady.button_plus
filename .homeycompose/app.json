@@ -1,6 +1,6 @@
 {
 	"id": "com.ady.button_plus",
-	"version": "0.7.4",
+	"version": "0.7.5",
 	"compatibility": ">=5.0.0",
 	"sdk": 3,
 	"platforms": [
@@ -97,7 +97,7 @@
 			"public": false
 		},
 		"sendLog": {
-			"method": "get",
+			"method": "post",
 			"path": "/sendLog",
 			"public": false
 		},
