@@ -691,7 +691,7 @@ class PanelDevice extends Device
 		}
 
 		const brokerId = this.homey.settings.get('defaultBroker');
-		let buttonNo = connector * 2;
+		let buttonNo = (connector * 2) + 1;
 		if (left_right === 'right')
 		{
 			buttonNo++;
@@ -699,6 +699,12 @@ class PanelDevice extends Device
 		// Remove the # from rgbString and convert it to a number
 		rgbString = rgbString.replace('#', '');
 		const rgb = parseInt(rgbString, 16);
+
+		if (page === undefined)
+		{
+			page = 0;
+		}
+
 		if ((front_wall === 'front') || (front_wall === 'both'))
 		{
 			return this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/button/${buttonNo}-${page}/led/front/rgb/set`, rgb, false, false).catch(this.error);
