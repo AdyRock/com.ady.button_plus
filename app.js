@@ -660,23 +660,23 @@ class MyApp extends Homey.App
 			}
 		});
 
-		this.syncTime();
+		// Start updating the date and time after a delay
+		this.dateTimer = this.homey.setTimeout(() =>
+		{
+			this.syncTime();
+		}, 30000);
 
 		this.updateLog('MyApp has been initialized');
 	}
 
 	async syncTime()
 	{
-		if (this.checkAPIConnection())
+		if (!this.checkAPIConnection())
 		{
 			// The API wasn't connected so reregister the notifications
+			this.updateLog('API reconnected so re-registering the capability listeners', 0);
 
-
-
-
-
-
-
+			await this.deviceDispather.reregisterDeviceCapabilities();
 		}
 
 		if (this.dateTimer !== null)
@@ -1333,7 +1333,7 @@ class MyApp extends Homey.App
 			}
 			catch (err)
 			{
-				this.updateLog(`writeDeviceConfiguration error: ${err.message}`, 0);
+				this.updateLog(`writeDeviceConfiguration error for ${ip}: ${err.message}`, 0);
 				return err.message;
 			}
 		}
@@ -2322,6 +2322,7 @@ class MyApp extends Homey.App
 					return false;
 				}
 
+				button.id = buttonIdx;
 				button.label = `Btn_${buttonIdx}`;
 				button.toplabel = 'Label';
 				button.topics = [];

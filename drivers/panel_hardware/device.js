@@ -176,20 +176,36 @@ class PanelDevice extends Device
 
 		this.registerCapabilityListener('next_page_button', this.onCapabilityNextPage.bind(this));
 		this.registerCapabilityListener('previous_page_button', this.onCapabilityPreviousPage.bind(this));
-		await this.intiHardware();
+
+		// calculate an random number between 1 and 30 seconds
+		const random = Math.floor(Math.random() * 30000) + 1;
+
+		this.initHardwareTimer =  this.homey.setTimeout(() =>
+		{
+			this.initHardwareTimer = null;
+			this.intiHardware().catch(this.error);
+		}, 30000 + random);
 
 		this.log('PanelDevice has been initialized');
 	}
 
 	async intiHardware()
 	{
+		if (this.initHardwareTimer)
+		{
+			// Already waiting for the hardware to initialise
+			this.log('PanelDevice is already initializing hardware');
+			return;
+		}
+
 		this.log('PanelDevice is initializing hardware');
 
 		if (await this.uploadConfigurations() !== null)
 		{
 			// failed to upload the configuration so try again in 30 seconds
-			this.homey.setTimeout(() =>
+			this.initHardwareTimer = this.homey.setTimeout(() =>
 			{
+				this.initHardwareTimer = null;
 				this.intiHardware().catch(this.error);
 			}, 30000);
 
@@ -1043,6 +1059,8 @@ class PanelDevice extends Device
 
 					break;
 				}
+
+				this.homey.app.updateLog(`Retrying write configuration to ${this.ip}`, 0);
 				tries--;
 			};
 
@@ -1751,11 +1769,12 @@ class PanelDevice extends Device
 		if (id)
 		{
 			const newIp = this.homey.app.findGatewayIPById(id);
-			if (newIp)
+			if (newIp && (newIp !== this.ip))
 			{
+				this.homey.app.updateLog(`Device ${this.getName()}: IP address changed from ${this.ip} to ${newIp}`);
 				// TODO: update the IP address when mDNS is fixed
-				// this.setSettings({ address: newIp });
-				// this.ip = newIp;
+				this.setSettings({ address: newIp });
+				this.ip = newIp;
 			}
 		}
 	}

@@ -205,5 +205,8 @@
 	},
 	"0.6.0": {
 		"en": "Updated to work with Button + firmware version 2"
+	},
+	"0.7.3": {
+		"en": "Added support for the button pages with firmware version 2.1. There should also be some other fixes and improvements."
 	}
 }
