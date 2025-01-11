@@ -300,9 +300,12 @@ class MyApp extends Homey.App
 						{
 							this.setupMQTTClient(brokerItem, this.homeyID);
 						}
-						else if (!this.server)
+						else
 						{
-							this.setupHomeyMQTTServer();
+							if (!this.server)
+							{
+								this.setupHomeyMQTTServer();
+							}
 						}
 					}
 					else
@@ -431,8 +434,10 @@ class MyApp extends Homey.App
 		this.homey.flow.getActionCard('turn_on_button')
 			.registerRunListener(async (args, state) =>
 			{
+				let page = args.page ? args.page : 0;
+
 				this.log(`${args.left_right}.connector${args.connector}`);
-				return args.device.triggerCapabilityListener(`${args.left_right}_button.connector${args.connector - 1}`, true);
+				return args.device.turnButtonOnOff(args.left_right, args.connector - 1, page, true);
 			});
 
 		this.homey.flow.getActionCard('set_info')
@@ -445,37 +450,47 @@ class MyApp extends Homey.App
 		this.homey.flow.getActionCard('turn_off_button')
 			.registerRunListener(async (args, state) =>
 			{
+				let page = args.page ? args.page : 0;
+
 				this.log(`${args.left_right}.connector${args.connector}`, args);
-				return args.device.triggerCapabilityListener(`${args.left_right}_button.connector${args.connector - 1}`, false);
+				return args.device.turnButtonOnOff(args.left_right, args.connector - 1, page, false);
 			});
 
 		this.homey.flow.getActionCard('set_connector_button_top_label')
 			.registerRunListener(async (args, state) =>
 			{
-				this.log(`set_connector_top_button_label ${args.left_right} connector${args.connector} to ${args.label}`);
-				return args.device.updateConnectorTopLabel(args.left_right, args.connector - 1, args.label);
+				let page = args.page ? args.page : 0;
+
+				this.log(`set_connector_top_button_label ${args.left_right} connector${args.connector} on page ${page} to ${args.label}`);
+				return args.device.updateConnectorTopLabel(args.left_right, args.connector - 1, page, args.label);
 			});
 
 		this.homey.flow.getActionCard('set_connector_button_text')
 			.registerRunListener(async (args, state) =>
 			{
-				this.log(`set_connector_button_text ${args.left_right} connector${args.connector} to ${args.label}`);
-				return args.device.updateConnectorLabel(args.left_right, args.connector - 1, args.label);
+				let page = args.page ? args.page : 0;
+
+				this.log(`set_connector_button_text ${args.left_right} connector${args.connector} on page ${page} to ${args.label}`);
+				return args.device.updateConnectorLabel(args.left_right, args.connector - 1, page, args.label);
 			});
 
 		// This flow is deprecated as it is replaced by the set_config_name_button_top_label flow
 		this.homey.flow.getActionCard('set_config_button_top_label')
 			.registerRunListener(async (args, state) =>
 			{
-				this.log(`set_config_button_top_label ${args.left_right} config${args.config} to ${args.label}`);
-				return args.device.updateConfigTopLabel(args.left_right, args.config - 1, args.label);
+				let page = args.page ? args.page : 0;
+
+				this.log(`set_config_button_top_label ${args.left_right} config${args.config} on page ${page} to ${args.label}`);
+				return args.device.updateConfigTopLabel(args.left_right, args.config - 1, page, args.label);
 			});
 
 		this.homey.flow.getActionCard('set_config_name_button_top_label')
 			.registerRunListener(async (args, state) =>
 			{
-				this.log(`set_config_name_button_label ${args.left_right} config${args.config} to ${args.label}`);
-				return args.device.updateConfigTopLabel(args.left_right, args.config.id, args.label);
+				let page = args.page ? args.page : 0;
+
+				this.log(`set_config_name_button_label ${args.left_right} config${args.config} on page ${page} to ${args.label}`);
+				return args.device.updateConfigTopLabel(args.left_right, args.config.id, page, args.label);
 			})
 			.registerArgumentAutocompleteListener('config', async (query, args) =>
 			{
@@ -490,15 +505,19 @@ class MyApp extends Homey.App
 		this.homey.flow.getActionCard('set_config_button_label')
 			.registerRunListener(async (args, state) =>
 			{
-				this.log(`set_config_button_label ${args.left_right} config${args.config} to ${args.label}`);
-				return args.device.updateConfigLabel(args.left_right, args.config - 1, args.label);
+				let page = args.page ? args.page : 0;
+
+				this.log(`set_config_button_label ${args.left_right} config${args.config} on page ${page} to ${args.label}`);
+				return args.device.updateConfigLabel(args.left_right, args.config - 1, page, args.label);
 			});
 
 		this.homey.flow.getActionCard('set_config_name_button_label')
 			.registerRunListener(async (args, state) =>
 			{
-				this.log(`set_config_name_button_label ${args.left_right} config${args.config} to ${args.label}`);
-				return args.device.updateConfigLabel(args.left_right, args.config.id, args.label);
+				let page = args.page ? args.page : 0;
+
+				this.log(`set_config_name_button_label ${args.left_right} config${args.config} on page ${page} to ${args.label}`);
+				return args.device.updateConfigLabel(args.left_right, args.config.id, page, args.label);
 			})
 			.registerArgumentAutocompleteListener('config', async (query, args) =>
 			{
@@ -520,15 +539,19 @@ class MyApp extends Homey.App
 		this.homey.flow.getActionCard('set_connector_led_rgb')
 			.registerRunListener(async (args, state) =>
 			{
+				let page = args.page ? args.page : 0;
+
 				this.log(`set_connector_led_rgb ${args.left_right} connector${args.connector} to ${args.rgb}`);
-				return args.device.setConnectorLEDColour(args.left_right, args.connector - 1, args.rgb, args.front_wall ? args.front_wall : 'both');
+				return args.device.setConnectorLEDColour(args.left_right, args.connector - 1, args.rgb, args.front_wall ? args.front_wall : 'both', page);
 			});
 
 		this.homey.flow.getActionCard('set_config_name_led_rgb')
 			.registerRunListener(async (args, state) =>
 			{
+				let page = args.page ? args.page : 0;
+
 				this.log(`set_config_name_led_rgb ${args.left_right} config${args.config} to ${args.rgb}. Update Config ${args.update_config}`);
-				return args.device.setConfigLEDColour(args.left_right, args.config.id, args.rgb, args.front_wall ? args.front_wall : 'both', args.update_configuration ? args.update_configuration : false, args.on_off ? args.on_off : true);
+				return args.device.setConfigLEDColour(args.left_right, args.config.id, args.rgb, args.front_wall ? args.front_wall : 'both', page, args.update_configuration ? args.update_configuration : false, args.on_off ? args.on_off : true);
 			})
 			.registerArgumentAutocompleteListener('config', async (query, args) =>
 			{
@@ -2213,7 +2236,7 @@ class MyApp extends Homey.App
 	{
 		const tokens = { left_right: leftright, connector, repeatCount, page };
 		const state = { left_right: leftright ? 'left' : 'right', connector };
-		this.triggerFlow(this._triggerButtonLongPress, device, tokens, state, (repeatCount & 3) === 0);
+		this.triggerFlow(this._triggerButtonLongPress, device, tokens, state, repeatCount);
 		return this;
 	}
 

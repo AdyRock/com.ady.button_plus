@@ -4,8 +4,8 @@
         "nl": "Schakel knop Uit"
     },
     "titleFormatted": {
-        "en": "Turn off [[left_right]] button on connector [[connector]]",
-        "nl": "Schakel [[left_right]] knop Uit op connector [[connector]]"
+        "en": "Turn off [[left_right]] button on connector [[connector]] for [[page]]",
+        "nl": "Schakel [[left_right]] knop Uit op connector [[connector]] voor [[page]]"
     },
     "hint": {
         "en": "Turn off the specified button",
@@ -59,6 +59,26 @@
             "max": 4,
             "step": 1
         },
+		{
+			"type": "number",
+			"name": "page",
+			"title": {
+				"en": "Page number",
+				"nl": "Pagina nummer"
+			},
+			"hint": {
+				"en": "Page number. Use 0 to change for all pages",
+				"nl": "Pagina nummer. Gebruik 0 om voor alle pagina's te wijzigen"
+			},
+			"placeholder": {
+				"en": "Page number",
+				"nl": "Pagina nummer"
+			},
+			"required": false,
+			"min": 0,
+			"max": 40,
+			"step": 1
+		},
         {
             "type": "device",
             "name": "device",

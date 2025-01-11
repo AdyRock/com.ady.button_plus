@@ -291,10 +291,56 @@
 		{
 			itemDisplyType = document.getElementById('ButtonPanelConfigurationNo').style.display;
 
-			getButtonList();
 
-			fillButtonConfigListElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
-			fillButtonConfigListElement(displayConfigurationNoElement, Homey.__("settings.displayConfig"), localDisplayConfigurations, MAX_DISPLAY_CONFIGURATIONS);
+			// Read the button configuration from the settings and write the controls
+			Homey.get('buttonConfigurations', function (err, buttonConfigurations)
+			{
+				if (err) return Homey.alert(err);
+				localButtonConfigurations = buttonConfigurations;
+				buttonConfigurationsFetched = true;
+				console.log('buttonConfigurations: ' + JSON.stringify(buttonConfigurations));
+
+				fillConfigListElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
+
+				// Make sure currentButtonConfigurationNo is set and within range
+				if (!currentButtonConfigurationNo || (currentButtonConfigurationNo >= localButtonConfigurations.length))
+				{
+					currentButtonConfigurationNo = 0;
+				}
+
+				// Get the current configuration
+				var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+
+				writeButtonsections(buttonPanelConfiguration.length);
+				updateButtonPanelControls();
+			});
+
+			Homey.get('displayConfigurations', function (err, displayConfigurations)
+			{
+				if (err) return Homey.alert(err);
+				localDisplayConfigurations = displayConfigurations;
+				displayConfigurationsFetched = (localDisplayConfigurations.length > 0);
+
+				fillConfigListElement(displayConfigurationNoElement, Homey.__("settings.displayConfig"), localDisplayConfigurations, MAX_DISPLAY_CONFIGURATIONS);
+
+				// add the itemId and validate the page number to each item
+				for (let i = 0; i < localDisplayConfigurations.length; i++)
+				{
+					const displayConfiguration = localDisplayConfigurations[i];
+					for (let j = 0; j < displayConfiguration.items.length; j++)
+					{
+						displayConfiguration.items[j].itemId = j;
+						if (displayConfiguration.items[j].page === undefined)
+						{
+							displayConfiguration.items[j].page = 0;
+						}
+					}
+				}
+
+				updateDisplayConfiguration();
+			});
+
+			getButtonList();
 
 			getDevices();
 
@@ -520,27 +566,6 @@
 				ButtonPanelConfiguration[`${side}DisableLongRepeat`] = !longRepeatElement.checked;
 			};
 
-			// Read the button configuration from the settings and write the controls
-			Homey.get('buttonConfigurations', function (err, buttonConfigurations)
-			{
-				if (err) return Homey.alert(err);
-				localButtonConfigurations = buttonConfigurations;
-				buttonConfigurationsFetched = true;
-				console.log('buttonConfigurations: ' + JSON.stringify(buttonConfigurations));
-
-				// Make sure currentButtonConfigurationNo is set and within range
-				if (!currentButtonConfigurationNo || (currentButtonConfigurationNo >= localButtonConfigurations.length))
-				{
-					currentButtonConfigurationNo = 0;
-				}
-
-				// Get the current configuration
-				var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-
-				writeButtonsections(buttonPanelConfiguration.length);
-				updateButtonPanelControls();
-			});
-
 			buttonConfigurationNoElement.addEventListener('change', function (e)
 			{
 				// Store the current configuration
@@ -752,13 +777,27 @@
 					localDisplayConfigurations = newConfigurations.displayConfigurations;
 					localBrokerItems = newConfigurations.brokerItems;
 
+					// replace the imported Homey broker IP with the current Homey IP
+					for (let i = 0; i < localBrokerItems.length; i++)
+					{
+						if (localBrokerItems[i].brokerid === 'homey')
+						{
+							// extract the ip address from the host url which is in the form '192-168-1-32.homey.homeylocal.com'
+							let ip = window.location.hostname.replace(/-/g, '.').replace('.homey.homeylocal.com', '');
+
+							// url will be 'mqtt://homeyip'
+							localBrokerItems[i].url = `mqtt://${ip}`;
+							break;
+						}
+					}
+
 					// Update the controls
 					// Get the current configuration
 					var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
 
 					writeButtonsections(buttonPanelConfiguration.length);
-					updateButtonPanelControls();
 					updateDisplayConfiguration();
+					updateButtonPanelControls();
 					drawBrokerItems();
 
 					// Notify the user
@@ -878,28 +917,6 @@
 			// 	}
 			// });
 
-			Homey.get('displayConfigurations', function (err, displayConfigurations)
-			{
-				if (err) return Homey.alert(err);
-				localDisplayConfigurations = displayConfigurations;
-				displayConfigurationsFetched = (localDisplayConfigurations.length > 0);
-				// add the itemId and validate the page number to each item
-				for (let i = 0; i < localDisplayConfigurations.length; i++)
-				{
-					const displayConfiguration = localDisplayConfigurations[i];
-					for (let j = 0; j < displayConfiguration.items.length; j++)
-					{
-						displayConfiguration.items[j].itemId = j;
-						if (displayConfiguration.items[j].page === undefined)
-						{
-							displayConfiguration.items[j].page = 0;
-						}
-					}
-				}
-
-				updateDisplayConfiguration();
-			});
-
 			newBrokerItemButton.addEventListener('click', function (e)
 			{
 				// Create a new broker item
@@ -963,7 +980,7 @@
 			}
 		}
 
-		function fillButtonConfigListElement(element, txt, configurations, NumConfigurations)
+		function fillConfigListElement(element, txt, configurations, NumConfigurations)
 		{
 			//fill the configuration list with configuration number / names
 			element.innerHTML = "";
@@ -1070,7 +1087,7 @@
 
 		function fillButtonDevices()
 		{
-			//fill the device lists with devices
+			// fill the device lists with devices
 			if (buttonDevicesFetched)
 			{
 				// Get the number of pages in the current configuration
@@ -1082,8 +1099,75 @@
 					const leftElement = document.getElementById(`left${i}Device`);
 					fillDevicesElement(leftElement, buttonDevicesArray);
 
+					// Select the current device
+					const leftDevice = buttonPanelConfiguration[i].leftDevice;
+					if (leftDevice)
+					{
+						// If the device is not in the element options list then add it
+						if (!Array.from(leftElement.options).some(option => option.value === leftDevice))
+						{
+							var option = document.createElement("option");
+							option.text = buttonPanelConfiguration[i].leftDeviceName + " (Missing)";
+							option.value = leftDevice;
+							leftElement.add(option);
+
+							leftElement.value = leftDevice;
+
+							// As the device is missing the capability is also missing so add it to the list
+							var option = document.createElement("option");
+							option.text = buttonPanelConfiguration[i].leftCapabilityName + " (Missing)";
+							option.value = buttonPanelConfiguration[i].leftCapability;
+							document.getElementById(`left${i}Capability`).add(option);
+
+							// Now select it
+							document.getElementById(`left${i}Capability`).value = buttonPanelConfiguration[i].leftCapability;
+
+							// Show the capability section
+							document.getElementById(`left${i}Capability`).style.display = itemDisplyType;
+
+						}
+						else
+						{
+							leftElement.value = leftDevice;
+							getCapabilities('left', i, document.getElementById(`left${i}Device`).value, buttonPanelConfiguration[i].leftCapability, buttonPanelConfiguration[i].leftCapabilityName);
+						}
+					}
+
 					const rightElement = document.getElementById(`right${i}Device`);
 					fillDevicesElement(rightElement, buttonDevicesArray);
+
+					// Select the current device
+					const rightDevice = buttonPanelConfiguration[i].rightDevice;
+					if (rightDevice)
+					{
+						// If the device is not in the element options list then add it
+						if (!Array.from(rightElement.options).some(option => option.value === rightDevice))
+						{
+							var option = document.createElement("option");
+							option.text = buttonPanelConfiguration[i].rightDeviceName + " (Missing)";
+							option.value = rightDevice;
+							rightElement.add(option);
+
+							rightElement.value = rightDevice;
+
+							// As the device is missing the capability is also missing so add it to the list
+							var option = document.createElement("option");
+							option.text = buttonPanelConfiguration[i].rightCapabilityName + " (Missing)";
+							option.value = buttonPanelConfiguration[i].rightCapability;
+							document.getElementById(`right${i}Capability`).add(option);
+
+							// Now select it
+							document.getElementById(`right${i}Capability`).value = buttonPanelConfiguration[i].rightCapability;
+
+							// Show the capability section
+							document.getElementById(`right${i}Capability`).style.display = itemDisplyType;
+						}
+						else
+						{
+							rightElement.value = rightDevice;
+							getCapabilities('right', i, document.getElementById(`right${i}Device`).value, buttonPanelConfiguration[i].rightCapability, buttonPanelConfiguration[i].rightCapabilityName);
+						}
+					}
 				}
 			};
 		}
@@ -1399,11 +1483,10 @@
 						buttonDevicesArray.push({ id: ButtonPanelConfiguration[`${side}Device`], name, zone: { name: "Missing Devices" } });
 						buttonDevicesArray = sortDevices(buttonDevicesArray);
 						fillButtonDevices();
-						document.getElementById(`${side}${page}Device`).value = ButtonPanelConfiguration[`${side}Device`];
+						// document.getElementById(`${side}${page}Device`).value = ButtonPanelConfiguration[`${side}Device`];
 					}
 				}
 
-				getCapabilities(side, page, document.getElementById(`${side}${page}Device`).value, ButtonPanelConfiguration[`${side}Capability`], ButtonPanelConfiguration[`${side}CapabilityName`]);
 				document.getElementById(`${side}${page}BrokerId`).value = ButtonPanelConfiguration[`${side}BrokerId`];
 				document.getElementById(`${side}${page}DimChange`).value = ButtonPanelConfiguration[`${side}DimChange`];
 				document.getElementById(`${side}${page}FrontLEDOnColor`).value = ButtonPanelConfiguration[`${side}FrontLEDOnColor`];
@@ -2126,8 +2209,33 @@
 					for (var itemNo = 0; itemNo < displayConfig.items.length; itemNo++)
 					{
 						fillDevicesElement(document.getElementById(`display${itemNo}Device`), displayDevicesArray);
-						document.getElementById(`display${itemNo}Device`).value = displayConfig.items[itemNo].device;
-						getDisplayCapabilities(itemNo);
+
+						// If the current device is not in the list, add it
+						if (displayConfig.items[itemNo].device !== '' && !displayDevicesArray.includes(displayConfig.items[itemNo].device))
+						{
+							var option = document.createElement("option");
+							option.text = displayConfig.items[itemNo].deviceName + " (Missing)";
+							option.value = displayConfig.items[itemNo].device;
+							document.getElementById(`display${itemNo}Device`).add(option);
+
+							// Select the current device
+							document.getElementById(`display${itemNo}Device`).value = displayConfig.items[itemNo].device;
+
+							// Add the stored capability for the device as we can't fetch the list of capabilities if the device is missing
+							var option = document.createElement("option");
+							option.text = displayConfig.items[itemNo].capabilityName + " (Missing)";
+							option.value = displayConfig.items[itemNo].capability;
+							document.getElementById(`display${itemNo}Capability`).add(option);
+
+							// Select the current capability
+							document.getElementById(`display${itemNo}Capability`).value = displayConfig.items[itemNo].capability;
+						}
+						else
+						{
+							// Select the current device
+							document.getElementById(`display${itemNo}Device`).value = displayConfig.items[itemNo].device;
+							getDisplayCapabilities(itemNo);
+						}
 					}
 				}
 			}
@@ -3013,7 +3121,7 @@
 		{
 			if (!brokerItemsFetched)
 			{
-				setTimeout(setupBrokers, 1000);
+				setTimeout(setupButtonBrokerItems, 1000);
 				return;
 			}
 

@@ -96,6 +96,19 @@
 	],
 	"settings": [
 		{
+			"id": "disabled",
+			"type": "checkbox",
+			"label": {
+				"en": "Disabled",
+				"nl": "Uitgeschakeld"
+			},
+			"value": false,
+			"hint": {
+				"en": "Disable the device",
+				"nl": "Schakel het apparaat uit"
+			}
+		},
+		{
 			"id": "address",
 			"type": "text",
 			"label": {

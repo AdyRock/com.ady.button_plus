@@ -4,8 +4,8 @@
         "nl": "Stel knop top label in"
     },
     "titleFormatted": {
-        "en": "Set the [[left_right]] button top label on connector [[connector]] to [[label]]",
-        "nl": "Stel het [[left_right]] knop top label op connector [[connector]] in op [[label]]"
+        "en": "Set the [[left_right]] button top label on connector [[connector]] for [[page]] to [[label]]",
+        "nl": "Stel het [[left_right]] knop top label op connector [[connector]] voor [[page]] in op [[label]]"
     },
     "hint": {
         "en": "Sets the top label of the specified button",
@@ -59,6 +59,26 @@
             "max": 4,
             "step": 1
         },
+		{
+			"type": "number",
+			"name": "page",
+			"title": {
+				"en": "Page number",
+				"nl": "Pagina nummer"
+			},
+			"hint": {
+				"en": "Page number. Use 0 to change for all pages",
+				"nl": "Pagina nummer. Gebruik 0 om voor alle pagina's te wijzigen"
+			},
+			"placeholder": {
+				"en": "Page number",
+				"nl": "Pagina nummer"
+			},
+			"required": false,
+			"min": 0,
+			"max": 40,
+			"step": 1
+		},
         {
             "type": "text",
             "name": "label",

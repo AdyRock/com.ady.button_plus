@@ -177,6 +177,13 @@ class PanelDevice extends Device
 		this.registerCapabilityListener('next_page_button', this.onCapabilityNextPage.bind(this));
 		this.registerCapabilityListener('previous_page_button', this.onCapabilityPreviousPage.bind(this));
 
+		this.disbaled = settings.disabled;
+		if (settings.disabled)
+		{
+			this.setUnavailable('Device is disabled');
+			return;
+		}
+
 		// calculate an random number between 1 and 30 seconds
 		const random = Math.floor(Math.random() * 30000) + 1;
 
@@ -206,7 +213,10 @@ class PanelDevice extends Device
 			this.initHardwareTimer = this.homey.setTimeout(() =>
 			{
 				this.initHardwareTimer = null;
-				this.intiHardware().catch(this.error);
+				if (!this.disbaled)
+				{
+					this.intiHardware().catch(this.error);
+				}
 			}, 30000);
 
 			this.log('Hardware initialisation failed, retrying in 30 seconds');
@@ -432,6 +442,27 @@ class PanelDevice extends Device
 		{
 			this.temperatureCalibration = newSettings.temperatureCalibration;
 		}
+
+		if (changedKeys.includes('disabled'))
+		{
+			this.disbaled = newSettings.disabled;
+			if (newSettings.disabled)
+			{
+				this.setUnavailable('Device is disabled');
+				this.homey.clearTimeout(this.initHardwareTimer);
+				this.initFinished = false;
+			}
+			else
+			{
+				this.setAvailable();
+
+				this.initHardwareTimer = this.homey.setTimeout(() =>
+				{
+					this.initHardwareTimer = null;
+					this.intiHardware().catch(this.error);
+				}, 1000);
+			}
+		}
 	}
 
 	/**
@@ -468,7 +499,7 @@ class PanelDevice extends Device
 		}
 	}
 
-	getBrokerIdAndBtnIdx(side, connector)
+	getBrokerIdAndBtnIdx(side, connector, page)
 	{
 		let brokerId = 'Default';
 		const buttonIdx = (connector * 2) + (side === 'right' ? 1 : 0);
@@ -481,11 +512,11 @@ class PanelDevice extends Device
 			{
 				if (side === 'left')
 				{
-					brokerId = item.leftBrokerId;
+					brokerId = item[page].leftBrokerId;
 				}
 				else
 				{
-					brokerId = item.rightBrokerId;
+					brokerId = item[page].rightBrokerId;
 				}
 			}
 		}
@@ -515,28 +546,43 @@ class PanelDevice extends Device
 
 	async updateConnectorTopLabel(left_right, connector, page, label)
 	{
-		const { brokerId, buttonIdx } = this.getBrokerIdAndBtnIdx(left_right, connector);
-		return this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/toplabel/set`, label).catch(this.error);
+		const { brokerId, buttonIdx } = this.getBrokerIdAndBtnIdx(left_right, connector, page);
+		return this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx + 1}-${page}/toplabel/set`, label).catch(this.error);
 	}
 
-	async updateConnectorLabel(left_right, connector, pageNum, label)
+	async updateConnectorLabel(left_right, connector, page, label)
 	{
-		const { brokerId, buttonIdx } = this.getBrokerIdAndBtnIdx(left_right, connector);
-		return this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${pageNum}/label/set`, label).catch(this.error);
+		if (!this.initFinished)
+		{
+			throw new Error('Device is not initialised');
+		}
+
+		const { brokerId, buttonIdx } = this.getBrokerIdAndBtnIdx(left_right, connector, page);
+		return this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx + 1}-${page}/label/set`, label).catch(this.error);
 	}
 
-	async updateConfigTopLabel(left_right, configNo, label)
+	async updateConfigTopLabel(left_right, configNo, page, label)
 	{
+		if (!this.initFinished)
+		{
+			throw new Error('Device is not initialised');
+		}
+
 		// Find the button connector that has this configuration
 		const connector = this.findConnectorUsingConfigNo(configNo);
-		return this.updateConnectorTopLabel(left_right, connector, label);
+		return this.updateConnectorTopLabel(left_right, connector, page, label);
 	}
 
-	async updateConfigLabel(left_right, configNo, label)
+	async updateConfigLabel(left_right, configNo, page, label)
 	{
-		// Find the button connector that has this configuration
+		if (!this.initFinished)
+		{
+			throw new Error('Device is not initialised');
+		}
+
+// Find the button connector that has this configuration
 		const connector = this.findConnectorUsingConfigNo(configNo);
-		return this.updateConnectorLabel(left_right, connector, label);
+		return this.updateConnectorLabel(left_right, connector, page, label);
 	}
 
 	async updateDateAndTime(dateTime)
@@ -717,9 +763,10 @@ class PanelDevice extends Device
 //		return this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/${buttonNo}-${page}led/rgb`, rgb, false, false).catch(this.error);
 	}
 
-	async setConfigLEDColour(left_right, configNo, rgb, front_wall, updateConfig, On_Off)
+	async setConfigLEDColour(left_right, configNo, rgb, front_wall, page, updateConfig, On_Off)
 	{
-		const item = this.homey.app.buttonConfigurations[configNo];
+		const config = this.homey.app.buttonConfigurations[configNo];
+		const item = config[page];
 		if (item)
 		{
 			if (!checkSEMVerGreaterOrEqual(this.firmwareVersion, '1.12.0'))
@@ -778,7 +825,7 @@ class PanelDevice extends Device
 							return this.uploadOneButtonConfiguration(connector, configNo, this.firmwareVersion);
 						}
 
-						return this.setConnectorLEDColour(left_right, connector, rgb, front_wall);
+						return this.setConnectorLEDColour(left_right, connector, rgb, front_wall, page);
 					}
 				}
 			}
@@ -1011,7 +1058,7 @@ class PanelDevice extends Device
 				deviceConfigurations = {};
 			}
 
-			this.setWarning(null);
+			this.unsetWarning();
 
 			if (deviceConfigurations.info && deviceConfigurations.info.firmware)
 			{
@@ -1238,7 +1285,7 @@ class PanelDevice extends Device
 		try
 		{
 			await this.homey.app.uploadDisplayConfiguration(this.ip, value, this.firmwareVersion, this);
-			this.setWarning(null);
+			this.unsetWarning();
 		}
 		catch (error)
 		{
@@ -1312,7 +1359,7 @@ class PanelDevice extends Device
 			}
 		}
 
-		this.setWarning(null);
+		this.unsetWarning();
 	}
 
 	async onCapabilityNextPage(value, opts)
@@ -1419,6 +1466,11 @@ class PanelDevice extends Device
 
 	async processMQTTMessage(MQTTMessage)
 	{
+		if (!this.initFinished)
+		{
+			return;
+		}
+
 		// eslint-disable-next-line eqeqeq
 		if (!MQTTMessage || MQTTMessage.id != this.buttonId)
 		{
@@ -1642,7 +1694,14 @@ class PanelDevice extends Device
 
 	async processLongPressMessage(parameters)
 	{
-		let repeatCount = this.longPressOccurred.get(`${parameters.connector}_${parameters.side}_${page}`);
+		if (this.lastLongPressTime && ((Date.now() - this.lastLongPressTime) < 500))
+		{
+			// ignore long press messages that are too close together
+			return;
+		}
+
+		this.lastLongPressTime = Date.now();
+		let repeatCount = this.longPressOccurred.get(`${parameters.connector}_${parameters.side}_${parameters.page}`);
 		if (repeatCount === undefined)
 		{
 			repeatCount = 0;
@@ -1663,7 +1722,7 @@ class PanelDevice extends Device
 			this.homey.app.updateLog(`Panel processing MQTT message: ${parameters}`);
 		}
 
-		this.longPressOccurred.set(`${parameters.connector}_${parameters.side}_${page}`, repeatCount + 1);
+		this.longPressOccurred.set(`${parameters.connector}_${parameters.side}_${parameters.page}`, repeatCount + 1);
 		this.homey.app.triggerButtonLongPress(this, parameters.side === 'left', parameters.connector + 1, repeatCount, parameters.page);
 
 		if (buttonPanelConfiguration !== null)
@@ -1819,7 +1878,7 @@ class PanelDevice extends Device
 
 		if (deviceConfigurations)
 		{
-			this.setWarning(null);
+			this.unsetWarning();
 
 			// Create a new section configuration for the button panel by adding the core and buttons sections of the deviceConfigurations to core and buttons of a new object
 			const sectionConfiguration = {
@@ -2561,6 +2620,16 @@ class PanelDevice extends Device
 				this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/${buttonIdx}-${page}`, value).catch(this.error);
 			}
 		}
+	}
+
+	async turnButtonOnOff(left_right, connector, page, state)
+	{
+		if (page === this.page)
+		{
+			await this.setCapabilityValue(`${left_right}_button.connector${connector}`, state);
+		}
+
+		this.buttonValues.set(`${left_right}_${connector}_${page}`, state);
 	}
 }
 
