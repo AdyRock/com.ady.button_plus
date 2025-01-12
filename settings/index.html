@@ -2306,7 +2306,7 @@
 					selectedVariableName = displayConfig.items[itemNo].capabilityName;
 				}
 
-				if (variablesFetched)
+				if (variablesFetched && variablesArray.length > 0)
 				{
 					// Add each of the variables to the item drop list
 					fillDisplayVariablesElement(itemNo, capabilitiesElement, selectedVariable, selectedVariableName);

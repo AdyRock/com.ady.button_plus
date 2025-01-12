@@ -220,5 +220,8 @@
 	},
 	"0.7.7": {
 		"en": "Fix missing Configuration Name."
+	},
+	"0.7.8": {
+		"en": "Fix for variables not updating on the display."
 	}
 }

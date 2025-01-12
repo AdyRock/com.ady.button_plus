@@ -2227,20 +2227,39 @@ class PanelDevice extends Device
 		const item = this.homey.app.displayConfigurations[configNo];
 		if (item)
 		{
-			for (let itemNo = 0; itemNo < item.items.length; itemNo++)
+			if (deviceId === '_variable_')
 			{
-				const displayItem = item.items[itemNo];
-				let homeyDeviceObject = await this.homey.app.getHomeyDeviceById(displayItem.device);
+				// This is a variable update so only check the variable entries
+				for (let itemNo = 0; itemNo < item.items.length; itemNo++)
+				{
+					const displayItem = item.items[itemNo];
+					if ((displayItem.device === '_variable_') && (displayItem.capability === capability))
+					{
+						// Publish to MQTT
+						const { brokerId } = displayItem;
+						this.homey.app.publishMQTTMessage(brokerId, `buttonplus/_variable_/${capability}`, value).catch(this.error);
+						break;
+					}
+				}
+			}
+			else
+			{
+				// Check if it is Button Plus device as it's all for one and one for all
+				let buttonPlusDevice = false;
+				let homeyDeviceObject = await this.homey.app.getHomeyDeviceById(deviceId);
 				if (homeyDeviceObject)
 				{
-					let homeyDeviceObjectId = homeyDeviceObject.id;
 					if (homeyDeviceObject.driverId === 'homey:app:com.ady.button_plus:panel_hardware')
 					{
-						homeyDeviceObject = this;
-						homeyDeviceObjectId = this.__id;
+						buttonPlusDevice = true;
+						deviceId = this.__id;
 					}
+				}
 
-					if ((homeyDeviceObjectId === deviceId) && (displayItem.capability === capability))
+				for (let itemNo = 0; itemNo < item.items.length; itemNo++)
+				{
+					const displayItem = item.items[itemNo];
+					if ((buttonPlusDevice || (displayItem.device === deviceId)) && (displayItem.capability === capability))
 					{
 						// Check if the value is different from the last time we published it
 						if (capability === 'dim')
@@ -2252,6 +2271,7 @@ class PanelDevice extends Device
 						// Publish to MQTT
 						const { brokerId } = displayItem;
 						this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${deviceId}/${capability}`, value).catch(this.error);
+						break;
 					}
 				}
 			}
