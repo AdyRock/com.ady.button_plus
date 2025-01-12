@@ -494,8 +494,8 @@ class MyApp extends Homey.App
 			})
 			.registerArgumentAutocompleteListener('config', async (query, args) =>
 			{
-				// itterate over the config array and return the name and id
-				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config.name ? config.name : ''}`, id: index }));
+				// iterate over the config array and return the name and id
+				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config[ 0 ].name ? config[ 0 ].name : ''}`, id: index }));
 
 				// filter the results based on the search query
 				return results.filter((result) => (result.name.toLowerCase().includes(query.toLowerCase())));
@@ -522,7 +522,7 @@ class MyApp extends Homey.App
 			.registerArgumentAutocompleteListener('config', async (query, args) =>
 			{
 				// itterate over the config array and return the name and id
-				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config.name ? config.name : ''}`, id: index }));
+				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config[ 0 ].name ? config[ 0 ].name : ''}`, id: index }));
 
 				// filter the results based on the search query
 				return results.filter((result) => (result.name.toLowerCase().includes(query.toLowerCase())));

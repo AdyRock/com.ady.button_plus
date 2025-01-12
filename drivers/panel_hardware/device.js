@@ -184,6 +184,8 @@ class PanelDevice extends Device
 			return;
 		}
 
+		this.setUnavailable('Device is initializing');
+
 		// calculate an random number between 1 and 30 seconds
 		const random = Math.floor(Math.random() * 30000) + 1;
 
@@ -252,6 +254,7 @@ class PanelDevice extends Device
 		}
 
 		this.initFinished = true;
+		this.setAvailable();
 
 		this.log('PanelDevice hardware initialization completed');
 	}
@@ -454,8 +457,6 @@ class PanelDevice extends Device
 			}
 			else
 			{
-				this.setAvailable();
-
 				this.initHardwareTimer = this.homey.setTimeout(() =>
 				{
 					this.initHardwareTimer = null;

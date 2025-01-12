@@ -483,6 +483,9 @@
 
 			function storeButtonSettings(ButtonPanelConfiguration)
 			{
+				// Store the configuration name
+				ButtonPanelConfiguration[ 0 ].name = configNameElement.value;
+
 				for (page = 0; page < ButtonPanelConfiguration.length; page++)
 				{
 					ButtonPanelConfiguration[page].PageNum = document.getElementById(`${page}PageNum`).value;
@@ -1416,6 +1419,9 @@
 
 			let config = localButtonConfigurations[currentButtonConfigurationNo];
 
+			// let ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+			configNameElement.value = config[ 0 ].name ? config[ 0 ].name : "";
+
 			for (let page = 0; page < config.length; page++)
 			{
 				document.getElementById(`${page}PageNum`).value = page === 0 ? 'Default' : config[page].PageNum;
@@ -1456,9 +1462,6 @@
 				// fillButtonConfigListElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
 
 				buttonConfigurationNoElement.value = currentButtonConfigurationNo;
-
-				// let ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-				// configNameElement.value = ButtonPanelConfiguration.name ? ButtonPanelConfiguration.name : "";
 
 				// Fill button panel
 				const panelText = Homey.__(`settings.${side}Panel`);

@@ -217,5 +217,8 @@
 	},
 	"0.7.6": {
 		"en": "Added an option to disable a Homey Button + device. Fixed Flow action cards that had a missing page option. Change the Configuration page to eliminated some possible race conditions that prevented the Device from being restored."
+	},
+	"0.7.7": {
+		"en": "Fix missing Configuration Name."
 	}
 }
