@@ -1254,6 +1254,7 @@ class MyApp extends Homey.App
 					sectionConfiguration.buttons[arrayIdx] = {};
 					button = sectionConfiguration.buttons[arrayIdx];
 				}
+
 				this.setupButtonMQTTTopicList(null, panelId, buttonIdx, button, connectorType, firmwareVersion, 0);
 				this.setupButtonMQTTTopicList(null, panelId, buttonIdx + 1, button, connectorType, firmwareVersion, 0);
 			}
@@ -2319,11 +2320,6 @@ class MyApp extends Homey.App
 				}
 
 				// Update the button object
-				button.label= ``;
-				button.toplabel = '';
-				button.topics= [];
-				button.page = page;
-				button.position= buttonIdx + 1;
 				button.leds = [
 					{
 						frontwall: 'front',
@@ -2349,6 +2345,20 @@ class MyApp extends Homey.App
 				button.label = `Btn_${buttonIdx}`;
 				button.toplabel = 'Label';
 				button.topics = [];
+			}
+		}
+
+		if (checkSEMVerGreaterOrEqual(firmwareVersion, '2.0.0'))
+		{
+			button.page = page;
+			button.position = buttonIdx + 1;
+			button.label = ``;
+			button.toplabel = '';
+			button.topics = [];
+
+			if (connectorType === 2)
+			{
+				button.leds = [];
 			}
 		}
 

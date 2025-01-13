@@ -223,5 +223,8 @@
 	},
 	"0.7.8": {
 		"en": "Fix for variables not updating on the display."
+	},
+	"0.7.9": {
+		"en": "Fix for the button bar blanking when the configuration is changed."
 	}
 }

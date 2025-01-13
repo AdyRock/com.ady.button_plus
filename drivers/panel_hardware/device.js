@@ -15,6 +15,8 @@ class PanelDevice extends Device
 	 */
 	async onInit()
 	{
+		this.setUnavailable('Device is initializing');
+
 		this.initFinished = false;
 		this.longPressOccurred = new Map();
 		this.buttonValues = new Map();
@@ -184,16 +186,14 @@ class PanelDevice extends Device
 			return;
 		}
 
-		this.setUnavailable('Device is initializing');
-
 		// calculate an random number between 1 and 30 seconds
-		const random = Math.floor(Math.random() * 30000) + 1;
+		const random = Math.floor(Math.random() * 10000);
 
 		this.initHardwareTimer =  this.homey.setTimeout(() =>
 		{
 			this.initHardwareTimer = null;
 			this.intiHardware().catch(this.error);
-		}, 30000 + random);
+		}, 7000 + random);
 
 		this.log('PanelDevice has been initialized');
 	}
@@ -219,7 +219,7 @@ class PanelDevice extends Device
 				{
 					this.intiHardware().catch(this.error);
 				}
-			}, 30000);
+			}, 7000);
 
 			this.log('Hardware initialisation failed, retrying in 30 seconds');
 
@@ -647,11 +647,6 @@ class PanelDevice extends Device
 				if (deviceConfigurations.core && deviceConfigurations.core.statusbar !== statusbar)
 				{
 					deviceConfigurations.core.statusbar = statusbar;
-				}
-				else
-				{
-					// Add the statusbar entry to the deviceConfigurations
-					deviceConfigurations.core = { statusbar };
 				}
 				return null;
 			}
@@ -1085,14 +1080,34 @@ class PanelDevice extends Device
 			this.numPages = 0;
 			await this.updateStatusBar(deviceConfigurations);
 			await this.uploadCoreConfiguration(deviceConfigurations);
-			mqttQue = mqttQue.concat(await this.uploadAllButtonConfigurations(deviceConfigurations));
+			({ mqttQue } = await this.uploadAllButtonConfigurations(deviceConfigurations))
+			mqttQue = mqttQue.concat(mqttQue);
 			await this.uploadDisplayConfigurations(deviceConfigurations);
 			await this.uploadBrokerConfigurations(deviceConfigurations);
 			await this.uploadPanelTemperatureConfiguration(deviceConfigurations);
 			delete deviceConfigurations.info;
 
+			if (this.numPages > 1)
+			{
+				const brokerId = this.homey.settings.get('defaultBroker');
+				mqttQue.push(
+					{
+						brokerId: brokerId,
+						message: `buttonplus/${this.buttonId}/page/set`,
+						value: 1,
+					},
+				);
+			}
+
+
 			let tries = 3;
 			let error = null;
+			let delay = 100;
+			if (checkSEMVerGreaterOrEqual(this.firmwareVersion, '2.0.0'))
+			{
+				delay = 10000;
+			}
+
 			while (tries > 0)
 			{
 				error = await this.homey.app.writeDeviceConfiguration(this.ip, deviceConfigurations, this.firmwareVersion)
@@ -1107,7 +1122,7 @@ class PanelDevice extends Device
 						}
 
 						mqttQue = null;
-					}, 15000);
+					}, delay);
 
 					await this.setupMQTTSubscriptions('Default');
 
@@ -1297,6 +1312,11 @@ class PanelDevice extends Device
 
 	async onCapabilityConfiguration(connector, value, opts)
 	{
+		if (!this.initFinished)
+		{
+			throw new Error('Device is not initialised');
+		}
+
 		this.homey.app.updateLog(`onCapabilityConfiguration ${connector}, ${value}, ${opts}`);
 
 		const connectorType = this.getSetting(`connect${connector}Type`);
@@ -1312,10 +1332,12 @@ class PanelDevice extends Device
 				}
 
 				let mqttQue = [];
+				let delay = 100;
 
 				if (checkSEMVerGreaterOrEqual(this.firmwareVersion, '2.0.0'))
 				{
-					mqttQue = mqttQue.concat(await this.uploadAllButtonConfigurations(null));
+					({ mqttQue, delay } = await this.uploadAllButtonConfigurations(null, connector, value))
+					mqttQue = mqttQue.concat(mqttQue);
 				}
 				else
 				{
@@ -1340,17 +1362,21 @@ class PanelDevice extends Device
 						// for each page in the configuration
 						for (let page = 0; page < buttonPanelConfiguration.length; page++)
 						{
-							let config = buttonPanelConfiguration[page]
-
-							mqttQue = await this.setupConnectorMQTTmessages(config, page, connector, connectorType);
+							mqttQue = await this.setupConnectorMQTTmessages(buttonPanelConfiguration, page, connector, connectorType);
 						}
 					}
 				}
 
-				for (const mqttMsg of mqttQue)
+				// Send the MQTT messages after a short delay to allow the device to reset and connect to the broker
+				setTimeout(async () =>
 				{
-					this.homey.app.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value, false, mqttMsg.retain).catch(this.error);
-				}
+					for (const mqttMsg of mqttQue)
+					{
+						this.homey.app.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value, false).catch(this.error);
+					}
+
+					mqttQue = null;
+				}, delay);
 			}
 			catch (error)
 			{
@@ -1865,10 +1891,11 @@ class PanelDevice extends Device
 		});
 	}
 
-	async uploadAllButtonConfigurations(deviceConfigurations)
+	async uploadAllButtonConfigurations(deviceConfigurations, Connector, ConfigNo)
 	{
 		let writeConfig = false;
 		let mqttQue = [];
+		let delay = 100;
 		if (!deviceConfigurations)
 		{
 			// download the current configuration from the device
@@ -1890,8 +1917,14 @@ class PanelDevice extends Device
 			for (let i = 0; i < (deviceConfigurations.info.connectors.length); i++)
 			{
 				const connectorType = this.getSetting(`connect${i}Type`);
+
 				let configNo = null;
-				if (this.hasCapability(`configuration_button.connector${i}`))
+
+				if (i === Connector)
+				{
+					configNo = ConfigNo;
+				}
+				else if (this.hasCapability(`configuration_button.connector${i}`))
 				{
 					// apply the new configuration to this button bar section
 					configNo = this.getCapabilityValue(`configuration_button.connector${i}`);
@@ -1918,7 +1951,7 @@ class PanelDevice extends Device
 				}
 			}
 
-			if (deviceConfigurations.buttons)
+			if (writeConfig && deviceConfigurations.buttons)
 			{
 				for (let i = sectionConfiguration.buttons.length - 1; i >= 0; i--)
 				{
@@ -1940,6 +1973,11 @@ class PanelDevice extends Device
 					this.homey.app.updateLog(this.homey.app.varToString(error), 0);
 					return null;
 				}
+
+				if (checkSEMVerGreaterOrEqual(this.firmwareVersion, '2.0.0'))
+				{
+					delay = 10000;
+				}
 			}
 			else if (sectionConfiguration.buttons.length === 0)
 			{
@@ -1957,7 +1995,7 @@ class PanelDevice extends Device
 			this.setWarning('Error reading Button configuration');
 		}
 
-		return mqttQue;
+		return {mqttQue, delay};
 	}
 
 	async uploadOneButtonConfiguration(connector, configNo, firmwareVersion)
@@ -2522,8 +2560,56 @@ class PanelDevice extends Device
 						return a.page - b.page;
 					}
 
+					if (a.front_wall !== undefined)
+					{
+						// Array of front and wall colours
+						return a.front_wall.localeCompare( b.front_wall);
+					}
+
 					return 0;
 				});
+			}
+			// Check if the values are objects and if so compare items
+			else if ((typeof value1 === 'object' && value1 !== null) && (typeof value2 === 'object' && value2 !== null))
+			{
+				// For each item in value1 check if it is in value2
+				for (const key in value1)
+				{
+					// If the item is another array then compare the items
+					if (Array.isArray(value1[key]) && Array.isArray(value2[key]))
+					{
+						if (!_.isEqualWith(value1[key], value2[key], customizer))
+						{
+							return false;
+						}
+					}
+					else
+					{
+						if (!value2.hasOwnProperty(key))
+						{
+							return false;
+						}
+
+						if (!_.isEqual(value1[key], value2[key]))
+						{
+							return false;
+						}
+					}
+				}
+
+				// For each item in value2 check if it is in value1
+				for (const key in value2)
+				{
+					if (key !== 'buttonid')
+					{
+						if (!value1.hasOwnProperty(key))
+						{
+							return false;
+						}
+					}
+				}
+
+				return true;
 			}
 
 			return undefined;
