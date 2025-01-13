@@ -1081,7 +1081,6 @@ class PanelDevice extends Device
 			await this.updateStatusBar(deviceConfigurations);
 			await this.uploadCoreConfiguration(deviceConfigurations);
 			({ mqttQue } = await this.uploadAllButtonConfigurations(deviceConfigurations))
-			mqttQue = mqttQue.concat(mqttQue);
 			await this.uploadDisplayConfigurations(deviceConfigurations);
 			await this.uploadBrokerConfigurations(deviceConfigurations);
 			await this.uploadPanelTemperatureConfiguration(deviceConfigurations);

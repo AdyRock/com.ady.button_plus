@@ -1922,7 +1922,16 @@ class MyApp extends Homey.App
 			MQTT_Id = this.homey.settings.get('defaultBroker');
 		}
 
-		const data = (typeof message === 'string' || message instanceof String) ? message : JSON.stringify(message);
+		if (message === undefined)
+		{
+			message = ' ';
+		}
+
+		let data = (typeof message === 'string' || message instanceof String) ? message : JSON.stringify(message);
+		if (data === '')
+		{
+			data = ' ';
+		}
 
 		const lastMQTTData = this.lastMQTTData.get(`${MQTT_Id}_${topic}`);
 		// eslint-disable-next-line eqeqeq
