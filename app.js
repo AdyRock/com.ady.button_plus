@@ -339,6 +339,12 @@ class MyApp extends Homey.App
 				return (((args.left_right === 'any') || (args.left_right === state.left_right)) && ((args.connector === 0) || (args.connector === state.connector)));
 			});
 
+		this._triggerPageChange = this.homey.flow.getDeviceTriggerCard('page_change')
+			.registerRunListener((args, state) =>
+			{
+				return true;
+			});
+
 		this._triggerButtonChange = this.homey.flow.getDeviceTriggerCard('button_change')
 			.registerRunListener((args, state) =>
 			{
@@ -2216,6 +2222,15 @@ class MyApp extends Homey.App
 	}
 
 	// Device Flow Card Triggers
+
+	triggerPageChange(device, page)
+	{
+		const tokens = { page };
+		const state = {};
+		this.triggerFlow(this._triggerPageChange, device, tokens, state);
+		return this;
+	}
+
 	triggerButtonOn(device, leftright, connector, page)
 	{
 		const tokens = { left_right: leftright, connector, page };
@@ -2300,14 +2315,7 @@ class MyApp extends Homey.App
 	// returns true if a button was added
 	setupButtonConfigSection(ButtonPanelConfiguration, panelId, buttonIdx, sectionConfiguration, connectorType, firmwareVersion, page)
 	{
-		// Make sure there is a button for this index
-		let button = sectionConfiguration.buttons[buttonIdx]
-		if (!button)
-		{
-			// Create the button object
-			button = {};
-			sectionConfiguration.buttons.push(button);
-		}
+		let button = {};
 
 		if (connectorType === 1)
 		{
@@ -2359,7 +2367,7 @@ class MyApp extends Homey.App
 
 		if (checkSEMVerGreaterOrEqual(firmwareVersion, '2.0.0'))
 		{
-			button.page = page;
+			button.page = page >= 0 ? page : 0;
 			button.position = buttonIdx + 1;
 			button.label = ``;
 			button.toplabel = '';
@@ -2370,10 +2378,15 @@ class MyApp extends Homey.App
 				button.leds = [];
 			}
 		}
+		else
+		{
+			button.id = buttonIdx;
+		}
 
 		button.longdelay = 75;
 		button.longrepeat = 50;
-//		button.id = buttonIdx;
+
+		sectionConfiguration.buttons.push(button);
 
 		this.setupButtonMQTTTopicList(ButtonPanelConfiguration, panelId, buttonIdx, button, connectorType, firmwareVersion, page);
 

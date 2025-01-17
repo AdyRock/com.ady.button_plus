@@ -1,0 +1,28 @@
+{
+    "title": {
+        "en": "The page was changed",
+        "nl": "De pagina is veranderd"
+    },
+    "titleFormatted": {
+        "en": "The page changed",
+        "nl": "De pagina is veranderd"
+    },
+	"highlight": true,
+	"tokens": [		{
+			"name": "page",
+			"type": "number",
+			"title": {
+				"en": "Page",
+				"nl": "Pagina"
+			},
+			"example": "1"
+		}
+    ],
+    "args": [
+        {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=panel_hardware"
+        }
+    ]
+}

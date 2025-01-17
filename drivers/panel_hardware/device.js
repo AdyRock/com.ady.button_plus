@@ -846,11 +846,19 @@ class PanelDevice extends Device
 		{
 			if (!page)
 			{
-				this.page = 1;
+				if (this.page !== 1)
+				{
+					this.page = 1;
+					this.homey.app.triggerPageChange(this, this.page);
+				}
 			}
 			else
 			{
-				this.page = page;
+				if (this.page !== page)
+				{
+					this.page = page;
+					this.homey.app.triggerPageChange(this, this.page);
+				}
 			}
 			pageCommand = `${this.page - 1}`;
 		}
@@ -1466,15 +1474,20 @@ class PanelDevice extends Device
 		{
 			if ((topicParts[2] === 'page') && (topicParts[3] === 'state'))
 			{
-				this.page = parseInt(value, 10);
-				if (this.hasCapability('page'))
+				const page = parseInt(value, 10);
+				if (page !== this.page)
 				{
-					let page = this.page;
-					if (page === 0)
+					this.page = page;
+					if (this.hasCapability('page'))
 					{
-						page = 1;
+						let page = this.page;
+						if (page === 0)
+						{
+							page = 1;
+						}
+						this.setCapabilityValue('page', `${page}`).catch(this.error);
+						this.homey.app.triggerPageChange(this, this.page);
 					}
-					this.setCapabilityValue('page', `${page}`).catch(this.error);
 				}
 			}
 			else if ((topicParts[2] === 'sensor') && (topicParts[3] === '1'))

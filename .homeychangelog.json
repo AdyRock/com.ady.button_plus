@@ -226,5 +226,9 @@
 	},
 	"0.7.9": {
 		"en": "Fix for the button bar blanking when the configuration is changed. Fix for sending '' not clearing the text."
+	},
+	"0.7.10": {
+		"en": "Add page change trigger. Improve button page handling. Fix Display button Flow Trigger not working."
 	}
+
 }
