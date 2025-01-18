@@ -29,7 +29,12 @@ module.exports = {
     },
 
     // Log lines
-    async getLog({ homey }) {
+	async getLog({ homey, query }) {
+		if (query && query.ip)
+		{
+			return homey.app.getSent(query.ip);
+		}
+
         return homey.app.getLog();
     },
 

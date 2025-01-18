@@ -15,7 +15,7 @@ class PanelDevice extends Device
 	 */
 	async onInit()
 	{
-		this.setUnavailable('Device is initializing');
+//		this.setUnavailable('Device is initializing');
 
 		this.initFinished = false;
 		this.longPressOccurred = new Map();

@@ -39,6 +39,7 @@ class MyApp extends Homey.App
 		this.mqttServerReady = false;
 		this.autoConfigGateway = true;
 		this.lastMQTTData = new Map();
+		this.dataSent = new Map();
 		this.dateTimer = null;
 
 		const defaultbroker = this.homey.settings.get('defaultBroker');
@@ -1358,7 +1359,8 @@ class MyApp extends Homey.App
 			try
 			{
 				// Use the local device
-				await this.httpHelperLocal.post(`http://${ip}/configsave`, deviceConfiguration, firmwareVersion);
+				let dataSent = await this.httpHelperLocal.post(`http://${ip}/configsave`, deviceConfiguration, firmwareVersion);
+				this.dataSent.set(ip, dataSent);
 				return null;
 			}
 			catch (err)
@@ -2511,6 +2513,10 @@ class MyApp extends Homey.App
 		return brokerId;
 	}
 
+	async getSent(ip)
+	{
+		return this.dataSent.get(ip);
+	}
 }
 
 module.exports = MyApp;

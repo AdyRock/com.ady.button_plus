@@ -18,6 +18,7 @@
 			<option value="displayConfig" data-i18n="settings.displayConfigs"></option>
 			<option value="brokerConfig" data-i18n="settings.brokerConfigs"></option>
 			<option value="diagnosticLog" data-i18n="settings.diagnosticsLog"></option>
+			<option value="lastSentLog" data-i18n="settings.sentLog"></option>
 			<option value="importExport" data-i18n="settings.importExport"></option>
 		</select>
 		<hr style="margin-top:8px;margin-bottom:0px;background-color:lightblue">
@@ -88,6 +89,26 @@
 				</p>
 				<div class="field row">
 					<textarea id="diagLog" class="homey-form-textarea"></textarea>
+				</div>
+			</fieldset>
+		</div>
+
+		<!-- Last sent Log -->
+		<div id="lastSentLog" class="tabcontent">
+			<fieldset class="homey-form-fieldset">
+				<div class="field row">
+					<label class="homey-form-label" for="sentip" style="margin-top:0px"><span data-i18n="settings.webviewip"></span>
+					</label>
+					<select class="homey-form-select" id="sentip">
+					</select>
+				</div>
+				<p></p>
+				<div class="field row">
+					<button class="homey-button-secondary-shadow" id="getLog"><span data-i18n="settings.getLog"></span></button>
+				</div>
+				<p></p>
+				<div class="field row">
+					<textarea id="sentLog" class="homey-form-textarea"></textarea>
 				</div>
 			</fieldset>
 		</div>
@@ -252,6 +273,10 @@
 
 		var openWebViewElement = document.getElementById('openwebview');
 		var webViewIpElement = document.getElementById('webviewip');
+
+		var lastSentIpElement = document.getElementById('sentip');
+		var getLogElement = document.getElementById('getLog');
+		var sentLogElement = document.getElementById('sentLog');
 
 		// Declarations for the Display Config page
 
@@ -442,6 +467,23 @@
 				});
 			});
 
+			getLogElement.addEventListener('click', function (e)
+			{
+
+				Homey.api('GET', `/getLog/?ip=${lastSentIpElement.value}`, { notify: true }, function (err, result)
+				{
+					if (err)
+					{
+						Homey.alert(err);
+					}
+					else
+					{
+						// Add the log to the log view
+						sentLogElement.value = JSON.stringify(JSON.parse(result), null, 2);
+					}
+				});
+			});
+
 			Homey.on('com.ady.button_plus.logupdated', function (data)
 			{
 				diagLogElement.value = data.log;
@@ -484,7 +526,7 @@
 			function storeButtonSettings(ButtonPanelConfiguration)
 			{
 				// Store the configuration name
-				ButtonPanelConfiguration[ 0 ].name = configNameElement.value;
+				ButtonPanelConfiguration[0].name = configNameElement.value;
 
 				for (page = 0; page < ButtonPanelConfiguration.length; page++)
 				{
@@ -1420,7 +1462,7 @@
 			let config = localButtonConfigurations[currentButtonConfigurationNo];
 
 			// let ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			configNameElement.value = config[ 0 ].name ? config[ 0 ].name : "";
+			configNameElement.value = config[0].name ? config[0].name : "";
 
 			for (let page = 0; page < config.length; page++)
 			{
@@ -1540,7 +1582,7 @@
 			if (configSelected !== "")
 			{
 				// Hide the save button for the settings and diagnostics pages
-				if ((configSelected === "settings") || (configSelected === "diagnosticLog") || (configSelected === "importExport"))
+				if ((configSelected === "settings") || (configSelected === "diagnosticLog") || (configSelected === "lastSentLog"))
 				{
 					saveBlock.style.display = "none";
 				}
@@ -1582,6 +1624,12 @@
 				{
 					// Make the log text area fill the page
 					copyTextElement.style.height = (window.innerHeight - copyTextElement.offsetTop - 120) + 'px';
+				}
+				else if (configSelected === "lastSentLog")
+				{
+					// Make the log text area fill the page
+					sentLogElement.style.width = (lastSentIpElement.offsetWidth) + 'px';
+					sentLogElement.style.height = (window.innerHeight - sentLogElement.offsetTop - 35) + 'px';
 				}
 			}
 		}
@@ -3100,6 +3148,7 @@
 				if (err) return Homey.alert(err);
 
 				fillButtonListElement(webViewIpElement, devices);
+				fillButtonListElement(lastSentIpElement, devices);
 			});
 		}
 
