@@ -2262,7 +2262,7 @@
 						fillDevicesElement(document.getElementById(`display${itemNo}Device`), displayDevicesArray);
 
 						// If the current device is not in the list, add it
-						if (displayConfig.items[itemNo].device !== '' && !displayDevicesArray.includes(displayConfig.items[itemNo].device))
+						if (displayConfig.items[itemNo].device !== 'none' && displayConfig.items[itemNo].device !== '_variable_' && displayConfig.items[itemNo].device !== 'customMQTT' && displayConfig.items[itemNo].device !== '' && !displayDevicesArray.includes(displayConfig.items[itemNo].device))
 						{
 							var option = document.createElement("option");
 							option.text = displayConfig.items[itemNo].deviceName + " (Missing)";
@@ -2272,21 +2272,22 @@
 							// Select the current device
 							document.getElementById(`display${itemNo}Device`).value = displayConfig.items[itemNo].device;
 
-							// Add the stored capability for the device as we can't fetch the list of capabilities if the device is missing
-							var option = document.createElement("option");
-							option.text = displayConfig.items[itemNo].capabilityName + " (Missing)";
-							option.value = displayConfig.items[itemNo].capability;
-							document.getElementById(`display${itemNo}Capability`).add(option);
+							// // Add the stored capability for the device as we can't fetch the list of capabilities if the device is missing
+							// var option = document.createElement("option");
+							// option.text = displayConfig.items[itemNo].capabilityName + " (Missing)";
+							// option.value = displayConfig.items[itemNo].capability;
+							// document.getElementById(`display${itemNo}Capability`).add(option);
 
-							// Select the current capability
-							document.getElementById(`display${itemNo}Capability`).value = displayConfig.items[itemNo].capability;
+							// // Select the current capability
+							// document.getElementById(`display${itemNo}Capability`).value = displayConfig.items[itemNo].capability;
 						}
 						else
 						{
 							// Select the current device
 							document.getElementById(`display${itemNo}Device`).value = displayConfig.items[itemNo].device;
-							getDisplayCapabilities(itemNo);
 						}
+
+						getDisplayCapabilities(itemNo);
 					}
 				}
 			}
