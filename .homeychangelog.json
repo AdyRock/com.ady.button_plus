@@ -229,6 +229,8 @@
 	},
 	"0.7.10": {
 		"en": "Add page change trigger. Improve button page handling. Fix Display button Flow Trigger not working."
+	},
+	"0.7.11": {
+		"en": "Fix for the button changes via Flows not working when the device is set to None. Fix display not showing Text when the device is set to None."
 	}
-
 }
