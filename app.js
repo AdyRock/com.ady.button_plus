@@ -1073,10 +1073,11 @@ class MyApp extends Homey.App
 				{
 					// For deviceId type None, we need to send the Label vai MQTT so the item is displayed
 					// Send the value to the device after a short delay to allow the device to connect to the broker
+					capabilities.topics[0].topic = `buttonplus/${ButtonDevice.buttonId}/none/${item.page}/${item.xPos}/${item.yPos}`;
 					mqttQueue.push({
 						brokerId,
-						message: `buttonplus/${homeyDeviceObject ? homeyDeviceObject.id : item.device}/${item.capability}`,
-						value: item.unit,
+						message: `buttonplus/${ButtonDevice.buttonId}/none/${item.page}/${item.xPos}/${item.yPos}`,
+						value: item.text,
 					});
 				}
 
