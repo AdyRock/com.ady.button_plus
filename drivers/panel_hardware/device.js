@@ -1568,6 +1568,7 @@ class PanelDevice extends Device
 				parameters.page = 0;
 			}
 			config = this.getConfigPageSide(null, parameters.page, parameters.side, parameters.configNo);
+			parameters.page = config.page;
 		}
 
 		let { value } = parameters;
@@ -2450,6 +2451,10 @@ class PanelDevice extends Device
 			let buttonPanelConfiguration = this.homey.app.buttonConfigurations[configNo];
 			if (buttonPanelConfiguration)
 			{
+				if (buttonPanelConfiguration.length >= page)
+				{
+					page = 0;
+				}
 				config = buttonPanelConfiguration[page]
 			}
 		}
@@ -2743,9 +2748,9 @@ class PanelDevice extends Device
 
 	async turnButtonOnOff(left_right, connector, page, state)
 	{
-		if (page === this.page)
+		if ((page === 0) || (page === this.page))
 		{
-			await this.setCapabilityValue(`${left_right}_button.connector${connector}`, state);
+			await this.triggerCapabilityListener(`${left_right}_button.connector${connector}`, state);
 		}
 
 		this.buttonValues.set(`${left_right}_${connector}_${page}`, state);
