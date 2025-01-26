@@ -1568,7 +1568,7 @@ class PanelDevice extends Device
 				parameters.page = 0;
 			}
 			config = this.getConfigPageSide(null, parameters.page, parameters.side, parameters.configNo);
-			parameters.page = config.page;
+			parameters.page = parseInt(config.page);
 		}
 
 		let { value } = parameters;
@@ -2165,7 +2165,7 @@ class PanelDevice extends Device
 		return await this.homey.app.writeDeviceConfiguration(this.ip, sectionConfiguration, this.firmwareVersion);
 	}
 
-	checkStateChange(deviceId, capability, value)
+	async checkStateChange(deviceId, capability, value)
 	{
 		// check the configuration to see if this capability is being monitored by one of the buttons
 		if (this.hasCapability('configuration_button.connector0'))
@@ -2451,7 +2451,7 @@ class PanelDevice extends Device
 			let buttonPanelConfiguration = this.homey.app.buttonConfigurations[configNo];
 			if (buttonPanelConfiguration)
 			{
-				if (buttonPanelConfiguration.length >= page)
+				if (page >= buttonPanelConfiguration.length)
 				{
 					page = 0;
 				}

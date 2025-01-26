@@ -701,7 +701,7 @@ class MyApp extends Homey.App
 
 	async syncTime()
 	{
-		if (!this.checkAPIConnection())
+		if (!await this.checkAPIConnection())
 		{
 			// The API wasn't connected so reregister the notifications
 			this.updateLog('API reconnected so re-registering the capability listeners', 0);
