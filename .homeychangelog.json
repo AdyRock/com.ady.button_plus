@@ -232,5 +232,8 @@
 	},
 	"0.7.11": {
 		"en": "Fix for the button changes via Flows not working when the device is set to None. Fix display not showing Text when the device is set to None."
+	},
+	"0.7.12": {
+		"en": "Fix API connection check to await response. Ensure page parameter is an integer. Update state change method to async"
 	}
 }
