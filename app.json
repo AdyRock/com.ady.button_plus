@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.ady.button_plus",
-  "version": "0.7.12",
+  "version": "0.7.13",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "platforms": [
@@ -1275,7 +1275,7 @@
             },
             "hint": {
               "en": "Page number. Use 0 to change for all pages",
-              "nl": "Pagina nummer. Gebruik 0 om voor alle pagina's te wijzigen"
+              "nl": "Pagina nummer. Gebruik 0 om alle pagina's te wijzigen"
             },
             "placeholder": {
               "en": "Page number",
@@ -1377,7 +1377,7 @@
             },
             "hint": {
               "en": "Page number. Use 0 to change for all pages",
-              "nl": "Pagina nummer. Gebruik 0 om voor alle pagina's te wijzigen"
+              "nl": "Pagina nummer. Gebruik 0 om alle pagina's te wijzigen"
             },
             "placeholder": {
               "en": "Page number",
@@ -1475,7 +1475,7 @@
             },
             "hint": {
               "en": "Page number. Use 0 to change for all pages",
-              "nl": "Pagina nummer. Gebruik 0 om voor alle pagina's te wijzigen"
+              "nl": "Pagina nummer. Gebruik 0 om alle pagina's te wijzigen"
             },
             "placeholder": {
               "en": "Page number",
@@ -1509,15 +1509,15 @@
       {
         "title": {
           "en": "Set configuration button top label",
-          "nl": "Stel configuratie knop boven label in"
+          "nl": "Stel configuratie knop bovenste label in"
         },
         "titleFormatted": {
           "en": "Set the [[left_right]] button top label of [[config]] for [[page]] to [[label]]",
-          "nl": "Stel de [[left_right]] knop boven label van [[config]] voor [[page]] in op [[label]]"
+          "nl": "Stel de [[left_right]] knop bovenste label van [[config]] voor [[page]] in op [[label]]"
         },
         "hint": {
           "en": "Sets the top label of the specified button",
-          "nl": "Stelt het boven label van de gespecificeerde knop in"
+          "nl": "Stelt het bovenste label van de gespecificeerde knop in"
         },
         "args": [
           {
@@ -1573,7 +1573,7 @@
             },
             "hint": {
               "en": "Page number. Use 0 to change for all pages",
-              "nl": "Pagina nummer. Gebruik 0 om voor alle pagina's te wijzigen"
+              "nl": "Pagina nummer. Gebruik 0 om alle pagina's te wijzigen"
             },
             "placeholder": {
               "en": "Page number",
@@ -1589,11 +1589,11 @@
             "name": "label",
             "title": {
               "en": "Top Label",
-              "nl": "Boven Label"
+              "nl": "Bovenste Label"
             },
             "placeholder": {
               "en": "New Top Label",
-              "nl": "Nieuw Boven Label"
+              "nl": "Nieuw Bovenste Label"
             }
           },
           {
@@ -1671,7 +1671,7 @@
             },
             "hint": {
               "en": "Page number. Use 0 to change for all pages",
-              "nl": "Pagina nummer. Gebruik 0 om voor alle pagina's te wijzigen"
+              "nl": "Pagina nummer. Gebruik 0 om alle pagina's te wijzigen"
             },
             "placeholder": {
               "en": "Page number",
@@ -1826,7 +1826,7 @@
             },
             "hint": {
               "en": "Page number. Use 0 to change for all pages",
-              "nl": "Pagina nummer. Gebruik 0 om voor alle pagina's te wijzigen"
+              "nl": "Pagina nummer. Gebruik 0 om alle pagina's te wijzigen"
             },
             "placeholder": {
               "en": "Page number",
@@ -1860,15 +1860,15 @@
       {
         "title": {
           "en": "Set connector button top label",
-          "nl": "Stel knop top label in"
+          "nl": "Stel knop bovenste label in"
         },
         "titleFormatted": {
           "en": "Set the [[left_right]] button top label on connector [[connector]] for [[page]] to [[label]]",
-          "nl": "Stel het [[left_right]] knop top label op connector [[connector]] voor [[page]] in op [[label]]"
+          "nl": "Stel het [[left_right]] knop bovenste label op connector [[connector]] voor [[page]] in op [[label]]"
         },
         "hint": {
           "en": "Sets the top label of the specified button",
-          "nl": "Stelt het top label van de opgegeven knop in"
+          "nl": "Stelt het bovenste label van de opgegeven knop in"
         },
         "args": [
           {
@@ -1927,7 +1927,7 @@
             },
             "hint": {
               "en": "Page number. Use 0 to change for all pages",
-              "nl": "Pagina nummer. Gebruik 0 om voor alle pagina's te wijzigen"
+              "nl": "Pagina nummer. Gebruik 0 om alle pagina's te wijzigen"
             },
             "placeholder": {
               "en": "Page number",
@@ -2076,7 +2076,7 @@
             },
             "hint": {
               "en": "Page number. Use 0 to change for all pages",
-              "nl": "Pagina nummer. Gebruik 0 om voor alle pagina's te wijzigen"
+              "nl": "Pagina nummer. Gebruik 0 om alle pagina's te wijzigen"
             },
             "placeholder": {
               "en": "Page number",
@@ -2561,7 +2561,7 @@
             },
             "hint": {
               "en": "Page number. Use 0 to change for all pages",
-              "nl": "Pagina nummer. Gebruik 0 om voor alle pagina's te wijzigen"
+              "nl": "Pagina nummer. Gebruik 0 om alle pagina's te wijzigen"
             },
             "placeholder": {
               "en": "Page number",

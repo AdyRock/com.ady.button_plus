@@ -235,5 +235,8 @@
 	},
 	"0.7.12": {
 		"en": "Fix API connection check to await response. Ensure page parameter is an integer. Update state change method to async"
+	},
+	"0.7.13": {
+		"en": "Fix for the buttons on the Default page."
 	}
 }

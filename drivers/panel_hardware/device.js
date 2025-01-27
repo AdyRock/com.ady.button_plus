@@ -341,6 +341,10 @@ class PanelDevice extends Device
 	 */
 	async onAdded()
 	{
+		if (this.hasCapability('dim'))
+		{
+			this.setCapabilityValue('dim', 1).catch(this.error);
+		}
 		await super.onAdded();
 		this.log('PanelDevice has been added');
 	}
@@ -482,6 +486,11 @@ class PanelDevice extends Device
 	 */
 	async onDeleted()
 	{
+		if (this.initHardwareTimer)
+		{
+			this.homey.clearTimeout(this.initHardwareTimer);
+			this.initHardwareTimer = null;
+		}
 		await super.onDeleted();
 		this.log('PanelDevice has been deleted');
 	}
@@ -2489,7 +2498,7 @@ class PanelDevice extends Device
             wallLEDOnColor: config[`${side}WallLEDOnColor`],
 			frontLEDOffColor: config[`${side}FrontLEDOffColor`],
 			wallLEDOffColor: config[`${side}WallLEDOffColor`],
-			page: config[`${side}PageNum`],
+			page: config['PageNum'] === 'Default' ? 0 : config['PageNum'],
 		};
 	}
 
