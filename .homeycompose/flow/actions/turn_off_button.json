@@ -4,8 +4,8 @@
         "nl": "Schakel knop Uit"
     },
     "titleFormatted": {
-        "en": "Turn off [[left_right]] button on connector [[connector]] for [[page]]",
-        "nl": "Schakel [[left_right]] knop Uit op connector [[connector]] voor [[page]]"
+        "en": "Turn off [[left_right]] button on connector [[connector]] page [[page]]",
+		"nl": "Schakel [[left_right]] knop op connector [[connector]] pagina [[page]] Uit"
     },
     "hint": {
         "en": "Turn off the specified button",

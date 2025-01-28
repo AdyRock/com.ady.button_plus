@@ -120,6 +120,15 @@ class MyApp extends Homey.App
 
 				for (let page = 0; page < buttonConfiguration.length; page++)
 				{
+					if (!buttonConfiguration[page].PageNum)
+					{
+						buttonConfiguration[page].PageNum = page === 0 ? 'Default' : `${page}`;
+					}
+
+					// Remove leftPage and rightPage from the configuration as they are not required
+					delete buttonConfiguration[page].leftPageNum;
+					delete buttonConfiguration[page].rightPageNum;
+
 					if (!buttonConfiguration[page].leftBrokerId)
 					{
 						buttonConfiguration[page].leftBrokerId = 'Default';
@@ -378,7 +387,7 @@ class MyApp extends Homey.App
 			})
 			.registerArgumentAutocompleteListener('config', async (query, args) =>
 			{
-				// itterate over the config array and return the name and id
+				// iterate over the config array and return the name and id
 				let configurations = this.buttonConfigurations;
 				if (args.display_button === 'display')
 				{
@@ -407,7 +416,7 @@ class MyApp extends Homey.App
 			})
 			.registerArgumentAutocompleteListener('config', async (query, args) =>
 			{
-				// itterate over the config array and return the name and id
+				// iterate over the config array and return the name and id
 				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config.name ? config.name : ''}`, id: index }));
 
 				// filter the results based on the search query
@@ -431,7 +440,7 @@ class MyApp extends Homey.App
 			})
 			.registerArgumentAutocompleteListener('config', async (query, args) =>
 			{
-				// itterate over the config array and return the name and id
+				// iterate over the config array and return the name and id
 				const results = this.displayConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config.name ? config.name : ''}`, id: index }));
 
 				// filter the results based on the search query
@@ -528,7 +537,7 @@ class MyApp extends Homey.App
 			})
 			.registerArgumentAutocompleteListener('config', async (query, args) =>
 			{
-				// itterate over the config array and return the name and id
+				// iterate over the config array and return the name and id
 				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config[ 0 ].name ? config[ 0 ].name : ''}`, id: index }));
 
 				// filter the results based on the search query
@@ -562,7 +571,7 @@ class MyApp extends Homey.App
 			})
 			.registerArgumentAutocompleteListener('config', async (query, args) =>
 			{
-				// itterate over the config array and return the name and id
+				// iterate over the config array and return the name and id
 				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config.name ? config.name : ''}`, id: index }));
 
 				// filter the results based on the search query
@@ -611,7 +620,7 @@ class MyApp extends Homey.App
 			})
 			.registerArgumentAutocompleteListener('config', async (query, args) =>
 			{
-				// itterate over the config array and return the name and id
+				// iterate over the config array and return the name and id
 				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config.name ? config.name : ''}`, id: index }));
 
 				// filter the results based on the search query
@@ -638,7 +647,7 @@ class MyApp extends Homey.App
 			})
 			.registerArgumentAutocompleteListener('config', async (query, args) =>
 			{
-				// itterate over the config array and return the name and id
+				// iterate over the config array and return the name and id
 				const results = this.displayConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config.name ? config.name : ''}`, id: index }));
 
 				// filter the results based on the search query

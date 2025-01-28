@@ -4,8 +4,8 @@
 		"nl": "Stel configuratie knop label in"
 	},
 	"titleFormatted": {
-		"en": "Set the [[left_right]] button label of configuration [[config]] for [[page]] to [[label]]",
-		"nl": "Stel de [[left_right]] knop label van configuratie [[config]] voor [[page]] in op [[label]]"
+		"en": "Set the [[left_right]] button label of configuration [[config]] page [[page]] to [[label]]",
+		"nl": "Stel de [[left_right]] knop label van configuratie [[config]] pagina [[page]] in op [[label]]"
 	},
 	"hint": {
 		"en": "Sets the label of the specified button",

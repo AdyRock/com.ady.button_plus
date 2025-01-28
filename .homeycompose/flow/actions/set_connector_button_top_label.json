@@ -4,8 +4,8 @@
         "nl": "Stel knop bovenste label in"
     },
     "titleFormatted": {
-        "en": "Set the [[left_right]] button top label on connector [[connector]] for [[page]] to [[label]]",
-        "nl": "Stel het [[left_right]] knop bovenste label op connector [[connector]] voor [[page]] in op [[label]]"
+        "en": "Set the [[left_right]] button top label on connector [[connector]] page [[page]] to [[label]]",
+        "nl": "Stel het [[left_right]] knop bovenste label op connector [[connector]] pagina [[page]] in op [[label]]"
     },
     "hint": {
         "en": "Sets the top label of the specified button",

@@ -4,8 +4,8 @@
         "nl": "Stel connector LED kleur in"
     },
     "titleFormatted": {
-        "en": "Set the [[left_right]] [[front_wall]] LED colour on connector [[connector]] for [[page]] to [[rgb]]",
-		"nl": "Stel de [[left_right]] [[front_wall]] LED kleur in op connector [[connector]] voor [[page]] op [[rgb]]"
+        "en": "Set the [[left_right]] [[front_wall]] LED colour on connector [[connector]] page [[page]] to [[rgb]]",
+		"nl": "Stel de [[left_right]] [[front_wall]] LED kleur in op connector [[connector]] pagina [[page]] op [[rgb]]"
     },
     "hint": {
         "en": "Sets the colour of the specified LED",

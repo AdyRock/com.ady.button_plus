@@ -238,5 +238,8 @@
 	},
 	"0.7.13": {
 		"en": "Fix for the buttons on the Default page."
+	},
+	"0.7.14": {
+		"en": "Update button labels and hints to include 'page' in the formatting for better clarity. Makes sure PageNum is added to old configurations."
 	}
 }

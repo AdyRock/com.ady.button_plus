@@ -4,8 +4,8 @@
         "nl": "Schakel knop aan "
     },
     "titleFormatted": {
-        "en": "Turn on [[left_right]] button on connector [[connector]] for [[page]]",
-        "nl": "Schakel [[left_right]] knop Aan op connector [[connector]] voor [[page]]"
+        "en": "Turn on [[left_right]] button on connector [[connector]] page [[page]]",
+        "nl": "Schakel [[left_right]] knop Aan op connector [[connector]] pagina [[page]]"
     },
     "hint": {
         "en": "Turn on the specified button",

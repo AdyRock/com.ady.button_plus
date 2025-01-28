@@ -1,7 +1,7 @@
 {
   "_comment": "This file is generated. Please edit .homeycompose/app.json instead.",
   "id": "com.ady.button_plus",
-  "version": "0.7.13",
+  "version": "0.7.14",
   "compatibility": ">=5.0.0",
   "sdk": 3,
   "platforms": [
@@ -1210,8 +1210,8 @@
           "nl": "Stel configuratie knop label in"
         },
         "titleFormatted": {
-          "en": "Set the [[left_right]] button label of configuration [[config]] for [[page]] to [[label]]",
-          "nl": "Stel de [[left_right]] knop label van configuratie [[config]] voor [[page]] in op [[label]]"
+          "en": "Set the [[left_right]] button label of configuration [[config]] page [[page]] to [[label]]",
+          "nl": "Stel de [[left_right]] knop label van configuratie [[config]] pagina [[page]] in op [[label]]"
         },
         "hint": {
           "en": "Sets the label of the specified button",
@@ -1312,8 +1312,8 @@
           "nl": "Stel configuratie knop top label in"
         },
         "titleFormatted": {
-          "en": "Set the [[left_right]] button top label of configuration [[config]] for [[page]] to [[label]]",
-          "nl": "Stel de [[left_right]] knop top label van configuratie [[config]] voor [[page]] in op [[label]]"
+          "en": "Set the [[left_right]] button top label of configuration [[config]] page [[page]] to [[label]]",
+          "nl": "Stel de [[left_right]] knop top label van configuratie [[config]] pagina [[page]] in op [[label]]"
         },
         "hint": {
           "en": "Sets the top label of the specified button",
@@ -1414,8 +1414,8 @@
           "nl": "Stel configuratie knop label in"
         },
         "titleFormatted": {
-          "en": "Set the [[left_right]] button label of [[config]] for [[page]] to [[label]]",
-          "nl": "Stel de [[left_right]] knop label van [[config]] voor [[page]] in op [[label]]"
+          "en": "Set the [[left_right]] button label of [[config]] page [[page]] to [[label]]",
+          "nl": "Stel de [[left_right]] knop label van [[config]] pagina [[page]] in op [[label]]"
         },
         "hint": {
           "en": "Sets the label of the specified button",
@@ -1512,8 +1512,8 @@
           "nl": "Stel configuratie knop bovenste label in"
         },
         "titleFormatted": {
-          "en": "Set the [[left_right]] button top label of [[config]] for [[page]] to [[label]]",
-          "nl": "Stel de [[left_right]] knop bovenste label van [[config]] voor [[page]] in op [[label]]"
+          "en": "Set the [[left_right]] button top label of [[config]] page [[page]] to [[label]]",
+          "nl": "Stel de [[left_right]] knop bovenste label van [[config]] pagina [[page]] in op [[label]]"
         },
         "hint": {
           "en": "Sets the top label of the specified button",
@@ -1610,8 +1610,8 @@
           "nl": "Stel configuratie LED kleur in"
         },
         "titleFormatted": {
-          "en": "Set the [[left_right]] [[front_wall]] [[on_off]] LED colour on [[config]] for [[page]] to [[rgb]]. Update configuration: [[update_configuration]]",
-          "nl": "Stel de [[left_right]] [[front_wall]] [[on_off]] LED kleur op [[config]] voor [[page]] in op [[rgb]]. Update configuratie: [[update_configuration]]"
+          "en": "Set the [[left_right]] [[front_wall]] [[on_off]] LED colour on [[config]] page [[page]] to [[rgb]]. Update configuration: [[update_configuration]]",
+          "nl": "Stel de [[left_right]] [[front_wall]] [[on_off]] LED kleur op [[config]] pagina [[page]] in op [[rgb]]. Update configuratie: [[update_configuration]]"
         },
         "hint": {
           "en": "Sets the colour of the LED associated with the connector using the specified configuration",
@@ -1762,8 +1762,8 @@
           "nl": "Stel connector knop label in"
         },
         "titleFormatted": {
-          "en": "Set the [[left_right]] button label on connector [[connector]] for [[page]] to [[label]]",
-          "nl": "Stel de [[left_right]] knop label op connector [[connector]] voor [[page]] in op [[label]]"
+          "en": "Set the [[left_right]] button label on connector [[connector]] page [[page]] to [[label]]",
+          "nl": "Stel de [[left_right]] knop label op connector [[connector]] pagina [[page]] in op [[label]]"
         },
         "hint": {
           "en": "Sets the label of the specified button",
@@ -1863,8 +1863,8 @@
           "nl": "Stel knop bovenste label in"
         },
         "titleFormatted": {
-          "en": "Set the [[left_right]] button top label on connector [[connector]] for [[page]] to [[label]]",
-          "nl": "Stel het [[left_right]] knop bovenste label op connector [[connector]] voor [[page]] in op [[label]]"
+          "en": "Set the [[left_right]] button top label on connector [[connector]] page [[page]] to [[label]]",
+          "nl": "Stel het [[left_right]] knop bovenste label op connector [[connector]] pagina [[page]] in op [[label]]"
         },
         "hint": {
           "en": "Sets the top label of the specified button",
@@ -1964,8 +1964,8 @@
           "nl": "Stel connector LED kleur in"
         },
         "titleFormatted": {
-          "en": "Set the [[left_right]] [[front_wall]] LED colour on connector [[connector]] for [[page]] to [[rgb]]",
-          "nl": "Stel de [[left_right]] [[front_wall]] LED kleur in op connector [[connector]] voor [[page]] op [[rgb]]"
+          "en": "Set the [[left_right]] [[front_wall]] LED colour on connector [[connector]] page [[page]] to [[rgb]]",
+          "nl": "Stel de [[left_right]] [[front_wall]] LED kleur in op connector [[connector]] pagina [[page]] op [[rgb]]"
         },
         "hint": {
           "en": "Sets the colour of the specified LED",
@@ -2497,8 +2497,8 @@
           "nl": "Schakel knop Uit"
         },
         "titleFormatted": {
-          "en": "Turn off [[left_right]] button on connector [[connector]] for [[page]]",
-          "nl": "Schakel [[left_right]] knop Uit op connector [[connector]] voor [[page]]"
+          "en": "Turn off [[left_right]] button on connector [[connector]] page [[page]]",
+          "nl": "Schakel [[left_right]] knop op connector [[connector]] pagina [[page]] Uit"
         },
         "hint": {
           "en": "Turn off the specified button",
@@ -2586,8 +2586,8 @@
           "nl": "Schakel knop aan "
         },
         "titleFormatted": {
-          "en": "Turn on [[left_right]] button on connector [[connector]] for [[page]]",
-          "nl": "Schakel [[left_right]] knop Aan op connector [[connector]] voor [[page]]"
+          "en": "Turn on [[left_right]] button on connector [[connector]] page [[page]]",
+          "nl": "Schakel [[left_right]] knop Aan op connector [[connector]] pagina [[page]]"
         },
         "hint": {
           "en": "Turn on the specified button",
