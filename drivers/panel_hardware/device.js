@@ -641,7 +641,10 @@ class PanelDevice extends Device
 			time = time.replace('.', ':');
 
 			this.setCapabilityValue('date', date).catch(this.error);
+			this.checkStateChange(this.__id, 'date', date).catch(this.error);
+
 			this.setCapabilityValue('time', time).catch(this.error);
+			this.checkStateChange(this.__id, 'time', time).catch(this.error);
 		}
 	}
 
