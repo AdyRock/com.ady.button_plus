@@ -1186,7 +1186,7 @@ class MyApp extends Homey.App
 
 					//for (var page = 0; page < numPages; page++)
 					let page = 1;
-					while ((!leftButtonAdded || !rightButtonAdded) && page !== 0)
+					while ((!leftButtonAdded || !rightButtonAdded) || page !== 0)
 					{
 						if (page >= numPages)
 						{
@@ -1245,6 +1245,7 @@ class MyApp extends Homey.App
 								try
 								{
 									this.setupButtonConfigSection(ButtonPanelConfiguration, panelId, buttonIdx + 1, sectionConfiguration, connectorType, firmwareVersion, page);
+									rightButtonAdded = true;
 								}
 								catch (err)
 								{
@@ -2333,17 +2334,22 @@ class MyApp extends Homey.App
 		{
 			if (checkSEMVerGreaterOrEqual(firmwareVersion, '2.0.0'))
 			{
-				if (page >= 0)
-				{
-					const leftRight = (buttonIdx & 1) === 0 ? 'left' : 'right';
-					const pageConfig = ButtonPanelConfiguration ? ButtonPanelConfiguration[page] : null;
-					if (pageConfig && pageConfig[`${leftRight}Device`] === 'none')
-					{
-						// No button to add
-						return false;
-					}
-				}
-				else if (page < 0)
+				// if (page >= 0)
+				// {
+				// 	const leftRight = (buttonIdx & 1) === 0 ? 'left' : 'right';
+				// 	const pageConfig = ButtonPanelConfiguration ? ButtonPanelConfiguration[page] : null;
+				// 	if (pageConfig && pageConfig[`${leftRight}Device`] === 'none')
+				// 	{
+				// 		// No button to add
+				// 		return false;
+				// 	}
+				// }
+				// else if (page < 0)
+				// {
+				// 	page = 0;
+				// }
+
+				if (page < 0)
 				{
 					page = 0;
 				}
