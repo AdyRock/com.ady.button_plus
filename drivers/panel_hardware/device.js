@@ -1504,13 +1504,17 @@ class PanelDevice extends Device
 			}
 			else if ((topicParts[2] === 'sensor') && (topicParts[3] === '1'))
 			{
-				// Update the temperature capability
-				// Add the temperature calibration offset to the value
-				const temperature = value + this.temperatureCalibration;
-				this.setCapabilityValue('measure_temperature', temperature).catch(this.error);
+				// If the value is not a number then ignore it
+				if (isNaN(value))
+				{
+					// Update the temperature capability
+					// Add the temperature calibration offset to the value
+					const temperature = value + this.temperatureCalibration;
+					this.setCapabilityValue('measure_temperature', temperature).catch(this.error);
 
-				const configNo = this.getCapabilityValue('configuration_display');
-				this.checkStateChangeForDisplay(configNo, this.__id, 'measure_temperature', temperature);
+					const configNo = this.getCapabilityValue('configuration_display');
+					this.checkStateChangeForDisplay(configNo, this.__id, 'measure_temperature', temperature);
+				}
 			}
 		}
 	}
