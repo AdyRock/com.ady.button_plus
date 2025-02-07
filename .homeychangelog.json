@@ -244,5 +244,8 @@
 	},
 	"0.7.15": {
 		"en": "Add state change checks for date and time capability updates. Fix button configuration logic when device is 'None'"
+	},
+	"0.7.16": {
+		"en": "Fix to update display page 0 to page 1 for old configurations as firmware v2 displays page 0 on every page. Fix to ensure brightness is not 0 when version updated."
 	}
 }

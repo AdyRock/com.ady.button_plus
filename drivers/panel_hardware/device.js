@@ -153,6 +153,13 @@ class PanelDevice extends Device
 
 		this.registerCapabilityListener('dim', this.onCapabilityDim.bind(this));
 
+		let dim = this.getCapabilityValue('dim');
+		if (dim < 0.1)
+		{
+			dim = 0.5;
+			this.setCapabilityValue('dim', dim).catch(this.error);
+		}
+
 		this.registerCapabilityListener('button.update_firmware', async () =>
 		{
 			// Maintenance action button was pressed

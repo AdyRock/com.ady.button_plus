@@ -349,15 +349,28 @@
 				fillConfigListElement(displayConfigurationNoElement, Homey.__("settings.displayConfig"), localDisplayConfigurations, MAX_DISPLAY_CONFIGURATIONS);
 
 				// add the itemId and validate the page number to each item
+				let displayVersion = 0;
+				if (localDisplayConfigurations.length > 0)
+				{
+					displayVersion = localDisplayConfigurations[0].version | 0;
+				}
 				for (let i = 0; i < localDisplayConfigurations.length; i++)
 				{
-					const displayConfiguration = localDisplayConfigurations[i];
-					for (let j = 0; j < displayConfiguration.items.length; j++)
+					if (!localDisplayConfigurations[i].version || localDisplayConfigurations[i].version < 2)
 					{
-						displayConfiguration.items[j].itemId = j;
-						if (displayConfiguration.items[j].page === undefined)
+						localDisplayConfigurations[i].version = 2;
+						const displayConfiguration = localDisplayConfigurations[i];
+						for (let j = 0; j < displayConfiguration.items.length; j++)
 						{
-							displayConfiguration.items[j].page = 0;
+							displayConfiguration.items[j].itemId = j;
+							if (displayConfiguration.items[j].page === undefined)
+							{
+								displayConfiguration.items[j].page = 1;
+							}
+							else
+							{
+								displayConfiguration.items[j].page = parseInt(displayConfiguration.items[j].page, 10) + 1;
+							}
 						}
 					}
 				}
@@ -833,6 +846,21 @@
 							// url will be 'mqtt://homeyip'
 							localBrokerItems[i].url = `mqtt://${ip}`;
 							break;
+						}
+					}
+
+					// If the imported version is less than 2 (or doesn't exist), increment all the display page numbers by 1
+					for (let i = 0; i < localDisplayConfigurations.length; i++)
+					{
+						if (localDisplayConfigurations[i].version < 2 || localDisplayConfigurations[i].version === undefined)
+						{
+							for (let j = 0; j < localDisplayConfigurations[i].items.length; j++)
+							{
+								let page = parseInt(localDisplayConfigurations[i].items[j].page, 10) + 1;
+								localDisplayConfigurations[i].items[j].page = `${page}`;
+							}
+
+							localDisplayConfigurations[i].version = 2;
 						}
 					}
 
@@ -2022,7 +2050,7 @@
 
 			if (typeof item.page === 'undefined')
 			{
-				item.page = 0;
+				item.page = 1;
 			}
 
 			section = section +
