@@ -1512,7 +1512,7 @@ class PanelDevice extends Device
 			else if ((topicParts[2] === 'sensor') && (topicParts[3] === '1'))
 			{
 				// If the value is not a number then ignore it
-				if (isNaN(value))
+				if (!isNaN(value))
 				{
 					// Update the temperature capability
 					// Add the temperature calibration offset to the value
