@@ -2301,6 +2301,11 @@ class PanelDevice extends Device
 		const item = this.homey.app.displayConfigurations[configNo];
 		if (item)
 		{
+			if ((value == null) || (value === undefined))
+			{
+				value = '';
+			}
+
 			if (deviceId === '_variable_')
 			{
 				// This is a variable update so only check the variable entries

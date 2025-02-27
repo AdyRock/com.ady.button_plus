@@ -250,5 +250,8 @@
 	},
 	"0.7.17": {
 		"en": "Fix tempertaure display."
+	},
+	"0.7.18": {
+		"en": "Display nothing instead of null."
 	}
 }
