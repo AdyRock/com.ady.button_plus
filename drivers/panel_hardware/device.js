@@ -1685,11 +1685,11 @@ class PanelDevice extends Device
                         }
                         else
                         {
-                            // The don't trigger the button change Flow as the other device will do this
-                            triggerChange = false;
-
                             value = parameters.fromButton ? parameters.value : !capability.value;
                             await device.setCapabilityValue(config.capabilityName, value);
+
+							// Don't trigger the button change Flow as the other device will do this
+							triggerChange = false;
                         }
                     }
                     catch (error)

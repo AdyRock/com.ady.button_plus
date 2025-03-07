@@ -253,5 +253,8 @@
 	},
 	"0.7.18": {
 		"en": "Display nothing instead of null."
+	},
+	"0.7.19": {
+		"en": "Fix for the button page change trigger when the connected device fails."
 	}
 }
