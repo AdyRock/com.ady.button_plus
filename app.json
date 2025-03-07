@@ -126,8 +126,8 @@
           "nl": "Een knop is AAN of UIT gezet"
         },
         "titleFormatted": {
-          "en": "The [[left_right]] Button on connector [[connector]] was turned On or off",
-          "nl": "De [[left_right]] knop op connector [[connector]] is aan of uit gezet"
+          "en": "The [[left_right]] Button on connector [[connector]] for [[page]] was turned On or off",
+          "nl": "De [[left_right]] knop op connector [[connector]] voor [[page]] is AAN of UIT gezet"
         },
         "highlight": true,
         "tokens": [
@@ -224,6 +224,26 @@
             "step": 1
           },
           {
+            "type": "number",
+            "name": "page",
+            "required": false,
+            "title": {
+              "en": "Page Number",
+              "nl": "Pagina Nummer"
+            },
+            "hint": {
+              "en": "The page number (0-10). Use -1 for any page.",
+              "nl": "Het pagina nummer (0-10). Gebruik -1 voor elke pagina."
+            },
+            "placeholder": {
+              "en": "Page number",
+              "nl": "Pagina nummer"
+            },
+            "min": -1,
+            "max": 10,
+            "step": 1
+          },
+          {
             "name": "device",
             "type": "device",
             "filter": "driver_id=panel_hardware"
@@ -237,8 +257,8 @@
           "nl": "Een knop is ingedrukt gehouden"
         },
         "titleFormatted": {
-          "en": "The [[left_right]] Button on connector [[connector]] was pressed for a long time",
-          "nl": "De [[left_right]] knop op connector [[connector]] is ingedrukt gehouden"
+          "en": "The [[left_right]] Button on connector [[connector]] for [[page]] was pressed for a long time",
+          "nl": "De [[left_right]] knop op connector [[connector]] voor [[page]] is ingedrukt gehouden"
         },
         "highlight": true,
         "tokens": [
@@ -335,6 +355,26 @@
             "step": 1
           },
           {
+            "type": "number",
+            "name": "page",
+            "required": false,
+            "title": {
+              "en": "Page Number",
+              "nl": "Pagina Nummer"
+            },
+            "hint": {
+              "en": "The page number (0-10). Use -1 for any page.",
+              "nl": "Het pagina nummer (0-10). Gebruik -1 voor elke pagina."
+            },
+            "placeholder": {
+              "en": "Page number",
+              "nl": "Pagina nummer"
+            },
+            "min": -1,
+            "max": 10,
+            "step": 1
+          },
+          {
             "name": "device",
             "type": "device",
             "filter": "driver_id=panel_hardware"
@@ -348,8 +388,8 @@
           "nl": "Een knop is uit gezet"
         },
         "titleFormatted": {
-          "en": "The [[left_right]] Button on connector [[connector]] was turned off",
-          "nl": "De [[left_right]] knop op connector [[connector]] is uit gezet"
+          "en": "The [[left_right]] Button on connector [[connector]] for [[page]] was turned off",
+          "nl": "De [[left_right]] knop op connector [[connector]] voor [[page]] is uit gezet"
         },
         "tokens": [
           {
@@ -433,6 +473,26 @@
             },
             "min": 0,
             "max": 4,
+            "step": 1
+          },
+          {
+            "type": "number",
+            "name": "page",
+            "required": false,
+            "title": {
+              "en": "Page Number",
+              "nl": "Pagina Nummer"
+            },
+            "hint": {
+              "en": "The page number (0-10). Use -1 for any page.",
+              "nl": "Het pagina nummer (0-10). Gebruik -1 voor elke pagina."
+            },
+            "placeholder": {
+              "en": "Page number",
+              "nl": "Pagina nummer"
+            },
+            "min": -1,
+            "max": 10,
             "step": 1
           },
           {
@@ -449,8 +509,8 @@
           "nl": "Een knop is AAN gezet"
         },
         "titleFormatted": {
-          "en": "The [[left_right]] Button on connector [[connector]] was turned on",
-          "nl": "De [[left_right]] knop op [[connector]] is aan gezet"
+          "en": "The [[left_right]] Button on connector [[connector]] for [[page]] was turned on",
+          "nl": "De [[left_right]] knop op [[connector]] voor [[page]] is aan gezet"
         },
         "tokens": [
           {
@@ -537,6 +597,26 @@
             "step": 1
           },
           {
+            "type": "number",
+            "name": "page",
+            "required": false,
+            "title": {
+              "en": "Page Number",
+              "nl": "Pagina Nummer"
+            },
+            "hint": {
+              "en": "The page number (0-10). Use -1 for any page.",
+              "nl": "Het pagina nummer (0-10). Gebruik -1 voor elke pagina."
+            },
+            "placeholder": {
+              "en": "Page number",
+              "nl": "Pagina nummer"
+            },
+            "min": -1,
+            "max": 10,
+            "step": 1
+          },
+          {
             "name": "device",
             "type": "device",
             "filter": "driver_id=panel_hardware"
@@ -550,8 +630,8 @@
           "nl": "Een knop is los gelaten"
         },
         "titleFormatted": {
-          "en": "The [[left_right]] button on connector [[connector]] was released",
-          "nl": "De [[left_right]] knop op connector [[connector]] is los gelaten"
+          "en": "The [[left_right]] button on connector [[connector]] for [[page]] was released",
+          "nl": "De [[left_right]] knop op connector [[connector]] voor [[page]] is los gelaten"
         },
         "tokens": [
           {
@@ -635,6 +715,26 @@
             },
             "min": 0,
             "max": 4,
+            "step": 1
+          },
+          {
+            "type": "number",
+            "name": "page",
+            "required": false,
+            "title": {
+              "en": "Page Number",
+              "nl": "Pagina Nummer"
+            },
+            "hint": {
+              "en": "The page number (0-10). Use -1 for any page.",
+              "nl": "Het pagina nummer (0-10). Gebruik -1 voor elke pagina."
+            },
+            "placeholder": {
+              "en": "Page number",
+              "nl": "Pagina nummer"
+            },
+            "min": -1,
+            "max": 10,
             "step": 1
           },
           {

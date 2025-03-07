@@ -4,8 +4,8 @@
         "nl": "Een knop is AAN gezet"
     },
     "titleFormatted": {
-        "en": "The [[left_right]] Button on connector [[connector]] was turned on",
-        "nl": "De [[left_right]] knop op [[connector]] is aan gezet"
+        "en": "The [[left_right]] Button on connector [[connector]] for [[page]] was turned on",
+        "nl": "De [[left_right]] knop op [[connector]] voor [[page]] is aan gezet"
     },
     "tokens": [
         {
@@ -85,7 +85,27 @@
 			"max": 4,
             "step": 1
         },
-        {
+		{
+			"type": "number",
+			"name": "page",
+			"required": false,
+			"title": {
+				"en": "Page Number",
+				"nl": "Pagina Nummer"
+			},
+			"hint": {
+				"en": "The page number (0-10). Use -1 for any page.",
+				"nl": "Het pagina nummer (0-10). Gebruik -1 voor elke pagina."
+			},
+			"placeholder": {
+				"en": "Page number",
+				"nl": "Pagina nummer"
+			},
+			"min": -1,
+			"max": 10,
+			"step": 1
+		},
+		{
             "name": "device",
             "type": "device",
             "filter": "driver_id=panel_hardware"

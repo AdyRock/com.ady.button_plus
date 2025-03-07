@@ -340,13 +340,13 @@ class MyApp extends Homey.App
 		this._triggerButtonOn = this.homey.flow.getDeviceTriggerCard('button_on')
 			.registerRunListener((args, state) =>
 			{
-				return (((args.left_right === 'any') || (args.left_right === state.left_right)) && ((args.connector === 0) || (args.connector === state.connector)));
+				return (((args.left_right === 'any') || (args.left_right === state.left_right)) && ((args.connector === 0) || (args.connector === state.connector)) && ((args.page == undefined) || (args.page === state.page) || (args.page === -1)));
 			});
 
 		this._triggerButtonOff = this.homey.flow.getDeviceTriggerCard('button_off')
 			.registerRunListener((args, state) =>
 			{
-				return (((args.left_right === 'any') || (args.left_right === state.left_right)) && ((args.connector === 0) || (args.connector === state.connector)));
+				return (((args.left_right === 'any') || (args.left_right === state.left_right)) && ((args.connector === 0) || (args.connector === state.connector)) && ((args.page == undefined) || (args.page === state.page) || (args.page === -1)));
 			});
 
 		this._triggerPageChange = this.homey.flow.getDeviceTriggerCard('page_change')
@@ -358,19 +358,19 @@ class MyApp extends Homey.App
 		this._triggerButtonChange = this.homey.flow.getDeviceTriggerCard('button_change')
 			.registerRunListener((args, state) =>
 			{
-				return (((args.left_right === 'any') || (args.left_right === state.left_right)) && ((args.connector === 0) || (args.connector === state.connector)));
+				return (((args.left_right === 'any') || (args.left_right === state.left_right)) && ((args.connector === 0) || (args.connector === state.connector)) && ((args.page == undefined) || (args.page === state.page) || (args.page === -1)));
 			});
 
 		this._triggerButtonLongPress = this.homey.flow.getDeviceTriggerCard('button_long_press')
 			.registerRunListener((args, state) =>
 			{
-				return (((args.left_right === 'any') || (args.left_right === state.left_right)) && ((args.connector === 0) || (args.connector === state.connector)));
+				return (((args.left_right === 'any') || (args.left_right === state.left_right)) && ((args.connector === 0) || (args.connector === state.connector)) && ((args.page == undefined) || (args.page === state.page) || (args.page === -1)));
 			});
 
 		this._triggerButtonRelease = this.homey.flow.getDeviceTriggerCard('button_release')
 			.registerRunListener((args, state) =>
 			{
-				return (((args.left_right === 'any') || (args.left_right === state.left_right)) && ((args.connector === 0) || (args.connector === state.connector)));
+				return (((args.left_right === 'any') || (args.left_right === state.left_right)) && ((args.connector === 0) || (args.connector === state.connector)) && ((args.page == undefined) || (args.page === state.page) || (args.page === -1)));
 			});
 
 		// This flow is deprecated as it is replaced by the config_name_button_change flow
@@ -2247,7 +2247,7 @@ class MyApp extends Homey.App
 	triggerButtonOn(device, leftright, connector, page)
 	{
 		const tokens = { left_right: leftright, connector, page };
-		const state = { left_right: leftright ? 'left' : 'right', connector };
+		const state = { left_right: leftright ? 'left' : 'right', connector, page };
 		this.triggerFlow(this._triggerButtonOn, device, tokens, state);
 		this.triggerButtonChange(device, leftright, connector, true, page);
 		return this;
@@ -2265,7 +2265,7 @@ class MyApp extends Homey.App
 	triggerButtonChange(device, leftright, connector, value, page)
 	{
 		const tokens = { left_right: leftright, connector, state: value, page };
-		const state = { left_right: leftright ? 'left' : 'right', connector };
+		const state = { left_right: leftright ? 'left' : 'right', connector, page };
 		this.triggerFlow(this._triggerButtonChange, device, tokens, state);
 		return this;
 	}
@@ -2273,7 +2273,7 @@ class MyApp extends Homey.App
 	triggerButtonLongPress(device, leftright, connector, repeatCount, page)
 	{
 		const tokens = { left_right: leftright, connector, repeatCount, page };
-		const state = { left_right: leftright ? 'left' : 'right', connector };
+		const state = { left_right: leftright ? 'left' : 'right', connector, page };
 		this.triggerFlow(this._triggerButtonLongPress, device, tokens, state, repeatCount);
 		return this;
 	}
@@ -2281,7 +2281,7 @@ class MyApp extends Homey.App
 	triggerButtonRelease(device, leftright, connector, page)
 	{
 		const tokens = { left_right: leftright, connector, page };
-		const state = { left_right: leftright ? 'left' : 'right', connector };
+		const state = { left_right: leftright ? 'left' : 'right', connector, page };
 		this.triggerFlow(this._triggerButtonRelease, device, tokens, state);
 		return this;
 	}
