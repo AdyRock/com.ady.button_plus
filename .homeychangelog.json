@@ -255,6 +255,6 @@
 		"en": "Display nothing instead of null."
 	},
 	"0.7.19": {
-		"en": "Fix for the button page change trigger when the connected device fails."
+		"en": "Fix for the button page change trigger when the connected device fails. Added optional 'page' parameter to the button configuration Flow cards."
 	}
 }
