@@ -141,6 +141,11 @@ class PanelDevice extends Device
 			await this.removeCapability('dim.led');
 		}
 
+		if (!this.hasCapability('dim'))
+		{
+			await this.addCapability('dim');
+		}
+
 		if (!this.hasCapability('button.update_firmware'))
 		{
 			await this.addCapability('button.update_firmware');
@@ -175,6 +180,16 @@ class PanelDevice extends Device
 		if (!this.hasCapability('page'))
 		{
 			await this.addCapability('page');
+			this.setCapabilityValue('page', '1').catch(this.error);
+		}
+		else
+		{
+			// make sure page (converted to an int) is a valid number as it seems it can be NaN
+			const page = parseInt(this.getCapabilityValue('page'), 10);
+			if (page < 1 || isNaN(page))
+			{
+				this.setCapabilityValue('page', '1').catch(this.error);
+			}
 		}
 
 		if (!this.hasCapability('page.max'))
@@ -186,7 +201,7 @@ class PanelDevice extends Device
 		this.registerCapabilityListener('next_page_button', this.onCapabilityNextPage.bind(this));
 		this.registerCapabilityListener('previous_page_button', this.onCapabilityPreviousPage.bind(this));
 
-		this.disbaled = settings.disabled;
+		this.disabled = settings.disabled;
 		if (settings.disabled)
 		{
 			this.setUnavailable('Device is disabled');
@@ -216,6 +231,15 @@ class PanelDevice extends Device
 
 		this.log('PanelDevice is initializing hardware');
 
+		// Unsubscribe from the old MQTT client
+		this.homey.app.UnsubscribeMQTTMessage(`buttonplus/${this.buttonId}/#`, (err) =>
+		{
+			if (err)
+			{
+				this.log('Failed to unsubscribe from old MQTT client:', err);
+			}
+		});
+
 		if (await this.uploadConfigurations() !== null)
 		{
 			// failed to upload the configuration so try again in 30 seconds
@@ -226,7 +250,7 @@ class PanelDevice extends Device
 				{
 					this.intiHardware().catch(this.error);
 				}
-			}, 7000);
+			}, 30000);
 
 			this.log('Hardware initialisation failed, retrying in 30 seconds');
 
@@ -768,11 +792,11 @@ class PanelDevice extends Device
 
 		if ((front_wall === 'front') || (front_wall === 'both'))
 		{
-			return this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/button/${buttonNo}-${page}/led/front/rgb/set`, rgb, false, false).catch(this.error);
+			this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/button/${buttonNo}-${page}/led/front/rgb/set`, rgb, false, false).catch(this.error);
 		}
 		if ((front_wall === 'wall') || (front_wall === 'both'))
 		{
-			return this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/button/${buttonNo}-${page}/led/wall/rgb/set`, rgb, false, false).catch(this.error);
+			this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/button/${buttonNo}-${page}/led/wall/rgb/set`, rgb, false, false).catch(this.error);
 		}
 
 //		return this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/${buttonNo}-${page}led/rgb`, rgb, false, false).catch(this.error);
@@ -1494,7 +1518,8 @@ class PanelDevice extends Device
 			if ((topicParts[2] === 'page') && (topicParts[3] === 'state'))
 			{
 				const page = parseInt(value, 10);
-				if (page !== this.page)
+				// Make sure the page is a number
+				if (!isNaN(page) && page !== this.page)
 				{
 					this.page = page;
 					if (this.hasCapability('page'))

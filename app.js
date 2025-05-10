@@ -1176,6 +1176,13 @@ class MyApp extends Homey.App
 			{
 				// Get the specified user configuration
 				let ButtonPanelConfiguration = this.buttonConfigurations[configurationNo];
+
+				// Maker sure the configuration is an array of pages
+				if (!Array.isArray(ButtonPanelConfiguration))
+				{
+					ButtonPanelConfiguration = [ButtonPanelConfiguration];
+				}
+
 				if (ButtonPanelConfiguration)
 				{
 					var numPages = ButtonPanelConfiguration.length;
@@ -1974,6 +1981,28 @@ class MyApp extends Homey.App
 		catch (err)
 		{
 			this.updateLog(`publishMQTTMessage error: ${err.message}`, 0);
+		}
+	}
+
+	async UnsubscribeMQTTMessage(MQTT_Id, topic)
+	{
+		if (MQTT_Id === 'Default')
+		{
+			MQTT_Id = this.homey.settings.get('defaultBroker');
+		}
+
+		this.updateLog(`UnsubscribeMQTTMessage: ${topic}`);
+		try
+		{
+			const MQTTclient = this.MQTTClients.get(MQTT_Id);
+			if (MQTTclient)
+			{
+				await MQTTclient.unsubscribe(topic);
+			}
+		}
+		catch (err)
+		{
+			this.updateLog(`UnsubscribeMQTTMessage error: ${err.message}`, 0);
 		}
 	}
 

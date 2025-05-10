@@ -868,6 +868,13 @@
 					// Get the current configuration
 					var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
 
+					// Make sure currentButtonConfigurationNo is an array
+					if (!Array.isArray(buttonPanelConfiguration))
+					{
+						buttonPanelConfiguration = [buttonPanelConfiguration];
+						localButtonConfigurations[currentButtonConfigurationNo] = buttonPanelConfiguration;
+					}
+
 					writeButtonsections(buttonPanelConfiguration.length);
 					updateDisplayConfiguration();
 					updateButtonPanelControls();
@@ -1165,7 +1172,14 @@
 			{
 				// Get the number of pages in the current configuration
 				var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-				var numPages = Array.isArray(buttonPanelConfiguration) ? buttonPanelConfiguration.length : 1;
+
+				// Make sure buttonPanelConfiguration is an array
+				if (!Array.isArray(buttonPanelConfiguration))
+				{
+					buttonPanelConfiguration = [buttonPanelConfiguration];
+					localButtonConfigurations[currentButtonConfigurationNo] = buttonPanelConfiguration;
+				}
+				var numPages = buttonPanelConfiguration.length;
 
 				for (let i = 0; i < numPages; i++)
 				{
@@ -1488,6 +1502,12 @@
 			}
 
 			let config = localButtonConfigurations[currentButtonConfigurationNo];
+
+			// Makes sure the config is an array
+			if (!Array.isArray(config))
+			{
+				config = [config];
+			}
 
 			// let ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
 			configNameElement.value = config[0].name ? config[0].name : "";

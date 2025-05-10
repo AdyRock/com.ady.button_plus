@@ -256,5 +256,11 @@
 	},
 	"0.7.19": {
 		"en": "Fix for the button page change trigger when the connected device fails. Added optional 'page' parameter to the button configuration Flow cards."
+	},
+	"0.7.20": {
+		"en": "Fix Flow action card to set LED colour for 'Both' option not working."
+	},
+	"0.7.21": {
+		"en": "Ensure the Dim capability is available."
 	}
 }
