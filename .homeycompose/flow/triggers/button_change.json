@@ -4,8 +4,8 @@
         "nl": "Een knop is AAN of UIT gezet"
     },
     "titleFormatted": {
-        "en": "The [[left_right]] Button on connector [[connector]] for [[page]] was turned On or off",
-        "nl": "De [[left_right]] knop op connector [[connector]] voor [[page]] is AAN of UIT gezet"
+        "en": "The [[left_right]] Button on connector [[connector]] for page [[page]] was turned On or off",
+        "nl": "De [[left_right]] knop op connector [[connector]] voor pagina [[page]] is AAN of UIT gezet"
     },
 	"highlight": true,
     "tokens": [

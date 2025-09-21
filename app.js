@@ -1061,6 +1061,10 @@ class MyApp extends Homey.App
 								{
 									value = Math.round(value * 100);
 								}
+								if (value === null || value === undefined)
+								{
+									value = '';
+								}
 
 								// Send the value to the device after a short delay to allow the device to connect to the broker
 								mqttQueue.push({
@@ -1155,6 +1159,10 @@ class MyApp extends Homey.App
 
 	async applyButtonConfiguration(panelId, connectorType, sectionConfiguration, connectorNo, configurationNo, firmwareVersion)
 	{
+		if ((configurationNo === null) || (configurationNo === undefined))
+		{
+			return 0;
+		}
 		const buttonIdx = connectorNo * 2;
 		let arrayIdx = 0;
 		let maxPages = 0;

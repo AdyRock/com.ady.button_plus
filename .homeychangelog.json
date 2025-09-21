@@ -262,5 +262,8 @@
 	},
 	"0.7.21": {
 		"en": "Ensure the Dim capability is available."
+	},
+	"0.7.22": {
+		"en": "Fix for 'When Left/Right button pressed' Flow Trigger firing for both left and right buttons."
 	}
 }

@@ -126,8 +126,8 @@
           "nl": "Een knop is AAN of UIT gezet"
         },
         "titleFormatted": {
-          "en": "The [[left_right]] Button on connector [[connector]] for [[page]] was turned On or off",
-          "nl": "De [[left_right]] knop op connector [[connector]] voor [[page]] is AAN of UIT gezet"
+          "en": "The [[left_right]] Button on connector [[connector]] for page [[page]] was turned On or off",
+          "nl": "De [[left_right]] knop op connector [[connector]] voor pagina [[page]] is AAN of UIT gezet"
         },
         "highlight": true,
         "tokens": [
@@ -257,8 +257,8 @@
           "nl": "Een knop is ingedrukt gehouden"
         },
         "titleFormatted": {
-          "en": "The [[left_right]] Button on connector [[connector]] for [[page]] was pressed for a long time",
-          "nl": "De [[left_right]] knop op connector [[connector]] voor [[page]] is ingedrukt gehouden"
+          "en": "The [[left_right]] Button on connector [[connector]] for page [[page]] was pressed for a long time",
+          "nl": "De [[left_right]] knop op connector [[connector]] voor pagina [[page]] is ingedrukt gehouden"
         },
         "highlight": true,
         "tokens": [
@@ -388,8 +388,8 @@
           "nl": "Een knop is uit gezet"
         },
         "titleFormatted": {
-          "en": "The [[left_right]] Button on connector [[connector]] for [[page]] was turned off",
-          "nl": "De [[left_right]] knop op connector [[connector]] voor [[page]] is uit gezet"
+          "en": "The [[left_right]] Button on connector [[connector]] for page [[page]] was turned off",
+          "nl": "De [[left_right]] knop op connector [[connector]] voor pagina [[page]] is uit gezet"
         },
         "tokens": [
           {
@@ -509,8 +509,8 @@
           "nl": "Een knop is AAN gezet"
         },
         "titleFormatted": {
-          "en": "The [[left_right]] Button on connector [[connector]] for [[page]] was turned on",
-          "nl": "De [[left_right]] knop op [[connector]] voor [[page]] is aan gezet"
+          "en": "The [[left_right]] Button on connector [[connector]] for page [[page]] was turned on",
+          "nl": "De [[left_right]] knop op [[connector]] voor pagina [[page]] is aan gezet"
         },
         "tokens": [
           {
@@ -630,8 +630,8 @@
           "nl": "Een knop is los gelaten"
         },
         "titleFormatted": {
-          "en": "The [[left_right]] button on connector [[connector]] for [[page]] was released",
-          "nl": "De [[left_right]] knop op connector [[connector]] voor [[page]] is los gelaten"
+          "en": "The [[left_right]] button on connector [[connector]] for page [[page]] was released",
+          "nl": "De [[left_right]] knop op connector [[connector]] voor pagina [[page]] is los gelaten"
         },
         "tokens": [
           {

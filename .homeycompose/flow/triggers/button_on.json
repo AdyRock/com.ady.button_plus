@@ -4,8 +4,8 @@
         "nl": "Een knop is AAN gezet"
     },
     "titleFormatted": {
-        "en": "The [[left_right]] Button on connector [[connector]] for [[page]] was turned on",
-        "nl": "De [[left_right]] knop op [[connector]] voor [[page]] is aan gezet"
+        "en": "The [[left_right]] Button on connector [[connector]] for page [[page]] was turned on",
+        "nl": "De [[left_right]] knop op [[connector]] voor pagina [[page]] is aan gezet"
     },
     "tokens": [
         {

@@ -4,8 +4,8 @@
         "nl": "Een knop is ingedrukt gehouden"
     },
     "titleFormatted": {
-        "en": "The [[left_right]] Button on connector [[connector]] for [[page]] was pressed for a long time",
-        "nl": "De [[left_right]] knop op connector [[connector]] voor [[page]] is ingedrukt gehouden"
+        "en": "The [[left_right]] Button on connector [[connector]] for page [[page]] was pressed for a long time",
+        "nl": "De [[left_right]] knop op connector [[connector]] voor pagina [[page]] is ingedrukt gehouden"
     },
 	"highlight": true,
     "tokens": [

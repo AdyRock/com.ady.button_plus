@@ -4,8 +4,8 @@
         "nl": "Een knop is uit gezet"
     },
     "titleFormatted": {
-        "en": "The [[left_right]] Button on connector [[connector]] for [[page]] was turned off",
-        "nl": "De [[left_right]] knop op connector [[connector]] voor [[page]] is uit gezet"
+        "en": "The [[left_right]] Button on connector [[connector]] for page [[page]] was turned off",
+        "nl": "De [[left_right]] knop op connector [[connector]] voor pagina [[page]] is uit gezet"
     },
     "tokens": [
         {

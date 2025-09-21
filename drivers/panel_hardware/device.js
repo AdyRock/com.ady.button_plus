@@ -2279,11 +2279,11 @@ class PanelDevice extends Device
 							// and trigger the flow
 							if (value)
 							{
-								this.homey.app.triggerButtonOn(this, true, connector + 1, page);
+								this.homey.app.triggerButtonOn(this, side === 'left', connector + 1, page);
 							}
 							else
 							{
-								this.homey.app.triggerButtonOff(this, true, connector + 1, page);
+								this.homey.app.triggerButtonOff(this, side === 'left', connector + 1, page);
 							}
 
 							if ((page === 0) || (this.page === page))

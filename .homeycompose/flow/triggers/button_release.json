@@ -4,8 +4,8 @@
         "nl": "Een knop is los gelaten"
     },
     "titleFormatted": {
-        "en": "The [[left_right]] button on connector [[connector]] for [[page]] was released",
-        "nl": "De [[left_right]] knop op connector [[connector]] voor [[page]] is los gelaten"
+        "en": "The [[left_right]] button on connector [[connector]] for page [[page]] was released",
+        "nl": "De [[left_right]] knop op connector [[connector]] voor pagina [[page]] is los gelaten"
     },
     "tokens": [
         {
