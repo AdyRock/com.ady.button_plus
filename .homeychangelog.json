@@ -268,5 +268,8 @@
 	},
 	"0.7.23": {
 		"en": "Update node package versions to fix security issues."
+	},
+	"0.7.24": {
+		"en": "Update homey-api to version 3.14.17."
 	}
 }

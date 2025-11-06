@@ -6,10 +6,9 @@
         "lint": "eslint --ext .js,.ts --ignore-path .gitignore ."
     },
     "dependencies": {
-        "homey-api": "^3.14.11",
+        "homey-api": "^3.14.17",
         "lodash": "^4.17.21",
         "node-fetch": "^2.7.0",
-        "patch-package": "^8.0.1",
         "websocket-stream": "^5.5.2"
     },
     "engines": {
