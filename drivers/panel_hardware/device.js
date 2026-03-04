@@ -906,7 +906,7 @@ class PanelDevice extends Device
 			pageCommand = `${this.page - 1}`;
 		}
 
-		this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/page/set`, pageCommand).catch(this.error);
+		this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/page/set`, pageCommand, false).catch(this.error);
 	}
 
 	async uploadPanelTemperatureConfiguration(deviceConfigurations)

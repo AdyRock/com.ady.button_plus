@@ -715,7 +715,20 @@ class MyApp extends Homey.App
 			// The API wasn't connected so reregister the notifications
 			this.updateLog('API reconnected so re-registering the capability listeners', 0);
 
+			this.api = await HomeyAPI.createAppAPI({ homey: this.homey });
+
+			this.updateLog('Initialize DeviceManager');
+			this.deviceManager = new DeviceManager(this);
+
+			this.updateLog('Register DeviceManager');
+			await this.deviceManager.register();
+
+			const oldListeners = this.deviceDispather.getListeners();
+			this.deviceDispather = new DeviceDispatcher(this);
+			this.deviceDispather.setListeners(oldListeners);
 			await this.deviceDispather.reregisterDeviceCapabilities();
+
+			this.variableDispather = new VariableDispatcher(this);
 		}
 
 		if (this.dateTimer !== null)
@@ -2293,7 +2306,7 @@ class MyApp extends Homey.App
 	triggerButtonOff(device, leftright, connector, page)
 	{
 		const tokens = { left_right: leftright, connector, page };
-		const state = { left_right: leftright ? 'left' : 'right', connector };
+		const state = { left_right: leftright ? 'left' : 'right', connector, page };
 		this.triggerFlow(this._triggerButtonOff, device, tokens, state);
 		this.triggerButtonChange(device, leftright, connector, false, page);
 		return this;
