@@ -477,7 +477,7 @@ class MyApp extends Homey.App
 			{
 				let page = args.page ? args.page : 0;
 
-				this.log(`set_connector_top_button_label ${args.left_right} connector${args.connector} on page ${page} to ${args.label}`);
+				this.log(`set_connector_top_button_label ${args.left_right} connector ${args.connector} on page ${page} to ${args.label}`);
 				return args.device.updateConnectorTopLabel(args.left_right, args.connector - 1, page, args.label);
 			});
 
@@ -486,8 +486,17 @@ class MyApp extends Homey.App
 			{
 				let page = args.page ? args.page : 0;
 
-				this.log(`set_connector_button_text ${args.left_right} connector${args.connector} on page ${page} to ${args.label}`);
+				this.log(`set_connector_button_text ${args.left_right} connector ${args.connector} on page ${page} to ${args.label}`);
 				return args.device.updateConnectorLabel(args.left_right, args.connector - 1, page, args.label);
+			});
+
+		this.homey.flow.getActionCard('set_connector_button_svg')
+			.registerRunListener(async (args, state) =>
+			{
+				let page = args.page ? args.page : 0;
+
+				this.log(`set_connector_button_svg ${args.left_right} connector ${args.connector} on page ${page} to ${args.svg}`);
+				return args.device.updateConnectorButtonSVG(args.left_right, args.connector - 1, page, args.svg);
 			});
 
 		// This flow is deprecated as it is replaced by the set_config_name_button_top_label flow
@@ -496,7 +505,7 @@ class MyApp extends Homey.App
 			{
 				let page = args.page ? args.page : 0;
 
-				this.log(`set_config_button_top_label ${args.left_right} config${args.config} on page ${page} to ${args.label}`);
+				this.log(`set_config_button_top_label ${args.left_right} config ${args.config} on page ${page} to ${args.label}`);
 				return args.device.updateConfigTopLabel(args.left_right, args.config - 1, page, args.label);
 			});
 
@@ -505,7 +514,7 @@ class MyApp extends Homey.App
 			{
 				let page = args.page ? args.page : 0;
 
-				this.log(`set_config_name_button_label ${args.left_right} config${args.config} on page ${page} to ${args.label}`);
+				this.log(`set_config_name_button_label ${args.left_right} config ${args.config} on page ${page} to ${args.label}`);
 				return args.device.updateConfigTopLabel(args.left_right, args.config.id, page, args.label);
 			})
 			.registerArgumentAutocompleteListener('config', async (query, args) =>
@@ -2534,6 +2543,19 @@ class MyApp extends Homey.App
 						payload: true,
 					},
 				);
+
+				if (checkSEMVerGreaterOrEqual(firmwareVersion, '3.0.0'))
+				{
+					// Add the SVG entry
+					buttons.topics.push(
+						{
+							brokerid: brokerId,
+							eventtype: 30,
+							topic: `buttonplus/${panelId}/button/${buttonIdx + 1}-${page}/svg/set`,
+							payload: '',
+						},
+					);
+				}
 			}
 		}
 

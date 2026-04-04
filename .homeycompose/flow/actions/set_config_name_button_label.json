@@ -1,15 +1,15 @@
 {
     "title": {
-        "en": "Set configuration button label",
-        "nl": "Stel configuratie knop label in"
+        "en": "Set configuration button Label",
+        "nl": "Stel configuratie knop Label in"
     },
     "titleFormatted": {
-        "en": "Set the [[left_right]] button label of [[config]] page [[page]] to [[label]]",
-        "nl": "Stel de [[left_right]] knop label van [[config]] pagina [[page]] in op [[label]]"
+        "en": "Set the [[left_right]] button Label of [[config]] page [[page]] to [[label]]",
+        "nl": "Stel de [[left_right]] knop Label van [[config]] pagina [[page]] in op [[label]]"
     },
     "hint": {
-        "en": "Sets the label of the specified button",
-        "nl": "Stelt de label van de gespecificeerde knop in"
+        "en": "Sets the Label of the specified button",
+        "nl": "Stelt de Label van de gespecificeerde knop in"
     },
     "args": [
         {

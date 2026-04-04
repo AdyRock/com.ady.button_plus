@@ -1,17 +1,16 @@
 {
 	"title": {
-		"en": "Set configuration button Label",
-		"nl": "Stel configuratie knop Label in"
+		"en": "Set connector button SVG",
+		"nl": "Stel connector knop SVG in"
 	},
 	"titleFormatted": {
-		"en": "Set the [[left_right]] button Label of configuration [[config]] page [[page]] to [[label]]",
-		"nl": "Stel de [[left_right]] knop Label van configuratie [[config]] pagina [[page]] in op [[label]]"
+		"en": "Set the [[left_right]] button SVG of connector [[connector]] page [[page]] to [[svg]]",
+		"nl": "Stel de [[left_right]] knop SVG van connector [[connector]] pagina [[page]] in op [[svg]]"
 	},
 	"hint": {
-		"en": "Sets the Label of the specified button",
-		"nl": "Stelt de Label van de gespecificeerde knop in"
+		"en": "Sets the SVG of the specified button",
+		"nl": "Stelt de SVG van de gespecificeerde knop in"
 	},
-	"deprecated": true,
 	"args": [
 		{
 			"type": "dropdown",
@@ -43,21 +42,21 @@
 		},
 		{
 			"type": "number",
-			"name": "config",
+			"name": "connector",
 			"title": {
-				"en": "configuration number",
-				"nl": "Configuratie nummer"
+				"en": "Connector number",
+				"nl": "Connector nummer"
 			},
 			"hint": {
-				"en": "Configuration number (1-40)",
-				"nl": "Configuratie nummer (1-40)"
+				"en": "Connector number (1-4)",
+				"nl": "Connector nummer (1-4)"
 			},
 			"placeholder": {
-				"en": "configuration number (1-40)",
-				"nl": "Configuratie nummer (1-40)"
+				"en": "Connector number (1-4)",
+				"nl": "Connector nummer (1-4)"
 			},
 			"min": 1,
-			"max": 40,
+			"max": 4,
 			"step": 1
 		},
 		{
@@ -82,14 +81,14 @@
 		},
 		{
 			"type": "text",
-			"name": "label",
+			"name": "svg",
 			"title": {
-				"en": "Label",
-				"nl": "Label"
+				"en": "SVG string",
+				"nl": "SVG string"
 			},
 			"placeholder": {
-				"en": "Label",
-				"nl": "Label"
+				"en": "SVG string",
+				"nl": "SVG string"
 			}
 		},
 		{

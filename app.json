@@ -1306,16 +1306,16 @@
     "actions": [
       {
         "title": {
-          "en": "Set configuration button label",
-          "nl": "Stel configuratie knop label in"
+          "en": "Set configuration button Label",
+          "nl": "Stel configuratie knop Label in"
         },
         "titleFormatted": {
-          "en": "Set the [[left_right]] button label of configuration [[config]] page [[page]] to [[label]]",
-          "nl": "Stel de [[left_right]] knop label van configuratie [[config]] pagina [[page]] in op [[label]]"
+          "en": "Set the [[left_right]] button Label of configuration [[config]] page [[page]] to [[label]]",
+          "nl": "Stel de [[left_right]] knop Label van configuratie [[config]] pagina [[page]] in op [[label]]"
         },
         "hint": {
-          "en": "Sets the label of the specified button",
-          "nl": "Stelt de label van de gespecificeerde knop in"
+          "en": "Sets the Label of the specified button",
+          "nl": "Stelt de Label van de gespecificeerde knop in"
         },
         "deprecated": true,
         "args": [
@@ -1408,16 +1408,16 @@
       },
       {
         "title": {
-          "en": "Set configuration button top label",
-          "nl": "Stel configuratie knop top label in"
+          "en": "Set configuration button Top Label",
+          "nl": "Stel configuratie knop Top Label in"
         },
         "titleFormatted": {
-          "en": "Set the [[left_right]] button top label of configuration [[config]] page [[page]] to [[label]]",
-          "nl": "Stel de [[left_right]] knop top label van configuratie [[config]] pagina [[page]] in op [[label]]"
+          "en": "Set the [[left_right]] button Top Label of configuration [[config]] page [[page]] to [[label]]",
+          "nl": "Stel de [[left_right]] knop Top Label van configuratie [[config]] pagina [[page]] in op [[label]]"
         },
         "hint": {
-          "en": "Sets the top label of the specified button",
-          "nl": "Stelt de top label van de gespecificeerde knop in"
+          "en": "Sets the Top Label of the specified button",
+          "nl": "Stelt de Top Label van de gespecificeerde knop in"
         },
         "deprecated": true,
         "args": [
@@ -1510,16 +1510,16 @@
       },
       {
         "title": {
-          "en": "Set configuration button label",
-          "nl": "Stel configuratie knop label in"
+          "en": "Set configuration button Label",
+          "nl": "Stel configuratie knop Label in"
         },
         "titleFormatted": {
-          "en": "Set the [[left_right]] button label of [[config]] page [[page]] to [[label]]",
-          "nl": "Stel de [[left_right]] knop label van [[config]] pagina [[page]] in op [[label]]"
+          "en": "Set the [[left_right]] button Label of [[config]] page [[page]] to [[label]]",
+          "nl": "Stel de [[left_right]] knop Label van [[config]] pagina [[page]] in op [[label]]"
         },
         "hint": {
-          "en": "Sets the label of the specified button",
-          "nl": "Stelt de label van de gespecificeerde knop in"
+          "en": "Sets the Label of the specified button",
+          "nl": "Stelt de Label van de gespecificeerde knop in"
         },
         "args": [
           {
@@ -1608,16 +1608,16 @@
       },
       {
         "title": {
-          "en": "Set configuration button top label",
-          "nl": "Stel configuratie knop bovenste label in"
+          "en": "Set configuration button Top Label",
+          "nl": "Stel configuratie knop Bovenste Label in"
         },
         "titleFormatted": {
-          "en": "Set the [[left_right]] button top label of [[config]] page [[page]] to [[label]]",
-          "nl": "Stel de [[left_right]] knop bovenste label van [[config]] pagina [[page]] in op [[label]]"
+          "en": "Set the [[left_right]] button Top Label of [[config]] page [[page]] to [[label]]",
+          "nl": "Stel de [[left_right]] knop Bovenste Label van [[config]] pagina [[page]] in op [[label]]"
         },
         "hint": {
-          "en": "Sets the top label of the specified button",
-          "nl": "Stelt het bovenste label van de gespecificeerde knop in"
+          "en": "Sets the Top Label of the specified button",
+          "nl": "Stelt het Bovenste Label van de gespecificeerde knop in"
         },
         "args": [
           {
@@ -1855,6 +1855,107 @@
           }
         ],
         "id": "set_config_name_led_rgb"
+      },
+      {
+        "title": {
+          "en": "Set connector button SVG",
+          "nl": "Stel connector knop SVG in"
+        },
+        "titleFormatted": {
+          "en": "Set the [[left_right]] button SVG of connector [[connector]] page [[page]] to [[svg]]",
+          "nl": "Stel de [[left_right]] knop SVG van connector [[connector]] pagina [[page]] in op [[svg]]"
+        },
+        "hint": {
+          "en": "Sets the SVG of the specified button",
+          "nl": "Stelt de SVG van de gespecificeerde knop in"
+        },
+        "args": [
+          {
+            "type": "dropdown",
+            "name": "left_right",
+            "title": {
+              "en": "Left /  Right",
+              "nl": "Links / Rechts "
+            },
+            "placeholder": {
+              "en": "Left / Right",
+              "nl": "Links / Rechts "
+            },
+            "values": [
+              {
+                "id": "left",
+                "title": {
+                  "en": "Left",
+                  "nl": "Links "
+                }
+              },
+              {
+                "id": "right",
+                "title": {
+                  "en": "Right",
+                  "nl": "Rechts "
+                }
+              }
+            ]
+          },
+          {
+            "type": "number",
+            "name": "connector",
+            "title": {
+              "en": "Connector number",
+              "nl": "Connector nummer"
+            },
+            "hint": {
+              "en": "Connector number (1-4)",
+              "nl": "Connector nummer (1-4)"
+            },
+            "placeholder": {
+              "en": "Connector number (1-4)",
+              "nl": "Connector nummer (1-4)"
+            },
+            "min": 1,
+            "max": 4,
+            "step": 1
+          },
+          {
+            "type": "number",
+            "name": "page",
+            "title": {
+              "en": "Page number",
+              "nl": "Pagina nummer"
+            },
+            "hint": {
+              "en": "Page number. Use 0 to change for all pages",
+              "nl": "Pagina nummer. Gebruik 0 om alle pagina's te wijzigen"
+            },
+            "placeholder": {
+              "en": "Page number",
+              "nl": "Pagina nummer"
+            },
+            "required": false,
+            "min": 0,
+            "max": 40,
+            "step": 1
+          },
+          {
+            "type": "text",
+            "name": "svg",
+            "title": {
+              "en": "SVG string",
+              "nl": "SVG string"
+            },
+            "placeholder": {
+              "en": "SVG string",
+              "nl": "SVG string"
+            }
+          },
+          {
+            "type": "device",
+            "name": "device",
+            "filter": "driver_id=panel_hardware"
+          }
+        ],
+        "id": "set_connector_button_svg"
       },
       {
         "title": {

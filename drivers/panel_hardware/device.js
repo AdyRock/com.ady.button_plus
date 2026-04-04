@@ -551,13 +551,22 @@ class PanelDevice extends Device
 			const item = this.homey.app.buttonConfigurations[configNo];
 			if (item)
 			{
-				if (side === 'left')
+				if (page < item.length)
 				{
-					brokerId = item[page].leftBrokerId;
-				}
-				else
-				{
-					brokerId = item[page].rightBrokerId;
+					if (side === 'left')
+					{
+						if (item[page].leftBrokerId)
+						{
+							brokerId = item[page].leftBrokerId;
+						}
+					}
+					else
+					{
+						if (item[page].rightBrokerId)
+						{
+							brokerId = item[page].rightBrokerId;
+						}
+					}
 				}
 			}
 		}
@@ -602,6 +611,16 @@ class PanelDevice extends Device
 		return this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx + 1}-${page}/label/set`, label).catch(this.error);
 	}
 
+	async updateConnectorButtonSVG(left_right, connector, page, svg)
+	{
+		if (!this.initFinished)
+		{
+			throw new Error('Device is not initialised');
+		}
+		const { brokerId, buttonIdx } = this.getBrokerIdAndBtnIdx(left_right, connector, page);
+		return this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx + 1}-${page}/svg/set`, svg).catch(this.error);
+	}
+
 	async updateConfigTopLabel(left_right, configNo, page, label)
 	{
 		if (!this.initFinished)
@@ -621,10 +640,22 @@ class PanelDevice extends Device
 			throw new Error('Device is not initialised');
 		}
 
-// Find the button connector that has this configuration
+		// Find the button connector that has this configuration
 		const connector = this.findConnectorUsingConfigNo(configNo);
 		return this.updateConnectorLabel(left_right, connector, page, label);
 	}
+
+	async updateConfigButtonSVG(left_right, configNo, page, svg)
+	{
+		if (!this.initFinished)
+		{
+			throw new Error('Device is not initialised');
+		}
+		// Find the button connector that has this configuration
+		const connector = this.findConnectorUsingConfigNo(configNo);
+		return this.updateConnectorButtonSVG(left_right, connector, page, svg);
+	}
+
 
 	async updateDateAndTime(dateTime)
 	{
@@ -2457,6 +2488,8 @@ class PanelDevice extends Device
 					}
 					if ((page === 0) || (this.page === page))
 					{
+						// make sure the value is a boolean for the button state
+						value = Boolean(value);
 						await this.setCapabilityValue(`${side}_button.connector${connector}`, value);
 					}
 
@@ -2470,7 +2503,7 @@ class PanelDevice extends Device
 		}
 		else
 		{
-			value = this.buttonValues.get(`${side}_${connector}_${page}`) | false;
+			value = Boolean(this.buttonValues.get(`${side}_${connector}_${page}`));
 		}
 
 		// Add the front and wall colours or the on/off state to the message queue based on the on/off value and firmware version
