@@ -274,5 +274,8 @@
     },
     "0.7.25": {
         "en": "Fixed button off Flow card. Fixed page Next/Previous actions."
+	},
+	"0.7.26": {
+		"en": "Added a new Flow card to set the SVG code for a button."
 	}
 }
