@@ -2812,7 +2812,7 @@ class PanelDevice extends Device
 							{
 								brokerId: config.brokerId,
 								message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/front/on/set`,
-								value: 0,
+								value: 1,
 								retain: false,
 							},
 						);
@@ -2843,7 +2843,7 @@ class PanelDevice extends Device
 							{
 								brokerId: config.brokerId,
 								message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/wall/on/set`,
-								value: 0,
+								value: 1,
 								retain: false,
 							},
 						);
