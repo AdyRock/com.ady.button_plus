@@ -1886,7 +1886,7 @@ class PanelDevice extends Device
 			this.setLEDOnOff(config, null, buttonIdx, parameters.page, false);
 			if (parameters.page === this.page)
 			{
-				this.setCapabilityValue(`${parameters.side}_button.connector${parameters.connector}`, false);
+				this.setCapabilityValue(`${parameters.side}_button.connector${parameters.connector}`, false).catch(this.error);
 			}
 
 			this.buttonValues.set(`${parameters.side}_${parameters.connector}_${parameters.page}`, false);
@@ -1922,7 +1922,7 @@ class PanelDevice extends Device
 				this.setLEDOnOff(config, null, buttonIdx, parameters.page, false);
 				if (parameters.page === this.page)
 				{
-					this.setCapabilityValue(`${parameters.side}_button.connector${parameters.connector}`, false);
+					this.setCapabilityValue(`${parameters.side}_button.connector${parameters.connector}`, false).catch(this.error);
 				}
 
 				this.buttonValues.set(`${parameters.side}_${parameters.connector}_${parameters.page}`, false);
