@@ -277,5 +277,8 @@
 	},
 	"0.7.26": {
 		"en": "Added a new Flow card to set the SVG code for a button."
+	},
+	"0.7.27": {
+		"en": "Fix for LED's not illuminating with Button+ firmware v3.1.2 and later which defaults to the LED being off."
 	}
 }

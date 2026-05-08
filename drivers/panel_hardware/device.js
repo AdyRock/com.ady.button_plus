@@ -2741,10 +2741,21 @@ class PanelDevice extends Device
 								retain: false,
 							},
 						);
+
+						// Always send the On command as we control the LED via the colour and use RGB(0) to turn it off
+						mqttQueue.push(
+							{
+								brokerId: config.brokerId,
+								message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/front/on/set`,
+								value: 1,
+								retain: false,
+							},
+						);
 					}
 					else
 					{
 						this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/front/rgb/set`, frontLEDOnColor).catch(this.error);
+						this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/front/on/set`, 1).catch(this.error); // Always send the On command as we control the LED via the colour and use RGB(0) to turn it off
 					}
 				}
 
@@ -2761,10 +2772,21 @@ class PanelDevice extends Device
 								retain: false,
 							},
 						);
+
+						// Always send the On command as we control the LED via the colour and use RGB(0) to turn it off
+						mqttQueue.push(
+							{
+								brokerId: config.brokerId,
+								message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/wall/on/set`,
+								value: 1,
+								retain: false,
+							},
+						);
 					}
 					else
 					{
 						this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/wall/rgb/set`, wallLEDOnColor).catch(this.error);
+						this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/wall/on/set`, 1).catch(this.error); // Always send the On command as we control the LED via the colour and use RGB(0) to turn it off
 					}
 				}
 			}
@@ -2784,10 +2806,21 @@ class PanelDevice extends Device
 								retain: false,
 							},
 						);
+
+						// Always send the On command as we control the LED via the colour and use RGB(0) to turn it off
+						mqttQueue.push(
+							{
+								brokerId: config.brokerId,
+								message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/front/on/set`,
+								value: 0,
+								retain: false,
+							},
+						);
 					}
 					else
 					{
 						this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/front/rgb/set`, frontLEDOffColor).catch(this.error);
+						this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/front/on/set`, 1).catch(this.error); // Always send the On command as we control the LED via the colour and use RGB(0) to turn it off
 					}
 				}
 
@@ -2804,10 +2837,21 @@ class PanelDevice extends Device
 								retain: false,
 							},
 						);
+
+						// Always send the On command as we control the LED via the colour and use RGB(0) to turn it off
+						mqttQueue.push(
+							{
+								brokerId: config.brokerId,
+								message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/wall/on/set`,
+								value: 0,
+								retain: false,
+							},
+						);
 					}
 					else
 					{
 						this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/wall/rgb/set`, wallLEDOffColor).catch(this.error);
+						this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/wall/on/set`, 1).catch(this.error);  // Always send the On command as we control the LED via the colour and use RGB(0) to turn it off
 					}
 				}
 			}
