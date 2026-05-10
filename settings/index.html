@@ -567,6 +567,8 @@
 				var frontLEDOffColorElement = document.getElementById(`${side}${page}FrontLEDOffColor`);
 				var wallLEDOffColorElement = document.getElementById(`${side}${page}WallLEDOffColor`);
 				var longRepeatElement = document.getElementById(`${side}${page}DisableLongRepeat`);
+				var OnSVGElement = document.getElementById(`${side}${page}OnSVG`);
+				var OffSVGElement = document.getElementById(`${side}${page}OffSVG`);
 
 				if (capabilityElement.value === 'dim')
 				{
@@ -622,6 +624,8 @@
 				ButtonPanelConfiguration[`${side}FrontLEDOffColor`] = frontLEDOffColorElement.value;
 				ButtonPanelConfiguration[`${side}WallLEDOffColor`] = wallLEDOffColorElement.value;
 				ButtonPanelConfiguration[`${side}DisableLongRepeat`] = !longRepeatElement.checked;
+				ButtonPanelConfiguration[`${side}OnSVG`] = OnSVGElement?.value || '';
+				ButtonPanelConfiguration[`${side}OffSVG`] = OffSVGElement?.value || '';
 			};
 
 			buttonConfigurationNoElement.addEventListener('change', function (e)
@@ -944,6 +948,7 @@
 							brokerId: 'Default',
 							page: 0,
 							customMQTTTopics: [],
+							svg: '',
 						};
 
 						// Add the new display item to the local display configuration
@@ -1544,6 +1549,8 @@
 				document.getElementById(`${side}${page}FrontLEDOffColor`).value = "#000000";
 				document.getElementById(`${side}${page}WallLEDOffColor`).value = "#000000";
 				document.getElementById(`${side}${page}DisableLongRepeat`).checked = true;
+				document.getElementById(`${side}${page}OnSVG`).value = "";
+				document.getElementById(`${side}${page}OffSVG`).value = "";
 			}
 			else
 			{
@@ -1587,6 +1594,8 @@
 				document.getElementById(`${side}${page}FrontLEDOffColor`).value = ButtonPanelConfiguration[`${side}FrontLEDOffColor`];
 				document.getElementById(`${side}${page}WallLEDOffColor`).value = ButtonPanelConfiguration[`${side}WallLEDOffColor`];
 				document.getElementById(`${side}${page}DisableLongRepeat`).checked = !ButtonPanelConfiguration[`${side}DisableLongRepeat`];
+				document.getElementById(`${side}${page}OnSVG`).value = ButtonPanelConfiguration[`${side}OnSVG`] || '';
+				document.getElementById(`${side}${page}OffSVG`).value = ButtonPanelConfiguration[`${side}OffSVG`] || '';
 			}
 		}
 
@@ -2185,6 +2194,12 @@
 							</label>
 							<select class="homey-form-select" id="display${itemNo}BrokerId">
 							</select>
+							<label class="homey-form-label" for="display${itemNo}SVG">SVG Data
+								<div class="tooltip"><i class="fi fi-rr-info"></i>
+									<span class="tooltiptext">Raw SVG code to display as an icon/image on the display item</span>
+								</div>
+							</label>
+							<textarea class="homey-form-textarea" id="display${itemNo}SVG" style="min-height: 100px; font-family: monospace; font-size: 12px;">${item.SVG || ''}</textarea>
 							<br>
 							<p><button class="homey-button-secondary-shadow" id="deleteItem" onClick="deleteItem(${itemNo})" style="font-size: 30px;"><i class="fi fi-rr-trash"></i> </button></p>
 						</details>
@@ -2572,6 +2587,7 @@
 					displayConfiguration.items[itemNo].brokerId = document.getElementById(`display${itemNo}BrokerId`).value;
 					displayConfiguration.items[itemNo].page = document.getElementById(`display${itemNo}page`).value;
 					displayConfiguration.items[itemNo].boxType = document.getElementById(`display${itemNo}BoxType`).value;
+					displayConfiguration.items[itemNo].svg = document.getElementById(`display${itemNo}SVG`)?.value || '';
 
 					storeDisplayCustomMQTTItems(itemNo, displayConfiguration.items[itemNo].customMQTTTopics);
 				}
@@ -3672,6 +3688,20 @@
                                             <p><button class="homey-button-secondary-shadow" id="new${side}${page}CustomMQTTItem"><span>${ctrlLabels.newCustomMQTTItem}</span></button></p>
                                     </div>
                                 </span>
+
+                                <label class="homey-form-label" for="${side}${page}OnSVG">On SVG Data
+                                    <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                        <span class="tooltiptext">Raw SVG code to display as an icon on the button when it is on</span>
+                                    </div>
+                                </label>
+                                <textarea class="homey-form-textarea" id="${side}${page}OnSVG" style="min-height: 100px; font-family: monospace; font-size: 12px;"></textarea>
+
+                                <label class="homey-form-label" for="${side}${page}OffSVG">Off SVG Data
+                                    <div class="tooltip"><i class="fi fi-rr-info"></i>
+                                        <span class="tooltiptext">Raw SVG code to display as an icon on the button when it is off</span>
+                                    </div>
+                                </label>
+                                <textarea class="homey-form-textarea" id="${side}${page}OffSVG" style="min-height: 100px; font-family: monospace; font-size: 12px;"></textarea>
                         </details >
                     </div >
                 </div >

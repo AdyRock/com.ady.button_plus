@@ -1794,6 +1794,8 @@ class PanelDevice extends Device
 				this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/label/set`, value ? config.onMessage : config.offMessage).catch(this.error);
             }
 
+			this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/svg/set`, value ? config.onSVG : config.offSVG).catch(this.error);
+
             if (config.onMessage === '' && config.offMessage !== '')
             {
                 // There is only an Off message so don't latch the button state
@@ -2333,6 +2335,7 @@ class PanelDevice extends Device
 						{
 							this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/label/set`, value ? config.onMessage : config.offMessage).catch(this.error);
 						}
+						this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/svg/set`, value ? config.onSVG : config.offSVG).catch(this.error);
 					}
 
 					// Add the front and wall colours or the on/off state to the message queue based on the on/off value and firmware version
@@ -2372,7 +2375,18 @@ class PanelDevice extends Device
 					{
 						// Publish to MQTT
 						const { brokerId } = displayItem;
-						this.homey.app.publishMQTTMessage(brokerId, `buttonplus/_variable_/${capability}`, value).catch(this.error);
+
+						// If the value in the variable starts with <svg viewBox then publish to the svg topic instead of the variable topic so it can be used as a custom svg image on the display
+						if (typeof value === 'string' && value.trim().startsWith('<svg viewBox'))
+						{
+							this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/displayitem/${itemNo}/svg/set`, value).catch(this.error);
+							this.homey.app.publishMQTTMessage(brokerId, `buttonplus/_variable_/${capability}`, '').catch(this.error);
+						}
+						else
+						{
+							this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/displayitem/${itemNo}/svg/set`, '').catch(this.error);
+							this.homey.app.publishMQTTMessage(brokerId, `buttonplus/_variable_/${capability}`, value).catch(this.error);
+						}
 						break;
 					}
 				}
@@ -2525,6 +2539,13 @@ class PanelDevice extends Device
 				message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/label/set`,
                 value: value ? sideConfig.onMessage : sideConfig.offMessage,
             },
+
+		mqttQueue.push({
+				brokerId: sideConfig.brokerId,
+				message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/svg/set`,
+				value: value ? sideConfig.onSVG : sideConfig.offSVG,
+			})
+
         );
 
         return mqttQueue;
@@ -2559,6 +2580,8 @@ class PanelDevice extends Device
 				frontLEDOffColor: '#000000',
 				wallLEDOffColor: '#000000',
 				page,
+				onSVG: '',
+				offSVG: '',
 			};
 		}
 
@@ -2576,6 +2599,8 @@ class PanelDevice extends Device
 			frontLEDOffColor: config[`${side}FrontLEDOffColor`],
 			wallLEDOffColor: config[`${side}WallLEDOffColor`],
 			page: config['PageNum'] === 'Default' ? 0 : config['PageNum'],
+			onSVG: config[`${side}OnSVG`] || '',
+			offSVG: config[`${side}OffSVG`] || '',
 		};
 	}
 

@@ -24,6 +24,7 @@ const DeviceManager = require('./lib/DeviceManager');
 const DeviceDispatcher = require('./lib/DeviceStateChangedDispatcher');
 const VariableDispatcher = require('./lib/variables');
 const _ = require('lodash');
+const i = require('./nodemailer');
 
 const MAX_BUTTON_CONFIGURATIONS = 40;
 const MAX_DISPLAY_CONFIGURATIONS = 20;
@@ -209,6 +210,16 @@ class MyApp extends Homey.App
 					if (!buttonConfiguration[page].rightLongRepeat)
 					{
 						buttonConfiguration[page].rightLongRepeat = '30';
+					}
+
+					if (!buttonConfiguration[page].leftSVG)
+					{
+						buttonConfiguration[page].leftSVG = '';
+					}
+
+					if (!buttonConfiguration[page].rightSVG)
+					{
+						buttonConfiguration[page].rightSVG = '';
 					}
 				}
 			}
@@ -891,6 +902,7 @@ class MyApp extends Homey.App
 				leftFrontLEDOffColor: '#000000',
 				leftWallLEDOffColor: '#000000',
 				leftCustomMQTTTopics: [],
+				leftSVG: '',
 				rightTopText: '',
 				rightOnText: '',
 				rightOffText: '',
@@ -903,6 +915,7 @@ class MyApp extends Homey.App
 				rightFrontLEDOffColor: '#000000',
 				rightWallLEDOffColor: '#000000',
 				rightCustomMQTTTopics: [],
+				rightSVG: '',
 			};
 
 			page.push(ButtonPanelConfiguration);
@@ -989,6 +1002,8 @@ class MyApp extends Homey.App
 					maxPages = page;
 				}
 
+				let svg = item.svg ? item.svg : '';
+
 				if (item.device === 'customMQTT')
 				{
 					// Custom MQTT topic
@@ -1062,11 +1077,25 @@ class MyApp extends Homey.App
 					if (variable)
 					{
 						// Send the value to the device after a short delay to allow the device to connect to the broker
-						mqttQueue.push({
-							brokerId,
-							message: `buttonplus/${item.device}/${item.capability}`,
-							value: variable.value,
-						});
+						// If the variable starts with <svg viewBox then we can assume it's SVG data and send it to the svg topic instead
+						if (typeof variable.value === 'string' && variable.value.trim().startsWith('<svg'))
+						{
+							svg = variable.value;
+							mqttQueue.push({
+								brokerId,
+								message: `buttonplus/${item.device}/${item.capability}`,
+								value: '',
+							});
+						}
+						else
+						{
+							svg = '';
+							mqttQueue.push({
+								brokerId,
+								message: `buttonplus/${item.device}/${item.capability}`,
+								value: variable.value,
+							});
+						}
 					}
 				}
 				else if (item.device !== 'none')
@@ -1117,6 +1146,16 @@ class MyApp extends Homey.App
 				}
 
 				sectionConfiguration.displayitems.push(capabilities);
+
+				// Add SVG data to MQTT queue if present
+				if (svg && svg.length > 0)
+				{
+					mqttQueue.push({
+						brokerId,
+						message: `buttonplus/${ButtonDevice.buttonId}/displayitem/${itemNo}/svg/set`,
+						value: svg,
+					});
+				}
 			}
 		}
 
