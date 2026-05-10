@@ -531,7 +531,7 @@ class MyApp extends Homey.App
 			.registerArgumentAutocompleteListener('config', async (query, args) =>
 			{
 				// iterate over the config array and return the name and id
-				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config[ 0 ].name ? config[ 0 ].name : ''}`, id: index }));
+				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config[0].name ? config[0].name : ''}`, id: index }));
 
 				// filter the results based on the search query
 				return results.filter((result) => (result.name.toLowerCase().includes(query.toLowerCase())));
@@ -558,7 +558,7 @@ class MyApp extends Homey.App
 			.registerArgumentAutocompleteListener('config', async (query, args) =>
 			{
 				// iterate over the config array and return the name and id
-				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config[ 0 ].name ? config[ 0 ].name : ''}`, id: index }));
+				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config[0].name ? config[0].name : ''}`, id: index }));
 
 				// filter the results based on the search query
 				return results.filter((result) => (result.name.toLowerCase().includes(query.toLowerCase())));
@@ -1536,8 +1536,33 @@ class MyApp extends Homey.App
 					return {};
 				}
 
-				// Sort the devices by name
-				devices = Object.values(devices).sort((a, b) => a.name.localeCompare(b.name));
+				// Sort the devices by zone.name and then by name in the grouped list
+				devices = Object.values(devices).sort((a, b) =>
+				{
+					try
+					{
+						const aZoneName = a?.zone?.name || '';
+						const bZoneName = b?.zone?.name || '';
+
+						if (aZoneName && bZoneName)
+						{
+							const zoneComparison = aZoneName.localeCompare(bZoneName);
+							if (zoneComparison !== 0)
+							{
+								return zoneComparison;
+							}
+						}
+
+						const aName = a?.name || '';
+						const bName = b?.name || '';
+						return aName.localeCompare(bName);
+					}
+					catch (err)
+					{
+						this.updateLog(`Error sorting devices: ${err.message}`, 0);
+						return 0;
+					}
+				});
 
 				if (type || ids)
 				{
@@ -1932,7 +1957,7 @@ class MyApp extends Homey.App
 											const buttonIdxPage = topicParts[3].split('-');
 											const page = parseInt(buttonIdxPage[1], 10);
 											const buttonId = parseInt(buttonIdxPage[0], 10);
-											const message = { id: deviceId, idx: buttonId - 1, page, event: mqttMessage.event_type};
+											const message = { id: deviceId, idx: buttonId - 1, page, event: mqttMessage.event_type };
 
 											if (await device.processMQTTMessage(message))
 											{
