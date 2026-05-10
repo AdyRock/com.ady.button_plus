@@ -2628,7 +2628,6 @@ class PanelDevice extends Device
 
 	compareObjects(obj1, obj2)
 	{
-		// Use Lodash to compare objects
 		function customizer(value1, value2)
 		{
 			if (Array.isArray(value1) && Array.isArray(value2))
@@ -2648,14 +2647,14 @@ class PanelDevice extends Device
 
 					if (a.page !== undefined)
 					{
-						// Array of display items, so sort by page then x and then y
+						// Array of display items, so sort by page then y and then x
 						if (a.page === b.page)
 						{
-							if (a.x === b.x)
+							if (a.y === b.y)
 							{
-								return a.y - b.y;
+								return a.x - b.x;
 							}
-							return a.x - b.x;
+							return a.y - b.y;
 						}
 						return a.page - b.page;
 					}
@@ -2676,14 +2675,14 @@ class PanelDevice extends Device
 
 					if (a.page !== undefined)
 					{
-						// Array of display items, so sort by page then x and then y
+						// Array of display items, so sort by page then y and then x
 						if (a.page === b.page)
 						{
-							if (a.x === b.x)
+							if (a.y === b.y)
 							{
-								return a.y - b.y;
+								return a.x - b.x;
 							}
-							return a.x - b.x;
+							return a.y - b.y;
 						}
 						return a.page - b.page;
 					}
@@ -2743,7 +2742,10 @@ class PanelDevice extends Device
 			return undefined;
 		}
 
-		return _.isEqualWith(obj1, obj2, customizer);
+		// This needs to be a non-destructive compare as we need to sort the arrays in the objects before comparing them but we don't want to change the original objects as they are used for the device configuration which we only want to update if there are changes
+		const obj1Copy = _.cloneDeep(obj1);
+		const obj2Copy = _.cloneDeep(obj2);
+		return _.isEqualWith(obj1Copy, obj2Copy, customizer);
 	}
 
 	setLEDOnOff(config, mqttQueue, buttonIdx, page, value)

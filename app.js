@@ -1077,8 +1077,8 @@ class MyApp extends Homey.App
 					if (variable)
 					{
 						// Send the value to the device after a short delay to allow the device to connect to the broker
-						// If the variable starts with <svg viewBox then we can assume it's SVG data and send it to the svg topic instead
-						if (typeof variable.value === 'string' && variable.value.trim().startsWith('<svg'))
+						// If the variable starts with <svg then we can assume it's SVG data and send it to the svg topic instead
+						if (typeof variable.value === 'string' && variable.value.trim().startsWith('<svg '))
 						{
 							svg = variable.value;
 							mqttQueue.push({
@@ -1147,15 +1147,11 @@ class MyApp extends Homey.App
 
 				sectionConfiguration.displayitems.push(capabilities);
 
-				// Add SVG data to MQTT queue if present
-				if (svg && svg.length > 0)
-				{
-					mqttQueue.push({
-						brokerId,
-						message: `buttonplus/${ButtonDevice.buttonId}/displayitem/${itemNo}/svg/set`,
-						value: svg,
-					});
-				}
+				mqttQueue.push({
+					brokerId,
+					message: `buttonplus/${ButtonDevice.buttonId}/displayitem/${itemNo}/svg/set`,
+					value: svg,
+				});
 			}
 		}
 
