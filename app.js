@@ -42,6 +42,7 @@ class MyApp extends Homey.App
 		this.lastMQTTData = new Map();
 		this.dataSent = new Map();
 		this.dateTimer = null;
+		this.diagLog = '';
 
 		const defaultbroker = this.homey.settings.get('defaultBroker');
 		if (!defaultbroker)
@@ -57,6 +58,7 @@ class MyApp extends Homey.App
 		catch (err)
 		{
 			this.updateLog(`Error getting homey IP: ${err.message}`, 0);
+			this.homeyIP = 'localhost'; // Fallback if initialization fails
 		}
 
 		this.homey.settings.set('autoConfig', this.autoConfigGateway);
@@ -84,7 +86,7 @@ class MyApp extends Homey.App
 		const homeyBroker = this.brokerItems.find((broker) => broker.brokerid === 'homey');
 		if (homeyBroker)
 		{
-			if (!homeyBroker.url !== `mqtt://${this.homeyIP}`)
+			if (homeyBroker.url !== `mqtt://${this.homeyIP}`)
 			{
 				homeyBroker.url = `mqtt://${this.homeyIP}`;
 				this.homey.settings.set('brokerConfigurationItems', this.brokerItems);
@@ -121,6 +123,11 @@ class MyApp extends Homey.App
 
 				for (let page = 0; page < buttonConfiguration.length; page++)
 				{
+					if (!buttonConfiguration[page] || typeof buttonConfiguration[page] !== 'object')
+					{
+						buttonConfiguration[page] = {};
+					}
+
 					if (!buttonConfiguration[page].PageNum)
 					{
 						buttonConfiguration[page].PageNum = page === 0 ? 'Default' : `${page}`;
@@ -168,7 +175,7 @@ class MyApp extends Homey.App
 							buttonConfiguration[page].leftFrontLEDOnColor = '#ff0000';
 							buttonConfiguration[page].leftWallLEDOnColor = '#ff0000';
 							buttonConfiguration[page].rightFrontLEDOnColor = '#ff0000';
-							buttonConfiguratio[page].rightWallLEDOnColor = '#ff0000';
+							buttonConfiguration[page].rightWallLEDOnColor = '#ff0000';
 						}
 						else
 						{
@@ -243,7 +250,7 @@ class MyApp extends Homey.App
 			this.MQTTClients = new Map();
 
 			// Setup the local access method if possible
-			if (this.brokerItems[0].enabled)
+			if (this.brokerItems && Array.isArray(this.brokerItems) && this.brokerItems[0] && this.brokerItems[0].enabled)
 			{
 				// The client setup is called when the server is ready
 				this.setupHomeyMQTTServer();
@@ -252,11 +259,14 @@ class MyApp extends Homey.App
 			// Start the mDNS discovery and setup an array of detected devices
 			this.setupMDNS();
 
-			for (const brokerItem of this.brokerItems)
+			if (this.brokerItems && Array.isArray(this.brokerItems))
 			{
-				if (brokerItem.enabled && brokerItem.brokerid !== 'homey')
+				for (const brokerItem of this.brokerItems)
 				{
-					this.setupMQTTClient(brokerItem, this.homeyID);
+					if (brokerItem.enabled && brokerItem.brokerid !== 'homey')
+					{
+						this.setupMQTTClient(brokerItem, this.homeyID);
+					}
 				}
 			}
 		}
@@ -273,7 +283,7 @@ class MyApp extends Homey.App
 		catch (e)
 		{
 			this.updateLog('[boot] Failed to fetch system info', 0);
-			this.updateLog(e);
+			this.updateLog(e.message || e.toString(), 0);
 			this.system = {};
 		}
 
@@ -313,36 +323,39 @@ class MyApp extends Homey.App
 			{
 				this.brokerItems = this.homey.settings.get('brokerConfigurationItems');
 
-				for (const brokerItem of this.brokerItems)
+				if (this.brokerItems && Array.isArray(this.brokerItems))
 				{
-					if (brokerItem.enabled)
+					for (const brokerItem of this.brokerItems)
 					{
-						if (brokerItem.brokerid !== 'homey')
+						if (brokerItem.enabled)
 						{
-							this.setupMQTTClient(brokerItem, this.homeyID);
+							if (brokerItem.brokerid !== 'homey')
+							{
+								this.setupMQTTClient(brokerItem, this.homeyID);
+							}
+							else
+							{
+								if (!this.server)
+								{
+									this.setupHomeyMQTTServer();
+								}
+							}
 						}
 						else
 						{
-							if (!this.server)
+							// disconnect any connected clients that have been disabled
+							const client = this.MQTTClients.get(brokerItem.brokerid);
+							if (client)
 							{
-								this.setupHomeyMQTTServer();
+								client.end();
+								this.MQTTClients.delete(brokerItem.brokerid);
 							}
-						}
-					}
-					else
-					{
-						// disconnect any connected clients that have been disabled
-						const client = this.MQTTClients.get(brokerItem.brokerid);
-						if (client)
-						{
-							client.end();
-							this.MQTTClients.delete(brokerItem.brokerid);
-						}
 
-						// if (brokerItem.brokerid === 'homey')
-						// {
-						//     this.disconnectAllClientsAndClose();
-						// }
+							// if (brokerItem.brokerid === 'homey')
+							// {
+							//     this.disconnectAllClientsAndClose();
+							// }
+						}
 					}
 				}
 			}
@@ -505,9 +518,10 @@ class MyApp extends Homey.App
 			.registerRunListener(async (args, state) =>
 			{
 				let page = args.page ? args.page : 0;
+				const svgValue = (typeof args.svg === 'string') ? args.svg : '';
 
-				this.log(`set_connector_button_svg ${args.left_right} connector ${args.connector} on page ${page} to ${args.svg}`);
-				return args.device.updateConnectorButtonSVG(args.left_right, args.connector - 1, page, args.svg);
+				this.log(`set_connector_button_svg ${args.left_right} connector ${args.connector} on page ${page}, svg length ${svgValue.length}`);
+				return args.device.updateConnectorButtonSVG(args.left_right, args.connector - 1, page, svgValue);
 			});
 
 		// This flow is deprecated as it is replaced by the set_config_name_button_top_label flow
@@ -968,6 +982,13 @@ class MyApp extends Homey.App
 
 	async applyDisplayConfiguration(sectionConfiguration, configurationNo, firmwareVersion, ButtonDevice)
 	{
+		// Safety check: ensure sectionConfiguration exists
+		if (!sectionConfiguration || typeof sectionConfiguration !== 'object')
+		{
+			this.updateLog('Error: sectionConfiguration is invalid in applyDisplayConfiguration', 0);
+			return 0;
+		}
+
 		// Get the specified user configuration
 		const displayConfiguration = this.displayConfigurations[configurationNo];
 		const mqttQueue = [];
@@ -1022,14 +1043,21 @@ class MyApp extends Homey.App
 					};
 
 					// Setup the custom MQTT topic
-					for (const customTopic of item.customMQTTTopics)
+					if (Array.isArray(item.customMQTTTopics))
 					{
-						capabilities.topics.push({
-							brokerid: customTopic.brokerId === 'Default' ? this.homey.settings.get('defaultBroker') : customTopic.brokerId,
-							topic: customTopic.topic,
-							eventtype: customTopic.type,
-							payload: customTopic.payload,
-						});
+						for (const customTopic of item.customMQTTTopics)
+						{
+							capabilities.topics.push({
+								brokerid: customTopic.brokerId === 'Default' ? this.homey.settings.get('defaultBroker') : customTopic.brokerId,
+								topic: customTopic.topic,
+								eventtype: customTopic.type,
+								payload: customTopic.payload,
+							});
+						}
+					}
+					else
+					{
+						this.updateLog('Warning: customMQTTTopics is not an array', 1);
 					}
 
 					sectionConfiguration.displayitems.push(capabilities);
@@ -1077,8 +1105,8 @@ class MyApp extends Homey.App
 					if (variable)
 					{
 						// Send the value to the device after a short delay to allow the device to connect to the broker
-						// If the variable starts with <svg then we can assume it's SVG data and send it to the svg topic instead
-						if (typeof variable.value === 'string' && variable.value.trim().startsWith('<svg '))
+						// If the variable starts with an SVG tag then send it to the svg topic instead
+						if (typeof variable.value === 'string' && /^<svg(?:\s|>)/i.test(variable.value.trim()))
 						{
 							svg = variable.value;
 							mqttQueue.push({
@@ -1160,7 +1188,7 @@ class MyApp extends Homey.App
 		{
 			for (const mqttMsg of mqttQueue)
 			{
-				this.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value).catch(this.error);
+				this.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value).catch((err) => this.error(err));
 			}
 		}, 10000);
 
@@ -1175,10 +1203,10 @@ class MyApp extends Homey.App
 			const deviceConfiguration = await this.readDeviceConfiguration(ip);
 			this.updateLog(`Current Config: ${deviceConfiguration}`);
 
-			if (deviceConfiguration)
+			if (deviceConfiguration && deviceConfiguration.info && Array.isArray(deviceConfiguration.info.connectors) && deviceConfiguration.info.connectors[connectorNo])
 			{
 				const sectionConfiguration = {
-					buttons: [...deviceConfiguration.buttons],
+					buttons: Array.isArray(deviceConfiguration.buttons) ? [...deviceConfiguration.buttons] : [],
 				};
 
 				if (!checkSEMVerGreaterOrEqual(firmwareVersion, '1.09.0'))
@@ -1198,13 +1226,20 @@ class MyApp extends Homey.App
 				}
 
 				// Send the MQTT messages after a short delay to allow the device to connect to the broker
-				setTimeout(async () =>
+				if (Array.isArray(mqttQue))
 				{
-					for (const mqttMsg of mqttQue)
+					setTimeout(async () =>
 					{
-						this.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value).catch(this.error);
-					}
-				}, 1000);
+						for (const mqttMsg of mqttQue)
+						{
+							this.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value).catch((err) => this.error(err));
+						}
+					}, 1000);
+				}
+			}
+			else
+			{
+				this.updateLog('Error: Invalid device configuration - missing info, connectors, or connector not found', 0);
 			}
 		}
 		catch (err)
@@ -1372,6 +1407,20 @@ class MyApp extends Homey.App
 
 	async setupCustomMQTTTopics(buttons, ButtonPanelConfiguration, connectorNo, side)
 	{
+		// Safety check: ensure buttons object exists
+		if (!buttons || typeof buttons !== 'object')
+		{
+			this.updateLog('Error: buttons parameter is invalid in setupCustomMQTTTopics', 0);
+			return false;
+		}
+
+		// Safety check: ensure ButtonPanelConfiguration exists
+		if (!ButtonPanelConfiguration || typeof ButtonPanelConfiguration !== 'object')
+		{
+			this.updateLog('Error: ButtonPanelConfiguration is invalid in setupCustomMQTTTopics', 0);
+			return false;
+		}
+
 		const customMQTTTopics = ButtonPanelConfiguration[`${side}CustomMQTTTopics`];
 		const topLabel = ButtonPanelConfiguration[`${side}TopText`];
 		const labelOn = ButtonPanelConfiguration[`${side}OnText`];
@@ -1381,24 +1430,34 @@ class MyApp extends Homey.App
 		try
 		{
 			buttons.topics = [];
-			for (const customMQTTTopic of customMQTTTopics)
+			if (Array.isArray(customMQTTTopics))
 			{
-				if (customMQTTTopic.topic !== '' && customMQTTTopic.enabled)
+				for (const customMQTTTopic of customMQTTTopics)
 				{
-					buttons.topics.push(
-						{
-							brokerid: customMQTTTopic.brokerId !== 'Default' ? customMQTTTopic.brokerId : this.homey.settings.get('defaultBroker'),
-							eventtype: customMQTTTopic.eventType,
-							topic: customMQTTTopic.topic,
-							payload: customMQTTTopic.payload,
-						},
-					);
+					if (customMQTTTopic.topic !== '' && customMQTTTopic.enabled)
+					{
+						buttons.topics.push(
+							{
+								brokerid: customMQTTTopic.brokerId !== 'Default' ? customMQTTTopic.brokerId : this.homey.settings.get('defaultBroker'),
+								eventtype: customMQTTTopic.eventType,
+								topic: customMQTTTopic.topic,
+								payload: customMQTTTopic.payload,
+							},
+						);
+					}
 				}
 			}
+			else if (customMQTTTopics !== undefined)
+			{
+				this.updateLog('Warning: customMQTTTopics is not an array', 1);
+			}
+
+			return true;
 		}
 		catch (err)
 		{
 			this.updateLog(`Error setting up custom MQTT topics: ${err.message}`, 0);
+			return false;
 		}
 	}
 
@@ -1789,6 +1848,11 @@ class MyApp extends Homey.App
 		// Setup the local MQTT server
 		aedes.authenticate = function aedesAuthenticate(client, username, password, callback)
 		{
+			if (!this.brokerItems || this.brokerItems.length === 0)
+			{
+				callback(new Error('Broker not configured'), false);
+				return;
+			}
 			password = password ? Buffer.from(password, 'base64').toString() : '';
 			if ((!username || username === this.brokerItems[0].username) && (password === this.brokerItems[0].password))
 			{
@@ -1800,6 +1864,12 @@ class MyApp extends Homey.App
 			}
 			// callback(null, true);
 		}.bind(this);
+
+		if (!this.brokerItems || this.brokerItems.length === 0)
+		{
+			this.updateLog('setupHomeyMQTTServer: No broker items configured', 0);
+			return;
+		}
 
 		this.server = net.createServer(aedes.handle);
 		try
@@ -1833,22 +1903,25 @@ class MyApp extends Homey.App
 		// Create a websocket server for the MQTT server
 		this.wsServer = ws.createServer({ server: httpServer }, aedes.handle);
 
-		try
+		if (this.brokerItems && this.brokerItems.length > 0)
 		{
-			httpServer.listen(this.brokerItems[0].wsport, () =>
+			try
 			{
-				this.updateLog(`websocket server listening on port ${this.brokerItems[0].wsport}`);
-			});
-		}
-		catch (err)
-		{
-			if (err.code === 'ERR_SERVER_ALREADY_LISTEN')
-			{
-				this.updateLog(`server already listening on port ${this.brokerItems[0].port}`);
+				httpServer.listen(this.brokerItems[0].wsport, () =>
+				{
+					this.updateLog(`websocket server listening on port ${this.brokerItems[0].wsport}`);
+				});
 			}
-			else if (err.code === 'EADDRINUSE')
+			catch (err)
 			{
-				this.updateLog(`server address in use on port ${this.brokerItems[0].port}`);
+				if (err.code === 'ERR_SERVER_ALREADY_LISTEN')
+				{
+					this.updateLog(`server already listening on port ${this.brokerItems[0].port}`);
+				}
+				else if (err.code === 'EADDRINUSE')
+				{
+					this.updateLog(`server address in use on port ${this.brokerItems[0].port}`);
+				}
 			}
 		}
 
@@ -1943,7 +2016,7 @@ class MyApp extends Homey.App
 							const devices = driver.getDevices();
 							for (const device of Object.values(devices))
 							{
-								if (topicParts[4] === 'pushbutton')
+								if (topicParts.length >= 5 && topicParts[4] === 'pushbutton')
 								{
 									if (device.processMQTTMessage)
 									{
@@ -1951,11 +2024,20 @@ class MyApp extends Homey.App
 										{
 											// topic parts contains 'buttonplus', deviceId, 'button'', buttonIdx-page, 'pushbutton', so create a message object that has the id: deviceId, idx: buttonIdx, page: page, so the buttonIdx-page needs to be split at the - to get the buttonIdx and page
 											const buttonIdxPage = topicParts[3].split('-');
+											if (buttonIdxPage.length < 2)
+											{
+												this.updateLog(`Invalid button topic format: ${topicParts[3]}`, 0);
+												continue;
+											}
 											const page = parseInt(buttonIdxPage[1], 10);
 											const buttonId = parseInt(buttonIdxPage[0], 10);
-											const message = { id: deviceId, idx: buttonId - 1, page, event: mqttMessage.event_type };
-
-											if (await device.processMQTTMessage(message))
+											if (isNaN(page) || isNaN(buttonId))
+											{
+												this.updateLog(`Invalid button ID or page number: ${buttonIdxPage.join('-')}`, 0);
+												continue;
+											}
+											const messageObj = { id: deviceId, idx: buttonId - 1, page, event: mqttMessage.event_type };
+											if (await device.processMQTTMessage(messageObj))
 											{
 												return;
 											}
@@ -1984,9 +2066,18 @@ class MyApp extends Homey.App
 							const devices = driver.getDevices();
 							for (const device of Object.values(devices))
 							{
-								if (device.processMQTTBtnMessage)
+								if (device && device.processMQTTBtnMessage && typeof device.processMQTTBtnMessage === 'function')
 								{
-									device.processMQTTBtnMessage(topicParts, mqttMessage).catch(device.error);
+									device.processMQTTBtnMessage(topicParts, mqttMessage).catch((err) =>
+									{
+										if (device && device.error && typeof device.error === 'function')
+										{
+											device.error(err);
+										} else
+										{
+											console.error('Error in processMQTTBtnMessage:', err);
+										}
+									});
 								}
 							}
 						}
@@ -2246,13 +2337,22 @@ class MyApp extends Homey.App
 
 			try
 			{
+				// Ensure diagLog is initialized as a string
+				if (typeof this.diagLog !== 'string')
+				{
+					this.diagLog = '';
+				}
+
+				// Ensure newMessage is a string
+				const messageStr = (typeof newMessage === 'string') ? newMessage : String(newMessage);
+
 				const nowTime = new Date(Date.now());
 
 				this.diagLog += '\r\n* ';
 				this.diagLog += nowTime.toJSON();
 				this.diagLog += '\r\n';
 
-				this.diagLog += newMessage;
+				this.diagLog += messageStr;
 				this.diagLog += '\r\n';
 				if (this.diagLog.length > 60000)
 				{
@@ -2447,6 +2547,13 @@ class MyApp extends Homey.App
 	// returns true if a button was added
 	setupButtonConfigSection(ButtonPanelConfiguration, panelId, buttonIdx, sectionConfiguration, connectorType, firmwareVersion, page)
 	{
+		// Safety check: ensure sectionConfiguration and buttons array exist
+		if (!sectionConfiguration || !Array.isArray(sectionConfiguration.buttons))
+		{
+			this.updateLog('Error: sectionConfiguration or buttons array is invalid', 0);
+			return false;
+		}
+
 		let button = {};
 
 		if (connectorType === 1)
@@ -2532,6 +2639,13 @@ class MyApp extends Homey.App
 
 	setupButtonMQTTTopicList(ButtonPanelConfiguration, panelId, buttonIdx, buttons, connectorType, firmwareVersion, page)
 	{
+		// Safety check: ensure buttons object exists
+		if (!buttons || typeof buttons !== 'object')
+		{
+			this.updateLog('Error: buttons parameter is invalid in setupButtonMQTTTopicList', 0);
+			return;
+		}
+
 		if (checkSEMVerGreaterOrEqual(firmwareVersion, '2.0.0'))
 		{
 			// Version 2 automatically creates the topics

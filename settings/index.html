@@ -1,18 +1,26 @@
 <!doctype html>
-<html>
+<html lang="en">
 
 <head>
+	<title>Settings</title>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<!-- The '/homey.js' script must be included in your settings view to work -->
 	<script type="text/javascript" src="/homey.js" data-origin="settings"></script>
 	<link rel="stylesheet" type="text/css" href="extraStyles.css">
 	<link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css'>
+	<style>
+		.no-margin-top { margin-top: 0px; }
+		.hr-separator { margin-top: 8px; margin-bottom: 0px; background-color: lightblue; }
+		.bordered-box { padding: 10px; border: 1px solid lightblue; border-radius: 10px; }
+	</style>
 </head>
 
 <body>
 	<div class="fixedTop">
-		<label class="homey-form-label" for="configType" style="margin-top:0px"><span
+		<label class="homey-form-label no-margin-top" for="configType" title="View selection"><span
 				data-i18n="settings.view"></span></label>
-		<select class="homey-form-select" id="configType">
+		<select class="homey-form-select" id="configType" title="Select the view to display">
 			<option value="settings" data-i18n="settings.Settings"></option>
 			<option value="panelConfig" data-i18n="settings.buttonConfigs"></option>
 			<option value="displayConfig" data-i18n="settings.displayConfigs"></option>
@@ -21,7 +29,7 @@
 			<option value="lastSentLog" data-i18n="settings.sentLog"></option>
 			<option value="importExport" data-i18n="settings.importExport"></option>
 		</select>
-		<hr style="margin-top:8px;margin-bottom:0px;background-color:lightblue">
+		<hr class="hr-separator" />
 	</div>
 
 	<div class="main">
@@ -30,7 +38,7 @@
 		<div id="settings" class="tabcontent">
 			<fieldset class="homey-form-fieldset">
 				<label class="homey-form-checkbox">
-					<input class="homey-form-checkbox-input" id="autoConfig" type="checkbox" value="auto" />
+					<input class="homey-form-checkbox-input" id="autoConfig" type="checkbox" value="auto" title="Enable automatic configuration" />
 					<span class="homey-form-checkbox-checkmark"></span>
 					<span class="homey-form-checkbox-text"><span data-i18n="settings.autoConfig"></span></span>
 				</label>
@@ -40,16 +48,16 @@
 			<fieldset class="homey-form-fieldset">
 				<legend class="homey-form-legend"><span data-i18n="settings.webview"></span></legend>
 				<p></p>
-				<label class="homey-form-label" for="webviewip" style="margin-top:0px"><span
+				<label class="homey-form-label no-margin-top" for="webviewip" title="Webview IP address"><span
 						data-i18n="settings.webviewip"></span>
 					<div class="tooltip"><i class="fi fi-rr-info"></i>
 						<span class="tooltiptext" data-i18n="settings.webviewExplanation"></span>
 					</div>
 				</label>
-				<select class="homey-form-select" id="webviewip">
+				<select class="homey-form-select" id="webviewip" title="Select webview IP address">
 				</select>
 				<p></p>
-				<p><button class="homey-button-secondary-shadow" id="openwebview"><span
+				<p><button class="homey-button-secondary-shadow" id="openwebview" title="Open webview"><span
 							data-i18n="settings.openwebview"></span></button></p>
 			</fieldset>
 		</div>
@@ -58,7 +66,7 @@
 		<div id="diagnosticLog" class="tabcontent">
 			<fieldset class="homey-form-fieldset">
 				<label class="homey-form-checkbox">
-					<input class="homey-form-checkbox-input" id="enableLog" type="checkbox" value="auto" />
+					<input class="homey-form-checkbox-input" id="enableLog" type="checkbox" value="auto" title="Enable diagnostic logging" />
 					<span class="homey-form-checkbox-checkmark"></span>
 					<span class="homey-form-checkbox-text"><span data-i18n="settings.enableLog"></span></span>
 					<div class="tooltip"><i class="fi fi-rr-info"></i>
@@ -71,24 +79,24 @@
 							<span class="tooltiptext" data-i18n="settings.emailExplanation"></span>
 						</div>
 					</label>
-					<input class="homey-form-input" id="email" type="text" value />
+					<input class="homey-form-input" id="email" type="text" placeholder="Email address" title="Enter email address for support" />
 					<label class="homey-form-label" for="description"><span data-i18n="settings.description"></span>
 						<div class="tooltip"><i class="fi fi-rr-info"></i>
 							<span class="tooltiptext" data-i18n="settings.descriptionExplanation"></span>
 						</div>
 					</label>
-					<input class="homey-form-input" id="description" type="text" value />
+					<input class="homey-form-input" id="description" type="text" placeholder="Problem description" title="Enter problem description" />
 					<p></p>
 				</div>
-				<p><button class="homey-button-secondary-shadow" id="clearLog"><span
+				<p><button class="homey-button-secondary-shadow" id="clearLog" title="Clear log"><span
 							data-i18n="settings.clearLog"></span></button>
-					<button class="homey-button-secondary-shadow" id="sendLog"><span
+					<button class="homey-button-secondary-shadow" id="sendLog" title="Send log"><span
 							data-i18n="settings.sendLog"></span></button>
-					<button class="homey-button-secondary-shadow" id="getListeners"><span
+					<button class="homey-button-secondary-shadow" id="getListeners" title="Get listeners"><span
 							data-i18n="settings.getListeners"></span></button>
 				</p>
 				<div class="field row">
-					<textarea id="diagLog" class="homey-form-textarea"></textarea>
+					<textarea id="diagLog" class="homey-form-textarea" placeholder="Diagnostic log output" title="Diagnostic log information"></textarea>
 				</div>
 			</fieldset>
 		</div>
@@ -97,18 +105,18 @@
 		<div id="lastSentLog" class="tabcontent">
 			<fieldset class="homey-form-fieldset">
 				<div class="field row">
-					<label class="homey-form-label" for="sentip" style="margin-top:0px"><span data-i18n="settings.webviewip"></span>
+					<label class="homey-form-label no-margin-top" for="sentip" title="Sent IP address"><span data-i18n="settings.webviewip"></span>
 					</label>
-					<select class="homey-form-select" id="sentip">
+					<select class="homey-form-select" id="sentip" title="Select sent IP address">
 					</select>
 				</div>
 				<p></p>
 				<div class="field row">
-					<button class="homey-button-secondary-shadow" id="getLog"><span data-i18n="settings.getLog"></span></button>
+					<button class="homey-button-secondary-shadow" id="getLog" title="Get log"><span data-i18n="settings.getLog"></span></button>
 				</div>
 				<p></p>
 				<div class="field row">
-					<textarea id="sentLog" class="homey-form-textarea"></textarea>
+					<textarea id="sentLog" class="homey-form-textarea" placeholder="Last sent log" title="Last sent log data"></textarea>
 				</div>
 			</fieldset>
 		</div>
@@ -117,33 +125,33 @@
 
 		<div id="panelConfig" class="tabcontent">
 			<div class="homey-form-group">
-				<div style="padding: 10px 10px 10px 10px; border: 1px solid lightblue; border-radius: 10px">
-					<label class="homey-form-label" for="ButtonPanelConfigurationNo"><span
+				<div class="bordered-box">
+					<label class="homey-form-label" for="ButtonPanelConfigurationNo" title="Button panel configuration"><span
 							data-i18n="settings.configtoedit"></span>
 						<div class="tooltip"><i class="fi fi-rr-info"></i>
 							<span class="tooltiptext" data-i18n="settings.buttonExplanation"></span>
 						</div>
 					</label>
-					<select class="homey-form-select" id="ButtonPanelConfigurationNo">
+					<select class="homey-form-select" id="ButtonPanelConfigurationNo" title="Select button panel configuration">
 					</select>
 
-					<label class="homey-form-label" for="configName"><span data-i18n="settings.configName"></span>
+					<label class="homey-form-label" for="configName" title="Configuration name"><span data-i18n="settings.configName"></span>
 						<div class="tooltip"><i class="fi fi-rr-info"></i>
 							<span class="tooltiptext" data-i18n="settings.configNameExplanation"></span>
 						</div>
 					</label>
-					<input class="homey-form-input" id="configName" type="text" maxlength="20" value />
+					<input class="homey-form-input" id="configName" type="text" maxlength="20" placeholder="Config name" title="Enter configuration name" />
 
 					<div id="buttonItemsSection"></div>
 
 					<p>
-						<button class="homey-button-secondary-shadow" id="addButtonPage"><span
+						<button class="homey-button-secondary-shadow" id="addButtonPage" title="Add page"><span
 								data-i18n="settings.addPage"></span></button>
 					</p>
 					<p>
-						<button class="homey-button-secondary-shadow" id="copyButtonConfig"><span
+						<button class="homey-button-secondary-shadow" id="copyButtonConfig" title="Copy button configuration"><span
 								data-i18n="settings.copy"></span></button>
-						<button class="homey-button-secondary-shadow" id="pasteButtonConfig"><span
+						<button class="homey-button-secondary-shadow" id="pasteButtonConfig" title="Paste button configuration"><span
 								data-i18n="settings.paste"></span></button>
 					</p>
 				</div>
@@ -154,32 +162,32 @@
 
 		<div id="displayConfig" class="tabcontent">
 			<div class="homey-form-group">
-				<div style="padding: 10px 10px 10px 10px; border: 1px solid lightblue; border-radius: 10px">
-					<div style="padding: 10px 10px 10px 10px; border: 1px solid lightblue; border-radius: 10px">
-						<label class="homey-form-label" for="displayConfigurationNo"><span
+				<div class="bordered-box">
+					<div class="bordered-box">
+						<label class="homey-form-label" for="displayConfigurationNo" title="Display configuration"><span
 								data-i18n="settings.configtoedit"></span>
 							<div class="tooltip"><i class="fi fi-rr-info"></i>
 								<span class="tooltiptext" data-i18n="settings.displayExplanation"></span>
 							</div>
 						</label>
-						<select class="homey-form-select" id="displayConfigurationNo">
+						<select class="homey-form-select" id="displayConfigurationNo" title="Select display configuration">
 						</select>
 
-						<label class="homey-form-label" for="displayConfigName"><span
+						<label class="homey-form-label" for="displayConfigName" title="Display configuration name"><span
 								data-i18n="settings.configName"></span>
 							<div class="tooltip"><i class="fi fi-rr-info"></i>
 								<span class="tooltiptext" data-i18n="settings.configNameExplanation"></span>
 							</div>
 						</label>
-						<input class="homey-form-input" id="displayConfigName" type="text" maxlength="20" value />
+						<input class="homey-form-input" id="displayConfigName" type="text" maxlength="20" placeholder="Config name" title="Enter display configuration name" />
 					</div>
 					<div id="displayItemsSection"></div>
-					<p><button class="homey-button-secondary-shadow" id="newDisplayItem"><span
+					<p><button class="homey-button-secondary-shadow" id="newDisplayItem" title="New display item"><span
 								data-i18n="settings.newDisplayItem"></span></button></p>
 					<p>
-						<button class="homey-button-secondary-shadow" id="copyDisplayConfig"><span
+						<button class="homey-button-secondary-shadow" id="copyDisplayConfig" title="Copy display configuration"><span
 								data-i18n="settings.copy"></span></button>
-						<button class="homey-button-secondary-shadow" id="pasteDisplayConfig"><span
+						<button class="homey-button-secondary-shadow" id="pasteDisplayConfig" title="Paste display configuration"><span
 								data-i18n="settings.paste"></span></button>
 					</p>
 				</div>
@@ -190,19 +198,19 @@
 
 		<div id="brokerConfig" class="tabcontent">
 			<div class="homey-form-group">
-				<div style="padding: 10px 10px 10px 10px; border: 1px solid lightblue; border-radius: 10px">
-					<div style="padding: 10px 10px 10px 10px; border: 1px solid lightblue; border-radius: 10px">
-						<label class="homey-form-label" for="defaultBroker"><span
+				<div class="bordered-box">
+					<div class="bordered-box">
+						<label class="homey-form-label" for="defaultBroker" title="Default broker"><span
 								data-i18n="settings.defaultBroker"></span>
 							<div class="tooltip"><i class="fi fi-rr-info"></i>
 								<span class="tooltiptext" data-i18n="settings.brokerExplanation"></span>
 							</div>
 						</label>
-						<select class="homey-form-select" id="defaultBroker">
+						<select class="homey-form-select" id="defaultBroker" title="Select default broker">
 						</select>
 					</div>
 					<div id="brokerItemsSection"></div>
-					<p><button class="homey-button-secondary-shadow" id="newBrokerItem"><span
+					<p><button class="homey-button-secondary-shadow" id="newBrokerItem" title="New broker item"><span
 								data-i18n="settings.newBrokerItem"></span></button></p>
 				</div>
 			</div>
@@ -213,20 +221,20 @@
 
 	<div id="importExport" class="tabcontent">
 		<div class="homey-form-group">
-			<div style="padding: 10px 10px 10px 10px; border: 1px solid lightblue; border-radius: 10px">
+			<div class="bordered-box">
 				<div class="field row">
-					<label class="homey-form-label" for="copyText"><span data-i18n="settings.importExport"></span>
+					<label class="homey-form-label" for="copyText" title="Import/Export data"><span data-i18n="settings.importExport"></span>
 						<div class="tooltip"><i class="fi fi-rr-info"></i>
 							<span class="tooltiptext" data-i18n="settings.importExportExplanation"></span>
 						</div>
 					</label>
-					<textarea id="copyText" class="homey-form-textarea"></textarea>
+					<textarea id="copyText" class="homey-form-textarea" placeholder="Configuration data" title="Paste or view configuration data"></textarea>
 					<p></p>
 				</div>
 				<div class="field row">
-					<button class="homey-button-secondary-shadow" id="import"><span
-							data-i18n="settings.import"></span></button>
-					<button class="homey-button-secondary-shadow" id="export"><span
+					<button class="homey-button-secondary-shadow" id="import" title="Import configuration"><span
+								data-i18n="settings.import"></span></button>
+					<button class="homey-button-secondary-shadow" id="export" title="Export configuration"><span
 							data-i18n="settings.export"></span></button>
 				</div>
 			</div>
@@ -236,7 +244,7 @@
 	<!-- Save Configuration button -->
 
 	<div id="saveBlock" class="bottomFixButtonComponent">
-		<button class="homey-button-primary-full" id="save"><span data-i18n="settings.save"></span></button>
+		<button class="homey-button-primary-full" id="save" title="Save all settings"><span data-i18n="settings.save"></span></button>
 	</div>
 
 	<!-- Code to handle page life -->
@@ -310,6 +318,20 @@
 		var exportElement = document.getElementById('export');
 
 		var itemDisplyType = "flex";
+		const MAX_SVG_FIELD_LENGTH = 3 * 1024;
+		let trimmedSVGFieldCount = 0;
+
+		function clampSVGField(svgValue)
+		{
+			const value = (typeof svgValue === 'string') ? svgValue : '';
+			if (value.length > MAX_SVG_FIELD_LENGTH)
+			{
+				trimmedSVGFieldCount++;
+				// return value.substring(0, MAX_SVG_FIELD_LENGTH);
+			}
+
+			return value;
+		}
 
 		// a method named 'onHomeyReady' must be present in your code
 		function onHomeyReady(Homey)
@@ -482,19 +504,38 @@
 
 			getLogElement.addEventListener('click', function (e)
 			{
+			if (!lastSentIpElement.value)
+			{
+				Homey.alert('Please select a device from the list');
+				return;
+			}
 
-				Homey.api('GET', `/getLog/?ip=${lastSentIpElement.value}`, { notify: true }, function (err, result)
+			Homey.api('GET', `/getLog/?ip=${lastSentIpElement.value}`, { notify: true }, function (err, result)
+			{
+				if (err)
 				{
-					if (err)
+					Homey.alert(err);
+				}
+				else if (result === null || result === undefined)
+				{
+					sentLogElement.value = 'No configuration data available for this device.\n\nConfiguration data is stored when you save a configuration to the device.\n\nDevice IP: ' + lastSentIpElement.value;
+				}
+				else
+				{
+					// Add the log to the log view
+					try
 					{
-						Homey.alert(err);
+						// Handle both stringified JSON and objects
+						const data = typeof result === 'string' ? JSON.parse(result) : result;
+						sentLogElement.value = JSON.stringify(data, null, 2);
 					}
-					else
+					catch (parseErr)
 					{
-						// Add the log to the log view
-						sentLogElement.value = JSON.stringify(JSON.parse(result), null, 2);
+						// If parsing fails, just display the raw result
+						sentLogElement.value = result.toString();
 					}
-				});
+				}
+			});
 			});
 
 			Homey.on('com.ady.button_plus.logupdated', function (data)
@@ -506,32 +547,53 @@
 			{
 				if (autoConfigElement.checked)
 				{
-					if (!storeBrokerSettings())
+					try
 					{
-						return;
+						trimmedSVGFieldCount = 0;
+
+						if (!storeBrokerSettings())
+						{
+							return;
+						}
+
+						await Homey.set('brokerConfigurationItems', localBrokerItems);
+						await Homey.set('defaultBroker', defaultBrokerElement.value);
+
+						// Store the current button configuration
+						var buttonPanelConfigurationNo = buttonConfigurationNoElement.value;
+						var ButtonPanelConfiguration = localButtonConfigurations[buttonPanelConfigurationNo];
+
+						if (!Array.isArray(ButtonPanelConfiguration) || ButtonPanelConfiguration.length === 0)
+						{
+							throw new Error('Invalid button configuration selected');
+						}
+
+						storeButtonSettings(ButtonPanelConfiguration);
+
+						await Homey.set('buttonConfigurations', localButtonConfigurations);
+
+						//Copy the values from the controls to the displayConfiguration
+						storeDisplaySettings();
+						await Homey.set('displayConfigurations', localDisplayConfigurations);
+
+						Homey.api('POST', '/settings_changed/', {}, function (err, variables)
+						{
+							if (err) return Homey.alert(err);
+
+							if (trimmedSVGFieldCount > 0)
+							{
+								Homey.alert(`${Homey.__("settings.saved")}\n\nWarning: ${trimmedSVGFieldCount} SVG field(s) exceeded ${MAX_SVG_FIELD_LENGTH} characters and might be too big.`);
+							}
+							else
+							{
+								Homey.alert(Homey.__("settings.saved"));
+							}
+						});
 					}
-
-					Homey.set('brokerConfigurationItems', localBrokerItems);
-					Homey.set('defaultBroker', defaultBrokerElement.value);
-
-					// Store the current button configuration
-					var buttonPanelConfigurationNo = buttonConfigurationNoElement.value;
-					var ButtonPanelConfiguration = localButtonConfigurations[buttonPanelConfigurationNo]
-
-					storeButtonSettings(ButtonPanelConfiguration);
-
-					await Homey.set('buttonConfigurations', localButtonConfigurations);
-
-					//Copy the values from the controls to the displayConfiguration
-					storeDisplaySettings();
-					await Homey.set('displayConfigurations', localDisplayConfigurations);
-
-					Homey.api('POST', '/settings_changed/', {}, function (err, variables)
+					catch (saveError)
 					{
-						if (err) return Homey.alert(err);
-
-						Homey.alert(Homey.__("settings.saved"));
-					});
+						Homey.alert(`Save failed: ${saveError && saveError.message ? saveError.message : saveError}`);
+					}
 
 				}
 			});
@@ -624,8 +686,8 @@
 				ButtonPanelConfiguration[`${side}FrontLEDOffColor`] = frontLEDOffColorElement.value;
 				ButtonPanelConfiguration[`${side}WallLEDOffColor`] = wallLEDOffColorElement.value;
 				ButtonPanelConfiguration[`${side}DisableLongRepeat`] = !longRepeatElement.checked;
-				ButtonPanelConfiguration[`${side}OnSVG`] = OnSVGElement?.value || '';
-				ButtonPanelConfiguration[`${side}OffSVG`] = OffSVGElement?.value || '';
+				ButtonPanelConfiguration[`${side}OnSVG`] = clampSVGField(OnSVGElement?.value || '');
+				ButtonPanelConfiguration[`${side}OffSVG`] = clampSVGField(OffSVGElement?.value || '');
 			};
 
 			buttonConfigurationNoElement.addEventListener('change', function (e)
@@ -1029,7 +1091,7 @@
 			{
 				// Set a mouse over function for each tooltop element
 				tooltip.addEventListener("mouseover", position_tooltip); // On hover, launch the function below
-			})
+			});
 
 			// Tell Homey we're ready to be displayed
 			Homey.ready();
@@ -1662,16 +1724,14 @@
 						{
 							notify: true
 						}, function (err, result)
-					{
-						if (err)
 						{
-							return Homey.alert(err);
-						}
-						else
-						{
+							if (err)
+							{
+								return Homey.alert(err);
+							}
+
 							diagLogElement.value = result;
-						}
-					});
+						});
 
 					// Make the log text area fill the page
 					diagLogElement.style.width = (emailElement.offsetWidth) + 'px';
@@ -2199,7 +2259,7 @@
 									<span class="tooltiptext">Raw SVG code to display as an icon/image on the display item</span>
 								</div>
 							</label>
-							<textarea class="homey-form-textarea" id="display${itemNo}SVG" style="min-height: 100px; font-family: monospace; font-size: 12px;">${item.SVG || ''}</textarea>
+							<textarea class="homey-form-textarea" id="display${itemNo}SVG" style="min-height: 100px; font-family: monospace; font-size: 12px;">${item.svg || ''}</textarea>
 							<br>
 							<p><button class="homey-button-secondary-shadow" id="deleteItem" onClick="deleteItem(${itemNo})" style="font-size: 30px;"><i class="fi fi-rr-trash"></i> </button></p>
 						</details>
@@ -2587,7 +2647,7 @@
 					displayConfiguration.items[itemNo].brokerId = document.getElementById(`display${itemNo}BrokerId`).value;
 					displayConfiguration.items[itemNo].page = document.getElementById(`display${itemNo}page`).value;
 					displayConfiguration.items[itemNo].boxType = document.getElementById(`display${itemNo}BoxType`).value;
-					displayConfiguration.items[itemNo].svg = document.getElementById(`display${itemNo}SVG`)?.value || '';
+					displayConfiguration.items[itemNo].svg = clampSVGField(document.getElementById(`display${itemNo}SVG`)?.value || '');
 
 					storeDisplayCustomMQTTItems(itemNo, displayConfiguration.items[itemNo].customMQTTTopics);
 				}
