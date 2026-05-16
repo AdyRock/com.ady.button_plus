@@ -283,5 +283,8 @@
 	},
 	"0.7.28": {
 		"en": "Added support for SVG images in the Button and Display Configurations in Button+ firmware v3.1.2 and later."
+	},
+	"0.7.29": {
+		"en": "General fixes and improvements."
 	}
 }
