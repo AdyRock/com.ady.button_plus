@@ -1257,7 +1257,14 @@ class PanelDevice extends Device
 					{
 						for (const mqttMsg of mqttQue)
 						{
-							this.homey.app.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value, false).catch(this.error);
+							if (!mqttMsg || typeof mqttMsg !== 'object' || !mqttMsg.message)
+							{
+								this.homey.app.updateLog(`Skipping malformed mqtt queue entry: ${this.homey.app.varToString(mqttMsg)}`, 0);
+								continue;
+							}
+
+							const brokerId = mqttMsg.brokerId || 'Default';
+							this.homey.app.publishMQTTMessage(brokerId, mqttMsg.message, mqttMsg.value, false).catch(this.error);
 						}
 
 						mqttQue = null;
@@ -1428,7 +1435,7 @@ class PanelDevice extends Device
 				await this.registerCapabilityListener(`right_button.connector${connector}`, this.onCapabilityRightButton.bind(this, connector));
 
 				const configNo = this.getCapabilityValue(`configuration_button.connector${connector}`);
-				this.barConfigured[connector] = configNo !== null;
+				this.barConfigured[connector] = configNo != null;
 
 				// await this.syncCapability(connector);
 			}
@@ -1475,7 +1482,7 @@ class PanelDevice extends Device
 					return await this.uploadConfigurations();
 				}
 
-				let mqttQue = [];
+				const brokerId = config[`${side}BrokerId`] || config[`${side}brokerid`] || 'Default';
 				let delay = 100;
 
 				if (checkSEMVerGreaterOrEqual(this.firmwareVersion, '2.0.0'))
@@ -1487,15 +1494,17 @@ class PanelDevice extends Device
 				{
 					const configNo = parseInt(value, 10);
 
-					if (configNo !== null)
+					if (!Number.isNaN(configNo))
 					{
 						// Get the button page configuration
 						let buttonPanelConfiguration = this.homey.app.buttonConfigurations[configNo];
-						if (!buttonPanelConfiguration)
+					mqttQueue.push(
 						{
-							throw new Error('Invalid configuration number');
+							brokerId: sideConfig.brokerId,
+							message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/svg/set`,
+							value: value ? sideConfig.onSVG : sideConfig.offSVG,
 						}
-
+					);
 						if ((!checkSEMVerGreaterOrEqual(this.firmwareVersion, '1.12.0')) || (this.barConfigured[connector] === false))
 						{
 							// Upload the button configuration
@@ -1516,7 +1525,14 @@ class PanelDevice extends Device
 				{
 					for (const mqttMsg of mqttQue)
 					{
-						this.homey.app.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value, false).catch(this.error);
+						if (!mqttMsg || typeof mqttMsg !== 'object' || !mqttMsg.message)
+						{
+							this.homey.app.updateLog(`Skipping malformed mqtt queue entry: ${this.homey.app.varToString(mqttMsg)}`, 0);
+							continue;
+						}
+
+						const brokerId = mqttMsg.brokerId || 'Default';
+						this.homey.app.publishMQTTMessage(brokerId, mqttMsg.message, mqttMsg.value, false).catch(this.error);
 					}
 
 					mqttQue = null;
@@ -1703,7 +1719,7 @@ class PanelDevice extends Device
 	{
 		// Check if a large display or if no configuration assigned to this connector
 		let config = null;
-		if ((parameters.configNo !== null) && (parameters.connectorType !== 2))
+		if ((parameters.configNo != null) && (parameters.connectorType !== 2))
 		{
 			if (!parameters.page)
 			{
@@ -1892,7 +1908,7 @@ class PanelDevice extends Device
 		}
 
 		let buttonPanelConfiguration = null;
-		if (parameters.configNo !== null)
+		if (parameters.configNo != null)
 		{
 			buttonPanelConfiguration = this.homey.app.buttonConfigurations[parameters.configNo];
 			if (buttonPanelConfiguration[`${parameters.side}DisableLongRepeat`] && (repeatCount > 0))
@@ -1939,14 +1955,14 @@ class PanelDevice extends Device
 
 		const config = this.getConfigPageSide(null, parameters.page, parameters.side, parameters.configNo);
 
-		if (parameters.configNo !== null)
+		if (parameters.configNo != null)
 		{
 			const value = this.buttonValues.get(`${parameters.side}_${parameters.connector}_${parameters.page}`) || false;
 			this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'released', value, parameters.page);
 		}
 
 		// Check if a large display or if no configuration assigned to this connector
-		if ((parameters.connectorType === 2) || (parameters.configNo === null))
+		if ((parameters.connectorType === 2) || (parameters.configNo == null))
 		{
 			this.setLEDOnOff(config, null, buttonIdx, parameters.page, false);
 			if (parameters.page === this.page)
@@ -2095,7 +2111,8 @@ class PanelDevice extends Device
 						this.numPages = numPages;
 					}
 
-					let buttonPanelConfiguration = configNo ? this.homey.app.buttonConfigurations[configNo] : null;
+					const hasConfigNo = configNo != null;
+					let buttonPanelConfiguration = hasConfigNo ? this.homey.app.buttonConfigurations[configNo] : null;
 					let pages = buttonPanelConfiguration ? buttonPanelConfiguration.length : 1;
 					for (let page = 0; page < pages; page++)
 					{
@@ -2197,7 +2214,7 @@ class PanelDevice extends Device
 	{
 		// apply the new display configuration to this unit
 		const configNo = this.getCapabilityValue('configuration_display');
-		if (configNo)
+		if (configNo != null)
 		{
 			try
 			{
@@ -2341,7 +2358,7 @@ class PanelDevice extends Device
 	{
 		// Get the configuration for this connector
 		const configNo = this.getCapabilityValue(`configuration_button.connector${connector}`);
-		if (!configNo)
+		if (configNo == null)
 		{
 			// Connector not configured
 			return;
@@ -2412,8 +2429,8 @@ class PanelDevice extends Device
 
 	async checkStateChangeForDisplay(configNo, deviceId, capability, value)
 	{
-		// Check if configNo is undefined
-		if (configNo === undefined)
+		// Check if configNo is missing
+		if (configNo == null)
 		{
 			// Display not configured
 			return;
@@ -2601,14 +2618,15 @@ class PanelDevice extends Device
 				brokerId: sideConfig.brokerId,
 				message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/label/set`,
 				value: value ? sideConfig.onMessage : sideConfig.offMessage,
-			},
+			}
+		);
 
-			mqttQueue.push({
+		mqttQueue.push(
+			{
 				brokerId: sideConfig.brokerId,
 				message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/svg/set`,
 				value: value ? sideConfig.onSVG : sideConfig.offSVG,
-			})
-
+			}
 		);
 
 		return mqttQueue;
@@ -2649,13 +2667,14 @@ class PanelDevice extends Device
 		}
 
 		// Setup which of our buttons (left or right) this message is for
+		const brokerId = config[`${side}BrokerId`] || config[`${side}brokerid`] || 'Default';
 		return {
 			deviceID: config[`${side}Device`],
 			capabilityName: config[`${side}Capability`],
 			topLabel: config[`${side}TopText`],
 			onMessage: config[`${side}OnText`],
 			offMessage: config[`${side}OffText`],
-			brokerId: config[`${side}BrokerId`],
+			brokerId,
 			dimChange: config[`${side}DimChange`],
 			frontLEDOnColor: config[`${side}FrontLEDOnColor`],
 			wallLEDOnColor: config[`${side}WallLEDOnColor`],

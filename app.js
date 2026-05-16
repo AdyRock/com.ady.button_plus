@@ -39,6 +39,7 @@ class MyApp extends Homey.App
 	{
 		this.mqttServerReady = false;
 		this.autoConfigGateway = true;
+		this.capabilityListenerRetryTimers = new Map();
 		this.lastMQTTData = new Map();
 		this.dataSent = new Map();
 		this.dateTimer = null;
@@ -909,7 +910,7 @@ class MyApp extends Homey.App
 				leftOffText: '',
 				leftDevice: 'none',
 				leftCapability: '',
-				leftbrokerid: 'Default',
+				leftBrokerId: 'Default',
 				leftDimChange: '-10',
 				leftFrontLEDOnColor: '#ff0000',
 				leftWallLEDOnColor: '#ff0000',
@@ -922,7 +923,7 @@ class MyApp extends Homey.App
 				rightOffText: '',
 				rightDevice: 'none',
 				rightCapability: '',
-				rightbrokerid: 'Default',
+				rightBrokerId: 'Default',
 				rightDimChange: '+10',
 				rightFrontLEDOnColor: '#ff0000',
 				rightWallLEDOnColor: '#ff0000',
@@ -2148,8 +2149,6 @@ class MyApp extends Homey.App
 			return;
 		}
 
-		this.lastMQTTData.set(`${MQTT_Id}_${topic}`, data);
-
 		this.updateLog(`publishMQTTMessage: ${data} to topic ${topic}`);
 		try
 		{
@@ -2157,6 +2156,11 @@ class MyApp extends Homey.App
 			if (MQTTclient)
 			{
 				await MQTTclient.publish(topic, data, { qos: 1, retain: Retain });
+				this.lastMQTTData.set(`${MQTT_Id}_${topic}`, data);
+			}
+			else
+			{
+				this.updateLog(`publishMQTTMessage: No client found for broker ${MQTT_Id}, message not published`, 0);
 			}
 		}
 		catch (err)
@@ -2445,12 +2449,48 @@ class MyApp extends Homey.App
 	}
 
 	// Register a device so we receive state change events that are posted to the MQTT server
-	registerDeviceCapabilityStateChange(device, capabilityId)
+	async registerDeviceCapabilityStateChange(device, capabilityId)
 	{
-		this.deviceDispather.registerDeviceCapability(device, capabilityId).catch((err) =>
+		const deviceId = (typeof device === 'string') ? device : (device && device.id ? device.id : 'unknown');
+		this.updateLog(`registerDeviceCapabilityStateChange request: device=${deviceId}, capability=${capabilityId}`);
+
+		let registered = false;
+		try
+		{
+			registered = await this.deviceDispather.registerDeviceCapability(device, capabilityId);
+		}
+		catch (err)
 		{
 			this.updateLog(`registerDeviceCapabilityStateChange: ${err.message}`, 0);
-		});
+		}
+
+		const retryKey = `${deviceId}::${capabilityId}`;
+		if (registered)
+		{
+			const retryTimer = this.capabilityListenerRetryTimers.get(retryKey);
+			if (retryTimer)
+			{
+				this.homey.clearTimeout(retryTimer);
+				this.capabilityListenerRetryTimers.delete(retryKey);
+			}
+			return true;
+		}
+
+		if (!this.capabilityListenerRetryTimers.has(retryKey))
+		{
+			const retryTimer = this.homey.setTimeout(() =>
+			{
+				this.capabilityListenerRetryTimers.delete(retryKey);
+				this.registerDeviceCapabilityStateChange(deviceId, capabilityId).catch((err) =>
+				{
+					this.updateLog(`registerDeviceCapabilityStateChange retry failed: ${err.message}`, 0);
+				});
+			}, 30000);
+
+			this.capabilityListenerRetryTimers.set(retryKey, retryTimer);
+		}
+
+		return false;
 	}
 
 	// Device Flow Card Triggers
