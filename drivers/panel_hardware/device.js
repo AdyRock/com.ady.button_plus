@@ -2151,7 +2151,11 @@ class PanelDevice extends Device
 					let pages = buttonPanelConfiguration ? buttonPanelConfiguration.length : 1;
 					for (let page = 0; page < pages; page++)
 					{
-						mqttQue = mqttQue.concat(await this.setupConnectorMQTTmessages(buttonPanelConfiguration, page, i));
+						const shouldPublishPage = !writeConfig || this.shouldPublishConnectorPageMQTT(deviceConfigurations, sectionConfiguration, i, page);
+						if (shouldPublishPage)
+						{
+							mqttQue = mqttQue.concat(await this.setupConnectorMQTTmessages(buttonPanelConfiguration, page, i));
+						}
 					}
 				}
 				catch (error)
@@ -2542,14 +2546,78 @@ class PanelDevice extends Device
 		}
 	}
 
+	getButtonConfigEntry(buttons, position, page)
+	{
+		if (!Array.isArray(buttons))
+		{
+			return null;
+		}
+
+		if (checkSEMVerGreaterOrEqual(this.firmwareVersion, '2.0.0'))
+		{
+			const pageNo = parseInt(page, 10);
+			return buttons.find((button) => parseInt(button?.position, 10) === position && parseInt(button?.page, 10) === pageNo) || null;
+		}
+
+		const idx = position - 1;
+		return buttons[idx] || null;
+	}
+
+	shouldPublishConnectorPageMQTT(deviceConfigurations, sectionConfiguration, connector, page)
+	{
+		if (!deviceConfigurations || !Array.isArray(deviceConfigurations.buttons))
+		{
+			// No current button config available (for example after reset), so publish everything.
+			return true;
+		}
+
+		if (!sectionConfiguration || !Array.isArray(sectionConfiguration.buttons))
+		{
+			return true;
+		}
+
+		const leftPosition = connector * 2 + 1;
+		const rightPosition = leftPosition + 1;
+
+		const desiredLeft = this.getButtonConfigEntry(sectionConfiguration.buttons, leftPosition, page);
+		const currentLeft = this.getButtonConfigEntry(deviceConfigurations.buttons, leftPosition, page);
+		if (!desiredLeft || !currentLeft)
+		{
+			if (desiredLeft || currentLeft)
+			{
+				return true;
+			}
+		}
+		else if (!this.compareObjects(desiredLeft, currentLeft))
+		{
+			return true;
+		}
+
+		const desiredRight = this.getButtonConfigEntry(sectionConfiguration.buttons, rightPosition, page);
+		const currentRight = this.getButtonConfigEntry(deviceConfigurations.buttons, rightPosition, page);
+		if (!desiredRight || !currentRight)
+		{
+			if (desiredRight || currentRight)
+			{
+				return true;
+			}
+		}
+		else if (!this.compareObjects(desiredRight, currentRight))
+		{
+			return true;
+		}
+
+		return false;
+	}
+
 	async setupConnectorMQTTmessages(config, page, connector)
 	{
-		let mqttQue = [];
+		const [leftQueue, rightQueue] = await Promise.all([
+			this.publishButtonMQTTmessages(config, page, connector * 2),
+			this.publishButtonMQTTmessages(config, page, connector * 2 + 1),
+		]);
 
-		mqttQue = mqttQue.concat(await this.publishButtonMQTTmessages(config, page, connector * 2));
-		mqttQue = mqttQue.concat(await this.publishButtonMQTTmessages(config, page, connector * 2 + 1));
-
-		return mqttQue;
+		return leftQueue.concat(rightQueue);
 	}
 
 	async publishButtonMQTTmessages(config, page, buttonIdx)
