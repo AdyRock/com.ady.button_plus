@@ -1388,15 +1388,19 @@ class PanelDevice extends Device
 						await this.addCapability('configuration_display');
 					}
 
-					const capabilityOption = {};
-					capabilityOption.title = `${this.homey.__('display')} ${this.homey.__('connector')} ${connector + 1}`;
-					this.setCapabilityOptions('configuration_display', capabilityOption);
-
 					if (!this.hasCapability(`left_button.connector${connector}`))
 					{
 						await this.addCapability(`left_button.connector${connector}`);
+					}
+
+					if (!this.hasCapability(`right_button.connector${connector}`))
+					{
 						await this.addCapability(`right_button.connector${connector}`);
 					}
+
+					const capabilityOption = {};
+					capabilityOption.title = `${this.homey.__('display')} ${this.homey.__('connector')} ${connector + 1}`;
+					this.setCapabilityOptions('configuration_display', capabilityOption);
 					this.setCapabilityOptions(`configuration_button.connector${connector}`, capabilityOption);
 
 					capabilityOption.title = `${this.homey.__('display')} ${this.homey.__('connector')} ${connector + 1} ${this.homey.__('left')}`;
@@ -1415,7 +1419,15 @@ class PanelDevice extends Device
 				if (!this.hasCapability(`configuration_button.connector${connector}`))
 				{
 					await this.addCapability(`configuration_button.connector${connector}`);
+				}
+
+				if (!this.hasCapability(`left_button.connector${connector}`))
+				{
 					await this.addCapability(`left_button.connector${connector}`);
+				}
+
+				if (!this.hasCapability(`right_button.connector${connector}`))
+				{
 					await this.addCapability(`right_button.connector${connector}`);
 				}
 
@@ -1621,6 +1633,28 @@ class PanelDevice extends Device
 		this.setCapabilityValue('info', value).catch(this.error);
 	}
 
+	async safeSetCapabilityValue(capability, value)
+	{
+		if (!this.hasCapability(capability))
+		{
+			this.homey.app.updateLog(`Skipping update for missing capability: ${capability}`);
+			return null;
+		}
+
+		return this.setCapabilityValue(capability, value).catch(this.error);
+	}
+
+	async safeTriggerCapabilityListener(capability, value)
+	{
+		if (!this.hasCapability(capability))
+		{
+			this.homey.app.updateLog(`Skipping trigger for missing capability: ${capability}`);
+			return null;
+		}
+
+		return this.triggerCapabilityListener(capability, value).catch(this.error);
+	}
+
 	async checkCoreMQTTMessage(topicParts, value)
 	{
 		if (topicParts[1] === this.buttonId)
@@ -1795,7 +1829,7 @@ class PanelDevice extends Device
 							if (parameters.fromButton && ((parameters.page === 0) || (this.page === parameters.page)))
 							{
 								// Set the button state back to false immediately
-								setImmediate(() => this.setCapabilityValue(parameters.buttonCapability, false).catch(this.error));
+								setImmediate(() => this.safeSetCapabilityValue(parameters.buttonCapability, false));
 							}
 						}
 						else if (config.capabilityName === 'windowcoverings_state')
@@ -1820,7 +1854,8 @@ class PanelDevice extends Device
 						}
 						else
 						{
-							value = parameters.fromButton ? parameters.value : !capability.value;
+							const currentCapabilityValue = (capability && capability.value !== undefined) ? capability.value : this.buttonValues.get(`${parameters.side}_${parameters.connector}_${parameters.page}`);
+							value = parameters.fromButton ? parameters.value : !Boolean(currentCapabilityValue);
 							await device.setCapabilityValue(config.capabilityName, value);
 
 							// Don't trigger the button change Flow as the other device will do this
@@ -1840,7 +1875,7 @@ class PanelDevice extends Device
 			if (!parameters.fromButton && ((parameters.page === 0) || (this.page === parameters.page)))
 			{
 				// Set the virtual button state
-				this.setCapabilityValue(parameters.buttonCapability, value).catch(this.error);
+				this.safeSetCapabilityValue(parameters.buttonCapability, value);
 			}
 
 			this.buttonValues.set(`${parameters.side}_${parameters.connector}_${parameters.page}`, value);
@@ -1881,7 +1916,7 @@ class PanelDevice extends Device
 				if (parameters.fromButton && value)
 				{
 					// Set the button state back to false immediately
-					setImmediate(() => this.triggerCapabilityListener(parameters.buttonCapability, false).catch(this.error));
+					setImmediate(() => this.safeTriggerCapabilityListener(parameters.buttonCapability, false));
 				}
 			}
 		}
@@ -1967,7 +2002,7 @@ class PanelDevice extends Device
 			this.setLEDOnOff(config, null, buttonIdx, parameters.page, false);
 			if (parameters.page === this.page)
 			{
-				this.setCapabilityValue(`${parameters.side}_button.connector${parameters.connector}`, false).catch(this.error);
+				this.safeSetCapabilityValue(`${parameters.side}_button.connector${parameters.connector}`, false);
 			}
 
 			this.buttonValues.set(`${parameters.side}_${parameters.connector}_${parameters.page}`, false);
@@ -2003,7 +2038,7 @@ class PanelDevice extends Device
 				this.setLEDOnOff(config, null, buttonIdx, parameters.page, false);
 				if (parameters.page === this.page)
 				{
-					this.setCapabilityValue(`${parameters.side}_button.connector${parameters.connector}`, false).catch(this.error);
+					this.safeSetCapabilityValue(`${parameters.side}_button.connector${parameters.connector}`, false);
 				}
 
 				this.buttonValues.set(`${parameters.side}_${parameters.connector}_${parameters.page}`, false);
@@ -2402,7 +2437,7 @@ class PanelDevice extends Device
 							if ((page === 0) || (this.page === page))
 							{
 								// Set the device button state
-								this.setCapabilityValue(`${side}_button.connector${connector}`, value).catch(this.error);
+								this.safeSetCapabilityValue(`${side}_button.connector${connector}`, value);
 							}
 
 							this.buttonValues.set(`${side}_${connector}_${page}`, value);
@@ -2548,7 +2583,7 @@ class PanelDevice extends Device
 			if ((page === 0) || (this.page === page))
 			{
 				// Set the device button state
-				this.setCapabilityValue(`${side}_button.connector${connector}`, value).catch(this.error);
+				this.safeSetCapabilityValue(`${side}_button.connector${connector}`, value);
 			}
 
 			this.buttonValues.set(`${side}_${connector}_${page}`, value);
@@ -2584,7 +2619,7 @@ class PanelDevice extends Device
 					{
 						// make sure the value is a boolean for the button state
 						value = Boolean(value);
-						await this.setCapabilityValue(`${side}_button.connector${connector}`, value);
+						await this.safeSetCapabilityValue(`${side}_button.connector${connector}`, value);
 					}
 
 					this.buttonValues.set(`${side}_${connector}_${page}`, value);
