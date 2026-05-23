@@ -2151,10 +2151,14 @@ class PanelDevice extends Device
 					let pages = buttonPanelConfiguration ? buttonPanelConfiguration.length : 1;
 					for (let page = 0; page < pages; page++)
 					{
+						// Always call setupConnectorMQTTmessages to register capability listeners and
+						// initialise buttonValues from the device's current state, even when the
+						// MQTT configuration has not changed and does not need to be republished.
+						const pageMqttMessages = await this.setupConnectorMQTTmessages(buttonPanelConfiguration, page, i);
 						const shouldPublishPage = !writeConfig || this.shouldPublishConnectorPageMQTT(deviceConfigurations, sectionConfiguration, i, page);
 						if (shouldPublishPage)
 						{
-							mqttQue = mqttQue.concat(await this.setupConnectorMQTTmessages(buttonPanelConfiguration, page, i));
+							mqttQue = mqttQue.concat(pageMqttMessages);
 						}
 					}
 				}
