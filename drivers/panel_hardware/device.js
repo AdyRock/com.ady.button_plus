@@ -1494,13 +1494,12 @@ class PanelDevice extends Device
 					return await this.uploadConfigurations();
 				}
 
-				const brokerId = config[`${side}BrokerId`] || config[`${side}brokerid`] || 'Default';
+				let mqttQue = [];
 				let delay = 100;
 
 				if (checkSEMVerGreaterOrEqual(this.firmwareVersion, '2.0.0'))
 				{
-					({ mqttQue, delay } = await this.uploadAllButtonConfigurations(null, connector, value))
-					mqttQue = mqttQue.concat(mqttQue);
+					({ mqttQue, delay } = await this.uploadAllButtonConfigurations(null, connector, value));
 				}
 				else
 				{
@@ -1508,26 +1507,22 @@ class PanelDevice extends Device
 
 					if (!Number.isNaN(configNo))
 					{
-						// Get the button page configuration
-						let buttonPanelConfiguration = this.homey.app.buttonConfigurations[configNo];
-					mqttQueue.push(
-						{
-							brokerId: sideConfig.brokerId,
-							message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/svg/set`,
-							value: value ? sideConfig.onSVG : sideConfig.offSVG,
-						}
-					);
+						const buttonPanelConfiguration = this.homey.app.buttonConfigurations[configNo];
+
 						if ((!checkSEMVerGreaterOrEqual(this.firmwareVersion, '1.12.0')) || (this.barConfigured[connector] === false))
 						{
 							// Upload the button configuration
-							await this.uploadOneButtonConfiguration(connector, value, this.firmwareVersion);
+							await this.uploadOneButtonConfiguration(connector, configNo, this.firmwareVersion);
 							this.barConfigured[connector] = true;
 						}
 
-						// for each page in the configuration
-						for (let page = 0; page < buttonPanelConfiguration.length; page++)
+						if (Array.isArray(buttonPanelConfiguration))
 						{
-							mqttQue = await this.setupConnectorMQTTmessages(buttonPanelConfiguration, page, connector, connectorType);
+							for (let page = 0; page < buttonPanelConfiguration.length; page++)
+							{
+								const pageMqttMessages = await this.setupConnectorMQTTmessages(buttonPanelConfiguration, page, connector);
+								mqttQue = mqttQue.concat(pageMqttMessages);
+							}
 						}
 					}
 				}
@@ -1854,7 +1849,13 @@ class PanelDevice extends Device
 						}
 						else
 						{
-							const currentCapabilityValue = (capability && capability.value !== undefined) ? capability.value : this.buttonValues.get(`${parameters.side}_${parameters.connector}_${parameters.page}`);
+							const buttonStateKey = `${parameters.side}_${parameters.connector}_${parameters.page}`;
+							const cachedButtonValue = this.buttonValues.get(buttonStateKey);
+							if (!parameters.fromButton)
+							{
+								this.homey.app.updateLog(`Toggle debug: key=${buttonStateKey}, cached=${cachedButtonValue}, capability=${capability && capability.value !== undefined ? capability.value : 'undefined'}`, 1);
+							}
+							const currentCapabilityValue = cachedButtonValue !== undefined ? cachedButtonValue : (capability && capability.value !== undefined ? capability.value : false);
 							value = parameters.fromButton ? parameters.value : !Boolean(currentCapabilityValue);
 							await device.setCapabilityValue(config.capabilityName, value);
 
