@@ -6,6 +6,7 @@
 const { Device } = require('homey');
 const _ = require('lodash');
 const { checkSEMVerGreaterOrEqual } = require('../../lib/HttpHelper');
+const { isSvgTextContent } = require('../../lib/SvgHelper');
 
 class PanelDevice extends Device
 {
@@ -2455,11 +2456,18 @@ class PanelDevice extends Device
 						{
 							value = value === 'up';
 						}
-						if (config.onMessage !== '' || config.offMessage !== '')
+						if (typeof value === 'string')
 						{
-							this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/label/set`, value ? config.onMessage : config.offMessage).catch(this.error);
+							this.publishTextOrSvg(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/svg/set`, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/label/set`, value);
 						}
-						this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/svg/set`, value ? config.onSVG : config.offSVG).catch((err) => this.error(err));
+						else
+						{
+							if (config.onMessage !== '' || config.offMessage !== '')
+							{
+								this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/label/set`, value ? config.onMessage : config.offMessage).catch(this.error);
+							}
+							this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/svg/set`, value ? config.onSVG : config.offSVG).catch((err) => this.error(err));
+						}
 					}
 
 					// Add the front and wall colours or the on/off state to the message queue based on the on/off value and firmware version
@@ -2489,6 +2497,8 @@ class PanelDevice extends Device
 				value = '';
 			}
 
+			const publishValue = (capability === 'dim') ? value * 100 : value;
+
 			if (deviceId === '_variable_')
 			{
 				// This is a variable update so only check the variable entries
@@ -2501,17 +2511,7 @@ class PanelDevice extends Device
 						const { brokerId } = displayItem;
 
 						// If the value starts with an SVG tag then publish to the svg topic instead of the variable topic
-						if (typeof value === 'string' && /^<svg(?:\s|>)/i.test(value.trim()))
-						{
-							this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/displayitem/${itemNo}/svg/set`, value).catch((err) => this.error(err));
-							this.homey.app.publishMQTTMessage(brokerId, `buttonplus/_variable_/${capability}`, '').catch(this.error);
-						}
-						else
-						{
-							this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/displayitem/${itemNo}/svg/set`, '').catch((err) => this.error(err));
-							this.homey.app.publishMQTTMessage(brokerId, `buttonplus/_variable_/${capability}`, value).catch(this.error);
-						}
-						break;
+						this.publishTextOrSvg(brokerId, `buttonplus/${this.buttonId}/displayitem/${itemNo}/svg/set`, `buttonplus/_variable_/${capability}`, publishValue);
 					}
 				}
 			}
@@ -2534,20 +2534,26 @@ class PanelDevice extends Device
 					const displayItem = item.items[itemNo];
 					if ((buttonPlusDevice || (displayItem.device === deviceId)) && (displayItem.capability === capability))
 					{
-						// Check if the value is different from the last time we published it
-						if (capability === 'dim')
-						{
-							// convert dim value to percentage
-							value *= 100;
-						}
-
 						// Publish to MQTT
 						const { brokerId } = displayItem;
-						this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${deviceId}/${capability}`, value).catch(this.error);
-						break;
+						this.publishTextOrSvg(brokerId, `buttonplus/${this.buttonId}/displayitem/${itemNo}/svg/set`, `buttonplus/${deviceId}/${capability}`, publishValue);
 					}
 				}
 			}
+		}
+	}
+
+	publishTextOrSvg(brokerId, svgTopic, textTopic, value)
+	{
+		if (isSvgTextContent(value))
+		{
+			this.homey.app.publishMQTTMessage(brokerId, svgTopic, value).catch((err) => this.error(err));
+			this.homey.app.publishMQTTMessage(brokerId, textTopic, '').catch(this.error);
+		}
+		else
+		{
+			this.homey.app.publishMQTTMessage(brokerId, svgTopic, '').catch((err) => this.error(err));
+			this.homey.app.publishMQTTMessage(brokerId, textTopic, value).catch(this.error);
 		}
 	}
 

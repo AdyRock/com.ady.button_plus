@@ -20,6 +20,7 @@ const nodemailer = require('./nodemailer');
 const aedes = require('./aedes')();
 const mqtt = require('./mqtt');
 const { checkSEMVerGreaterOrEqual, HttpHelper } = require('./lib/HttpHelper');
+const { isSvgTextContent } = require('./lib/SvgHelper');
 const DeviceManager = require('./lib/DeviceManager');
 const DeviceDispatcher = require('./lib/DeviceStateChangedDispatcher');
 const VariableDispatcher = require('./lib/variables');
@@ -1105,26 +1106,13 @@ class MyApp extends Homey.App
 					const variable = await this.homey.app.getVariable(item.capability);
 					if (variable)
 					{
-						// Send the value to the device after a short delay to allow the device to connect to the broker
-						// If the variable starts with an SVG tag then send it to the svg topic instead
-						if (typeof variable.value === 'string' && /^<svg(?:\s|>)/i.test(variable.value.trim()))
-						{
-							svg = variable.value;
-							mqttQueue.push({
-								brokerId,
-								message: `buttonplus/${item.device}/${item.capability}`,
-								value: '',
-							});
-						}
-						else
-						{
-							svg = '';
-							mqttQueue.push({
-								brokerId,
-								message: `buttonplus/${item.device}/${item.capability}`,
-								value: variable.value,
-							});
-						}
+						const routedValue = this.routeSvgOrTextValue(variable.value, `_variable_/${item.capability}`);
+						svg = routedValue.svg;
+						mqttQueue.push({
+							brokerId,
+							message: `buttonplus/${item.device}/${item.capability}`,
+							value: routedValue.textValue,
+						});
 					}
 				}
 				else if (item.device !== 'none')
@@ -1146,11 +1134,14 @@ class MyApp extends Homey.App
 									value = '';
 								}
 
+								const valueTopic = `buttonplus/${homeyDeviceObject ? homeyDeviceObject.id : item.device}/${item.capability}`;
+								const routedValue = this.routeSvgOrTextValue(value, `${homeyDeviceObject ? homeyDeviceObject.id : item.device}/${item.capability}`);
+								svg = routedValue.svg;
 								// Send the value to the device after a short delay to allow the device to connect to the broker
 								mqttQueue.push({
 									brokerId,
-									message: `buttonplus/${homeyDeviceObject ? homeyDeviceObject.id : item.device}/${item.capability}`,
-									value,
+									message: valueTopic,
+									value: routedValue.textValue,
 								});
 
 								this.registerDeviceCapabilityStateChange(homeyDeviceObject ? homeyDeviceObject.id : item.device, item.capability);
@@ -1166,11 +1157,14 @@ class MyApp extends Homey.App
 				{
 					// For deviceId type None, we need to send the Label vai MQTT so the item is displayed
 					// Send the value to the device after a short delay to allow the device to connect to the broker
-					capabilities.topics[0].topic = `buttonplus/${ButtonDevice.buttonId}/none/${item.page}/${item.xPos}/${item.yPos}`;
+					const noneTopic = `buttonplus/${ButtonDevice.buttonId}/none/${item.page}/${item.xPos}/${item.yPos}`;
+					capabilities.topics[0].topic = noneTopic;
+					const routedValue = this.routeSvgOrTextValue(item.text, `none/${item.page}/${item.xPos}/${item.yPos}`);
+					svg = routedValue.svg;
 					mqttQueue.push({
 						brokerId,
-						message: `buttonplus/${ButtonDevice.buttonId}/none/${item.page}/${item.xPos}/${item.yPos}`,
-						value: item.text,
+						message: noneTopic,
+						value: routedValue.textValue,
 					});
 				}
 
@@ -1194,6 +1188,18 @@ class MyApp extends Homey.App
 		}, 10000);
 
 		return maxPages;
+	}
+
+	routeSvgOrTextValue(value, source = '')
+	{
+		if (isSvgTextContent(value))
+		{
+			this.updateLog(`[svg-route] ${source} -> svg`, 1);
+			return { svg: value, textValue: '' };
+		}
+
+		this.updateLog(`[svg-route] ${source} -> text`, 1);
+		return { svg: '', textValue: value };
 	}
 
 	async uploadButtonPanelConfiguration(ip, panelId, connectorNo, configurationNo, firmwareVersion)
