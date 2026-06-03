@@ -292,5 +292,8 @@
 	},
 	"0.7.31": {
 		"en": "Improve SVG handling."
+	},
+	"0.7.32": {
+		"en": "Improve performance when one or more Button+ device are not responding when pushing the configuration to ensure they don't prevent other Button+ devices from being updated."
 	}
 }

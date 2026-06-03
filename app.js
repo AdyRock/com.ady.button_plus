@@ -812,6 +812,7 @@ class MyApp extends Homey.App
 	{
 		// Get devices to upload their configurations
 		const drivers = this.homey.drivers.getDrivers();
+		const uploadTasks = [];
 		for (const driver of Object.values(drivers))
 		{
 			let devices = driver.getDevices();
@@ -819,20 +820,20 @@ class MyApp extends Homey.App
 			{
 				if (device.uploadConfigurations)
 				{
-					try
-					{
-						await device.uploadConfigurations();
-					}
-					catch (error)
-					{
-						this.updateLog(`uploadConfigurations: ${error.message}`, 0);
-					}
+					uploadTasks.push(
+						device.uploadConfigurations().catch((error) =>
+						{
+							this.updateLog(`uploadConfigurations: ${error.message}`, 0);
+						})
+					);
 				}
 
 				device = null;
 			}
 			devices = null;
 		}
+
+		await Promise.all(uploadTasks);
 	}
 
 	// // Make all the device upload their button bar configurations to the panels
