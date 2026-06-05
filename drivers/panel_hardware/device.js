@@ -2492,12 +2492,19 @@ class PanelDevice extends Device
 		const item = this.homey.app.displayConfigurations[configNo];
 		if (item)
 		{
+			if (!Array.isArray(item.items))
+			{
+				this.homey.app.updateLog(`checkStateChangeForDisplay: display config ${configNo} has no items array for panel ${this.buttonId}`, 0);
+				return;
+			}
+
 			if ((value == null) || (value === undefined))
 			{
 				value = '';
 			}
 
 			const publishValue = (capability === 'dim') ? value * 100 : value;
+			let matchedCount = 0;
 
 			if (deviceId === '_variable_')
 			{
@@ -2508,7 +2515,8 @@ class PanelDevice extends Device
 					if ((displayItem.device === '_variable_') && (displayItem.capability === capability))
 					{
 						// Publish to MQTT
-						const { brokerId } = displayItem;
+						const brokerId = displayItem.brokerId || displayItem.brokerid || 'Default';
+						matchedCount += 1;
 
 						// If the value starts with an SVG tag then publish to the svg topic instead of the variable topic
 						this.publishTextOrSvg(brokerId, `buttonplus/${this.buttonId}/displayitem/${itemNo}/svg/set`, `buttonplus/_variable_/${capability}`, publishValue);
@@ -2535,10 +2543,20 @@ class PanelDevice extends Device
 					if ((buttonPlusDevice || (displayItem.device === deviceId)) && (displayItem.capability === capability))
 					{
 						// Publish to MQTT
-						const { brokerId } = displayItem;
+						const brokerId = displayItem.brokerId || displayItem.brokerid || 'Default';
+						matchedCount += 1;
 						this.publishTextOrSvg(brokerId, `buttonplus/${this.buttonId}/displayitem/${itemNo}/svg/set`, `buttonplus/${deviceId}/${capability}`, publishValue);
 					}
 				}
+			}
+
+			if (matchedCount === 0)
+			{
+				this.homey.app.updateLog(`checkStateChangeForDisplay: no matching display items for panel ${this.buttonId}, source=${deviceId}, capability=${capability}`, 1);
+			}
+			else
+			{
+				this.homey.app.updateLog(`checkStateChangeForDisplay: panel ${this.buttonId}, source=${deviceId}, capability=${capability}, matched=${matchedCount}`, 1);
 			}
 		}
 	}

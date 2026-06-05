@@ -41,6 +41,7 @@ class MyApp extends Homey.App
 		this.mqttServerReady = false;
 		this.autoConfigGateway = true;
 		this.capabilityListenerRetryTimers = new Map();
+		this.capabilityListenerHealthSignature = null;
 		this.lastMQTTData = new Map();
 		this.dataSent = new Map();
 		this.dateTimer = null;
@@ -751,6 +752,8 @@ class MyApp extends Homey.App
 			// The API wasn't connected so reregister the notifications
 			this.updateLog('API reconnected so re-registering the capability listeners', 0);
 
+			const capabilityRegistrations = this.deviceDispather.getRegisteredDeviceCapabilities();
+
 			this.api = await HomeyAPI.createAppAPI({ homey: this.homey });
 
 			this.updateLog('Initialize DeviceManager');
@@ -759,13 +762,14 @@ class MyApp extends Homey.App
 			this.updateLog('Register DeviceManager');
 			await this.deviceManager.register();
 
-			const oldListeners = this.deviceDispather.getListeners();
 			this.deviceDispather = new DeviceDispatcher(this);
-			this.deviceDispather.setListeners(oldListeners);
-			await this.deviceDispather.reregisterDeviceCapabilities();
+			const restoreStats = await this.deviceDispather.reregisterDeviceCapabilities(capabilityRegistrations);
+			this.updateLog(`Capability listener reconnect summary: total=${restoreStats.total}, restored=${restoreStats.restored}, failed=${restoreStats.failed}`, restoreStats.failed > 0 ? 0 : 1);
 
 			this.variableDispather = new VariableDispatcher(this);
 		}
+
+		this.logCapabilityListenerHealth();
 
 		if (this.dateTimer !== null)
 		{
@@ -780,6 +784,33 @@ class MyApp extends Homey.App
 		{
 			this.syncTime();
 		}, msUntilNextMinute);
+	}
+
+	logCapabilityListenerHealth()
+	{
+		if (!this.deviceDispather || !this.deviceDispather.getListenerHealth)
+		{
+			return;
+		}
+
+		const health = this.deviceDispather.getListenerHealth();
+		const signature = `${health.expected}|${health.active}|${health.missingCount}|${health.staleCount}`;
+		if (signature === this.capabilityListenerHealthSignature)
+		{
+			return;
+		}
+
+		this.capabilityListenerHealthSignature = signature;
+
+		if (health.missingCount > 0 || health.staleCount > 0)
+		{
+			const missingPreview = health.missing.slice(0, 3).join(', ');
+			const stalePreview = health.stale.slice(0, 3).join(', ');
+			this.updateLog(`Capability listener health drift: expected=${health.expected}, active=${health.active}, missing=${health.missingCount}${missingPreview ? ` [${missingPreview}]` : ''}, stale=${health.staleCount}${stalePreview ? ` [${stalePreview}]` : ''}`, 0);
+			return;
+		}
+
+		this.updateLog(`Capability listener health OK: expected=${health.expected}, active=${health.active}`, 1);
 	}
 
 	updateTime()
