@@ -43,6 +43,7 @@ class MyApp extends Homey.App
 		this.capabilityListenerRetryTimers = new Map();
 		this.capabilityListenerHealthSignature = null;
 		this.lastMQTTData = new Map();
+		this.pendingMQTTData = new Map();
 		this.dataSent = new Map();
 		this.dateTimer = null;
 		this.diagLog = '';
@@ -1993,6 +1994,10 @@ class MyApp extends Homey.App
 			MQTTclient.on('connect', () =>
 			{
 				this.updateLog(`setupMQTTClient.onConnect: connected to ${brokerConfig.url}:${brokerConfig.port} as ${brokerConfig.brokerid}`);
+				this.flushPendingMQTTMessages(brokerConfig.brokerid).catch((err) =>
+				{
+					this.updateLog(`setupMQTTClient.onConnect flush error: ${err.message}`, 0);
+				});
 
 				const drivers = this.homey.drivers.getDrivers();
 				for (const driver of Object.values(drivers))
@@ -2191,19 +2196,71 @@ class MyApp extends Homey.App
 		try
 		{
 			const MQTTclient = this.MQTTClients.get(MQTT_Id);
-			if (MQTTclient)
+			if (MQTTclient && MQTTclient.connected)
 			{
 				await MQTTclient.publish(topic, data, { qos: 1, retain: Retain });
 				this.lastMQTTData.set(`${MQTT_Id}_${topic}`, data);
+				return true;
 			}
 			else
 			{
-				this.updateLog(`publishMQTTMessage: No client found for broker ${MQTT_Id}, message not published`, 0);
+				this.queueMQTTMessage(MQTT_Id, topic, data, Retain);
+				this.updateLog(`publishMQTTMessage: broker ${MQTT_Id} not connected, queued ${topic}`, 1);
+				return false;
 			}
 		}
 		catch (err)
 		{
-			this.updateLog(`publishMQTTMessage error: ${err.message}`, 0);
+			this.queueMQTTMessage(MQTT_Id, topic, data, Retain);
+			this.updateLog(`publishMQTTMessage error: ${err.message}. queued ${topic} for retry`, 0);
+			return false;
+		}
+	}
+
+	queueMQTTMessage(MQTT_Id, topic, data, retain)
+	{
+		const key = `${MQTT_Id}_${topic}`;
+		this.pendingMQTTData.set(key, {
+			MQTT_Id,
+			topic,
+			data,
+			retain,
+		});
+	}
+
+	async flushPendingMQTTMessages(MQTT_Id)
+	{
+		const MQTTclient = this.MQTTClients.get(MQTT_Id);
+		if (!MQTTclient || !MQTTclient.connected || this.pendingMQTTData.size === 0)
+		{
+			return;
+		}
+
+		let flushedCount = 0;
+		for (const [key, pending] of this.pendingMQTTData.entries())
+		{
+			if (pending.MQTT_Id !== MQTT_Id)
+			{
+				continue;
+			}
+
+			try
+			{
+				await MQTTclient.publish(pending.topic, pending.data, { qos: 1, retain: pending.retain });
+				this.lastMQTTData.set(`${pending.MQTT_Id}_${pending.topic}`, pending.data);
+				this.pendingMQTTData.delete(key);
+				flushedCount += 1;
+			}
+			catch (err)
+			{
+				this.updateLog(`flushPendingMQTTMessages error for ${pending.topic}: ${err.message}`, 0);
+				break;
+			}
+		}
+
+		if (flushedCount > 0)
+		{
+			this.updateLog(`flushPendingMQTTMessages: flushed ${flushedCount} queued messages for broker ${MQTT_Id}`, 1);
 		}
 	}
 
