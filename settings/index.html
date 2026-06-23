@@ -10,10 +10,28 @@
 	<link rel="stylesheet" type="text/css" href="extraStyles.css">
 	<link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css'>
 	<style>
-		.no-margin-top { margin-top: 0px; }
-		.hr-separator { margin-top: 8px; margin-bottom: 0px; background-color: lightblue; }
-		.bordered-box { padding: 10px; border: 1px solid lightblue; border-radius: 10px; }
-		.filterable-select-wrapper { position: relative; width: 100%; margin-bottom: 8px; }
+		.no-margin-top {
+			margin-top: 0px;
+		}
+
+		.hr-separator {
+			margin-top: 8px;
+			margin-bottom: 0px;
+			background-color: lightblue;
+		}
+
+		.bordered-box {
+			padding: 10px;
+			border: 1px solid lightblue;
+			border-radius: 10px;
+		}
+
+		.filterable-select-wrapper {
+			position: relative;
+			width: 100%;
+			margin-bottom: 8px;
+		}
+
 		.filterable-select-input {
 			width: 100%;
 			box-sizing: border-box;
@@ -21,11 +39,13 @@
 			border-bottom-right-radius: 0;
 			margin-bottom: 0;
 		}
+
 		.filterable-select-input.filterable-select-closed {
 			border-bottom-left-radius: 8px;
 			border-bottom-right-radius: 8px;
 			cursor: text;
 		}
+
 		.filterable-select-dropdown {
 			position: absolute;
 			top: calc(100% - 1px);
@@ -41,36 +61,44 @@
 			box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
 			z-index: 500;
 		}
+
 		.filterable-select-dropdown-option {
 			padding: 8px 10px;
 			cursor: pointer;
 			line-height: 1.3;
 		}
+
 		.filterable-select-dropdown-option:hover,
 		.filterable-select-dropdown-option.filterable-select-active {
 			background-color: #eef5ff;
 		}
+
 		.filterable-select-dropdown-option.filterable-select-selected {
 			font-weight: 600;
 		}
+
 		.filterable-select-match {
 			background-color: #fff2a8;
 			border-radius: 2px;
 			padding: 0 1px;
 		}
+
 		.filterable-select-dropdown-option.filterable-select-disabled {
 			color: #777;
 			cursor: default;
 			font-style: italic;
 		}
+
 		.filterable-select-native {
 			display: none !important;
 		}
+
 		.svg-editor-wrapper {
 			display: flex;
 			align-items: stretch;
 			width: 100%;
 		}
+
 		.svg-editor-textarea {
 			flex: 1 1 auto;
 			min-height: 100px;
@@ -78,6 +106,7 @@
 			resize: vertical;
 			font-size: 12px;
 		}
+
 		.svg-preview-box {
 			flex: 0 0 84px;
 			border: 1px solid #4b5563;
@@ -90,31 +119,249 @@
 			box-sizing: border-box;
 			min-height: 100px;
 		}
+
 		.svg-preview-box img {
 			max-width: 100%;
 			max-height: 100%;
 			display: block;
 		}
+
 		.svg-preview-empty {
 			font-size: 11px;
 			color: #cbd5e1;
 			text-align: center;
 			line-height: 1.2;
 		}
+
 		.display-item-highlight {
 			animation: display-item-highlight-pulse 1.4s ease-out 1;
 			outline: 2px solid #7ab7ff;
 			outline-offset: 2px;
 		}
+
+		.button-page-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 8px;
+		}
+
+		.button-page-sim-btn {
+			font-size: 18px;
+			line-height: 1;
+			padding: 4px 8px;
+		}
+
+		.button-sim-overlay {
+			position: fixed;
+			inset: 0;
+			background: rgba(0, 0, 0, 0.68);
+			display: none;
+			align-items: center;
+			justify-content: center;
+			z-index: 1200;
+		}
+
+		.button-sim-overlay.visible {
+			display: flex;
+		}
+
+		.button-sim-dialog {
+			width: min(92vw, 460px);
+			max-height: 88vh;
+			overflow: auto;
+			background: #111;
+			border-radius: 12px;
+			border: 1px solid #2a2a2a;
+			padding: 12px;
+			box-sizing: border-box;
+			color: #fff;
+		}
+
+		.button-sim-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			margin-bottom: 10px;
+		}
+
+		.button-sim-header-actions {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+		#buttonPagePopupStateToggle {
+			font-size: 13px;
+			padding: 6px 10px;
+			line-height: 1.1;
+		}
+
+		.button-sim-title {
+			font-weight: 600;
+			font-size: 15px;
+			color: #f5f5f5;
+		}
+
+		.button-sim-close {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 16px;
+			font-weight: 600;
+			padding: 0 !important;
+			width: 28px;
+			height: 28px;
+			min-width: 28px !important;
+			min-height: 28px !important;
+			line-height: 1;
+			color: #f5f5f5;
+			border-color: #3a3a3a;
+			background: #1a1a1a;
+		}
+
+		.button-sim-bar {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 20px;
+		}
+
+		.button-sim-item {
+			display: flex;
+			flex-direction: column;
+			align-items: stretch;
+			gap: 8px;
+			-webkit-appearance: none;
+			appearance: none;
+			border: 1px solid #2a2a2a;
+			border-radius: 10px;
+			padding: 1px !important;
+			background: #020202 !important;
+			color: #fff;
+			cursor: pointer;
+			box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+		}
+
+		.button-sim-item:focus {
+			outline: 2px solid #7ab7ff;
+			outline-offset: 2px;
+		}
+
+		.button-sim-shell {
+			display: grid;
+			gap: 0;
+			--button-sim-led-gap: 5px;
+			--button-sim-wall-led-width: 1px;
+			--button-sim-front-led-width: 10px;
+			--button-sim-front-led-height: 18px;
+			--button-sim-led-height: 50px;
+			--button-sim-display-extra-height: 15px;
+			align-items: stretch;
+			background: #020202 !important;
+			border-radius: 8px;
+		}
+		.button-sim-shell-left {
+			grid-template-columns: auto minmax(0, 1fr);
+		}
+		.button-sim-shell-right {
+			grid-template-columns: minmax(0, 1fr) auto;
+		}
+
+		.button-sim-leds {
+			display: flex;
+			flex-direction: row;
+			gap: var(--button-sim-led-gap) !important;
+			justify-content: flex-start;
+			align-items: stretch;
+			padding: 0;
+		}
+		.button-sim-leds-right {
+			flex-direction: row-reverse;
+		}
+
+		.button-sim-led {
+			border-radius: 2px;
+			min-height: var(--button-sim-led-height);
+			flex: 0 0 auto;
+			border: 1px solid rgba(255, 255, 255, 0.25);
+			box-sizing: border-box;
+		}
+
+		.button-sim-led-wall {
+			width: var(--button-sim-wall-led-width);
+			border-radius: 1px;
+		}
+
+		.button-sim-led-front {
+			width: var(--button-sim-front-led-width);
+			max-height: var(--button-sim-front-led-height);
+			min-height: 0px;
+			align-self: center;
+			height: var(--button-sim-front-led-height);
+			border-radius: 0;
+			background: rgba(255, 255, 255, 0.08) !important;
+			box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+		}
+
+		.button-sim-content {
+			display: flex;
+			flex-direction: column;
+			gap: 4px;
+			min-height: calc(var(--button-sim-led-height) + var(--button-sim-display-extra-height));
+			background: #020202 !important;
+			border-radius: 6px;
+		}
+
+		.button-sim-icon {
+			width: 58px;
+			height: 58px;
+			border-radius: 8px;
+			background: #000;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			align-self: center;
+		}
+
+		.button-sim-icon svg {
+			max-width: 50px;
+			max-height: 50px;
+		}
+
+		.button-sim-top {
+			font-size: 12px;
+			font-weight: 600;
+			color: #b8aa4a;
+			text-align: center;
+			line-height: 1.2;
+			min-height: 28px;
+		}
+
+		.button-sim-state-block {
+			display: flex;
+			flex-direction: column;
+			gap: 4px;
+			background: #020202 !important;
+		}
+
+		.button-sim-state-line {
+			font-size: 18px;
+			color: #ffffff;
+			text-align: center;
+			line-height: 1.2;
+			min-height: 16px;
+		}
+
 		.button-page-highlight {
 			animation: display-item-highlight-pulse 1.4s ease-out 1;
 			outline: 2px solid #7ab7ff;
 			outline-offset: 2px;
 		}
+
 		@keyframes display-item-highlight-pulse {
 			0% {
 				background-color: rgba(122, 183, 255, 0.22);
 			}
+
 			100% {
 				background-color: transparent;
 			}
@@ -144,7 +391,8 @@
 		<div id="settings" class="tabcontent">
 			<fieldset class="homey-form-fieldset">
 				<label class="homey-form-checkbox">
-					<input class="homey-form-checkbox-input" id="autoConfig" type="checkbox" value="auto" title="Enable automatic configuration" />
+					<input class="homey-form-checkbox-input" id="autoConfig" type="checkbox" value="auto"
+						title="Enable automatic configuration" />
 					<span class="homey-form-checkbox-checkmark"></span>
 					<span class="homey-form-checkbox-text"><span data-i18n="settings.autoConfig"></span></span>
 				</label>
@@ -172,7 +420,8 @@
 		<div id="diagnosticLog" class="tabcontent">
 			<fieldset class="homey-form-fieldset">
 				<label class="homey-form-checkbox">
-					<input class="homey-form-checkbox-input" id="enableLog" type="checkbox" value="auto" title="Enable diagnostic logging" />
+					<input class="homey-form-checkbox-input" id="enableLog" type="checkbox" value="auto"
+						title="Enable diagnostic logging" />
 					<span class="homey-form-checkbox-checkmark"></span>
 					<span class="homey-form-checkbox-text"><span data-i18n="settings.enableLog"></span></span>
 					<div class="tooltip"><i class="fi fi-rr-info"></i>
@@ -185,13 +434,15 @@
 							<span class="tooltiptext" data-i18n="settings.emailExplanation"></span>
 						</div>
 					</label>
-					<input class="homey-form-input" id="email" type="text" placeholder="Email address" title="Enter email address for support" />
+					<input class="homey-form-input" id="email" type="text" placeholder="Email address"
+						title="Enter email address for support" />
 					<label class="homey-form-label" for="description"><span data-i18n="settings.description"></span>
 						<div class="tooltip"><i class="fi fi-rr-info"></i>
 							<span class="tooltiptext" data-i18n="settings.descriptionExplanation"></span>
 						</div>
 					</label>
-					<input class="homey-form-input" id="description" type="text" placeholder="Problem description" title="Enter problem description" />
+					<input class="homey-form-input" id="description" type="text" placeholder="Problem description"
+						title="Enter problem description" />
 					<p></p>
 				</div>
 				<p><button class="homey-button-secondary-shadow" id="clearLog" title="Clear log"><span
@@ -202,7 +453,8 @@
 							data-i18n="settings.getListeners"></span></button>
 				</p>
 				<div class="field row">
-					<textarea id="diagLog" class="homey-form-textarea" placeholder="Diagnostic log output" title="Diagnostic log information"></textarea>
+					<textarea id="diagLog" class="homey-form-textarea" placeholder="Diagnostic log output"
+						title="Diagnostic log information"></textarea>
 				</div>
 			</fieldset>
 		</div>
@@ -211,18 +463,21 @@
 		<div id="lastSentLog" class="tabcontent">
 			<fieldset class="homey-form-fieldset">
 				<div class="field row">
-					<label class="homey-form-label no-margin-top" for="sentip" title="Sent IP address"><span data-i18n="settings.webviewip"></span>
+					<label class="homey-form-label no-margin-top" for="sentip" title="Sent IP address"><span
+							data-i18n="settings.webviewip"></span>
 					</label>
 					<select class="homey-form-select" id="sentip" title="Select sent IP address">
 					</select>
 				</div>
 				<p></p>
 				<div class="field row">
-					<button class="homey-button-secondary-shadow" id="getLog" title="Get log"><span data-i18n="settings.getLog"></span></button>
+					<button class="homey-button-secondary-shadow" id="getLog" title="Get log"><span
+							data-i18n="settings.getLog"></span></button>
 				</div>
 				<p></p>
 				<div class="field row">
-					<textarea id="sentLog" class="homey-form-textarea" placeholder="Last sent log" title="Last sent log data"></textarea>
+					<textarea id="sentLog" class="homey-form-textarea" placeholder="Last sent log"
+						title="Last sent log data"></textarea>
 				</div>
 			</fieldset>
 		</div>
@@ -232,21 +487,24 @@
 		<div id="panelConfig" class="tabcontent">
 			<div class="homey-form-group">
 				<div class="bordered-box">
-					<label class="homey-form-label" for="ButtonPanelConfigurationNo" title="Button panel configuration"><span
-							data-i18n="settings.configtoedit"></span>
+					<label class="homey-form-label" for="ButtonPanelConfigurationNo"
+						title="Button panel configuration"><span data-i18n="settings.configtoedit"></span>
 						<div class="tooltip"><i class="fi fi-rr-info"></i>
 							<span class="tooltiptext" data-i18n="settings.buttonExplanation"></span>
 						</div>
 					</label>
-					<select class="homey-form-select" id="ButtonPanelConfigurationNo" title="Select button panel configuration">
+					<select class="homey-form-select" id="ButtonPanelConfigurationNo"
+						title="Select button panel configuration">
 					</select>
 
-					<label class="homey-form-label" for="configName" title="Configuration name"><span data-i18n="settings.configName"></span>
+					<label class="homey-form-label" for="configName" title="Configuration name"><span
+							data-i18n="settings.configName"></span>
 						<div class="tooltip"><i class="fi fi-rr-info"></i>
 							<span class="tooltiptext" data-i18n="settings.configNameExplanation"></span>
 						</div>
 					</label>
-					<input class="homey-form-input" id="configName" type="text" maxlength="20" placeholder="Config name" title="Enter configuration name" />
+					<input class="homey-form-input" id="configName" type="text" maxlength="20" placeholder="Config name"
+						title="Enter configuration name" />
 
 					<div id="buttonItemsSection"></div>
 
@@ -255,10 +513,10 @@
 								data-i18n="settings.addPage"></span></button>
 					</p>
 					<p>
-						<button class="homey-button-secondary-shadow" id="copyButtonConfig" title="Copy button configuration"><span
-								data-i18n="settings.copy"></span></button>
-						<button class="homey-button-secondary-shadow" id="pasteButtonConfig" title="Paste button configuration"><span
-								data-i18n="settings.paste"></span></button>
+						<button class="homey-button-secondary-shadow" id="copyButtonConfig"
+							title="Copy button configuration"><span data-i18n="settings.copy"></span></button>
+						<button class="homey-button-secondary-shadow" id="pasteButtonConfig"
+							title="Paste button configuration"><span data-i18n="settings.paste"></span></button>
 					</p>
 				</div>
 			</div>
@@ -276,7 +534,8 @@
 								<span class="tooltiptext" data-i18n="settings.displayExplanation"></span>
 							</div>
 						</label>
-						<select class="homey-form-select" id="displayConfigurationNo" title="Select display configuration">
+						<select class="homey-form-select" id="displayConfigurationNo"
+							title="Select display configuration">
 						</select>
 
 						<label class="homey-form-label" for="displayConfigName" title="Display configuration name"><span
@@ -285,16 +544,17 @@
 								<span class="tooltiptext" data-i18n="settings.configNameExplanation"></span>
 							</div>
 						</label>
-						<input class="homey-form-input" id="displayConfigName" type="text" maxlength="20" placeholder="Config name" title="Enter display configuration name" />
+						<input class="homey-form-input" id="displayConfigName" type="text" maxlength="20"
+							placeholder="Config name" title="Enter display configuration name" />
 					</div>
 					<div id="displayItemsSection"></div>
 					<p><button class="homey-button-secondary-shadow" id="newDisplayItem" title="New display item"><span
 								data-i18n="settings.newDisplayItem"></span></button></p>
 					<p>
-						<button class="homey-button-secondary-shadow" id="copyDisplayConfig" title="Copy display configuration"><span
-								data-i18n="settings.copy"></span></button>
-						<button class="homey-button-secondary-shadow" id="pasteDisplayConfig" title="Paste display configuration"><span
-								data-i18n="settings.paste"></span></button>
+						<button class="homey-button-secondary-shadow" id="copyDisplayConfig"
+							title="Copy display configuration"><span data-i18n="settings.copy"></span></button>
+						<button class="homey-button-secondary-shadow" id="pasteDisplayConfig"
+							title="Paste display configuration"><span data-i18n="settings.paste"></span></button>
 					</p>
 				</div>
 			</div>
@@ -329,17 +589,19 @@
 		<div class="homey-form-group">
 			<div class="bordered-box">
 				<div class="field row">
-					<label class="homey-form-label" for="copyText" title="Import/Export data"><span data-i18n="settings.importExport"></span>
+					<label class="homey-form-label" for="copyText" title="Import/Export data"><span
+							data-i18n="settings.importExport"></span>
 						<div class="tooltip"><i class="fi fi-rr-info"></i>
 							<span class="tooltiptext" data-i18n="settings.importExportExplanation"></span>
 						</div>
 					</label>
-					<textarea id="copyText" class="homey-form-textarea" placeholder="Configuration data" title="Paste or view configuration data"></textarea>
+					<textarea id="copyText" class="homey-form-textarea" placeholder="Configuration data"
+						title="Paste or view configuration data"></textarea>
 					<p></p>
 				</div>
 				<div class="field row">
 					<button class="homey-button-secondary-shadow" id="import" title="Import configuration"><span
-								data-i18n="settings.import"></span></button>
+							data-i18n="settings.import"></span></button>
 					<button class="homey-button-secondary-shadow" id="export" title="Export configuration"><span
 							data-i18n="settings.export"></span></button>
 				</div>
@@ -350,7 +612,23 @@
 	<!-- Save Configuration button -->
 
 	<div id="saveBlock" class="bottomFixButtonComponent">
-		<button class="homey-button-primary-full" id="save" title="Save all settings"><span data-i18n="settings.save"></span></button>
+		<button class="homey-button-primary-full" id="save" title="Save all settings"><span
+				data-i18n="settings.save"></span></button>
+	</div>
+
+	<div id="buttonPagePopupOverlay" class="button-sim-overlay" aria-hidden="true">
+		<div class="button-sim-dialog" role="dialog" aria-modal="true" aria-labelledby="buttonPagePopupTitle">
+			<div class="button-sim-header">
+				<div class="button-sim-title" id="buttonPagePopupTitle">Button Page Preview</div>
+				<div class="button-sim-header-actions">
+					<button class="homey-button-secondary-shadow" id="buttonPagePopupStateToggle"
+						title="Toggle LED state">On</button>
+					<button class="homey-button-secondary-shadow button-sim-close" id="buttonPagePopupClose"
+						title="Close preview">&times;</button>
+				</div>
+			</div>
+			<div id="buttonPagePopupContent"></div>
+		</div>
 	</div>
 
 	<!-- Code to handle page life -->
@@ -387,6 +665,12 @@
 
 		var openWebViewElement = document.getElementById('openwebview');
 		var webViewIpElement = document.getElementById('webviewip');
+		var buttonPagePopupOverlayElement = document.getElementById('buttonPagePopupOverlay');
+		var buttonPagePopupCloseElement = document.getElementById('buttonPagePopupClose');
+		var buttonPagePopupContentElement = document.getElementById('buttonPagePopupContent');
+		var buttonPagePopupStateToggleElement = document.getElementById('buttonPagePopupStateToggle');
+		var buttonPagePopupCurrentPage = -1;
+		var buttonPagePopupLedState = 'on';
 
 		var lastSentIpElement = document.getElementById('sentip');
 		var getLogElement = document.getElementById('getLog');
@@ -504,8 +788,8 @@
 				{
 					importedSvg.setAttribute('viewBox', '0 0 13 13');
 				}
-				importedSvg.setAttribute('width', '64');
-				importedSvg.setAttribute('height', '64');
+				importedSvg.setAttribute('width', '50');
+				importedSvg.setAttribute('height', '50');
 				importedSvg.style.maxWidth = '100%';
 				importedSvg.style.maxHeight = '100%';
 			}
@@ -709,38 +993,38 @@
 
 			getLogElement.addEventListener('click', function (e)
 			{
-			if (!lastSentIpElement.value)
-			{
-				Homey.alert('Please select a device from the list');
-				return;
-			}
+				if (!lastSentIpElement.value)
+				{
+					Homey.alert('Please select a device from the list');
+					return;
+				}
 
-			Homey.api('GET', `/getLog/?ip=${lastSentIpElement.value}`, { notify: true }, function (err, result)
-			{
-				if (err)
+				Homey.api('GET', `/getLog/?ip=${lastSentIpElement.value}`, { notify: true }, function (err, result)
 				{
-					Homey.alert(err);
-				}
-				else if (result === null || result === undefined)
-				{
-					sentLogElement.value = 'No configuration data available for this device.\n\nConfiguration data is stored when you save a configuration to the device.\n\nDevice IP: ' + lastSentIpElement.value;
-				}
-				else
-				{
-					// Add the log to the log view
-					try
+					if (err)
 					{
-						// Handle both stringified JSON and objects
-						const data = typeof result === 'string' ? JSON.parse(result) : result;
-						sentLogElement.value = JSON.stringify(data, null, 2);
+						Homey.alert(err);
 					}
-					catch (parseErr)
+					else if (result === null || result === undefined)
 					{
-						// If parsing fails, just display the raw result
-						sentLogElement.value = result.toString();
+						sentLogElement.value = 'No configuration data available for this device.\n\nConfiguration data is stored when you save a configuration to the device.\n\nDevice IP: ' + lastSentIpElement.value;
 					}
-				}
-			});
+					else
+					{
+						// Add the log to the log view
+						try
+						{
+							// Handle both stringified JSON and objects
+							const data = typeof result === 'string' ? JSON.parse(result) : result;
+							sentLogElement.value = JSON.stringify(data, null, 2);
+						}
+						catch (parseErr)
+						{
+							// If parsing fails, just display the raw result
+							sentLogElement.value = result.toString();
+						}
+					}
+				});
 			});
 
 			Homey.on('com.ady.button_plus.logupdated', function (data)
@@ -1333,6 +1617,70 @@
 				window.tooltipHoverListenerBound = true;
 			}
 
+			if (buttonPagePopupCloseElement)
+			{
+				buttonPagePopupCloseElement.addEventListener('click', closeButtonPagePopup);
+			}
+
+			if (buttonPagePopupStateToggleElement)
+			{
+				buttonPagePopupStateToggleElement.addEventListener('click', function ()
+				{
+					buttonPagePopupLedState = (buttonPagePopupLedState === 'on') ? 'off' : 'on';
+					renderButtonPagePopup();
+				});
+			}
+
+			if (buttonPagePopupOverlayElement)
+			{
+				buttonPagePopupOverlayElement.addEventListener('click', function (event)
+				{
+					if (event.target === buttonPagePopupOverlayElement)
+					{
+						closeButtonPagePopup();
+					}
+				});
+			}
+
+			const refreshButtonPagePopupFromControl = function (event)
+			{
+				if (!buttonPagePopupOverlayElement || !buttonPagePopupOverlayElement.classList.contains('visible'))
+				{
+					return;
+				}
+
+				const target = event.target;
+				if (!target || !target.id)
+				{
+					return;
+				}
+
+				const match = target.id.match(/^(left|right)(\d+)(TopText|OnText|OffText|OnSVG|OffSVG|FrontLEDOnColor|WallLEDOnColor|FrontLEDOffColor|WallLEDOffColor)$/);
+				if (!match)
+				{
+					return;
+				}
+
+				const pageIndex = parseInt(match[2], 10);
+				if (pageIndex !== buttonPagePopupCurrentPage)
+				{
+					return;
+				}
+
+				renderButtonPagePopup();
+			};
+
+			document.addEventListener('input', refreshButtonPagePopupFromControl);
+			document.addEventListener('change', refreshButtonPagePopupFromControl);
+
+			document.addEventListener('keydown', function (event)
+			{
+				if (event.key === 'Escape')
+				{
+					closeButtonPagePopup();
+				}
+			});
+
 			// Tell Homey we're ready to be displayed
 			Homey.ready();
 
@@ -1785,6 +2133,181 @@
 		function onButtonLabelChange(element, side)
 		{
 			document.getElementById(`button${side}Legend`).innerHTML = `<b><em>${Homey.__(`settings.${side}Panel`)}</em></b> - ${element.value}`;
+		}
+
+		function closeButtonPagePopup()
+		{
+			if (!buttonPagePopupOverlayElement)
+			{
+				return;
+			}
+
+			buttonPagePopupOverlayElement.classList.remove('visible');
+			buttonPagePopupOverlayElement.setAttribute('aria-hidden', 'true');
+			buttonPagePopupCurrentPage = -1;
+		}
+
+		function normalizeLedColor(value, fallback)
+		{
+			const color = (value || '').toString().trim();
+			return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(color) ? color : fallback;
+		}
+
+		function getButtonPanelLedColor(pageConfig, side, ledType)
+		{
+			const suffix = (buttonPagePopupLedState === 'on') ? 'OnColor' : 'OffColor';
+			const fallback = (buttonPagePopupLedState === 'on') ? '#ffffff' : '#1f2937';
+			const colorInputId = `${side}${buttonPagePopupCurrentPage}${ledType}${suffix}`;
+			const liveInputElement = document.getElementById(colorInputId);
+			const liveColor = liveInputElement ? liveInputElement.value : undefined;
+			const configColor = pageConfig[`${side}${ledType}${suffix}`];
+			return normalizeLedColor(liveColor || configColor, fallback);
+		}
+
+		function getButtonPanelLedMarkup(pageConfig, side)
+		{
+			const wallColor = escapeHtml(getButtonPanelLedColor(pageConfig, side, 'WallLED'));
+			const frontColor = escapeHtml(getButtonPanelLedColor(pageConfig, side, 'FrontLED'));
+			const ledColorSuffix = (buttonPagePopupLedState === 'on') ? 'OnColor' : 'OffColor';
+			return `
+				<div class="button-sim-led button-sim-led-wall" title="${side} wall LED (${buttonPagePopupLedState})" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${buttonPagePopupCurrentPage}, 'WallLED${ledColorSuffix}');" style="background-color:${wallColor}; border-color:${wallColor};"></div>
+				<div class="button-sim-led button-sim-led-front" title="${side} front LED (${buttonPagePopupLedState})" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${buttonPagePopupCurrentPage}, 'FrontLED${ledColorSuffix}');" style="border-color:${frontColor}; box-shadow: 0 0 6px ${frontColor};"></div>`;
+		}
+
+		function getButtonPanelPreviewSvg(svgText)
+		{
+			if (!svgText)
+			{
+				return '';
+			}
+
+			const parserWrapper = document.createElement('div');
+			parserWrapper.innerHTML = svgText;
+			const svgElement = parserWrapper.querySelector('svg');
+			if (!svgElement)
+			{
+				return '';
+			}
+
+			return svgElement.outerHTML;
+		}
+
+		function getButtonPanelPreviewMarkup(pageConfig, side)
+		{
+			const topText = escapeHtml(pageConfig[`${side}TopText`] || Homey.__(`settings.${side}Panel`));
+			const onText = escapeHtml(pageConfig[`${side}OnText`] || Homey.__('settings.labelOn'));
+			const offText = escapeHtml(pageConfig[`${side}OffText`] || Homey.__('settings.labelOff'));
+			const stateText = (buttonPagePopupLedState === 'on') ? onText : offText;
+			const textFieldSuffix = (buttonPagePopupLedState === 'on') ? 'OnText' : 'OffText';
+			const svgFieldSuffix = (buttonPagePopupLedState === 'on') ? 'OnSVG' : 'OffSVG';
+			const selectedSvgText = (buttonPagePopupLedState === 'on') ? pageConfig[`${side}OnSVG`] : pageConfig[`${side}OffSVG`];
+			const svgMarkup = getButtonPanelPreviewSvg(selectedSvgText || '');
+			const ledMarkup = `<div class="button-sim-leds ${side === 'right' ? 'button-sim-leds-right' : ''}">${getButtonPanelLedMarkup(pageConfig, side)}</div>`;
+			const contentMarkup = svgMarkup
+				? `
+					<div class="button-sim-content">
+						<div class="button-sim-top" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${buttonPagePopupCurrentPage}, 'TopText');">${topText}</div>
+						<div class="button-sim-icon" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${buttonPagePopupCurrentPage}, '${svgFieldSuffix}');">${svgMarkup}</div>
+					</div>`
+				: `
+					<div class="button-sim-content">
+						<div class="button-sim-top" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${buttonPagePopupCurrentPage}, 'TopText');">${topText}</div>
+						<div class="button-sim-state-block">
+							<div class="button-sim-state-line" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${buttonPagePopupCurrentPage}, '${textFieldSuffix}');">${stateText}</div>
+						</div>
+					</div>`;
+
+			if (side === 'left')
+			{
+				return `
+					<div class="button-sim-shell button-sim-shell-left">
+						${ledMarkup}
+						${contentMarkup}
+					</div>`;
+			}
+
+			return `
+				<div class="button-sim-shell button-sim-shell-right">
+					${contentMarkup}
+					${ledMarkup}
+				</div>`;
+		}
+
+		function renderButtonPagePopup()
+		{
+			if (!buttonPagePopupContentElement || buttonPagePopupCurrentPage < 0)
+			{
+				return;
+			}
+
+			const config = localButtonConfigurations[currentButtonConfigurationNo];
+			if (!Array.isArray(config) || !config[buttonPagePopupCurrentPage])
+			{
+				return;
+			}
+
+			const pageConfig = config[buttonPagePopupCurrentPage];
+			buttonPagePopupContentElement.innerHTML =
+				`<div class="button-sim-bar">
+					<button class="button-sim-item" onclick="focusButtonPanelFromPopup('left', ${buttonPagePopupCurrentPage})" title="Open left panel settings">
+						${getButtonPanelPreviewMarkup(pageConfig, 'left')}
+					</button>
+					<button class="button-sim-item" onclick="focusButtonPanelFromPopup('right', ${buttonPagePopupCurrentPage})" title="Open right panel settings">
+						${getButtonPanelPreviewMarkup(pageConfig, 'right')}
+					</button>
+				</div>`;
+
+			if (buttonPagePopupStateToggleElement)
+			{
+				buttonPagePopupStateToggleElement.textContent = `${buttonPagePopupLedState === 'on' ? 'On' : 'Off'}`;
+			}
+		}
+
+		function openButtonPagePopup(page)
+		{
+			if (!buttonPagePopupOverlayElement || !buttonPagePopupContentElement)
+			{
+				return;
+			}
+
+			buttonPagePopupCurrentPage = page;
+			renderButtonPagePopup();
+
+			buttonPagePopupOverlayElement.classList.add('visible');
+			buttonPagePopupOverlayElement.setAttribute('aria-hidden', 'false');
+		}
+
+		function focusButtonPanelFromPopup(side, page)
+		{
+			focusButtonControlFromPopup(side, page, 'TopText');
+		}
+
+		function focusButtonControlFromPopup(side, page, fieldSuffix)
+		{
+			closeButtonPagePopup();
+
+			const detailElement = document.getElementById(`${side}${page}Details`);
+			if (detailElement)
+			{
+				detailElement.open = true;
+			}
+
+			const sectionElement = document.getElementById(`${side}${page}PanelSection`) || detailElement;
+			if (sectionElement)
+			{
+				scrollToTop(sectionElement);
+			}
+
+			const focusElement = document.getElementById(`${side}${page}${fieldSuffix}`)
+				|| document.getElementById(`${side}${page}TopText`)
+				|| document.getElementById(`${side}${page}Device`);
+			if (focusElement)
+			{
+				setTimeout(() =>
+				{
+					focusElement.focus();
+				}, 260);
+			}
 		}
 
 		function sortDevices(devicesArray)
@@ -2338,14 +2861,14 @@
 						{
 							notify: true
 						}, function (err, result)
+					{
+						if (err)
 						{
-							if (err)
-							{
-								return Homey.alert(err);
-							}
+							return Homey.alert(err);
+						}
 
-							diagLogElement.value = result;
-						});
+						diagLogElement.value = result;
+					});
 
 					// Make the log text area fill the page
 					diagLogElement.style.width = (emailElement.offsetWidth) + 'px';
@@ -4195,11 +4718,14 @@
 					<div class="horizontalgroup" id="${page}ButtonPageSection">
                 		<div class="horizontalcontainer">
 							<div class="horizontalgroup">
-								<label class="homey-form-label" for="${page}PageNum"><span>${ctrlLabels.page}</span>
-								<div class="tooltip"><i class="fi fi-rr-info"></i>
-									<span class="tooltiptext">${ctrlExplanations.page}</span>
+								<div class="button-page-header">
+									<label class="homey-form-label" for="${page}PageNum"><span>${ctrlLabels.page}</span>
+									<div class="tooltip"><i class="fi fi-rr-info"></i>
+										<span class="tooltiptext">${ctrlExplanations.page}</span>
+									</div>
+									</label>
+									<button class="homey-button-secondary-shadow button-page-sim-btn" onClick="openButtonPagePopup(${page}); return false;" title="Open page simulator"><i class="fi fi-rr-apps"></i></button>
 								</div>
-								</label>
 								<input class="homey-form-input" id="${page}PageNum" type=${page === 0 ? "text" : "number"} ${page === 0 ? "readonly" : ""} onchange="onButtonPageChange(this, '${page}')" />`
 
 				html += getButtonHtml("left", page);
@@ -4268,11 +4794,12 @@
                 <div class="horizontal
                 <div class="horizontalcontainer">
                     <div class="horizontalgroup">
-						<details ontoggle="this.open && scrollToTop(this)">
+						<details id="${side}${page}Details" ontoggle="this.open && scrollToTop(this)">
                             <summary class="summary">
                                 <legend class="homey-subtitle" id="button${side}${page}Legend"><b><em>><span>${ctrlLabels.panel}</span></em></b></legend><span class="icon" style='font-size:30px;'>&#8628;</span>
                             </summary >
                             <hr>
+								<div id="${side}${page}PanelSection">
 
                                 <label class="homey-form-label" for="${side}${page}Device"><span>${ctrlLabels.device}</span>
                                     <div class="tooltip"><i class="fi fi-rr-info"></i>
@@ -4408,7 +4935,8 @@
 									<textarea class="homey-form-textarea svg-editor-textarea" id="${side}${page}OffSVG" data-svg-preview-target="${side}${page}OffSVGPreview"></textarea>
 									<div class="svg-preview-box" id="${side}${page}OffSVGPreview"></div>
 								</div>
-                        </details >
+								</div>
+						</details >
                     </div >
                 </div >
             </div >`;
