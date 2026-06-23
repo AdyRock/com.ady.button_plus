@@ -71,6 +71,11 @@
 			outline: 2px solid #7ab7ff;
 			outline-offset: 2px;
 		}
+		.button-page-highlight {
+			animation: display-item-highlight-pulse 1.4s ease-out 1;
+			outline: 2px solid #7ab7ff;
+			outline-offset: 2px;
+		}
 		@keyframes display-item-highlight-pulse {
 			0% {
 				background-color: rgba(122, 183, 255, 0.22);
@@ -811,6 +816,27 @@
 				// Create and display the new page
 				writeButtonsections(buttonPanelConfiguration.length);
 				updateButtonPanelControls();
+
+				const newPageIndex = buttonPanelConfiguration.length - 1;
+				requestAnimationFrame(() =>
+				{
+					const newPageElement = document.getElementById(`${newPageIndex}ButtonPageSection`);
+					if (newPageElement)
+					{
+						const newPageDetails = newPageElement.querySelector('details');
+						if (newPageDetails)
+						{
+							newPageDetails.open = true;
+						}
+
+						scrollToTop(newPageElement);
+						newPageElement.classList.add('button-page-highlight');
+						setTimeout(() =>
+						{
+							newPageElement.classList.remove('button-page-highlight');
+						}, 1600);
+					}
+				});
 			});
 
 			copyButtonConfigElement.addEventListener('click', function (e)
@@ -4006,7 +4032,7 @@
 			for (page = 0; page < numPages; page++)
 			{
 				html += `<div class="horizontalcontainer">
-					<div class="horizontal
+					<div class="horizontalgroup" id="${page}ButtonPageSection">
                 		<div class="horizontalcontainer">
 							<div class="horizontalgroup">
 								<label class="homey-form-label" for="${page}PageNum"><span>${ctrlLabels.page}</span>
