@@ -27,7 +27,9 @@
 /* Tooltip text */
 .tooltip .tooltiptext {
     display: none;
-    width: 75vw;
+    width: min(75vw, calc(100vw - 20px));
+    max-width: calc(100vw - 20px);
+    box-sizing: border-box;
     background-color: rgb(249, 248, 236);
     color: #121010;
     text-align: left;

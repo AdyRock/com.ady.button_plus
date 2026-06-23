@@ -66,6 +66,41 @@
 		.filterable-select-native {
 			display: none !important;
 		}
+		.svg-editor-wrapper {
+			display: flex;
+			align-items: stretch;
+			width: 100%;
+		}
+		.svg-editor-textarea {
+			flex: 1 1 auto;
+			min-height: 100px;
+			font-family: monospace;
+			resize: vertical;
+			font-size: 12px;
+		}
+		.svg-preview-box {
+			flex: 0 0 84px;
+			border: 1px solid #4b5563;
+			border-radius: 8px;
+			background-color: #000;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: 6px;
+			box-sizing: border-box;
+			min-height: 100px;
+		}
+		.svg-preview-box img {
+			max-width: 100%;
+			max-height: 100%;
+			display: block;
+		}
+		.svg-preview-empty {
+			font-size: 11px;
+			color: #cbd5e1;
+			text-align: center;
+			line-height: 1.2;
+		}
 		.display-item-highlight {
 			animation: display-item-highlight-pulse 1.4s ease-out 1;
 			outline: 2px solid #7ab7ff;
@@ -402,6 +437,104 @@
 			}
 
 			return value;
+		}
+
+		function escapeHtml(value)
+		{
+			return String(value)
+				.replace(/&/g, '&amp;')
+				.replace(/</g, '&lt;')
+				.replace(/>/g, '&gt;')
+				.replace(/"/g, '&quot;')
+				.replace(/'/g, '&#39;');
+		}
+
+		function getSvgPreviewMarkup(svgText)
+		{
+			const value = (typeof svgText === 'string') ? svgText.trim() : '';
+			if (!value)
+			{
+				return '';
+			}
+
+			return value;
+		}
+
+		function updateSvgPreview(textareaElement)
+		{
+			if (!textareaElement)
+			{
+				return;
+			}
+
+			const previewId = textareaElement.dataset.svgPreviewTarget;
+			if (!previewId)
+			{
+				return;
+			}
+
+			const previewElement = document.getElementById(previewId);
+			if (!previewElement)
+			{
+				return;
+			}
+
+			const svgMarkup = getSvgPreviewMarkup(textareaElement.value);
+			if (!svgMarkup)
+			{
+				previewElement.innerHTML = '<div class="svg-preview-empty">No SVG</div>';
+				return;
+			}
+
+			try
+			{
+				previewElement.innerHTML = svgMarkup;
+				const importedSvg = previewElement.querySelector('svg');
+				if (!importedSvg)
+				{
+					previewElement.innerHTML = '<div class="svg-preview-empty">Invalid SVG</div>';
+					return;
+				}
+
+				if (!importedSvg.getAttribute('xmlns'))
+				{
+					importedSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+				}
+				if (!importedSvg.getAttribute('viewBox'))
+				{
+					importedSvg.setAttribute('viewBox', '0 0 13 13');
+				}
+				importedSvg.setAttribute('width', '64');
+				importedSvg.setAttribute('height', '64');
+				importedSvg.style.maxWidth = '100%';
+				importedSvg.style.maxHeight = '100%';
+			}
+			catch (err)
+			{
+				previewElement.innerHTML = '<div class="svg-preview-empty">Invalid SVG</div>';
+			}
+		}
+
+		function setupSvgPreviews(root = document)
+		{
+			if (!root || typeof root.querySelectorAll !== 'function')
+			{
+				return;
+			}
+
+			const textareas = Array.from(root.querySelectorAll('textarea[data-svg-preview-target]'));
+			textareas.forEach((textareaElement) =>
+			{
+				if (textareaElement.dataset.svgPreviewBound === 'true')
+				{
+					updateSvgPreview(textareaElement);
+					return;
+				}
+
+				textareaElement.addEventListener('input', () => updateSvgPreview(textareaElement));
+				textareaElement.dataset.svgPreviewBound = 'true';
+				updateSvgPreview(textareaElement);
+			});
 		}
 
 		// a method named 'onHomeyReady' must be present in your code
@@ -1179,12 +1312,26 @@
 				drawBrokerItems();
 			});
 
-			var tooltips = document.querySelectorAll(".tooltip");
-			tooltips.forEach(function (tooltip, index)
+			if (!window.tooltipHoverListenerBound)
 			{
-				// Set a mouse over function for each tooltop element
-				tooltip.addEventListener("mouseover", position_tooltip); // On hover, launch the function below
-			});
+				document.addEventListener('mouseover', function (event)
+				{
+					const tooltipTrigger = event.target.closest('.tooltip');
+					if (!tooltipTrigger)
+					{
+						return;
+					}
+
+					if (event.relatedTarget && tooltipTrigger.contains(event.relatedTarget))
+					{
+						return;
+					}
+
+					position_tooltip.call(tooltipTrigger);
+				});
+
+				window.tooltipHoverListenerBound = true;
+			}
 
 			// Tell Homey we're ready to be displayed
 			Homey.ready();
@@ -1194,29 +1341,36 @@
 
 		function position_tooltip()
 		{
-			// Get .tooltiptext sibling
-			var tooltip = this.parentNode.querySelector(".tooltiptext");
+			// Get tooltip text in the hovered tooltip trigger.
+			var tooltip = this.querySelector(".tooltiptext");
+			if (!tooltip)
+			{
+				return;
+			}
+
+			const margin = 10;
+
+			// Reset to the baseline position before re-measuring.
+			tooltip.style.left = '-100%';
 
 			// Get tooltip coordinates and size
 			var tooltip_rect = tooltip.getBoundingClientRect();
+			let correction = 0;
+			const viewportWidth = document.documentElement.clientWidth;
 
-			// Corrections if out of window
-			var maxRight = window.innerWidth - 50;
-			var tipRight = tooltip_rect.x + tooltip_rect.width;
-
-			if (tipRight > maxRight)
+			if (tooltip_rect.right > (viewportWidth - margin))
 			{
-				tipX = maxRight - tipRight;
+				correction -= (tooltip_rect.right - (viewportWidth - margin));
+			}
 
-				// Apply corrected position
-				if (tooltip.style.left === "")
-				{
-					tooltip.style.left = tipX + 'px';
-				}
-				else
-				{
-					tooltip.style.left -= tipX + 'px';
-				}
+			if ((tooltip_rect.left + correction) < margin)
+			{
+				correction += (margin - (tooltip_rect.left + correction));
+			}
+
+			if (correction !== 0)
+			{
+				tooltip.style.left = `calc(-100% + ${Math.round(correction)}px)`;
 			}
 		}
 
@@ -2048,6 +2202,7 @@
 
 			fillButtonDevices();
 			setupButtonBrokerItems();
+			setupSvgPreviews(document);
 		}
 
 		// Update the controls for the specified side and page
@@ -2364,6 +2519,8 @@
 
 				drawDisplayCustomMQTTTopics(itemNo, item.customMQTTTopics);
 			}
+
+			setupSvgPreviews(document);
 		}
 
 
@@ -2735,7 +2892,10 @@
 									<span class="tooltiptext">Raw SVG code to display as an icon/image on the display item</span>
 								</div>
 							</label>
-							<textarea class="homey-form-textarea" id="display${itemNo}SVG" style="min-height: 100px; font-family: monospace; font-size: 12px;">${item.svg || ''}</textarea>
+							<div class="svg-editor-wrapper">
+								<textarea class="homey-form-textarea svg-editor-textarea" id="display${itemNo}SVG" data-svg-preview-target="display${itemNo}SVGPreview">${escapeHtml(item.svg || '')}</textarea>
+								<div class="svg-preview-box" id="display${itemNo}SVGPreview"></div>
+							</div>
 							<br>
 							<p><button class="homey-button-secondary-shadow" id="deleteItem" onClick="deleteItem(${itemNo})" style="font-size: 30px;"><i class="fi fi-rr-trash"></i> </button></p>
 						</details>
@@ -4108,7 +4268,7 @@
                 <div class="horizontal
                 <div class="horizontalcontainer">
                     <div class="horizontalgroup">
-                        <details onclick="scrollToTop(this)">
+						<details ontoggle="this.open && scrollToTop(this)">
                             <summary class="summary">
                                 <legend class="homey-subtitle" id="button${side}${page}Legend"><b><em>><span>${ctrlLabels.panel}</span></em></b></legend><span class="icon" style='font-size:30px;'>&#8628;</span>
                             </summary >
@@ -4234,14 +4394,20 @@
                                         <span class="tooltiptext">Raw SVG code to display as an icon on the button when it is on</span>
                                     </div>
                                 </label>
-                                <textarea class="homey-form-textarea" id="${side}${page}OnSVG" style="min-height: 100px; font-family: monospace; font-size: 12px;"></textarea>
+								<div class="svg-editor-wrapper">
+									<textarea class="homey-form-textarea svg-editor-textarea" id="${side}${page}OnSVG" data-svg-preview-target="${side}${page}OnSVGPreview"></textarea>
+									<div class="svg-preview-box" id="${side}${page}OnSVGPreview"></div>
+								</div>
 
                                 <label class="homey-form-label" for="${side}${page}OffSVG">Off SVG Data
                                     <div class="tooltip"><i class="fi fi-rr-info"></i>
                                         <span class="tooltiptext">Raw SVG code to display as an icon on the button when it is off</span>
                                     </div>
                                 </label>
-                                <textarea class="homey-form-textarea" id="${side}${page}OffSVG" style="min-height: 100px; font-family: monospace; font-size: 12px;"></textarea>
+								<div class="svg-editor-wrapper">
+									<textarea class="homey-form-textarea svg-editor-textarea" id="${side}${page}OffSVG" data-svg-preview-target="${side}${page}OffSVGPreview"></textarea>
+									<div class="svg-preview-box" id="${side}${page}OffSVGPreview"></div>
+								</div>
                         </details >
                     </div >
                 </div >
