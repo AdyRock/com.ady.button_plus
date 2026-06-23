@@ -44,6 +44,11 @@ class MyApp extends Homey.App
 		this.capabilityListenerHealthSignature = null;
 		this.lastMQTTData = new Map();
 		this.pendingMQTTData = new Map();
+		this.displayRegistrationRequestedKeys = new Set();
+		this.displayRegistrationRestoredKeys = new Set();
+		this.displayRegistrationPendingKeys = new Set();
+		this.displayRegistrationSummarySignature = null;
+		this.displayRegistrationRecheckTimer = null;
 		this.dataSent = new Map();
 		this.dateTimer = null;
 		this.diagLog = '';
@@ -744,6 +749,8 @@ class MyApp extends Homey.App
 		}, 30000);
 
 		this.updateLog('MyApp has been initialized');
+		this.logDisplayRegistrationSummary(true);
+		this.scheduleDisplayRegistrationRecheck();
 	}
 
 	async syncTime()
@@ -771,6 +778,7 @@ class MyApp extends Homey.App
 		}
 
 		this.logCapabilityListenerHealth();
+		this.logDisplayRegistrationSummary();
 
 		if (this.dateTimer !== null)
 		{
@@ -812,6 +820,70 @@ class MyApp extends Homey.App
 		}
 
 		this.updateLog(`Capability listener health OK: expected=${health.expected}, active=${health.active}`, 1);
+	}
+
+	logDisplayRegistrationSummary(force = false)
+	{
+		const requested = this.displayRegistrationRequestedKeys.size;
+		const restored = this.displayRegistrationRestoredKeys.size;
+		const pending = this.displayRegistrationPendingKeys.size;
+		const signature = `${requested}|${restored}|${pending}`;
+
+		if (!force && signature === this.displayRegistrationSummarySignature)
+		{
+			return;
+		}
+
+		this.displayRegistrationSummarySignature = signature;
+		this.updateLog(`Display listener startup summary: requested=${requested}, restored=${restored}, pending=${pending}`, 0);
+	}
+
+	scheduleDisplayRegistrationRecheck(delayMs = 90000)
+	{
+		if (this.displayRegistrationRecheckTimer)
+		{
+			this.homey.clearTimeout(this.displayRegistrationRecheckTimer);
+			this.displayRegistrationRecheckTimer = null;
+		}
+
+		this.displayRegistrationRecheckTimer = this.homey.setTimeout(async () =>
+		{
+			this.displayRegistrationRecheckTimer = null;
+			this.logDisplayRegistrationSummary(true);
+
+			if (this.displayRegistrationPendingKeys.size > 0)
+			{
+				this.updateLog(`Display listener startup recheck: retrying pending registrations (${this.displayRegistrationPendingKeys.size})`, 0);
+				await this.retryPendingDisplayRegistrations();
+				this.logDisplayRegistrationSummary(true);
+				if (this.displayRegistrationPendingKeys.size > 0)
+				{
+					this.scheduleDisplayRegistrationRecheck(delayMs);
+				}
+			}
+		}, delayMs);
+	}
+
+	async retryPendingDisplayRegistrations()
+	{
+		const pendingKeys = Array.from(this.displayRegistrationPendingKeys);
+		for (const pendingKey of pendingKeys)
+		{
+			const separatorIndex = pendingKey.indexOf('::');
+			if (separatorIndex < 0)
+			{
+				continue;
+			}
+
+			const deviceId = pendingKey.slice(0, separatorIndex);
+			const capabilityId = pendingKey.slice(separatorIndex + 2);
+			if (!deviceId || !capabilityId)
+			{
+				continue;
+			}
+
+			await this.registerDeviceCapabilityStateChange(deviceId, capabilityId, 'display');
+		}
 	}
 
 	updateTime()
@@ -1150,6 +1222,12 @@ class MyApp extends Homey.App
 				}
 				else if (item.device !== 'none')
 				{
+					const sourceDeviceId = homeyDeviceObject ? homeyDeviceObject.id : item.device;
+					this.registerDeviceCapabilityStateChange(sourceDeviceId, item.capability, 'display').catch((err) =>
+					{
+						this.updateLog(`applyDisplayConfiguration register retry setup failed: device=${sourceDeviceId}, capability=${item.capability}, error=${err.message}`, 0);
+					});
+
 					try
 					{
 						if (homeyDeviceObject)
@@ -1176,8 +1254,6 @@ class MyApp extends Homey.App
 									message: valueTopic,
 									value: routedValue.textValue,
 								});
-
-								this.registerDeviceCapabilityStateChange(homeyDeviceObject ? homeyDeviceObject.id : item.device, item.capability);
 							}
 						}
 					}
@@ -2544,10 +2620,16 @@ class MyApp extends Homey.App
 	}
 
 	// Register a device so we receive state change events that are posted to the MQTT server
-	async registerDeviceCapabilityStateChange(device, capabilityId)
+	async registerDeviceCapabilityStateChange(device, capabilityId, source = 'general')
 	{
 		const deviceId = (typeof device === 'string') ? device : (device && device.id ? device.id : 'unknown');
 		this.updateLog(`registerDeviceCapabilityStateChange request: device=${deviceId}, capability=${capabilityId}`);
+
+		const retryKey = `${deviceId}::${capabilityId}`;
+		if (source === 'display')
+		{
+			this.displayRegistrationRequestedKeys.add(retryKey);
+		}
 
 		let registered = false;
 		try
@@ -2559,7 +2641,6 @@ class MyApp extends Homey.App
 			this.updateLog(`registerDeviceCapabilityStateChange: ${err.message}`, 0);
 		}
 
-		const retryKey = `${deviceId}::${capabilityId}`;
 		if (registered)
 		{
 			const retryTimer = this.capabilityListenerRetryTimers.get(retryKey);
@@ -2568,7 +2649,20 @@ class MyApp extends Homey.App
 				this.homey.clearTimeout(retryTimer);
 				this.capabilityListenerRetryTimers.delete(retryKey);
 			}
+
+			if (source === 'display')
+			{
+				this.displayRegistrationRestoredKeys.add(retryKey);
+				this.displayRegistrationPendingKeys.delete(retryKey);
+				this.logDisplayRegistrationSummary();
+			}
 			return true;
+		}
+
+		if (source === 'display')
+		{
+			this.displayRegistrationPendingKeys.add(retryKey);
+			this.logDisplayRegistrationSummary();
 		}
 
 		if (!this.capabilityListenerRetryTimers.has(retryKey))
@@ -2576,7 +2670,7 @@ class MyApp extends Homey.App
 			const retryTimer = this.homey.setTimeout(() =>
 			{
 				this.capabilityListenerRetryTimers.delete(retryKey);
-				this.registerDeviceCapabilityStateChange(deviceId, capabilityId).catch((err) =>
+				this.registerDeviceCapabilityStateChange(deviceId, capabilityId, source).catch((err) =>
 				{
 					this.updateLog(`registerDeviceCapabilityStateChange retry failed: ${err.message}`, 0);
 				});
