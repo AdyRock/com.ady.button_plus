@@ -154,16 +154,22 @@
 
 		.button-sim-overlay {
 			position: fixed;
-			inset: 0;
-			background: rgba(0, 0, 0, 0.68);
+			top: 8px;
+			left: 0;
+			right: 0;
+			background: transparent;
 			display: none;
-			align-items: center;
+			align-items: flex-start;
 			justify-content: center;
+			pointer-events: none;
 			z-index: 1200;
 		}
 
 		.button-sim-overlay.visible {
 			display: flex;
+		}
+		.sim-panel-open .main {
+			padding-top: var(--button-sim-scroll-offset, 0px);
 		}
 
 		.button-sim-dialog {
@@ -176,6 +182,8 @@
 			padding: 12px;
 			box-sizing: border-box;
 			color: #fff;
+			pointer-events: auto;
+			box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
 		}
 
 		.button-sim-header {
@@ -183,6 +191,27 @@
 			align-items: center;
 			justify-content: space-between;
 			margin-bottom: 10px;
+		}
+		.button-sim-title-group {
+			display: flex;
+			align-items: center;
+			gap: 6px;
+		}
+		.button-sim-page-nav {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 14px;
+			font-weight: 700;
+			padding: 0 !important;
+			width: 24px;
+			height: 24px;
+			min-width: 24px !important;
+			min-height: 24px !important;
+			line-height: 1;
+		}
+		.button-sim-page-nav:disabled {
+			opacity: 0.45;
 		}
 
 		.button-sim-header-actions {
@@ -305,15 +334,18 @@
 		.button-sim-content {
 			display: flex;
 			flex-direction: column;
-			gap: 4px;
+			gap: 2px;
 			min-height: calc(var(--button-sim-led-height) + var(--button-sim-display-extra-height));
 			background: #020202 !important;
 			border-radius: 6px;
 		}
+		.button-sim-content-svg {
+			gap: 1px;
+		}
 
 		.button-sim-icon {
-			width: 58px;
-			height: 58px;
+			width: 52px;
+			height: 52px;
 			border-radius: 8px;
 			background: #000;
 			display: flex;
@@ -323,8 +355,8 @@
 		}
 
 		.button-sim-icon svg {
-			max-width: 50px;
-			max-height: 50px;
+			max-width: 44px;
+			max-height: 44px;
 		}
 
 		.button-sim-top {
@@ -334,6 +366,11 @@
 			text-align: center;
 			line-height: 1.2;
 			min-height: 28px;
+		}
+		.button-sim-content-svg .button-sim-top {
+			line-height: 1.05;
+			min-height: 13px;
+			margin-bottom: 0;
 		}
 
 		.button-sim-state-block {
@@ -619,7 +656,11 @@
 	<div id="buttonPagePopupOverlay" class="button-sim-overlay" aria-hidden="true">
 		<div class="button-sim-dialog" role="dialog" aria-modal="true" aria-labelledby="buttonPagePopupTitle">
 			<div class="button-sim-header">
-				<div class="button-sim-title" id="buttonPagePopupTitle">Button Page Preview</div>
+				<div class="button-sim-title-group">
+					<button class="homey-button-secondary-shadow button-sim-page-nav" id="buttonPagePopupPrev" title="Previous page" aria-label="Previous page">&lt;</button>
+					<div class="button-sim-title" id="buttonPagePopupTitle">Page 1</div>
+					<button class="homey-button-secondary-shadow button-sim-page-nav" id="buttonPagePopupNext" title="Next page" aria-label="Next page">&gt;</button>
+				</div>
 				<div class="button-sim-header-actions">
 					<button class="homey-button-secondary-shadow" id="buttonPagePopupStateToggle"
 						title="Toggle LED state">On</button>
@@ -667,6 +708,9 @@
 		var webViewIpElement = document.getElementById('webviewip');
 		var buttonPagePopupOverlayElement = document.getElementById('buttonPagePopupOverlay');
 		var buttonPagePopupCloseElement = document.getElementById('buttonPagePopupClose');
+		var buttonPagePopupPrevElement = document.getElementById('buttonPagePopupPrev');
+		var buttonPagePopupNextElement = document.getElementById('buttonPagePopupNext');
+		var buttonPagePopupTitleElement = document.getElementById('buttonPagePopupTitle');
 		var buttonPagePopupContentElement = document.getElementById('buttonPagePopupContent');
 		var buttonPagePopupStateToggleElement = document.getElementById('buttonPagePopupStateToggle');
 		var buttonPagePopupCurrentPage = -1;
@@ -1631,14 +1675,19 @@
 				});
 			}
 
-			if (buttonPagePopupOverlayElement)
+			if (buttonPagePopupPrevElement)
 			{
-				buttonPagePopupOverlayElement.addEventListener('click', function (event)
+				buttonPagePopupPrevElement.addEventListener('click', function ()
 				{
-					if (event.target === buttonPagePopupOverlayElement)
-					{
-						closeButtonPagePopup();
-					}
+					stepButtonPagePopup(-1);
+				});
+			}
+
+			if (buttonPagePopupNextElement)
+			{
+				buttonPagePopupNextElement.addEventListener('click', function ()
+				{
+					stepButtonPagePopup(1);
 				});
 			}
 
@@ -1655,6 +1704,18 @@
 					return;
 				}
 
+				const pageNumMatch = target.id.match(/^(\d+)PageNum$/);
+				if (pageNumMatch)
+				{
+					const pageIndex = parseInt(pageNumMatch[1], 10);
+					if (!Number.isNaN(pageIndex) && pageIndex !== buttonPagePopupCurrentPage)
+					{
+						buttonPagePopupCurrentPage = pageIndex;
+					}
+					renderButtonPagePopup();
+					return;
+				}
+
 				const match = target.id.match(/^(left|right)(\d+)(TopText|OnText|OffText|OnSVG|OffSVG|FrontLEDOnColor|WallLEDOnColor|FrontLEDOffColor|WallLEDOffColor)$/);
 				if (!match)
 				{
@@ -1662,9 +1723,19 @@
 				}
 
 				const pageIndex = parseInt(match[2], 10);
+				const fieldSuffix = match[3];
+				if (/On(Text|SVG)|OnColor$/.test(fieldSuffix))
+				{
+					buttonPagePopupLedState = 'on';
+				}
+				else if (/Off(Text|SVG)|OffColor$/.test(fieldSuffix))
+				{
+					buttonPagePopupLedState = 'off';
+				}
+
 				if (pageIndex !== buttonPagePopupCurrentPage)
 				{
-					return;
+					buttonPagePopupCurrentPage = pageIndex;
 				}
 
 				renderButtonPagePopup();
@@ -1672,6 +1743,56 @@
 
 			document.addEventListener('input', refreshButtonPagePopupFromControl);
 			document.addEventListener('change', refreshButtonPagePopupFromControl);
+
+			document.addEventListener('focusin', function (event)
+			{
+				if (!buttonPagePopupOverlayElement || !buttonPagePopupOverlayElement.classList.contains('visible'))
+				{
+					return;
+				}
+
+				const target = event.target;
+				if (!target || !target.id)
+				{
+					return;
+				}
+
+				const pageNumMatch = target.id.match(/^(\d+)PageNum$/);
+				if (pageNumMatch)
+				{
+					const pageIndex = parseInt(pageNumMatch[1], 10);
+					if (!Number.isNaN(pageIndex) && pageIndex !== buttonPagePopupCurrentPage)
+					{
+						buttonPagePopupCurrentPage = pageIndex;
+					}
+					renderButtonPagePopup();
+					return;
+				}
+
+				const match = target.id.match(/^(left|right)(\d+)(TopText|OnText|OffText|OnSVG|OffSVG|FrontLEDOnColor|WallLEDOnColor|FrontLEDOffColor|WallLEDOffColor)$/);
+				if (!match)
+				{
+					return;
+				}
+
+				const pageIndex = parseInt(match[2], 10);
+				const fieldSuffix = match[3];
+				if (/On(Text|SVG)|OnColor$/.test(fieldSuffix))
+				{
+					buttonPagePopupLedState = 'on';
+				}
+				else if (/Off(Text|SVG)|OffColor$/.test(fieldSuffix))
+				{
+					buttonPagePopupLedState = 'off';
+				}
+
+				if (pageIndex !== buttonPagePopupCurrentPage)
+				{
+					buttonPagePopupCurrentPage = pageIndex;
+				}
+
+				renderButtonPagePopup();
+			});
 
 			document.addEventListener('keydown', function (event)
 			{
@@ -2144,7 +2265,27 @@
 
 			buttonPagePopupOverlayElement.classList.remove('visible');
 			buttonPagePopupOverlayElement.setAttribute('aria-hidden', 'true');
+			document.body.classList.remove('sim-panel-open');
+			document.documentElement.style.setProperty('--button-sim-scroll-offset', '0px');
 			buttonPagePopupCurrentPage = -1;
+		}
+
+		function updateButtonPagePopupScrollOffset()
+		{
+			if (!buttonPagePopupOverlayElement || !buttonPagePopupOverlayElement.classList.contains('visible'))
+			{
+				document.body.classList.remove('sim-panel-open');
+				document.documentElement.style.setProperty('--button-sim-scroll-offset', '0px');
+				return;
+			}
+
+			const fixedTopElement = document.querySelector('.fixedTop');
+			const fixedTopHeight = fixedTopElement ? fixedTopElement.offsetHeight : 0;
+			const simDialogElement = document.querySelector('.button-sim-overlay.visible .button-sim-dialog');
+			const simBottom = simDialogElement ? Math.max(0, simDialogElement.getBoundingClientRect().bottom) : 0;
+			const requiredOffset = Math.max(0, Math.round(simBottom - fixedTopHeight + 8));
+			document.documentElement.style.setProperty('--button-sim-scroll-offset', `${requiredOffset}px`);
+			document.body.classList.add('sim-panel-open');
 		}
 
 		function normalizeLedColor(value, fallback)
@@ -2192,20 +2333,38 @@
 			return svgElement.outerHTML;
 		}
 
+		function getLiveButtonPanelFieldValue(pageConfig, side, fieldSuffix, fallback = '')
+		{
+			const fieldId = `${side}${buttonPagePopupCurrentPage}${fieldSuffix}`;
+			const liveElement = document.getElementById(fieldId);
+			if (liveElement && typeof liveElement.value === 'string')
+			{
+				return liveElement.value;
+			}
+
+			const configValue = pageConfig[`${side}${fieldSuffix}`];
+			if (configValue !== undefined && configValue !== null && configValue !== '')
+			{
+				return configValue;
+			}
+
+			return fallback;
+		}
+
 		function getButtonPanelPreviewMarkup(pageConfig, side)
 		{
-			const topText = escapeHtml(pageConfig[`${side}TopText`] || Homey.__(`settings.${side}Panel`));
-			const onText = escapeHtml(pageConfig[`${side}OnText`] || Homey.__('settings.labelOn'));
-			const offText = escapeHtml(pageConfig[`${side}OffText`] || Homey.__('settings.labelOff'));
+			const topText = escapeHtml(getLiveButtonPanelFieldValue(pageConfig, side, 'TopText', Homey.__(`settings.${side}Panel`)));
+			const onText = escapeHtml(getLiveButtonPanelFieldValue(pageConfig, side, 'OnText', Homey.__('settings.labelOn')));
+			const offText = escapeHtml(getLiveButtonPanelFieldValue(pageConfig, side, 'OffText', Homey.__('settings.labelOff')));
 			const stateText = (buttonPagePopupLedState === 'on') ? onText : offText;
 			const textFieldSuffix = (buttonPagePopupLedState === 'on') ? 'OnText' : 'OffText';
 			const svgFieldSuffix = (buttonPagePopupLedState === 'on') ? 'OnSVG' : 'OffSVG';
-			const selectedSvgText = (buttonPagePopupLedState === 'on') ? pageConfig[`${side}OnSVG`] : pageConfig[`${side}OffSVG`];
+			const selectedSvgText = getLiveButtonPanelFieldValue(pageConfig, side, svgFieldSuffix, '');
 			const svgMarkup = getButtonPanelPreviewSvg(selectedSvgText || '');
 			const ledMarkup = `<div class="button-sim-leds ${side === 'right' ? 'button-sim-leds-right' : ''}">${getButtonPanelLedMarkup(pageConfig, side)}</div>`;
 			const contentMarkup = svgMarkup
 				? `
-					<div class="button-sim-content">
+					<div class="button-sim-content button-sim-content-svg">
 						<div class="button-sim-top" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${buttonPagePopupCurrentPage}, 'TopText');">${topText}</div>
 						<div class="button-sim-icon" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${buttonPagePopupCurrentPage}, '${svgFieldSuffix}');">${svgMarkup}</div>
 					</div>`
@@ -2241,7 +2400,13 @@
 			}
 
 			const config = localButtonConfigurations[currentButtonConfigurationNo];
-			if (!Array.isArray(config) || !config[buttonPagePopupCurrentPage])
+			if (!Array.isArray(config) || config.length === 0)
+			{
+				return;
+			}
+
+			buttonPagePopupCurrentPage = Math.max(0, Math.min(buttonPagePopupCurrentPage, config.length - 1));
+			if (!config[buttonPagePopupCurrentPage])
 			{
 				return;
 			}
@@ -2261,6 +2426,23 @@
 			{
 				buttonPagePopupStateToggleElement.textContent = `${buttonPagePopupLedState === 'on' ? 'On' : 'Off'}`;
 			}
+
+			if (buttonPagePopupTitleElement)
+			{
+				buttonPagePopupTitleElement.textContent = `Page ${buttonPagePopupCurrentPage}`;
+			}
+
+			if (buttonPagePopupPrevElement)
+			{
+				buttonPagePopupPrevElement.disabled = (buttonPagePopupCurrentPage <= 0);
+			}
+
+			if (buttonPagePopupNextElement)
+			{
+				buttonPagePopupNextElement.disabled = (buttonPagePopupCurrentPage >= (config.length - 1));
+			}
+
+			updateButtonPagePopupScrollOffset();
 		}
 
 		function openButtonPagePopup(page)
@@ -2270,11 +2452,74 @@
 				return;
 			}
 
-			buttonPagePopupCurrentPage = page;
-			renderButtonPagePopup();
+			const config = localButtonConfigurations[currentButtonConfigurationNo];
+			if (!Array.isArray(config) || config.length === 0)
+			{
+				return;
+			}
 
+			buttonPagePopupCurrentPage = Math.max(0, Math.min(page, config.length - 1));
 			buttonPagePopupOverlayElement.classList.add('visible');
 			buttonPagePopupOverlayElement.setAttribute('aria-hidden', 'false');
+			renderButtonPagePopup();
+		}
+
+		function stepButtonPagePopup(delta)
+		{
+			const config = localButtonConfigurations[currentButtonConfigurationNo];
+			if (!Array.isArray(config) || config.length === 0 || buttonPagePopupCurrentPage < 0)
+			{
+				return;
+			}
+
+			buttonPagePopupCurrentPage = Math.max(0, Math.min(buttonPagePopupCurrentPage + delta, config.length - 1));
+			renderButtonPagePopup();
+			focusButtonPageSectionFromPopup(buttonPagePopupCurrentPage);
+		}
+
+		function focusButtonPageSectionFromPopup(page)
+		{
+			if (configTypeElement && configTypeElement.value !== 'panelConfig')
+			{
+				configTypeElement.value = 'panelConfig';
+				configTypeChanged('panelConfig');
+			}
+
+			requestAnimationFrame(() =>
+			{
+				const pageSectionElement = document.getElementById(`${page}ButtonPageSection`);
+				if (pageSectionElement)
+				{
+					const fixedTopElement = document.querySelector('.fixedTop');
+					const fixedTopHeight = fixedTopElement ? fixedTopElement.offsetHeight : 0;
+					const simDialogElement = document.querySelector('.button-sim-overlay.visible .button-sim-dialog');
+					const simBottom = simDialogElement ? Math.max(0, simDialogElement.getBoundingClientRect().bottom) : 0;
+					const targetViewportTop = Math.max(fixedTopHeight + 8, simBottom + 6);
+					const targetTop = Math.max(0, pageSectionElement.getBoundingClientRect().top + window.scrollY - targetViewportTop);
+					window.scrollTo({ top: targetTop, behavior: 'smooth' });
+					pageSectionElement.classList.add('button-page-highlight');
+					setTimeout(() =>
+					{
+						pageSectionElement.classList.remove('button-page-highlight');
+					}, 1400);
+				}
+
+				const pageNumElement = document.getElementById(`${page}PageNum`);
+				if (pageNumElement)
+				{
+					if (typeof pageNumElement.focus === 'function')
+					{
+						try
+						{
+							pageNumElement.focus({ preventScroll: true });
+						}
+						catch (focusError)
+						{
+							pageNumElement.focus();
+						}
+					}
+				}
+			});
 		}
 
 		function focusButtonPanelFromPopup(side, page)
@@ -2284,8 +2529,6 @@
 
 		function focusButtonControlFromPopup(side, page, fieldSuffix)
 		{
-			closeButtonPagePopup();
-
 			const detailElement = document.getElementById(`${side}${page}Details`);
 			if (detailElement)
 			{
