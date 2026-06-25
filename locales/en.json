@@ -186,5 +186,5 @@
     "button": "Button bar",
     "hello1": "Homey says hello",
     "hello2": "Open the Button+ Homey app settings to setup configurations",
-    "hello3": "Then use the Button+ Homey device to assign configurations"
+    "hello3": "Then use the Button+ Homey device to assign configurations to the physical buttons and displays"
 }

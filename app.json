@@ -67,6 +67,11 @@
       "path": "/device_capabilities",
       "public": false
     },
+    "getDeviceCapabilityValue": {
+      "method": "post",
+      "path": "/device_capability_value",
+      "public": false
+    },
     "getZones": {
       "method": "get",
       "path": "/zones",
@@ -4059,6 +4064,17 @@
         "nl": "Linker knop"
       },
       "icon": "/assets/left_arrow.svg"
+    },
+    "measure_memory": {
+      "type": "number",
+      "title": {
+        "en": "Free memory",
+        "nl": "Vrij geheugen"
+      },
+      "units": "kB",
+      "getable": true,
+      "setable": false,
+      "icon": "/assets/ram.svg"
     },
     "next_page_button": {
       "type": "boolean",

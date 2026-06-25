@@ -66,6 +66,11 @@
 			"path": "/device_capabilities",
 			"public": false
 		},
+		"getDeviceCapabilityValue": {
+			"method": "post",
+			"path": "/device_capability_value",
+			"public": false
+		},
 		"getZones": {
 			"method": "get",
 			"path": "/zones",

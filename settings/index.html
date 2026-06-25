@@ -170,12 +170,15 @@
 			<div class="homey-form-group">
 				<div class="bordered-box">
 					<div class="bordered-box">
-						<label class="homey-form-label" for="displayConfigurationNo" title="Display configuration"><span
-								data-i18n="settings.configtoedit"></span>
-							<div class="tooltip"><i class="fi fi-rr-info"></i>
-								<span class="tooltiptext" data-i18n="settings.displayExplanation"></span>
-							</div>
-						</label>
+						<div class="display-page-header">
+							<label class="homey-form-label" for="displayConfigurationNo" title="Display configuration"><span
+									data-i18n="settings.configtoedit"></span>
+								<div class="tooltip"><i class="fi fi-rr-info"></i>
+									<span class="tooltiptext" data-i18n="settings.displayExplanation"></span>
+								</div>
+							</label>
+							<button class="homey-button-secondary-shadow button-page-sim-btn" id="displayPageSimOpen" title="Open display simulator"><i class="fi fi-rr-apps"></i></button>
+						</div>
 						<select class="homey-form-select" id="displayConfigurationNo"
 							title="Select display configuration">
 						</select>
@@ -274,6 +277,22 @@
 				</div>
 			</div>
 			<div id="buttonPagePopupContent"></div>
+		</div>
+	</div>
+
+	<div id="displayPagePopupOverlay" class="display-sim-overlay" aria-hidden="true">
+		<div class="display-sim-dialog" role="dialog" aria-modal="true" aria-labelledby="displayPagePopupTitle">
+			<div class="display-sim-header">
+				<div class="display-sim-title-group">
+					<button class="homey-button-secondary-shadow display-sim-page-nav" id="displayPagePopupPrev" title="Previous display page" aria-label="Previous display page">&lt;</button>
+					<div class="display-sim-title" id="displayPagePopupTitle">Page 0</div>
+					<button class="homey-button-secondary-shadow display-sim-page-nav" id="displayPagePopupNext" title="Next display page" aria-label="Next display page">&gt;</button>
+				</div>
+				<div class="display-sim-header-actions">
+					<button class="homey-button-secondary-shadow button-sim-close" id="displayPagePopupClose" title="Close display simulator">&times;</button>
+				</div>
+			</div>
+			<div class="display-sim-surface" id="displayPagePopupSurface"></div>
 		</div>
 	</div>
 

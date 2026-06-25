@@ -38,6 +38,20 @@
 		var buttonPagePopupStateToggleElement = document.getElementById('buttonPagePopupStateToggle');
 		var buttonPagePopupCurrentPage = -1;
 		var buttonPagePopupLedState = 'on';
+		var displayPagePopupOpenElement = document.getElementById('displayPageSimOpen');
+		var displayPagePopupOverlayElement = document.getElementById('displayPagePopupOverlay');
+		var displayPagePopupCloseElement = document.getElementById('displayPagePopupClose');
+		var displayPagePopupPrevElement = document.getElementById('displayPagePopupPrev');
+		var displayPagePopupNextElement = document.getElementById('displayPagePopupNext');
+		var displayPagePopupTitleElement = document.getElementById('displayPagePopupTitle');
+		var displayPagePopupSurfaceElement = document.getElementById('displayPagePopupSurface');
+		var displayPagePopupCurrentPage = 0;
+		const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
+		const DISPLAY_SIM_LIVE_REFRESH_MS = 12000;
+		var displayPagePopupLiveValueCache = new Map();
+		var displayPagePopupVariableValueCache = new Map();
+		var displayPagePopupVariableValueFetchedAt = 0;
+		var displayPagePopupLiveRefreshTimer = null;
 
 		var lastSentIpElement = document.getElementById('sentip');
 		var getLogElement = document.getElementById('getLog');
@@ -104,6 +118,12 @@
 		{
 			const value = (typeof svgText === 'string') ? svgText.trim() : '';
 			if (!value)
+			{
+				return '';
+			}
+
+			// Only treat real SVG markup as SVG; plain text like "19:49" must remain text.
+			if (!/^<svg[\s>]/i.test(value))
 			{
 				return '';
 			}
@@ -1014,6 +1034,35 @@
 				});
 			}
 
+			if (displayPagePopupOpenElement)
+			{
+				displayPagePopupOpenElement.addEventListener('click', function ()
+				{
+					openDisplayPagePopup(displayPagePopupCurrentPage);
+				});
+			}
+
+			if (displayPagePopupCloseElement)
+			{
+				displayPagePopupCloseElement.addEventListener('click', closeDisplayPagePopup);
+			}
+
+			if (displayPagePopupPrevElement)
+			{
+				displayPagePopupPrevElement.addEventListener('click', function ()
+				{
+					stepDisplayPagePopup(-1);
+				});
+			}
+
+			if (displayPagePopupNextElement)
+			{
+				displayPagePopupNextElement.addEventListener('click', function ()
+				{
+					stepDisplayPagePopup(1);
+				});
+			}
+
 			const refreshButtonPagePopupFromControl = function (event)
 			{
 				const target = event.target;
@@ -1067,8 +1116,52 @@
 				renderButtonPagePopup();
 			};
 
+			const refreshDisplayPagePopupFromControl = function (event)
+			{
+				const target = event.target;
+				if (!target || !target.id)
+				{
+					return;
+				}
+
+				if (!displayPagePopupOverlayElement || !displayPagePopupOverlayElement.classList.contains('visible'))
+				{
+					return;
+				}
+
+				if (target.id === 'displayConfigurationNo')
+				{
+					renderDisplayPagePopup();
+					return;
+				}
+
+				const match = target.id.match(/^display(\d+)(Label|Text|X|Y|Width|FontSize|BoxType|SVG|page|Device|Capability|Unit|Rounding)$/);
+				if (!match)
+				{
+					return;
+				}
+
+				if (match[2] === 'page')
+				{
+					const pageValue = parseInt(target.value, 10);
+					if (!Number.isNaN(pageValue) && pageValue >= 0)
+					{
+						displayPagePopupCurrentPage = pageValue;
+					}
+				}
+
+				renderDisplayPagePopup();
+
+				if (match[2] === 'Device' || match[2] === 'Capability' || match[2] === 'Unit' || match[2] === 'Rounding' || match[2] === 'page')
+				{
+					refreshDisplayPopupLiveValues();
+				}
+			};
+
 			document.addEventListener('input', refreshButtonPagePopupFromControl);
 			document.addEventListener('change', refreshButtonPagePopupFromControl);
+			document.addEventListener('input', refreshDisplayPagePopupFromControl);
+			document.addEventListener('change', refreshDisplayPagePopupFromControl);
 
 			document.addEventListener('focusin', function (event)
 			{
@@ -1128,6 +1221,7 @@
 				if (event.key === 'Escape')
 				{
 					closeButtonPagePopup();
+					closeDisplayPagePopup();
 				}
 			});
 
@@ -1898,6 +1992,527 @@
 			}
 		}
 
+		function closeDisplayPagePopup()
+		{
+			if (!displayPagePopupOverlayElement)
+			{
+				return;
+			}
+
+			if (displayPagePopupLiveRefreshTimer)
+			{
+				clearInterval(displayPagePopupLiveRefreshTimer);
+				displayPagePopupLiveRefreshTimer = null;
+			}
+
+			displayPagePopupOverlayElement.classList.remove('visible');
+			displayPagePopupOverlayElement.setAttribute('aria-hidden', 'true');
+			if (!buttonPagePopupOverlayElement || !buttonPagePopupOverlayElement.classList.contains('visible'))
+			{
+				document.body.classList.remove('sim-panel-open');
+				document.documentElement.style.setProperty('--button-sim-scroll-offset', '0px');
+			}
+		}
+
+		function updateDisplayPagePopupScrollOffset()
+		{
+			if (!displayPagePopupOverlayElement || !displayPagePopupOverlayElement.classList.contains('visible'))
+			{
+				if (!buttonPagePopupOverlayElement || !buttonPagePopupOverlayElement.classList.contains('visible'))
+				{
+					document.body.classList.remove('sim-panel-open');
+					document.documentElement.style.setProperty('--button-sim-scroll-offset', '0px');
+				}
+				return;
+			}
+
+			const fixedTopElement = document.querySelector('.fixedTop');
+			const fixedTopHeight = fixedTopElement ? fixedTopElement.offsetHeight : 0;
+			const simDialogElement = document.querySelector('.display-sim-overlay.visible .display-sim-dialog');
+			const simBottom = simDialogElement ? Math.max(0, simDialogElement.getBoundingClientRect().bottom) : 0;
+			const requiredOffset = Math.max(0, Math.round(simBottom - fixedTopHeight + 8));
+			document.documentElement.style.setProperty('--button-sim-scroll-offset', `${requiredOffset}px`);
+			document.body.classList.add('sim-panel-open');
+		}
+
+		function getDisplayPopupPages(displayConfiguration)
+		{
+			const pages = new Set();
+			if (!displayConfiguration || !Array.isArray(displayConfiguration.items))
+			{
+				return [0];
+			}
+
+			for (const item of displayConfiguration.items)
+			{
+				const pageValue = parseInt(item.page, 10);
+				if (!Number.isNaN(pageValue) && pageValue >= 0)
+				{
+					pages.add(pageValue);
+				}
+			}
+
+			if (!pages.size)
+			{
+				return [0];
+			}
+
+			return Array.from(pages).sort((a, b) => a - b);
+		}
+
+		function getDisplayPopupFieldValue(item, itemNo, suffix, fallback = '')
+		{
+			const allowEmptyFieldValue = (suffix === 'Label' || suffix === 'Text' || suffix === 'Unit' || suffix === 'SVG');
+			const fieldElement = document.getElementById(`display${itemNo}${suffix}`);
+			if (fieldElement && typeof fieldElement.value === 'string')
+			{
+				const rawValue = fieldElement.value;
+				if (rawValue === '')
+				{
+					return allowEmptyFieldValue ? '' : fallback;
+				}
+
+				if (rawValue === 'undefined' || rawValue === 'null')
+				{
+					return fallback;
+				}
+				return rawValue;
+			}
+
+			if (item && item[suffix.charAt(0).toLowerCase() + suffix.slice(1)] !== undefined)
+			{
+				const itemValue = item[suffix.charAt(0).toLowerCase() + suffix.slice(1)];
+				if (itemValue === '' || itemValue === 'undefined' || itemValue === 'null' || itemValue === undefined || itemValue === null)
+				{
+					return fallback;
+				}
+				return itemValue;
+			}
+
+			return fallback;
+		}
+
+		function sanitizeDisplayString(value, fallback = '')
+		{
+			if (value === undefined || value === null)
+			{
+				return fallback;
+			}
+
+			const trimmed = String(value).trim();
+			if (trimmed === '' || trimmed.toLowerCase() === 'undefined' || trimmed.toLowerCase() === 'null')
+			{
+				return fallback;
+			}
+
+			return String(value);
+		}
+
+		function humanizeDisplayCapabilityLabel(capabilityId)
+		{
+			const raw = sanitizeDisplayString(capabilityId, '').toLowerCase();
+			if (!raw)
+			{
+				return '';
+			}
+
+			if (raw.includes('time'))
+			{
+				return 'Time';
+			}
+
+			const stripped = raw
+				.replace(/^(measure|meter|target|alarm|onoff|windowcoverings|dim)[._-]/g, '')
+				.replace(/[._-]+/g, ' ')
+				.trim();
+
+			if (!stripped)
+			{
+				return '';
+			}
+
+			return stripped.replace(/\b\w/g, function (m)
+			{
+				return m.toUpperCase();
+			});
+		}
+
+		function clampDisplayPercent(value, fallback)
+		{
+			const numeric = parseFloat(value);
+			if (Number.isNaN(numeric))
+			{
+				return fallback;
+			}
+			return Math.max(0, Math.min(100, numeric));
+		}
+
+		function getDisplayPopupFontPx(fontSize)
+		{
+			const key = parseInt(fontSize, 10);
+			if (DISPLAY_FONT_SIZE_LOOKUP[key])
+			{
+				return DISPLAY_FONT_SIZE_LOOKUP[key];
+			}
+			return DISPLAY_FONT_SIZE_LOOKUP[1];
+		}
+
+		function getDisplayPopupItemRuntime(item, itemNo)
+		{
+			const deviceId = sanitizeDisplayString(getDisplayPopupFieldValue(item, itemNo, 'Device', item.device || ''), '');
+			const capabilityId = sanitizeDisplayString(getDisplayPopupFieldValue(item, itemNo, 'Capability', item.capability || ''), '');
+			const configuredUnit = sanitizeDisplayString(getDisplayPopupFieldValue(item, itemNo, 'Unit', item.unit || ''), '');
+			const roundingRaw = parseInt(getDisplayPopupFieldValue(item, itemNo, 'Rounding', item.rounding || -1), 10);
+			const rounding = Number.isNaN(roundingRaw) ? -1 : roundingRaw;
+			const valueKey = `${deviceId}|${capabilityId}`;
+
+			return {
+				deviceId,
+				capabilityId,
+				configuredUnit,
+				rounding,
+				valueKey,
+			};
+		}
+
+		function formatDisplayPopupValue(value, rounding)
+		{
+			if (value === undefined || value === null)
+			{
+				return '';
+			}
+
+			if (typeof value === 'boolean')
+			{
+				return value ? 'On' : 'Off';
+			}
+
+			if (typeof value === 'number')
+			{
+				if (rounding >= 0)
+				{
+					return value.toFixed(rounding);
+				}
+				return Number.isInteger(value) ? `${value}` : `${value}`;
+			}
+
+			return sanitizeDisplayString(value, '');
+		}
+
+		function refreshDisplayPopupLiveValues()
+		{
+			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+			if (!displayConfiguration || !Array.isArray(displayConfiguration.items))
+			{
+				return;
+			}
+
+			const pages = getDisplayPopupPages(displayConfiguration);
+			if (!pages.includes(displayPagePopupCurrentPage))
+			{
+				displayPagePopupCurrentPage = pages[0];
+			}
+
+			const requests = [];
+			const variableIds = new Set();
+			for (let itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
+			{
+				const item = displayConfiguration.items[itemNo];
+				const itemPage = parseInt(getDisplayPopupFieldValue(item, itemNo, 'page', item.page || 0), 10) || 0;
+				if (!(itemPage === 0 || itemPage === displayPagePopupCurrentPage))
+				{
+					continue;
+				}
+
+				const runtime = getDisplayPopupItemRuntime(item, itemNo);
+				if (runtime.deviceId === '_variable_' && runtime.capabilityId)
+				{
+					variableIds.add(runtime.capabilityId);
+					continue;
+				}
+
+				if (!runtime.deviceId || !runtime.capabilityId || runtime.deviceId === 'none' || runtime.deviceId === 'customMQTT')
+				{
+					continue;
+				}
+
+				requests.push(new Promise((resolve) =>
+				{
+					Homey.api('POST', '/device_capability_value/',
+						{
+							deviceId: runtime.deviceId,
+							capabilityId: runtime.capabilityId,
+						},
+						function (err, result)
+						{
+							if (!err && result && result.success)
+							{
+								displayPagePopupLiveValueCache.set(runtime.valueKey,
+									{
+										value: result.value,
+										unit: sanitizeDisplayString(result.unit, ''),
+										fetchedAt: Date.now(),
+									});
+							}
+							resolve();
+						});
+				}));
+			}
+
+			if (variableIds.size > 0)
+			{
+				requests.push(new Promise((resolve) =>
+				{
+					Homey.api('POST', '/get_variables/', {}, function (err, variables)
+					{
+						if (!err && variables)
+						{
+							displayPagePopupVariableValueCache.clear();
+							for (const variable of Object.values(variables))
+							{
+								if (variable && variable.id)
+								{
+									displayPagePopupVariableValueCache.set(variable.id, variable.value);
+								}
+							}
+							displayPagePopupVariableValueFetchedAt = Date.now();
+						}
+						resolve();
+					});
+				}));
+			}
+
+			if (requests.length === 0)
+			{
+				if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
+				{
+					renderDisplayPagePopup();
+				}
+				return;
+			}
+
+			Promise.all(requests).then(() =>
+			{
+				if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
+				{
+					renderDisplayPagePopup();
+				}
+			});
+		}
+
+		function focusDisplayControlFromPopup(itemNo, fieldSuffix)
+		{
+			if (configTypeElement && configTypeElement.value !== 'displayConfig')
+			{
+				configTypeElement.value = 'displayConfig';
+				configTypeChanged('displayConfig');
+			}
+
+			const focusElement = document.getElementById(`display${itemNo}${fieldSuffix}`) || document.getElementById(`display${itemNo}Label`);
+			if (!focusElement)
+			{
+				return;
+			}
+
+			const detailsElement = focusElement.closest('details');
+			if (detailsElement)
+			{
+				detailsElement.open = true;
+			}
+
+			const sectionElement = focusElement.closest('.horizontalgroup');
+			if (sectionElement)
+			{
+				scrollToTop(sectionElement);
+				sectionElement.classList.add('display-item-highlight');
+				setTimeout(() =>
+				{
+					sectionElement.classList.remove('display-item-highlight');
+				}, 1400);
+			}
+
+			setTimeout(() =>
+			{
+				focusElement.focus();
+			}, 220);
+		}
+
+		function renderDisplayPagePopup()
+		{
+			if (!displayPagePopupSurfaceElement)
+			{
+				return;
+			}
+
+			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+			if (!displayConfiguration || !Array.isArray(displayConfiguration.items))
+			{
+				displayPagePopupSurfaceElement.innerHTML = '';
+				return;
+			}
+
+			const pages = getDisplayPopupPages(displayConfiguration);
+			if (!pages.includes(displayPagePopupCurrentPage))
+			{
+				displayPagePopupCurrentPage = pages[0];
+			}
+
+			const pageItems = [];
+			for (let itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
+			{
+				const item = displayConfiguration.items[itemNo];
+				const itemPage = parseInt(getDisplayPopupFieldValue(item, itemNo, 'page', item.page || 0), 10) || 0;
+				if (itemPage === 0 || itemPage === displayPagePopupCurrentPage)
+				{
+					pageItems.push({ item, itemNo });
+				}
+			}
+
+			const markup = pageItems.map(({ item, itemNo }) =>
+			{
+				const runtime = getDisplayPopupItemRuntime(item, itemNo);
+				const xPercent = clampDisplayPercent(getDisplayPopupFieldValue(item, itemNo, 'X', item.xPos || 0), 0);
+				const yPercent = clampDisplayPercent(getDisplayPopupFieldValue(item, itemNo, 'Y', item.yPos || 0), 0);
+				const widthPercent = Math.max(2, clampDisplayPercent(getDisplayPopupFieldValue(item, itemNo, 'Width', item.width || 100), 100));
+				const explicitTopLabel = sanitizeDisplayString(getDisplayPopupFieldValue(item, itemNo, 'Label', item.label || ''), '');
+				const hasExplicitLabel = !!explicitTopLabel;
+				const renderedLabel = escapeHtml(explicitTopLabel);
+				const staticTextFallback = sanitizeDisplayString(item.text, '');
+				let displayValueRaw = '';
+				let liveUnit = runtime.configuredUnit;
+
+				if (runtime.deviceId === 'none' || runtime.deviceId === 'customMQTT' || !runtime.deviceId || !runtime.capabilityId)
+				{
+					displayValueRaw = getDisplayPopupFieldValue(item, itemNo, 'Text', staticTextFallback);
+				}
+
+				if (runtime.deviceId === '_variable_' && runtime.capabilityId)
+				{
+					const variableValue = displayPagePopupVariableValueCache.get(runtime.capabilityId);
+					displayValueRaw = (variableValue !== undefined) ? variableValue : staticTextFallback;
+				}
+				else if (runtime.deviceId && runtime.capabilityId && runtime.deviceId !== 'none' && runtime.deviceId !== 'customMQTT')
+				{
+					const cacheEntry = displayPagePopupLiveValueCache.get(runtime.valueKey);
+					if (cacheEntry)
+					{
+						displayValueRaw = (cacheEntry.value !== undefined && cacheEntry.value !== null) ? cacheEntry.value : '';
+						if (!liveUnit)
+						{
+							liveUnit = cacheEntry.unit || '';
+						}
+					}
+					else
+					{
+						displayValueRaw = '';
+					}
+				}
+
+				const svgRaw = getDisplayPopupFieldValue(item, itemNo, 'SVG', item.svg || '');
+
+				const valueSvgMarkup = getSvgPreviewMarkup((typeof displayValueRaw === 'string') ? displayValueRaw : '');
+				const fieldSvgMarkup = getSvgPreviewMarkup(svgRaw || '');
+				const effectiveSvgMarkup = valueSvgMarkup || fieldSvgMarkup;
+				const hasSvgItem = !!effectiveSvgMarkup;
+
+				const text = escapeHtml(formatDisplayPopupValue(displayValueRaw, runtime.rounding));
+				const unitText = escapeHtml(sanitizeDisplayString(liveUnit, ''));
+				const configuredFontSize = getDisplayPopupFieldValue(item, itemNo, 'FontSize', item.fontSize || 1);
+				const fontPx = getDisplayPopupFontPx(configuredFontSize);
+				const boxType = parseInt(getDisplayPopupFieldValue(item, itemNo, 'BoxType', item.boxType || 0), 10) || 0;
+				const underlinedClass = (boxType === 0) ? 'display-sim-item-underlined' : '';
+
+				const showValueSvg = !!effectiveSvgMarkup;
+				const hasTextValue = !!sanitizeDisplayString(text, '');
+				const isDynamicValueSource = (runtime.deviceId === '_variable_')
+					|| (runtime.deviceId && runtime.deviceId !== 'none' && runtime.deviceId !== 'customMQTT' && runtime.capabilityId);
+				const needsLivePlaceholder = isDynamicValueSource && !hasTextValue && !showValueSvg;
+				const renderedText = needsLivePlaceholder ? '--' : (text || '&nbsp;');
+				const renderedUnit = (needsLivePlaceholder || showValueSvg) ? '&nbsp;' : (unitText || '&nbsp;');
+				const valueClass = needsLivePlaceholder ? 'display-sim-text display-sim-text-loading' : 'display-sim-text';
+				const valueTextPaddingTop = hasExplicitLabel ? 10 : 30;
+
+				return `<div class="display-sim-item ${underlinedClass}" style="left:${xPercent}%; top:${yPercent}%; width:${widthPercent}%;" onclick="focusDisplayControlFromPopup(${itemNo}, 'Label')">
+					${hasExplicitLabel ? `<div class="display-sim-top-label" onclick="event.stopPropagation(); focusDisplayControlFromPopup(${itemNo}, 'Label')">${renderedLabel}</div>` : ''}
+					${showValueSvg
+						? `<div class="display-sim-svg" onclick="event.stopPropagation(); focusDisplayControlFromPopup(${itemNo}, 'SVG')">${effectiveSvgMarkup}</div>`
+						: `<div class="display-sim-value-row" onclick="event.stopPropagation(); focusDisplayControlFromPopup(${itemNo}, 'Text')">
+							<div class="${valueClass}" style="font-size:${fontPx}px;padding-top:${valueTextPaddingTop}px;">${renderedText}</div>
+							<div class="display-sim-unit" style="font-size:${Math.max(15, Math.floor(fontPx * 0.52))}px;">${renderedUnit}</div>
+						</div>`}
+				</div>`;
+			}).join('');
+
+			displayPagePopupSurfaceElement.innerHTML = markup;
+
+			if (displayPagePopupTitleElement)
+			{
+				displayPagePopupTitleElement.textContent = `Page ${displayPagePopupCurrentPage}`;
+			}
+
+			if (displayPagePopupPrevElement)
+			{
+				displayPagePopupPrevElement.disabled = (pages.indexOf(displayPagePopupCurrentPage) <= 0);
+			}
+
+			if (displayPagePopupNextElement)
+			{
+				displayPagePopupNextElement.disabled = (pages.indexOf(displayPagePopupCurrentPage) >= pages.length - 1);
+			}
+
+			updateDisplayPagePopupScrollOffset();
+		}
+
+		function openDisplayPagePopup(page)
+		{
+			if (!displayPagePopupOverlayElement)
+			{
+				return;
+			}
+
+			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+			if (!displayConfiguration || !Array.isArray(displayConfiguration.items))
+			{
+				return;
+			}
+
+			const pages = getDisplayPopupPages(displayConfiguration);
+			displayPagePopupCurrentPage = pages.includes(page) ? page : pages[0];
+			displayPagePopupOverlayElement.classList.add('visible');
+			displayPagePopupOverlayElement.setAttribute('aria-hidden', 'false');
+			if (displayPagePopupLiveRefreshTimer)
+			{
+				clearInterval(displayPagePopupLiveRefreshTimer);
+			}
+			displayPagePopupLiveRefreshTimer = setInterval(refreshDisplayPopupLiveValues, DISPLAY_SIM_LIVE_REFRESH_MS);
+			renderDisplayPagePopup();
+			refreshDisplayPopupLiveValues();
+		}
+
+		function stepDisplayPagePopup(delta)
+		{
+			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+			if (!displayConfiguration || !Array.isArray(displayConfiguration.items))
+			{
+				return;
+			}
+
+			const pages = getDisplayPopupPages(displayConfiguration);
+			const pageIndex = pages.indexOf(displayPagePopupCurrentPage);
+			if (pageIndex < 0)
+			{
+				displayPagePopupCurrentPage = pages[0];
+			}
+			else
+			{
+				const nextIndex = Math.max(0, Math.min(pageIndex + delta, pages.length - 1));
+				displayPagePopupCurrentPage = pages[nextIndex];
+			}
+
+			renderDisplayPagePopup();
+			refreshDisplayPopupLiveValues();
+		}
+
 		function sortDevices(devicesArray)
 		{
 			return devicesArray.sort((a, b) =>
@@ -2314,6 +2929,12 @@
 			fillButtonDevices();
 			setupButtonBrokerItems();
 			setupSvgPreviews(document);
+
+			if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
+			{
+				renderDisplayPagePopup();
+				refreshDisplayPopupLiveValues();
+			}
 		}
 
 		// Update the controls for the specified side and page
@@ -2877,7 +3498,11 @@
 				customMQTTTopic: Homey.__("settings.customMQTTTopicExplanation"),
 			}
 			const itemLegend = Homey.__("settings.displayItemlegend", { itemNo: itemNo + 1 });
-			const itemLegendName = item.label ? item.label : (item.device === 'none' ? item.text : item.capabilityName);
+			const sanitizedLabel = sanitizeDisplayString(item.label, '');
+			const sanitizedText = sanitizeDisplayString(item.text, '');
+			const sanitizedCapabilityName = sanitizeDisplayString(item.capabilityName, '');
+			const sanitizedUnit = sanitizeDisplayString(item.unit, '');
+			const itemLegendName = sanitizedLabel ? sanitizedLabel : (item.device === 'none' ? sanitizedText : sanitizedCapabilityName);
 			const underlined = Homey.__("settings.boxTypeUnderlined");
 			const notUnderlined = Homey.__("settings.boxTypeNotUnderlined");
 
@@ -2889,18 +3514,18 @@
 			section = section +
 				`<div class="horizontalcontainer">
 					<div class="horizontalgroup" id="displayItem${item.itemId}Section">
-						<label class="homey-form-label" for="display${itemNo}page">${ctrlLabels.page}
-							<div class="tooltip"><i class="fi fi-rr-info"></i>
-								<span class="tooltiptext">${ctrlExplanations.page}</span>
-							</div>
-						</label>
-						<input class="homey-form-input" id="display${itemNo}page" onChange="redisplayDisplyConfig(${itemNo})" type="number" value="${item.page}" />
 						<details ${expanded ? 'open' : ''}>
 							<summary class="summary">
 								<legend class="homey-subtitle" id="display${itemNo}Legend"><b><em>${itemLegend}</em></b> - ${itemLegendName}: X:${item.xPos}, Y:${item.yPos}, W:${item.width}</legend>
 								<span class="icon" style='font-size:30px;'>&#8628;</span>
 							</summary>
 							<hr>
+							<label class="homey-form-label" for="display${itemNo}page">${ctrlLabels.page}
+								<div class="tooltip"><i class="fi fi-rr-info"></i>
+									<span class="tooltiptext">${ctrlExplanations.page}</span>
+								</div>
+							</label>
+							<input class="homey-form-input" id="display${itemNo}page" onChange="redisplayDisplyConfig(${itemNo})" type="number" value="${item.page}" />
 							<label class="homey-form-label" for="display${itemNo}Device">${ctrlLabels.device}
 								<div class="tooltip"><i class="fi fi-rr-info"></i>
 									<span class="tooltiptext">${ctrlExplanations.device}</span>
@@ -2929,14 +3554,14 @@
 									<span class="tooltiptext">${ctrlExplanations.label}</span>
 								</div>
 							</label>
-							<input class="homey-form-input" id="display${itemNo}Label" type="text" oninput="onDisplayLabelChange(this, ${itemNo})" value="${item.label}" />
+							<input class="homey-form-input" id="display${itemNo}Label" type="text" oninput="onDisplayLabelChange(this, ${itemNo})" value="${sanitizedLabel}" />
 							<div id="display${itemNo}UnitDiv">
 								<label class="homey-form-label" for="display${itemNo}Unit">${ctrlLabels.unit}
 									<div class="tooltip"><i class="fi fi-rr-info"></i>
 										<span class="tooltiptext">${ctrlExplanations.unit}</span>
 									</div>
 								</label>
-								<input class="homey-form-input" id="display${itemNo}Unit" type="text" value="${item.unit}" />
+								<input class="homey-form-input" id="display${itemNo}Unit" type="text" value="${sanitizedUnit}" />
 							</div>
 							<div id="display${itemNo}TextDiv">
 								<label class="homey-form-label" for="display${itemNo}Text">${ctrlLabels.text}
@@ -2944,7 +3569,7 @@
 										<span class="tooltiptext">${ctrlExplanations.text}</span>
 									</div>
 								</label>
-								<input class="homey-form-input" id="display${itemNo}Text" type="text" oninput="onDisplayLabelChange(this, ${itemNo})" value="${item.text}" />
+								<input class="homey-form-input" id="display${itemNo}Text" type="text" oninput="onDisplayLabelChange(this, ${itemNo})" value="${sanitizedText}" />
 							</div>
 							<label class="homey-form-label" for="display${itemNo}X">${ctrlLabels.xPos}
 								<div class="tooltip"><i class="fi fi-rr-info"></i>
@@ -3387,9 +4012,9 @@
 					{
 						displayConfiguration.items[itemNo].capabilityName = "";
 					}
-					displayConfiguration.items[itemNo].label = document.getElementById(`display${itemNo}Label`).value;
-					displayConfiguration.items[itemNo].unit = document.getElementById(`display${itemNo}Unit`).value;
-					displayConfiguration.items[itemNo].text = document.getElementById(`display${itemNo}Text`).value;
+					displayConfiguration.items[itemNo].label = sanitizeDisplayString(document.getElementById(`display${itemNo}Label`).value, '');
+					displayConfiguration.items[itemNo].unit = sanitizeDisplayString(document.getElementById(`display${itemNo}Unit`).value, '');
+					displayConfiguration.items[itemNo].text = sanitizeDisplayString(document.getElementById(`display${itemNo}Text`).value, '');
 					displayConfiguration.items[itemNo].xPos = document.getElementById(`display${itemNo}X`).value;
 					displayConfiguration.items[itemNo].yPos = document.getElementById(`display${itemNo}Y`).value;
 					displayConfiguration.items[itemNo].width = document.getElementById(`display${itemNo}Width`).value;

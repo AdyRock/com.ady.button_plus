@@ -13,6 +13,11 @@ module.exports = {
         return homey.app.getHomeyDeviceCapabilities(device);
     },
 
+    // Retrieve current value for one capability on one device
+    async getDeviceCapabilityValue({ homey, body }) {
+        return homey.app.getHomeyDeviceCapabilityValue(body.deviceId, body.capabilityId);
+    },
+
     // Retrieve all zones with their information
     async getZones({ homey }) {
         return homey.app.getZones();

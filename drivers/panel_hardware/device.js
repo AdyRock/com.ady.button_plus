@@ -17,7 +17,6 @@ class PanelDevice extends Device
 	async onInit()
 	{
 		//		this.setUnavailable('Device is initializing');
-
 		this.initFinished = false;
 		this.longPressOccurred = new Map();
 		this.buttonValues = new Map();
@@ -999,7 +998,7 @@ class PanelDevice extends Device
 		this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/page/set`, pageCommand, false).catch(this.error);
 	}
 
-	async uploadPanelTemperatureConfiguration(deviceConfigurations)
+	async uploadPanelSensorConfiguration(deviceConfigurations)
 	{
 		if (!checkSEMVerGreaterOrEqual(this.firmwareVersion, '2.0.0'))
 		{
@@ -1045,6 +1044,79 @@ class PanelDevice extends Device
 				catch (err)
 				{
 					this.homey.app.updateLog(`Error setting up pane temperature topic: ${err.message}`, 0);
+					return err.message;
+				}
+			}
+		}
+		else if (checkSEMVerGreaterOrEqual(this.firmwareVersion, '3.0.0'))
+		{
+			// Upload the sensor configuration for firmware 3.0.0 and later
+			if (this.ip !== '')
+			{
+				try
+				{
+					const brokerId = this.homey.settings.get('defaultBroker');
+					const sectionConfiguration = {
+						sensors: [
+							{
+								sensorid: "sens1",
+								type: 1,
+								interval: 10,
+								topics: [
+								],
+							},
+							{
+								sensorid: "sens2",
+								type: 7,
+								interval: 3,
+								topics: [
+								],
+							},
+							{
+								sensorid: "sens3",
+								type: 8,
+								interval: 10,
+								topics: [
+								],
+							},
+							{
+								sensorid: "sens4",
+								type: 9,
+								interval: 10,
+								topics: [
+								],
+							},
+							{
+								sensorid: "sens5",
+								type: 6,
+								interval: 10,
+								topics: [
+								]
+							}
+						]
+					}
+
+					if (deviceConfigurations)
+					{
+						// Check if the configuration is the same
+						if (this.compareObjects(sectionConfiguration.sensors, deviceConfigurations.sensors))
+						{
+							delete deviceConfigurations.sensors;
+						}
+						else
+						{
+							deviceConfigurations.sensors = sectionConfiguration.sensors;
+						}
+						return null;
+					}
+
+					this.homey.app.updateLog(`writeSensorConfig: ${this.homey.app.varToString(sectionConfiguration)}`);
+					return await await this.homey.app.writeDeviceConfiguration(this.ip, sectionConfiguration, this.firmwareVersion);
+
+				}
+				catch (err)
+				{
+					this.homey.app.updateLog(`Error setting up sensor configuration: ${err.message}`, 0);
 					return err.message;
 				}
 			}
@@ -1180,9 +1252,28 @@ class PanelDevice extends Device
 	{
 		try
 		{
-			let deviceConfigurations = await this.homey.app.readDeviceConfiguration(this.ip);
+			let deviceConfigurations = null;
+			let readAttempt = 0;
+			const maxReadAttempts = 3;
+
+			while (readAttempt < maxReadAttempts)
+			{
+				deviceConfigurations = await this.homey.app.readDeviceConfiguration(this.ip);
+				if (deviceConfigurations !== null)
+				{
+					break;
+				}
+
+				readAttempt++;
+				if (readAttempt < maxReadAttempts)
+				{
+					await new Promise((resolve) => setTimeout(resolve, 1500));
+				}
+			}
+
 			if (deviceConfigurations === null)
 			{
+				this.homey.app.updateLog(`Unable to read device configuration from ${this.ip} after ${maxReadAttempts} attempts`, 0);
 				this.setWarning('Failed to read device configuration');
 				return 'Failed to read device configuration';
 			}
@@ -1224,7 +1315,7 @@ class PanelDevice extends Device
 			({ mqttQue } = await this.uploadAllButtonConfigurations(deviceConfigurations))
 			await this.uploadDisplayConfigurations(deviceConfigurations);
 			await this.uploadBrokerConfigurations(deviceConfigurations);
-			await this.uploadPanelTemperatureConfiguration(deviceConfigurations);
+			await this.uploadPanelSensorConfiguration(deviceConfigurations);
 			delete deviceConfigurations.info;
 
 			if (this.numPages > 1)
@@ -1674,7 +1765,7 @@ class PanelDevice extends Device
 					}
 				}
 			}
-			else if ((topicParts[2] === 'sensor') && (topicParts[3] === '1'))
+			else if ((topicParts[2] === 'sensor') && ((topicParts[3] === '1') || (topicParts[3] === 'sens1')))
 			{
 				// If the value is not a number then ignore it
 				if (!isNaN(value))
@@ -1686,6 +1777,62 @@ class PanelDevice extends Device
 
 					const configNo = this.getCapabilityValue('configuration_display');
 					this.checkStateChangeForDisplay(configNo, this.__id, 'measure_temperature', temperature);
+				}
+			}
+			else if ((topicParts[2] === 'sensor') && ((topicParts[3] === '2') || (topicParts[3] === 'sens2')))
+			{
+				// If the value is not a number then ignore it
+				if (!isNaN(value))
+				{
+					// Update the luminance capability
+					const luminance = value;
+
+					// Make sure the capability exists before trying to set it
+					if (!this.hasCapability('measure_luminance'))
+					{
+						await this.addCapability('measure_luminance');
+					}
+
+					this.setCapabilityValue('measure_luminance', luminance).catch(this.error);
+
+					const configNo = this.getCapabilityValue('configuration_display');
+					this.checkStateChangeForDisplay(configNo, this.__id, 'measure_luminance', luminance);
+				}
+			}
+			else if ((topicParts[2] === 'sensor') && ((topicParts[3] === '3') || (topicParts[3] === 'sens3')))
+			{
+				// If the value is not a number then ignore it
+				if (!isNaN(value))
+				{
+					// Update the memory capability
+					const freeMemory = value;
+					// Make sure the capability exists before trying to set it
+					if (!this.hasCapability('measure_memory'))
+					{
+						await this.addCapability('measure_memory');
+					}
+
+					this.setCapabilityValue('measure_memory', freeMemory).catch(this.error);
+				}
+			}
+			else if ((topicParts[2] === 'sensor') && ((topicParts[3] === '4') || (topicParts[3] === 'sens4')))
+			{
+				// If the value is not a number then ignore it
+				if (!isNaN(value))
+				{
+					// Update the signal strength capability
+					const signalStrength = value;
+
+					// Make sure the capability exists before trying to set it
+					if (!this.hasCapability('measure_signal_strength'))
+					{
+						await this.addCapability('measure_signal_strength');
+					}
+
+					this.setCapabilityValue('measure_signal_strength', signalStrength).catch(this.error);
+
+					const configNo = this.getCapabilityValue('configuration_display');
+					this.checkStateChangeForDisplay(configNo, this.__id, 'measure_signal_strength', signalStrength);
 				}
 			}
 		}

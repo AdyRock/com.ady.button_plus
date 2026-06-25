@@ -1810,6 +1810,45 @@ class MyApp extends Homey.App
 		return undefined;
 	}
 
+	async getHomeyDeviceCapabilityValue(deviceId, capabilityId)
+	{
+		const response = {
+			value: null,
+			unit: '',
+			success: false,
+		};
+
+		if (!deviceId || !capabilityId)
+		{
+			return response;
+		}
+
+		try
+		{
+			const device = await this.getHomeyDeviceById(deviceId);
+			if (!device)
+			{
+				return response;
+			}
+
+			const capability = await this.getHomeyCapabilityByName(device, capabilityId);
+			if (!capability)
+			{
+				return response;
+			}
+
+			response.value = capability.value;
+			response.unit = capability.units || capability.unit || '';
+			response.success = true;
+			return response;
+		}
+		catch (e)
+		{
+			this.updateLog(`Error getting device capability value for ${deviceId}/${capabilityId}: ${e.message}`, 0);
+			return response;
+		}
+	}
+
 	async getHomeyDeviceCapabilities(device)
 	{
 		if (this.deviceManager)

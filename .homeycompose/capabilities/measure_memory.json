@@ -1,0 +1,11 @@
+{
+    "type": "number",
+    "title": {
+        "en": "Free memory",
+        "nl": "Vrij geheugen"
+    },
+	"units": "kB",
+    "getable": true,
+    "setable": false,
+    "icon": "/assets/ram.svg"
+}
