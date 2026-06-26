@@ -613,10 +613,10 @@ summary::-webkit-details-marker {
 		}
 		.display-sim-item-underlined {
 			border-bottom: 3px solid rgba(115, 128, 145, 0.5);
-			padding-bottom: 5px;
+			padding-bottom: 10px;
 		}
 		.display-sim-top-label {
-			font-size: 20px;
+			font-size: 24px;
 			line-height: 1;
 			font-weight: 600;
 			color: #e5e7b4;
@@ -627,8 +627,8 @@ summary::-webkit-details-marker {
 			overflow: hidden;
 			text-overflow: clip;
 			letter-spacing: 0.02em;
-			min-height: 20px;
-			max-height: 40px;
+			min-height: 24px;
+			max-height: 48px;
 		}
 		.display-sim-top-label-hidden {
 			min-height: 0;
@@ -672,6 +672,7 @@ summary::-webkit-details-marker {
 			}
 		}
 		.display-sim-unit {
+			font-size: 18px !important;
 			color: #7ca9de;
 			text-shadow: 0 0 2px rgba(124, 169, 222, 0.3);
 			white-space: nowrap;
