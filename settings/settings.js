@@ -2308,33 +2308,117 @@
 				configTypeChanged('displayConfig');
 			}
 
-			const focusElement = document.getElementById(`display${itemNo}${fieldSuffix}`) || document.getElementById(`display${itemNo}Label`);
-			if (!focusElement)
+			const alignDisplaySectionBelowSim = function (attempt = 0)
 			{
-				return;
-			}
+				const focusCandidatesBySuffix = {
+					Label: ['Label'],
+					Device: ['Device'],
+					Text: ['Text', 'Capability', 'Device', 'Label'],
+					Unit: ['Unit', 'Capability', 'Text', 'Label'],
+					SVG: ['SVG', 'Text', 'Capability', 'Device', 'Label'],
+					Capability: ['Capability', 'Device', 'Label'],
+				};
+				const suffixCandidates = focusCandidatesBySuffix[fieldSuffix] || [fieldSuffix, 'Label'];
 
-			const detailsElement = focusElement.closest('details');
-			if (detailsElement)
-			{
-				detailsElement.open = true;
-			}
+				const resolveFocusElement = function (preferVisible = false, allowLabelFallback = true)
+				{
+					for (const suffix of suffixCandidates)
+					{
+						const candidateElement = document.getElementById(`display${itemNo}${suffix}`);
+						if (!candidateElement)
+						{
+							continue;
+						}
 
-			const sectionElement = focusElement.closest('.horizontalgroup');
-			if (sectionElement)
-			{
-				scrollToTop(sectionElement);
-				sectionElement.classList.add('display-item-highlight');
+						if (!preferVisible)
+						{
+							return candidateElement;
+						}
+
+						if (candidateElement.offsetParent !== null)
+						{
+							return candidateElement;
+						}
+					}
+
+					return allowLabelFallback ? document.getElementById(`display${itemNo}Label`) : null;
+				};
+
+				const initialFocusElement = resolveFocusElement(false, fieldSuffix !== 'Device');
+				if (!initialFocusElement)
+				{
+					if (attempt < 6)
+					{
+						setTimeout(() => alignDisplaySectionBelowSim(attempt + 1), 60);
+					}
+					return;
+				}
+
+				const detailsElement = initialFocusElement.closest('details');
+				if (detailsElement)
+				{
+					const wasOpen = detailsElement.open;
+					detailsElement.open = true;
+					if (!wasOpen && attempt < 6)
+					{
+						setTimeout(() => alignDisplaySectionBelowSim(attempt + 1), 60);
+						return;
+					}
+				}
+
+				const currentFocusElement = resolveFocusElement(true, fieldSuffix !== 'Device') || initialFocusElement;
+
+				updateDisplayPagePopupScrollOffset();
+
+				const sectionElement = currentFocusElement.closest('.horizontalgroup');
+				if (!sectionElement)
+				{
+					if (attempt < 6)
+					{
+						setTimeout(() => alignDisplaySectionBelowSim(attempt + 1), 60);
+					}
+					return;
+				}
+
+				const fixedTopElement = document.querySelector('.fixedTop');
+				const fixedTopHeight = fixedTopElement ? fixedTopElement.offsetHeight : 0;
+				const simDialogElement = document.querySelector('.display-sim-overlay.visible .display-sim-dialog');
+				const simBottom = simDialogElement ? Math.max(0, simDialogElement.getBoundingClientRect().bottom) : 0;
+				const targetViewportTop = Math.max(fixedTopHeight + 8, simBottom + 8);
+				const fieldLabelElement = currentFocusElement.id
+					? document.querySelector(`label[for="${currentFocusElement.id}"]`)
+					: null;
+				const focusAnchorElement = fieldLabelElement || currentFocusElement;
+				const targetTop = Math.max(0, focusAnchorElement.getBoundingClientRect().top + window.scrollY - targetViewportTop);
+				window.scrollTo({ top: targetTop, behavior: 'auto' });
+
+				if (attempt === 0)
+				{
+					sectionElement.classList.add('display-item-highlight');
+					setTimeout(() =>
+					{
+						sectionElement.classList.remove('display-item-highlight');
+					}, 1400);
+				}
+
 				setTimeout(() =>
 				{
-					sectionElement.classList.remove('display-item-highlight');
-				}, 1400);
-			}
+					if (typeof currentFocusElement.focus === 'function')
+					{
+						currentFocusElement.focus();
+					}
+				}, 80);
 
-			setTimeout(() =>
+				if (attempt < 1)
+				{
+					setTimeout(() => alignDisplaySectionBelowSim(attempt + 1), 80);
+				}
+			};
+
+			requestAnimationFrame(() =>
 			{
-				focusElement.focus();
-			}, 220);
+				alignDisplaySectionBelowSim(0);
+			});
 		}
 
 		function renderDisplayPagePopup()
@@ -2426,6 +2510,8 @@
 				const hasTextValue = !!sanitizeDisplayString(text, '');
 				const isDynamicValueSource = (runtime.deviceId === '_variable_')
 					|| (runtime.deviceId && runtime.deviceId !== 'none' && runtime.deviceId !== 'customMQTT' && runtime.capabilityId);
+				const svgFocusSuffix = (valueSvgMarkup && isDynamicValueSource) ? 'Device' : 'SVG';
+				const valueFocusSuffix = (runtime.deviceId === 'none') ? 'Text' : 'Device';
 				const needsLivePlaceholder = isDynamicValueSource && !hasTextValue && !showValueSvg;
 				const renderedText = needsLivePlaceholder ? '--' : (text || '&nbsp;');
 				const renderedUnit = (needsLivePlaceholder || showValueSvg) ? '&nbsp;' : (unitText || '&nbsp;');
@@ -2435,10 +2521,10 @@
 				return `<div class="display-sim-item ${underlinedClass}" style="left:${xPercent}%; top:${yPercent}%; width:${widthPercent}%;" onclick="focusDisplayControlFromPopup(${itemNo}, 'Label')">
 					${hasExplicitLabel ? `<div class="display-sim-top-label" onclick="event.stopPropagation(); focusDisplayControlFromPopup(${itemNo}, 'Label')">${renderedLabel}</div>` : ''}
 					${showValueSvg
-						? `<div class="display-sim-svg" onclick="event.stopPropagation(); focusDisplayControlFromPopup(${itemNo}, 'SVG')">${effectiveSvgMarkup}</div>`
-						: `<div class="display-sim-value-row" onclick="event.stopPropagation(); focusDisplayControlFromPopup(${itemNo}, 'Text')">
+						? `<div class="display-sim-svg" onclick="event.stopPropagation(); focusDisplayControlFromPopup(${itemNo}, '${svgFocusSuffix}')">${effectiveSvgMarkup}</div>`
+						: `<div class="display-sim-value-row" onclick="event.stopPropagation(); focusDisplayControlFromPopup(${itemNo}, '${valueFocusSuffix}')">
 							<div class="${valueClass}" style="font-size:${fontPx}px;padding-top:${valueTextPaddingTop}px;">${renderedText}</div>
-							<div class="display-sim-unit" style="font-size:${Math.max(15, Math.floor(fontPx * 0.52))}px;">${renderedUnit}</div>
+							<div class="display-sim-unit" onclick="event.stopPropagation(); focusDisplayControlFromPopup(${itemNo}, 'Unit')" style="font-size:${Math.max(15, Math.floor(fontPx * 0.52))}px;">${renderedUnit}</div>
 						</div>`}
 				</div>`;
 			}).join('');
@@ -3651,7 +3737,26 @@
 
 			const fixedTopElement = document.querySelector('.fixedTop');
 			const fixedTopHeight = fixedTopElement ? fixedTopElement.offsetHeight : 0;
-			const top = Math.max(0, element.getBoundingClientRect().top + window.scrollY - fixedTopHeight - 8);
+			let targetViewportTop = fixedTopHeight + 8;
+
+			if (document.body.classList.contains('sim-panel-open'))
+			{
+				const rawOffset = getComputedStyle(document.documentElement).getPropertyValue('--button-sim-scroll-offset') || '0';
+				const parsedOffset = parseFloat(rawOffset);
+				const simPanelOffset = Number.isNaN(parsedOffset) ? 0 : parsedOffset;
+				targetViewportTop = Math.max(targetViewportTop, fixedTopHeight + simPanelOffset + 8);
+
+				const displaySimDialog = document.querySelector('.display-sim-overlay.visible .display-sim-dialog');
+				const buttonSimDialog = document.querySelector('.button-sim-overlay.visible .button-sim-dialog');
+				const activeSimDialog = displaySimDialog || buttonSimDialog;
+				if (activeSimDialog)
+				{
+					const simBottom = Math.max(0, activeSimDialog.getBoundingClientRect().bottom);
+					targetViewportTop = Math.max(targetViewportTop, simBottom + 6);
+				}
+			}
+
+			const top = Math.max(0, element.getBoundingClientRect().top + window.scrollY - targetViewportTop);
 			window.scrollTo({ top, behavior: 'smooth' });
 		}
 

@@ -298,5 +298,8 @@
 	},
 	"0.7.33": {
 		"en": "Further attempt to monitor capability callbacks are being made. Improve Homey restart handling when other apps have not started before Button+."
+	},
+	"0.7.34": {
+		"en": "Added Simulators in the Configuration pages for the Buttons and Display. Fix Temperature sensor recording on V3 firmaware. Add light sensor, Free Memory and WiFi signal strength reporting to the device."
 	}
 }
