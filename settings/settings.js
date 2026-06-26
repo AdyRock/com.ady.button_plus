@@ -1,4 +1,4 @@
-		// General declarations
+﻿		// General declarations
 		const MAX_BUTTON_CONFIGURATIONS = 40;
 		const MAX_DISPLAY_CONFIGURATIONS = 20;
 		var buttonDevicesArray = [];
@@ -44,8 +44,10 @@
 		var displayPagePopupPrevElement = document.getElementById('displayPagePopupPrev');
 		var displayPagePopupNextElement = document.getElementById('displayPagePopupNext');
 		var displayPagePopupTitleElement = document.getElementById('displayPagePopupTitle');
+		var displayPagePopupStatusBarPositionElement = document.getElementById('displayPagePopupStatusBarPosition');
 		var displayPagePopupSurfaceElement = document.getElementById('displayPagePopupSurface');
 		var displayPagePopupCurrentPage = 0;
+		var displayPagePopupStatusBarPosition = null;
 		const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 		const DISPLAY_SIM_LIVE_REFRESH_MS = 12000;
 		var displayPagePopupLiveValueCache = new Map();
@@ -288,13 +290,23 @@
 			});
 
 			Homey.get('brokerConfigurationItems', function (err, brokerItems)
-			{
-				if (err) return Homey.alert(err);
-				brokerItemsFetched = true;
-				localBrokerItems = brokerItems;
-			});
+{
+if (err) return Homey.alert(err);
+brokerItemsFetched = true;
+localBrokerItems = brokerItems;
+});
 
-			autoConfigElement.addEventListener('click', function (e)
+Homey.get('displayPagePopupStatusBarPosition', function (err, savedStatusBarPosition)
+{
+if (err) return;
+const parsedStatusBarPosition = parseInt(savedStatusBarPosition, 10);
+if (!Number.isNaN(parsedStatusBarPosition))
+{
+displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition, 2));
+}
+});
+
+autoConfigElement.addEventListener('click', function (e)
 			{
 				Homey.set('autoConfig', autoConfigElement.checked);
 				autoConfigChanged();
@@ -2452,6 +2464,36 @@
 				}
 			}
 
+			let statusBarPosition = 0;
+			for (const { item, itemNo } of pageItems)
+			{
+				const statusBarRaw = parseInt(getDisplayPopupFieldValue(item, itemNo, 'StatusBarPosition', item.statusBarPosition || 0), 10);
+				const statusBarValue = Number.isNaN(statusBarRaw) ? 0 : Math.max(0, Math.min(statusBarRaw, 2));
+				if (statusBarValue > 0)
+				{
+					statusBarPosition = statusBarValue;
+					break;
+				}
+			}
+
+			if (displayPagePopupStatusBarPosition === null)
+			{
+				displayPagePopupStatusBarPosition = statusBarPosition;
+			}
+			else
+			{
+				statusBarPosition = displayPagePopupStatusBarPosition;
+			}
+
+			if (displayPagePopupStatusBarPositionElement)
+			{
+				displayPagePopupStatusBarPositionElement.value = `${statusBarPosition}`;
+			}
+
+			const statusBarMarkup = statusBarPosition === 0
+				? ''
+				: `<div class="display-sim-status-bar ${statusBarPosition === 1 ? 'display-sim-status-bar-top' : 'display-sim-status-bar-bottom'}"><span class="display-sim-status-left">###.###.##.###</span><span class="display-sim-status-right">-## dB Free ##/##/#### kB</span></div>`;
+
 			const markup = pageItems.map(({ item, itemNo }) =>
 			{
 				const runtime = getDisplayPopupItemRuntime(item, itemNo);
@@ -2529,7 +2571,7 @@
 				</div>`;
 			}).join('');
 
-			displayPagePopupSurfaceElement.innerHTML = markup;
+			displayPagePopupSurfaceElement.innerHTML = statusBarMarkup + markup;
 
 			if (displayPagePopupTitleElement)
 			{
@@ -2545,6 +2587,11 @@
 			{
 				displayPagePopupNextElement.disabled = (pages.indexOf(displayPagePopupCurrentPage) >= pages.length - 1);
 			}
+
+				if (displayPagePopupStatusBarPositionElement)
+				{
+					displayPagePopupStatusBarPositionElement.value = `${displayPagePopupStatusBarPosition}`;
+				}
 
 			updateDisplayPagePopupScrollOffset();
 		}
@@ -2564,6 +2611,24 @@
 
 			const pages = getDisplayPopupPages(displayConfiguration);
 			displayPagePopupCurrentPage = pages.includes(page) ? page : pages[0];
+			if (displayPagePopupStatusBarPositionElement)
+			{
+				displayPagePopupStatusBarPositionElement.onchange = function ()
+				{
+					const selectedStatusBarPosition = parseInt(this.value, 10) || 0;
+					displayPagePopupStatusBarPosition = selectedStatusBarPosition;
+					Homey.set('displayPagePopupStatusBarPosition', selectedStatusBarPosition);
+					for (const item of displayConfiguration.items)
+					{
+						const itemPage = parseInt(item.page, 10) || 0;
+						if (itemPage === 0 || itemPage === displayPagePopupCurrentPage)
+						{
+							item.statusBarPosition = selectedStatusBarPosition;
+						}
+					}
+					renderDisplayPagePopup();
+				};
+			}
 			displayPagePopupOverlayElement.classList.add('visible');
 			displayPagePopupOverlayElement.setAttribute('aria-hidden', 'false');
 			if (displayPagePopupLiveRefreshTimer)
@@ -5260,4 +5325,10 @@
             </div >`;
 			return html;
 		}
+
+
+
+
+
+
 

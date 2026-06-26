@@ -2783,6 +2783,8 @@ class MyApp extends Homey.App
 			state: button_state,
 		};
 		this.triggerFlow(this.triggerConfigButtonChanged, device, tokens, state);
+		state.config = parseInt(configID, 10);
+		this.triggerFlow(this.triggerConfigButtonNameChanged, device, tokens, state);
 		return this;
 	}
 
