@@ -54,7 +54,7 @@
         "dimChange": "Dim Change",
         "dimError": "Dim __leftRight__ Change must be between ±1 and ±100. Please correct and try again.",
         "brokerId": "Broker ID",
-        "brokerIdExplanation": "Select the Broker ID that you wan to send and receive messages from.",
+        "brokerIdExplanation": "Select the Broker ID that you want to send and receive messages from.",
         "selectDevice": "Select a Homey Device",
         "selectCapability": "Select a Capability",
         "brokerConfigs": "Broker Configurations",

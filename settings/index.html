@@ -135,25 +135,25 @@
 							<span class="tooltiptext" data-i18n="settings.buttonExplanation"></span>
 						</div>
 					</label>
-					<select class="homey-form-select" id="ButtonPanelConfigurationNo"
-						title="Select button panel configuration">
-					</select>
+					<div class="panel-config-selector-row">
+						<select class="homey-form-select" id="ButtonPanelConfigurationNo"
+							title="Select button panel configuration">
+						</select>
+						<button class="homey-button-secondary-shadow panel-config-toggle-btn" id="toggleConfigNameVisibility" type="button" title="Hide configuration name" aria-label="Hide configuration name"><span class="icon" style='font-size:22px;'>&#8628;</span></button>
+					</div>
 
-					<label class="homey-form-label" for="configName" title="Configuration name"><span
-							data-i18n="settings.configName"></span>
-						<div class="tooltip"><i class="fi fi-rr-info"></i>
-							<span class="tooltiptext" data-i18n="settings.configNameExplanation"></span>
-						</div>
-					</label>
-					<input class="homey-form-input" id="configName" type="text" maxlength="20" placeholder="Config name"
-						title="Enter configuration name" />
+					<div id="configNameRow">
+						<label class="homey-form-label" for="configName" title="Configuration name"><span
+								data-i18n="settings.configName"></span>
+							<div class="tooltip"><i class="fi fi-rr-info"></i>
+								<span class="tooltiptext" data-i18n="settings.configNameExplanation"></span>
+							</div>
+						</label>
+						<input class="homey-form-input" id="configName" type="text" maxlength="20" placeholder="Config name"
+							title="Enter configuration name" />
+					</div>
 
 					<div id="buttonItemsSection"></div>
-
-					<p>
-						<button class="homey-button-secondary-shadow" id="addButtonPage" title="Add page"><span
-								data-i18n="settings.addPage"></span></button>
-					</p>
 					<p>
 						<button class="homey-button-secondary-shadow" id="copyButtonConfig"
 							title="Copy button configuration"><span data-i18n="settings.copy"></span></button>
@@ -301,6 +301,19 @@
 				</div>
 			</div>
 			<div class="display-sim-surface" id="displayPagePopupSurface"></div>
+		</div>
+	</div>
+
+	<div id="buttonFieldPopupOverlay" class="button-field-popup-overlay" aria-hidden="true">
+		<div class="button-field-popup-dialog" role="dialog" aria-modal="true" aria-labelledby="buttonFieldPopupTitle">
+			<div class="button-field-popup-header">
+				<div class="button-field-popup-title" id="buttonFieldPopupTitle">Edit button field</div>
+			</div>
+			<div class="button-field-popup-body" id="buttonFieldPopupBody"></div>
+			<div class="button-field-popup-actions">
+				<button class="homey-button-secondary-shadow" id="buttonFieldPopupCancel">Cancel</button>
+				<button class="homey-button-secondary-shadow" id="buttonFieldPopupSave">Save</button>
+			</div>
 		</div>
 	</div>
 

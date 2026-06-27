@@ -16,8 +16,10 @@
 
 		var buttonConfigurationNoElement = document.getElementById('ButtonPanelConfigurationNo');
 		var configNameElement = document.getElementById('configName');
+		var configNameRowElement = document.getElementById('configNameRow');
+		var toggleConfigNameVisibilityElement = document.getElementById('toggleConfigNameVisibility');
+		var panelConfigNameCollapsed = true;
 
-		var addButtonPageElement = document.getElementById('addButtonPage');
 		var copyButtonConfigElement = document.getElementById('copyButtonConfig');
 		var pasteButtonConfigElement = document.getElementById('pasteButtonConfig');
 
@@ -36,8 +38,16 @@
 		var buttonPagePopupTitleElement = document.getElementById('buttonPagePopupTitle');
 		var buttonPagePopupContentElement = document.getElementById('buttonPagePopupContent');
 		var buttonPagePopupStateToggleElement = document.getElementById('buttonPagePopupStateToggle');
+		var buttonMainCurrentPage = 0;
+		var buttonFieldPopupOverlayElement = document.getElementById('buttonFieldPopupOverlay');
+		var buttonFieldPopupTitleElement = document.getElementById('buttonFieldPopupTitle');
+		var buttonFieldPopupBodyElement = document.getElementById('buttonFieldPopupBody');
+		var buttonFieldPopupCancelElement = document.getElementById('buttonFieldPopupCancel');
+		var buttonFieldPopupSaveElement = document.getElementById('buttonFieldPopupSave');
 		var buttonPagePopupCurrentPage = -1;
 		var buttonPagePopupLedState = 'on';
+		var buttonFieldPopupBindings = [];
+		var buttonFieldPopupContext = null;
 		var displayPagePopupOpenElement = document.getElementById('displayPageSimOpen');
 		var displayPagePopupOverlayElement = document.getElementById('displayPagePopupOverlay');
 		var displayPagePopupCloseElement = document.getElementById('displayPagePopupClose');
@@ -92,6 +102,7 @@
 
 		var itemDisplyType = "flex";
 		const MAX_SVG_FIELD_LENGTH = 3 * 1024;
+		const BUTTON_MAIN_DIAGNOSTICS_ENABLED = false;
 		let trimmedSVGFieldCount = 0;
 
 		function clampSVGField(svgValue)
@@ -493,7 +504,7 @@ autoConfigElement.addEventListener('click', function (e)
 
 				for (page = 0; page < ButtonPanelConfiguration.length; page++)
 				{
-					ButtonPanelConfiguration[page].PageNum = document.getElementById(`${page}PageNum`).value;
+					ButtonPanelConfiguration[page].PageNum = page;
 
 					// Copy the values from the controls for each page to the displayConfiguration page
 					storeButtonSettingsSection('left', page, ButtonPanelConfiguration[page]);
@@ -597,7 +608,32 @@ autoConfigElement.addEventListener('click', function (e)
 
 				writeButtonsections(buttonPanelConfiguration.length);
 				updateButtonPanelControls();
+				updateButtonMainDiagnostics('buttonConfigurationNo:change');
 			});
+
+			if (toggleConfigNameVisibilityElement)
+			{
+				toggleConfigNameVisibilityElement.addEventListener('click', function ()
+				{
+					panelConfigNameCollapsed = !panelConfigNameCollapsed;
+					if (configNameRowElement)
+					{
+						configNameRowElement.style.display = panelConfigNameCollapsed ? 'none' : 'block';
+					}
+
+					toggleConfigNameVisibilityElement.classList.toggle('is-open', !panelConfigNameCollapsed);
+					toggleConfigNameVisibilityElement.title = panelConfigNameCollapsed ? 'Show configuration name' : 'Hide configuration name';
+					toggleConfigNameVisibilityElement.setAttribute('aria-label', toggleConfigNameVisibilityElement.title);
+				});
+
+				toggleConfigNameVisibilityElement.classList.toggle('is-open', !panelConfigNameCollapsed);
+				toggleConfigNameVisibilityElement.title = panelConfigNameCollapsed ? 'Show configuration name' : 'Hide configuration name';
+				toggleConfigNameVisibilityElement.setAttribute('aria-label', toggleConfigNameVisibilityElement.title);
+				if (configNameRowElement)
+				{
+					configNameRowElement.style.display = panelConfigNameCollapsed ? 'none' : 'block';
+				}
+			}
 
 			displayConfigNameElement.addEventListener('change', function (e)
 			{
@@ -615,44 +651,6 @@ autoConfigElement.addEventListener('click', function (e)
 			displayConfigurationNoElement.addEventListener('change', function (e)
 			{
 				redisplayDisplyConfig();
-			});
-
-			addButtonPageElement.addEventListener('click', function (e)
-			{
-				var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-
-				// save the controls into the local configuration
-				storeButtonSettings(buttonPanelConfiguration);
-
-				// Add a new page to the current button configuration
-				var newPage = JSON.parse(JSON.stringify(buttonPanelConfiguration[0]));
-				newPage.PageNum = buttonPanelConfiguration.length;
-				buttonPanelConfiguration.push(newPage);
-
-				// Create and display the new page
-				writeButtonsections(buttonPanelConfiguration.length);
-				updateButtonPanelControls();
-
-				const newPageIndex = buttonPanelConfiguration.length - 1;
-				requestAnimationFrame(() =>
-				{
-					const newPageElement = document.getElementById(`${newPageIndex}ButtonPageSection`);
-					if (newPageElement)
-					{
-						const newPageDetails = newPageElement.querySelector('details');
-						if (newPageDetails)
-						{
-							newPageDetails.open = true;
-						}
-
-						scrollToTop(newPageElement);
-						newPageElement.classList.add('button-page-highlight');
-						setTimeout(() =>
-						{
-							newPageElement.classList.remove('button-page-highlight');
-						}, 1600);
-					}
-				});
 			});
 
 			copyButtonConfigElement.addEventListener('click', function (e)
@@ -1010,7 +1008,24 @@ autoConfigElement.addEventListener('click', function (e)
 						return;
 					}
 
+					suppressNativeTooltipTitles(tooltipTrigger);
 					position_tooltip.call(tooltipTrigger);
+				});
+
+				document.addEventListener('mouseout', function (event)
+				{
+					const tooltipTrigger = event.target.closest('.tooltip');
+					if (!tooltipTrigger)
+					{
+						return;
+					}
+
+					if (event.relatedTarget && tooltipTrigger.contains(event.relatedTarget))
+					{
+						return;
+					}
+
+					restoreNativeTooltipTitles(tooltipTrigger);
 				});
 
 				window.tooltipHoverListenerBound = true;
@@ -1019,6 +1034,16 @@ autoConfigElement.addEventListener('click', function (e)
 			if (buttonPagePopupCloseElement)
 			{
 				buttonPagePopupCloseElement.addEventListener('click', closeButtonPagePopup);
+			}
+
+			if (buttonFieldPopupCancelElement)
+			{
+				buttonFieldPopupCancelElement.addEventListener('click', closeButtonFieldPopup);
+			}
+
+			if (buttonFieldPopupSaveElement)
+			{
+				buttonFieldPopupSaveElement.addEventListener('click', saveButtonFieldPopup);
 			}
 
 			if (buttonPagePopupStateToggleElement)
@@ -1091,15 +1116,11 @@ autoConfigElement.addEventListener('click', function (e)
 					{
 						buttonPagePopupCurrentPage = pageIndex;
 					}
+					renderInlineButtonPagePreview(pageIndex);
 					if (buttonPagePopupOverlayElement && buttonPagePopupOverlayElement.classList.contains('visible'))
 					{
 						renderButtonPagePopup();
 					}
-					return;
-				}
-
-				if (!buttonPagePopupOverlayElement || !buttonPagePopupOverlayElement.classList.contains('visible'))
-				{
 					return;
 				}
 
@@ -1125,7 +1146,12 @@ autoConfigElement.addEventListener('click', function (e)
 					buttonPagePopupCurrentPage = pageIndex;
 				}
 
-				renderButtonPagePopup();
+				renderInlineButtonPagePreview(pageIndex);
+
+				if (buttonPagePopupOverlayElement && buttonPagePopupOverlayElement.classList.contains('visible'))
+				{
+					renderButtonPagePopup();
+				}
 			};
 
 			const refreshDisplayPagePopupFromControl = function (event)
@@ -1232,15 +1258,42 @@ autoConfigElement.addEventListener('click', function (e)
 			{
 				if (event.key === 'Escape')
 				{
+					closeButtonFieldPopup();
 					closeButtonPagePopup();
 					closeDisplayPagePopup();
 				}
 			});
 
+			if (!window.buttonMainDiagnosticsErrorHandlersBound)
+			{
+				window.addEventListener('error', function (event)
+				{
+					console.error('[ButtonMainDiagnostics][window.error]', {
+						message: event.message,
+						filename: event.filename,
+						lineno: event.lineno,
+						colno: event.colno,
+						error: event.error,
+					});
+					updateButtonMainDiagnostics('window:error', { message: event.message, lineno: event.lineno, colno: event.colno });
+				});
+
+				window.addEventListener('unhandledrejection', function (event)
+				{
+					console.error('[ButtonMainDiagnostics][unhandledrejection]', {
+						reason: event.reason,
+					});
+					updateButtonMainDiagnostics('window:unhandledrejection', { reason: String(event.reason) });
+				});
+
+				window.buttonMainDiagnosticsErrorHandlersBound = true;
+			}
+
 			// Tell Homey we're ready to be displayed
 			Homey.ready();
 
 			configTypeChanged('settings');
+			updateButtonMainDiagnostics('onHomeyReady:complete');
 		}
 
 		function position_tooltip()
@@ -1276,6 +1329,51 @@ autoConfigElement.addEventListener('click', function (e)
 			{
 				tooltip.style.left = `calc(-100% + ${Math.round(correction)}px)`;
 			}
+		}
+
+		function suppressNativeTooltipTitles(tooltipTrigger)
+		{
+			if (!tooltipTrigger || tooltipTrigger._suppressedTitleElements)
+			{
+				return;
+			}
+
+			const suppressed = [];
+			let currentElement = tooltipTrigger;
+
+			while (currentElement && currentElement !== document.body)
+			{
+				if (currentElement.hasAttribute && currentElement.hasAttribute('title'))
+				{
+					suppressed.push({
+						element: currentElement,
+						title: currentElement.getAttribute('title'),
+					});
+					currentElement.removeAttribute('title');
+				}
+
+				currentElement = currentElement.parentElement;
+			}
+
+			tooltipTrigger._suppressedTitleElements = suppressed;
+		}
+
+		function restoreNativeTooltipTitles(tooltipTrigger)
+		{
+			if (!tooltipTrigger || !tooltipTrigger._suppressedTitleElements)
+			{
+				return;
+			}
+
+			tooltipTrigger._suppressedTitleElements.forEach((entry) =>
+			{
+				if (entry && entry.element && entry.title !== null)
+				{
+					entry.element.setAttribute('title', entry.title);
+				}
+			});
+
+			delete tooltipTrigger._suppressedTitleElements;
 		}
 
 		function setupFilterableSelects()
@@ -1325,6 +1423,18 @@ autoConfigElement.addEventListener('click', function (e)
 
 		function enhanceFilterableSelect(selectElement)
 		{
+			if (selectElement && (selectElement.id === 'configType' || selectElement.id === 'displayConfigurationNo' || selectElement.id === 'defaultBroker' || selectElement.id === 'sentip'))
+			{
+				selectElement.dataset.filterableEnhanced = 'native';
+				return;
+			}
+
+			if (selectElement && selectElement.closest && selectElement.closest('#panelConfig'))
+			{
+				selectElement.dataset.filterableEnhanced = 'native';
+				return;
+			}
+
 			if (!selectElement || selectElement.dataset.filterableEnhanced === 'true')
 			{
 				return;
@@ -1420,6 +1530,63 @@ autoConfigElement.addEventListener('click', function (e)
 				});
 			};
 
+			const getDeviceClassIcon = (deviceClass) =>
+			{
+				switch ((deviceClass || '').toLowerCase())
+				{
+					case 'light': return '💡';
+					case 'socket': return '🔌';
+					case 'sensor': return '📟';
+					case 'thermostat': return '🌡️';
+					case 'speaker': return '🔊';
+					case 'camera': return '📷';
+					case 'lock': return '🔒';
+					case 'windowcoverings': return '🪟';
+					default: return '•';
+				}
+			};
+
+			const appendOptionLabel = (optionNode, option, query) =>
+			{
+				const labelNode = document.createElement('span');
+				labelNode.className = 'filterable-select-option-label';
+
+				if (!option.disabled)
+				{
+					const iconUrl = option.dataset.iconUrl || '';
+					if (iconUrl)
+					{
+						const iconImage = document.createElement('img');
+						iconImage.className = 'filterable-select-option-icon';
+						iconImage.src = iconUrl;
+						iconImage.alt = '';
+						iconImage.loading = 'lazy';
+						iconImage.decoding = 'async';
+						iconImage.addEventListener('error', function ()
+						{
+							const iconFallback = document.createElement('span');
+							iconFallback.className = 'filterable-select-option-icon-fallback';
+							iconFallback.textContent = getDeviceClassIcon(option.dataset.deviceClass || '');
+							if (iconImage.parentNode)
+							{
+								iconImage.parentNode.replaceChild(iconFallback, iconImage);
+							}
+						});
+						optionNode.appendChild(iconImage);
+					}
+					else
+					{
+						const iconFallback = document.createElement('span');
+						iconFallback.className = 'filterable-select-option-icon-fallback';
+						iconFallback.textContent = getDeviceClassIcon(option.dataset.deviceClass || '');
+						optionNode.appendChild(iconFallback);
+					}
+				}
+
+				appendHighlightedText(labelNode, option.text || '', query);
+				optionNode.appendChild(labelNode);
+			};
+
 			const renderDropdown = () =>
 			{
 				dropdown.innerHTML = '';
@@ -1455,7 +1622,7 @@ autoConfigElement.addEventListener('click', function (e)
 						optionNode.classList.add('filterable-select-active');
 					}
 
-					appendHighlightedText(optionNode, option.text || '', query);
+					appendOptionLabel(optionNode, option, query);
 					optionNode.addEventListener('mousedown', function (event)
 					{
 						event.preventDefault();
@@ -1691,6 +1858,384 @@ autoConfigElement.addEventListener('click', function (e)
 			document.getElementById(`button${side}Legend`).innerHTML = `<b><em>${Homey.__(`settings.${side}Panel`)}</em></b> - ${element.value}`;
 		}
 
+		function collectButtonMainDiagnostics(source, extra = {})
+		{
+			const rawConfig = localButtonConfigurations[currentButtonConfigurationNo];
+			const pageSections = Array.from(document.querySelectorAll('.button-main-page'));
+			const activeIndex = pageSections.findIndex((section) => section.classList.contains('active'));
+			const activeSection = (activeIndex >= 0) ? pageSections[activeIndex] : null;
+			const activeGroup = activeSection ? activeSection.querySelector('.horizontalgroup') : null;
+			const buttonItemsSection = document.getElementById('buttonItemsSection');
+			const panelConfigTab = document.getElementById('panelConfig');
+			const visibleCount = pageSections.filter((section) => section.style.display !== 'none').length;
+			const getDisplayValue = function (element)
+			{
+				if (!element)
+				{
+					return '(missing)';
+				}
+
+				return {
+					inline: element.style.display || '(css)',
+					computed: window.getComputedStyle(element).display,
+				};
+			};
+
+			return {
+				source,
+				configIndex: Number(currentButtonConfigurationNo),
+				rawType: Array.isArray(rawConfig) ? 'array' : typeof rawConfig,
+				rawLength: Array.isArray(rawConfig) ? rawConfig.length : (rawConfig ? 1 : 0),
+				mainPageCurrent: Number(buttonMainCurrentPage),
+				mainPageActiveIndex: activeIndex,
+				mainPageSectionCount: pageSections.length,
+				mainPageVisibleCount: visibleCount,
+				mainPageActiveHeight: activeSection ? activeSection.offsetHeight : -1,
+				mainPageActiveChildCount: activeSection ? activeSection.childElementCount : -1,
+				mainPageActiveGroupHeight: activeGroup ? activeGroup.offsetHeight : -1,
+				mainPageActiveDisplay: getDisplayValue(activeSection),
+				buttonItemsSectionHeight: buttonItemsSection ? buttonItemsSection.offsetHeight : -1,
+				buttonItemsSectionDisplay: getDisplayValue(buttonItemsSection),
+				panelConfigTabHeight: panelConfigTab ? panelConfigTab.offsetHeight : -1,
+				panelConfigTabDisplay: getDisplayValue(panelConfigTab),
+				popupPageCurrent: Number(buttonPagePopupCurrentPage),
+				popupVisible: Boolean(buttonPagePopupOverlayElement && buttonPagePopupOverlayElement.classList.contains('visible')),
+				fieldPopupVisible: Boolean(buttonFieldPopupOverlayElement && buttonFieldPopupOverlayElement.classList.contains('visible')),
+				...extra,
+			};
+		}
+
+		function updateButtonMainDiagnostics(source, extra = {})
+		{
+			if (!BUTTON_MAIN_DIAGNOSTICS_ENABLED)
+			{
+				return;
+			}
+
+			const diagnostics = collectButtonMainDiagnostics(source, extra);
+			console.log('[ButtonMainDiagnostics]', diagnostics);
+
+		}
+
+		function hidePopupManagedFieldsForSection(side, page)
+		{
+			const hideById = function (id)
+			{
+				const element = document.getElementById(id);
+				if (element)
+				{
+					element.style.display = 'none';
+				}
+			};
+
+			const hideLabelFor = function (id)
+			{
+				const section = document.getElementById(`${side}${page}PanelSection`);
+				if (!section)
+				{
+					return;
+				}
+
+				const label = section.querySelector(`label[for="${id}"]`);
+				if (label)
+				{
+					label.style.display = 'none';
+				}
+			};
+
+			hideById(`${side}${page}Device`);
+			hideLabelFor(`${side}${page}Device`);
+
+			hideById(`${side}${page}CapabilityDiv`);
+
+			hideById(`${side}${page}TopText`);
+			hideLabelFor(`${side}${page}TopText`);
+
+			hideById(`${side}${page}OnTextDiv`);
+			hideById(`${side}${page}OffText`);
+			hideById(`${side}${page}OffTextLabel`);
+
+			hideById(`${side}${page}FrontLEDOnColor`);
+			hideById(`${side}${page}FrontLEDOnColorLabel`);
+			hideById(`${side}${page}WallLEDOnColor`);
+			hideById(`${side}${page}WallLEDOnColorLabel`);
+			hideById(`${side}${page}FrontLEDOffColor`);
+			hideById(`${side}${page}FrontLEDOffColorLabel`);
+			hideById(`${side}${page}WallLEDOffColor`);
+			hideById(`${side}${page}WallLEDOffColorLabel`);
+
+			hideById(`${side}${page}OnSVG`);
+			hideLabelFor(`${side}${page}OnSVG`);
+			hideById(`${side}${page}OnSVGPreview`);
+			const onSvgElement = document.getElementById(`${side}${page}OnSVG`);
+			if (onSvgElement)
+			{
+				const onSvgWrapper = onSvgElement.closest('.svg-editor-wrapper');
+				if (onSvgWrapper)
+				{
+					onSvgWrapper.style.display = 'none';
+				}
+			}
+
+			hideById(`${side}${page}OffSVG`);
+			hideLabelFor(`${side}${page}OffSVG`);
+			hideById(`${side}${page}OffSVGPreview`);
+			const offSvgElement = document.getElementById(`${side}${page}OffSVG`);
+			if (offSvgElement)
+			{
+				const offSvgWrapper = offSvgElement.closest('.svg-editor-wrapper');
+				if (offSvgWrapper)
+				{
+					offSvgWrapper.style.display = 'none';
+				}
+			}
+		}
+
+		function hidePopupManagedFieldsForPage(page)
+		{
+			hidePopupManagedFieldsForSection('left', page);
+			hidePopupManagedFieldsForSection('right', page);
+		}
+
+		function updateButtonAdvancedToggleState(side, page)
+		{
+			const detailElement = document.getElementById(`${side}${page}Details`);
+			const toggleElement = document.getElementById(`${side}${page}AdvancedToggle`);
+			if (!detailElement || !toggleElement)
+			{
+				return;
+			}
+
+			toggleElement.textContent = detailElement.open ? 'Hide Advanced' : 'Advanced';
+			toggleElement.setAttribute('aria-expanded', detailElement.open ? 'true' : 'false');
+		}
+
+		function toggleButtonAdvancedSection(side, page)
+		{
+			const detailElement = document.getElementById(`${side}${page}Details`);
+			if (!detailElement)
+			{
+				return;
+			}
+
+			detailElement.open = !detailElement.open;
+			if (detailElement.open)
+			{
+				hidePopupManagedFieldsForSection(side, page);
+				scrollToTop(detailElement);
+			}
+
+			updateButtonAdvancedToggleState(side, page);
+		}
+
+		function updateButtonInlineSettingsToggleState(page)
+		{
+			const detailElement = document.getElementById(`${page}ButtonInlineSettingsDetails`);
+			const toggleElement = document.getElementById(`${page}ButtonInlineSettingsToggle`);
+			if (!detailElement || !toggleElement)
+			{
+				return;
+			}
+
+			toggleElement.classList.toggle('is-open', detailElement.open);
+			toggleElement.title = detailElement.open ? 'Collapse Repeat / Broker' : 'Expand Repeat / Broker';
+			toggleElement.setAttribute('aria-label', toggleElement.title);
+			toggleElement.setAttribute('aria-expanded', detailElement.open ? 'true' : 'false');
+		}
+
+		function toggleButtonInlineSettingsSection(page)
+		{
+			const detailElement = document.getElementById(`${page}ButtonInlineSettingsDetails`);
+			if (!detailElement)
+			{
+				return;
+			}
+
+			detailElement.open = !detailElement.open;
+			if (detailElement.open)
+			{
+				scrollToTop(detailElement);
+			}
+
+			updateButtonInlineSettingsToggleState(page);
+		}
+
+		function collapseAllDetails(root = document)
+		{
+			if (!root || typeof root.querySelectorAll !== 'function')
+			{
+				return;
+			}
+
+			root.querySelectorAll('details').forEach((detailElement) =>
+			{
+				detailElement.open = false;
+			});
+		}
+
+		function getButtonInlineMainControlHtml(side, page)
+		{
+			const ctrlLabels = {
+				longRepeat: 'Repeat',
+				brokerId: Homey.__("settings.brokerId"),
+			};
+
+			const ctrlExplanations = {
+				longRepeat: Homey.__("settings.longRepeatExplanation"),
+				brokerId: Homey.__("settings.brokerIdExplanation"),
+			};
+
+			const panelLabel = side === 'left' ? Homey.__("settings.leftPanel") : Homey.__("settings.rightPanel");
+
+			return `<div class="button-inline-main-control-column">
+				<div class="button-inline-main-control-heading">${panelLabel}</div>
+				<div class="button-inline-main-controls">
+					<label class="homey-form-checkbox">
+						<input class="homey-form-checkbox-input" id="${side}${page}DisableLongRepeat" type="checkbox" value="auto" />
+						<span class="homey-form-checkbox-checkmark"></span>
+						<span class="homey-form-checkbox-text"><span>${ctrlLabels.longRepeat}</span></span>
+						<div class="tooltip"><i class="fi fi-rr-info"></i>
+							<span class="tooltiptext">${ctrlExplanations.longRepeat}</span>
+						</div>
+					</label>
+
+					<div id="${side}${page}BrokerIdDiv" class="button-inline-broker-control">
+						<label class="homey-form-label" for="${side}${page}BrokerId"><span>${ctrlLabels.brokerId}</span>
+							<div class="tooltip"><i class="fi fi-rr-info"></i>
+								<span class="tooltiptext">${ctrlExplanations.brokerId}</span>
+							</div>
+						</label>
+						<select class="homey-form-select" id="${side}${page}BrokerId">
+						</select>
+					</div>
+				</div>
+			</div>`;
+		}
+
+		function renderButtonMainPage()
+		{
+			const pageSections = Array.from(document.querySelectorAll('.button-main-page'));
+			if (!pageSections.length)
+			{
+				updateButtonMainDiagnostics('renderButtonMainPage:no-sections');
+				return;
+			}
+
+			buttonMainCurrentPage = Number(buttonMainCurrentPage);
+			if (Number.isNaN(buttonMainCurrentPage))
+			{
+				buttonMainCurrentPage = 0;
+			}
+
+			if (buttonMainCurrentPage < 0)
+			{
+				buttonMainCurrentPage = 0;
+			}
+			if (buttonMainCurrentPage >= pageSections.length)
+			{
+				buttonMainCurrentPage = pageSections.length - 1;
+			}
+
+			let hasActiveSection = false;
+			pageSections.forEach((section, index) =>
+			{
+				const isActive = (index === buttonMainCurrentPage);
+				section.classList.toggle('active', isActive);
+				if (isActive)
+				{
+					section.style.display = 'flex';
+					section.style.flexDirection = 'column';
+					section.style.width = '100%';
+					section.style.minHeight = '1px';
+					const activeGroup = section.querySelector('.horizontalgroup');
+					if (activeGroup)
+					{
+						activeGroup.style.display = 'block';
+						activeGroup.style.flex = '0 0 auto';
+						activeGroup.style.width = '100%';
+						activeGroup.style.minHeight = '1px';
+					}
+				}
+				else
+				{
+					section.style.display = 'none';
+				}
+				hasActiveSection = hasActiveSection || isActive;
+			});
+
+			if (!hasActiveSection)
+			{
+				buttonMainCurrentPage = 0;
+				pageSections.forEach((section, index) =>
+				{
+					const isActive = (index === 0);
+					section.classList.toggle('active', isActive);
+					if (isActive)
+					{
+						section.style.display = 'flex';
+						section.style.flexDirection = 'column';
+						section.style.width = '100%';
+						section.style.minHeight = '1px';
+						const activeGroup = section.querySelector('.horizontalgroup');
+						if (activeGroup)
+						{
+							activeGroup.style.display = 'block';
+							activeGroup.style.flex = '0 0 auto';
+							activeGroup.style.width = '100%';
+							activeGroup.style.minHeight = '1px';
+						}
+					}
+					else
+					{
+						section.style.display = 'none';
+					}
+				});
+			}
+
+			updateButtonMainDiagnostics('renderButtonMainPage', { hasActiveSection });
+
+			const prevButtons = document.querySelectorAll('.button-main-page-prev');
+			const nextButtons = document.querySelectorAll('.button-main-page-next');
+			prevButtons.forEach((button) =>
+			{
+				button.disabled = (buttonMainCurrentPage <= 0);
+			});
+			nextButtons.forEach((button) =>
+			{
+				button.disabled = (buttonMainCurrentPage >= (pageSections.length - 1));
+			});
+		}
+
+		function ensureButtonMainContextVisible()
+		{
+			const panelConfigTab = document.getElementById('panelConfig');
+			const buttonItemsSection = document.getElementById('buttonItemsSection');
+
+			if (configTypeElement && configTypeElement.value === 'panelConfig' && panelConfigTab)
+			{
+				panelConfigTab.style.display = 'block';
+			}
+
+			if (buttonItemsSection)
+			{
+				buttonItemsSection.style.display = 'block';
+				buttonItemsSection.style.width = '100%';
+				buttonItemsSection.style.minHeight = '1px';
+				buttonItemsSection.style.overflow = 'visible';
+			}
+		}
+
+		function stepButtonMainPage(delta)
+		{
+			updateButtonMainDiagnostics('stepButtonMainPage:before', { delta });
+			const step = Number(delta);
+			ensureButtonMainContextVisible();
+			buttonMainCurrentPage = Number(buttonMainCurrentPage) + (Number.isNaN(step) ? 0 : step);
+			renderButtonMainPage();
+			ensureButtonMainContextVisible();
+			updateButtonMainDiagnostics('stepButtonMainPage:after', { delta, step });
+		}
+
 		function closeButtonPagePopup()
 		{
 			if (!buttonPagePopupOverlayElement)
@@ -1729,25 +2274,25 @@ autoConfigElement.addEventListener('click', function (e)
 			return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(color) ? color : fallback;
 		}
 
-		function getButtonPanelLedColor(pageConfig, side, ledType)
+		function getButtonPanelLedColor(pageConfig, side, ledType, pageIndex = buttonPagePopupCurrentPage)
 		{
 			const suffix = (buttonPagePopupLedState === 'on') ? 'OnColor' : 'OffColor';
 			const fallback = (buttonPagePopupLedState === 'on') ? '#ffffff' : '#1f2937';
-			const colorInputId = `${side}${buttonPagePopupCurrentPage}${ledType}${suffix}`;
+			const colorInputId = `${side}${pageIndex}${ledType}${suffix}`;
 			const liveInputElement = document.getElementById(colorInputId);
 			const liveColor = liveInputElement ? liveInputElement.value : undefined;
 			const configColor = pageConfig[`${side}${ledType}${suffix}`];
 			return normalizeLedColor(liveColor || configColor, fallback);
 		}
 
-		function getButtonPanelLedMarkup(pageConfig, side)
+		function getButtonPanelLedMarkup(pageConfig, side, pageIndex = buttonPagePopupCurrentPage)
 		{
-			const wallColor = escapeHtml(getButtonPanelLedColor(pageConfig, side, 'WallLED'));
-			const frontColor = escapeHtml(getButtonPanelLedColor(pageConfig, side, 'FrontLED'));
+			const wallColor = escapeHtml(getButtonPanelLedColor(pageConfig, side, 'WallLED', pageIndex));
+			const frontColor = escapeHtml(getButtonPanelLedColor(pageConfig, side, 'FrontLED', pageIndex));
 			const ledColorSuffix = (buttonPagePopupLedState === 'on') ? 'OnColor' : 'OffColor';
 			return `
-				<div class="button-sim-led button-sim-led-wall" title="${side} wall LED (${buttonPagePopupLedState})" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${buttonPagePopupCurrentPage}, 'WallLED${ledColorSuffix}');" style="background-color:${wallColor}; border-color:${wallColor};"></div>
-				<div class="button-sim-led button-sim-led-front" title="${side} front LED (${buttonPagePopupLedState})" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${buttonPagePopupCurrentPage}, 'FrontLED${ledColorSuffix}');" style="border-color:${frontColor}; box-shadow: 0 0 6px ${frontColor};"></div>`;
+				<div class="button-sim-led button-sim-led-wall" title="${side} wall LED (${buttonPagePopupLedState})" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${pageIndex}, 'WallLED${ledColorSuffix}');" style="background-color:${wallColor}; border-color:${wallColor};"></div>
+				<div class="button-sim-led button-sim-led-front" title="${side} front LED (${buttonPagePopupLedState})" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${pageIndex}, 'FrontLED${ledColorSuffix}');" style="border-color:${frontColor}; box-shadow: 0 0 6px ${frontColor};"></div>`;
 		}
 
 		function getButtonPanelPreviewSvg(svgText)
@@ -1768,9 +2313,9 @@ autoConfigElement.addEventListener('click', function (e)
 			return svgElement.outerHTML;
 		}
 
-		function getLiveButtonPanelFieldValue(pageConfig, side, fieldSuffix, fallback = '')
+		function getLiveButtonPanelFieldValue(pageConfig, side, fieldSuffix, fallback = '', pageIndex = buttonPagePopupCurrentPage)
 		{
-			const fieldId = `${side}${buttonPagePopupCurrentPage}${fieldSuffix}`;
+			const fieldId = `${side}${pageIndex}${fieldSuffix}`;
 			const liveElement = document.getElementById(fieldId);
 			if (liveElement && typeof liveElement.value === 'string')
 			{
@@ -1786,28 +2331,33 @@ autoConfigElement.addEventListener('click', function (e)
 			return fallback;
 		}
 
-		function getButtonPanelPreviewMarkup(pageConfig, side)
+		function formatButtonPageLabel(pageIndex)
 		{
-			const topText = escapeHtml(getLiveButtonPanelFieldValue(pageConfig, side, 'TopText', Homey.__(`settings.${side}Panel`)));
-			const onText = escapeHtml(getLiveButtonPanelFieldValue(pageConfig, side, 'OnText', Homey.__('settings.labelOn')));
-			const offText = escapeHtml(getLiveButtonPanelFieldValue(pageConfig, side, 'OffText', Homey.__('settings.labelOff')));
+			return pageIndex === 0 ? 'Default' : `${pageIndex}`;
+		}
+
+		function getButtonPanelPreviewMarkup(pageConfig, side, pageIndex = buttonPagePopupCurrentPage)
+		{
+			const topText = escapeHtml(getLiveButtonPanelFieldValue(pageConfig, side, 'TopText', Homey.__(`settings.${side}Panel`), pageIndex));
+			const onText = escapeHtml(getLiveButtonPanelFieldValue(pageConfig, side, 'OnText', Homey.__('settings.labelOn'), pageIndex));
+			const offText = escapeHtml(getLiveButtonPanelFieldValue(pageConfig, side, 'OffText', Homey.__('settings.labelOff'), pageIndex));
 			const stateText = (buttonPagePopupLedState === 'on') ? onText : offText;
 			const textFieldSuffix = (buttonPagePopupLedState === 'on') ? 'OnText' : 'OffText';
 			const svgFieldSuffix = (buttonPagePopupLedState === 'on') ? 'OnSVG' : 'OffSVG';
-			const selectedSvgText = getLiveButtonPanelFieldValue(pageConfig, side, svgFieldSuffix, '');
+			const selectedSvgText = getLiveButtonPanelFieldValue(pageConfig, side, svgFieldSuffix, '', pageIndex);
 			const svgMarkup = getButtonPanelPreviewSvg(selectedSvgText || '');
-			const ledMarkup = `<div class="button-sim-leds ${side === 'right' ? 'button-sim-leds-right' : ''}">${getButtonPanelLedMarkup(pageConfig, side)}</div>`;
+			const ledMarkup = `<div class="button-sim-leds ${side === 'right' ? 'button-sim-leds-right' : ''}">${getButtonPanelLedMarkup(pageConfig, side, pageIndex)}</div>`;
 			const contentMarkup = svgMarkup
 				? `
-					<div class="button-sim-content button-sim-content-svg">
-						<div class="button-sim-top" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${buttonPagePopupCurrentPage}, 'TopText');">${topText}</div>
-						<div class="button-sim-icon" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${buttonPagePopupCurrentPage}, '${svgFieldSuffix}');">${svgMarkup}</div>
+					<div class="button-sim-content button-sim-content-svg" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${pageIndex}, '${svgFieldSuffix}');">
+						<div class="button-sim-top" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${pageIndex}, 'TopText');">${topText}</div>
+						<div class="button-sim-icon" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${pageIndex}, '${svgFieldSuffix}');">${svgMarkup}</div>
 					</div>`
 				: `
 					<div class="button-sim-content">
-						<div class="button-sim-top" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${buttonPagePopupCurrentPage}, 'TopText');">${topText}</div>
-						<div class="button-sim-state-block">
-							<div class="button-sim-state-line" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${buttonPagePopupCurrentPage}, '${textFieldSuffix}');">${stateText}</div>
+						<div class="button-sim-top" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${pageIndex}, 'TopText');">${topText}</div>
+							<div class="button-sim-state-block" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${pageIndex}, '${textFieldSuffix}');">
+							<div class="button-sim-state-line" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${pageIndex}, '${textFieldSuffix}');">${stateText}</div>
 						</div>
 					</div>`;
 
@@ -1825,6 +2375,60 @@ autoConfigElement.addEventListener('click', function (e)
 					${contentMarkup}
 					${ledMarkup}
 				</div>`;
+		}
+
+		function renderInlineButtonPagePreview(page)
+		{
+			const config = localButtonConfigurations[currentButtonConfigurationNo];
+			if (!Array.isArray(config) || page < 0 || page >= config.length)
+			{
+				return;
+			}
+
+			const pageConfig = config[page];
+			const previewElement = document.getElementById(`${page}ButtonInlineSimContent`);
+			if (previewElement)
+			{
+				previewElement.innerHTML =
+					`<button class="button-sim-item" onclick="focusButtonPanelFromPopup('left', ${page})" title="Open left panel settings">
+						${getButtonPanelPreviewMarkup(pageConfig, 'left', page)}
+					</button>
+					<button class="button-sim-item" onclick="focusButtonPanelFromPopup('right', ${page})" title="Open right panel settings">
+						${getButtonPanelPreviewMarkup(pageConfig, 'right', page)}
+					</button>`;
+			}
+
+			const stateToggleElement = document.getElementById(`${page}ButtonInlineSimState`);
+			if (stateToggleElement)
+			{
+				stateToggleElement.textContent = (buttonPagePopupLedState === 'on') ? 'On state' : 'Off state';
+			}
+		}
+
+		function renderInlineButtonPagePreviews()
+		{
+			let config = localButtonConfigurations[currentButtonConfigurationNo];
+			if (!Array.isArray(config))
+			{
+				config = [config];
+				localButtonConfigurations[currentButtonConfigurationNo] = config;
+			}
+
+			for (let page = 0; page < config.length; page++)
+			{
+				renderInlineButtonPagePreview(page);
+			}
+		}
+
+		function toggleInlineButtonSimState()
+		{
+			buttonPagePopupLedState = (buttonPagePopupLedState === 'on') ? 'off' : 'on';
+			renderInlineButtonPagePreviews();
+
+			if (buttonPagePopupOverlayElement && buttonPagePopupOverlayElement.classList.contains('visible'))
+			{
+				renderButtonPagePopup();
+			}
 		}
 
 		function renderButtonPagePopup()
@@ -1859,12 +2463,12 @@ autoConfigElement.addEventListener('click', function (e)
 
 			if (buttonPagePopupStateToggleElement)
 			{
-				buttonPagePopupStateToggleElement.textContent = `${buttonPagePopupLedState === 'on' ? 'On' : 'Off'}`;
+				buttonPagePopupStateToggleElement.textContent = `${buttonPagePopupLedState === 'on' ? 'On state' : 'Off state'}`;
 			}
 
 			if (buttonPagePopupTitleElement)
 			{
-				buttonPagePopupTitleElement.textContent = `Page ${buttonPagePopupCurrentPage}`;
+				buttonPagePopupTitleElement.textContent = `Page ${formatButtonPageLabel(buttonPagePopupCurrentPage)}`;
 			}
 
 			if (buttonPagePopupPrevElement)
@@ -1975,11 +2579,419 @@ autoConfigElement.addEventListener('click', function (e)
 
 		function focusButtonPanelFromPopup(side, page)
 		{
-			focusButtonControlFromPopup(side, page, 'TopText');
+			focusButtonControlFromPopup(side, page, 'Device');
 		}
 
-		function focusButtonControlFromPopup(side, page, fieldSuffix)
+		function getButtonFieldPopupSpec(side, fieldSuffix)
 		{
+			const sideLabel = Homey.__(`settings.${side}Panel`);
+			const labels = {
+				Device: Homey.__('settings.device'),
+				Capability: Homey.__('settings.capability'),
+				TopText: Homey.__('settings.topLabel'),
+				OnText: Homey.__('settings.labelOn'),
+				OffText: Homey.__('settings.labelOff'),
+				OnSVG: 'On SVG Data',
+				OffSVG: 'Off SVG Data',
+				FrontLEDOnColor: Homey.__('settings.frontLEDOnColor'),
+				WallLEDOnColor: Homey.__('settings.wallLEDOnColor'),
+				FrontLEDOffColor: Homey.__('settings.frontLEDOffColor'),
+				WallLEDOffColor: Homey.__('settings.wallLEDOffColor'),
+			};
+
+			if (fieldSuffix === 'TopText')
+			{
+				return {
+					title: `${sideLabel} - ${labels.TopText}`,
+					fields: ['TopText'],
+					labels,
+				};
+			}
+
+			if (fieldSuffix === 'Device' || fieldSuffix === 'Capability')
+			{
+				return {
+					title: `${sideLabel} - ${Homey.__('settings.device')}`,
+					fields: ['Device', 'Capability'],
+					labels,
+				};
+			}
+
+			if (fieldSuffix === 'OnText' || fieldSuffix === 'OffText')
+			{
+				const valueFields = (fieldSuffix === 'OnText')
+					? ['Device', 'Capability', 'OnText', 'OffText', 'OnSVG', 'OffSVG']
+					: ['Device', 'Capability', 'OffText', 'OnText', 'OnSVG', 'OffSVG'];
+
+				return {
+					title: `${sideLabel} - ${Homey.__('settings.text')}`,
+					fields: valueFields,
+					labels,
+				};
+			}
+
+			if (fieldSuffix === 'OnSVG' || fieldSuffix === 'OffSVG')
+			{
+				const svgFields = (fieldSuffix === 'OnSVG')
+					? ['Device', 'Capability', 'OnText', 'OffText', 'OnSVG', 'OffSVG']
+					: ['Device', 'Capability', 'OffText', 'OnText', 'OffSVG', 'OnSVG'];
+
+				return {
+					title: `${sideLabel} - ${Homey.__('settings.text')}`,
+					fields: svgFields,
+					labels,
+				};
+			}
+
+			if (fieldSuffix.endsWith('Color'))
+			{
+				return {
+					title: `${sideLabel} - LEDs`,
+					fields: ['FrontLEDOnColor', 'WallLEDOnColor', 'FrontLEDOffColor', 'WallLEDOffColor'],
+					labels,
+				};
+			}
+
+			return null;
+		}
+
+		function closeButtonFieldPopup()
+		{
+			if (!buttonFieldPopupOverlayElement)
+			{
+				return;
+			}
+
+			buttonFieldPopupOverlayElement.classList.remove('visible');
+			buttonFieldPopupOverlayElement.setAttribute('aria-hidden', 'true');
+			buttonFieldPopupBindings = [];
+			buttonFieldPopupContext = null;
+			if (buttonFieldPopupBodyElement)
+			{
+				buttonFieldPopupBodyElement.innerHTML = '';
+			}
+		}
+
+		function syncButtonFieldPopupCapabilityOptions(side, page, popupCapabilityElement, selectedCapability = '')
+		{
+			if (!popupCapabilityElement)
+			{
+				return;
+			}
+
+			const sourceCapabilityElement = document.getElementById(`${side}${page}Capability`);
+			if (!sourceCapabilityElement)
+			{
+				return;
+			}
+
+			popupCapabilityElement.innerHTML = sourceCapabilityElement.innerHTML;
+			const wantedValue = selectedCapability || sourceCapabilityElement.value;
+			if (wantedValue)
+			{
+				popupCapabilityElement.value = wantedValue;
+			}
+		}
+
+		function saveButtonFieldPopup()
+		{
+			if (!buttonFieldPopupBindings || buttonFieldPopupBindings.length === 0)
+			{
+				closeButtonFieldPopup();
+				return;
+			}
+
+			if (buttonFieldPopupContext && buttonFieldPopupContext.popupElementsBySuffix && buttonFieldPopupContext.popupElementsBySuffix.Device && buttonFieldPopupContext.popupElementsBySuffix.Capability)
+			{
+				const side = buttonFieldPopupContext.side;
+				const page = buttonFieldPopupContext.page;
+				const deviceValue = buttonFieldPopupContext.popupElementsBySuffix.Device.value;
+				const capabilityValue = buttonFieldPopupContext.popupElementsBySuffix.Capability.value;
+
+				const sourceDeviceElement = document.getElementById(`${side}${page}Device`);
+				const sourceCapabilityElement = document.getElementById(`${side}${page}Capability`);
+
+				if (sourceDeviceElement)
+				{
+					sourceDeviceElement.value = deviceValue;
+					buttonDeviceChanged(side, page);
+					sourceDeviceElement.dispatchEvent(new Event('change', { bubbles: true }));
+				}
+
+				if (sourceCapabilityElement)
+				{
+					const applyCapabilityValue = function (attempt = 0)
+					{
+						const hasOption = Array.from(sourceCapabilityElement.options || []).some((option) => option.value === capabilityValue);
+						if (hasOption)
+						{
+							sourceCapabilityElement.value = capabilityValue;
+							sourceCapabilityElement.dispatchEvent(new Event('change', { bubbles: true }));
+							return;
+						}
+
+						if (attempt < 8)
+						{
+							setTimeout(() => applyCapabilityValue(attempt + 1), 120);
+						}
+					};
+
+					applyCapabilityValue(0);
+				}
+			}
+
+			for (const binding of buttonFieldPopupBindings)
+			{
+				if (!binding || !binding.sourceElement || !binding.popupElement)
+				{
+					continue;
+				}
+
+				if (binding.suffix === 'Device' || binding.suffix === 'Capability')
+				{
+					continue;
+				}
+
+				if (binding.sourceElement.type === 'checkbox')
+				{
+					binding.sourceElement.checked = binding.popupElement.checked;
+					binding.sourceElement.dispatchEvent(new Event('change', { bubbles: true }));
+				}
+				else
+				{
+					binding.sourceElement.value = binding.popupElement.value;
+					binding.sourceElement.dispatchEvent(new Event('input', { bubbles: true }));
+					binding.sourceElement.dispatchEvent(new Event('change', { bubbles: true }));
+				}
+			}
+
+			if (buttonFieldPopupContext)
+			{
+				renderInlineButtonPagePreview(buttonFieldPopupContext.page);
+				if (buttonPagePopupOverlayElement && buttonPagePopupOverlayElement.classList.contains('visible'))
+				{
+					renderButtonPagePopup();
+				}
+			}
+
+			closeButtonFieldPopup();
+		}
+
+		function openButtonFieldPopup(side, page, fieldSuffix, retryCount = 0)
+		{
+			if (!buttonFieldPopupOverlayElement || !buttonFieldPopupBodyElement || !buttonFieldPopupTitleElement)
+			{
+				focusButtonControlFromPopup(side, page, fieldSuffix, false);
+				return;
+			}
+
+			const popupSpec = getButtonFieldPopupSpec(side, fieldSuffix);
+			if (!popupSpec)
+			{
+				focusButtonControlFromPopup(side, page, fieldSuffix, false);
+				return;
+			}
+
+			buttonFieldPopupBindings = [];
+			const popupElementsBySuffix = {};
+			let popupDeviceIndicatorElement = null;
+			let popupCapabilityIndicatorElement = null;
+			buttonFieldPopupContext = { side, page, fieldSuffix, popupElementsBySuffix };
+			buttonFieldPopupBodyElement.innerHTML = '';
+			buttonFieldPopupTitleElement.textContent = popupSpec.title;
+			const missingSuffixes = [];
+
+			for (const suffix of popupSpec.fields)
+			{
+				const sourceId = `${side}${page}${suffix}`;
+				const sourceElement = document.getElementById(sourceId);
+				if (!sourceElement)
+				{
+					missingSuffixes.push(suffix);
+					continue;
+				}
+
+				const wrapper = document.createElement('div');
+				wrapper.className = 'button-field-popup-field';
+
+				const label = document.createElement('label');
+				label.className = 'button-field-popup-label';
+				label.textContent = popupSpec.labels[suffix] || suffix;
+				wrapper.appendChild(label);
+
+				const popupId = `buttonFieldPopup_${sourceId}`;
+				let popupElement = null;
+
+				if (sourceElement.tagName === 'SELECT')
+				{
+					popupElement = document.createElement('select');
+					popupElement.className = 'homey-form-select';
+					popupElement.id = popupId;
+					popupElement.innerHTML = sourceElement.innerHTML;
+					popupElement.value = sourceElement.value;
+				}
+				else if (sourceElement.tagName === 'TEXTAREA')
+				{
+					popupElement = document.createElement('textarea');
+					popupElement.className = 'homey-form-textarea';
+					popupElement.id = popupId;
+					popupElement.value = sourceElement.value;
+					popupElement.style.minHeight = '100px';
+				}
+				else if (sourceElement.type === 'color')
+				{
+					popupElement = document.createElement('input');
+					popupElement.className = 'homey-form-input';
+					popupElement.type = 'color';
+					popupElement.id = popupId;
+					popupElement.value = sourceElement.value;
+				}
+				else
+				{
+					popupElement = document.createElement('input');
+					popupElement.className = 'homey-form-input';
+					popupElement.type = 'text';
+					popupElement.id = popupId;
+					popupElement.value = sourceElement.value;
+					if (sourceElement.maxLength && sourceElement.maxLength > 0)
+					{
+						popupElement.maxLength = sourceElement.maxLength;
+					}
+				}
+
+				if (suffix === 'Device')
+				{
+					const popupDeviceRow = document.createElement('div');
+					popupDeviceRow.className = 'button-field-popup-device-row';
+
+					popupDeviceIndicatorElement = document.createElement('div');
+					popupDeviceIndicatorElement.className = 'button-field-popup-device-icon';
+					popupDeviceIndicatorElement.setAttribute('aria-hidden', 'true');
+
+					popupDeviceRow.appendChild(popupDeviceIndicatorElement);
+					popupDeviceRow.appendChild(popupElement);
+					wrapper.appendChild(popupDeviceRow);
+				}
+				else if (suffix === 'Capability')
+				{
+					const popupCapabilityRow = document.createElement('div');
+					popupCapabilityRow.className = 'button-field-popup-capability-row';
+
+					popupCapabilityIndicatorElement = document.createElement('div');
+					popupCapabilityIndicatorElement.className = 'button-field-popup-capability-icon';
+					popupCapabilityIndicatorElement.setAttribute('aria-hidden', 'true');
+
+					popupCapabilityRow.appendChild(popupCapabilityIndicatorElement);
+					popupCapabilityRow.appendChild(popupElement);
+					wrapper.appendChild(popupCapabilityRow);
+				}
+				else
+				{
+					wrapper.appendChild(popupElement);
+				}
+				buttonFieldPopupBodyElement.appendChild(wrapper);
+				popupElementsBySuffix[suffix] = popupElement;
+				buttonFieldPopupBindings.push({ sourceElement, popupElement, suffix });
+			}
+
+			if (missingSuffixes.length > 0 && retryCount < 6)
+			{
+				setTimeout(() => openButtonFieldPopup(side, page, fieldSuffix, retryCount + 1), 80);
+				return;
+			}
+
+			if (buttonFieldPopupBindings.length === 0)
+			{
+				focusButtonControlFromPopup(side, page, fieldSuffix, false);
+				return;
+			}
+
+			if (popupElementsBySuffix.Device && popupElementsBySuffix.Capability)
+			{
+				if (popupDeviceIndicatorElement)
+				{
+					updatePopupDeviceIndicator(popupElementsBySuffix.Device, popupDeviceIndicatorElement);
+				}
+				if (popupCapabilityIndicatorElement)
+				{
+					updatePopupCapabilityIndicator(popupElementsBySuffix.Capability, popupCapabilityIndicatorElement);
+				}
+
+				popupElementsBySuffix.Device.addEventListener('change', function ()
+				{
+					const sourceDeviceElement = document.getElementById(`${side}${page}Device`);
+					if (sourceDeviceElement)
+					{
+						sourceDeviceElement.value = popupElementsBySuffix.Device.value;
+						buttonDeviceChanged(side, page);
+					}
+
+					if (popupDeviceIndicatorElement)
+					{
+						updatePopupDeviceIndicator(popupElementsBySuffix.Device, popupDeviceIndicatorElement);
+					}
+
+					syncButtonFieldPopupCapabilityOptions(side, page, popupElementsBySuffix.Capability);
+					if (popupCapabilityIndicatorElement)
+					{
+						updatePopupCapabilityIndicator(popupElementsBySuffix.Capability, popupCapabilityIndicatorElement);
+					}
+
+					setTimeout(() =>
+					{
+						syncButtonFieldPopupCapabilityOptions(side, page, popupElementsBySuffix.Capability);
+						if (popupCapabilityIndicatorElement)
+						{
+							updatePopupCapabilityIndicator(popupElementsBySuffix.Capability, popupCapabilityIndicatorElement);
+						}
+					}, 120);
+					setTimeout(() =>
+					{
+						syncButtonFieldPopupCapabilityOptions(side, page, popupElementsBySuffix.Capability);
+						if (popupCapabilityIndicatorElement)
+						{
+							updatePopupCapabilityIndicator(popupElementsBySuffix.Capability, popupCapabilityIndicatorElement);
+						}
+					}, 320);
+				});
+
+				popupElementsBySuffix.Capability.addEventListener('change', function ()
+				{
+					if (popupCapabilityIndicatorElement)
+					{
+						updatePopupCapabilityIndicator(popupElementsBySuffix.Capability, popupCapabilityIndicatorElement);
+					}
+				});
+
+				syncButtonFieldPopupCapabilityOptions(side, page, popupElementsBySuffix.Capability, popupElementsBySuffix.Capability.value);
+				if (popupCapabilityIndicatorElement)
+				{
+					updatePopupCapabilityIndicator(popupElementsBySuffix.Capability, popupCapabilityIndicatorElement);
+				}
+			}
+
+			buttonFieldPopupOverlayElement.classList.add('visible');
+			buttonFieldPopupOverlayElement.setAttribute('aria-hidden', 'false');
+
+			const firstField = buttonFieldPopupBindings[0].popupElement;
+			if (firstField && typeof firstField.focus === 'function')
+			{
+				setTimeout(() => firstField.focus(), 0);
+			}
+		}
+
+		function focusButtonControlFromPopup(side, page, fieldSuffix, openPopup = true)
+		{
+			if (openPopup)
+			{
+				const popupSpec = getButtonFieldPopupSpec(side, fieldSuffix);
+				if (popupSpec)
+				{
+					openButtonFieldPopup(side, page, fieldSuffix);
+					return;
+				}
+			}
+
 			const detailElement = document.getElementById(`${side}${page}Details`);
 			if (detailElement)
 			{
@@ -2777,6 +3789,8 @@ autoConfigElement.addEventListener('click', function (e)
 						}
 					}
 
+					updateButtonDeviceIndicator('left', i);
+
 					const rightElement = document.getElementById(`right${i}Device`);
 					fillDevicesElement(rightElement, buttonDevicesArray);
 
@@ -2812,8 +3826,378 @@ autoConfigElement.addEventListener('click', function (e)
 							getCapabilities('right', i, document.getElementById(`right${i}Device`).value, buttonPanelConfiguration[i].rightCapability, buttonPanelConfiguration[i].rightCapabilityName);
 						}
 					}
+
+					updateButtonDeviceIndicator('right', i);
 				}
 			};
+		}
+
+		function getButtonDeviceClassIcon(deviceClass)
+		{
+			switch ((deviceClass || '').toLowerCase())
+			{
+				case 'light': return '💡';
+				case 'socket': return '🔌';
+				case 'sensor': return '📟';
+				case 'thermostat': return '🌡️';
+				case 'speaker': return '🔊';
+				case 'camera': return '📷';
+				case 'lock': return '🔒';
+				case 'windowcoverings': return '🪟';
+				case 'none': return '•';
+				case 'variable': return '𝑥';
+				case 'custommqtt': return 'MQ';
+				default: return '•';
+			}
+		}
+
+		function getButtonCapabilityIcon(capabilityId)
+		{
+			const id = (capabilityId || '').toLowerCase();
+			if (!id)
+			{
+				return '•';
+			}
+
+			if (id === 'dim' || id.includes('dim'))
+			{
+				return '◐';
+			}
+
+			if (id === 'windowcoverings_state' || id.includes('windowcoverings'))
+			{
+				return '🪟';
+			}
+
+			if (id === 'onoff' || id.includes('onoff'))
+			{
+				return '⏻';
+			}
+
+			if (id.includes('temperature'))
+			{
+				return '🌡️';
+			}
+
+			if (id.includes('humidity'))
+			{
+				return '💧';
+			}
+
+			if (id.includes('battery'))
+			{
+				return '🔋';
+			}
+
+			if (id.includes('lock'))
+			{
+				return '🔒';
+			}
+
+			return '•';
+		}
+
+		function getCapabilityIconUrl(capability)
+		{
+			if (!capability || typeof capability !== 'object')
+			{
+				return '';
+			}
+
+			const capabilityId = String(capability.id || '').trim();
+			const iconObj = capability.iconObj || capability.icon_object || {};
+			const rawIcon = capability.iconUrl
+				|| capability.icon_url
+				|| capability.icon
+				|| iconObj.url
+				|| iconObj.small
+				|| iconObj.medium
+				|| iconObj.large
+				|| '';
+
+			if (rawIcon)
+			{
+				const icon = String(rawIcon).trim();
+				if (/^https?:\/\//i.test(icon) || icon.startsWith('data:') || icon.startsWith('blob:'))
+				{
+					return icon;
+				}
+
+				// Keep relative/local icon paths from Homey as-is so they resolve against current app origin.
+				if (icon.startsWith('/') || icon.startsWith('./') || icon.startsWith('../'))
+				{
+					return icon;
+				}
+
+				// If Homey returned a bare filename-like token, prefer the standard reference icon location.
+				if (/\.svg(\?.*)?$/i.test(icon) || /^[a-z0-9_.-]+$/i.test(icon))
+				{
+					return `https://athombv.github.io/athom-cloud-driver-reference/icons/${icon.replace(/^\/+/, '')}`;
+				}
+
+				return icon;
+			}
+
+			if (capabilityId)
+			{
+				return `https://athombv.github.io/athom-cloud-driver-reference/icons/${encodeURIComponent(capabilityId)}.svg`;
+			}
+
+			return '';
+		}
+
+		function updateButtonDeviceIndicator(side, page)
+		{
+			const indicatorElement = document.getElementById(`${side}${page}DeviceActiveIcon`);
+			const deviceElement = document.getElementById(`${side}${page}Device`);
+			if (!indicatorElement || !deviceElement)
+			{
+				return;
+			}
+
+			let iconUrl = '';
+			let deviceClass = '';
+			let selectedText = '';
+
+			if (deviceElement.selectedIndex >= 0 && deviceElement.options[deviceElement.selectedIndex])
+			{
+				const option = deviceElement.options[deviceElement.selectedIndex];
+				iconUrl = option.dataset.iconUrl || '';
+				deviceClass = option.dataset.deviceClass || '';
+				selectedText = option.text || '';
+			}
+
+			if (!iconUrl && !deviceClass)
+			{
+				if (deviceElement.value === 'none')
+				{
+					deviceClass = 'none';
+				}
+				else if (deviceElement.value === '_variable_')
+				{
+					deviceClass = 'variable';
+				}
+				else if (deviceElement.value === 'customMQTT')
+				{
+					deviceClass = 'custommqtt';
+				}
+				else
+				{
+					const selectedDevice = buttonDevicesArray.find((device) => device.id === deviceElement.value);
+					if (selectedDevice)
+					{
+						const iconObj = selectedDevice.iconObj || {};
+						iconUrl = iconObj.url || iconObj.small || iconObj.medium || iconObj.large || selectedDevice.icon || '';
+						deviceClass = selectedDevice.class || '';
+					}
+				}
+			}
+
+			indicatorElement.innerHTML = '';
+			indicatorElement.title = selectedText || '';
+
+			if (iconUrl)
+			{
+				const iconImage = document.createElement('img');
+				iconImage.className = 'button-device-active-icon-image';
+				iconImage.src = iconUrl;
+				iconImage.alt = '';
+				iconImage.loading = 'lazy';
+				iconImage.decoding = 'async';
+				iconImage.addEventListener('error', function ()
+				{
+					const iconFallback = document.createElement('span');
+					iconFallback.className = 'button-device-active-icon-fallback';
+					iconFallback.textContent = getButtonDeviceClassIcon(deviceClass);
+					if (iconImage.parentNode)
+					{
+						iconImage.parentNode.replaceChild(iconFallback, iconImage);
+					}
+				});
+				indicatorElement.appendChild(iconImage);
+			}
+			else
+			{
+				const iconFallback = document.createElement('span');
+				iconFallback.className = 'button-device-active-icon-fallback';
+				iconFallback.textContent = getButtonDeviceClassIcon(deviceClass);
+				indicatorElement.appendChild(iconFallback);
+			}
+		}
+
+		function updateButtonCapabilityIndicator(side, page)
+		{
+			const indicatorElement = document.getElementById(`${side}${page}CapabilityActiveIcon`);
+			const capabilityElement = document.getElementById(`${side}${page}Capability`);
+			if (!indicatorElement || !capabilityElement)
+			{
+				return;
+			}
+
+			let selectedText = '';
+			let iconUrl = '';
+			if (capabilityElement.selectedIndex >= 0 && capabilityElement.options[capabilityElement.selectedIndex])
+			{
+				const option = capabilityElement.options[capabilityElement.selectedIndex];
+				selectedText = option.text || '';
+				iconUrl = option.dataset.iconUrl || '';
+			}
+
+			indicatorElement.innerHTML = '';
+			if (iconUrl)
+			{
+				const iconImage = document.createElement('img');
+				iconImage.className = 'button-capability-active-icon-image';
+				iconImage.src = iconUrl;
+				iconImage.alt = '';
+				iconImage.loading = 'lazy';
+				iconImage.decoding = 'async';
+				iconImage.addEventListener('error', function ()
+				{
+					const iconFallback = document.createElement('span');
+					iconFallback.className = 'button-capability-active-icon-fallback';
+					iconFallback.textContent = getButtonCapabilityIcon(capabilityElement.value);
+					if (iconImage.parentNode)
+					{
+						iconImage.parentNode.replaceChild(iconFallback, iconImage);
+					}
+				});
+				indicatorElement.appendChild(iconImage);
+			}
+			else
+			{
+				const iconFallback = document.createElement('span');
+				iconFallback.className = 'button-capability-active-icon-fallback';
+				iconFallback.textContent = getButtonCapabilityIcon(capabilityElement.value);
+				indicatorElement.appendChild(iconFallback);
+			}
+
+			indicatorElement.title = selectedText || '';
+		}
+
+		function updatePopupDeviceIndicator(deviceElement, indicatorElement)
+		{
+			if (!indicatorElement || !deviceElement)
+			{
+				return;
+			}
+
+			let iconUrl = '';
+			let deviceClass = '';
+			let selectedText = '';
+
+			if (deviceElement.selectedIndex >= 0 && deviceElement.options[deviceElement.selectedIndex])
+			{
+				const option = deviceElement.options[deviceElement.selectedIndex];
+				iconUrl = option.dataset.iconUrl || '';
+				deviceClass = option.dataset.deviceClass || '';
+				selectedText = option.text || '';
+			}
+
+			if (!iconUrl && !deviceClass)
+			{
+				if (deviceElement.value === 'none')
+				{
+					deviceClass = 'none';
+				}
+				else if (deviceElement.value === '_variable_')
+				{
+					deviceClass = 'variable';
+				}
+				else if (deviceElement.value === 'customMQTT')
+				{
+					deviceClass = 'custommqtt';
+				}
+				else
+				{
+					const selectedDevice = buttonDevicesArray.find((device) => device.id === deviceElement.value);
+					if (selectedDevice)
+					{
+						const iconObj = selectedDevice.iconObj || {};
+						iconUrl = iconObj.url || iconObj.small || iconObj.medium || iconObj.large || selectedDevice.icon || '';
+						deviceClass = selectedDevice.class || '';
+					}
+				}
+			}
+
+			indicatorElement.innerHTML = '';
+			indicatorElement.title = selectedText || '';
+
+			if (iconUrl)
+			{
+				const iconImage = document.createElement('img');
+				iconImage.className = 'button-field-popup-device-icon-image';
+				iconImage.src = iconUrl;
+				iconImage.alt = '';
+				iconImage.loading = 'lazy';
+				iconImage.decoding = 'async';
+				iconImage.addEventListener('error', function ()
+				{
+					const iconFallback = document.createElement('span');
+					iconFallback.className = 'button-field-popup-device-icon-fallback';
+					iconFallback.textContent = getButtonDeviceClassIcon(deviceClass);
+					if (iconImage.parentNode)
+					{
+						iconImage.parentNode.replaceChild(iconFallback, iconImage);
+					}
+				});
+				indicatorElement.appendChild(iconImage);
+			}
+			else
+			{
+				const iconFallback = document.createElement('span');
+				iconFallback.className = 'button-field-popup-device-icon-fallback';
+				iconFallback.textContent = getButtonDeviceClassIcon(deviceClass);
+				indicatorElement.appendChild(iconFallback);
+			}
+		}
+
+		function updatePopupCapabilityIndicator(capabilityElement, indicatorElement)
+		{
+			if (!indicatorElement || !capabilityElement)
+			{
+				return;
+			}
+
+			let selectedText = '';
+			let iconUrl = '';
+			if (capabilityElement.selectedIndex >= 0 && capabilityElement.options[capabilityElement.selectedIndex])
+			{
+				const option = capabilityElement.options[capabilityElement.selectedIndex];
+				selectedText = option.text || '';
+				iconUrl = option.dataset.iconUrl || '';
+			}
+
+			indicatorElement.innerHTML = '';
+			if (iconUrl)
+			{
+				const iconImage = document.createElement('img');
+				iconImage.className = 'button-field-popup-capability-icon-image';
+				iconImage.src = iconUrl;
+				iconImage.alt = '';
+				iconImage.loading = 'lazy';
+				iconImage.decoding = 'async';
+				iconImage.addEventListener('error', function ()
+				{
+					const iconFallback = document.createElement('span');
+					iconFallback.className = 'button-field-popup-capability-icon-fallback';
+					iconFallback.textContent = getButtonCapabilityIcon(capabilityElement.value);
+					if (iconImage.parentNode)
+					{
+						iconImage.parentNode.replaceChild(iconFallback, iconImage);
+					}
+				});
+				indicatorElement.appendChild(iconImage);
+			}
+			else
+			{
+				const iconFallback = document.createElement('span');
+				iconFallback.className = 'button-field-popup-capability-icon-fallback';
+				iconFallback.textContent = getButtonCapabilityIcon(capabilityElement.value);
+				indicatorElement.appendChild(iconFallback);
+			}
+
+			indicatorElement.title = selectedText || '';
 		}
 
 		function fillDevicesElement(Element, DevicesArray)
@@ -2826,16 +4210,19 @@ autoConfigElement.addEventListener('click', function (e)
 				var option = document.createElement("option");
 				option.text = Homey.__("settings.none");
 				option.value = "none";
+				option.dataset.deviceClass = 'none';
 				Element.add(option);
 
 				var option = document.createElement("option");
 				option.text = Homey.__("settings.variable");
 				option.value = "_variable_";
+				option.dataset.deviceClass = 'variable';
 				Element.add(option);
 
 				var option = document.createElement("option");
 				option.text = Homey.__("settings.customMQTT");
 				option.value = "customMQTT";
+				option.dataset.deviceClass = 'custommqtt';
 				Element.add(option);
 
 				let deviceGroup;
@@ -2854,8 +4241,17 @@ autoConfigElement.addEventListener('click', function (e)
 
 					var option = document.createElement("option");
 					option.text = "\xA0\xA0" + device.name;
-					option.text += ` (${zoneName})`;
 					option.value = device.id;
+					const iconObj = device.iconObj || {};
+					const iconUrl = iconObj.url || iconObj.small || iconObj.medium || iconObj.large || device.icon || '';
+					if (iconUrl)
+					{
+						option.dataset.iconUrl = iconUrl;
+					}
+					if (device.class)
+					{
+						option.dataset.deviceClass = String(device.class);
+					}
 					Element.add(option);
 				}
 			}
@@ -2891,6 +4287,7 @@ autoConfigElement.addEventListener('click', function (e)
 			}
 
 			capabilityChanged(side, page, selectedCapability);
+			updateButtonCapabilityIndicator(side, page);
 		}
 
 		function getCapabilities(side, page, deviceId, selectedCapability, selectedCapabilityName)
@@ -2913,6 +4310,8 @@ autoConfigElement.addEventListener('click', function (e)
 				document.getElementById(`${side}${page}DimChangeDiv`).style.display = "none";
 				document.getElementById(`${side}${page}BrokerIdDiv`).style.display = itemDisplyType;
 				document.getElementById(`${side}${page}CustomMQTTDiv`).style.display = "none";
+				hidePopupManagedFieldsForSection(side, page);
+				updateButtonCapabilityIndicator(side, page);
 				return;
 			}
 
@@ -2928,6 +4327,8 @@ autoConfigElement.addEventListener('click', function (e)
 				// Show the custom MQTT section
 				document.getElementById(`${side}${page}CustomMQTTDiv`).style.display = itemDisplyType;
 				drawCustomMQTTTopics(side, localButtonConfigurations[currentButtonConfigurationNo]);
+				hidePopupManagedFieldsForSection(side, page);
+				updateButtonCapabilityIndicator(side, page);
 				return;
 			}
 
@@ -2959,6 +4360,8 @@ autoConfigElement.addEventListener('click', function (e)
 				capabilityDivElement.style.display = itemDisplyType;
 				document.getElementById(`${side}${page}BrokerIdDiv`).style.display = itemDisplyType;
 				document.getElementById(`${side}${page}CustomMQTTDiv`).style.display = "none";
+				hidePopupManagedFieldsForSection(side, page);
+				updateButtonCapabilityIndicator(side, page);
 				return;
 			}
 
@@ -2985,6 +4388,8 @@ autoConfigElement.addEventListener('click', function (e)
 					// Restore the previous capability selection
 					capabilityElement.value = selectedCapability;
 					capabilityChanged(side, page, selectedCapability);
+					updateButtonCapabilityIndicator(side, page);
+					hidePopupManagedFieldsForSection(side, page);
 					return;
 				}
 			}
@@ -3005,6 +4410,11 @@ autoConfigElement.addEventListener('click', function (e)
 							var option = document.createElement("option");
 							option.text = `${capability.title} (${capability.id})`;
 							option.value = capability.id;
+							const capabilityIconUrl = getCapabilityIconUrl(capability);
+							if (capabilityIconUrl)
+							{
+								option.dataset.iconUrl = capabilityIconUrl;
+							}
 							capabilityElement.add(option);
 						}
 					}
@@ -3017,6 +4427,8 @@ autoConfigElement.addEventListener('click', function (e)
 					// Restore the previous capability selection
 					capabilityElement.value = selectedCapability;
 					capabilityChanged(side, page, selectedCapability);
+					updateButtonCapabilityIndicator(side, page);
+					hidePopupManagedFieldsForSection(side, page);
 				}
 			});
 		}
@@ -3044,6 +4456,7 @@ autoConfigElement.addEventListener('click', function (e)
 				document.getElementById(`${side}${page}OffTextLabel`).style.display = itemDisplyType;
 			}
 			//document.getElementById(`${side}TopText`).value = document.getElementById(`${side}TopText`).value ? document.getElementById(`${side}TopText`).value : value;
+			hidePopupManagedFieldsForSection(side, page);
 
 		}
 
@@ -3064,6 +4477,13 @@ autoConfigElement.addEventListener('click', function (e)
 			if (!Array.isArray(config))
 			{
 				config = [config];
+				localButtonConfigurations[currentButtonConfigurationNo] = config;
+			}
+
+			if (config.length === 0)
+			{
+				config.push({ PageNum: 0 });
+				localButtonConfigurations[currentButtonConfigurationNo] = config;
 			}
 
 			// let ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
@@ -3071,11 +4491,14 @@ autoConfigElement.addEventListener('click', function (e)
 
 			for (let page = 0; page < config.length; page++)
 			{
-				document.getElementById(`${page}PageNum`).value = page === 0 ? 'Default' : config[page].PageNum;
-
 				updateButtonPanelControlsSection("left", page, config[page]);
 				updateButtonPanelControlsSection("right", page, config[page]);
+				hidePopupManagedFieldsForPage(page);
+				updateButtonAdvancedToggleState('left', page);
+				updateButtonAdvancedToggleState('right', page);
 			}
+
+			renderInlineButtonPagePreviews();
 
 			fillButtonDevices();
 			setupButtonBrokerItems();
@@ -3086,6 +4509,8 @@ autoConfigElement.addEventListener('click', function (e)
 				renderDisplayPagePopup();
 				refreshDisplayPopupLiveValues();
 			}
+
+			updateButtonMainDiagnostics('updateButtonPanelControls');
 		}
 
 		// Update the controls for the specified side and page
@@ -3208,6 +4633,15 @@ autoConfigElement.addEventListener('click', function (e)
 				}
 				document.getElementById(configSelected).style.display = "block";
 
+				if (configSelected === 'panelConfig')
+				{
+					setTimeout(function ()
+					{
+						const panelConfigElement = document.getElementById('panelConfig');
+						collapseAllDetails(panelConfigElement);
+					}, 0);
+				}
+
 				if (configSelected === "diagnosticLog")
 				{
 					// Refresh the log data
@@ -3242,7 +4676,7 @@ autoConfigElement.addEventListener('click', function (e)
 				else if (configSelected === "lastSentLog")
 				{
 					// Make the log text area fill the page
-					sentLogElement.style.width = (lastSentIpElement.offsetWidth) + 'px';
+					sentLogElement.style.width = '100%';
 					sentLogElement.style.height = (window.innerHeight - sentLogElement.offsetTop - 35) + 'px';
 				}
 			}
@@ -4078,6 +5512,11 @@ autoConfigElement.addEventListener('click', function (e)
 				var option = document.createElement("option");
 				option.text = `${capability.title} (${capability.id})`;
 				option.value = capability.id;
+				const capabilityIconUrl = getCapabilityIconUrl(capability);
+				if (capabilityIconUrl)
+				{
+					option.dataset.iconUrl = capabilityIconUrl;
+				}
 				capabilitiesElement.add(option);
 			}
 
@@ -5008,25 +6447,182 @@ autoConfigElement.addEventListener('click', function (e)
 			// Remove any leading spaces from the device name
 			config[`${side}Device`] = config[`${side}Device`].trim();
 
+			updateButtonDeviceIndicator(side, page);
+
 			// Update the capabilities
 			getCapabilities(side, page, deviceElement.value, config[`${side}Capability`], config[`${side}CapabilityName`]);
 		}
 
-		function deleteButtonPage(page)
+		function buttonCapabilityChanged(side, page)
 		{
-			// Delete the page from the current button configuration
-			var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			buttonPanelConfiguration.splice(page, 1);
-
-			// Renumber the pages
-			for (let i = 0; i < buttonPanelConfiguration.length; i++)
+			const capabilityElement = document.getElementById(`${side}${page}Capability`);
+			if (!capabilityElement)
 			{
-				buttonPanelConfiguration[i].PageNum = i;
+				return;
 			}
 
-			// Create and display the new page
-			writeButtonsections(buttonPanelConfiguration.length);
-			updateButtonPanelControls();
+			capabilityChanged(side, page, capabilityElement.value);
+			updateButtonCapabilityIndicator(side, page);
+		}
+
+		function deleteButtonPage(page)
+		{
+			const pageLabel = formatButtonPageLabel(page);
+			Homey.confirm(`Delete page ${pageLabel}?`, null, function (err, ok)
+			{
+				if (err || !ok)
+				{
+					return;
+				}
+
+				// Delete the page from the current button configuration
+				var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+				buttonPanelConfiguration.splice(page, 1);
+
+				// Renumber the pages
+				for (let i = 0; i < buttonPanelConfiguration.length; i++)
+				{
+					buttonPanelConfiguration[i].PageNum = i;
+				}
+
+				// Create and display the new page
+				writeButtonsections(buttonPanelConfiguration.length);
+				updateButtonPanelControls();
+				updateButtonMainDiagnostics('deleteButtonPage', { page });
+			});
+		}
+
+		function addButtonPage()
+		{
+			try
+			{
+				let buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+
+				// Ensure the current config is always an array before we store/clone.
+				if (!Array.isArray(buttonPanelConfiguration))
+				{
+					buttonPanelConfiguration = buttonPanelConfiguration ? [buttonPanelConfiguration] : [];
+					localButtonConfigurations[currentButtonConfigurationNo] = buttonPanelConfiguration;
+				}
+
+				if (buttonPanelConfiguration.length === 0)
+				{
+					buttonPanelConfiguration.push({
+						PageNum: 0,
+						name: configNameElement ? configNameElement.value : '',
+					});
+				}
+
+				const beforeLength = buttonPanelConfiguration.length;
+
+				// save the controls into the local configuration
+				try
+				{
+					storeButtonSettings(buttonPanelConfiguration);
+				}
+				catch (error)
+				{
+					console.error('[addButtonPage] storeButtonSettings failed', error);
+				}
+
+				const sourcePageIndex = (buttonMainCurrentPage >= 0 && buttonMainCurrentPage < buttonPanelConfiguration.length)
+					? buttonMainCurrentPage
+					: 0;
+
+				// Add a new page to the current button configuration
+				let newPage = {};
+				try
+				{
+					newPage = JSON.parse(JSON.stringify(buttonPanelConfiguration[sourcePageIndex] || buttonPanelConfiguration[0] || {}));
+				}
+				catch (cloneError)
+				{
+					console.error('[addButtonPage] clone failed', cloneError);
+					newPage = {};
+				}
+
+				newPage.PageNum = buttonPanelConfiguration.length;
+				buttonPanelConfiguration.push(newPage);
+
+				if (buttonPanelConfiguration.length <= beforeLength)
+				{
+					Homey.alert('Unable to add a new page.');
+					return;
+				}
+
+				buttonMainCurrentPage = buttonPanelConfiguration.length - 1;
+
+				// Create and display the new page
+				writeButtonsections(buttonPanelConfiguration.length);
+				updateButtonPanelControls();
+				updateButtonMainDiagnostics('addButtonPage:click');
+				const newPageIndex = buttonPanelConfiguration.length - 1;
+
+				requestAnimationFrame(() =>
+				{
+					const newPageElement = document.getElementById(`${newPageIndex}ButtonPageSection`);
+					if (newPageElement)
+					{
+						scrollToTop(newPageElement);
+						newPageElement.classList.add('button-page-highlight');
+						setTimeout(() =>
+						{
+							newPageElement.classList.remove('button-page-highlight');
+						}, 1600);
+					}
+				});
+			}
+			catch (error)
+			{
+				console.error('[addButtonPage] failed', error);
+				Homey.alert(`Unable to add page: ${error && error.message ? error.message : error}`);
+			}
+		}
+
+		window.deleteButtonPage = deleteButtonPage;
+		window.addButtonPage = addButtonPage;
+
+		function bindButtonPageHeaderActions()
+		{
+			const addButtons = document.querySelectorAll('.button-page-add-btn[data-action="add-page"]');
+			addButtons.forEach((button) =>
+			{
+				if (button.dataset.boundClick === 'true')
+				{
+					return;
+				}
+
+				button.addEventListener('click', function (event)
+				{
+					event.preventDefault();
+					event.stopPropagation();
+					addButtonPage();
+				});
+
+				button.dataset.boundClick = 'true';
+			});
+
+			const deleteButtons = document.querySelectorAll('.button-page-delete-btn[data-action="delete-page"]');
+			deleteButtons.forEach((button) =>
+			{
+				if (button.dataset.boundClick === 'true')
+				{
+					return;
+				}
+
+				button.addEventListener('click', function (event)
+				{
+					event.preventDefault();
+					event.stopPropagation();
+					const page = Number(button.getAttribute('data-page'));
+					if (!Number.isNaN(page))
+					{
+						deleteButtonPage(page);
+					}
+				});
+
+				button.dataset.boundClick = 'true';
+			});
 		}
 
 		function onButtonPageChange(Element, page)
@@ -5081,49 +6677,90 @@ autoConfigElement.addEventListener('click', function (e)
 			// Redisplay the pages
 			writeButtonsections(buttonPanelConfiguration.length);
 			updateButtonPanelControls();
+			updateButtonMainDiagnostics('onButtonPageChange', { page, newPage });
 		}
 
 		// Create the HTML for the button sections. Note this just creates the framework, the controls values are set using updateButtonPanelControls
 		function writeButtonsections(numPages)
 		{
-			// Write the button sections
-			const ctrlLabels = {
-				page: Homey.__("settings.page"),
+			numPages = Number(numPages);
+			if (Number.isNaN(numPages) || numPages < 1)
+			{
+				numPages = 1;
 			}
-			const ctrlExplanations = {
-				page: Homey.__("settings.buttonPageExplanation"),
+
+			if (buttonMainCurrentPage < 0)
+			{
+				buttonMainCurrentPage = 0;
+			}
+			if (buttonMainCurrentPage >= numPages)
+			{
+				buttonMainCurrentPage = Math.max(0, numPages - 1);
 			}
 
 			var html = "";
 			for (page = 0; page < numPages; page++)
 			{
-				html += `<div class="horizontalcontainer">
+				html += `<div class="horizontalcontainer button-main-page${page === buttonMainCurrentPage ? ' active' : ''}">
 					<div class="horizontalgroup" id="${page}ButtonPageSection">
                 		<div class="horizontalcontainer">
 							<div class="button-page-inner">
 								<div class="button-page-header">
-									<label class="homey-form-label" for="${page}PageNum"><span>${ctrlLabels.page}</span>
-									<div class="tooltip"><i class="fi fi-rr-info"></i>
-										<span class="tooltiptext">${ctrlExplanations.page}</span>
+									<div class="button-page-label-group">
+										<div class="button-page-label-title">
+											<span class="homey-form-label">${Homey.__("settings.page")}</span>
+											<div class="tooltip"><i class="fi fi-rr-info"></i>
+												<span class="tooltiptext">${Homey.__("settings.buttonPageExplanation")}</span>
+											</div>
+										</div>
+										<div class="button-main-page-nav">
+										<button class="homey-button-secondary-shadow button-sim-page-nav button-main-page-prev" type="button" onclick="stepButtonMainPage(-1); return false;" title="Previous page" aria-label="Previous page">&lt;</button>
+										<span class="button-main-page-indicator">${formatButtonPageLabel(page)} / ${Math.max(0, numPages - 1)}</span>
+										<button class="homey-button-secondary-shadow button-sim-page-nav button-main-page-next" type="button" onclick="stepButtonMainPage(1); return false;" title="Next page" aria-label="Next page">&gt;</button>
+										</div>
 									</div>
-									</label>
-									<button class="homey-button-secondary-shadow button-page-sim-btn" onClick="openButtonPagePopup(${page}); return false;" title="Open page simulator"><i class="fi fi-rr-apps"></i></button>
+									<div class="button-page-header-actions">
+										${page !== 0 ? `<button class="homey-button-secondary-shadow button-page-delete-btn" id="deletePage${page}" type="button" data-action="delete-page" data-page="${page}" title="Delete page" aria-label="Delete page"><i class="fi fi-rr-trash"></i></button>` : ''}
+										<button class="homey-button-secondary-shadow button-page-add-btn" type="button" data-action="add-page" title="Add page" aria-label="Add page">+</button>
+									</div>
 								</div>
-								<input class="homey-form-input" id="${page}PageNum" type=${page === 0 ? "text" : "number"} ${page === 0 ? "readonly" : ""} onchange="onButtonPageChange(this, '${page}')" />`
+								<div class="button-main-canvas">
+									<div class="button-main-canvas-header">
+										<span class="homey-form-label button-main-canvas-title">Simulate</span>
+										<button class="homey-button-secondary-shadow button-inline-state-toggle" id="${page}ButtonInlineSimState" onClick="toggleInlineButtonSimState(); return false;">On state</button>
+									</div>
+									<div class="button-sim-bar button-inline-sim-grid" id="${page}ButtonInlineSimContent"></div>
+									</div>
+									<div class="button-inline-settings-toggle-row">
+										<button class="homey-button-secondary-shadow button-inline-settings-toggle" id="${page}ButtonInlineSettingsToggle" type="button" onClick="toggleButtonInlineSettingsSection(${page}); return false;" aria-expanded="false" title="Expand Repeat / Broker" aria-label="Expand Repeat / Broker"><span class="icon" style='font-size:22px;'>&#8628;</span></button>
+									</div>
+									<details id="${page}ButtonInlineSettingsDetails" class="button-inline-settings-details" ontoggle="updateButtonInlineSettingsToggleState(${page})">
+										<summary class="button-inline-settings-summary">Repeat / Broker</summary>
+										<div class="button-inline-main-control-grid">
+											${getButtonInlineMainControlHtml("left", page)}
+											${getButtonInlineMainControlHtml("right", page)}
+										</div>
+									</details>`
 
+				html += `<div class="button-side-columns">`;
 				html += getButtonHtml("left", page);
 				html += getButtonHtml("right", page);
-
-				if (page !== 0)
-				{
-					html += `<p><button class="homey-button-secondary-shadow" id="deletePage${page}" onClick="deleteButtonPage(${page})" style="font-size: 30px;"><i class="fi fi-rr-trash"></i> </button></p>`;
-				}
+				html += `</div>`;
 
 				html += `</div>
 					</div>
-				</div>`;
+				</div>
+			</div>`;
 			}
 			document.getElementById('buttonItemsSection').innerHTML = html;
+			bindButtonPageHeaderActions();
+			collapseAllDetails(document.getElementById('buttonItemsSection'));
+			for (let pageIndex = 0; pageIndex < numPages; pageIndex++)
+			{
+				updateButtonInlineSettingsToggleState(pageIndex);
+			}
+			renderButtonMainPage();
+			updateButtonMainDiagnostics('writeButtonsections', { numPages });
 		}
 
 		// Create the HTML for the button page and side
@@ -5146,7 +6783,7 @@ autoConfigElement.addEventListener('click', function (e)
 				frontLEDOffColor: Homey.__("settings.frontLEDOffColor"),
 				wallLEDOffColor: Homey.__("settings.wallLEDOffColor"),
 				wallLEDOnColor: Homey.__("settings.wallLEDOnColor"),
-				longRepeat: Homey.__("settings.longRepeat"),
+				longRepeat: 'Repeat',
 				brokerId: Homey.__("settings.brokerId"),
 				page: Homey.__("settings.page"),
 				customMQTTTopic: Homey.__("settings.customMQTTTopic"),
@@ -5173,12 +6810,10 @@ autoConfigElement.addEventListener('click', function (e)
 				customMQTTTopic: Homey.__("settings.customMQTTTopicExplanation"),
 			}
 
-			const html = `<div class="horizontalcontainer">
-                <div class="horizontal
-                <div class="horizontalcontainer">
-                    <div class="horizontalgroup">
+			const html = `<div class="button-side-column">
+						<div class="horizontalgroup">
 						<details id="${side}${page}Details" ontoggle="this.open && scrollToTop(this)">
-                            <summary class="summary">
+	                            <summary class="summary button-advanced-summary">
                                 <legend class="homey-subtitle" id="button${side}${page}Legend"><b><em>><span>${ctrlLabels.panel}</span></em></b></legend><span class="icon" style='font-size:30px;'>&#8628;</span>
                             </summary >
                             <hr>
@@ -5189,9 +6824,12 @@ autoConfigElement.addEventListener('click', function (e)
                                         <span class="tooltiptext">${ctrlExplanations.device}</span>
                                     </div>
                                 </label>
-                                <select class="homey-form-select" id="${side}${page}Device" onChange="buttonDeviceChanged('${side}', ${page})"">
-                                    <option value selected disabled hidden${ctrlLabels.device}"></option>
-                                </select>
+	                                <div class="button-device-select-row">
+	                                	<div class="button-device-active-icon" id="${side}${page}DeviceActiveIcon" aria-hidden="true"></div>
+	                                	<select class="homey-form-select" id="${side}${page}Device" onChange="buttonDeviceChanged('${side}', ${page})">
+	                                    	<option value="" selected disabled hidden>${ctrlLabels.device}</option>
+	                                	</select>
+	                                </div>
 
                                 <span>
                                     <div id="${side}${page}CapabilityDiv">
@@ -5200,9 +6838,12 @@ autoConfigElement.addEventListener('click', function (e)
                                                 <span class="tooltiptext">${ctrlExplanations.capability}</span>
                                             </div>
                                         </label>
-                                        <select class="homey-form-select" id="${side}${page}Capability">
-                                            <option value selected disabled hidden>${ctrlLabels.Capability}</option>
-                                        </select>
+	                                        <div class="button-capability-select-row">
+	                                        	<div class="button-capability-active-icon" id="${side}${page}CapabilityActiveIcon" aria-hidden="true"></div>
+	                                        	<select class="homey-form-select" id="${side}${page}Capability" onChange="buttonCapabilityChanged('${side}', ${page})">
+	                                            	<option value="" selected disabled hidden>${ctrlLabels.capability}</option>
+	                                        	</select>
+	                                        </div>
                                     </div>
                                 </span>
 
@@ -5270,27 +6911,6 @@ autoConfigElement.addEventListener('click', function (e)
                                 </label>
                                 <input class="homey-form-input" id="${side}${page}WallLEDOffColor" type="color" value=#ff0000 />
 
-                                <label class="homey-form-checkbox">
-                                    <input class="homey-form-checkbox-input" id="${side}${page}DisableLongRepeat" type="checkbox" value="auto" />
-                                    <span class="homey-form-checkbox-checkmark"></span>
-                                    <span class="homey-form-checkbox-text"><span>${ctrlLabels.longRepeat}</span></span>
-                                    <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                        <span class="tooltiptext">${ctrlExplanations.longRepeat}</span>
-                                    </div>
-                                </label>
-
-                                <span>
-                                    <div id="${side}${page}BrokerIdDiv">
-                                        <label class="homey-form-label" for="${side}${page}BrokerId"><span>${ctrlLabels.brokerId}</span>
-                                            <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                                <span class="tooltiptext">${ctrlExplanations.brokerId}</span>
-                                            </div>
-                                        </label>
-                                        <select class="homey-form-select" id="${side}${page}BrokerId">
-                                        </select>
-                                    </div>
-                                </span>
-
                                 <span>
                                     <div id="${side}${page}CustomMQTTDiv">
                                         <br>
@@ -5320,9 +6940,8 @@ autoConfigElement.addEventListener('click', function (e)
 								</div>
 								</div>
 						</details >
-                    </div >
-                </div >
-            </div >`;
+					</div>
+				</div>`;
 			return html;
 		}
 
