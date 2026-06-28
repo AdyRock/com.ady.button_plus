@@ -556,17 +556,17 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 
 			const maxLeftPercent = Math.max(0, Math.floor(100 - displayItemMoveState.itemWidthPercent));
 			const maxTopPercent = Math.max(0, Math.floor(100 - displayItemMoveState.itemHeightPercent));
-			const newLeftPercent = Math.max(0, Math.min(maxLeftPercent, Math.round(displayItemMoveState.startLeftPercent + deltaXPercent)));
-			const newTopPercent = Math.max(0, Math.min(maxTopPercent, Math.round(displayItemMoveState.startTopPercent + deltaYPercent)));
+			const displayLeftPercent = Math.max(0, Math.min(maxLeftPercent, Math.round(displayItemMoveState.startLeftPercent + deltaXPercent)));
+			const displayTopPercent = Math.max(0, Math.min(maxTopPercent, Math.round(displayItemMoveState.startTopPercent + deltaYPercent)));
 
-			displayItemMoveState.itemElement.style.left = `${newLeftPercent}%`;
-			displayItemMoveState.itemElement.style.top = `${newTopPercent}%`;
-			displayItemMoveState.itemElement.dataset.leftPercent = `${newLeftPercent}`;
-			displayItemMoveState.itemElement.dataset.topPercent = `${newTopPercent}`;
+			displayItemMoveState.itemElement.style.left = `${displayLeftPercent}%`;
+			displayItemMoveState.itemElement.style.top = `${displayTopPercent}%`;
+			displayItemMoveState.itemElement.dataset.leftPercent = `${displayLeftPercent}`;
+			displayItemMoveState.itemElement.dataset.topPercent = `${displayTopPercent}`;
 
 			if (displayItemMoveState.moveTooltipElement)
 			{
-				displayItemMoveState.moveTooltipElement.textContent = `X: ${newLeftPercent}% Y: ${newTopPercent}%`;
+				displayItemMoveState.moveTooltipElement.textContent = `X: ${displayLeftPercent}% Y: ${displayTopPercent}%`;
 				const itemRect = displayItemMoveState.itemElement.getBoundingClientRect();
 				const itemMidpoint = itemRect.top - surfaceRect.top + (itemRect.height / 2);
 				const showTooltipBelow = itemMidpoint < (surfaceRect.height / 2);
@@ -575,15 +575,13 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 
 			if (displayItemMoveState.xInputElement)
 			{
-				displayItemMoveState.xInputElement.value = `${newLeftPercent}`;
+				displayItemMoveState.xInputElement.value = `${displayLeftPercent}`;
 			}
 
 			if (displayItemMoveState.yInputElement)
 			{
-				displayItemMoveState.yInputElement.value = `${newTopPercent}`;
+				displayItemMoveState.yInputElement.value = `${displayTopPercent}`;
 			}
-
-			onDisplayLabelChange({ id: `display${displayItemMoveState.itemNo}X`, value: '' }, displayItemMoveState.itemNo);
 		}
 
 		function stopDisplayItemMoveDrag(event)
@@ -621,6 +619,8 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 			{
 				state.yInputElement.value = `${safeTopPercent}`;
 			}
+
+			onDisplayLabelChange({ id: `display${state.itemNo}X`, value: '' }, state.itemNo);
 
 			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
 			if (displayConfiguration && Array.isArray(displayConfiguration.items) && displayConfiguration.items[state.itemNo])
@@ -747,8 +747,6 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 			{
 				displayItemResizeState.resizeTooltipElement.textContent = `W: ${newWidthPercent}%`;
 			}
-
-			onDisplayLabelChange({ id: `display${displayItemResizeState.itemNo}Width`, value: '' }, displayItemResizeState.itemNo);
 		}
 
 		function stopDisplayItemWidthDrag(event)
@@ -779,6 +777,8 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 			{
 				state.widthInputElement.value = `${safeWidthPercent}`;
 			}
+
+			onDisplayLabelChange({ id: `display${state.itemNo}Width`, value: '' }, state.itemNo);
 
 			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
 			if (displayConfiguration && Array.isArray(displayConfiguration.items) && displayConfiguration.items[state.itemNo])
@@ -4621,6 +4621,12 @@ autoConfigElement.addEventListener('click', function (e)
 
 		function refreshDisplayPopupLiveValues()
 		{
+			if (displayItemMoveState || displayItemResizeState)
+			{
+				// Avoid interrupting drag/resize with async refresh re-renders.
+				return;
+			}
+
 			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
 			if (!displayConfiguration || !Array.isArray(displayConfiguration.items))
 			{
@@ -4714,6 +4720,11 @@ autoConfigElement.addEventListener('click', function (e)
 
 			Promise.all(requests).then(() =>
 			{
+				if (displayItemMoveState || displayItemResizeState)
+				{
+					return;
+				}
+
 				renderDisplayInlineSimulator();
 				if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
 				{
