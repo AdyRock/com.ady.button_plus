@@ -78,8 +78,8 @@
 		var displayPagePopupCurrentPage = 0;
 		var displayPagePopupStatusBarPosition = null;
 		var displayInlineSelectedItemNo = -1;
-		const DISPLAY_FONT_SIZE_LOOKUP = { 1: 14, 2: 20, 3: 24, 4: 32, 5: 48, 6: 72, 7: 14, 8: 18 };
-		const DISPLAY_BOLD_FONT_SIZES = new Set([7, 8]);
+const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
+		const DISPLAY_BOLD_FONT_SIZES = new Set();
 		const DISPLAY_SIM_LIVE_REFRESH_MS = 12000;
 		var displayPagePopupLiveValueCache = new Map();
 		var displayPagePopupVariableValueCache = new Map();
@@ -2980,24 +2980,6 @@ autoConfigElement.addEventListener('click', function (e)
 			toggleElement.setAttribute('aria-expanded', detailElement.open ? 'true' : 'false');
 		}
 
-		function toggleButtonAdvancedSection(side, page)
-		{
-			const detailElement = document.getElementById(`${side}${page}Details`);
-			if (!detailElement)
-			{
-				return;
-			}
-
-			detailElement.open = !detailElement.open;
-			if (detailElement.open)
-			{
-				hidePopupManagedFieldsForSection(side, page);
-				scrollToTop(detailElement);
-			}
-
-			updateButtonAdvancedToggleState(side, page);
-		}
-
 		function updateButtonInlineSettingsToggleState(page)
 		{
 			const detailElement = document.getElementById(`${page}ButtonInlineSettingsDetails`);
@@ -3478,25 +3460,6 @@ autoConfigElement.addEventListener('click', function (e)
 			}
 
 			updateButtonPagePopupScrollOffset();
-		}
-
-		function openButtonPagePopup(page)
-		{
-			if (!buttonPagePopupOverlayElement || !buttonPagePopupContentElement)
-			{
-				return;
-			}
-
-			const config = localButtonConfigurations[currentButtonConfigurationNo];
-			if (!Array.isArray(config) || config.length === 0)
-			{
-				return;
-			}
-
-			buttonPagePopupCurrentPage = Math.max(0, Math.min(page, config.length - 1));
-			buttonPagePopupOverlayElement.classList.add('visible');
-			buttonPagePopupOverlayElement.setAttribute('aria-hidden', 'false');
-			renderButtonPagePopup();
 		}
 
 		function stepButtonPagePopup(delta)
@@ -4585,35 +4548,6 @@ autoConfigElement.addEventListener('click', function (e)
 			}
 
 			return String(value);
-		}
-
-		function humanizeDisplayCapabilityLabel(capabilityId)
-		{
-			const raw = sanitizeDisplayString(capabilityId, '').toLowerCase();
-			if (!raw)
-			{
-				return '';
-			}
-
-			if (raw.includes('time'))
-			{
-				return 'Time';
-			}
-
-			const stripped = raw
-				.replace(/^(measure|meter|target|alarm|onoff|windowcoverings|dim)[._-]/g, '')
-				.replace(/[._-]+/g, ' ')
-				.trim();
-
-			if (!stripped)
-			{
-				return '';
-			}
-
-			return stripped.replace(/\b\w/g, function (m)
-			{
-				return m.toUpperCase();
-			});
 		}
 
 		function clampDisplayPercent(value, fallback)
@@ -6755,14 +6689,11 @@ autoConfigElement.addEventListener('click', function (e)
 								</div>
 							</label>
 							<select class="homey-form-select" id="display${itemNo}FontSize">
-								<option value=1>1 - 14px</option>
-								<option value=2>2 - 20px</option>
-								<option value=3>3 - 24px</option>
-								<option value=4>4 - 32px</option>
-								<option value=5>5 - 48px</option>
-								<option value=6>6 - 72px</option>
-								<option value=7>7 - 14px Bold</option>
-								<option value=8>8 - 18px Bold</option>
+								<option value=1>1 - 18px</option>
+								<option value=2>2 - 35px</option>
+								<option value=3>3 - 45px</option>
+								<option value=4>4 - 66px</option>
+								<option value=5>5 - 100px</option>
 							</select>
 							<label class="homey-form-label" for="display${itemNo}BoxType">${ctrlLabels.boxType}
 								<div class="tooltip"><i class="fi fi-rr-info"></i>

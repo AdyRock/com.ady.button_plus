@@ -1142,13 +1142,6 @@ summary::-webkit-details-marker {
 		}
 		.display-sim-header {
 			display: flex;
-			flex-direction: column;
-			align-items: stretch;
-			gap: 10px;
-			margin-bottom: 8px;
-		}
-		.display-sim-header-middle {
-			flex: 0 0 auto;
 			display: flex;
 			align-items: center;
 			gap: 6px;
@@ -1444,13 +1437,6 @@ summary::-webkit-details-marker {
 			letter-spacing: 0.02em;
 			min-height: 24px;
 			max-height: 48px;
-		}
-		.display-sim-top-label-hidden {
-			min-height: 0;
-			max-height: 0;
-			margin: 0;
-			padding: 0;
-			overflow: hidden;
 		}
 		.display-sim-value-row {
 			display: flex;
