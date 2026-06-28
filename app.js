@@ -1409,8 +1409,11 @@ class MyApp extends Homey.App
 
 					//for (var page = 0; page < numPages; page++)
 					let page = 1;
-					while ((!leftButtonAdded || !rightButtonAdded) || page !== 0)
+					let iterations = 0;
+					const maxIterations = Math.max(1, numPages + 1);
+					while (((!leftButtonAdded || !rightButtonAdded) || page !== 0) && iterations < maxIterations)
 					{
+						iterations++;
 						if (page >= numPages)
 						{
 							page = 0;
@@ -1422,8 +1425,16 @@ class MyApp extends Homey.App
 							{
 								try
 								{
+									if (!sectionConfiguration.buttons[arrayIdx])
+									{
+										sectionConfiguration.buttons[arrayIdx] = {};
+									}
+
 									// Add custom MQTT topics
-									await this.setupCustomMQTTTopics(sectionConfiguration.buttons[arrayIdx], ButtonPanelConfiguration, connectorNo, 'left');
+									if (await this.setupCustomMQTTTopics(sectionConfiguration.buttons[arrayIdx], ButtonPanelConfiguration, connectorNo, 'left', page))
+									{
+										leftButtonAdded = true;
+									}
 								}
 								catch (err)
 								{
@@ -1452,8 +1463,13 @@ class MyApp extends Homey.App
 							{
 								try
 								{
+									if (!sectionConfiguration.buttons[arrayIdx + 1])
+									{
+										sectionConfiguration.buttons[arrayIdx + 1] = {};
+									}
+
 									// Add custom MQTT topics
-									if (await this.setupCustomMQTTTopics(sectionConfiguration.buttons[arrayIdx + 1], ButtonPanelConfiguration, connectorNo, 'right'))
+									if (await this.setupCustomMQTTTopics(sectionConfiguration.buttons[arrayIdx + 1], ButtonPanelConfiguration, connectorNo, 'right', page))
 									{
 										rightButtonAdded = true;
 									}
@@ -1481,6 +1497,11 @@ class MyApp extends Homey.App
 						{
 							page++;
 						}
+					}
+
+					if (iterations >= maxIterations && (!leftButtonAdded || !rightButtonAdded))
+					{
+						this.updateLog(`applyButtonConfiguration: reached max iterations (${maxIterations}) for connector ${connectorNo}, applying defaults for missing buttons`, 1);
 					}
 				}
 			}
@@ -1521,7 +1542,7 @@ class MyApp extends Homey.App
 		return maxPages > 1 ? maxPages - 1 : 1;
 	}
 
-	async setupCustomMQTTTopics(buttons, ButtonPanelConfiguration, connectorNo, side)
+	async setupCustomMQTTTopics(buttons, ButtonPanelConfiguration, connectorNo, side, page = 0)
 	{
 		// Safety check: ensure buttons object exists
 		if (!buttons || typeof buttons !== 'object')
@@ -1537,9 +1558,19 @@ class MyApp extends Homey.App
 			return false;
 		}
 
-		const customMQTTTopics = ButtonPanelConfiguration[`${side}CustomMQTTTopics`];
-		const topLabel = ButtonPanelConfiguration[`${side}TopText`];
-		const labelOn = ButtonPanelConfiguration[`${side}OnText`];
+		const panelConfig = Array.isArray(ButtonPanelConfiguration)
+			? ButtonPanelConfiguration[page]
+			: ButtonPanelConfiguration;
+
+		if (!panelConfig || typeof panelConfig !== 'object')
+		{
+			this.updateLog(`Error: panel configuration is invalid in setupCustomMQTTTopics for connector ${connectorNo}, side ${side}, page ${page}`, 0);
+			return false;
+		}
+
+		const customMQTTTopics = panelConfig[`${side}CustomMQTTTopics`];
+		const topLabel = panelConfig[`${side}TopText`];
+		const labelOn = panelConfig[`${side}OnText`];
 		buttons.toplabel = topLabel;
 		buttons.label = labelOn;
 

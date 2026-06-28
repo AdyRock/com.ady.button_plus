@@ -7,7 +7,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<!-- The '/homey.js' script must be included in your settings view to work -->
 	<script type="text/javascript" src="/homey.js" data-origin="settings"></script>
-	<link rel="stylesheet" type="text/css" href="extraStyles.css">
+	<link rel="stylesheet" type="text/css" href="extraStyles.css?v=20260628b">
 	<link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css'>
 </head>
 
@@ -197,32 +197,52 @@
 								placeholder="Config name" title="Enter display configuration name" />
 						</div>
 
+						<div class="display-inline-sim-divider" aria-hidden="true"></div>
+
 						<div class="display-inline-sim-card">
 							<div class="display-inline-sim-header">
-								<div class="display-sim-title-group">
-									<button class="homey-button-secondary-shadow display-sim-page-nav" id="displayInlineSimPrev" title="Previous display page" aria-label="Previous display page">&lt;</button>
-									<div class="display-sim-title" id="displayInlineSimTitle">Page 0</div>
-									<button class="homey-button-secondary-shadow display-sim-page-nav" id="displayInlineSimNext" title="Next display page" aria-label="Next display page">&gt;</button>
+								<div class="display-sim-header-title-row">
+									<div class="display-sim-title" id="displayInlineSimTitle">Page: Default</div>
 								</div>
-								<div class="display-inline-sim-actions">
-									<button class="homey-button-secondary-shadow display-inline-sim-action-btn" id="displayInlineSimAddPage" title="Add display page" aria-label="Add display page"><i class="fi fi-rr-plus"></i></button>
-									<button class="homey-button-secondary-shadow display-inline-sim-action-btn" id="displayInlineSimDeletePage" title="Delete current display page" aria-label="Delete current display page" disabled><i class="fi fi-rr-trash"></i></button>
+								<div class="display-sim-header-controls-row">
+									<div class="display-sim-title-group">
+										<button class="homey-button-secondary-shadow display-sim-page-nav" id="displayInlineSimPrev" title="Previous display page" aria-label="Previous display page">&lt;</button>
+										<button class="homey-button-secondary-shadow display-sim-page-nav" id="displayInlineSimNext" title="Next display page" aria-label="Next display page">&gt;</button>
+									</div>
+									<div class="display-inline-sim-actions">
+										<button class="homey-button-secondary-shadow display-inline-sim-action-btn" id="displayInlineSimAddPage" title="Add display page" aria-label="Add display page"><i class="fi fi-rr-plus"></i></button>
+										<button class="homey-button-secondary-shadow display-inline-sim-action-btn" id="displayInlineSimDeletePage" title="Delete current display page" aria-label="Delete current display page" disabled><i class="fi fi-rr-trash"></i></button>
+									</div>
 								</div>
 							</div>
 							<div class="display-sim-surface" id="displayInlineSimSurface"></div>
 							<div class="display-inline-sim-status-row">
-								<span class="display-sim-status-position-label">Status bar</span>
+								<span class="display-sim-status-position-label" data-i18n="settings.displaySimStatusBar"></span>
 								<select class="display-sim-status-position-select" id="displayInlineSimStatusBarPosition" aria-label="Inline status bar position">
-									<option value="0">Off</option>
-									<option value="1">Top</option>
-									<option value="2">Bottom</option>
+									<option value="0" data-i18n="settings.displaySimOff"></option>
+									<option value="1" data-i18n="settings.displaySimTop"></option>
+									<option value="2" data-i18n="settings.displaySimBottom"></option>
 								</select>
 							</div>
 							<div class="display-inline-sim-footer">
-								<span class="display-inline-sim-footer-label">Items</span>
-								<div class="display-inline-sim-actions">
-									<button class="homey-button-secondary-shadow display-inline-sim-action-btn" id="displayInlineSimAddItem" title="Add display item" aria-label="Add display item"><i class="fi fi-rr-plus"></i></button>
-									<button class="homey-button-secondary-shadow display-inline-sim-action-btn" id="displayInlineSimDeleteItem" title="Delete selected display item" aria-label="Delete selected display item" disabled><i class="fi fi-rr-trash"></i></button>
+								<div class="display-inline-sim-footer-top">
+									<span class="display-inline-sim-footer-label" data-i18n="settings.displaySimItems"></span>
+									<div class="display-inline-sim-actions">
+										<button class="homey-button-secondary-shadow display-inline-sim-action-btn" id="displayInlineSimAddItem" title="Add display item" aria-label="Add display item"><i class="fi fi-rr-plus"></i></button>
+										<button class="homey-button-secondary-shadow display-inline-sim-action-btn" id="displayInlineSimDeleteItem" title="Delete selected display item" aria-label="Delete selected display item" disabled><i class="fi fi-rr-trash"></i></button>
+									</div>
+								</div>
+								<div class="display-inline-sim-footer-bottom">
+									<div class="display-inline-sim-footer-options">
+										<label class="homey-form-checkbox display-inline-sim-checkbox" for="displayInlineSimShowPageZero">
+											<input class="homey-form-checkbox-input" id="displayInlineSimShowPageZero" type="checkbox" checked title="Always show page 0 items" aria-label="Always show page 0 items">
+											<span class="homey-form-checkbox-checkmark"></span>
+											<span class="homey-form-checkbox-text" data-i18n="settings.displaySimShowDefaultItems"></span>
+											<div class="tooltip"><i class="fi fi-rr-info"></i>
+												<span class="tooltiptext" data-i18n="settings.displaySimShowDefaultItemsHint"></span>
+											</div>
+										</label>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -316,21 +336,25 @@
 	<div id="displayPagePopupOverlay" class="display-sim-overlay" aria-hidden="true">
 		<div class="display-sim-dialog" role="dialog" aria-modal="true" aria-labelledby="displayPagePopupTitle">
 			<div class="display-sim-header">
-				<div class="display-sim-title-group">
-					<button class="homey-button-secondary-shadow display-sim-page-nav" id="displayPagePopupPrev" title="Previous display page" aria-label="Previous display page">&lt;</button>
-					<div class="display-sim-title" id="displayPagePopupTitle">Page 0</div>
-					<button class="homey-button-secondary-shadow display-sim-page-nav" id="displayPagePopupNext" title="Next display page" aria-label="Next display page">&gt;</button>
+				<div class="display-sim-header-title-row">
+					<div class="display-sim-title" id="displayPagePopupTitle">Page: Default</div>
 				</div>
-				<div class="display-sim-header-middle">
-					<span class="display-sim-status-position-label">Status bar</span>
-					<select class="display-sim-status-position-select" id="displayPagePopupStatusBarPosition" aria-label="Status bar position">
-						<option value="0">Off</option>
-						<option value="1">Top</option>
-						<option value="2">Bottom</option>
-					</select>
-				</div>
-				<div class="display-sim-header-actions">
-					<button class="homey-button-secondary-shadow button-sim-close" id="displayPagePopupClose" title="Close display simulator">&times;</button>
+				<div class="display-sim-header-controls-row">
+					<div class="display-sim-title-group">
+						<button class="homey-button-secondary-shadow display-sim-page-nav" id="displayPagePopupPrev" title="Previous display page" aria-label="Previous display page">&lt;</button>
+						<button class="homey-button-secondary-shadow display-sim-page-nav" id="displayPagePopupNext" title="Next display page" aria-label="Next display page">&gt;</button>
+					</div>
+					<div class="display-sim-header-middle">
+						<span class="display-sim-status-position-label" data-i18n="settings.displaySimStatusBar"></span>
+						<select class="display-sim-status-position-select" id="displayPagePopupStatusBarPosition" aria-label="Status bar position">
+							<option value="0" data-i18n="settings.displaySimOff"></option>
+							<option value="1" data-i18n="settings.displaySimTop"></option>
+							<option value="2" data-i18n="settings.displaySimBottom"></option>
+						</select>
+					</div>
+					<div class="display-sim-header-actions">
+						<button class="homey-button-secondary-shadow button-sim-close" id="displayPagePopupClose" title="Close display simulator">&times;</button>
+					</div>
 				</div>
 			</div>
 			<div class="display-sim-surface" id="displayPagePopupSurface"></div>

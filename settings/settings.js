@@ -1,6 +1,8 @@
 ﻿		// General declarations
 		const MAX_BUTTON_CONFIGURATIONS = 40;
 		const MAX_DISPLAY_CONFIGURATIONS = 20;
+		const CONFIG_DRAFT_STORAGE_KEY = 'unsavedConfigurationDraft';
+		const CONFIG_DRAFT_SAVE_DEBOUNCE_MS = 500;
 		var buttonDevicesArray = [];
 		var buttonDevicesFetched = false;
 		var variablesArray = [];
@@ -67,6 +69,7 @@
 		var displayInlineSimNextElement = document.getElementById('displayInlineSimNext');
 		var displayInlineSimTitleElement = document.getElementById('displayInlineSimTitle');
 		var displayInlineSimStatusBarPositionElement = document.getElementById('displayInlineSimStatusBarPosition');
+		var displayInlineSimShowPageZeroElement = document.getElementById('displayInlineSimShowPageZero');
 		var displayInlineSimSurfaceElement = document.getElementById('displayInlineSimSurface');
 		var displayInlineSimAddPageElement = document.getElementById('displayInlineSimAddPage');
 		var displayInlineSimDeletePageElement = document.getElementById('displayInlineSimDeletePage');
@@ -75,12 +78,720 @@
 		var displayPagePopupCurrentPage = 0;
 		var displayPagePopupStatusBarPosition = null;
 		var displayInlineSelectedItemNo = -1;
-		const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
+		const DISPLAY_FONT_SIZE_LOOKUP = { 1: 14, 2: 20, 3: 24, 4: 32, 5: 48, 6: 72, 7: 14, 8: 18 };
+		const DISPLAY_BOLD_FONT_SIZES = new Set([7, 8]);
 		const DISPLAY_SIM_LIVE_REFRESH_MS = 12000;
 		var displayPagePopupLiveValueCache = new Map();
 		var displayPagePopupVariableValueCache = new Map();
 		var displayPagePopupVariableValueFetchedAt = 0;
 		var displayPagePopupLiveRefreshTimer = null;
+		var displayInlineLiveRefreshTimer = null;
+		var displayItemResizeState = null;
+		var displayItemMoveState = null;
+		var configDraftSaveTimer = null;
+		var configDraftAutoSaveEnabled = false;
+		var configDraftPendingPersist = false;
+		var configDraftLoadedData = null;
+		var configDraftLoaded = false;
+		var configDraftRestoreDecisionMade = false;
+		var restoredDraftDefaultBroker = null;
+		var configDraftStoreButtonSettingsFn = null;
+
+		function enableConfigurationDraftAutoSave()
+		{
+			configDraftAutoSaveEnabled = true;
+			if (configDraftPendingPersist)
+			{
+				configDraftPendingPersist = false;
+				flushConfigurationDraftPersist();
+			}
+		}
+
+		function deepCloneData(data)
+		{
+			if (data === undefined)
+			{
+				return undefined;
+			}
+
+			try
+			{
+				return JSON.parse(JSON.stringify(data));
+			}
+			catch (err)
+			{
+				return undefined;
+			}
+		}
+
+		function syncBrokerSettingsToLocalWithoutValidation()
+		{
+			if (!Array.isArray(localBrokerItems))
+			{
+				return;
+			}
+
+			for (let itemNo = 0; itemNo < localBrokerItems.length; itemNo++)
+			{
+				const idElement = document.getElementById(`broker${itemNo}Id`);
+				const enabledElement = document.getElementById(`broker${itemNo}Enabled`);
+				const addressElement = document.getElementById(`broker${itemNo}Address`);
+				const portElement = document.getElementById(`broker${itemNo}Port`);
+				const wsPortElement = document.getElementById(`broker${itemNo}WSPort`);
+				const usernameElement = document.getElementById(`broker${itemNo}Username`);
+				const passwordElement = document.getElementById(`broker${itemNo}Password`);
+
+				if (!idElement || !enabledElement || !addressElement || !portElement || !wsPortElement || !usernameElement || !passwordElement)
+				{
+					continue;
+				}
+
+				localBrokerItems[itemNo].enabled = enabledElement.checked;
+				localBrokerItems[itemNo].brokerid = idElement.value;
+				localBrokerItems[itemNo].url = addressElement.value;
+				localBrokerItems[itemNo].port = portElement.value;
+				localBrokerItems[itemNo].wsport = wsPortElement.value;
+				localBrokerItems[itemNo].username = usernameElement.value;
+				localBrokerItems[itemNo].password = passwordElement.value;
+			}
+		}
+
+		function syncCurrentButtonSettingsForDraftSnapshot()
+		{
+			if (!buttonConfigurationsFetched || !Array.isArray(localButtonConfigurations) || localButtonConfigurations.length === 0)
+			{
+				return;
+			}
+
+			const currentButtonNo = parseInt(buttonConfigurationNoElement.value, 10);
+			if (Number.isNaN(currentButtonNo) || !localButtonConfigurations[currentButtonNo])
+			{
+				return;
+			}
+
+			if (typeof configDraftStoreButtonSettingsFn === 'function')
+			{
+				configDraftStoreButtonSettingsFn(localButtonConfigurations[currentButtonNo]);
+				return;
+			}
+
+			const activeButtonConfiguration = localButtonConfigurations[currentButtonNo];
+			if (!Array.isArray(activeButtonConfiguration) || activeButtonConfiguration.length === 0)
+			{
+				return;
+			}
+
+			if (activeButtonConfiguration[0] && configNameElement)
+			{
+				activeButtonConfiguration[0].name = configNameElement.value;
+			}
+
+			for (let page = 0; page < activeButtonConfiguration.length; page++)
+			{
+				const pageConfig = activeButtonConfiguration[page];
+				if (!pageConfig || typeof pageConfig !== 'object')
+				{
+					continue;
+				}
+
+				pageConfig.PageNum = page;
+				for (const side of ['left', 'right'])
+				{
+					const topTextElement = document.getElementById(`${side}${page}TopText`);
+					const onTextElement = document.getElementById(`${side}${page}OnText`);
+					const offTextElement = document.getElementById(`${side}${page}OffText`);
+					const deviceElement = document.getElementById(`${side}${page}Device`);
+					const capabilityElement = document.getElementById(`${side}${page}Capability`);
+					const brokerIdElement = document.getElementById(`${side}${page}BrokerId`);
+					const dimChangeElement = document.getElementById(`${side}${page}DimChange`);
+					const frontLEDOnColorElement = document.getElementById(`${side}${page}FrontLEDOnColor`);
+					const wallLEDOnColorElement = document.getElementById(`${side}${page}WallLEDOnColor`);
+					const frontLEDOffColorElement = document.getElementById(`${side}${page}FrontLEDOffColor`);
+					const wallLEDOffColorElement = document.getElementById(`${side}${page}WallLEDOffColor`);
+					const longRepeatElement = document.getElementById(`${side}${page}DisableLongRepeat`);
+
+					if (topTextElement) pageConfig[`${side}TopText`] = topTextElement.value;
+					if (onTextElement) pageConfig[`${side}OnText`] = onTextElement.value;
+					if (offTextElement) pageConfig[`${side}OffText`] = offTextElement.value;
+					if (deviceElement)
+					{
+						pageConfig[`${side}Device`] = deviceElement.value;
+						if (deviceElement.selectedIndex >= 0 && deviceElement.options && deviceElement.options[deviceElement.selectedIndex])
+						{
+							pageConfig[`${side}DeviceName`] = deviceElement.options[deviceElement.selectedIndex].text.trim();
+						}
+					}
+					if (capabilityElement)
+					{
+						pageConfig[`${side}Capability`] = capabilityElement.value;
+						if (capabilityElement.selectedIndex >= 0 && capabilityElement.options && capabilityElement.options[capabilityElement.selectedIndex])
+						{
+							pageConfig[`${side}CapabilityName`] = capabilityElement.options[capabilityElement.selectedIndex].text;
+						}
+					}
+					if (brokerIdElement) pageConfig[`${side}BrokerId`] = brokerIdElement.value;
+					if (dimChangeElement) pageConfig[`${side}DimChange`] = dimChangeElement.value;
+					if (frontLEDOnColorElement) pageConfig[`${side}FrontLEDOnColor`] = frontLEDOnColorElement.value;
+					if (wallLEDOnColorElement) pageConfig[`${side}WallLEDOnColor`] = wallLEDOnColorElement.value;
+					if (frontLEDOffColorElement) pageConfig[`${side}FrontLEDOffColor`] = frontLEDOffColorElement.value;
+					if (wallLEDOffColorElement) pageConfig[`${side}WallLEDOffColor`] = wallLEDOffColorElement.value;
+					if (longRepeatElement) pageConfig[`${side}DisableLongRepeat`] = !!longRepeatElement.checked;
+				}
+			}
+		}
+
+		function buildConfigurationDraftSnapshot()
+		{
+			syncCurrentButtonSettingsForDraftSnapshot();
+
+			if (displayConfigurationsFetched)
+			{
+				storeDisplaySettings();
+			}
+
+			syncBrokerSettingsToLocalWithoutValidation();
+
+			return {
+				version: 1,
+				timestamp: Date.now(),
+				buttonConfigurations: deepCloneData(localButtonConfigurations) || [],
+				displayConfigurations: deepCloneData(localDisplayConfigurations) || [],
+				brokerConfigurationItems: deepCloneData(localBrokerItems) || [],
+				defaultBroker: defaultBrokerElement ? defaultBrokerElement.value : 'homey',
+				currentButtonConfigurationNo: parseInt(buttonConfigurationNoElement?.value, 10) || 0,
+				currentDisplayConfigurationNo: parseInt(displayConfigurationNoElement?.value, 10) || 0,
+				configType: configTypeElement ? configTypeElement.value : 'panelConfig',
+			};
+		}
+
+		function persistConfigurationDraftNow()
+		{
+			if (!configDraftAutoSaveEnabled)
+			{
+				configDraftPendingPersist = true;
+				return;
+			}
+
+			const snapshot = buildConfigurationDraftSnapshot();
+			Homey.set(CONFIG_DRAFT_STORAGE_KEY, snapshot);
+		}
+
+		function scheduleConfigurationDraftPersist()
+		{
+			if (!configDraftAutoSaveEnabled)
+			{
+				configDraftPendingPersist = true;
+				return;
+			}
+
+			if (configDraftSaveTimer)
+			{
+				clearTimeout(configDraftSaveTimer);
+			}
+
+			configDraftSaveTimer = setTimeout(function ()
+			{
+				configDraftSaveTimer = null;
+				persistConfigurationDraftNow();
+			}, CONFIG_DRAFT_SAVE_DEBOUNCE_MS);
+		}
+
+		function flushConfigurationDraftPersist()
+		{
+			if (!configDraftAutoSaveEnabled)
+			{
+				configDraftPendingPersist = true;
+				return;
+			}
+
+			if (configDraftSaveTimer)
+			{
+				clearTimeout(configDraftSaveTimer);
+				configDraftSaveTimer = null;
+			}
+
+			persistConfigurationDraftNow();
+		}
+
+		function isDraftRelevantEventTarget(target)
+		{
+			if (!target || !target.closest)
+			{
+				return false;
+			}
+
+			if (target.id === 'save')
+			{
+				return false;
+			}
+
+			return !!target.closest('#panelConfig, #displayConfig, #brokerConfig, #buttonFieldPopupOverlay, #displayFieldPopupOverlay');
+		}
+
+		function applyConfigurationDraft(draft)
+		{
+			if (!draft || typeof draft !== 'object')
+			{
+				return;
+			}
+
+			const draftButtons = deepCloneData(draft.buttonConfigurations);
+			const draftDisplays = deepCloneData(draft.displayConfigurations);
+			const draftBrokers = deepCloneData(draft.brokerConfigurationItems);
+
+			if (Array.isArray(draftButtons) && draftButtons.length > 0)
+			{
+				localButtonConfigurations = draftButtons;
+				buttonConfigurationsFetched = true;
+				fillConfigListElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
+				const restoredButtonNo = parseInt(draft.currentButtonConfigurationNo, 10);
+				currentButtonConfigurationNo = Number.isNaN(restoredButtonNo)
+					? 0
+					: Math.max(0, Math.min(restoredButtonNo, localButtonConfigurations.length - 1));
+				buttonConfigurationNoElement.value = `${currentButtonConfigurationNo}`;
+				const buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo] || [];
+				writeButtonsections(buttonPanelConfiguration.length || 1);
+				updateButtonPanelControls();
+			}
+
+			if (Array.isArray(draftDisplays) && draftDisplays.length > 0)
+			{
+				normalizeDisplayConfigurationsPages(draftDisplays);
+				localDisplayConfigurations = draftDisplays;
+				displayConfigurationsFetched = true;
+				fillConfigListElement(displayConfigurationNoElement, Homey.__("settings.displayConfig"), localDisplayConfigurations, MAX_DISPLAY_CONFIGURATIONS);
+				const restoredDisplayNo = parseInt(draft.currentDisplayConfigurationNo, 10);
+				currentDisplayConfigurationNo = Number.isNaN(restoredDisplayNo)
+					? 0
+					: Math.max(0, Math.min(restoredDisplayNo, localDisplayConfigurations.length - 1));
+				displayConfigurationNoElement.value = `${currentDisplayConfigurationNo}`;
+				updateDisplayConfiguration();
+			}
+
+			if (Array.isArray(draftBrokers))
+			{
+				localBrokerItems = draftBrokers;
+				brokerItemsFetched = true;
+				setupButtonBrokerItems();
+			}
+
+			if (typeof draft.defaultBroker === 'string' && draft.defaultBroker)
+			{
+				restoredDraftDefaultBroker = draft.defaultBroker;
+				if (defaultBrokerElement)
+				{
+					defaultBrokerElement.value = draft.defaultBroker;
+				}
+			}
+
+			if (typeof draft.configType === 'string' && draft.configType)
+			{
+				configTypeElement.value = draft.configType;
+				configTypeChanged(draft.configType);
+			}
+		}
+
+		function maybeHandleLoadedConfigurationDraft()
+		{
+			if (configDraftRestoreDecisionMade)
+			{
+				return;
+			}
+
+			if (!configDraftLoaded || !buttonConfigurationsFetched || !displayConfigurationsFetched || !brokerItemsFetched)
+			{
+				return;
+			}
+
+			configDraftRestoreDecisionMade = true;
+
+			if (!configDraftLoadedData || typeof configDraftLoadedData !== 'object')
+			{
+				enableConfigurationDraftAutoSave();
+				return;
+			}
+
+			Homey.confirm('Unsaved settings have been detected, would you like to restore those now?', null, function (err, ok)
+			{
+				if (ok)
+				{
+					applyConfigurationDraft(configDraftLoadedData);
+					// Homey.alert(Homey.__("settings.unsavedSettingsRestored"));
+				}
+				else
+				{
+					Homey.set(CONFIG_DRAFT_STORAGE_KEY, null);
+				}
+
+				enableConfigurationDraftAutoSave();
+			});
+		}
+
+		function startDisplayInlineLiveRefresh()
+		{
+			if (displayInlineLiveRefreshTimer)
+			{
+				return;
+			}
+
+			displayInlineLiveRefreshTimer = setInterval(refreshDisplayPopupLiveValues, DISPLAY_SIM_LIVE_REFRESH_MS);
+		}
+
+		function stopDisplayInlineLiveRefresh()
+		{
+			if (!displayInlineLiveRefreshTimer)
+			{
+				return;
+			}
+
+			clearInterval(displayInlineLiveRefreshTimer);
+			displayInlineLiveRefreshTimer = null;
+		}
+
+		function startDisplayItemMoveDrag(event, itemNo)
+		{
+			if (!event)
+			{
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+
+			const handleElement = event.currentTarget;
+			const itemElement = handleElement ? handleElement.closest('.display-sim-item') : null;
+			const surfaceElement = itemElement ? itemElement.closest('.display-sim-surface') : null;
+			if (!itemElement || !surfaceElement)
+			{
+				return;
+			}
+
+			const surfaceRect = surfaceElement.getBoundingClientRect();
+			const itemRect = itemElement.getBoundingClientRect();
+			if (!surfaceRect || !itemRect || surfaceRect.width <= 0 || surfaceRect.height <= 0)
+			{
+				return;
+			}
+
+			if (typeof handleElement.setPointerCapture === 'function' && event.pointerId !== undefined)
+			{
+				try
+				{
+					handleElement.setPointerCapture(event.pointerId);
+				}
+				catch (err)
+				{
+					// Ignore pointer capture errors from unsupported environments.
+				}
+			}
+
+			const xInputElement = document.getElementById(`display${itemNo}X`);
+			const yInputElement = document.getElementById(`display${itemNo}Y`);
+			const leftFromInput = xInputElement ? parseFloat(xInputElement.value) : NaN;
+			const topFromInput = yInputElement ? parseFloat(yInputElement.value) : NaN;
+			const leftFromStyle = parseFloat(itemElement.dataset.leftPercent || itemElement.style.left || '0');
+			const topFromStyle = parseFloat(itemElement.dataset.topPercent || itemElement.style.top || '0');
+			const startLeftPercent = Number.isNaN(leftFromInput)
+				? (Number.isNaN(leftFromStyle) ? 0 : leftFromStyle)
+				: leftFromInput;
+			const startTopPercent = Number.isNaN(topFromInput)
+				? (Number.isNaN(topFromStyle) ? 0 : topFromStyle)
+				: topFromInput;
+			const moveTooltipElement = itemElement.querySelector('.display-sim-move-tooltip');
+			if (moveTooltipElement)
+			{
+				moveTooltipElement.textContent = `X: ${Math.round(startLeftPercent)}% Y: ${Math.round(startTopPercent)}%`;
+				const itemMidpoint = itemRect.top - surfaceRect.top + (itemRect.height / 2);
+				const showTooltipBelow = itemMidpoint < (surfaceRect.height / 2);
+				moveTooltipElement.classList.toggle('display-sim-resize-tooltip-below', showTooltipBelow);
+			}
+			itemElement.classList.add('display-sim-item-moving');
+
+			displayItemMoveState = {
+				itemNo,
+				itemElement,
+				surfaceElement,
+				moveTooltipElement,
+				xInputElement,
+				yInputElement,
+				startClientX: event.clientX,
+				startClientY: event.clientY,
+				startLeftPercent,
+				startTopPercent,
+				itemWidthPercent: (itemRect.width / surfaceRect.width) * 100,
+				itemHeightPercent: (itemRect.height / surfaceRect.height) * 100,
+				pointerId: event.pointerId,
+			};
+
+			document.body.classList.add('display-sim-moving');
+			window.addEventListener('pointermove', onDisplayItemMoveDragMove);
+			window.addEventListener('pointerup', stopDisplayItemMoveDrag);
+			window.addEventListener('pointercancel', stopDisplayItemMoveDrag);
+		}
+
+		function onDisplayItemMoveDragMove(event)
+		{
+			if (!displayItemMoveState || !event)
+			{
+				return;
+			}
+
+			if (displayItemMoveState.pointerId !== undefined && event.pointerId !== undefined && displayItemMoveState.pointerId !== event.pointerId)
+			{
+				return;
+			}
+
+			event.preventDefault();
+
+			const surfaceRect = displayItemMoveState.surfaceElement.getBoundingClientRect();
+			if (!surfaceRect || surfaceRect.width <= 0 || surfaceRect.height <= 0)
+			{
+				return;
+			}
+
+			const deltaX = event.clientX - displayItemMoveState.startClientX;
+			const deltaY = event.clientY - displayItemMoveState.startClientY;
+			const deltaXPercent = (deltaX / surfaceRect.width) * 100;
+			const deltaYPercent = (deltaY / surfaceRect.height) * 100;
+
+			const maxLeftPercent = Math.max(0, Math.floor(100 - displayItemMoveState.itemWidthPercent));
+			const maxTopPercent = Math.max(0, Math.floor(100 - displayItemMoveState.itemHeightPercent));
+			const newLeftPercent = Math.max(0, Math.min(maxLeftPercent, Math.round(displayItemMoveState.startLeftPercent + deltaXPercent)));
+			const newTopPercent = Math.max(0, Math.min(maxTopPercent, Math.round(displayItemMoveState.startTopPercent + deltaYPercent)));
+
+			displayItemMoveState.itemElement.style.left = `${newLeftPercent}%`;
+			displayItemMoveState.itemElement.style.top = `${newTopPercent}%`;
+			displayItemMoveState.itemElement.dataset.leftPercent = `${newLeftPercent}`;
+			displayItemMoveState.itemElement.dataset.topPercent = `${newTopPercent}`;
+
+			if (displayItemMoveState.moveTooltipElement)
+			{
+				displayItemMoveState.moveTooltipElement.textContent = `X: ${newLeftPercent}% Y: ${newTopPercent}%`;
+				const itemRect = displayItemMoveState.itemElement.getBoundingClientRect();
+				const itemMidpoint = itemRect.top - surfaceRect.top + (itemRect.height / 2);
+				const showTooltipBelow = itemMidpoint < (surfaceRect.height / 2);
+				displayItemMoveState.moveTooltipElement.classList.toggle('display-sim-resize-tooltip-below', showTooltipBelow);
+			}
+
+			if (displayItemMoveState.xInputElement)
+			{
+				displayItemMoveState.xInputElement.value = `${newLeftPercent}`;
+			}
+
+			if (displayItemMoveState.yInputElement)
+			{
+				displayItemMoveState.yInputElement.value = `${newTopPercent}`;
+			}
+
+			onDisplayLabelChange({ id: `display${displayItemMoveState.itemNo}X`, value: '' }, displayItemMoveState.itemNo);
+		}
+
+		function stopDisplayItemMoveDrag(event)
+		{
+			if (!displayItemMoveState)
+			{
+				return;
+			}
+
+			if (event && displayItemMoveState.pointerId !== undefined && event.pointerId !== undefined && displayItemMoveState.pointerId !== event.pointerId)
+			{
+				return;
+			}
+
+			const state = displayItemMoveState;
+			displayItemMoveState = null;
+
+			window.removeEventListener('pointermove', onDisplayItemMoveDragMove);
+			window.removeEventListener('pointerup', stopDisplayItemMoveDrag);
+			window.removeEventListener('pointercancel', stopDisplayItemMoveDrag);
+			document.body.classList.remove('display-sim-moving');
+			state.itemElement.classList.remove('display-sim-item-moving');
+
+			const finalLeftPercent = parseFloat(state.itemElement?.dataset?.leftPercent || state.xInputElement?.value || '0');
+			const finalTopPercent = parseFloat(state.itemElement?.dataset?.topPercent || state.yInputElement?.value || '0');
+			const safeLeftPercent = Number.isNaN(finalLeftPercent) ? 0 : Math.round(finalLeftPercent);
+			const safeTopPercent = Number.isNaN(finalTopPercent) ? 0 : Math.round(finalTopPercent);
+
+			if (state.xInputElement)
+			{
+				state.xInputElement.value = `${safeLeftPercent}`;
+			}
+
+			if (state.yInputElement)
+			{
+				state.yInputElement.value = `${safeTopPercent}`;
+			}
+
+			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+			if (displayConfiguration && Array.isArray(displayConfiguration.items) && displayConfiguration.items[state.itemNo])
+			{
+				displayConfiguration.items[state.itemNo].xPos = `${safeLeftPercent}`;
+				displayConfiguration.items[state.itemNo].yPos = `${safeTopPercent}`;
+			}
+
+			redisplayDisplyConfig(state.itemNo);
+			if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
+			{
+				renderDisplayPagePopup();
+			}
+		}
+
+		function startDisplayItemWidthDrag(event, itemNo)
+		{
+			if (!event)
+			{
+				return;
+			}
+
+			event.preventDefault();
+			event.stopPropagation();
+
+			const handleElement = event.currentTarget;
+			const itemElement = handleElement ? handleElement.closest('.display-sim-item') : null;
+			const surfaceElement = itemElement ? itemElement.closest('.display-sim-surface') : null;
+			if (!itemElement || !surfaceElement)
+			{
+				return;
+			}
+
+			const surfaceRect = surfaceElement.getBoundingClientRect();
+			if (!surfaceRect || surfaceRect.width <= 0)
+			{
+				return;
+			}
+
+			if (typeof handleElement.setPointerCapture === 'function' && event.pointerId !== undefined)
+			{
+				try
+				{
+					handleElement.setPointerCapture(event.pointerId);
+				}
+				catch (err)
+				{
+					// Ignore pointer capture errors from unsupported environments.
+				}
+			}
+
+			const widthInputElement = document.getElementById(`display${itemNo}Width`);
+			const widthFromInput = widthInputElement ? parseFloat(widthInputElement.value) : NaN;
+			const widthFromStyle = parseFloat(itemElement.dataset.widthPercent || itemElement.style.width || '0');
+			const leftPercent = parseFloat(itemElement.dataset.leftPercent || itemElement.style.left || '0') || 0;
+			const initialWidthPercent = Number.isNaN(widthFromInput)
+				? (Number.isNaN(widthFromStyle) ? 100 : widthFromStyle)
+				: widthFromInput;
+			const resizeTooltipElement = itemElement.querySelector('.display-sim-size-tooltip');
+			if (resizeTooltipElement)
+			{
+				resizeTooltipElement.textContent = `W: ${Math.round(initialWidthPercent * 10) / 10}%`;
+				const itemRect = itemElement.getBoundingClientRect();
+				const itemMidpoint = itemRect.top - surfaceRect.top + (itemRect.height / 2);
+				const showTooltipBelow = itemMidpoint < (surfaceRect.height / 2);
+				resizeTooltipElement.classList.toggle('display-sim-resize-tooltip-below', showTooltipBelow);
+			}
+			itemElement.classList.add('display-sim-item-resizing');
+
+			displayItemResizeState = {
+				itemNo,
+				handleElement,
+				itemElement,
+				surfaceElement,
+				widthInputElement,
+				resizeTooltipElement,
+				startClientX: event.clientX,
+				startWidthPercent: initialWidthPercent,
+				leftPercent,
+				pointerId: event.pointerId,
+			};
+
+			document.body.classList.add('display-sim-resizing');
+			window.addEventListener('pointermove', onDisplayItemWidthDragMove);
+			window.addEventListener('pointerup', stopDisplayItemWidthDrag);
+			window.addEventListener('pointercancel', stopDisplayItemWidthDrag);
+		}
+
+		function onDisplayItemWidthDragMove(event)
+		{
+			if (!displayItemResizeState || !event)
+			{
+				return;
+			}
+
+			if (displayItemResizeState.pointerId !== undefined && event.pointerId !== undefined && displayItemResizeState.pointerId !== event.pointerId)
+			{
+				return;
+			}
+
+			event.preventDefault();
+
+			const surfaceRect = displayItemResizeState.surfaceElement.getBoundingClientRect();
+			if (!surfaceRect || surfaceRect.width <= 0)
+			{
+				return;
+			}
+
+			const deltaX = event.clientX - displayItemResizeState.startClientX;
+			const deltaPercent = (deltaX / surfaceRect.width) * 100;
+			const maxWidthPercent = Math.max(2, 100 - displayItemResizeState.leftPercent);
+			const rawWidthPercent = Math.max(2, Math.min(maxWidthPercent, displayItemResizeState.startWidthPercent + deltaPercent));
+			const newWidthPercent = Math.max(2, Math.min(maxWidthPercent, Math.round(rawWidthPercent)));
+
+			displayItemResizeState.itemElement.style.width = `${newWidthPercent}%`;
+			displayItemResizeState.itemElement.dataset.widthPercent = `${newWidthPercent}`;
+
+			if (displayItemResizeState.widthInputElement)
+			{
+				displayItemResizeState.widthInputElement.value = `${newWidthPercent}`;
+			}
+
+			if (displayItemResizeState.resizeTooltipElement)
+			{
+				displayItemResizeState.resizeTooltipElement.textContent = `W: ${newWidthPercent}%`;
+			}
+
+			onDisplayLabelChange({ id: `display${displayItemResizeState.itemNo}Width`, value: '' }, displayItemResizeState.itemNo);
+		}
+
+		function stopDisplayItemWidthDrag(event)
+		{
+			if (!displayItemResizeState)
+			{
+				return;
+			}
+
+			if (event && displayItemResizeState.pointerId !== undefined && event.pointerId !== undefined && displayItemResizeState.pointerId !== event.pointerId)
+			{
+				return;
+			}
+
+			const state = displayItemResizeState;
+			displayItemResizeState = null;
+
+			window.removeEventListener('pointermove', onDisplayItemWidthDragMove);
+			window.removeEventListener('pointerup', stopDisplayItemWidthDrag);
+			window.removeEventListener('pointercancel', stopDisplayItemWidthDrag);
+			document.body.classList.remove('display-sim-resizing');
+			state.itemElement.classList.remove('display-sim-item-resizing');
+
+			const finalWidthPercent = parseFloat(state.itemElement?.dataset?.widthPercent || state.widthInputElement?.value || '100');
+			const safeWidthPercent = Number.isNaN(finalWidthPercent) ? 100 : Math.max(2, Math.round(finalWidthPercent));
+
+			if (state.widthInputElement)
+			{
+				state.widthInputElement.value = `${safeWidthPercent}`;
+			}
+
+			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+			if (displayConfiguration && Array.isArray(displayConfiguration.items) && displayConfiguration.items[state.itemNo])
+			{
+				displayConfiguration.items[state.itemNo].width = `${safeWidthPercent}`;
+			}
+
+			redisplayDisplyConfig(state.itemNo);
+			if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
+			{
+				renderDisplayPagePopup();
+			}
+		}
 
 		var lastSentIpElement = document.getElementById('sentip');
 		var getLogElement = document.getElementById('getLog');
@@ -250,12 +961,101 @@
 			});
 		}
 
+		function applyDisplaySimulatorLocalization()
+		{
+			if (typeof Homey === 'undefined' || !Homey || typeof Homey.__ !== 'function')
+			{
+				return;
+			}
+
+			const setTextById = (id, key) =>
+			{
+				const element = document.getElementById(id);
+				if (element)
+				{
+					element.textContent = Homey.__(`settings.${key}`);
+				}
+			};
+
+			const setAttributeById = (id, attributeName, key) =>
+			{
+				const element = document.getElementById(id);
+				if (element)
+				{
+					element.setAttribute(attributeName, Homey.__(`settings.${key}`));
+				}
+			};
+
+			const setSelectOptions = (id, optionKeys) =>
+			{
+				const element = document.getElementById(id);
+				if (!element || !Array.isArray(element.options))
+				{
+					return;
+				}
+
+				for (let index = 0; index < optionKeys.length && index < element.options.length; index++)
+				{
+					element.options[index].text = Homey.__(`settings.${optionKeys[index]}`);
+				}
+			};
+
+			setAttributeById('displayInlineSimPrev', 'title', 'displaySimPreviousPage');
+			setAttributeById('displayInlineSimPrev', 'aria-label', 'displaySimPreviousPage');
+			setAttributeById('displayInlineSimNext', 'title', 'displaySimNextPage');
+			setAttributeById('displayInlineSimNext', 'aria-label', 'displaySimNextPage');
+			setAttributeById('displayInlineSimAddPage', 'title', 'displaySimAddPage');
+			setAttributeById('displayInlineSimAddPage', 'aria-label', 'displaySimAddPage');
+			setAttributeById('displayInlineSimDeletePage', 'title', 'displaySimDeletePage');
+			setAttributeById('displayInlineSimDeletePage', 'aria-label', 'displaySimDeletePage');
+			setAttributeById('displayInlineSimAddItem', 'title', 'displaySimAddItem');
+			setAttributeById('displayInlineSimAddItem', 'aria-label', 'displaySimAddItem');
+			setAttributeById('displayInlineSimDeleteItem', 'title', 'displaySimDeleteItem');
+			setAttributeById('displayInlineSimDeleteItem', 'aria-label', 'displaySimDeleteItem');
+			setAttributeById('displayInlineSimStatusBarPosition', 'aria-label', 'displaySimInlineStatusBarPosition');
+			setAttributeById('displayInlineSimShowPageZero', 'title', 'displaySimShowDefaultItems');
+			setAttributeById('displayInlineSimShowPageZero', 'aria-label', 'displaySimShowDefaultItems');
+
+			setAttributeById('displayPagePopupPrev', 'title', 'displaySimPreviousPage');
+			setAttributeById('displayPagePopupPrev', 'aria-label', 'displaySimPreviousPage');
+			setAttributeById('displayPagePopupNext', 'title', 'displaySimNextPage');
+			setAttributeById('displayPagePopupNext', 'aria-label', 'displaySimNextPage');
+			setAttributeById('displayPagePopupStatusBarPosition', 'aria-label', 'displaySimStatusBarPosition');
+			setAttributeById('displayPagePopupClose', 'title', 'displaySimClose');
+			setAttributeById('displayPagePopupClose', 'aria-label', 'displaySimClose');
+			setAttributeById('displayPageSimOpen', 'title', 'displaySimOpen');
+			setAttributeById('displayPageSimOpen', 'aria-label', 'displaySimOpen');
+
+			setTextById('displayFieldPopupTitle', 'displayFieldPopupTitle');
+			setTextById('displayFieldPopupCancel', 'cancel');
+			setTextById('displayFieldPopupSave', 'displayFieldPopupSave');
+
+			setSelectOptions('displayInlineSimStatusBarPosition', ['displaySimOff', 'displaySimTop', 'displaySimBottom']);
+			setSelectOptions('displayPagePopupStatusBarPosition', ['displaySimOff', 'displaySimTop', 'displaySimBottom']);
+		}
+
 		// a method named 'onHomeyReady' must be present in your code
 		function onHomeyReady(Homey)
 		{
 			itemDisplyType = document.getElementById('ButtonPanelConfigurationNo').style.display;
 			setupFilterableSelects();
 			document.body.classList.toggle('homey-mobile-app', isHomeyMobileAppRuntime());
+			applyDisplaySimulatorLocalization();
+
+			Homey.get(CONFIG_DRAFT_STORAGE_KEY, function (err, loadedDraft)
+			{
+				if (!err && loadedDraft && typeof loadedDraft === 'object')
+				{
+					configDraftLoadedData = loadedDraft;
+				}
+				else
+				{
+					configDraftRestoreDecisionMade = true;
+					enableConfigurationDraftAutoSave();
+				}
+				configDraftLoaded = true;
+				maybeHandleLoadedConfigurationDraft();
+			});
 
 
 			// Read the button configuration from the settings and write the controls
@@ -279,6 +1079,7 @@
 
 				writeButtonsections(buttonPanelConfiguration.length);
 				updateButtonPanelControls();
+				maybeHandleLoadedConfigurationDraft();
 			});
 
 			Homey.get('displayConfigurations', function (err, displayConfigurations)
@@ -315,8 +1116,10 @@
 						}
 					}
 				}
+				normalizeDisplayConfigurationsPages(localDisplayConfigurations);
 
 				updateDisplayConfiguration();
+				maybeHandleLoadedConfigurationDraft();
 			});
 
 			getButtonList();
@@ -335,6 +1138,7 @@
 if (err) return Homey.alert(err);
 brokerItemsFetched = true;
 localBrokerItems = brokerItems;
+maybeHandleLoadedConfigurationDraft();
 });
 
 Homey.get('displayPagePopupStatusBarPosition', function (err, savedStatusBarPosition)
@@ -504,6 +1308,7 @@ autoConfigElement.addEventListener('click', function (e)
 						//Copy the values from the controls to the displayConfiguration
 						storeDisplaySettings();
 						await Homey.set('displayConfigurations', localDisplayConfigurations);
+						await Homey.set(CONFIG_DRAFT_STORAGE_KEY, null);
 
 						Homey.api('POST', '/settings_changed/', {}, function (err, variables)
 						{
@@ -541,6 +1346,8 @@ autoConfigElement.addEventListener('click', function (e)
 					storeButtonSettingsSection('right', page, ButtonPanelConfiguration[page]);
 				}
 			}
+
+			configDraftStoreButtonSettingsFn = storeButtonSettings;
 
 			function storeButtonSettingsSection(side, page, ButtonPanelConfiguration)
 			{
@@ -1161,7 +1968,7 @@ autoConfigElement.addEventListener('click', function (e)
 						for (const item of displayConfiguration.items)
 						{
 							const itemPage = parseInt(item.page, 10) || 0;
-							if (itemPage === 0 || itemPage === displayPagePopupCurrentPage)
+							if (itemPage === displayPagePopupCurrentPage)
 							{
 								item.statusBarPosition = selectedStatusBarPosition;
 							}
@@ -1207,6 +2014,29 @@ autoConfigElement.addEventListener('click', function (e)
 				{
 					deleteSelectedInlineDisplayItem();
 				});
+			}
+
+			if (displayInlineSimShowPageZeroElement)
+			{
+				displayInlineSimShowPageZeroElement.addEventListener('change', function ()
+				{
+					renderDisplayInlineSimulator();
+					if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
+					{
+						renderDisplayPagePopup();
+					}
+					refreshDisplayPopupLiveValues();
+				});
+			}
+
+			if (displayInlineSimSurfaceElement)
+			{
+				displayInlineSimSurfaceElement.addEventListener('click', handleDisplaySurfaceBackgroundClick);
+			}
+
+			if (displayPagePopupSurfaceElement)
+			{
+				displayPagePopupSurfaceElement.addEventListener('click', handleDisplaySurfaceBackgroundClick);
 			}
 
 			const refreshButtonPagePopupFromControl = function (event)
@@ -1306,6 +2136,33 @@ autoConfigElement.addEventListener('click', function (e)
 			document.addEventListener('change', refreshButtonPagePopupFromControl);
 			document.addEventListener('input', refreshDisplayPagePopupFromControl);
 			document.addEventListener('change', refreshDisplayPagePopupFromControl);
+
+			const draftEventHandler = function (event)
+			{
+				if (isDraftRelevantEventTarget(event.target))
+				{
+					if (event.type === 'input')
+					{
+						scheduleConfigurationDraftPersist();
+					}
+					else
+					{
+						flushConfigurationDraftPersist();
+					}
+				}
+			};
+			document.addEventListener('input', draftEventHandler);
+			document.addEventListener('change', draftEventHandler);
+			document.addEventListener('click', draftEventHandler);
+			window.addEventListener('beforeunload', flushConfigurationDraftPersist);
+			window.addEventListener('pagehide', flushConfigurationDraftPersist);
+			document.addEventListener('visibilitychange', function ()
+			{
+				if (document.visibilityState === 'hidden')
+				{
+					flushConfigurationDraftPersist();
+				}
+			});
 
 			document.addEventListener('focusin', function (event)
 			{
@@ -1530,6 +2387,12 @@ autoConfigElement.addEventListener('click', function (e)
 
 		function enhanceFilterableSelect(selectElement)
 		{
+			if (selectElement && (/FontSize$/i.test(selectElement.id || '') || /page$/i.test(selectElement.id || '')))
+			{
+				selectElement.dataset.filterableEnhanced = 'native';
+				return;
+			}
+
 			if (selectElement && (selectElement.id === 'configType' || selectElement.id === 'displayConfigurationNo' || selectElement.id === 'defaultBroker' || selectElement.id === 'sentip'))
 			{
 				selectElement.dataset.filterableEnhanced = 'native';
@@ -2443,6 +3306,32 @@ autoConfigElement.addEventListener('click', function (e)
 			return pageIndex === 0 ? 'Default' : `${pageIndex}`;
 		}
 
+		function formatDisplayPageLabel(pageIndex)
+		{
+			return pageIndex === 0 ? 'Default' : `${pageIndex}`;
+		}
+
+		function renderDisplayPageHeaderTitle(titleElement, currentPage, totalPages)
+		{
+			if (!titleElement)
+			{
+				return;
+			}
+
+			const displayPageLabel = Homey.__("settings.page");
+			const currentPageLabel = formatDisplayPageLabel(currentPage);
+			if (totalPages <= 1)
+			{
+				titleElement.textContent = `${displayPageLabel}: ${currentPageLabel}`;
+				return;
+			}
+
+			const totalPagesHint = escapeHtml(Homey.__("settings.displaySimTotalPagesHint"));
+			const safeDisplayPageLabel = escapeHtml(displayPageLabel);
+			const safeCurrentPageLabel = escapeHtml(currentPageLabel);
+			titleElement.innerHTML = `${safeDisplayPageLabel}: ${safeCurrentPageLabel} / <span class="display-sim-total-pages">${totalPages}</span><span class="tooltip display-sim-total-pages-tooltip"><i class="fi fi-rr-info" aria-hidden="true"></i><span class="tooltiptext">${totalPagesHint}</span></span>`;
+		}
+
 		function getButtonPanelPreviewMarkup(pageConfig, side, pageIndex = buttonPagePopupCurrentPage)
 		{
 			const topText = escapeHtml(getLiveButtonPanelFieldValue(pageConfig, side, 'TopText', Homey.__(`settings.${side}Panel`), pageIndex));
@@ -3157,6 +4046,11 @@ autoConfigElement.addEventListener('click', function (e)
 				return;
 			}
 
+			if (displayFieldPopupOverlayElement.contains(document.activeElement) && typeof document.activeElement?.blur === 'function')
+			{
+				document.activeElement.blur();
+			}
+
 			displayFieldPopupOverlayElement.classList.remove('visible');
 			displayFieldPopupOverlayElement.setAttribute('aria-hidden', 'true');
 			displayFieldPopupBindings = [];
@@ -3188,6 +4082,32 @@ autoConfigElement.addEventListener('click', function (e)
 			}
 		}
 
+		function updateDisplayFieldPopupCapabilityState(popupElementsBySuffix)
+		{
+			if (!popupElementsBySuffix || !popupElementsBySuffix.Device || !popupElementsBySuffix.Capability)
+			{
+				return;
+			}
+
+			const deviceValue = popupElementsBySuffix.Device.value;
+			const capabilityElement = popupElementsBySuffix.Capability;
+			const capabilityRowElement = capabilityElement.closest('.button-field-popup-field');
+			const capabilityLabelElement = capabilityRowElement ? capabilityRowElement.querySelector('.button-field-popup-label') : null;
+
+			const hideCapability = (deviceValue === 'none' || deviceValue === 'customMQTT');
+			if (capabilityRowElement)
+			{
+				capabilityRowElement.style.display = hideCapability ? 'none' : '';
+			}
+
+			if (capabilityLabelElement)
+			{
+				capabilityLabelElement.textContent = (deviceValue === '_variable_')
+					? Homey.__('settings.variable')
+					: Homey.__('settings.capability');
+			}
+		}
+
 		function saveDisplayFieldPopup()
 		{
 			if (!displayFieldPopupBindings || displayFieldPopupBindings.length === 0)
@@ -3201,6 +4121,7 @@ autoConfigElement.addEventListener('click', function (e)
 				const itemNo = displayFieldPopupContext.itemNo;
 				const deviceValue = displayFieldPopupContext.popupElementsBySuffix.Device.value;
 				const capabilityValue = displayFieldPopupContext.popupElementsBySuffix.Capability.value;
+				const shouldApplyCapability = (deviceValue !== 'none' && deviceValue !== 'customMQTT');
 
 				const sourceDeviceElement = document.getElementById(`display${itemNo}Device`);
 				const sourceCapabilityElement = document.getElementById(`display${itemNo}Capability`);
@@ -3211,7 +4132,7 @@ autoConfigElement.addEventListener('click', function (e)
 					sourceDeviceElement.dispatchEvent(new Event('change', { bubbles: true }));
 				}
 
-				if (sourceCapabilityElement)
+				if (sourceCapabilityElement && shouldApplyCapability)
 				{
 					const applyCapabilityValue = function (attempt = 0)
 					{
@@ -3389,11 +4310,17 @@ autoConfigElement.addEventListener('click', function (e)
 						sourceDeviceElement.value = popupElementsBySuffix.Device.value;
 						sourceDeviceElement.dispatchEvent(new Event('change', { bubbles: true }));
 					}
+					updateDisplayFieldPopupCapabilityState(popupElementsBySuffix);
 					syncDisplayFieldPopupCapabilityOptions(itemNo, popupElementsBySuffix.Capability);
-					setTimeout(() => syncDisplayFieldPopupCapabilityOptions(itemNo, popupElementsBySuffix.Capability), 140);
+					setTimeout(() =>
+					{
+						syncDisplayFieldPopupCapabilityOptions(itemNo, popupElementsBySuffix.Capability);
+						updateDisplayFieldPopupCapabilityState(popupElementsBySuffix);
+					}, 140);
 				});
 
 				syncDisplayFieldPopupCapabilityOptions(itemNo, popupElementsBySuffix.Capability, popupElementsBySuffix.Capability.value);
+				updateDisplayFieldPopupCapabilityState(popupElementsBySuffix);
 			}
 
 			displayFieldPopupOverlayElement.classList.add('visible');
@@ -3437,6 +4364,35 @@ autoConfigElement.addEventListener('click', function (e)
 
 			openDisplayFieldPopup(itemNo, fieldSuffix);
 		}
+		function handleDisplaySurfaceBackgroundClick(event)
+		{
+			if (!event || !event.target)
+			{
+				return;
+			}
+
+			if (event.target.closest('.display-sim-item'))
+			{
+				return;
+			}
+
+			if (event.target.closest('.display-sim-status-bar'))
+			{
+				return;
+			}
+
+			if (displayInlineSelectedItemNo < 0)
+			{
+				return;
+			}
+
+			displayInlineSelectedItemNo = -1;
+			renderDisplayInlineSimulator();
+			if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
+			{
+				renderDisplayPagePopup();
+			}
+		}
 
 		function closeDisplayPagePopup()
 		{
@@ -3453,6 +4409,10 @@ autoConfigElement.addEventListener('click', function (e)
 
 			displayPagePopupOverlayElement.classList.remove('visible');
 			displayPagePopupOverlayElement.setAttribute('aria-hidden', 'true');
+			if (configTypeElement && configTypeElement.value === 'displayConfig')
+			{
+				startDisplayInlineLiveRefresh();
+			}
 			if (!buttonPagePopupOverlayElement || !buttonPagePopupOverlayElement.classList.contains('visible'))
 			{
 				document.body.classList.remove('sim-panel-open');
@@ -3481,20 +4441,77 @@ autoConfigElement.addEventListener('click', function (e)
 			document.body.classList.add('sim-panel-open');
 		}
 
+		function normalizeDisplayConfigurationPages(displayConfiguration)
+		{
+			if (!displayConfiguration || typeof displayConfiguration !== 'object')
+			{
+				return;
+			}
+
+			if (!Array.isArray(displayConfiguration.items))
+			{
+				displayConfiguration.items = [];
+			}
+
+			let highestItemPage = 0;
+			for (const item of displayConfiguration.items)
+			{
+				if (!item || typeof item !== 'object')
+				{
+					continue;
+				}
+
+				const parsedPage = parseInt(item.page, 10);
+				const normalizedPage = Number.isNaN(parsedPage) ? 0 : Math.max(0, parsedPage);
+				item.page = normalizedPage;
+				highestItemPage = Math.max(highestItemPage, normalizedPage);
+			}
+
+			const configuredPageCount = parseInt(displayConfiguration.pageCount, 10);
+			const normalizedPageCount = Number.isNaN(configuredPageCount) ? 0 : Math.max(0, configuredPageCount);
+			displayConfiguration.pageCount = Math.max(1, normalizedPageCount, highestItemPage + 1);
+		}
+
+		function normalizeDisplayConfigurationsPages(displayConfigurations)
+		{
+			if (!Array.isArray(displayConfigurations))
+			{
+				return;
+			}
+
+			for (const displayConfiguration of displayConfigurations)
+			{
+				normalizeDisplayConfigurationPages(displayConfiguration);
+			}
+		}
+
 		function getDisplayPopupPages(displayConfiguration)
 		{
 			const pages = new Set();
-			if (!displayConfiguration || !Array.isArray(displayConfiguration.items))
+			pages.add(0);
+			if (!displayConfiguration)
 			{
 				return [0];
 			}
 
-			for (const item of displayConfiguration.items)
+			const configuredPageCount = parseInt(displayConfiguration.pageCount, 10);
+			if (!Number.isNaN(configuredPageCount) && configuredPageCount > 0)
 			{
-				const pageValue = parseInt(item.page, 10);
-				if (!Number.isNaN(pageValue) && pageValue >= 0)
+				for (let pageNo = 0; pageNo < configuredPageCount; pageNo++)
 				{
-					pages.add(pageValue);
+					pages.add(pageNo);
+				}
+			}
+
+			if (Array.isArray(displayConfiguration.items))
+			{
+				for (const item of displayConfiguration.items)
+				{
+					const pageValue = parseInt(item.page, 10);
+					if (!Number.isNaN(pageValue) && pageValue >= 0)
+					{
+						pages.add(pageValue);
+					}
 				}
 			}
 
@@ -3504,6 +4521,22 @@ autoConfigElement.addEventListener('click', function (e)
 			}
 
 			return Array.from(pages).sort((a, b) => a - b);
+		}
+
+		function getDisplayPageSelectOptionsMarkup(displayConfiguration, selectedPage)
+		{
+			const pages = getDisplayPopupPages(displayConfiguration);
+			const maxPage = pages.length ? Math.max(...pages) : 0;
+			const normalizedSelected = Math.max(0, Math.min(parseInt(selectedPage, 10) || 0, maxPage));
+			let options = '';
+
+			for (let page = 0; page <= maxPage; page++)
+			{
+				const selectedAttr = (page === normalizedSelected) ? ' selected' : '';
+				options += `<option value="${page}"${selectedAttr}>${formatDisplayPageLabel(page)}</option>`;
+			}
+
+			return options;
 		}
 
 		function getDisplayPopupFieldValue(item, itemNo, suffix, fallback = '')
@@ -3603,6 +4636,12 @@ autoConfigElement.addEventListener('click', function (e)
 			return DISPLAY_FONT_SIZE_LOOKUP[1];
 		}
 
+		function isDisplayPopupFontBold(fontSize)
+		{
+			const key = parseInt(fontSize, 10);
+			return DISPLAY_BOLD_FONT_SIZES.has(key);
+		}
+
 		function getDisplayPopupItemRuntime(item, itemNo)
 		{
 			const deviceId = sanitizeDisplayString(getDisplayPopupFieldValue(item, itemNo, 'Device', item.device || ''), '');
@@ -3665,7 +4704,7 @@ autoConfigElement.addEventListener('click', function (e)
 			{
 				const item = displayConfiguration.items[itemNo];
 				const itemPage = parseInt(getDisplayPopupFieldValue(item, itemNo, 'page', item.page || 0), 10) || 0;
-				if (!(itemPage === 0 || itemPage === displayPagePopupCurrentPage))
+				if (itemPage !== displayPagePopupCurrentPage)
 				{
 					continue;
 				}
@@ -3877,6 +4916,17 @@ autoConfigElement.addEventListener('click', function (e)
 			}
 
 			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+			const displayMoveHandleTitle = escapeHtml(Homey.__("settings.displaySimMoveHandleTitle"));
+			const displayMoveHandleAria = escapeHtml(Homey.__("settings.displaySimMoveHandleAria"));
+			const displayResizeHandleTitle = escapeHtml(Homey.__("settings.displaySimResizeHandleTitle"));
+			const displayResizeHandleAria = escapeHtml(Homey.__("settings.displaySimResizeHandleAria"));
+			const displayTooltipX = escapeHtml(Homey.__("settings.displaySimTooltipX"));
+			const displayTooltipY = escapeHtml(Homey.__("settings.displaySimTooltipY"));
+			const displayTooltipW = escapeHtml(Homey.__("settings.displaySimTooltipW"));
+			const displayLoadingPlaceholder = escapeHtml(Homey.__("settings.displaySimLoading"));
+			const displayEmptyMessage = escapeHtml(Homey.__("settings.displaySimEmptyMessage"));
+			const displayStatusLeftPlaceholder = escapeHtml(Homey.__("settings.displaySimStatusLeftPlaceholder"));
+			const displayStatusRightPlaceholder = escapeHtml(Homey.__("settings.displaySimStatusRightPlaceholder"));
 			if (!displayConfiguration || !Array.isArray(displayConfiguration.items))
 			{
 				surfaceElement.innerHTML = '';
@@ -3890,7 +4940,7 @@ autoConfigElement.addEventListener('click', function (e)
 				}
 				if (titleElement)
 				{
-					titleElement.textContent = 'Page 0';
+					renderDisplayPageHeaderTitle(titleElement, 0, 1);
 				}
 				return;
 			}
@@ -3900,21 +4950,29 @@ autoConfigElement.addEventListener('click', function (e)
 			{
 				displayPagePopupCurrentPage = pages[0];
 			}
+			const highestPageNumber = pages.length ? Math.max(...pages) : 0;
+			const totalPages = Math.max(1, highestPageNumber + 1);
+			const showPageZeroEverywhere = !!(displayInlineSimShowPageZeroElement && displayInlineSimShowPageZeroElement.checked && displayPagePopupCurrentPage !== 0);
 
 			const pageItems = [];
 			for (let itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
 			{
 				const item = displayConfiguration.items[itemNo];
 				const itemPage = parseInt(getDisplayPopupFieldValue(item, itemNo, 'page', item.page || 0), 10) || 0;
-				if (itemPage === 0 || itemPage === displayPagePopupCurrentPage)
+				const isPageZeroOverlay = (showPageZeroEverywhere && itemPage === 0);
+				if (itemPage === displayPagePopupCurrentPage || isPageZeroOverlay)
 				{
-					pageItems.push({ item, itemNo });
+					pageItems.push({ item, itemNo, isPageZeroOverlay });
 				}
 			}
 
 			let statusBarPosition = 0;
-			for (const { item, itemNo } of pageItems)
+			for (const { item, itemNo, isPageZeroOverlay } of pageItems)
 			{
+				if (isPageZeroOverlay)
+				{
+					continue;
+				}
 				const statusBarRaw = parseInt(getDisplayPopupFieldValue(item, itemNo, 'StatusBarPosition', item.statusBarPosition || 0), 10);
 				const statusBarValue = Number.isNaN(statusBarRaw) ? 0 : Math.max(0, Math.min(statusBarRaw, 2));
 				if (statusBarValue > 0)
@@ -3940,9 +4998,9 @@ autoConfigElement.addEventListener('click', function (e)
 
 			const statusBarMarkup = statusBarPosition === 0
 				? ''
-				: `<div class="display-sim-status-bar ${statusBarPosition === 1 ? 'display-sim-status-bar-top' : 'display-sim-status-bar-bottom'}"><span class="display-sim-status-left">###.###.##.###</span><span class="display-sim-status-right">-## dB Free ##/##/#### kB</span></div>`;
+				: `<div class="display-sim-status-bar ${statusBarPosition === 1 ? 'display-sim-status-bar-top' : 'display-sim-status-bar-bottom'}"><span class="display-sim-status-left">${displayStatusLeftPlaceholder}</span><span class="display-sim-status-right">${displayStatusRightPlaceholder}</span></div>`;
 
-			const markup = pageItems.map(({ item, itemNo }) =>
+			const markup = pageItems.map(({ item, itemNo, isPageZeroOverlay }) =>
 			{
 				const runtime = getDisplayPopupItemRuntime(item, itemNo);
 				const xPercent = clampDisplayPercent(getDisplayPopupFieldValue(item, itemNo, 'X', item.xPos || 0), 0);
@@ -3990,6 +5048,7 @@ autoConfigElement.addEventListener('click', function (e)
 				const unitText = escapeHtml(sanitizeDisplayString(liveUnit, ''));
 				const configuredFontSize = getDisplayPopupFieldValue(item, itemNo, 'FontSize', item.fontSize || 1);
 				const fontPx = getDisplayPopupFontPx(configuredFontSize);
+				const fontWeight = isDisplayPopupFontBold(configuredFontSize) ? 700 : 400;
 				const boxType = parseInt(getDisplayPopupFieldValue(item, itemNo, 'BoxType', item.boxType || 0), 10) || 0;
 				const underlinedClass = (boxType === 0) ? 'display-sim-item-underlined' : '';
 
@@ -4000,29 +5059,38 @@ autoConfigElement.addEventListener('click', function (e)
 				const svgFocusSuffix = (valueSvgMarkup && isDynamicValueSource) ? 'Device' : 'SVG';
 				const valueFocusSuffix = (runtime.deviceId === 'none') ? 'Text' : 'Device';
 				const needsLivePlaceholder = isDynamicValueSource && !hasTextValue && !showValueSvg;
-				const renderedText = needsLivePlaceholder ? '--' : (text || '&nbsp;');
+				const renderedText = needsLivePlaceholder ? displayLoadingPlaceholder : (text || '&nbsp;');
 				const renderedUnit = (needsLivePlaceholder || showValueSvg) ? '&nbsp;' : (unitText || '&nbsp;');
 				const valueClass = needsLivePlaceholder ? 'display-sim-text display-sim-text-loading' : 'display-sim-text';
 				const valueTextPaddingTop = hasExplicitLabel ? 10 : 30;
 
-				const selectedClass = (itemNo === displayInlineSelectedItemNo) ? ' display-sim-item-selected' : '';
-				return `<div class="display-sim-item ${underlinedClass}${selectedClass}" style="left:${xPercent}%; top:${yPercent}%; width:${widthPercent}%;" onclick="${clickHandlerName}(${itemNo}, 'Label')">
-					${hasExplicitLabel ? `<div class="display-sim-top-label" onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, 'Label')">${renderedLabel}</div>` : ''}
+				const isSelected = !isPageZeroOverlay && (itemNo === displayInlineSelectedItemNo);
+				const selectedClass = isSelected ? ' display-sim-item-selected' : '';
+				const overlayClass = isPageZeroOverlay ? ' display-sim-item-page-zero-overlay' : '';
+				const labelClick = isPageZeroOverlay ? '' : ` onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, 'Label')"`;
+				const itemClick = isPageZeroOverlay ? '' : ` onclick="${clickHandlerName}(${itemNo}, 'Label')"`;
+				const svgClick = isPageZeroOverlay ? '' : ` onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, '${svgFocusSuffix}')"`;
+				const valueRowClick = isPageZeroOverlay ? '' : ` onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, '${valueFocusSuffix}')"`;
+				const unitClick = isPageZeroOverlay ? '' : ` onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, 'Unit')"`;
+				return `<div class="display-sim-item ${underlinedClass}${selectedClass}${overlayClass}" style="left:${xPercent}%; top:${yPercent}%; width:${widthPercent}%;" data-item-no="${itemNo}" data-left-percent="${xPercent}" data-top-percent="${yPercent}" data-width-percent="${widthPercent}"${itemClick}>
+					${hasExplicitLabel ? `<div class="display-sim-top-label"${labelClick}>${renderedLabel}</div>` : ''}
 					${showValueSvg
-						? `<div class="display-sim-svg" onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, '${svgFocusSuffix}')">${effectiveSvgMarkup}</div>`
-						: `<div class="display-sim-value-row" onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, '${valueFocusSuffix}')">
-							<div class="${valueClass}" style="font-size:${fontPx}px;padding-top:${valueTextPaddingTop}px;">${renderedText}</div>
-							<div class="display-sim-unit" onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, 'Unit')" style="font-size:${Math.max(15, Math.floor(fontPx * 0.52))}px;">${renderedUnit}</div>
+						? `<div class="display-sim-svg"${svgClick}>${effectiveSvgMarkup}</div>`
+						: `<div class="display-sim-value-row"${valueRowClick}>
+							<div class="${valueClass}" style="font-size:${fontPx}px;font-weight:${fontWeight};padding-top:${valueTextPaddingTop}px;">${renderedText}</div>
+							<div class="display-sim-unit"${unitClick} style="font-size:${Math.max(15, Math.floor(fontPx * 0.52))}px;font-weight:${fontWeight};">${renderedUnit}</div>
 						</div>`}
+					${isSelected ? `<button type="button" class="display-sim-move-handle" title="${displayMoveHandleTitle}" onpointerdown="startDisplayItemMoveDrag(event, ${itemNo})" onclick="event.stopPropagation();" aria-label="${displayMoveHandleAria}"><span aria-hidden="true">↑↓←→</span></button><button type="button" class="display-sim-resize-handle" title="${displayResizeHandleTitle}" onpointerdown="startDisplayItemWidthDrag(event, ${itemNo})" onclick="event.stopPropagation();" aria-label="${displayResizeHandleAria}"><span aria-hidden="true">↔</span></button><div class="display-sim-resize-tooltip display-sim-move-tooltip" aria-hidden="true">${displayTooltipX}: ${Math.round(xPercent)}% ${displayTooltipY}: ${Math.round(yPercent)}%</div><div class="display-sim-resize-tooltip display-sim-size-tooltip" aria-hidden="true">${displayTooltipW}: ${Math.round(widthPercent * 10) / 10}%</div>` : ''}
 				</div>`;
 			}).join('');
 
-			surfaceElement.innerHTML = statusBarMarkup + markup;
+			const emptyStateMarkup = (pageItems.length === 0)
+				? `<div class="display-sim-empty-message">${displayEmptyMessage}</div>`
+				: '';
 
-			if (titleElement)
-			{
-				titleElement.textContent = `Page ${displayPagePopupCurrentPage}`;
-			}
+			surfaceElement.innerHTML = statusBarMarkup + emptyStateMarkup + markup;
+
+			renderDisplayPageHeaderTitle(titleElement, displayPagePopupCurrentPage, totalPages);
 
 			if (prevElement)
 			{
@@ -4036,14 +5104,13 @@ autoConfigElement.addEventListener('click', function (e)
 
 			if (displayInlineSimDeleteItemElement)
 			{
-				const maxItemNo = displayConfiguration.items.length - 1;
-				const hasSelection = (displayInlineSelectedItemNo >= 0 && displayInlineSelectedItemNo <= maxItemNo);
+				const hasSelection = pageItems.some((entry) => !entry.isPageZeroOverlay && entry.itemNo === displayInlineSelectedItemNo);
 				displayInlineSimDeleteItemElement.disabled = !hasSelection;
 			}
 
 			if (displayInlineSimDeletePageElement)
 			{
-				const hasCurrentPageItems = pageItems.length > 0;
+				const hasCurrentPageItems = pageItems.some((entry) => !entry.isPageZeroOverlay);
 				displayInlineSimDeletePageElement.disabled = !(displayPagePopupCurrentPage > 0 && hasCurrentPageItems);
 			}
 
@@ -4104,7 +5171,7 @@ autoConfigElement.addEventListener('click', function (e)
 					for (const item of displayConfiguration.items)
 					{
 						const itemPage = parseInt(item.page, 10) || 0;
-						if (itemPage === 0 || itemPage === displayPagePopupCurrentPage)
+						if (itemPage === displayPagePopupCurrentPage)
 						{
 							item.statusBarPosition = selectedStatusBarPosition;
 						}
@@ -4114,6 +5181,7 @@ autoConfigElement.addEventListener('click', function (e)
 			}
 			displayPagePopupOverlayElement.classList.add('visible');
 			displayPagePopupOverlayElement.setAttribute('aria-hidden', 'false');
+			stopDisplayInlineLiveRefresh();
 			if (displayPagePopupLiveRefreshTimer)
 			{
 				clearInterval(displayPagePopupLiveRefreshTimer);
@@ -5085,6 +6153,11 @@ autoConfigElement.addEventListener('click', function (e)
 		{
 			var i, tabcontent, tablinks;
 
+			if (configSelected !== 'displayConfig')
+			{
+				stopDisplayInlineLiveRefresh();
+			}
+
 			// Get all elements with class="tabcontent" and hide them
 			tabcontent = document.getElementsByClassName("tabcontent");
 			for (i = configSelected ? 0 : 1; i < tabcontent.length; i++)
@@ -5149,6 +6222,11 @@ autoConfigElement.addEventListener('click', function (e)
 					// Make the log text area fill the page
 					sentLogElement.style.width = '100%';
 					sentLogElement.style.height = (window.innerHeight - sentLogElement.offsetTop - 35) + 'px';
+				}
+				else if (configSelected === 'displayConfig')
+				{
+					refreshDisplayPopupLiveValues();
+					startDisplayInlineLiveRefresh();
 				}
 			}
 		}
@@ -5252,7 +6330,7 @@ autoConfigElement.addEventListener('click', function (e)
 					}
 
 					page = item.page;
-					htmlText += `<div class="horizontalcontainer"><div class="horizontalgroup"><h2>${Homey.__("settings.page")} ${item.page === 0 ? 'All' : item.page} <div class="tooltip"><i class="fi fi-rr-info"></i><span class="tooltiptext">${Homey.__("settings.pageExplanation")}</span></div></h2>`;
+					htmlText += `<div class="horizontalcontainer"><div class="horizontalgroup"><h2>${Homey.__("settings.page")} ${item.page === 0 ? Homey.__("settings.all") : item.page} <div class="tooltip"><i class="fi fi-rr-info"></i><span class="tooltiptext">${Homey.__("settings.pageExplanation")}</span></div></h2>`;
 				}
 
 				htmlText += insertDisplayItemSection(item, itemNo, (item.itemId === expandItemId));
@@ -5532,6 +6610,7 @@ autoConfigElement.addEventListener('click', function (e)
 		function insertDisplayItemSection(item, itemNo, expanded = false)
 		{
 			var section = ""; // document.getElementById('displayItemsSection').innerHTML;
+			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo] || { items: [] };
 			const ctrlLabels = {
 				device: Homey.__("settings.device"),
 				capability: Homey.__("settings.capability"),
@@ -5573,20 +6652,23 @@ autoConfigElement.addEventListener('click', function (e)
 			const sanitizedCapabilityName = sanitizeDisplayString(item.capabilityName, '');
 			const sanitizedUnit = sanitizeDisplayString(item.unit, '');
 			const itemLegendName = sanitizedLabel ? sanitizedLabel : (item.device === 'none' ? sanitizedText : sanitizedCapabilityName);
+			const itemLegendPageLabel = formatDisplayPageLabel(parseInt(item.page, 10) || 0);
 			const underlined = Homey.__("settings.boxTypeUnderlined");
 			const notUnderlined = Homey.__("settings.boxTypeNotUnderlined");
 
 			if (typeof item.page === 'undefined')
 			{
-				item.page = 1;
+				item.page = 0;
 			}
+
+			const pageSelectOptions = getDisplayPageSelectOptionsMarkup(displayConfiguration, item.page);
 
 			section = section +
 				`<div class="horizontalcontainer">
 					<div class="horizontalgroup" id="displayItem${item.itemId}Section">
 						<details ${expanded ? 'open' : ''}>
 							<summary class="summary">
-								<legend class="homey-subtitle" id="display${itemNo}Legend"><b><em>${itemLegend}</em></b> - ${itemLegendName}: X:${item.xPos}, Y:${item.yPos}, W:${item.width}</legend>
+								<legend class="homey-subtitle" id="display${itemNo}Legend"><b><em>${itemLegend}</em></b> - ${itemLegendName}: P:${itemLegendPageLabel}, X:${item.xPos}, Y:${item.yPos}, W:${item.width}</legend>
 								<span class="icon" style='font-size:30px;'>&#8628;</span>
 							</summary>
 							<hr>
@@ -5595,7 +6677,9 @@ autoConfigElement.addEventListener('click', function (e)
 									<span class="tooltiptext">${ctrlExplanations.page}</span>
 								</div>
 							</label>
-							<input class="homey-form-input" id="display${itemNo}page" onChange="redisplayDisplyConfig(${itemNo})" type="number" value="${item.page}" />
+							<select class="homey-form-select" id="display${itemNo}page" onChange="redisplayDisplyConfig(${itemNo})">
+								${pageSelectOptions}
+							</select>
 							<label class="homey-form-label" for="display${itemNo}Device">${ctrlLabels.device}
 								<div class="tooltip"><i class="fi fi-rr-info"></i>
 									<span class="tooltiptext">${ctrlExplanations.device}</span>
@@ -5671,11 +6755,14 @@ autoConfigElement.addEventListener('click', function (e)
 								</div>
 							</label>
 							<select class="homey-form-select" id="display${itemNo}FontSize">
-								<option value=1>1</option>
-								<option value=2>2</option>
-								<option value=3>3</option>
-								<option value=4>4</option>
-								<option value=5>5</option>
+								<option value=1>1 - 14px</option>
+								<option value=2>2 - 20px</option>
+								<option value=3>3 - 24px</option>
+								<option value=4>4 - 32px</option>
+								<option value=5>5 - 48px</option>
+								<option value=6>6 - 72px</option>
+								<option value=7>7 - 14px Bold</option>
+								<option value=8>8 - 18px Bold</option>
 							</select>
 							<label class="homey-form-label" for="display${itemNo}BoxType">${ctrlLabels.boxType}
 								<div class="tooltip"><i class="fi fi-rr-info"></i>
@@ -5787,8 +6874,10 @@ autoConfigElement.addEventListener('click', function (e)
 			const x = document.getElementById(`display${itemNo}X`).value;
 			const y = document.getElementById(`display${itemNo}Y`).value;
 			const width = document.getElementById(`display${itemNo}Width`).value;
+			const pageRaw = document.getElementById(`display${itemNo}page`).value;
+			const pageLabel = formatDisplayPageLabel(parseInt(pageRaw, 10) || 0);
 
-			document.getElementById(`display${itemNo}Legend`).innerHTML = `<b><em>${Homey.__("settings.displayItemlegend", { itemNo: itemNo + 1 })}</em></b> - ${newLabel}: X:${x}, Y:${y}, W:${width}`;
+			document.getElementById(`display${itemNo}Legend`).innerHTML = `<b><em>${Homey.__("settings.displayItemlegend", { itemNo: itemNo + 1 })}</em></b> - ${newLabel}: P:${pageLabel}, X:${x}, Y:${y}, W:${width}`;
 		}
 
 		function makeSummarySticky()
@@ -5936,6 +7025,7 @@ autoConfigElement.addEventListener('click', function (e)
 				document.getElementById(`display${itemNo}TextDiv`).style.display = "none";
 
 				var selectedVariable = '';
+				var selectedVariableName = '';
 				var displayConfig = localDisplayConfigurations[displayConfigurationNoElement.value];
 				if (displayConfig)
 				{
@@ -5950,6 +7040,24 @@ autoConfigElement.addEventListener('click', function (e)
 				}
 				else
 				{
+					const loadingOption = document.createElement("option");
+					loadingOption.text = Homey.__("settings.loadingVariables");
+					loadingOption.value = "";
+					loadingOption.disabled = true;
+					loadingOption.selected = true;
+					capabilitiesElement.add(loadingOption);
+
+					if (displayFieldPopupContext && displayFieldPopupContext.itemNo === itemNo && displayFieldPopupContext.popupElementsBySuffix)
+					{
+						const popupDeviceElement = displayFieldPopupContext.popupElementsBySuffix.Device;
+						const popupCapabilityElement = displayFieldPopupContext.popupElementsBySuffix.Capability;
+						if (popupDeviceElement && popupCapabilityElement && popupDeviceElement.value === '_variable_')
+						{
+							syncDisplayFieldPopupCapabilityOptions(itemNo, popupCapabilityElement, '');
+							updateDisplayFieldPopupCapabilityState(displayFieldPopupContext.popupElementsBySuffix);
+						}
+					}
+
 					// Resquest the list of variables
 					Homey.api('POST', '/get_variables/', {}, function (err, variables)
 					{
@@ -5961,6 +7069,19 @@ autoConfigElement.addEventListener('click', function (e)
 							variablesArray = Object.values(variables);
 							variablesFetched = true;
 							fillDisplayVariablesElement(itemNo, capabilitiesElement, selectedVariable, selectedVariableName);
+
+							// If the display popup is open for this item, refresh the popup capability list
+							// now that variable options are finally available.
+							if (displayFieldPopupContext && displayFieldPopupContext.itemNo === itemNo && displayFieldPopupContext.popupElementsBySuffix)
+							{
+								const popupDeviceElement = displayFieldPopupContext.popupElementsBySuffix.Device;
+								const popupCapabilityElement = displayFieldPopupContext.popupElementsBySuffix.Capability;
+								if (popupDeviceElement && popupCapabilityElement && popupDeviceElement.value === '_variable_')
+								{
+									syncDisplayFieldPopupCapabilityOptions(itemNo, popupCapabilityElement, popupCapabilityElement.value || selectedVariable);
+									updateDisplayFieldPopupCapabilityState(displayFieldPopupContext.popupElementsBySuffix);
+								}
+							}
 						}
 					});
 				}
@@ -6090,6 +7211,7 @@ autoConfigElement.addEventListener('click', function (e)
 				? -1
 				: Math.min(deleteIndex, displayConfiguration.items.length - 2);
 			deleteItem(deleteIndex);
+			flushConfigurationDraftPersist();
 		}
 
 		function storeDisplaySettings()
@@ -6184,10 +7306,12 @@ autoConfigElement.addEventListener('click', function (e)
 				};
 
 				displayConfiguration.items.push(displayItem) - 1;
+				displayConfiguration.pageCount = Math.max(parseInt(displayConfiguration.pageCount, 10) || 1, targetPage + 1);
 				localDisplayConfigurations[displayConfigurationNo] = displayConfiguration;
 				displayInlineSelectedItemNo = displayConfiguration.items.length - 1;
 
 				drawDisplayConfiguration(displayConfiguration, itemId);
+				flushConfigurationDraftPersist();
 			}
 		}
 
@@ -6206,12 +7330,12 @@ autoConfigElement.addEventListener('click', function (e)
 			}
 
 			const pages = getDisplayPopupPages(displayConfiguration);
-			const positivePages = pages.filter((pageNo) => pageNo > 0);
-			const nextPage = (positivePages.length > 0 ? Math.max(...positivePages) : 0) + 1;
+			const nextPage = (pages.length > 0 ? Math.max(...pages) : 0) + 1;
+			displayConfiguration.pageCount = nextPage + 1;
 			displayPagePopupCurrentPage = nextPage;
 			displayInlineSelectedItemNo = -1;
-
-			addDisplayItem();
+			drawDisplayConfiguration(displayConfiguration);
+			flushConfigurationDraftPersist();
 		}
 
 		function deleteCurrentDisplayPage()
@@ -6239,13 +7363,26 @@ autoConfigElement.addEventListener('click', function (e)
 				return itemPage !== displayPagePopupCurrentPage;
 			});
 
+			for (const item of displayConfiguration.items)
+			{
+				const itemPage = parseInt(item.page, 10) || 0;
+				if (itemPage > displayPagePopupCurrentPage)
+				{
+					item.page = itemPage - 1;
+				}
+			}
+
+			const currentPageCount = Math.max(parseInt(displayConfiguration.pageCount, 10) || getDisplayPopupPages(displayConfiguration).length, 1);
+			displayConfiguration.pageCount = Math.max(1, currentPageCount - 1);
+
 			const remainingPages = getDisplayPopupPages(displayConfiguration);
-			displayPagePopupCurrentPage = remainingPages.includes(displayPagePopupCurrentPage)
-				? displayPagePopupCurrentPage
+			displayPagePopupCurrentPage = remainingPages.includes(displayPagePopupCurrentPage - 1)
+				? (displayPagePopupCurrentPage - 1)
 				: remainingPages[remainingPages.length - 1] || 0;
 			displayInlineSelectedItemNo = -1;
 
 			drawDisplayConfiguration(displayConfiguration);
+			flushConfigurationDraftPersist();
 		}
 
 		/// Broker Config code
@@ -7017,13 +8154,17 @@ autoConfigElement.addEventListener('click', function (e)
 			{
 				if (err) return Homey.alert(err);
 
-				if (defaultBroker === "")
+				const defaultBrokerToApply = (restoredDraftDefaultBroker !== null && restoredDraftDefaultBroker !== undefined)
+					? restoredDraftDefaultBroker
+					: defaultBroker;
+
+				if (defaultBrokerToApply === "")
 				{
 					defaultBrokerElement.value = 'homey';
 				}
 				else
 				{
-					defaultBrokerElement.value = defaultBroker;
+					defaultBrokerElement.value = defaultBrokerToApply;
 				}
 			});
 		}
