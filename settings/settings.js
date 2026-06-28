@@ -55,6 +55,10 @@
 		var displayFieldPopupBodyElement = document.getElementById('displayFieldPopupBody');
 		var displayFieldPopupCancelElement = document.getElementById('displayFieldPopupCancel');
 		var displayFieldPopupSaveElement = document.getElementById('displayFieldPopupSave');
+		var configDraftRestoreOverlayElement = document.getElementById('configDraftRestoreOverlay');
+		var configDraftRestoreRetrieveElement = document.getElementById('configDraftRestoreRetrieve');
+		var configDraftRestoreDiscardElement = document.getElementById('configDraftRestoreDiscard');
+		var configDraftRestoreDialogResolver = null;
 		var displayFieldPopupBindings = [];
 		var displayFieldPopupContext = null;
 		var displayPagePopupOpenElement = document.getElementById('displayPageSimOpen');
@@ -411,7 +415,7 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 				return;
 			}
 
-			Homey.confirm('Unsaved settings have been detected, would you like to restore those now?', null, function (err, ok)
+			showConfigDraftRestoreDialog().then((ok) =>
 			{
 				if (ok)
 				{
@@ -424,6 +428,70 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 				}
 
 				enableConfigurationDraftAutoSave();
+			});
+		}
+
+		function closeConfigDraftRestoreDialog(shouldRetrieve)
+		{
+			if (!configDraftRestoreDialogResolver)
+			{
+				return;
+			}
+
+			const resolver = configDraftRestoreDialogResolver;
+			configDraftRestoreDialogResolver = null;
+
+			if (configDraftRestoreOverlayElement)
+			{
+				configDraftRestoreOverlayElement.classList.remove('visible');
+				configDraftRestoreOverlayElement.setAttribute('aria-hidden', 'true');
+			}
+
+			document.removeEventListener('keydown', handleConfigDraftRestoreDialogKeydown);
+			resolver(!!shouldRetrieve);
+		}
+
+		function handleConfigDraftRestoreDialogKeydown(event)
+		{
+			if (!event || event.key !== 'Escape' || !configDraftRestoreDialogResolver)
+			{
+				return;
+			}
+
+			event.preventDefault();
+			closeConfigDraftRestoreDialog(false);
+		}
+
+		function showConfigDraftRestoreDialog()
+		{
+			if (!configDraftRestoreOverlayElement || !configDraftRestoreRetrieveElement || !configDraftRestoreDiscardElement)
+			{
+				return new Promise((resolve) =>
+				{
+					Homey.confirm(Homey.__("settings.unsavedSettingsDetectedMessage"), null, function (err, ok)
+					{
+						resolve(!!ok);
+					});
+				});
+			}
+
+			if (configDraftRestoreDialogResolver)
+			{
+				closeConfigDraftRestoreDialog(false);
+			}
+
+			configDraftRestoreOverlayElement.classList.add('visible');
+			configDraftRestoreOverlayElement.setAttribute('aria-hidden', 'false');
+			document.addEventListener('keydown', handleConfigDraftRestoreDialogKeydown);
+
+			setTimeout(() =>
+			{
+				configDraftRestoreRetrieveElement.focus();
+			}, 0);
+
+			return new Promise((resolve) =>
+			{
+				configDraftRestoreDialogResolver = resolve;
 			});
 		}
 
@@ -1029,6 +1097,10 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 			setTextById('displayFieldPopupTitle', 'displayFieldPopupTitle');
 			setTextById('displayFieldPopupCancel', 'cancel');
 			setTextById('displayFieldPopupSave', 'displayFieldPopupSave');
+			setTextById('configDraftRestoreTitle', 'unsavedSettingsDetectedTitle');
+			setTextById('configDraftRestoreMessage', 'unsavedSettingsDetectedMessage');
+			setTextById('configDraftRestoreRetrieve', 'unsavedSettingsRetrieve');
+			setTextById('configDraftRestoreDiscard', 'unsavedSettingsDiscard');
 
 			setSelectOptions('displayInlineSimStatusBarPosition', ['displaySimOff', 'displaySimTop', 'displaySimBottom']);
 			setSelectOptions('displayPagePopupStatusBarPosition', ['displaySimOff', 'displaySimTop', 'displaySimBottom']);
@@ -1880,6 +1952,22 @@ autoConfigElement.addEventListener('click', function (e)
 			if (displayFieldPopupSaveElement)
 			{
 				displayFieldPopupSaveElement.addEventListener('click', saveDisplayFieldPopup);
+			}
+
+			if (configDraftRestoreRetrieveElement)
+			{
+				configDraftRestoreRetrieveElement.addEventListener('click', function ()
+				{
+					closeConfigDraftRestoreDialog(true);
+				});
+			}
+
+			if (configDraftRestoreDiscardElement)
+			{
+				configDraftRestoreDiscardElement.addEventListener('click', function ()
+				{
+					closeConfigDraftRestoreDialog(false);
+				});
 			}
 
 			if (buttonPagePopupStateToggleElement)

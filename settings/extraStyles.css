@@ -1691,6 +1691,29 @@ summary::-webkit-details-marker {
 			border-top: 1px solid #e3e8ef;
 			background: #fff;
 		}
+
+		.config-draft-popup-overlay {
+			z-index: 1400;
+		}
+
+		.config-draft-popup-dialog {
+			width: min(92vw, 460px);
+		}
+
+		.config-draft-popup-body {
+			display: block;
+		}
+
+		.config-draft-popup-body p {
+			margin: 0;
+			font-size: 14px;
+			line-height: 1.45;
+			color: #334155;
+		}
+
+		.config-draft-popup-actions {
+			justify-content: flex-end;
+		}
 		.button-page-highlight {
 			animation: display-item-highlight-pulse 1.4s ease-out 1;
 			outline: 2px solid #7ab7ff;

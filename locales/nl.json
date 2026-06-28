@@ -183,6 +183,10 @@
         "displaySimEmptyMessage": "Tik op de + knop in de Items-voettekst om een item toe te voegen",
         "displaySimStatusLeftPlaceholder": "###.###.##.###",
         "displaySimStatusRightPlaceholder": "-## dB Vrij ##/##/#### kB"
+        ,"unsavedSettingsDetectedTitle": "Niet-opgeslagen instellingen gedetecteerd"
+        ,"unsavedSettingsDetectedMessage": "Niet-opgeslagen instellingen zijn gedetecteerd. Wil je deze nu herstellen?"
+        ,"unsavedSettingsRetrieve": "Herstellen"
+        ,"unsavedSettingsDiscard": "Verwerpen"
         ,"unsavedSettingsRestored": "Niet-opgeslagen instellingen zijn hersteld."
     },
     "pair": {

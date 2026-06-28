@@ -387,6 +387,21 @@
 		</div>
 	</div>
 
+	<div id="configDraftRestoreOverlay" class="button-field-popup-overlay config-draft-popup-overlay" aria-hidden="true">
+		<div class="button-field-popup-dialog config-draft-popup-dialog" role="dialog" aria-modal="true" aria-labelledby="configDraftRestoreTitle" aria-describedby="configDraftRestoreMessage">
+			<div class="button-field-popup-header">
+				<div class="button-field-popup-title" id="configDraftRestoreTitle">Unsaved settings detected</div>
+			</div>
+			<div class="button-field-popup-body config-draft-popup-body">
+				<p id="configDraftRestoreMessage">Unsaved settings have been detected, would you like to restore those now?</p>
+			</div>
+			<div class="button-field-popup-actions config-draft-popup-actions">
+				<button class="homey-button-secondary-shadow" id="configDraftRestoreDiscard">Discard</button>
+				<button class="homey-button-secondary-shadow" id="configDraftRestoreRetrieve">Retrieve</button>
+			</div>
+		</div>
+	</div>
+
 	<!-- Code to handle page life -->
 
 	<script type="text/javascript" src="settings.js"></script>
