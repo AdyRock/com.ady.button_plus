@@ -1266,7 +1266,7 @@ summary::-webkit-details-marker {
 		.display-sim-item {
 			position: absolute;
 			box-sizing: border-box;
-			padding: 1px 2px;
+			padding: 1px 0;
 			overflow: hidden;
 			cursor: pointer;
 			background: transparent;
@@ -1430,6 +1430,7 @@ summary::-webkit-details-marker {
 			color: #e5e7b4;
 			display: -webkit-box;
 			-webkit-line-clamp: 2;
+			line-clamp: 2;
 			-webkit-box-orient: vertical;
 			white-space: normal;
 			overflow: hidden;
@@ -1444,6 +1445,10 @@ summary::-webkit-details-marker {
 			justify-content: space-between;
 			gap: 4px;
 			width: 100%;
+		}
+		.display-sim-value-row-no-unit {
+			justify-content: flex-start;
+			gap: 0;
 		}
 		.display-sim-text {
 			line-height: 1.0;

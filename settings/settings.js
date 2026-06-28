@@ -3302,7 +3302,8 @@ autoConfigElement.addEventListener('click', function (e)
 
 			const displayPageLabel = Homey.__("settings.page");
 			const currentPageLabel = formatDisplayPageLabel(currentPage);
-			if (totalPages <= 1)
+			const nonDefaultPageCount = Math.max(0, totalPages - 1);
+			if (nonDefaultPageCount === 0)
 			{
 				titleElement.textContent = `${displayPageLabel}: ${currentPageLabel}`;
 				return;
@@ -3311,7 +3312,7 @@ autoConfigElement.addEventListener('click', function (e)
 			const totalPagesHint = escapeHtml(Homey.__("settings.displaySimTotalPagesHint"));
 			const safeDisplayPageLabel = escapeHtml(displayPageLabel);
 			const safeCurrentPageLabel = escapeHtml(currentPageLabel);
-			titleElement.innerHTML = `${safeDisplayPageLabel}: ${safeCurrentPageLabel} / <span class="display-sim-total-pages">${totalPages}</span><span class="tooltip display-sim-total-pages-tooltip"><i class="fi fi-rr-info" aria-hidden="true"></i><span class="tooltiptext">${totalPagesHint}</span></span>`;
+			titleElement.innerHTML = `${safeDisplayPageLabel}: ${safeCurrentPageLabel} / <span class="display-sim-total-pages">${nonDefaultPageCount}</span><span class="tooltip display-sim-total-pages-tooltip"><i class="fi fi-rr-info" aria-hidden="true"></i><span class="tooltiptext">${totalPagesHint}</span></span>`;
 		}
 
 		function getButtonPanelPreviewMarkup(pageConfig, side, pageIndex = buttonPagePopupCurrentPage)
@@ -4994,8 +4995,9 @@ autoConfigElement.addEventListener('click', function (e)
 				const valueFocusSuffix = (runtime.deviceId === 'none') ? 'Text' : 'Device';
 				const needsLivePlaceholder = isDynamicValueSource && !hasTextValue && !showValueSvg;
 				const renderedText = needsLivePlaceholder ? displayLoadingPlaceholder : (text || '&nbsp;');
-				const renderedUnit = (needsLivePlaceholder || showValueSvg) ? '&nbsp;' : (unitText || '&nbsp;');
+				const hasUnitValue = !(needsLivePlaceholder || showValueSvg) && !!unitText;
 				const valueClass = needsLivePlaceholder ? 'display-sim-text display-sim-text-loading' : 'display-sim-text';
+				const valueRowClass = hasUnitValue ? 'display-sim-value-row' : 'display-sim-value-row display-sim-value-row-no-unit';
 				const valueTextPaddingTop = hasExplicitLabel ? 10 : 30;
 
 				const isSelected = !isPageZeroOverlay && (itemNo === displayInlineSelectedItemNo);
@@ -5010,9 +5012,9 @@ autoConfigElement.addEventListener('click', function (e)
 					${hasExplicitLabel ? `<div class="display-sim-top-label"${labelClick}>${renderedLabel}</div>` : ''}
 					${showValueSvg
 						? `<div class="display-sim-svg"${svgClick}>${effectiveSvgMarkup}</div>`
-						: `<div class="display-sim-value-row"${valueRowClick}>
+						: `<div class="${valueRowClass}"${valueRowClick}>
 							<div class="${valueClass}" style="font-size:${fontPx}px;font-weight:${fontWeight};padding-top:${valueTextPaddingTop}px;">${renderedText}</div>
-							<div class="display-sim-unit"${unitClick} style="font-size:${Math.max(15, Math.floor(fontPx * 0.52))}px;font-weight:${fontWeight};">${renderedUnit}</div>
+								${hasUnitValue ? `<div class="display-sim-unit"${unitClick} style="font-size:${Math.max(15, Math.floor(fontPx * 0.52))}px;font-weight:${fontWeight};">${unitText}</div>` : ''}
 						</div>`}
 					${isSelected ? `<button type="button" class="display-sim-move-handle" title="${displayMoveHandleTitle}" onpointerdown="startDisplayItemMoveDrag(event, ${itemNo})" onclick="event.stopPropagation();" aria-label="${displayMoveHandleAria}"><span aria-hidden="true">↑↓←→</span></button><button type="button" class="display-sim-resize-handle" title="${displayResizeHandleTitle}" onpointerdown="startDisplayItemWidthDrag(event, ${itemNo})" onclick="event.stopPropagation();" aria-label="${displayResizeHandleAria}"><span aria-hidden="true">↔</span></button><div class="display-sim-resize-tooltip display-sim-move-tooltip" aria-hidden="true">${displayTooltipX}: ${Math.round(xPercent)}% ${displayTooltipY}: ${Math.round(yPercent)}%</div><div class="display-sim-resize-tooltip display-sim-size-tooltip" aria-hidden="true">${displayTooltipW}: ${Math.round(widthPercent * 10) / 10}%</div>` : ''}
 				</div>`;
@@ -5044,8 +5046,7 @@ autoConfigElement.addEventListener('click', function (e)
 
 			if (displayInlineSimDeletePageElement)
 			{
-				const hasCurrentPageItems = pageItems.some((entry) => !entry.isPageZeroOverlay);
-				displayInlineSimDeletePageElement.disabled = !(displayPagePopupCurrentPage > 0 && hasCurrentPageItems);
+				displayInlineSimDeletePageElement.disabled = !(displayPagePopupCurrentPage > 0);
 			}
 
 			if (updateScrollOffset)
@@ -7260,10 +7261,24 @@ autoConfigElement.addEventListener('click', function (e)
 				return;
 			}
 
-			const pages = getDisplayPopupPages(displayConfiguration);
-			const nextPage = (pages.length > 0 ? Math.max(...pages) : 0) + 1;
-			displayConfiguration.pageCount = nextPage + 1;
-			displayPagePopupCurrentPage = nextPage;
+			const currentPage = Number.isInteger(displayPagePopupCurrentPage) ? displayPagePopupCurrentPage : 0;
+			const insertedPage = Math.max(0, currentPage + 1);
+
+			if (Array.isArray(displayConfiguration.items))
+			{
+				for (const item of displayConfiguration.items)
+				{
+					const itemPage = parseInt(item.page, 10) || 0;
+					if (itemPage >= insertedPage)
+					{
+						item.page = itemPage + 1;
+					}
+				}
+			}
+
+			const currentPageCount = Math.max(parseInt(displayConfiguration.pageCount, 10) || getDisplayPopupPages(displayConfiguration).length, 1);
+			displayConfiguration.pageCount = currentPageCount + 1;
+			displayPagePopupCurrentPage = insertedPage;
 			displayInlineSelectedItemNo = -1;
 			drawDisplayConfiguration(displayConfiguration);
 			flushConfigurationDraftPersist();
@@ -7283,7 +7298,7 @@ autoConfigElement.addEventListener('click', function (e)
 
 			storeDisplaySettings();
 			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
-			if (!displayConfiguration || !Array.isArray(displayConfiguration.items) || displayConfiguration.items.length === 0)
+			if (!displayConfiguration || !Array.isArray(displayConfiguration.items))
 			{
 				return;
 			}

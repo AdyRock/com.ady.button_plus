@@ -166,7 +166,7 @@
         "displaySimDeleteItem": "Geselecteerd display item verwijderen",
         "displaySimShowDefaultItems": "Pagina 0-items altijd tonen",
         "displaySimShowDefaultItemsHint": "Pagina 0-items verschijnen op alle pagina's. Je kunt dit in de preview uitzetten, maar let op met het toevoegen van items die over pagina 0-items heen vallen.",
-        "displaySimTotalPagesHint": "Totaal aantal pagina's inclusief de standaardpagina",
+        "displaySimTotalPagesHint": "Aantal extra pagina's exclusief de standaardpagina",
         "displaySimInlineStatusBarPosition": "Inline statusbalk positie",
         "displaySimStatusBarPosition": "Statusbalk positie",
         "displaySimOpen": "Display simulator openen",

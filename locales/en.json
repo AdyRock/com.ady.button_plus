@@ -172,7 +172,7 @@
         "displaySimDeleteItem": "Delete selected display item",
         "displaySimShowDefaultItems": "Always show page 0 items",
         "displaySimShowDefaultItemsHint": "Page 0 items appear on all pages. You can turn this off in the preview but be careful of adding items that overlap page 0 items.",
-        "displaySimTotalPagesHint": "Total number of pages including the default page",
+        "displaySimTotalPagesHint": "Number of additional pages excluding the default page",
         "displaySimInlineStatusBarPosition": "Inline status bar position",
         "displaySimStatusBarPosition": "Status bar position",
         "displaySimOpen": "Open display simulator",
