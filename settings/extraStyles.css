@@ -90,44 +90,44 @@
 }
 
 #diagnosticLog {
-    padding-top: 28px;
+	padding-top: 28px;
 }
 
 details {
-    -webkit-user-select: none;
-    user-select: none;
+	-webkit-user-select: none;
+	user-select: none;
 }
 
 details>summary span.icon {
-    width: 24px;
-    height: 24px;
-    transition: all 0.3s;
-    margin-left: auto;
+	width: 24px;
+	height: 24px;
+	transition: all 0.3s;
+	margin-left: auto;
 }
 
 details[open] summary span.icon {
-    transform: rotate(180deg);
+	transform: rotate(180deg);
 }
 
 summary {
-    display: flex;
-    cursor: pointer;
+	display: flex;
+	cursor: pointer;
 }
 
 summary::-webkit-details-marker {
-    display: none;
+	display: none;
 }
 
 /* Make the summary section sticky */
 .summary-sticky {
-    position: sticky;
-    top: 0;
-    background-color: white;
-    /* You can change the background color as needed */
-    z-index: 100;
-    /* Adjust the z-index if necessary to ensure it appears above other elements */
-    border-bottom: 1px solid lightgray;
-    /* Add a border for separation */
+	position: sticky;
+	top: 0;
+	background-color: white;
+	/* You can change the background color as needed */
+	z-index: 100;
+	/* Adjust the z-index if necessary to ensure it appears above other elements */
+	border-bottom: 1px solid lightgray;
+	/* Add a border for separation */
 }
 
 /* Moved from settings/index.html */
@@ -178,6 +178,7 @@ summary::-webkit-details-marker {
 			justify-content: center;
 			width: 24px;
 			height: 24px;
+			font-size: 22px;
 			transition: transform 0.3s;
 		}
 
@@ -352,6 +353,80 @@ summary::-webkit-details-marker {
 			align-items: center;
 			justify-content: space-between;
 			gap: 8px;
+		}
+		.display-inline-sim-card {
+			margin-top: 12px;
+			padding: 0;
+			border: 0;
+			border-radius: 0;
+			background: transparent;
+		}
+		.display-inline-sim-header {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 10px;
+			margin-bottom: 8px;
+			padding-bottom: 8px;
+			border-bottom: 1px solid #d0d9e4;
+		}
+		.display-inline-sim-card .display-sim-title {
+			color: #2f3d4f;
+		}
+		.display-inline-sim-card .display-sim-status-position-label {
+			color: #2f3d4f;
+		}
+		.display-inline-sim-card .display-sim-status-position-select {
+			background: #fff;
+			color: #2f3d4f;
+			border-color: #c5d1df;
+		}
+		.display-inline-sim-actions {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			flex: 0 0 auto;
+		}
+		.display-inline-sim-action-btn {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			width: 28px;
+			height: 28px;
+			min-width: 28px !important;
+			min-height: 28px !important;
+			padding: 0 !important;
+			line-height: 1;
+			font-size: 13px;
+		}
+		.display-inline-sim-status-row {
+			display: flex;
+			align-items: center;
+			justify-content: flex-end;
+			gap: 8px;
+			margin-top: 8px;
+		}
+		.display-inline-sim-footer {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 10px;
+			margin-top: 8px;
+			padding-top: 8px;
+			border-top: 1px solid #d0d9e4;
+		}
+		.display-inline-sim-footer-label {
+			font-size: 12px;
+			font-weight: 600;
+			letter-spacing: 0.02em;
+			text-transform: uppercase;
+			color: #5a6b7f;
+		}
+		.display-items-backing-store {
+			display: none;
+		}
+		.display-page-popup-open-hidden {
+			display: none !important;
 		}
 				.button-page-inner {
 					padding: 0;
@@ -1108,6 +1183,15 @@ summary::-webkit-details-marker {
 			box-sizing: border-box;
 			background: transparent;
 		}
+		@media (max-width: 480px) {
+			.display-sim-surface {
+				zoom: 0.7;
+			}
+
+			body.homey-mobile-app .display-sim-surface {
+				zoom: 0.6;
+			}
+		}
 		.display-sim-status-bar-top {
 			top: 0;
 			align-items: flex-start;
@@ -1133,6 +1217,11 @@ summary::-webkit-details-marker {
 		.display-sim-item-underlined {
 			border-bottom: 3px solid rgba(115, 128, 145, 0.5);
 			padding-bottom: 10px;
+		}
+		.display-sim-item-selected {
+			outline: 2px solid rgba(122, 183, 255, 0.95);
+			outline-offset: 1px;
+			border-radius: 4px;
 		}
 		.display-sim-top-label {
 			font-size: 24px;
@@ -1198,6 +1287,21 @@ summary::-webkit-details-marker {
 			text-align: right;
 			flex: 0 0 auto;
 			min-width: 18px;
+		}
+		body.homey-mobile-app .display-sim-top-label {
+			font-size: 18px;
+			min-height: 18px;
+			max-height: 36px;
+		}
+		body.homey-mobile-app .display-sim-text {
+			padding-top: 6px;
+		}
+		body.homey-mobile-app .display-sim-unit {
+			font-size: 13px !important;
+			min-width: 12px;
+		}
+		body.homey-mobile-app .display-sim-status-bar {
+			font-size: clamp(14px, 1.8vw, 20px);
 		}
 		.display-sim-svg {
 			display: flex;
@@ -1369,12 +1473,6 @@ summary::-webkit-details-marker {
 			gap: 8px;
 			margin-top: 12px;
 		}
-		@media (max-width: 480px) {
-			.display-sim-surface {
-				zoom: 0.7;
-			}
-		}
-
 		.button-page-highlight {
 			animation: display-item-highlight-pulse 1.4s ease-out 1;
 			outline: 2px solid #7ab7ff;

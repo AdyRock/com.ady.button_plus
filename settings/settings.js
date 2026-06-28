@@ -48,6 +48,13 @@
 		var buttonPagePopupLedState = 'on';
 		var buttonFieldPopupBindings = [];
 		var buttonFieldPopupContext = null;
+		var displayFieldPopupOverlayElement = document.getElementById('displayFieldPopupOverlay');
+		var displayFieldPopupTitleElement = document.getElementById('displayFieldPopupTitle');
+		var displayFieldPopupBodyElement = document.getElementById('displayFieldPopupBody');
+		var displayFieldPopupCancelElement = document.getElementById('displayFieldPopupCancel');
+		var displayFieldPopupSaveElement = document.getElementById('displayFieldPopupSave');
+		var displayFieldPopupBindings = [];
+		var displayFieldPopupContext = null;
 		var displayPagePopupOpenElement = document.getElementById('displayPageSimOpen');
 		var displayPagePopupOverlayElement = document.getElementById('displayPagePopupOverlay');
 		var displayPagePopupCloseElement = document.getElementById('displayPagePopupClose');
@@ -56,8 +63,18 @@
 		var displayPagePopupTitleElement = document.getElementById('displayPagePopupTitle');
 		var displayPagePopupStatusBarPositionElement = document.getElementById('displayPagePopupStatusBarPosition');
 		var displayPagePopupSurfaceElement = document.getElementById('displayPagePopupSurface');
+		var displayInlineSimPrevElement = document.getElementById('displayInlineSimPrev');
+		var displayInlineSimNextElement = document.getElementById('displayInlineSimNext');
+		var displayInlineSimTitleElement = document.getElementById('displayInlineSimTitle');
+		var displayInlineSimStatusBarPositionElement = document.getElementById('displayInlineSimStatusBarPosition');
+		var displayInlineSimSurfaceElement = document.getElementById('displayInlineSimSurface');
+		var displayInlineSimAddPageElement = document.getElementById('displayInlineSimAddPage');
+		var displayInlineSimDeletePageElement = document.getElementById('displayInlineSimDeletePage');
+		var displayInlineSimAddItemElement = document.getElementById('displayInlineSimAddItem');
+		var displayInlineSimDeleteItemElement = document.getElementById('displayInlineSimDeleteItem');
 		var displayPagePopupCurrentPage = 0;
 		var displayPagePopupStatusBarPosition = null;
+		var displayInlineSelectedItemNo = -1;
 		const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 		const DISPLAY_SIM_LIVE_REFRESH_MS = 12000;
 		var displayPagePopupLiveValueCache = new Map();
@@ -73,6 +90,9 @@
 
 		var displayConfigurationNoElement = document.getElementById('displayConfigurationNo');
 		var displayConfigNameElement = document.getElementById('displayConfigName');
+		var displayConfigNameRowElement = document.getElementById('displayConfigNameRow');
+		var toggleDisplayConfigNameVisibilityElement = document.getElementById('toggleDisplayConfigNameVisibility');
+		var displayConfigNameCollapsed = true;
 		var newDisplayItemButton = document.getElementById('newDisplayItem');
 
 		var displayConfigurationsFetched = false;
@@ -115,6 +135,15 @@
 			}
 
 			return value;
+		}
+
+		function isHomeyMobileAppRuntime()
+		{
+			const userAgent = (navigator && navigator.userAgent) ? navigator.userAgent.toLowerCase() : '';
+			const isAndroidWebView = userAgent.includes('android') && userAgent.includes('wv');
+			const coarsePointer = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+			const noHover = !!(window.matchMedia && window.matchMedia('(hover: none)').matches);
+			return isAndroidWebView && coarsePointer && noHover;
 		}
 
 		function escapeHtml(value)
@@ -226,6 +255,7 @@
 		{
 			itemDisplyType = document.getElementById('ButtonPanelConfigurationNo').style.display;
 			setupFilterableSelects();
+			document.body.classList.toggle('homey-mobile-app', isHomeyMobileAppRuntime());
 
 
 			// Read the button configuration from the settings and write the controls
@@ -635,6 +665,30 @@ autoConfigElement.addEventListener('click', function (e)
 				}
 			}
 
+			if (toggleDisplayConfigNameVisibilityElement)
+			{
+				toggleDisplayConfigNameVisibilityElement.addEventListener('click', function ()
+				{
+					displayConfigNameCollapsed = !displayConfigNameCollapsed;
+					if (displayConfigNameRowElement)
+					{
+						displayConfigNameRowElement.style.display = displayConfigNameCollapsed ? 'none' : 'block';
+					}
+
+					toggleDisplayConfigNameVisibilityElement.classList.toggle('is-open', !displayConfigNameCollapsed);
+					toggleDisplayConfigNameVisibilityElement.title = displayConfigNameCollapsed ? 'Show configuration name' : 'Hide configuration name';
+					toggleDisplayConfigNameVisibilityElement.setAttribute('aria-label', toggleDisplayConfigNameVisibilityElement.title);
+				});
+
+				toggleDisplayConfigNameVisibilityElement.classList.toggle('is-open', !displayConfigNameCollapsed);
+				toggleDisplayConfigNameVisibilityElement.title = displayConfigNameCollapsed ? 'Show configuration name' : 'Hide configuration name';
+				toggleDisplayConfigNameVisibilityElement.setAttribute('aria-label', toggleDisplayConfigNameVisibilityElement.title);
+				if (displayConfigNameRowElement)
+				{
+					displayConfigNameRowElement.style.display = displayConfigNameCollapsed ? 'none' : 'block';
+				}
+			}
+
 			displayConfigNameElement.addEventListener('change', function (e)
 			{
 				var DisplayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
@@ -887,48 +941,13 @@ autoConfigElement.addEventListener('click', function (e)
 				}
 			});
 
-			newDisplayItemButton.addEventListener('click', function (e)
+			if (newDisplayItemButton)
 			{
-				if (displayConfigurationsFetched)
+				newDisplayItemButton.addEventListener('click', function (e)
 				{
-					// Make sure the current item is saved in the local display configuration
-					storeDisplaySettings();
-
-					// Create a new display item
-					displayConfigurationNo = displayConfigurationNoElement.value;
-					var displayConfiguration = localDisplayConfigurations[displayConfigurationNo];
-					if (displayConfiguration)
-					{
-						let itemId = displayConfiguration.items.length;
-
-						var displayItem = {
-							itemId,
-							device: "none",
-							deviceName: "none",
-							capability: "",
-							capabilityName: "",
-							label: "",
-							unit: "",
-							numberRounding: -1,
-							xPos: 0,
-							yPos: 0,
-							width: 100,
-							fontSize: 1,
-							brokerId: 'Default',
-							page: 0,
-							customMQTTTopics: [],
-							svg: '',
-						};
-
-						// Add the new display item to the local display configuration
-						displayConfiguration.items.push(displayItem) - 1;
-						localDisplayConfigurations[displayConfigurationNo] = displayConfiguration;
-
-						// Redraw the display items
-						drawDisplayConfiguration(displayConfiguration, itemId);
-					}
-				}
-			});
+					addDisplayItem();
+				});
+			}
 
 			// newLeftCustomMQTTItemButton.addEventListener('click', function (e)
 			// {
@@ -1046,6 +1065,16 @@ autoConfigElement.addEventListener('click', function (e)
 				buttonFieldPopupSaveElement.addEventListener('click', saveButtonFieldPopup);
 			}
 
+			if (displayFieldPopupCancelElement)
+			{
+				displayFieldPopupCancelElement.addEventListener('click', closeDisplayFieldPopup);
+			}
+
+			if (displayFieldPopupSaveElement)
+			{
+				displayFieldPopupSaveElement.addEventListener('click', saveDisplayFieldPopup);
+			}
+
 			if (buttonPagePopupStateToggleElement)
 			{
 				buttonPagePopupStateToggleElement.addEventListener('click', function ()
@@ -1097,6 +1126,86 @@ autoConfigElement.addEventListener('click', function (e)
 				displayPagePopupNextElement.addEventListener('click', function ()
 				{
 					stepDisplayPagePopup(1);
+				});
+			}
+
+			if (displayInlineSimPrevElement)
+			{
+				displayInlineSimPrevElement.addEventListener('click', function ()
+				{
+					stepDisplayPagePopup(-1);
+					renderDisplayInlineSimulator();
+				});
+			}
+
+			if (displayInlineSimNextElement)
+			{
+				displayInlineSimNextElement.addEventListener('click', function ()
+				{
+					stepDisplayPagePopup(1);
+					renderDisplayInlineSimulator();
+				});
+			}
+
+			if (displayInlineSimStatusBarPositionElement)
+			{
+				displayInlineSimStatusBarPositionElement.addEventListener('change', function ()
+				{
+					const selectedStatusBarPosition = parseInt(this.value, 10) || 0;
+					displayPagePopupStatusBarPosition = selectedStatusBarPosition;
+					Homey.set('displayPagePopupStatusBarPosition', selectedStatusBarPosition);
+
+					const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+					if (displayConfiguration && Array.isArray(displayConfiguration.items))
+					{
+						for (const item of displayConfiguration.items)
+						{
+							const itemPage = parseInt(item.page, 10) || 0;
+							if (itemPage === 0 || itemPage === displayPagePopupCurrentPage)
+							{
+								item.statusBarPosition = selectedStatusBarPosition;
+							}
+						}
+					}
+
+					renderDisplayInlineSimulator();
+					if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
+					{
+						renderDisplayPagePopup();
+					}
+				});
+			}
+
+			if (displayInlineSimAddPageElement)
+			{
+				displayInlineSimAddPageElement.addEventListener('click', function ()
+				{
+					addDisplayPage();
+				});
+			}
+
+			if (displayInlineSimDeletePageElement)
+			{
+				displayInlineSimDeletePageElement.addEventListener('click', function ()
+				{
+					deleteCurrentDisplayPage();
+				});
+			}
+
+			if (displayInlineSimAddItemElement)
+			{
+				displayInlineSimAddItemElement.addEventListener('click', function ()
+				{
+					addDisplayItem();
+					renderDisplayInlineSimulator();
+				});
+			}
+
+			if (displayInlineSimDeleteItemElement)
+			{
+				displayInlineSimDeleteItemElement.addEventListener('click', function ()
+				{
+					deleteSelectedInlineDisplayItem();
 				});
 			}
 
@@ -1162,13 +1271,9 @@ autoConfigElement.addEventListener('click', function (e)
 					return;
 				}
 
-				if (!displayPagePopupOverlayElement || !displayPagePopupOverlayElement.classList.contains('visible'))
-				{
-					return;
-				}
-
 				if (target.id === 'displayConfigurationNo')
 				{
+					renderDisplayInlineSimulator();
 					renderDisplayPagePopup();
 					return;
 				}
@@ -1189,6 +1294,7 @@ autoConfigElement.addEventListener('click', function (e)
 				}
 
 				renderDisplayPagePopup();
+				renderDisplayInlineSimulator();
 
 				if (match[2] === 'Device' || match[2] === 'Capability' || match[2] === 'Unit' || match[2] === 'Rounding' || match[2] === 'page')
 				{
@@ -1259,6 +1365,7 @@ autoConfigElement.addEventListener('click', function (e)
 				if (event.key === 'Escape')
 				{
 					closeButtonFieldPopup();
+					closeDisplayFieldPopup();
 					closeButtonPagePopup();
 					closeDisplayPagePopup();
 				}
@@ -3016,6 +3123,321 @@ autoConfigElement.addEventListener('click', function (e)
 			}
 		}
 
+		function getDisplayFieldPopupSpec(fieldSuffix)
+		{
+			const labels = {
+				page: Homey.__('settings.page'),
+				Device: Homey.__('settings.device'),
+				Capability: Homey.__('settings.capability'),
+				Label: Homey.__('settings.topLabel'),
+				Text: Homey.__('settings.text'),
+				Unit: Homey.__('settings.unit'),
+				X: Homey.__('settings.xPos'),
+				Y: Homey.__('settings.yPos'),
+				Width: Homey.__('settings.width'),
+				Rounding: Homey.__('settings.rounding'),
+				FontSize: Homey.__('settings.fontSize'),
+				BoxType: Homey.__('settings.boxType'),
+				BrokerId: Homey.__('settings.brokerId'),
+				SVG: 'SVG',
+			};
+
+			// Display item editing now uses one complete popup regardless of click target.
+			return {
+				title: 'Properties',
+				fields: ['page', 'Device', 'Capability', 'Label', 'Text', 'Unit', 'SVG', 'X', 'Y', 'Width', 'Rounding', 'FontSize', 'BoxType', 'BrokerId'],
+				labels,
+			};
+		}
+
+		function closeDisplayFieldPopup()
+		{
+			if (!displayFieldPopupOverlayElement)
+			{
+				return;
+			}
+
+			displayFieldPopupOverlayElement.classList.remove('visible');
+			displayFieldPopupOverlayElement.setAttribute('aria-hidden', 'true');
+			displayFieldPopupBindings = [];
+			displayFieldPopupContext = null;
+			if (displayFieldPopupBodyElement)
+			{
+				displayFieldPopupBodyElement.innerHTML = '';
+			}
+		}
+
+		function syncDisplayFieldPopupCapabilityOptions(itemNo, popupCapabilityElement, selectedCapability = '')
+		{
+			if (!popupCapabilityElement)
+			{
+				return;
+			}
+
+			const sourceCapabilityElement = document.getElementById(`display${itemNo}Capability`);
+			if (!sourceCapabilityElement)
+			{
+				return;
+			}
+
+			popupCapabilityElement.innerHTML = sourceCapabilityElement.innerHTML;
+			const wantedValue = selectedCapability || sourceCapabilityElement.value;
+			if (wantedValue)
+			{
+				popupCapabilityElement.value = wantedValue;
+			}
+		}
+
+		function saveDisplayFieldPopup()
+		{
+			if (!displayFieldPopupBindings || displayFieldPopupBindings.length === 0)
+			{
+				closeDisplayFieldPopup();
+				return;
+			}
+
+			if (displayFieldPopupContext && displayFieldPopupContext.popupElementsBySuffix && displayFieldPopupContext.popupElementsBySuffix.Device && displayFieldPopupContext.popupElementsBySuffix.Capability)
+			{
+				const itemNo = displayFieldPopupContext.itemNo;
+				const deviceValue = displayFieldPopupContext.popupElementsBySuffix.Device.value;
+				const capabilityValue = displayFieldPopupContext.popupElementsBySuffix.Capability.value;
+
+				const sourceDeviceElement = document.getElementById(`display${itemNo}Device`);
+				const sourceCapabilityElement = document.getElementById(`display${itemNo}Capability`);
+
+				if (sourceDeviceElement)
+				{
+					sourceDeviceElement.value = deviceValue;
+					sourceDeviceElement.dispatchEvent(new Event('change', { bubbles: true }));
+				}
+
+				if (sourceCapabilityElement)
+				{
+					const applyCapabilityValue = function (attempt = 0)
+					{
+						const hasOption = Array.from(sourceCapabilityElement.options || []).some((option) => option.value === capabilityValue);
+						if (hasOption)
+						{
+							sourceCapabilityElement.value = capabilityValue;
+							sourceCapabilityElement.dispatchEvent(new Event('change', { bubbles: true }));
+							return;
+						}
+
+						if (attempt < 8)
+						{
+							setTimeout(() => applyCapabilityValue(attempt + 1), 120);
+						}
+					};
+
+					applyCapabilityValue(0);
+				}
+			}
+
+			const pendingEventDispatches = [];
+			for (const binding of displayFieldPopupBindings)
+			{
+				if (!binding || !binding.sourceElement || !binding.popupElement)
+				{
+					continue;
+				}
+
+				if (binding.suffix === 'Device' || binding.suffix === 'Capability')
+				{
+					continue;
+				}
+
+				if (binding.sourceElement.type === 'checkbox')
+				{
+					binding.sourceElement.checked = binding.popupElement.checked;
+					pendingEventDispatches.push({ sourceElement: binding.sourceElement, checkbox: true });
+				}
+				else
+				{
+					binding.sourceElement.value = binding.popupElement.value;
+					pendingEventDispatches.push({ sourceElement: binding.sourceElement, checkbox: false });
+				}
+			}
+
+			for (const pendingDispatch of pendingEventDispatches)
+			{
+				if (!pendingDispatch || !pendingDispatch.sourceElement)
+				{
+					continue;
+				}
+
+				if (!pendingDispatch.checkbox)
+				{
+					pendingDispatch.sourceElement.dispatchEvent(new Event('input', { bubbles: true }));
+				}
+				pendingDispatch.sourceElement.dispatchEvent(new Event('change', { bubbles: true }));
+			}
+
+			renderDisplayInlineSimulator();
+			if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
+			{
+				renderDisplayPagePopup();
+			}
+			refreshDisplayPopupLiveValues();
+
+			closeDisplayFieldPopup();
+		}
+
+		function openDisplayFieldPopup(itemNo, fieldSuffix, retryCount = 0)
+		{
+			displayInlineSelectedItemNo = itemNo;
+			if (!displayFieldPopupOverlayElement || !displayFieldPopupBodyElement || !displayFieldPopupTitleElement)
+			{
+				focusDisplayControlFromPopup(itemNo, fieldSuffix);
+				return;
+			}
+
+			const popupSpec = getDisplayFieldPopupSpec(fieldSuffix);
+			if (!popupSpec)
+			{
+				focusDisplayControlFromPopup(itemNo, fieldSuffix);
+				return;
+			}
+
+			displayFieldPopupBindings = [];
+			const popupElementsBySuffix = {};
+			displayFieldPopupBodyElement.innerHTML = '';
+			displayFieldPopupTitleElement.textContent = `${Homey.__('settings.displayItemlegend', { itemNo: itemNo + 1 })} - ${popupSpec.title}`;
+
+			const missingSourceFields = [];
+			for (const suffix of popupSpec.fields)
+			{
+				const sourceElement = document.getElementById(`display${itemNo}${suffix}`);
+				if (!sourceElement)
+				{
+					missingSourceFields.push(suffix);
+					continue;
+				}
+
+				const rowElement = document.createElement('div');
+				rowElement.className = 'button-field-popup-field';
+
+				const labelElement = document.createElement('label');
+				labelElement.className = 'button-field-popup-label';
+				const sourceLabel = document.querySelector(`label[for="display${itemNo}${suffix}"]`);
+				const labelText = sourceLabel
+					? sourceLabel.childNodes[0].textContent.trim()
+					: (popupSpec.labels[suffix] || suffix);
+				labelElement.textContent = labelText;
+				rowElement.appendChild(labelElement);
+
+				let popupElement;
+				if (sourceElement.tagName === 'SELECT')
+				{
+					popupElement = document.createElement('select');
+					popupElement.className = 'homey-form-select';
+					popupElement.innerHTML = sourceElement.innerHTML;
+					popupElement.value = sourceElement.value;
+				}
+				else if (sourceElement.tagName === 'TEXTAREA')
+				{
+					popupElement = document.createElement('textarea');
+					popupElement.className = 'homey-form-textarea';
+					popupElement.value = sourceElement.value;
+					if (suffix === 'SVG')
+					{
+						popupElement.style.minHeight = '180px';
+					}
+				}
+				else if (sourceElement.type === 'checkbox')
+				{
+					popupElement = document.createElement('input');
+					popupElement.type = 'checkbox';
+					popupElement.className = 'homey-form-checkbox-input';
+					popupElement.checked = sourceElement.checked;
+				}
+				else
+				{
+					popupElement = document.createElement('input');
+					popupElement.type = sourceElement.type || 'text';
+					popupElement.className = 'homey-form-input';
+					popupElement.value = sourceElement.value;
+				}
+
+				popupElement.id = `displayFieldPopup${itemNo}${suffix}`;
+				rowElement.appendChild(popupElement);
+				displayFieldPopupBodyElement.appendChild(rowElement);
+
+				displayFieldPopupBindings.push({ suffix, sourceElement, popupElement });
+				popupElementsBySuffix[suffix] = popupElement;
+			}
+
+			if (missingSourceFields.length > 0)
+			{
+				if (retryCount < 6)
+				{
+					setTimeout(() => openDisplayFieldPopup(itemNo, fieldSuffix, retryCount + 1), 80);
+					return;
+				}
+
+				focusDisplayControlFromPopup(itemNo, fieldSuffix);
+				return;
+			}
+
+			displayFieldPopupContext = { itemNo, popupElementsBySuffix };
+			if (popupElementsBySuffix.Device && popupElementsBySuffix.Capability)
+			{
+				popupElementsBySuffix.Device.addEventListener('change', function ()
+				{
+					const sourceDeviceElement = document.getElementById(`display${itemNo}Device`);
+					if (sourceDeviceElement)
+					{
+						sourceDeviceElement.value = popupElementsBySuffix.Device.value;
+						sourceDeviceElement.dispatchEvent(new Event('change', { bubbles: true }));
+					}
+					syncDisplayFieldPopupCapabilityOptions(itemNo, popupElementsBySuffix.Capability);
+					setTimeout(() => syncDisplayFieldPopupCapabilityOptions(itemNo, popupElementsBySuffix.Capability), 140);
+				});
+
+				syncDisplayFieldPopupCapabilityOptions(itemNo, popupElementsBySuffix.Capability, popupElementsBySuffix.Capability.value);
+			}
+
+			displayFieldPopupOverlayElement.classList.add('visible');
+			displayFieldPopupOverlayElement.setAttribute('aria-hidden', 'false');
+
+			const firstField = displayFieldPopupBindings[0].popupElement;
+			if (firstField && typeof firstField.focus === 'function')
+			{
+				setTimeout(() => firstField.focus(), 0);
+			}
+		}
+
+		function openDisplayFieldPopupFromInline(itemNo, fieldSuffix)
+		{
+			displayInlineSelectedItemNo = itemNo;
+			renderDisplayInlineSimulator();
+			openDisplayFieldPopup(itemNo, fieldSuffix);
+		}
+
+		function handleDisplayInlineSimulatorClick(itemNo, fieldSuffix)
+		{
+			if (displayInlineSelectedItemNo !== itemNo)
+			{
+				displayInlineSelectedItemNo = itemNo;
+				renderDisplayInlineSimulator();
+				return;
+			}
+
+			openDisplayFieldPopupFromInline(itemNo, fieldSuffix);
+		}
+
+		function handleDisplayOverlaySimulatorClick(itemNo, fieldSuffix)
+		{
+			if (displayInlineSelectedItemNo !== itemNo)
+			{
+				displayInlineSelectedItemNo = itemNo;
+				renderDisplayPagePopup();
+				renderDisplayInlineSimulator();
+				return;
+			}
+
+			openDisplayFieldPopup(itemNo, fieldSuffix);
+		}
+
 		function closeDisplayPagePopup()
 		{
 			if (!displayPagePopupOverlayElement)
@@ -3308,6 +3730,7 @@ autoConfigElement.addEventListener('click', function (e)
 
 			if (requests.length === 0)
 			{
+				renderDisplayInlineSimulator();
 				if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
 				{
 					renderDisplayPagePopup();
@@ -3317,6 +3740,7 @@ autoConfigElement.addEventListener('click', function (e)
 
 			Promise.all(requests).then(() =>
 			{
+				renderDisplayInlineSimulator();
 				if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
 				{
 					renderDisplayPagePopup();
@@ -3445,9 +3869,9 @@ autoConfigElement.addEventListener('click', function (e)
 			});
 		}
 
-		function renderDisplayPagePopup()
+		function renderDisplaySimulatorSurface(surfaceElement, titleElement, prevElement, nextElement, statusPositionElement, clickHandlerName, updateScrollOffset = false)
 		{
-			if (!displayPagePopupSurfaceElement)
+			if (!surfaceElement)
 			{
 				return;
 			}
@@ -3455,7 +3879,19 @@ autoConfigElement.addEventListener('click', function (e)
 			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
 			if (!displayConfiguration || !Array.isArray(displayConfiguration.items))
 			{
-				displayPagePopupSurfaceElement.innerHTML = '';
+				surfaceElement.innerHTML = '';
+				if (displayInlineSimDeleteItemElement)
+				{
+					displayInlineSimDeleteItemElement.disabled = true;
+				}
+				if (displayInlineSimDeletePageElement)
+				{
+					displayInlineSimDeletePageElement.disabled = true;
+				}
+				if (titleElement)
+				{
+					titleElement.textContent = 'Page 0';
+				}
 				return;
 			}
 
@@ -3497,9 +3933,9 @@ autoConfigElement.addEventListener('click', function (e)
 				statusBarPosition = displayPagePopupStatusBarPosition;
 			}
 
-			if (displayPagePopupStatusBarPositionElement)
+			if (statusPositionElement)
 			{
-				displayPagePopupStatusBarPositionElement.value = `${statusBarPosition}`;
+				statusPositionElement.value = `${statusBarPosition}`;
 			}
 
 			const statusBarMarkup = statusBarPosition === 0
@@ -3547,12 +3983,9 @@ autoConfigElement.addEventListener('click', function (e)
 				}
 
 				const svgRaw = getDisplayPopupFieldValue(item, itemNo, 'SVG', item.svg || '');
-
 				const valueSvgMarkup = getSvgPreviewMarkup((typeof displayValueRaw === 'string') ? displayValueRaw : '');
 				const fieldSvgMarkup = getSvgPreviewMarkup(svgRaw || '');
 				const effectiveSvgMarkup = valueSvgMarkup || fieldSvgMarkup;
-				const hasSvgItem = !!effectiveSvgMarkup;
-
 				const text = escapeHtml(formatDisplayPopupValue(displayValueRaw, runtime.rounding));
 				const unitText = escapeHtml(sanitizeDisplayString(liveUnit, ''));
 				const configuredFontSize = getDisplayPopupFieldValue(item, itemNo, 'FontSize', item.fontSize || 1);
@@ -3572,40 +4005,78 @@ autoConfigElement.addEventListener('click', function (e)
 				const valueClass = needsLivePlaceholder ? 'display-sim-text display-sim-text-loading' : 'display-sim-text';
 				const valueTextPaddingTop = hasExplicitLabel ? 10 : 30;
 
-				return `<div class="display-sim-item ${underlinedClass}" style="left:${xPercent}%; top:${yPercent}%; width:${widthPercent}%;" onclick="focusDisplayControlFromPopup(${itemNo}, 'Label')">
-					${hasExplicitLabel ? `<div class="display-sim-top-label" onclick="event.stopPropagation(); focusDisplayControlFromPopup(${itemNo}, 'Label')">${renderedLabel}</div>` : ''}
+				const selectedClass = (itemNo === displayInlineSelectedItemNo) ? ' display-sim-item-selected' : '';
+				return `<div class="display-sim-item ${underlinedClass}${selectedClass}" style="left:${xPercent}%; top:${yPercent}%; width:${widthPercent}%;" onclick="${clickHandlerName}(${itemNo}, 'Label')">
+					${hasExplicitLabel ? `<div class="display-sim-top-label" onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, 'Label')">${renderedLabel}</div>` : ''}
 					${showValueSvg
-						? `<div class="display-sim-svg" onclick="event.stopPropagation(); focusDisplayControlFromPopup(${itemNo}, '${svgFocusSuffix}')">${effectiveSvgMarkup}</div>`
-						: `<div class="display-sim-value-row" onclick="event.stopPropagation(); focusDisplayControlFromPopup(${itemNo}, '${valueFocusSuffix}')">
+						? `<div class="display-sim-svg" onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, '${svgFocusSuffix}')">${effectiveSvgMarkup}</div>`
+						: `<div class="display-sim-value-row" onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, '${valueFocusSuffix}')">
 							<div class="${valueClass}" style="font-size:${fontPx}px;padding-top:${valueTextPaddingTop}px;">${renderedText}</div>
-							<div class="display-sim-unit" onclick="event.stopPropagation(); focusDisplayControlFromPopup(${itemNo}, 'Unit')" style="font-size:${Math.max(15, Math.floor(fontPx * 0.52))}px;">${renderedUnit}</div>
+							<div class="display-sim-unit" onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, 'Unit')" style="font-size:${Math.max(15, Math.floor(fontPx * 0.52))}px;">${renderedUnit}</div>
 						</div>`}
 				</div>`;
 			}).join('');
 
-			displayPagePopupSurfaceElement.innerHTML = statusBarMarkup + markup;
+			surfaceElement.innerHTML = statusBarMarkup + markup;
 
-			if (displayPagePopupTitleElement)
+			if (titleElement)
 			{
-				displayPagePopupTitleElement.textContent = `Page ${displayPagePopupCurrentPage}`;
+				titleElement.textContent = `Page ${displayPagePopupCurrentPage}`;
 			}
 
-			if (displayPagePopupPrevElement)
+			if (prevElement)
 			{
-				displayPagePopupPrevElement.disabled = (pages.indexOf(displayPagePopupCurrentPage) <= 0);
+				prevElement.disabled = (pages.indexOf(displayPagePopupCurrentPage) <= 0);
 			}
 
-			if (displayPagePopupNextElement)
+			if (nextElement)
 			{
-				displayPagePopupNextElement.disabled = (pages.indexOf(displayPagePopupCurrentPage) >= pages.length - 1);
+				nextElement.disabled = (pages.indexOf(displayPagePopupCurrentPage) >= pages.length - 1);
 			}
 
-				if (displayPagePopupStatusBarPositionElement)
-				{
-					displayPagePopupStatusBarPositionElement.value = `${displayPagePopupStatusBarPosition}`;
-				}
+			if (displayInlineSimDeleteItemElement)
+			{
+				const maxItemNo = displayConfiguration.items.length - 1;
+				const hasSelection = (displayInlineSelectedItemNo >= 0 && displayInlineSelectedItemNo <= maxItemNo);
+				displayInlineSimDeleteItemElement.disabled = !hasSelection;
+			}
 
-			updateDisplayPagePopupScrollOffset();
+			if (displayInlineSimDeletePageElement)
+			{
+				const hasCurrentPageItems = pageItems.length > 0;
+				displayInlineSimDeletePageElement.disabled = !(displayPagePopupCurrentPage > 0 && hasCurrentPageItems);
+			}
+
+			if (updateScrollOffset)
+			{
+				updateDisplayPagePopupScrollOffset();
+			}
+		}
+
+		function renderDisplayPagePopup()
+		{
+			renderDisplaySimulatorSurface(
+				displayPagePopupSurfaceElement,
+				displayPagePopupTitleElement,
+				displayPagePopupPrevElement,
+				displayPagePopupNextElement,
+				displayPagePopupStatusBarPositionElement,
+				'handleDisplayOverlaySimulatorClick',
+				true,
+			);
+		}
+
+		function renderDisplayInlineSimulator()
+		{
+			renderDisplaySimulatorSurface(
+				displayInlineSimSurfaceElement,
+				displayInlineSimTitleElement,
+				displayInlineSimPrevElement,
+				displayInlineSimNextElement,
+				displayInlineSimStatusBarPositionElement,
+				'handleDisplayInlineSimulatorClick',
+				false,
+			);
 		}
 
 		function openDisplayPagePopup(page)
@@ -4722,6 +5193,16 @@ autoConfigElement.addEventListener('click', function (e)
 		// Create all the display items for the specified display configuration
 		function drawDisplayConfiguration(displayConfiguration, expandItemId = -1)
 		{
+			if (!Array.isArray(displayConfiguration.items))
+			{
+				displayConfiguration.items = [];
+			}
+
+			if (displayInlineSelectedItemNo >= displayConfiguration.items.length)
+			{
+				displayInlineSelectedItemNo = displayConfiguration.items.length - 1;
+			}
+
 			// Sort the display items by page number, then by Y position and finally by X position
 			displayConfiguration.items.sort((a, b) =>
 			{
@@ -4777,7 +5258,9 @@ autoConfigElement.addEventListener('click', function (e)
 				htmlText += insertDisplayItemSection(item, itemNo, (item.itemId === expandItemId));
 			}
 			htmlText += `</div></div>`;
-			document.getElementById('displayItemsSection').innerHTML = htmlText;
+			const displayItemsSectionElement = document.getElementById('displayItemsSection');
+			displayItemsSectionElement.innerHTML = htmlText;
+			displayItemsSectionElement.classList.add('display-items-backing-store');
 
 			if (expandItemId >= 0)
 			{
@@ -4838,6 +5321,8 @@ autoConfigElement.addEventListener('click', function (e)
 			}
 
 			setupSvgPreviews(document);
+			renderDisplayInlineSimulator();
+			refreshDisplayPopupLiveValues();
 		}
 
 
@@ -5583,6 +6068,30 @@ autoConfigElement.addEventListener('click', function (e)
 			}
 		}
 
+		function deleteSelectedInlineDisplayItem()
+		{
+			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+			if (!displayConfiguration || !Array.isArray(displayConfiguration.items) || displayConfiguration.items.length === 0)
+			{
+				displayInlineSelectedItemNo = -1;
+				renderDisplayInlineSimulator();
+				return;
+			}
+
+			if (displayInlineSelectedItemNo < 0 || displayInlineSelectedItemNo >= displayConfiguration.items.length)
+			{
+				displayInlineSelectedItemNo = displayConfiguration.items.length - 1;
+				renderDisplayInlineSimulator();
+				return;
+			}
+
+			const deleteIndex = displayInlineSelectedItemNo;
+			displayInlineSelectedItemNo = (displayConfiguration.items.length <= 1)
+				? -1
+				: Math.min(deleteIndex, displayConfiguration.items.length - 2);
+			deleteItem(deleteIndex);
+		}
+
 		function storeDisplaySettings()
 		{
 			var displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
@@ -5637,6 +6146,106 @@ autoConfigElement.addEventListener('click', function (e)
 					storeDisplayCustomMQTTItems(itemNo, displayConfiguration.items[itemNo].customMQTTTopics);
 				}
 			}
+		}
+
+		function addDisplayItem()
+		{
+			if (!displayConfigurationsFetched)
+			{
+				return;
+			}
+
+			storeDisplaySettings();
+
+			displayConfigurationNo = displayConfigurationNoElement.value;
+			var displayConfiguration = localDisplayConfigurations[displayConfigurationNo];
+			if (displayConfiguration)
+			{
+				let itemId = displayConfiguration.items.length;
+				const targetPage = Number.isInteger(displayPagePopupCurrentPage) ? displayPagePopupCurrentPage : 0;
+
+				var displayItem = {
+					itemId,
+					device: "none",
+					deviceName: "none",
+					capability: "",
+					capabilityName: "",
+					label: "New Item",
+					unit: "",
+					numberRounding: -1,
+					xPos: 0,
+					yPos: 0,
+					width: 100,
+					fontSize: 1,
+					brokerId: 'Default',
+					page: targetPage,
+					customMQTTTopics: [],
+					svg: '',
+				};
+
+				displayConfiguration.items.push(displayItem) - 1;
+				localDisplayConfigurations[displayConfigurationNo] = displayConfiguration;
+				displayInlineSelectedItemNo = displayConfiguration.items.length - 1;
+
+				drawDisplayConfiguration(displayConfiguration, itemId);
+			}
+		}
+
+		function addDisplayPage()
+		{
+			if (!displayConfigurationsFetched)
+			{
+				return;
+			}
+
+			storeDisplaySettings();
+			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+			if (!displayConfiguration)
+			{
+				return;
+			}
+
+			const pages = getDisplayPopupPages(displayConfiguration);
+			const positivePages = pages.filter((pageNo) => pageNo > 0);
+			const nextPage = (positivePages.length > 0 ? Math.max(...positivePages) : 0) + 1;
+			displayPagePopupCurrentPage = nextPage;
+			displayInlineSelectedItemNo = -1;
+
+			addDisplayItem();
+		}
+
+		function deleteCurrentDisplayPage()
+		{
+			if (!displayConfigurationsFetched)
+			{
+				return;
+			}
+
+			if (!Number.isInteger(displayPagePopupCurrentPage) || displayPagePopupCurrentPage <= 0)
+			{
+				return;
+			}
+
+			storeDisplaySettings();
+			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+			if (!displayConfiguration || !Array.isArray(displayConfiguration.items) || displayConfiguration.items.length === 0)
+			{
+				return;
+			}
+
+			displayConfiguration.items = displayConfiguration.items.filter((item) =>
+			{
+				const itemPage = parseInt(item.page, 10) || 0;
+				return itemPage !== displayPagePopupCurrentPage;
+			});
+
+			const remainingPages = getDisplayPopupPages(displayConfiguration);
+			displayPagePopupCurrentPage = remainingPages.includes(displayPagePopupCurrentPage)
+				? displayPagePopupCurrentPage
+				: remainingPages[remainingPages.length - 1] || 0;
+			displayInlineSelectedItemNo = -1;
+
+			drawDisplayConfiguration(displayConfiguration);
 		}
 
 		/// Broker Config code
