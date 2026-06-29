@@ -301,5 +301,8 @@
 	},
 	"0.7.34": {
 		"en": "Added Simulators in the Configuration pages for the Buttons and Display. Fix Temperature sensor recording on V3 firmaware. Add light sensor, Free Memory and WiFi signal strength reporting to the device. Fixed Trigger Flow card for button in configuration changed."
+	},
+	"0.7.35": {
+		"en": "Changed to simulator driven setup.."
 	}
 }
