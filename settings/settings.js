@@ -2,6 +2,7 @@
 		const MAX_BUTTON_CONFIGURATIONS = 40;
 		const MAX_DISPLAY_CONFIGURATIONS = 20;
 		const CONFIG_DRAFT_STORAGE_KEY = 'unsavedConfigurationDraft';
+		const CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY = 'unsavedConfigurationDraftDismissedSignature';
 		const CONFIG_DRAFT_SAVE_DEBOUNCE_MS = 500;
 		var buttonDevicesArray = [];
 		var buttonDevicesFetched = false;
@@ -92,9 +93,15 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 		var displayInlineLiveRefreshTimer = null;
 		var displayItemResizeState = null;
 		var displayItemMoveState = null;
+		var displaySimInitialPageSelectionConfigKey = null;
 		var configDraftSaveTimer = null;
 		var configDraftAutoSaveEnabled = false;
 		var configDraftPendingPersist = false;
+		var configDraftDirtySinceLoad = false;
+		var configDraftLastSnapshotSignature = null;
+		var configDraftDismissedSignature = null;
+		var configDraftDismissedAt = 0;
+		var configDraftDismissedSignatureLoaded = false;
 		var configDraftLoadedData = null;
 		var configDraftLoaded = false;
 		var configDraftRestoreDecisionMade = false;
@@ -268,6 +275,36 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 			};
 		}
 
+		function buildComparableDraftPayload(source)
+		{
+			const draftSource = (source && typeof source === 'object') ? source : {};
+
+			const buttonConfigurations = (draftSource.buttonConfigurations !== undefined)
+				? draftSource.buttonConfigurations
+				: localButtonConfigurations;
+			const displayConfigurations = (draftSource.displayConfigurations !== undefined)
+				? draftSource.displayConfigurations
+				: localDisplayConfigurations;
+			const brokerConfigurationItems = (draftSource.brokerConfigurationItems !== undefined)
+				? draftSource.brokerConfigurationItems
+				: localBrokerItems;
+			const defaultBroker = (draftSource.defaultBroker !== undefined)
+				? draftSource.defaultBroker
+				: (defaultBrokerElement ? defaultBrokerElement.value : 'homey');
+
+			return {
+				buttonConfigurations: deepCloneData(buttonConfigurations) || [],
+				displayConfigurations: deepCloneData(displayConfigurations) || [],
+				brokerConfigurationItems: deepCloneData(brokerConfigurationItems) || [],
+				defaultBroker: (typeof defaultBroker === 'string') ? defaultBroker : 'homey',
+			};
+		}
+
+		function getComparableDraftSignature(source)
+		{
+			return JSON.stringify(buildComparableDraftPayload(source));
+		}
+
 		function persistConfigurationDraftNow()
 		{
 			if (!configDraftAutoSaveEnabled)
@@ -276,8 +313,29 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 				return;
 			}
 
+			if (!configDraftDirtySinceLoad)
+			{
+				return;
+			}
+
 			const snapshot = buildConfigurationDraftSnapshot();
+			const snapshotSignature = getComparableDraftSignature(snapshot);
+			if (configDraftLastSnapshotSignature === snapshotSignature)
+			{
+				configDraftDirtySinceLoad = false;
+				return;
+			}
+
+			if (configDraftDismissedSignature)
+			{
+				configDraftDismissedSignature = null;
+				configDraftDismissedAt = 0;
+				Homey.set(CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY, null);
+			}
+
 			Homey.set(CONFIG_DRAFT_STORAGE_KEY, snapshot);
+			configDraftLastSnapshotSignature = snapshotSignature;
+			configDraftDirtySinceLoad = false;
 		}
 
 		function scheduleConfigurationDraftPersist()
@@ -402,7 +460,7 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 				return;
 			}
 
-			if (!configDraftLoaded || !buttonConfigurationsFetched || !displayConfigurationsFetched || !brokerItemsFetched)
+			if (!configDraftLoaded || !configDraftDismissedSignatureLoaded || !buttonConfigurationsFetched || !displayConfigurationsFetched || !brokerItemsFetched || !defaultBrokerFetched)
 			{
 				return;
 			}
@@ -415,15 +473,68 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 				return;
 			}
 
+			const loadedDraftSignature = getComparableDraftSignature(configDraftLoadedData);
+			const loadedDraftTimestamp = (configDraftLoadedData && Number.isFinite(Number(configDraftLoadedData.timestamp)))
+				? Number(configDraftLoadedData.timestamp)
+				: 0;
+			const shouldSuppressDismissedDraft = !!(
+				configDraftDismissedSignature
+				&& configDraftDismissedSignature === loadedDraftSignature
+				&& (!configDraftDismissedAt || !loadedDraftTimestamp || loadedDraftTimestamp <= configDraftDismissedAt)
+			);
+			if (shouldSuppressDismissedDraft)
+			{
+				configDraftLoadedData = null;
+				configDraftDirtySinceLoad = false;
+				configDraftLastSnapshotSignature = null;
+				Homey.set(CONFIG_DRAFT_STORAGE_KEY, null);
+				enableConfigurationDraftAutoSave();
+				return;
+			}
+
+			const currentSettingsSignature = getComparableDraftSignature({
+				buttonConfigurations: localButtonConfigurations,
+				displayConfigurations: localDisplayConfigurations,
+				brokerConfigurationItems: localBrokerItems,
+				defaultBroker: defaultBrokerElement ? defaultBrokerElement.value : 'homey',
+			});
+			if (loadedDraftSignature === currentSettingsSignature)
+			{
+				configDraftLoadedData = null;
+				configDraftDirtySinceLoad = false;
+				configDraftLastSnapshotSignature = currentSettingsSignature;
+				Homey.set(CONFIG_DRAFT_STORAGE_KEY, null);
+				enableConfigurationDraftAutoSave();
+				return;
+			}
+
 			showConfigDraftRestoreDialog().then((ok) =>
 			{
 				if (ok)
 				{
 					applyConfigurationDraft(configDraftLoadedData);
+					configDraftLastSnapshotSignature = getComparableDraftSignature(configDraftLoadedData);
+					configDraftDismissedSignature = null;
+					configDraftDismissedAt = 0;
+					Homey.set(CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY, null);
+					configDraftDirtySinceLoad = false;
 					// Homey.alert(Homey.__("settings.unsavedSettingsRestored"));
 				}
 				else
 				{
+					const discardedSignature = getComparableDraftSignature(configDraftLoadedData);
+					const discardedTimestamp = (configDraftLoadedData && Number.isFinite(Number(configDraftLoadedData.timestamp)))
+						? Number(configDraftLoadedData.timestamp)
+						: Date.now();
+					configDraftDismissedSignature = discardedSignature;
+					configDraftDismissedAt = discardedTimestamp;
+					Homey.set(CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY, {
+						signature: discardedSignature,
+						timestamp: discardedTimestamp,
+					});
+					configDraftLoadedData = null;
+					configDraftDirtySinceLoad = false;
+					configDraftLastSnapshotSignature = null;
 					Homey.set(CONFIG_DRAFT_STORAGE_KEY, null);
 				}
 
@@ -697,6 +808,9 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 				displayConfiguration.items[state.itemNo].yPos = `${safeTopPercent}`;
 			}
 
+			configDraftDirtySinceLoad = true;
+			flushConfigurationDraftPersist();
+
 			redisplayDisplyConfig(state.itemNo);
 			if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
 			{
@@ -854,6 +968,9 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 				displayConfiguration.items[state.itemNo].width = `${safeWidthPercent}`;
 			}
 
+			configDraftDirtySinceLoad = true;
+			flushConfigurationDraftPersist();
+
 			redisplayDisplyConfig(state.itemNo);
 			if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
 			{
@@ -886,6 +1003,7 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 		var newBrokerItemButton = document.getElementById('newBrokerItem');
 		var localBrokerItems = [];
 		var brokerItemsFetched = false;
+		var defaultBrokerFetched = false;
 
 		var diagLogEnabledElement = document.getElementById('enableLog');
 		var diagLogElement = document.getElementById('diagLog');
@@ -1119,6 +1237,7 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 				if (!err && loadedDraft && typeof loadedDraft === 'object')
 				{
 					configDraftLoadedData = loadedDraft;
+					configDraftLastSnapshotSignature = getComparableDraftSignature(loadedDraft);
 				}
 				else
 				{
@@ -1126,6 +1245,32 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 					enableConfigurationDraftAutoSave();
 				}
 				configDraftLoaded = true;
+				maybeHandleLoadedConfigurationDraft();
+			});
+
+			Homey.get(CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY, function (err, dismissedSignature)
+			{
+				if (!err && dismissedSignature && typeof dismissedSignature === 'object')
+				{
+					configDraftDismissedSignature = (typeof dismissedSignature.signature === 'string' && dismissedSignature.signature)
+						? dismissedSignature.signature
+						: null;
+					configDraftDismissedAt = Number.isFinite(Number(dismissedSignature.timestamp))
+						? Number(dismissedSignature.timestamp)
+						: 0;
+				}
+				else if (!err && typeof dismissedSignature === 'string' && dismissedSignature)
+				{
+					configDraftDismissedSignature = dismissedSignature;
+					configDraftDismissedAt = 0;
+				}
+				else
+				{
+					configDraftDismissedSignature = null;
+					configDraftDismissedAt = 0;
+				}
+
+				configDraftDismissedSignatureLoaded = true;
 				maybeHandleLoadedConfigurationDraft();
 			});
 
@@ -1210,6 +1355,7 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 if (err) return Homey.alert(err);
 brokerItemsFetched = true;
 localBrokerItems = brokerItems;
+setupButtonBrokerItems();
 maybeHandleLoadedConfigurationDraft();
 });
 
@@ -1381,6 +1527,11 @@ autoConfigElement.addEventListener('click', function (e)
 						storeDisplaySettings();
 						await Homey.set('displayConfigurations', localDisplayConfigurations);
 						await Homey.set(CONFIG_DRAFT_STORAGE_KEY, null);
+						await Homey.set(CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY, null);
+						configDraftDismissedSignature = null;
+						configDraftDismissedAt = 0;
+						configDraftLastSnapshotSignature = null;
+						configDraftDirtySinceLoad = false;
 
 						Homey.api('POST', '/settings_changed/', {}, function (err, variables)
 						{
@@ -2227,8 +2378,14 @@ autoConfigElement.addEventListener('click', function (e)
 
 			const draftEventHandler = function (event)
 			{
+				if (event && event.isTrusted === false)
+				{
+					return;
+				}
+
 				if (isDraftRelevantEventTarget(event.target))
 				{
+					configDraftDirtySinceLoad = true;
 					if (event.type === 'input')
 					{
 						scheduleConfigurationDraftPersist();
@@ -2241,7 +2398,6 @@ autoConfigElement.addEventListener('click', function (e)
 			};
 			document.addEventListener('input', draftEventHandler);
 			document.addEventListener('change', draftEventHandler);
-			document.addEventListener('click', draftEventHandler);
 			window.addEventListener('beforeunload', flushConfigurationDraftPersist);
 			window.addEventListener('pagehide', flushConfigurationDraftPersist);
 			document.addEventListener('visibilitychange', function ()
@@ -3331,8 +3487,20 @@ autoConfigElement.addEventListener('click', function (e)
 			const frontColor = escapeHtml(getButtonPanelLedColor(pageConfig, side, 'FrontLED', pageIndex));
 			const ledColorSuffix = (buttonPagePopupLedState === 'on') ? 'OnColor' : 'OffColor';
 			return `
-				<div class="button-sim-led button-sim-led-wall" title="${side} wall LED (${buttonPagePopupLedState})" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${pageIndex}, 'WallLED${ledColorSuffix}');" style="background-color:${wallColor}; border-color:${wallColor};"></div>
-				<div class="button-sim-led button-sim-led-front" title="${side} front LED (${buttonPagePopupLedState})" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${pageIndex}, 'FrontLED${ledColorSuffix}');" style="border-color:${frontColor}; box-shadow: 0 0 6px ${frontColor};"></div>`;
+				<div class="button-sim-led button-sim-led-wall" title="${side} wall LED (${buttonPagePopupLedState})" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'WallLED${ledColorSuffix}');" style="background-color:${wallColor}; border-color:${wallColor};"></div>
+				<div class="button-sim-led button-sim-led-front" title="${side} front LED (${buttonPagePopupLedState})" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'FrontLED${ledColorSuffix}');" style="border-color:${frontColor}; box-shadow: 0 0 6px ${frontColor};"></div>`;
+		}
+
+		function handleButtonSimFieldClick(event, side, page, fieldSuffix)
+		{
+			if (event)
+			{
+				event.preventDefault();
+				event.stopPropagation();
+			}
+
+			focusButtonControlFromPopup(side, page, fieldSuffix);
+			return false;
 		}
 
 		function getButtonPanelPreviewSvg(svgText)
@@ -3398,9 +3566,50 @@ autoConfigElement.addEventListener('click', function (e)
 			}
 
 			const totalPagesHint = escapeHtml(Homey.__("settings.displaySimTotalPagesHint"));
+			const sharedPageHeaderHint = escapeHtml(getSharedPageHeaderTooltipText());
 			const safeDisplayPageLabel = escapeHtml(displayPageLabel);
 			const safeCurrentPageLabel = escapeHtml(currentPageLabel);
-			titleElement.innerHTML = `${safeDisplayPageLabel}: ${safeCurrentPageLabel} / <span class="display-sim-total-pages">${nonDefaultPageCount}</span><span class="tooltip display-sim-total-pages-tooltip"><i class="fi fi-rr-info" aria-hidden="true"></i><span class="tooltiptext">${totalPagesHint}</span></span>`;
+			titleElement.innerHTML = `${safeDisplayPageLabel}: ${safeCurrentPageLabel} / <span class="display-sim-total-pages">${nonDefaultPageCount}</span><span class="tooltip display-sim-total-pages-tooltip"><i class="fi fi-rr-info" aria-hidden="true"></i><span class="tooltiptext">${sharedPageHeaderHint}</span></span>`;
+		}
+
+		function getSharedPageHeaderTooltipText()
+		{
+			const pageHelpText = (Homey.__("settings.buttonPageExplanation") || '').trim();
+			const totalPagesHelpText = (Homey.__("settings.displaySimTotalPagesHint") || '').trim();
+
+			if (!pageHelpText)
+			{
+				return totalPagesHelpText;
+			}
+
+			if (!totalPagesHelpText)
+			{
+				return pageHelpText;
+			}
+
+			if (pageHelpText === totalPagesHelpText)
+			{
+				return pageHelpText;
+			}
+
+			return `${pageHelpText} ${totalPagesHelpText}`;
+		}
+
+		function getButtonPageHeaderTitleMarkup(currentPage, totalPages)
+		{
+			const buttonPageLabel = Homey.__("settings.page");
+			const currentPageLabel = formatButtonPageLabel(currentPage);
+			const nonDefaultPageCount = Math.max(0, totalPages - 1);
+			const safeButtonPageLabel = escapeHtml(buttonPageLabel);
+			const safeCurrentPageLabel = escapeHtml(currentPageLabel);
+
+			if (nonDefaultPageCount === 0)
+			{
+				return `${safeButtonPageLabel}: ${safeCurrentPageLabel}`;
+			}
+
+			const sharedPageHeaderHint = escapeHtml(getSharedPageHeaderTooltipText());
+			return `${safeButtonPageLabel}: ${safeCurrentPageLabel} / <span class="display-sim-total-pages">${nonDefaultPageCount}</span><span class="tooltip display-sim-total-pages-tooltip"><i class="fi fi-rr-info" aria-hidden="true"></i><span class="tooltiptext">${sharedPageHeaderHint}</span></span>`;
 		}
 
 		function getButtonPanelPreviewMarkup(pageConfig, side, pageIndex = buttonPagePopupCurrentPage)
@@ -3416,15 +3625,17 @@ autoConfigElement.addEventListener('click', function (e)
 			const ledMarkup = `<div class="button-sim-leds ${side === 'right' ? 'button-sim-leds-right' : ''}">${getButtonPanelLedMarkup(pageConfig, side, pageIndex)}</div>`;
 			const contentMarkup = svgMarkup
 				? `
-					<div class="button-sim-content button-sim-content-svg" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${pageIndex}, '${svgFieldSuffix}');">
-						<div class="button-sim-top" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${pageIndex}, 'TopText');">${topText}</div>
-						<div class="button-sim-icon" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${pageIndex}, '${svgFieldSuffix}');">${svgMarkup}</div>
+					<div class="button-sim-content button-sim-content-svg" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, '${svgFieldSuffix}');">
+						<div class="button-sim-top-hit-area" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');" title="Edit top label"></div>
+						<div class="button-sim-top" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');">${topText}</div>
+						<div class="button-sim-icon" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, '${svgFieldSuffix}');">${svgMarkup}</div>
 					</div>`
 				: `
 					<div class="button-sim-content">
-						<div class="button-sim-top" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${pageIndex}, 'TopText');">${topText}</div>
-							<div class="button-sim-state-block" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${pageIndex}, '${textFieldSuffix}');">
-							<div class="button-sim-state-line" onclick="event.stopPropagation(); focusButtonControlFromPopup('${side}', ${pageIndex}, '${textFieldSuffix}');">${stateText}</div>
+						<div class="button-sim-top-hit-area" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');" title="Edit top label"></div>
+						<div class="button-sim-top" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');">${topText}</div>
+							<div class="button-sim-state-block" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, '${textFieldSuffix}');">
+							<div class="button-sim-state-line" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, '${textFieldSuffix}');">${stateText}</div>
 						</div>
 					</div>`;
 
@@ -3646,6 +3857,19 @@ autoConfigElement.addEventListener('click', function (e)
 				FrontLEDOffColor: Homey.__('settings.frontLEDOffColor'),
 				WallLEDOffColor: Homey.__('settings.wallLEDOffColor'),
 			};
+			const tooltipKeys = {
+				Device: 'settings.deviceExplanation',
+				Capability: 'settings.capabilityExplanation',
+				TopText: 'settings.topLabelExplanation',
+				OnText: 'settings.labelOnExplanation',
+				OffText: 'settings.labelOffExplanation',
+				OnSVG: 'settings.textExplanation',
+				OffSVG: 'settings.textExplanation',
+				FrontLEDOnColor: 'settings.frontLEDOnColorExplanation',
+				WallLEDOnColor: 'settings.wallLEDOnColorExplanation',
+				FrontLEDOffColor: 'settings.frontLEDOffColorExplanation',
+				WallLEDOffColor: 'settings.wallLEDOffColorExplanation',
+			};
 
 			if (fieldSuffix === 'TopText')
 			{
@@ -3653,15 +3877,17 @@ autoConfigElement.addEventListener('click', function (e)
 					title: `${sideLabel} - ${labels.TopText}`,
 					fields: ['TopText'],
 					labels,
+					tooltipKeys,
 				};
 			}
 
 			if (fieldSuffix === 'Device' || fieldSuffix === 'Capability')
 			{
 				return {
-					title: `${sideLabel} - ${Homey.__('settings.device')}`,
-					fields: ['Device', 'Capability'],
+					title: `${sideLabel} - ${Homey.__('settings.text')}`,
+					fields: ['Device', 'Capability', 'OnText', 'OffText', 'OnSVG', 'OffSVG'],
 					labels,
+					tooltipKeys,
 				};
 			}
 
@@ -3675,6 +3901,7 @@ autoConfigElement.addEventListener('click', function (e)
 					title: `${sideLabel} - ${Homey.__('settings.text')}`,
 					fields: valueFields,
 					labels,
+					tooltipKeys,
 				};
 			}
 
@@ -3688,6 +3915,7 @@ autoConfigElement.addEventListener('click', function (e)
 					title: `${sideLabel} - ${Homey.__('settings.text')}`,
 					fields: svgFields,
 					labels,
+					tooltipKeys,
 				};
 			}
 
@@ -3697,6 +3925,7 @@ autoConfigElement.addEventListener('click', function (e)
 					title: `${sideLabel} - LEDs`,
 					fields: ['FrontLEDOnColor', 'WallLEDOnColor', 'FrontLEDOffColor', 'WallLEDOffColor'],
 					labels,
+					tooltipKeys,
 				};
 			}
 
@@ -3739,6 +3968,81 @@ autoConfigElement.addEventListener('click', function (e)
 			{
 				popupCapabilityElement.value = wantedValue;
 			}
+		}
+
+		function getPopupFieldTooltipText(sourceLabelElement)
+		{
+			if (!sourceLabelElement)
+			{
+				return '';
+			}
+
+			const tooltipTextElement = sourceLabelElement.querySelector('.tooltiptext');
+			if (!tooltipTextElement)
+			{
+				return '';
+			}
+
+			return (tooltipTextElement.textContent || '').trim();
+		}
+
+		function getLocalizedTooltipText(localizationKey)
+		{
+			if (!localizationKey || typeof Homey === 'undefined' || !Homey || typeof Homey.__ !== 'function')
+			{
+				return '';
+			}
+
+			const localizedText = Homey.__(localizationKey);
+			if (!localizedText || localizedText === localizationKey)
+			{
+				return '';
+			}
+
+			return String(localizedText).trim();
+		}
+
+		function resolvePopupFieldTooltipText(sourceLabelElement, fallbackLocalizationKey)
+		{
+			const sourceTooltipText = getPopupFieldTooltipText(sourceLabelElement);
+			if (sourceTooltipText)
+			{
+				return sourceTooltipText;
+			}
+
+			return getLocalizedTooltipText(fallbackLocalizationKey);
+		}
+
+		function appendPopupLabelContent(labelElement, labelText, tooltipText)
+		{
+			if (!labelElement)
+			{
+				return;
+			}
+
+			const textElement = document.createElement('span');
+			textElement.textContent = labelText || '';
+			labelElement.appendChild(textElement);
+
+			if (!tooltipText)
+			{
+				return;
+			}
+
+			const tooltipElement = document.createElement('div');
+			tooltipElement.className = 'tooltip';
+
+			const iconElement = document.createElement('i');
+			iconElement.className = 'fi fi-rr-info';
+			iconElement.setAttribute('aria-hidden', 'true');
+			tooltipElement.appendChild(iconElement);
+
+			const tooltipTextElement = document.createElement('span');
+			tooltipTextElement.className = 'tooltiptext';
+			tooltipTextElement.textContent = tooltipText;
+			tooltipElement.appendChild(tooltipTextElement);
+
+			labelElement.appendChild(tooltipElement);
 		}
 
 		function saveButtonFieldPopup()
@@ -3822,6 +4126,10 @@ autoConfigElement.addEventListener('click', function (e)
 				}
 			}
 
+			// Popup save dispatches synthetic events; persist explicitly so draft always captures edits.
+			configDraftDirtySinceLoad = true;
+			flushConfigurationDraftPersist();
+
 			closeButtonFieldPopup();
 		}
 
@@ -3864,7 +4172,10 @@ autoConfigElement.addEventListener('click', function (e)
 
 				const label = document.createElement('label');
 				label.className = 'button-field-popup-label';
-				label.textContent = popupSpec.labels[suffix] || suffix;
+				const sourceLabel = document.querySelector(`label[for="${sourceId}"]`);
+				const popupLabelText = popupSpec.labels[suffix] || suffix;
+				const popupTooltipText = resolvePopupFieldTooltipText(sourceLabel, popupSpec.tooltipKeys ? popupSpec.tooltipKeys[suffix] : '');
+				appendPopupLabelContent(label, popupLabelText, popupTooltipText);
 				wrapper.appendChild(label);
 
 				const popupId = `buttonFieldPopup_${sourceId}`;
@@ -4082,12 +4393,29 @@ autoConfigElement.addEventListener('click', function (e)
 				BrokerId: Homey.__('settings.brokerId'),
 				SVG: 'SVG',
 			};
+			const tooltipKeys = {
+				page: 'settings.pageExplanation',
+				Device: 'settings.deviceDExplanation',
+				Capability: 'settings.capabilityDExplanation',
+				Label: 'settings.toplabelDisplayExplanation',
+				Text: 'settings.textExplanation',
+				Unit: 'settings.unitExplanation',
+				SVG: 'settings.textExplanation',
+				X: 'settings.xPosExplanation',
+				Y: 'settings.yPosExplanation',
+				Width: 'settings.widthExplanation',
+				Rounding: 'settings.roundingExplanation',
+				FontSize: 'settings.fontSizeExplanation',
+				BoxType: 'settings.boxTypeExplanation',
+				BrokerId: 'settings.brokerIdExplanation',
+			};
 
 			// Display item editing now uses one complete popup regardless of click target.
 			return {
 				title: 'Properties',
 				fields: ['page', 'Device', 'Capability', 'Label', 'Text', 'Unit', 'SVG', 'X', 'Y', 'Width', 'Rounding', 'FontSize', 'BoxType', 'BrokerId'],
 				labels,
+				tooltipKeys,
 			};
 		}
 
@@ -4154,9 +4482,12 @@ autoConfigElement.addEventListener('click', function (e)
 
 			if (capabilityLabelElement)
 			{
-				capabilityLabelElement.textContent = (deviceValue === '_variable_')
+				const capabilityLabelText = (deviceValue === '_variable_')
 					? Homey.__('settings.variable')
 					: Homey.__('settings.capability');
+				const capabilityTooltipText = getLocalizedTooltipText('settings.capabilityDExplanation');
+				capabilityLabelElement.innerHTML = '';
+				appendPopupLabelContent(capabilityLabelElement, capabilityLabelText, capabilityTooltipText);
 			}
 		}
 
@@ -4252,6 +4583,10 @@ autoConfigElement.addEventListener('click', function (e)
 			}
 			refreshDisplayPopupLiveValues();
 
+			// Popup save dispatches synthetic events; persist explicitly so draft always captures edits.
+			configDraftDirtySinceLoad = true;
+			flushConfigurationDraftPersist();
+
 			closeDisplayFieldPopup();
 		}
 
@@ -4292,10 +4627,9 @@ autoConfigElement.addEventListener('click', function (e)
 				const labelElement = document.createElement('label');
 				labelElement.className = 'button-field-popup-label';
 				const sourceLabel = document.querySelector(`label[for="display${itemNo}${suffix}"]`);
-				const labelText = sourceLabel
-					? sourceLabel.childNodes[0].textContent.trim()
-					: (popupSpec.labels[suffix] || suffix);
-				labelElement.textContent = labelText;
+				const labelText = popupSpec.labels[suffix] || suffix;
+				const tooltipText = resolvePopupFieldTooltipText(sourceLabel, popupSpec.tooltipKeys ? popupSpec.tooltipKeys[suffix] : '');
+				appendPopupLabelContent(labelElement, labelText, tooltipText);
 				rowElement.appendChild(labelElement);
 
 				let popupElement;
@@ -4573,6 +4907,41 @@ autoConfigElement.addEventListener('click', function (e)
 			}
 
 			return Array.from(pages).sort((a, b) => a - b);
+		}
+
+		function getFirstNonEmptyDisplayPage(displayConfiguration)
+		{
+			if (!displayConfiguration || !Array.isArray(displayConfiguration.items) || displayConfiguration.items.length === 0)
+			{
+				return 0;
+			}
+
+			let firstPage = null;
+			for (const item of displayConfiguration.items)
+			{
+				const pageValue = parseInt(item && item.page, 10);
+				const normalizedPage = Number.isNaN(pageValue) ? 0 : Math.max(0, pageValue);
+				if (firstPage === null || normalizedPage < firstPage)
+				{
+					firstPage = normalizedPage;
+				}
+			}
+
+			return (firstPage === null) ? 0 : firstPage;
+		}
+
+		function applyInitialDisplaySimulatorPageSelection(displayConfiguration)
+		{
+			const configKey = String(currentDisplayConfigurationNo ?? '');
+			if (displaySimInitialPageSelectionConfigKey === configKey)
+			{
+				return;
+			}
+
+			const pages = getDisplayPopupPages(displayConfiguration);
+			const firstNonEmptyPage = getFirstNonEmptyDisplayPage(displayConfiguration);
+			displayPagePopupCurrentPage = pages.includes(firstNonEmptyPage) ? firstNonEmptyPage : pages[0];
+			displaySimInitialPageSelectionConfigKey = configKey;
 		}
 
 		function getDisplayPageSelectOptionsMarkup(displayConfiguration, selectedPage)
@@ -4949,6 +5318,17 @@ autoConfigElement.addEventListener('click', function (e)
 				return;
 			}
 
+			const setDisplayInlineDeleteButtonState = function (buttonElement, canDelete)
+			{
+				if (!buttonElement)
+				{
+					return;
+				}
+
+				buttonElement.disabled = !canDelete;
+				buttonElement.classList.toggle('display-inline-sim-action-hidden', !canDelete);
+			};
+
 			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
 			const displayMoveHandleTitle = escapeHtml(Homey.__("settings.displaySimMoveHandleTitle"));
 			const displayMoveHandleAria = escapeHtml(Homey.__("settings.displaySimMoveHandleAria"));
@@ -4964,14 +5344,8 @@ autoConfigElement.addEventListener('click', function (e)
 			if (!displayConfiguration || !Array.isArray(displayConfiguration.items))
 			{
 				surfaceElement.innerHTML = '';
-				if (displayInlineSimDeleteItemElement)
-				{
-					displayInlineSimDeleteItemElement.disabled = true;
-				}
-				if (displayInlineSimDeletePageElement)
-				{
-					displayInlineSimDeletePageElement.disabled = true;
-				}
+				setDisplayInlineDeleteButtonState(displayInlineSimDeleteItemElement, false);
+				setDisplayInlineDeleteButtonState(displayInlineSimDeletePageElement, false);
 				if (titleElement)
 				{
 					renderDisplayPageHeaderTitle(titleElement, 0, 1);
@@ -5137,16 +5511,11 @@ autoConfigElement.addEventListener('click', function (e)
 				nextElement.disabled = (pages.indexOf(displayPagePopupCurrentPage) >= pages.length - 1);
 			}
 
-			if (displayInlineSimDeleteItemElement)
-			{
-				const hasSelection = pageItems.some((entry) => !entry.isPageZeroOverlay && entry.itemNo === displayInlineSelectedItemNo);
-				displayInlineSimDeleteItemElement.disabled = !hasSelection;
-			}
+			const hasSelection = pageItems.some((entry) => !entry.isPageZeroOverlay && entry.itemNo === displayInlineSelectedItemNo);
+			setDisplayInlineDeleteButtonState(displayInlineSimDeleteItemElement, hasSelection);
 
-			if (displayInlineSimDeletePageElement)
-			{
-				displayInlineSimDeletePageElement.disabled = !(displayPagePopupCurrentPage > 0);
-			}
+			const canDeleteCurrentPage = (displayPagePopupCurrentPage > 0);
+			setDisplayInlineDeleteButtonState(displayInlineSimDeletePageElement, canDeleteCurrentPage);
 
 			if (updateScrollOffset)
 			{
@@ -6433,6 +6802,7 @@ autoConfigElement.addEventListener('click', function (e)
 			}
 
 			setupSvgPreviews(document);
+			applyInitialDisplaySimulatorPageSelection(displayConfiguration);
 			renderDisplayInlineSimulator();
 			refreshDisplayPopupLiveValues();
 		}
@@ -7242,6 +7612,7 @@ autoConfigElement.addEventListener('click', function (e)
 				? -1
 				: Math.min(deleteIndex, displayConfiguration.items.length - 2);
 			deleteItem(deleteIndex);
+			configDraftDirtySinceLoad = true;
 			flushConfigurationDraftPersist();
 		}
 
@@ -7342,6 +7713,7 @@ autoConfigElement.addEventListener('click', function (e)
 				displayInlineSelectedItemNo = displayConfiguration.items.length - 1;
 
 				drawDisplayConfiguration(displayConfiguration, itemId);
+				configDraftDirtySinceLoad = true;
 				flushConfigurationDraftPersist();
 			}
 		}
@@ -7380,6 +7752,7 @@ autoConfigElement.addEventListener('click', function (e)
 			displayPagePopupCurrentPage = insertedPage;
 			displayInlineSelectedItemNo = -1;
 			drawDisplayConfiguration(displayConfiguration);
+			configDraftDirtySinceLoad = true;
 			flushConfigurationDraftPersist();
 		}
 
@@ -7427,6 +7800,7 @@ autoConfigElement.addEventListener('click', function (e)
 			displayInlineSelectedItemNo = -1;
 
 			drawDisplayConfiguration(displayConfiguration);
+			configDraftDirtySinceLoad = true;
 			flushConfigurationDraftPersist();
 		}
 
@@ -8094,6 +8468,54 @@ autoConfigElement.addEventListener('click', function (e)
 			// if localButtonConfigurations is an array, then set numPage to the length of the array otherwise set numPage to 1
 			var numPages = buttonPanelConfiguration.length;
 
+			// Reset broker lists before repopulating to avoid duplicates after draft restore.
+			for (let page = 0; page < numPages; page++)
+			{
+				const leftBrokerIdElement = document.getElementById(`left${page}BrokerId`);
+				const rightBrokerIdElement = document.getElementById(`right${page}BrokerId`);
+
+				if (leftBrokerIdElement)
+				{
+					leftBrokerIdElement.length = 0;
+				}
+				if (rightBrokerIdElement)
+				{
+					rightBrokerIdElement.length = 0;
+				}
+			}
+
+			for (let k = 0; k < customMQTTItemsElements.length; k++)
+			{
+				if (customMQTTItemsElements[k])
+				{
+					customMQTTItemsElements[k].length = 0;
+				}
+			}
+
+			for (let k = 0; k < customDisplayMQTTItemsElements.length; k++)
+			{
+				if (customDisplayMQTTItemsElements[k])
+				{
+					customDisplayMQTTItemsElements[k].length = 0;
+				}
+			}
+
+			if (displayConfigurationsFetched)
+			{
+				const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+				if (displayConfiguration && Array.isArray(displayConfiguration.items))
+				{
+					for (let j = 0; j < displayConfiguration.items.length; j++)
+					{
+						const brokerIdElement = document.getElementById(`display${j}BrokerId`);
+						if (brokerIdElement)
+						{
+							brokerIdElement.length = 0;
+						}
+					}
+				}
+			}
+
 			for (let page = 0; page < numPages; page++)
 			{
 				const leftBrokerIdElement = document.getElementById(`left${page}BrokerId`);
@@ -8197,7 +8619,12 @@ autoConfigElement.addEventListener('click', function (e)
 			fillDefaultBrokerList();
 			Homey.get('defaultBroker', function (err, defaultBroker)
 			{
-				if (err) return Homey.alert(err);
+				if (err)
+				{
+					defaultBrokerFetched = true;
+					maybeHandleLoadedConfigurationDraft();
+					return Homey.alert(err);
+				}
 
 				const defaultBrokerToApply = (restoredDraftDefaultBroker !== null && restoredDraftDefaultBroker !== undefined)
 					? restoredDraftDefaultBroker
@@ -8211,6 +8638,9 @@ autoConfigElement.addEventListener('click', function (e)
 				{
 					defaultBrokerElement.value = defaultBrokerToApply;
 				}
+
+				defaultBrokerFetched = true;
+				maybeHandleLoadedConfigurationDraft();
 			});
 		}
 
@@ -8283,6 +8713,8 @@ autoConfigElement.addEventListener('click', function (e)
 				// Create and display the new page
 				writeButtonsections(buttonPanelConfiguration.length);
 				updateButtonPanelControls();
+				configDraftDirtySinceLoad = true;
+				flushConfigurationDraftPersist();
 				updateButtonMainDiagnostics('deleteButtonPage', { page });
 			});
 		}
@@ -8350,6 +8782,8 @@ autoConfigElement.addEventListener('click', function (e)
 				// Create and display the new page
 				writeButtonsections(buttonPanelConfiguration.length);
 				updateButtonPanelControls();
+				configDraftDirtySinceLoad = true;
+				flushConfigurationDraftPersist();
 				updateButtonMainDiagnostics('addButtonPage:click');
 				const newPageIndex = buttonPanelConfiguration.length - 1;
 
@@ -8472,6 +8906,8 @@ autoConfigElement.addEventListener('click', function (e)
 			// Redisplay the pages
 			writeButtonsections(buttonPanelConfiguration.length);
 			updateButtonPanelControls();
+			configDraftDirtySinceLoad = true;
+			flushConfigurationDraftPersist();
 			updateButtonMainDiagnostics('onButtonPageChange', { page, newPage });
 		}
 
@@ -8503,20 +8939,16 @@ autoConfigElement.addEventListener('click', function (e)
 								<div class="button-page-header">
 									<div class="button-page-label-group">
 										<div class="button-page-label-title">
-											<span class="homey-form-label">${Homey.__("settings.page")}</span>
-											<div class="tooltip"><i class="fi fi-rr-info"></i>
-												<span class="tooltiptext">${Homey.__("settings.buttonPageExplanation")}</span>
-											</div>
+											<div class="display-sim-title">${getButtonPageHeaderTitleMarkup(page, numPages)}</div>
 										</div>
-										<div class="button-main-page-nav">
-										<button class="homey-button-secondary-shadow button-sim-page-nav button-main-page-prev" type="button" onclick="stepButtonMainPage(-1); return false;" title="Previous page" aria-label="Previous page">&lt;</button>
-										<span class="button-main-page-indicator">${formatButtonPageLabel(page)} / ${Math.max(0, numPages - 1)}</span>
-										<button class="homey-button-secondary-shadow button-sim-page-nav button-main-page-next" type="button" onclick="stepButtonMainPage(1); return false;" title="Next page" aria-label="Next page">&gt;</button>
+										<div class="display-sim-title-group button-main-page-nav">
+											<button class="homey-button-secondary-shadow display-sim-page-nav button-main-page-prev" type="button" onclick="stepButtonMainPage(-1); return false;" title="Previous page" aria-label="Previous page">&lt;</button>
+											<button class="homey-button-secondary-shadow display-sim-page-nav button-main-page-next" type="button" onclick="stepButtonMainPage(1); return false;" title="Next page" aria-label="Next page">&gt;</button>
+											<button class="homey-button-secondary-shadow display-inline-sim-action-btn button-page-add-btn" type="button" data-action="add-page" title="Add page" aria-label="Add page"><i class="fi fi-rr-plus"></i></button>
 										</div>
 									</div>
 									<div class="button-page-header-actions">
-										${page !== 0 ? `<button class="homey-button-secondary-shadow button-page-delete-btn" id="deletePage${page}" type="button" data-action="delete-page" data-page="${page}" title="Delete page" aria-label="Delete page"><i class="fi fi-rr-trash"></i></button>` : ''}
-										<button class="homey-button-secondary-shadow button-page-add-btn" type="button" data-action="add-page" title="Add page" aria-label="Add page">+</button>
+										${page !== 0 ? `<button class="homey-button-secondary-shadow display-inline-sim-action-btn button-page-delete-btn" id="deletePage${page}" type="button" data-action="delete-page" data-page="${page}" title="Delete page" aria-label="Delete page"><i class="fi fi-rr-trash"></i></button>` : ''}
 									</div>
 								</div>
 								<div class="button-main-canvas">

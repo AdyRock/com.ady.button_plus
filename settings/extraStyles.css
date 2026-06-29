@@ -49,6 +49,8 @@
 	font-size: 13px;
 	font-weight: 400;
 	line-height: 1.35;
+	text-transform: none;
+	font-variant: normal;
 }
 
 /* Show the tooltip text when you mouse over the tooltip container */
@@ -116,6 +118,12 @@ details>summary span.icon {
 
 details[open] summary span.icon {
 	transform: rotate(180deg);
+}
+
+:root {
+	--header-control-size: 42px;
+	--header-control-symbol-size: 18px;
+	--header-next-add-gap-extra: 12px;
 }
 
 summary {
@@ -427,6 +435,36 @@ summary::-webkit-details-marker {
 			line-height: 1;
 			font-size: 13px;
 		}
+		.display-inline-sim-action-hidden {
+			display: none !important;
+		}
+		.display-inline-sim-header .display-sim-page-nav,
+		.display-inline-sim-header .display-inline-sim-action-btn,
+		.display-inline-sim-footer .display-inline-sim-action-btn,
+		.display-sim-header .display-sim-page-nav,
+		.display-sim-header .button-sim-close,
+		.button-page-header .display-sim-page-nav,
+		.button-page-header .display-inline-sim-action-btn,
+		.button-sim-header .button-sim-page-nav,
+		.button-sim-header .button-sim-close {
+			width: var(--header-control-size);
+			height: var(--header-control-size);
+			min-width: var(--header-control-size) !important;
+			min-height: var(--header-control-size) !important;
+			padding: 0 !important;
+			font-size: var(--header-control-symbol-size);
+			line-height: 1;
+		}
+		.display-inline-sim-header .display-inline-sim-action-btn i,
+		.display-inline-sim-footer .display-inline-sim-action-btn i,
+		.button-page-header .display-inline-sim-action-btn i {
+			font-size: var(--header-control-symbol-size);
+			line-height: 1;
+		}
+		.display-sim-header-controls-row .display-sim-title-group .display-inline-sim-action-btn,
+		.button-main-page-nav .button-page-add-btn {
+			margin-left: var(--header-next-add-gap-extra);
+		}
 		.display-inline-sim-status-row {
 			display: flex;
 			align-items: center;
@@ -447,6 +485,12 @@ summary::-webkit-details-marker {
 			align-items: center;
 			justify-content: space-between;
 			gap: 10px;
+		}
+		.display-inline-sim-footer-title-group {
+			display: inline-flex;
+			align-items: center;
+			gap: 10px;
+			min-width: 0;
 		}
 		.display-inline-sim-footer-bottom {
 			display: flex;
@@ -536,13 +580,13 @@ summary::-webkit-details-marker {
 			display: inline-flex;
 			align-items: center;
 			justify-content: center;
-			font-size: 16px;
+			font-size: var(--header-control-symbol-size);
 			font-weight: 700;
 			padding: 0 !important;
-			width: 28px;
-			height: 28px;
-			min-width: 28px !important;
-			min-height: 28px !important;
+			width: var(--header-control-size);
+			height: var(--header-control-size);
+			min-width: var(--header-control-size) !important;
+			min-height: var(--header-control-size) !important;
 			line-height: 1;
 		}
 		.button-sim-page-nav:disabled {
@@ -570,13 +614,13 @@ summary::-webkit-details-marker {
 			display: inline-flex;
 			align-items: center;
 			justify-content: center;
-			font-size: 16px;
+			font-size: var(--header-control-symbol-size);
 			font-weight: 600;
 			padding: 0 !important;
-			width: 28px;
-			height: 28px;
-			min-width: 28px !important;
-			min-height: 28px !important;
+			width: var(--header-control-size);
+			height: var(--header-control-size);
+			min-width: var(--header-control-size) !important;
+			min-height: var(--header-control-size) !important;
 			line-height: 1;
 			color: #f5f5f5;
 			border-color: #3a3a3a;
@@ -608,18 +652,11 @@ summary::-webkit-details-marker {
 			align-items: center;
 			gap: 6px;
 		}
-		.button-main-page-nav .button-sim-page-nav {
-			font-size: 18px;
-			width: 33px;
-			height: 33px;
-			min-width: 33px !important;
-			min-height: 33px !important;
-		}
 
 		.button-page-header-actions {
 			display: inline-flex;
-			align-items: flex-end;
-			gap: 10px;
+			align-items: center;
+			gap: 6px;
 			flex: 0 0 auto;
 		}
 
@@ -628,12 +665,6 @@ summary::-webkit-details-marker {
 			align-items: center;
 			justify-content: center;
 			padding: 0 !important;
-			width: 42px;
-			height: 42px;
-			min-width: 42px !important;
-			min-height: 42px !important;
-			font-size: 22px;
-			font-weight: 700;
 			line-height: 1;
 		}
 
@@ -642,14 +673,9 @@ summary::-webkit-details-marker {
 			align-items: center;
 			justify-content: center;
 			padding: 0 !important;
-			width: 42px;
-			height: 42px;
-			min-width: 42px !important;
-			min-height: 42px !important;
 		}
 
 		.button-page-delete-btn i {
-			font-size: 18px;
 			line-height: 1;
 		}
 
@@ -976,6 +1002,17 @@ summary::-webkit-details-marker {
 			z-index: 0;
 		}
 
+		.button-sim-top-hit-area {
+			position: absolute;
+			left: 50%;
+			transform: translateX(-50%);
+			top: calc((var(--button-sim-display-height) - var(--button-sim-display-inner-height)) / 2);
+			width: var(--button-sim-display-inner-width);
+			height: calc(var(--button-sim-top-label-offset) + 18px);
+			z-index: 2;
+			background: transparent;
+		}
+
 		@media (hover: none), (pointer: coarse) {
 			.button-sim-content::before {
 				background: #222222;
@@ -1013,7 +1050,7 @@ summary::-webkit-details-marker {
 			}
 		}
 
-		.button-sim-content > * {
+		.button-sim-content > *:not(.button-sim-top-hit-area) {
 			position: relative;
 			z-index: 1;
 		}
@@ -1170,12 +1207,12 @@ summary::-webkit-details-marker {
 			display: inline-flex;
 			align-items: center;
 			justify-content: center;
-			font-size: var(--homey-font-size-small);
+			font-size: var(--header-control-symbol-size);
 			padding: 0 !important;
-			width: 24px;
-			height: 24px;
-			min-width: 24px !important;
-			min-height: 24px !important;
+			width: var(--header-control-size);
+			height: var(--header-control-size);
+			min-width: var(--header-control-size) !important;
+			min-height: var(--header-control-size) !important;
 			line-height: 1;
 		}
 		.display-sim-page-nav:disabled {
@@ -1579,6 +1616,12 @@ summary::-webkit-details-marker {
 			font-size: 13px;
 			font-weight: 600;
 			color: #3d4d62;
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+		}
+		.button-field-popup-label .tooltip {
+			line-height: 1;
 		}
 
 		.button-field-popup-device-row {
