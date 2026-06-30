@@ -6513,7 +6513,7 @@ autoConfigElement.addEventListener('click', function (e)
 
 					// Restore the previous capability selection
 					capabilityElement.value = selectedCapability;
-					capabilityChanged(side, page, selectedCapability);
+					capabilityChanged(side, page, capabilityElement.value);
 					updateButtonCapabilityIndicator(side, page);
 					hidePopupManagedFieldsForSection(side, page);
 					return;
@@ -6528,22 +6528,45 @@ autoConfigElement.addEventListener('click', function (e)
 				if (capabilities)
 				{
 					const isPanelButtonCapability = (capabilityId) => /^(left|right)_button\.connector\d+$/.test(capabilityId || "");
+					const blockedButtonPlusCapabilities = new Set([
+						'previous_page_button',
+						'next_page_button',
+						'button.update_firmware',
+						'button.apply_config',
+						'button.app_config',
+					]);
 
 					// Add each of the capabilities to the item drop list
 					const capabilitiesArray = Object.values(capabilities);
+					const isButtonPlusDevice = capabilitiesArray.some((capability) =>
+					{
+						const capabilityId = String(capability && capability.id ? capability.id : "");
+						return blockedButtonPlusCapabilities.has(capabilityId)
+							|| isPanelButtonCapability(capabilityId)
+							|| /^configuration_button\.connector\d+$/.test(capabilityId)
+							|| capabilityId === 'configuration_display';
+					});
+
+					const addedCapabilityIds = new Set();
 					for (const capability of capabilitiesArray)
 					{
-						if ((capability.type === "boolean" || capability.id === "dim" || capability.id === "windowcoverings_state") && !isPanelButtonCapability(capability.id))
+						const capabilityId = String(capability.id || "");
+						const isSupportedType = (capability.type === "boolean" || capabilityId === "dim" || capabilityId === "windowcoverings_state");
+						const isBlockedButtonPlusCapability = isPanelButtonCapability(capabilityId) || blockedButtonPlusCapabilities.has(capabilityId);
+						const isAllowedForButtonPlus = !isButtonPlusDevice || capabilityId === 'dim';
+
+						if (isSupportedType && !isBlockedButtonPlusCapability && isAllowedForButtonPlus && !addedCapabilityIds.has(capabilityId))
 						{
 							var option = document.createElement("option");
-							option.text = `${capability.title} (${capability.id})`;
-							option.value = capability.id;
+							option.text = `${capability.title} (${capabilityId})`;
+							option.value = capabilityId;
 							const capabilityIconUrl = getCapabilityIconUrl(capability);
 							if (capabilityIconUrl)
 							{
 								option.dataset.iconUrl = capabilityIconUrl;
 							}
 							capabilityElement.add(option);
+							addedCapabilityIds.add(capabilityId);
 						}
 					}
 
@@ -6552,8 +6575,15 @@ autoConfigElement.addEventListener('click', function (e)
 					document.getElementById(`${side}${page}BrokerIdDiv`).style.display = itemDisplyType;
 					document.getElementById(`${side}${page}CustomMQTTDiv`).style.display = "none";
 
-					// Restore the previous capability selection
-					capabilityElement.value = selectedCapability;
+					// Restore the previous capability selection where valid, otherwise fall back to the first allowed option.
+					if (Array.from(capabilityElement.options).some((option) => option.value === selectedCapability))
+					{
+						capabilityElement.value = selectedCapability;
+					}
+					else if (capabilityElement.options.length > 0)
+					{
+						capabilityElement.value = capabilityElement.options[0].value;
+					}
 					capabilityChanged(side, page, selectedCapability);
 					updateButtonCapabilityIndicator(side, page);
 					hidePopupManagedFieldsForSection(side, page);

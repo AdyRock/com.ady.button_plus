@@ -1721,6 +1721,13 @@ class PanelDevice extends Device
 		return /^(left|right)_button\.connector\d+$/.test(capabilityName || '');
 	}
 
+	isButtonPlusTargetDevice(device)
+	{
+		const driverId = String((device && (device.driverId || device.driverUri)) || '');
+		return driverId === 'homey:app:com.ady.button_plus:panel_hardware'
+			|| /com\.ady\.button_plus:panel_hardware$/.test(driverId);
+	}
+
 	getHomeyDeviceId(device)
 	{
 		return (device && (device.id || device.__id)) || null;
@@ -1974,6 +1981,16 @@ class PanelDevice extends Device
 					try
 					{
 						const targetDeviceId = this.getHomeyDeviceId(device);
+						if (this.isButtonPlusTargetDevice(device) && config.capabilityName !== 'dim')
+						{
+							this.homey.app.updateLog(`Blocked unsupported Button+ target capability for ${targetDeviceId || config.deviceID}/${config.capabilityName}; only dim is allowed`, 0);
+							if (parameters.fromButton)
+							{
+								setImmediate(() => this.safeTriggerCapabilityListener(parameters.buttonCapability, false));
+							}
+							return;
+						}
+
 						if (this.isPanelButtonCapability(config.capabilityName))
 						{
 							this.homey.app.updateLog(`Blocked recursive button target mapping for ${targetDeviceId || config.deviceID}/${config.capabilityName}`, 0);

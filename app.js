@@ -49,6 +49,7 @@ class MyApp extends Homey.App
 		this.displayRegistrationPendingKeys = new Set();
 		this.displayRegistrationSummarySignature = null;
 		this.displayRegistrationRecheckTimer = null;
+		this.sanitizingButtonConfigurations = false;
 		this.dataSent = new Map();
 		this.dateTimer = null;
 		this.diagLog = '';
@@ -304,6 +305,7 @@ class MyApp extends Homey.App
 
 		this.updateLog('Register DeviceManager');
 		await this.deviceManager.register();
+		await this.sanitizeStoredButtonConfigurations('startup');
 
 		//        this.getHomeyDevices({});
 		this.deviceDispather = new DeviceDispatcher(this);
@@ -323,6 +325,12 @@ class MyApp extends Homey.App
 			if ((setting === 'buttonConfigurations') || (setting === 'defaultBroker'))
 			{
 				this.buttonConfigurations = this.homey.settings.get('buttonConfigurations');
+
+				if ((setting === 'buttonConfigurations') && !this.sanitizingButtonConfigurations)
+				{
+					await this.sanitizeStoredButtonConfigurations('settings-change');
+					this.buttonConfigurations = this.homey.settings.get('buttonConfigurations');
+				}
 			}
 			if ((setting === 'displayConfigurations') || (setting === 'defaultBroker'))
 			{
@@ -1062,6 +1070,102 @@ class MyApp extends Homey.App
 			this.displayConfigurations.push(displayConfiguration);
 		}
 		this.homey.settings.set('displayConfigurations', this.displayConfigurations);
+	}
+
+	isButtonPlusDriverId(driverId)
+	{
+		const normalizedDriverId = String(driverId || '');
+		return normalizedDriverId === 'homey:app:com.ady.button_plus:panel_hardware'
+			|| /com\.ady\.button_plus:panel_hardware$/.test(normalizedDriverId);
+	}
+
+	async isButtonPlusDeviceId(deviceId, cache)
+	{
+		if (!deviceId)
+		{
+			return false;
+		}
+
+		if (cache.has(deviceId))
+		{
+			return cache.get(deviceId);
+		}
+
+		const device = await this.getHomeyDeviceById(deviceId);
+		const isButtonPlus = this.isButtonPlusDriverId(device?.driverId || device?.driverUri);
+		cache.set(deviceId, isButtonPlus);
+		return isButtonPlus;
+	}
+
+	async sanitizeStoredButtonConfigurations(source = 'unknown')
+	{
+		if (this.sanitizingButtonConfigurations)
+		{
+			return false;
+		}
+
+		const buttonConfigurations = this.homey.settings.get('buttonConfigurations');
+		if (!Array.isArray(buttonConfigurations))
+		{
+			return false;
+		}
+
+		let changed = false;
+		const buttonPlusDeviceCache = new Map();
+
+		for (let configNo = 0; configNo < buttonConfigurations.length; configNo++)
+		{
+			const configPages = Array.isArray(buttonConfigurations[configNo]) ? buttonConfigurations[configNo] : [buttonConfigurations[configNo]];
+			buttonConfigurations[configNo] = configPages;
+
+			for (let pageNo = 0; pageNo < configPages.length; pageNo++)
+			{
+				const pageConfig = configPages[pageNo];
+				if (!pageConfig || typeof pageConfig !== 'object')
+				{
+					continue;
+				}
+
+				for (const side of ['left', 'right'])
+				{
+					const deviceKey = `${side}Device`;
+					const capabilityKey = `${side}Capability`;
+					const capabilityNameKey = `${side}CapabilityName`;
+					const targetDeviceId = pageConfig[deviceKey];
+					const targetCapability = String(pageConfig[capabilityKey] || '');
+
+					if (!targetDeviceId || targetDeviceId === 'none' || targetDeviceId === '_variable_' || targetDeviceId === 'customMQTT')
+					{
+						continue;
+					}
+
+					const isButtonPlusTarget = await this.isButtonPlusDeviceId(targetDeviceId, buttonPlusDeviceCache);
+					if (isButtonPlusTarget && targetCapability !== 'dim')
+					{
+						pageConfig[capabilityKey] = 'dim';
+						pageConfig[capabilityNameKey] = 'Dim (dim)';
+						changed = true;
+						this.updateLog(`Sanitized Button+ target capability in config ${configNo}, page ${pageNo}, side ${side}: ${targetCapability} -> dim (${source})`, 0);
+					}
+				}
+			}
+		}
+
+		if (changed)
+		{
+			this.sanitizingButtonConfigurations = true;
+			try
+			{
+				this.homey.settings.set('buttonConfigurations', buttonConfigurations);
+				this.buttonConfigurations = buttonConfigurations;
+			}
+			finally
+			{
+				this.sanitizingButtonConfigurations = false;
+			}
+		}
+
+		return changed;
 	}
 
 	async uploadDisplayConfiguration(ip, configurationNo, firmwareVersion, ButtonDevice)
