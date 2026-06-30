@@ -135,6 +135,17 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 			}
 		}
 
+		function getSafeDefaultBrokerValue()
+		{
+			if (!defaultBrokerElement || typeof defaultBrokerElement.value !== 'string')
+			{
+				return 'homey';
+			}
+
+			const selectedBroker = defaultBrokerElement.value.trim();
+			return selectedBroker || 'homey';
+		}
+
 		function syncBrokerSettingsToLocalWithoutValidation()
 		{
 			if (!Array.isArray(localBrokerItems))
@@ -268,7 +279,7 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 				buttonConfigurations: deepCloneData(localButtonConfigurations) || [],
 				displayConfigurations: deepCloneData(localDisplayConfigurations) || [],
 				brokerConfigurationItems: deepCloneData(localBrokerItems) || [],
-				defaultBroker: defaultBrokerElement ? defaultBrokerElement.value : 'homey',
+				defaultBroker: getSafeDefaultBrokerValue(),
 				currentButtonConfigurationNo: parseInt(buttonConfigurationNoElement?.value, 10) || 0,
 				currentDisplayConfigurationNo: parseInt(displayConfigurationNoElement?.value, 10) || 0,
 				configType: configTypeElement ? configTypeElement.value : 'panelConfig',
@@ -290,7 +301,7 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 				: localBrokerItems;
 			const defaultBroker = (draftSource.defaultBroker !== undefined)
 				? draftSource.defaultBroker
-				: (defaultBrokerElement ? defaultBrokerElement.value : 'homey');
+				: getSafeDefaultBrokerValue();
 
 			return {
 				buttonConfigurations: deepCloneData(buttonConfigurations) || [],
@@ -303,6 +314,12 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 		function getComparableDraftSignature(source)
 		{
 			return JSON.stringify(buildComparableDraftPayload(source));
+		}
+
+		function clearDraftSetting(settingKey)
+		{
+			// Some Homey runtimes reject null as a missing value parameter.
+			return Homey.set(settingKey, '');
 		}
 
 		function persistConfigurationDraftNow()
@@ -330,7 +347,7 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 			{
 				configDraftDismissedSignature = null;
 				configDraftDismissedAt = 0;
-				Homey.set(CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY, null);
+				clearDraftSetting(CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY);
 			}
 
 			Homey.set(CONFIG_DRAFT_STORAGE_KEY, snapshot);
@@ -487,7 +504,7 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 				configDraftLoadedData = null;
 				configDraftDirtySinceLoad = false;
 				configDraftLastSnapshotSignature = null;
-				Homey.set(CONFIG_DRAFT_STORAGE_KEY, null);
+				clearDraftSetting(CONFIG_DRAFT_STORAGE_KEY);
 				enableConfigurationDraftAutoSave();
 				return;
 			}
@@ -496,14 +513,14 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 				buttonConfigurations: localButtonConfigurations,
 				displayConfigurations: localDisplayConfigurations,
 				brokerConfigurationItems: localBrokerItems,
-				defaultBroker: defaultBrokerElement ? defaultBrokerElement.value : 'homey',
+				defaultBroker: getSafeDefaultBrokerValue(),
 			});
 			if (loadedDraftSignature === currentSettingsSignature)
 			{
 				configDraftLoadedData = null;
 				configDraftDirtySinceLoad = false;
 				configDraftLastSnapshotSignature = currentSettingsSignature;
-				Homey.set(CONFIG_DRAFT_STORAGE_KEY, null);
+				clearDraftSetting(CONFIG_DRAFT_STORAGE_KEY);
 				enableConfigurationDraftAutoSave();
 				return;
 			}
@@ -516,7 +533,7 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 					configDraftLastSnapshotSignature = getComparableDraftSignature(configDraftLoadedData);
 					configDraftDismissedSignature = null;
 					configDraftDismissedAt = 0;
-					Homey.set(CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY, null);
+					clearDraftSetting(CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY);
 					configDraftDirtySinceLoad = false;
 					// Homey.alert(Homey.__("settings.unsavedSettingsRestored"));
 				}
@@ -535,7 +552,7 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 					configDraftLoadedData = null;
 					configDraftDirtySinceLoad = false;
 					configDraftLastSnapshotSignature = null;
-					Homey.set(CONFIG_DRAFT_STORAGE_KEY, null);
+					clearDraftSetting(CONFIG_DRAFT_STORAGE_KEY);
 				}
 
 				enableConfigurationDraftAutoSave();
@@ -1508,7 +1525,7 @@ autoConfigElement.addEventListener('click', function (e)
 						}
 
 						await Homey.set('brokerConfigurationItems', localBrokerItems);
-						await Homey.set('defaultBroker', defaultBrokerElement.value);
+						await Homey.set('defaultBroker', getSafeDefaultBrokerValue());
 
 						// Store the current button configuration
 						var buttonPanelConfigurationNo = buttonConfigurationNoElement.value;
@@ -1526,8 +1543,8 @@ autoConfigElement.addEventListener('click', function (e)
 						//Copy the values from the controls to the displayConfiguration
 						storeDisplaySettings();
 						await Homey.set('displayConfigurations', localDisplayConfigurations);
-						await Homey.set(CONFIG_DRAFT_STORAGE_KEY, null);
-						await Homey.set(CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY, null);
+						await clearDraftSetting(CONFIG_DRAFT_STORAGE_KEY);
+						await clearDraftSetting(CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY);
 						configDraftDismissedSignature = null;
 						configDraftDismissedAt = 0;
 						configDraftLastSnapshotSignature = null;

@@ -304,5 +304,8 @@
 	},
 	"0.7.35": {
 		"en": "Changed to simulator driven setup.."
+	},
+	"0.7.36": {
+		"en": "Extra checks for missing parameters."
 	}
 }
