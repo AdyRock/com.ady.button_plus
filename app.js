@@ -2627,11 +2627,23 @@ class MyApp extends Homey.App
 		this.homey.api.realtime('com.ady.button_plus.logupdated', { log: this.diagLog });
 	}
 
-	// Send the log to the developer (not applicable to Homey cloud)
-	async sendLog({ email = '', description = '' })
+	// Send support data to the developer (not applicable to Homey cloud)
+	async sendLog({ email = '', description = '', content = '', contentType = 'diagnosticLog', subject = '' } = {})
 	{
 		let tries = 5;
 		let error = null;
+		const normalizedContent = (typeof content === 'string' && content.length > 0) ? content : this.diagLog;
+		const normalizedType = (typeof contentType === 'string' && contentType.length > 0) ? contentType : 'diagnosticLog';
+		const normalizedSubject = (typeof subject === 'string' && subject.trim().length > 0)
+			? subject.trim()
+			: `Button + ${normalizedType} (${Homey.manifest.version})`;
+		const messageLines = [
+			`Type: ${normalizedType}`,
+			`Contact: ${email || 'Not provided'}`,
+			`Description: ${description || 'Not provided'}`,
+			'',
+			normalizedContent,
+		];
 		while (tries-- > 0)
 		{
 			try
@@ -2661,8 +2673,8 @@ class MyApp extends Homey.App
 					{
 						from: `"Homey User" <${Homey.env.MAIL_USER}>`, // sender address
 						to: Homey.env.MAIL_RECIPIENT, // list of receivers
-						subject: `Button + log (${Homey.manifest.version})`, // Subject line
-						text: `${email}\n${description}\n\n${this.diagLog}`, // plain text body
+						subject: normalizedSubject, // Subject line
+						text: messageLines.join('\n'), // plain text body
 					},
 				);
 

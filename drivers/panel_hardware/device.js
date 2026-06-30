@@ -20,6 +20,7 @@ class PanelDevice extends Device
 		this.initFinished = false;
 		this.longPressOccurred = new Map();
 		this.buttonValues = new Map();
+		this.capabilityDispatchInFlight = new Set();
 		this.barConfigured = [false, false, false, false, false, false, false, false];
 		this.page = 1;
 
@@ -1312,7 +1313,7 @@ class PanelDevice extends Device
 			this.numPages = 0;
 			await this.updateStatusBar(deviceConfigurations);
 			await this.uploadCoreConfiguration(deviceConfigurations);
-			({ mqttQue } = await this.uploadAllButtonConfigurations(deviceConfigurations))
+			({ mqttQue } = await this.uploadAllButtonConfigurations(deviceConfigurations) || { mqttQue: [] })
 			await this.uploadDisplayConfigurations(deviceConfigurations);
 			await this.uploadBrokerConfigurations(deviceConfigurations);
 			await this.uploadPanelSensorConfiguration(deviceConfigurations);
@@ -1591,7 +1592,7 @@ class PanelDevice extends Device
 
 				if (checkSEMVerGreaterOrEqual(this.firmwareVersion, '2.0.0'))
 				{
-					({ mqttQue, delay } = await this.uploadAllButtonConfigurations(null, connector, value));
+					({ mqttQue, delay } = await this.uploadAllButtonConfigurations(null, connector, value) || { mqttQue: [], delay: 100 });
 				}
 				else
 				{
@@ -1713,6 +1714,39 @@ class PanelDevice extends Device
 		const connectorType = this.getSetting(`connect${parameters.connector}Type`);
 		parameters.configNo = connectorType === 2 ? null : this.getCapabilityValue(`configuration_button.connector${parameters.connector}`);
 		await this.processClickMessage(parameters);
+	}
+
+	isPanelButtonCapability(capabilityName)
+	{
+		return /^(left|right)_button\.connector\d+$/.test(capabilityName || '');
+	}
+
+	getHomeyDeviceId(device)
+	{
+		return (device && (device.id || device.__id)) || null;
+	}
+
+	async guardedSetCapabilityValueOnDevice(device, capabilityName, value, sourceLabel)
+	{
+		const targetDeviceId = this.getHomeyDeviceId(device) || 'unknown-device';
+		const key = `${targetDeviceId}::${capabilityName}`;
+
+		if (this.capabilityDispatchInFlight.has(key))
+		{
+			this.homey.app.updateLog(`Blocked recursive capability dispatch ${key} from ${sourceLabel}`, 0);
+			return false;
+		}
+
+		this.capabilityDispatchInFlight.add(key);
+		try
+		{
+			await device.setCapabilityValue(capabilityName, value);
+			return true;
+		}
+		finally
+		{
+			this.capabilityDispatchInFlight.delete(key);
+		}
 	}
 
 	async onCapabilityInfo(value, opts)
@@ -1939,6 +1973,17 @@ class PanelDevice extends Device
 				{
 					try
 					{
+						const targetDeviceId = this.getHomeyDeviceId(device);
+						if (this.isPanelButtonCapability(config.capabilityName))
+						{
+							this.homey.app.updateLog(`Blocked recursive button target mapping for ${targetDeviceId || config.deviceID}/${config.capabilityName}`, 0);
+							if (parameters.fromButton)
+							{
+								setImmediate(() => this.safeTriggerCapabilityListener(parameters.buttonCapability, false));
+							}
+							return;
+						}
+
 						if (config.capabilityName === 'dim')
 						{
 							// For dim cpaabilities we need to adjust the value by the amount in the dimChange field and not change the button state
@@ -1966,7 +2011,7 @@ class PanelDevice extends Device
 							}
 
 							// Set the dim capability value of the target device
-							device.setCapabilityValue(config.capabilityName, value).catch(this.error);
+							await this.guardedSetCapabilityValueOnDevice(device, config.capabilityName, value, 'processClickMessage:dim');
 							value *= 100;
 
 							if (parameters.fromButton && ((parameters.page === 0) || (this.page === parameters.page)))
@@ -1987,12 +2032,12 @@ class PanelDevice extends Device
 							if (value)
 							{
 								// Set the new state to up
-								await device.setCapabilityValue(config.capabilityName, 'up');
+								await this.guardedSetCapabilityValueOnDevice(device, config.capabilityName, 'up', 'processClickMessage:windowcoverings_state');
 							}
 							else
 							{
 								// Set the new state to down
-								await device.setCapabilityValue(config.capabilityName, 'down');
+								await this.guardedSetCapabilityValueOnDevice(device, config.capabilityName, 'down', 'processClickMessage:windowcoverings_state');
 							}
 						}
 						else
@@ -2005,7 +2050,7 @@ class PanelDevice extends Device
 							}
 							const currentCapabilityValue = cachedButtonValue !== undefined ? cachedButtonValue : (capability && capability.value !== undefined ? capability.value : false);
 							value = parameters.fromButton ? parameters.value : !Boolean(currentCapabilityValue);
-							await device.setCapabilityValue(config.capabilityName, value);
+							await this.guardedSetCapabilityValueOnDevice(device, config.capabilityName, value, 'processClickMessage:boolean');
 
 							// Don't trigger the button change Flow as the other device will do this
 							triggerChange = false;
@@ -2337,7 +2382,8 @@ class PanelDevice extends Device
 				if (error)
 				{
 					this.homey.app.updateLog(this.homey.app.varToString(error), 0);
-					return null;
+					this.setWarning(error.message || 'Error writing Button configuration');
+					return { mqttQue: [], delay };
 				}
 
 				if (checkSEMVerGreaterOrEqual(this.firmwareVersion, '2.0.0'))

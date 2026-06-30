@@ -56,6 +56,16 @@
 		var displayFieldPopupBodyElement = document.getElementById('displayFieldPopupBody');
 		var displayFieldPopupCancelElement = document.getElementById('displayFieldPopupCancel');
 		var displayFieldPopupSaveElement = document.getElementById('displayFieldPopupSave');
+		var sendSupportPopupOverlayElement = document.getElementById('sendSupportPopupOverlay');
+		var sendSupportPopupTitleElement = document.getElementById('sendSupportPopupTitle');
+		var sendSupportPopupMessageElement = document.getElementById('sendSupportPopupMessage');
+		var sendSupportEmailElement = document.getElementById('sendSupportEmail');
+		var sendSupportDescriptionElement = document.getElementById('sendSupportDescription');
+		var sendSupportPopupCancelElement = document.getElementById('sendSupportPopupCancel');
+		var sendSupportPopupSendElement = document.getElementById('sendSupportPopupSend');
+		var sendSupportPopupResolver = null;
+		var sendSupportPopupContext = null;
+		var lastSupportEmailValue = '';
 		var configDraftRestoreOverlayElement = document.getElementById('configDraftRestoreOverlay');
 		var configDraftRestoreRetrieveElement = document.getElementById('configDraftRestoreRetrieve');
 		var configDraftRestoreDiscardElement = document.getElementById('configDraftRestoreDiscard');
@@ -623,6 +633,161 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 			});
 		}
 
+		function buildExportConfigurationText()
+		{
+			return JSON.stringify(
+				{
+					copySource: 'Export',
+					buttonConfigurations: localButtonConfigurations,
+					displayConfigurations: localDisplayConfigurations,
+					brokerItems: localBrokerItems,
+				}, null, 2);
+		}
+
+		function closeSendSupportPopup(result = null)
+		{
+			if (!sendSupportPopupResolver)
+			{
+				return;
+			}
+
+			const resolver = sendSupportPopupResolver;
+			sendSupportPopupResolver = null;
+
+			if (sendSupportPopupOverlayElement)
+			{
+				sendSupportPopupOverlayElement.classList.remove('visible');
+				sendSupportPopupOverlayElement.setAttribute('aria-hidden', 'true');
+			}
+
+			document.removeEventListener('keydown', handleSendSupportPopupKeydown);
+			sendSupportPopupContext = null;
+			resolver(result);
+		}
+
+		function handleSendSupportPopupKeydown(event)
+		{
+			if (!event || event.key !== 'Escape' || !sendSupportPopupResolver)
+			{
+				return;
+			}
+
+			event.preventDefault();
+			closeSendSupportPopup(null);
+		}
+
+		function submitSendSupportPopup()
+		{
+			if (!sendSupportPopupResolver || !sendSupportPopupContext)
+			{
+				return;
+			}
+
+			const email = sendSupportEmailElement ? sendSupportEmailElement.value.trim() : '';
+			const description = sendSupportDescriptionElement ? sendSupportDescriptionElement.value.trim() : '';
+
+			if (!description)
+			{
+				Homey.alert(Homey.__("settings.descriptionExplanation"));
+				if (sendSupportDescriptionElement)
+				{
+					sendSupportDescriptionElement.focus();
+				}
+				return;
+			}
+
+			lastSupportEmailValue = email;
+			closeSendSupportPopup({
+				email,
+				description,
+				content: sendSupportPopupContext.content,
+				contentType: sendSupportPopupContext.contentType,
+				subject: sendSupportPopupContext.subject,
+			});
+		}
+
+		function showSendSupportPopup(context)
+		{
+			if (!sendSupportPopupOverlayElement || !sendSupportPopupTitleElement || !sendSupportPopupMessageElement)
+			{
+				return Promise.resolve(null);
+			}
+
+			if (sendSupportPopupResolver)
+			{
+				closeSendSupportPopup(null);
+			}
+
+			sendSupportPopupContext = context || {};
+			sendSupportPopupTitleElement.textContent = sendSupportPopupContext.title || Homey.__("settings.sendSupportTitle");
+			sendSupportPopupMessageElement.textContent = sendSupportPopupContext.message || Homey.__("settings.sendSupportMessage");
+
+			if (sendSupportEmailElement)
+			{
+				sendSupportEmailElement.value = lastSupportEmailValue;
+			}
+			if (sendSupportDescriptionElement)
+			{
+				sendSupportDescriptionElement.value = '';
+			}
+
+			sendSupportPopupOverlayElement.classList.add('visible');
+			sendSupportPopupOverlayElement.setAttribute('aria-hidden', 'false');
+			document.addEventListener('keydown', handleSendSupportPopupKeydown);
+
+			setTimeout(() =>
+			{
+				if (sendSupportEmailElement)
+				{
+					sendSupportEmailElement.focus();
+				}
+			}, 0);
+
+			return new Promise((resolve) =>
+			{
+				sendSupportPopupResolver = resolve;
+			});
+		}
+
+		function sendSupportPayload(payload)
+		{
+			if (!payload)
+			{
+				return;
+			}
+
+			Homey.api('POST', '/sendlog/',
+				{
+					notify: true,
+					email: payload.email,
+					description: payload.description,
+					content: payload.content,
+					contentType: payload.contentType,
+					subject: payload.subject,
+				}, function (err, result)
+			{
+				if (err)
+				{
+					Homey.alert(err);
+				}
+				else
+				{
+					Homey.alert(result || Homey.__("settings.logSent"));
+				}
+			});
+		}
+
+		async function openSupportSendFlow(options)
+		{
+			const payload = await showSendSupportPopup(options);
+			if (!payload)
+			{
+				return;
+			}
+
+			sendSupportPayload(payload);
+		}
+
 		function startDisplayInlineLiveRefresh()
 		{
 			if (displayInlineLiveRefreshTimer)
@@ -1024,8 +1189,6 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 
 		var diagLogEnabledElement = document.getElementById('enableLog');
 		var diagLogElement = document.getElementById('diagLog');
-		var emailElement = document.getElementById('email');
-		var descriptionElement = document.getElementById('description');
 		var clearLogElement = document.getElementById('clearLog');
 		var sendLogElement = document.getElementById('sendLog');
 		var getListenersElement = document.getElementById('getListeners');
@@ -1033,6 +1196,7 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 		var copyTextElement = document.getElementById('copyText');
 		var importElement = document.getElementById('import');
 		var exportElement = document.getElementById('export');
+		var sendExportElement = document.getElementById('sendExport');
 
 		var itemDisplyType = "flex";
 		const MAX_SVG_FIELD_LENGTH = 3 * 1024;
@@ -1424,32 +1588,12 @@ autoConfigElement.addEventListener('click', function (e)
 
 			sendLogElement.addEventListener('click', function (e)
 			{
-				if (descriptionElement.value === '')
-				{
-					Homey.alert(Homey.__("settings.descriptionExplanation"));
-					return;
-				}
-				Homey.confirm(Homey.__("settings.sendLogConfirm"), null, function (e, ok)
-				{
-					if (ok)
-					{
-						Homey.api('POST', '/sendlog/',
-							{
-								notify: true,
-								email: emailElement.value,
-								description: descriptionElement.value,
-							}, function (err, result)
-						{
-							if (err)
-							{
-								Homey.alert(err);
-							}
-							else
-							{
-								Homey.alert(Homey.__("settings.logSent"));
-							}
-						});
-					}
+				openSupportSendFlow({
+					title: Homey.__("settings.sendLogPopupTitle"),
+					message: Homey.__("settings.sendLogPopupMessage"),
+					content: diagLogElement ? diagLogElement.value : '',
+					contentType: 'diagnosticLog',
+					subject: Homey.__("settings.sendLogMailSubject"),
 				});
 			});
 
@@ -1969,13 +2113,7 @@ autoConfigElement.addEventListener('click', function (e)
 				try
 				{
 					// Copy the current configurations to the clipboard in JSON format
-					const jsonString = JSON.stringify(
-						{
-							copySource: "Export",
-							buttonConfigurations: localButtonConfigurations,
-							displayConfigurations: localDisplayConfigurations,
-							brokerItems: localBrokerItems,
-						}, null, 2);
+					const jsonString = buildExportConfigurationText();
 
 					copyTextElement.value = jsonString;
 
@@ -1987,6 +2125,22 @@ autoConfigElement.addEventListener('click', function (e)
 					Homey.alert(Homey.__("settings.clipboardError", { error: err }));
 				}
 			});
+
+			if (sendExportElement)
+			{
+				sendExportElement.addEventListener('click', function ()
+				{
+					const exportText = buildExportConfigurationText();
+					copyTextElement.value = exportText;
+					openSupportSendFlow({
+						title: Homey.__("settings.sendExportPopupTitle"),
+						message: Homey.__("settings.sendExportPopupMessage"),
+						content: exportText,
+						contentType: 'exportConfiguration',
+						subject: Homey.__("settings.sendExportMailSubject"),
+					});
+				});
+			}
 
 			if (newDisplayItemButton)
 			{
@@ -2120,6 +2274,19 @@ autoConfigElement.addEventListener('click', function (e)
 			if (displayFieldPopupSaveElement)
 			{
 				displayFieldPopupSaveElement.addEventListener('click', saveDisplayFieldPopup);
+			}
+
+			if (sendSupportPopupCancelElement)
+			{
+				sendSupportPopupCancelElement.addEventListener('click', function ()
+				{
+					closeSendSupportPopup(null);
+				});
+			}
+
+			if (sendSupportPopupSendElement)
+			{
+				sendSupportPopupSendElement.addEventListener('click', submitSendSupportPopup);
 			}
 
 			if (configDraftRestoreRetrieveElement)
@@ -6360,11 +6527,13 @@ autoConfigElement.addEventListener('click', function (e)
 
 				if (capabilities)
 				{
+					const isPanelButtonCapability = (capabilityId) => /^(left|right)_button\.connector\d+$/.test(capabilityId || "");
+
 					// Add each of the capabilities to the item drop list
 					const capabilitiesArray = Object.values(capabilities);
 					for (const capability of capabilitiesArray)
 					{
-						if (capability.type === "boolean" || capability.id === "dim" || capability.id === "windowcoverings_state")
+						if ((capability.type === "boolean" || capability.id === "dim" || capability.id === "windowcoverings_state") && !isPanelButtonCapability(capability.id))
 						{
 							var option = document.createElement("option");
 							option.text = `${capability.title} (${capability.id})`;
@@ -6629,7 +6798,7 @@ autoConfigElement.addEventListener('click', function (e)
 					});
 
 					// Make the log text area fill the page
-					diagLogElement.style.width = (emailElement.offsetWidth) + 'px';
+					diagLogElement.style.width = '100%';
 					diagLogElement.style.height = (window.innerHeight - diagLogElement.offsetTop - 35) + 'px';
 				}
 				else if (configSelected === "importExport")

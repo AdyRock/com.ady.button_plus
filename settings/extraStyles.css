@@ -1735,6 +1735,26 @@ summary::-webkit-details-marker {
 			background: #fff;
 		}
 
+		.send-support-popup-dialog {
+			width: min(92vw, 520px);
+		}
+
+		.send-support-popup-body {
+			display: grid;
+			gap: 12px;
+		}
+
+		.send-support-popup-message {
+			margin: 0;
+			font-size: 14px;
+			line-height: 1.45;
+			color: #334155;
+		}
+
+		.send-support-popup-actions {
+			justify-content: flex-end;
+		}
+
 		.config-draft-popup-overlay {
 			z-index: 1400;
 		}

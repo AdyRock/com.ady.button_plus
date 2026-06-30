@@ -70,23 +70,6 @@
 						<span class="tooltiptext" data-i18n="settings.enableLLogExplanation"></span>
 					</div>
 				</label>
-				<div class="field row">
-					<label class="homey-form-label" for="email"><span data-i18n="settings.email"></span>
-						<div class="tooltip"><i class="fi fi-rr-info"></i>
-							<span class="tooltiptext" data-i18n="settings.emailExplanation"></span>
-						</div>
-					</label>
-					<input class="homey-form-input" id="email" type="text" placeholder="Email address"
-						title="Enter email address for support" />
-					<label class="homey-form-label" for="description"><span data-i18n="settings.description"></span>
-						<div class="tooltip"><i class="fi fi-rr-info"></i>
-							<span class="tooltiptext" data-i18n="settings.descriptionExplanation"></span>
-						</div>
-					</label>
-					<input class="homey-form-input" id="description" type="text" placeholder="Problem description"
-						title="Enter problem description" />
-					<p></p>
-				</div>
 				<p><button class="homey-button-secondary-shadow" id="clearLog" title="Clear log"><span
 							data-i18n="settings.clearLog"></span></button>
 					<button class="homey-button-secondary-shadow" id="sendLog" title="Send log"><span
@@ -304,6 +287,8 @@
 							data-i18n="settings.import"></span></button>
 					<button class="homey-button-secondary-shadow" id="export" title="Export configuration"><span
 							data-i18n="settings.export"></span></button>
+					<button class="homey-button-secondary-shadow" id="sendExport" title="Send export"><span
+							data-i18n="settings.sendExport"></span></button>
 				</div>
 			</div>
 		</div>
@@ -385,6 +370,39 @@
 			<div class="button-field-popup-actions">
 				<button class="homey-button-secondary-shadow" id="displayFieldPopupCancel">Cancel</button>
 				<button class="homey-button-secondary-shadow" id="displayFieldPopupSave">Save</button>
+			</div>
+		</div>
+	</div>
+
+	<div id="sendSupportPopupOverlay" class="button-field-popup-overlay send-support-popup-overlay" aria-hidden="true">
+		<div class="button-field-popup-dialog send-support-popup-dialog" role="dialog" aria-modal="true" aria-labelledby="sendSupportPopupTitle" aria-describedby="sendSupportPopupMessage">
+			<div class="button-field-popup-header">
+				<div class="button-field-popup-title" id="sendSupportPopupTitle">Send information to developer</div>
+			</div>
+			<div class="button-field-popup-body send-support-popup-body">
+				<p class="send-support-popup-message" id="sendSupportPopupMessage">If you continue, this information will be emailed to the developer.</p>
+				<div class="button-field-popup-field">
+					<label class="button-field-popup-label" for="sendSupportEmail"><span data-i18n="settings.email"></span>
+						<div class="tooltip"><i class="fi fi-rr-info"></i>
+							<span class="tooltiptext" data-i18n="settings.emailExplanation"></span>
+						</div>
+					</label>
+					<input class="homey-form-input" id="sendSupportEmail" type="text" placeholder="Email address"
+						title="Enter email address for support" />
+				</div>
+				<div class="button-field-popup-field">
+					<label class="button-field-popup-label" for="sendSupportDescription"><span data-i18n="settings.description"></span>
+						<div class="tooltip"><i class="fi fi-rr-info"></i>
+							<span class="tooltiptext" data-i18n="settings.descriptionExplanation"></span>
+						</div>
+					</label>
+					<input class="homey-form-input" id="sendSupportDescription" type="text" placeholder="Problem description"
+						title="Enter problem description" />
+				</div>
+			</div>
+			<div class="button-field-popup-actions send-support-popup-actions">
+				<button class="homey-button-secondary-shadow" id="sendSupportPopupCancel"><span data-i18n="settings.cancel"></span></button>
+				<button class="homey-button-secondary-shadow" id="sendSupportPopupSend"><span data-i18n="settings.send"></span></button>
 			</div>
 		</div>
 	</div>
