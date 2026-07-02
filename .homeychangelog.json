@@ -310,5 +310,8 @@
 	},
 	"0.7.37": {
 		"en": "Fix for the button configuration self linking that cancrash the app due to recursion."
+	},
+	"0.7.38": {
+		"en": "Add instructions to main configuration page."
 	}
 }

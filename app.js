@@ -39,7 +39,6 @@ class MyApp extends Homey.App
 	async onInit()
 	{
 		this.mqttServerReady = false;
-		this.autoConfigGateway = true;
 		this.capabilityListenerRetryTimers = new Map();
 		this.capabilityListenerHealthSignature = null;
 		this.lastMQTTData = new Map();
@@ -70,8 +69,6 @@ class MyApp extends Homey.App
 			this.updateLog(`Error getting homey IP: ${err.message}`, 0);
 			this.homeyIP = 'localhost'; // Fallback if initialization fails
 		}
-
-		this.homey.settings.set('autoConfig', this.autoConfigGateway);
 
 		this.brokerItems = this.homey.settings.get('brokerConfigurationItems');
 		if (!this.brokerItems)
@@ -1735,11 +1732,6 @@ class MyApp extends Homey.App
 
 	async writeDeviceConfiguration(ip, deviceConfiguration, firmwareVersion)
 	{
-		if (!this.autoConfigGateway)
-		{
-			return null;
-		}
-
 		this.updateLog(`writeDeviceConfiguration: ${this.varToString(deviceConfiguration)}`);
 
 		if (ip !== '')

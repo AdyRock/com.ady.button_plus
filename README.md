@@ -1,4 +1,4 @@
-# Button +
+﻿# Button +
 
 Control Button + panels
 
@@ -8,7 +8,6 @@ Control Button + panels
 
 1. Install the app on your Homey.
 2. Open the Button + App settings / Configuration page in Homey.
-3. Make sure the Allow update of Button+ configuration is ticked.
 
 There are two types of configurations, button bar and Display, and each currently has 20 slots.
 The button bar configurations are shown when the first drop list shows button bar Configurations and the Display configurations are shown by changing the drop list to Display Configurations.
@@ -60,4 +59,3 @@ The button bar configurations are shown when the first drop list shows button ba
 7. You can click on the buttons in the mini displays to toggle the capability in Homey.
 
 The app has a built n MQTT broker, so no setup will be required for that. However, it is possible to add one or more external MQTT brokers in the app settings page.
-

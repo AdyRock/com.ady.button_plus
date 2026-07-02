@@ -88,6 +88,36 @@
     /* Add a top margin to avoid content overlay */
 }
 
+.settings-main-note {
+	margin-top: 10px;
+}
+
+.settings-main-image-wrap {
+	margin-top: 10px;
+	display: flex;
+	justify-content: center;
+}
+
+.settings-main-image {
+	display: block;
+	max-width: 100%;
+	height: auto;
+	border-radius: 8px;
+	box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+}
+
+.settings-section-title {
+	font-size: 14px;
+	font-weight: 600;
+	color: #2f3b4c;
+	margin-bottom: 8px;
+}
+
+#settings > .homey-form-fieldset:first-of-type {
+	margin-top: -20px;
+	padding-top: 0;
+}
+
 #lastSentLog #sentip,
 #lastSentLog #sentLog,
 #lastSentLog .homey-form-textarea {

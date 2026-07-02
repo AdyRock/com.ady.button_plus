@@ -10,7 +10,6 @@
 		var variablesFetched = false;
 		var displayDevicesArray = [];
 		var displayDevicesFetched = false;
-		var autoConfigElement = document.getElementById('autoConfig');
 		var configTypeElement = document.getElementById('configType');
 		var saveButton = document.getElementById('save');
 		var saveBlock = document.getElementById('saveBlock');
@@ -1215,6 +1214,32 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 			return value;
 		}
 
+		function appendClientDiagnosticLog(message, level = 'INFO')
+		{
+			if (!diagLogElement)
+			{
+				return;
+			}
+
+			const timestamp = new Date().toISOString();
+			const normalizedLevel = (typeof level === 'string' && level) ? level.toUpperCase() : 'INFO';
+			const messageText = (typeof message === 'string')
+				? message
+				: (message && message.message ? message.message : JSON.stringify(message));
+
+			if (diagLogElement.value && !diagLogElement.value.endsWith('\n'))
+			{
+				diagLogElement.value += '\n';
+			}
+
+			diagLogElement.value += `* ${timestamp}\n[settings:${normalizedLevel}] ${messageText}\n`;
+
+			if (diagLogElement.value.length > 60000)
+			{
+				diagLogElement.value = diagLogElement.value.slice(-60000);
+			}
+		}
+
 		function isHomeyMobileAppRuntime()
 		{
 			const userAgent = (navigator && navigator.userAgent) ? navigator.userAgent.toLowerCase() : '';
@@ -1222,6 +1247,19 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 			const coarsePointer = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
 			const noHover = !!(window.matchMedia && window.matchMedia('(hover: none)').matches);
 			return isAndroidWebView && coarsePointer && noHover;
+		}
+
+		function adjustMainTopOffset()
+		{
+			const fixedTopElement = document.querySelector('.fixedTop');
+			const mainElement = document.querySelector('.main');
+			if (!fixedTopElement || !mainElement)
+			{
+				return;
+			}
+
+			const offset = Math.ceil(fixedTopElement.getBoundingClientRect().height) + 12;
+			mainElement.style.marginTop = `${Math.max(offset, 65)}px`;
 		}
 
 		function escapeHtml(value)
@@ -1412,6 +1450,8 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 			setupFilterableSelects();
 			document.body.classList.toggle('homey-mobile-app', isHomeyMobileAppRuntime());
 			applyDisplaySimulatorLocalization();
+			adjustMainTopOffset();
+			window.addEventListener('resize', adjustMainTopOffset);
 
 			Homey.get(CONFIG_DRAFT_STORAGE_KEY, function (err, loadedDraft)
 			{
@@ -1524,13 +1564,6 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 
 			getDevices();
 
-			Homey.get('autoConfig', function (err, autoConfig)
-			{
-				if (err) return Homey.alert(err);
-				autoConfigElement.checked = autoConfig;
-				autoConfigChanged();
-			});
-
 			Homey.get('brokerConfigurationItems', function (err, brokerItems)
 {
 if (err) return Homey.alert(err);
@@ -1549,12 +1582,6 @@ if (!Number.isNaN(parsedStatusBarPosition))
 displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition, 2));
 }
 });
-
-autoConfigElement.addEventListener('click', function (e)
-			{
-				Homey.set('autoConfig', autoConfigElement.checked);
-				autoConfigChanged();
-			});
 
 			diagLogEnabledElement.addEventListener('click', function (e)
 			{
@@ -1657,62 +1684,72 @@ autoConfigElement.addEventListener('click', function (e)
 
 			saveButton.addEventListener('click', async function (e)
 			{
-				if (autoConfigElement.checked)
+				try
 				{
-					try
+					trimmedSVGFieldCount = 0;
+
+					if (!storeBrokerSettings())
 					{
-						trimmedSVGFieldCount = 0;
-
-						if (!storeBrokerSettings())
-						{
-							return;
-						}
-
-						await Homey.set('brokerConfigurationItems', localBrokerItems);
-						await Homey.set('defaultBroker', getSafeDefaultBrokerValue());
-
-						// Store the current button configuration
-						var buttonPanelConfigurationNo = buttonConfigurationNoElement.value;
-						var ButtonPanelConfiguration = localButtonConfigurations[buttonPanelConfigurationNo];
-
-						if (!Array.isArray(ButtonPanelConfiguration) || ButtonPanelConfiguration.length === 0)
-						{
-							throw new Error('Invalid button configuration selected');
-						}
-
-						storeButtonSettings(ButtonPanelConfiguration);
-
-						await Homey.set('buttonConfigurations', localButtonConfigurations);
-
-						//Copy the values from the controls to the displayConfiguration
-						storeDisplaySettings();
-						await Homey.set('displayConfigurations', localDisplayConfigurations);
-						await clearDraftSetting(CONFIG_DRAFT_STORAGE_KEY);
-						await clearDraftSetting(CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY);
-						configDraftDismissedSignature = null;
-						configDraftDismissedAt = 0;
-						configDraftLastSnapshotSignature = null;
-						configDraftDirtySinceLoad = false;
-
-						Homey.api('POST', '/settings_changed/', {}, function (err, variables)
-						{
-							if (err) return Homey.alert(err);
-
-							if (trimmedSVGFieldCount > 0)
-							{
-								Homey.alert(`${Homey.__("settings.saved")}\n\nWarning: ${trimmedSVGFieldCount} SVG field(s) exceeded ${MAX_SVG_FIELD_LENGTH} characters and might be too big.`);
-							}
-							else
-							{
-								Homey.alert(Homey.__("settings.saved"));
-							}
-						});
-					}
-					catch (saveError)
-					{
-						Homey.alert(`Save failed: ${saveError && saveError.message ? saveError.message : saveError}`);
+						return;
 					}
 
+					await Homey.set('brokerConfigurationItems', localBrokerItems);
+					await Homey.set('defaultBroker', getSafeDefaultBrokerValue());
+
+					// Store the current button configuration
+					var buttonPanelConfigurationNo = buttonConfigurationNoElement.value;
+					var ButtonPanelConfiguration = localButtonConfigurations[buttonPanelConfigurationNo];
+
+					if (!Array.isArray(ButtonPanelConfiguration) || ButtonPanelConfiguration.length === 0)
+					{
+						throw new Error('Invalid button configuration selected');
+					}
+
+					storeButtonSettings(ButtonPanelConfiguration);
+
+					await Homey.set('buttonConfigurations', localButtonConfigurations);
+
+					//Copy the values from the controls to the displayConfiguration
+					storeDisplaySettings();
+					await Homey.set('displayConfigurations', localDisplayConfigurations);
+					await clearDraftSetting(CONFIG_DRAFT_STORAGE_KEY);
+					await clearDraftSetting(CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY);
+					configDraftDismissedSignature = null;
+					configDraftDismissedAt = 0;
+					configDraftLastSnapshotSignature = null;
+					configDraftDirtySinceLoad = false;
+
+					console.log('Save completed locally. Triggering device upload via /settings_changed/.');
+					appendClientDiagnosticLog('Local save completed. Triggering device upload via /settings_changed/.', 'INFO');
+					Homey.api('POST', '/settings_changed/', {}, function (err, variables)
+					{
+						if (err)
+						{
+							console.error('Device upload failed in /settings_changed/:', err);
+							appendClientDiagnosticLog(`Device upload failed in /settings_changed/: ${err && err.message ? err.message : err}`, 'ERROR');
+							return Homey.alert(err);
+						}
+
+						console.log('Device upload completed successfully via /settings_changed/.', variables || {});
+						appendClientDiagnosticLog('Device upload completed successfully via /settings_changed/.', 'INFO');
+
+						if (trimmedSVGFieldCount > 0)
+						{
+							Homey.alert(`${Homey.__("settings.saved")}\n\nWarning: ${trimmedSVGFieldCount} SVG field(s) exceeded ${MAX_SVG_FIELD_LENGTH} characters and might be too big.`);
+							appendClientDiagnosticLog(`Save completed with warning: ${trimmedSVGFieldCount} SVG field(s) exceeded ${MAX_SVG_FIELD_LENGTH} characters.`, 'WARN');
+						}
+						else
+						{
+							Homey.alert(Homey.__("settings.saved"));
+							appendClientDiagnosticLog('Save completed successfully.', 'INFO');
+						}
+					});
+				}
+				catch (saveError)
+				{
+					console.error('Save failed before /settings_changed/ was called:', saveError);
+					appendClientDiagnosticLog(`Save failed before /settings_changed/ was called: ${saveError && saveError.message ? saveError.message : saveError}`, 'ERROR');
+					Homey.alert(`Save failed: ${saveError && saveError.message ? saveError.message : saveError}`);
 				}
 			});
 
@@ -6738,33 +6775,6 @@ autoConfigElement.addEventListener('click', function (e)
 				document.getElementById(`${side}${page}DisableLongRepeat`).checked = !ButtonPanelConfiguration[`${side}DisableLongRepeat`];
 				document.getElementById(`${side}${page}OnSVG`).value = ButtonPanelConfiguration[`${side}OnSVG`] || '';
 				document.getElementById(`${side}${page}OffSVG`).value = ButtonPanelConfiguration[`${side}OffSVG`] || '';
-			}
-		}
-
-		function autoConfigChanged()
-		{
-			if (!autoConfigElement.checked)
-			{
-				configTypeChanged("");
-				document.getElementById('AutoConfigWarnOff').style.display = "block";
-				document.getElementById('AutoConfigWarnOn').style.display = "none";
-				saveBlock.style.display = "none";
-				configTypeElement.style.display = "none";
-			}
-			else
-			{
-				configTypeChanged(configTypeElement.value);
-				document.getElementById('AutoConfigWarnOff').style.display = "none";
-				document.getElementById('AutoConfigWarnOn').style.display = "block";
-				if (configTypeElement.value === "settings" || configTypeElement.value === "diagnosticLog")
-				{
-					saveBlock.style.display = "none";
-				}
-				else
-				{
-					saveBlock.style.display = "block";
-				}
-				configTypeElement.style.display = "block";
 			}
 		}
 

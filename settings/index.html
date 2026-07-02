@@ -32,17 +32,13 @@
 
 		<div id="settings" class="tabcontent">
 			<fieldset class="homey-form-fieldset">
-				<label class="homey-form-checkbox">
-					<input class="homey-form-checkbox-input" id="autoConfig" type="checkbox" value="auto"
-						title="Enable automatic configuration" />
-					<span class="homey-form-checkbox-checkmark"></span>
-					<span class="homey-form-checkbox-text"><span data-i18n="settings.autoConfig"></span></span>
-				</label>
-				<div id="AutoConfigWarnOff"><span data-i18n="settings.autoConfigWarning1"></span></div>
-				<div id="AutoConfigWarnOn"><span data-i18n="settings.autoConfigWarning2"></span></div>
+				<div class="settings-main-note"><strong data-i18n="settings.assignmentNoteTitle"></strong> <span
+						data-i18n="settings.assignmentNoteText"></span></div>
+				<div class="settings-main-image-wrap">
+					<img class="settings-main-image" src="DeviceSettings.gif" alt="Button+ device settings example" />
+				</div>
 			</fieldset>
 			<fieldset class="homey-form-fieldset">
-				<legend class="homey-form-legend"><span data-i18n="settings.webview"></span></legend>
 				<p></p>
 				<label class="homey-form-label no-margin-top" for="webviewip" title="Webview IP address"><span
 						data-i18n="settings.webviewip"></span>
@@ -201,6 +197,9 @@
 							<div class="display-sim-surface" id="displayInlineSimSurface"></div>
 							<div class="display-inline-sim-status-row">
 								<span class="display-sim-status-position-label" data-i18n="settings.displaySimStatusBar"></span>
+								<div class="tooltip" title="Status bar information"><i class="fi fi-rr-info"></i>
+									<span class="tooltiptext" data-i18n="settings.displaySimStatusBarHint"></span>
+								</div>
 								<select class="display-sim-status-position-select" id="displayInlineSimStatusBarPosition" aria-label="Inline status bar position">
 									<option value="0" data-i18n="settings.displaySimOff"></option>
 									<option value="1" data-i18n="settings.displaySimTop"></option>
@@ -333,6 +332,9 @@
 					</div>
 					<div class="display-sim-header-middle">
 						<span class="display-sim-status-position-label" data-i18n="settings.displaySimStatusBar"></span>
+						<div class="tooltip" title="Status bar information"><i class="fi fi-rr-info"></i>
+							<span class="tooltiptext" data-i18n="settings.displaySimStatusBarHint"></span>
+						</div>
 						<select class="display-sim-status-position-select" id="displayPagePopupStatusBarPosition" aria-label="Status bar position">
 							<option value="0" data-i18n="settings.displaySimOff"></option>
 							<option value="1" data-i18n="settings.displaySimTop"></option>
