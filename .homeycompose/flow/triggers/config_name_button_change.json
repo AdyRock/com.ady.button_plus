@@ -9,15 +9,24 @@
     },
 	"highlight": true,
     "tokens": [
-        {
-            "name": "state",
-            "type": "string",
-            "title": {
-                "en": "State",
-                "nl": "Status"
-            },
-            "example": "true"
-        },
+		{
+			"name": "state",
+			"type": "boolean",
+			"title": {
+				"en": "State",
+				"nl": "Status"
+			},
+			"example": "true"
+		},
+		{
+			"name": "value",
+			"type": "string",
+			"title": {
+				"en": "Value",
+				"nl": "Waarde"
+			},
+			"example": "0.1"
+		},
 		{
 			"name": "page",
 			"type": "number",

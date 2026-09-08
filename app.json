@@ -896,12 +896,21 @@
         "tokens": [
           {
             "name": "state",
-            "type": "string",
+            "type": "boolean",
             "title": {
               "en": "State",
               "nl": "Status"
             },
             "example": "true"
+          },
+          {
+            "name": "value",
+            "type": "string",
+            "title": {
+              "en": "Value",
+              "nl": "Waarde"
+            },
+            "example": "0.1"
           },
           {
             "name": "page",
@@ -1068,12 +1077,21 @@
         "tokens": [
           {
             "name": "state",
-            "type": "string",
+            "type": "boolean",
             "title": {
               "en": "State",
               "nl": "Status"
             },
             "example": "true"
+          },
+          {
+            "name": "value",
+            "type": "string",
+            "title": {
+              "en": "Value",
+              "nl": "Waarde"
+            },
+            "example": "0.1"
           },
           {
             "name": "page",

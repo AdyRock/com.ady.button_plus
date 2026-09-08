@@ -433,7 +433,7 @@ class MyApp extends Homey.App
 			});
 
 		// This flow is deprecated as it is replaced by the config_name_button_change flow
-		this.triggerConfigButtonChanged = this.homey.flow.getDeviceTriggerCard('config_button_change')
+		this._triggerConfigButtonChanged = this.homey.flow.getDeviceTriggerCard('config_button_change')
 			.registerRunListener((args, state) =>
 			{
 				const page = this.getFlowPageId(args.page);
@@ -444,16 +444,25 @@ class MyApp extends Homey.App
 				return this.getConfigurationPageOptions(query, args);
 			});
 
-		this.triggerConfigButtonNameChanged = this.homey.flow.getDeviceTriggerCard('config_name_button_change')
+		this._triggerConfigButtonNameChanged = this.homey.flow.getDeviceTriggerCard('config_name_button_change')
 			.registerRunListener((args, state) =>
 			{
 				const page = this.getFlowPageId(args.page);
 				return ((args.left_right === state.left_right) && (args.config.id === state.config) && (args.display_button === state.display_button) && (args.state === state.state) && ((page == null) || (page === -1) || (page === state.page)));
 			})
+			.registerArgumentAutocompleteListener('config', async (query, args) =>
+			{
+				// iterate over the config array and return the name and id
+				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config.name ? config.name : ''}`, id: index }));
+
+				// filter the results based on the search query
+				return results.filter((result) => (result.name.toLowerCase().includes(query.toLowerCase())));
+			})
 			.registerArgumentAutocompleteListener('page', async (query, args) =>
 			{
 				return this.getConfigurationPageOptions(query, args);
 			});
+
 
 		this._triggerButtonEvent = this.homey.flow.getDeviceTriggerCard('button_event')
 			.registerRunListener((args, state) =>
@@ -2967,29 +2976,29 @@ class MyApp extends Homey.App
 		return this;
 	}
 
-	triggerConfigButton(device, left_right, display_button, configID, button_state, value, page, repeatCount = 0)
+	triggerConfigButton(device, left_right, display_button, configID, trigger_state, button_state, value, page, repeatCount = 0)
 	{
-		const tokens = { state: value, page: page, repeatCount };
+		const tokens = { state: button_state, value, page, repeatCount };
 		const state = {
 			left_right,
 			display_button: ((display_button === 2) || (display_button === 3)) ? 'display' : 'button',
 			config: parseInt(configID, 10) + 1,
 			page,
-			state: button_state,
+			state: trigger_state,
 		};
-		this.triggerFlow(this.triggerConfigButtonChanged, device, tokens, state);
+		this.triggerFlow(this._triggerConfigButtonChanged, device, tokens, state);
 		state.config = parseInt(configID, 10);
-		this.triggerFlow(this.triggerConfigButtonNameChanged, device, tokens, state);
+		this.triggerFlow(this._triggerConfigButtonNameChanged, device, tokens, state);
 		return this;
 	}
 
-	triggerButtonEvent(device, left_right, connector, button_state, value, repeatCount = 0)
+	triggerButtonEvent(device, left_right, connector, trigger_state, button_state, value, repeatCount = 0)
 	{
-		const tokens = { value, repeatCount };
+		const tokens = { state: button_state, value, repeatCount };
 		const state = {
 			left_right,
 			connector,
-			state: button_state,
+			state: trigger_state,
 		};
 
 		this.triggerFlow(this._triggerButtonEvent, device, tokens, state);

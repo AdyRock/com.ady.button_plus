@@ -3680,24 +3680,24 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 						<span class="homey-form-checkbox-checkmark"></span>
 						<span class="homey-form-checkbox-text"><span>${ctrlLabels.longRepeat}</span></span>
 						<div class="tooltip"><i class="fi fi-rr-info"></i>
-							<span class="tooltiptext">${ctrlExplanations.longRepeat}</span>
+							<span class="tooltiptext">${normalizeTooltipHtml(ctrlExplanations.longRepeat)}</span>
 						</div>
 					</label>
 
 					<label class="homey-form-label" for="${side}${page}LongDelayMs"><span>${ctrlLabels.longDelayMs}</span>
-						<div class="tooltip"><i class="fi fi-rr-info"></i><span class="tooltiptext">${ctrlExplanations.longDelayMs}</span></div>
+						<div class="tooltip"><i class="fi fi-rr-info"></i><span class="tooltiptext">${normalizeTooltipHtml(ctrlExplanations.longDelayMs)}</span></div>
 					</label>
 					<input class="homey-form-input" id="${side}${page}LongDelayMs" type="number" min="0" max="10000" step="10" />
 
 					<label class="homey-form-label" for="${side}${page}LongRepeatMs"><span>${ctrlLabels.longRepeatMs}</span>
-						<div class="tooltip"><i class="fi fi-rr-info"></i><span class="tooltiptext">${ctrlExplanations.longRepeatMs}</span></div>
+						<div class="tooltip"><i class="fi fi-rr-info"></i><span class="tooltiptext">${normalizeTooltipHtml(ctrlExplanations.longRepeatMs)}</span></div>
 					</label>
 					<input class="homey-form-input" id="${side}${page}LongRepeatMs" type="number" min="50" max="10000" step="10" />
 
 					<div id="${side}${page}BrokerIdDiv" class="button-inline-broker-control">
 						<label class="homey-form-label" for="${side}${page}BrokerId"><span>${ctrlLabels.brokerId}</span>
 							<div class="tooltip"><i class="fi fi-rr-info"></i>
-								<span class="tooltiptext">${ctrlExplanations.brokerId}</span>
+								<span class="tooltiptext">${normalizeTooltipHtml(ctrlExplanations.brokerId)}</span>
 							</div>
 						</label>
 						<select class="homey-form-select" id="${side}${page}BrokerId">
@@ -3986,7 +3986,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			}
 
 			const totalPagesHint = escapeHtml(Homey.__("settings.displaySimTotalPagesHint"));
-			const sharedPageHeaderHint = escapeHtml(getSharedPageHeaderTooltipText());
+			const sharedPageHeaderHint = normalizeTooltipHtml(getSharedPageHeaderTooltipText());
 			const safeDisplayPageLabel = escapeHtml(displayPageLabel);
 			const safeCurrentPageLabel = escapeHtml(currentPageLabel);
 			titleElement.innerHTML = `${safeDisplayPageLabel}: ${safeCurrentPageLabel} / <span class="display-sim-total-pages">${nonDefaultPageCount}</span><span class="tooltip display-sim-total-pages-tooltip"><i class="fi fi-rr-info" aria-hidden="true"></i><span class="tooltiptext">${sharedPageHeaderHint}</span></span>`;
@@ -4028,7 +4028,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				return `${safeButtonPageLabel}: ${safeCurrentPageLabel}`;
 			}
 
-			const sharedPageHeaderHint = escapeHtml(getSharedPageHeaderTooltipText());
+			const sharedPageHeaderHint = normalizeTooltipHtml(getSharedPageHeaderTooltipText());
 			return `${safeButtonPageLabel}: ${safeCurrentPageLabel} / <span class="display-sim-total-pages">${nonDefaultPageCount}</span><span class="tooltip display-sim-total-pages-tooltip"><i class="fi fi-rr-info" aria-hidden="true"></i><span class="tooltiptext">${sharedPageHeaderHint}</span></span>`;
 		}
 
@@ -4561,6 +4561,19 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			buttonFieldPopupContext.customMQTTSectionPlaceholder = placeholderElement;
 		}
 
+		function normalizeTooltipHtml(value)
+		{
+			if (value === null || value === undefined)
+			{
+				return '';
+			}
+
+			return String(value)
+				.replace(/&lt;br\s*\/?&gt;/gi, '<br>')
+				.replace(/&lt;\/br\s*&gt;/gi, '<br>')
+				.replace(/<br\s*\/?>/gi, '<br>');
+		}
+
 		function getPopupFieldTooltipText(sourceLabelElement)
 		{
 			if (!sourceLabelElement)
@@ -4574,7 +4587,8 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				return '';
 			}
 
-			return (tooltipTextElement.innerHTML || '').trim();
+			const tooltipHtml = tooltipTextElement.innerHTML || tooltipTextElement.textContent || '';
+			return normalizeTooltipHtml(tooltipHtml).trim();
 		}
 
 		function getLocalizedTooltipText(localizationKey)
@@ -4631,7 +4645,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			const tooltipTextElement = document.createElement('span');
 			tooltipTextElement.className = 'tooltiptext';
 			// Tooltip strings use <br> for line breaks (like every other tooltip in this app), so render as HTML
-			tooltipTextElement.innerHTML = tooltipText;
+			tooltipTextElement.innerHTML = normalizeTooltipHtml(tooltipText);
 			tooltipElement.appendChild(tooltipTextElement);
 
 			labelElement.appendChild(tooltipElement);
@@ -7430,7 +7444,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 					}
 
 					page = item.page;
-					htmlText += `<div class="horizontalcontainer"><div class="horizontalgroup"><h2>${Homey.__("settings.page")} ${item.page === 0 ? Homey.__("settings.all") : item.page} <div class="tooltip"><i class="fi fi-rr-info"></i><span class="tooltiptext">${Homey.__("settings.pageExplanation")}</span></div></h2>`;
+					htmlText += `<div class="horizontalcontainer"><div class="horizontalgroup"><h2>${Homey.__("settings.page")} ${item.page === 0 ? Homey.__("settings.all") : item.page} <div class="tooltip"><i class="fi fi-rr-info"></i><span class="tooltiptext">${normalizeTooltipHtml(Homey.__("settings.pageExplanation"))}</span></div></h2>`;
 				}
 
 				htmlText += insertDisplayItemSection(item, itemNo, (item.itemId === expandItemId));
@@ -7622,14 +7636,14 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 
 						<label class="homey-form-label" for="display${Item}CustomMQTT${ItemNo}Id">${ctrlLabels.id}
 							<div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
-								<span class="tooltiptext">${ctrlLabels.idExplanation}</span>
+								<span class="tooltiptext">${normalizeTooltipHtml(ctrlLabels.idExplanation)}</span>
 							</div>
 						</label>
 						<input class="homey-form-input" id="display${Item}CustomMQTT${ItemNo}Id" type="text" value="${Topic.id}"/>
 
 						<label class="homey-form-label" for="display${Item}CustomMQTT${ItemNo}Type">${ctrlLabels.type}
 							<div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
-								<span class="tooltiptext">${ctrlLabels.typeExplanation}</span>
+								<span class="tooltiptext">${normalizeTooltipHtml(ctrlLabels.typeExplanation)}</span>
 							</div>
 						</label>
 						<select class="homey-form-select" id="display${Item}CustomMQTT${ItemNo}Type">
@@ -7640,21 +7654,21 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 
 						<label class="homey-form-label" for="display${Item}CustomMQTT${ItemNo}topic">${ctrlLabels.topic}
 							<div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
-								<span class="tooltiptext">${ctrlLabels.topicExplanation}</span>
+								<span class="tooltiptext">${normalizeTooltipHtml(ctrlLabels.topicExplanation)}</span>
 							</div>
 						</label>
 						<input class="homey-form-input" id="display${Item}CustomMQTT${ItemNo}topic" type="text" value="${Topic.topic}" />
 
 						<label class="homey-form-label" for="display${Item}CustomMQTT${ItemNo}payload">${ctrlLabels.payload}
 							<div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
-								<span class="tooltiptext">${ctrlLabels.payloadExplanation}</span>
+								<span class="tooltiptext">${normalizeTooltipHtml(ctrlLabels.payloadExplanation)}</span>
 							</div>
 						</label>
 						<input class="homey-form-input" id="display${Item}CustomMQTT${ItemNo}payload" type="text" value="${Topic.payload}" />
 
 						<label class="homey-form-label" for="display${Item}CustomMQTT${ItemNo}BrokerId">${ctrlLabels.brokerId}
 							<div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
-								<span class="tooltiptext">${ctrlLabels.brokerIdExplanation}</span>
+								<span class="tooltiptext">${normalizeTooltipHtml(ctrlLabels.brokerIdExplanation)}</span>
 							</div>
 						</label>
 						<select class="homey-form-select" id="display${Item}CustomMQTT${ItemNo}BrokerId">
@@ -7805,7 +7819,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 							<hr>
 							<label class="homey-form-label" for="display${itemNo}page">${ctrlLabels.page}
 								<div class="tooltip"><i class="fi fi-rr-info"></i>
-									<span class="tooltiptext">${ctrlExplanations.page}</span>
+									<span class="tooltiptext">${normalizeTooltipHtml(ctrlExplanations.page)}</span>
 								</div>
 							</label>
 							<select class="homey-form-select" id="display${itemNo}page" onChange="redisplayDisplyConfig(${itemNo})">
@@ -7813,7 +7827,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 							</select>
 							<label class="homey-form-label" for="display${itemNo}Device">${ctrlLabels.device}
 								<div class="tooltip"><i class="fi fi-rr-info"></i>
-									<span class="tooltiptext">${ctrlExplanations.device}</span>
+									<span class="tooltiptext">${normalizeTooltipHtml(ctrlExplanations.device)}</span>
 								</div>
 							</label>
 							<select class="homey-form-select" id="display${itemNo}Device" onChange="getDisplayCapabilities(${itemNo})">
@@ -7822,7 +7836,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 								<br>
 								<label class="homey-form-label" for="display${itemNo}Capability">${ctrlLabels.capability}
 									<div class="tooltip"><i class="fi fi-rr-info"></i>
-										<span class="tooltiptext">${ctrlExplanations.capability}</span>
+										<span class="tooltiptext">${normalizeTooltipHtml(ctrlExplanations.capability)}</span>
 									</div>
 								</label>
 								<select class="homey-form-select" id="display${itemNo}Capability" onChange="selectDisplayCapability(this, ${itemNo})">
@@ -7836,14 +7850,14 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 							<br>
 							<label class="homey-form-label" for="display${itemNo}Label">${ctrlLabels.label}
 								<div class="tooltip"><i class="fi fi-rr-info"></i>
-									<span class="tooltiptext">${ctrlExplanations.label}</span>
+									<span class="tooltiptext">${normalizeTooltipHtml(ctrlExplanations.label)}</span>
 								</div>
 							</label>
 							<input class="homey-form-input" id="display${itemNo}Label" type="text" oninput="onDisplayLabelChange(this, ${itemNo})" value="${sanitizedLabel}" />
 							<div id="display${itemNo}UnitDiv">
 								<label class="homey-form-label" for="display${itemNo}Unit">${ctrlLabels.unit}
 									<div class="tooltip"><i class="fi fi-rr-info"></i>
-										<span class="tooltiptext">${ctrlExplanations.unit}</span>
+										<span class="tooltiptext">${normalizeTooltipHtml(ctrlExplanations.unit)}</span>
 									</div>
 								</label>
 								<input class="homey-form-input" id="display${itemNo}Unit" type="text" value="${sanitizedUnit}" />
@@ -7851,38 +7865,38 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 							<div id="display${itemNo}TextDiv">
 								<label class="homey-form-label" for="display${itemNo}Text">${ctrlLabels.text}
 									<div class="tooltip"><i class="fi fi-rr-info"></i>
-										<span class="tooltiptext">${ctrlExplanations.text}</span>
+										<span class="tooltiptext">${normalizeTooltipHtml(ctrlExplanations.text)}</span>
 									</div>
 								</label>
 								<input class="homey-form-input" id="display${itemNo}Text" type="text" oninput="onDisplayLabelChange(this, ${itemNo})" value="${sanitizedText}" />
 							</div>
 							<label class="homey-form-label" for="display${itemNo}X">${ctrlLabels.xPos}
 								<div class="tooltip"><i class="fi fi-rr-info"></i>
-									<span class="tooltiptext">${ctrlExplanations.xPos}</span>
+									<span class="tooltiptext">${normalizeTooltipHtml(ctrlExplanations.xPos)}</span>
 								</div>
 							</label>
 							<input class="homey-form-input" id="display${itemNo}X" onChange="redisplayDisplyConfig(${itemNo})" type="number" value="${item.xPos}" />
 							<label class="homey-form-label" for="display${itemNo}Y">${ctrlLabels.yPos}
 								<div class="tooltip"><i class="fi fi-rr-info"></i>
-									<span class="tooltiptext">${ctrlExplanations.yPos}</span>
+									<span class="tooltiptext">${normalizeTooltipHtml(ctrlExplanations.yPos)}</span>
 								</div>
 							</label>
 							<input class="homey-form-input" id="display${itemNo}Y" onChange="redisplayDisplyConfig(${itemNo})" type="number" value="${item.yPos}" />
 							<label class="homey-form-label" for="display${itemNo}Width">${ctrlLabels.width}
 								<div class="tooltip"><i class="fi fi-rr-info"></i>
-									<span class="tooltiptext">${ctrlExplanations.width}</span>
+									<span class="tooltiptext">${normalizeTooltipHtml(ctrlExplanations.width)}</span>
 								</div>
 							</label>
 							<input class="homey-form-input" id="display${itemNo}Width" type="number" value="${item.width}" />
 							<label class="homey-form-label" for="display${itemNo}Rounding">${ctrlLabels.rounding}
 								<div class="tooltip"><i class="fi fi-rr-info"></i>
-									<span class="tooltiptext">${ctrlExplanations.rounding}</span>
+									<span class="tooltiptext">${normalizeTooltipHtml(ctrlExplanations.rounding)}</span>
 								</div>
 							</label>
 							<input class="homey-form-input" id="display${itemNo}Rounding" type="number" value="${item.rounding || 0}" />
 							<label class="homey-form-label" for="display${itemNo}FontSize">${ctrlLabels.fontSize}
 								<div class="tooltip"><i class="fi fi-rr-info"></i>
-									<span class="tooltiptext">${ctrlExplanations.fontSize}</span>
+									<span class="tooltiptext">${normalizeTooltipHtml(ctrlExplanations.fontSize)}</span>
 								</div>
 							</label>
 							<select class="homey-form-select" id="display${itemNo}FontSize">
@@ -7894,7 +7908,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 							</select>
 							<label class="homey-form-label" for="display${itemNo}BoxType">${ctrlLabels.boxType}
 								<div class="tooltip"><i class="fi fi-rr-info"></i>
-									<span class="tooltiptext">${ctrlExplanations.boxType}</span>
+									<span class="tooltiptext">${normalizeTooltipHtml(ctrlExplanations.boxType)}</span>
 								</div>
 							</label>
 							<select class="homey-form-select" id="display${itemNo}BoxType">
@@ -7903,7 +7917,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 							</select>
 							<label class="homey-form-label" for="display${itemNo}BrokerId">${ctrlLabels.brokerId}
 								<div class="tooltip"><i class="fi fi-rr-info"></i>
-									<span class="tooltiptext">${ctrlExplanations.brokerId}</span>
+									<span class="tooltiptext">${normalizeTooltipHtml(ctrlExplanations.brokerId)}</span>
 								</div>
 							</label>
 							<select class="homey-form-select" id="display${itemNo}BrokerId">
@@ -8621,42 +8635,42 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 
 							<label class="homey-form-label" for="broker${itemNo}Id">${ctrlLabels.id}
 								<div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
-									<span class="tooltiptext">${ctrlLabels.idExplanation}</span>
+									<span class="tooltiptext">${normalizeTooltipHtml(ctrlLabels.idExplanation)}</span>
 								</div>
 							</label>
 							<input class="homey-form-input" id="broker${itemNo}Id" type="text" value="${item.brokerid}" ${protected} onChange="updateBrokerLists(${itemNo})" oninput="onBrokerLabelChange(this, ${itemNo})"/>
 
 							<label class="homey-form-label" for="broker${itemNo}Address">${ctrlLabels.address}
 								<div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
-									<span class="tooltiptext">${ctrlLabels.addressExplanation}</span>
+									<span class="tooltiptext">${normalizeTooltipHtml(ctrlLabels.addressExplanation)}</span>
 								</div>
 							</label>
 							<input class="homey-form-input" id="broker${itemNo}Address" type="text" value="${item.url}" ${protected} />
 
 							<label class="homey-form-label" for="broker${itemNo}Port">${ctrlLabels.port}
 								<div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
-									<span class="tooltiptext">${ctrlLabels.portExplanation}</span>
+									<span class="tooltiptext">${normalizeTooltipHtml(ctrlLabels.portExplanation)}</span>
 								</div>
 							</label>
 							<input class="homey-form-input" id="broker${itemNo}Port" type="number" value="${item.port}" />
 
 							<label class="homey-form-label" for="broker${itemNo}WSPort">${ctrlLabels.wsPort}
 								<div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
-									<span class="tooltiptext">${ctrlLabels.wsPortExplanation}</span>
+									<span class="tooltiptext">${normalizeTooltipHtml(ctrlLabels.wsPortExplanation)}</span>
 								</div>
 							</label>
 							<input class="homey-form-input" id="broker${itemNo}WSPort" type="number" value="${item.wsport}" />
 
 							<label class="homey-form-label" for="broker${itemNo}Username">${ctrlLabels.username}
 								<div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
-									<span class="tooltiptext">${ctrlLabels.usernameExplanation}</span>
+									<span class="tooltiptext">${normalizeTooltipHtml(ctrlLabels.usernameExplanation)}</span>
 								</div>
 							</label>
 							<input class="homey-form-input" id="broker${itemNo}Username" type="text" value="${item.username ? item.username : ""}""/>
 
 							<label class="homey-form-label" for="broker${itemNo}Password">${ctrlLabels.password}
 								<div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
-									<span class="tooltiptext">${ctrlLabels.passwordExplanation}</span>
+									<span class="tooltiptext">${normalizeTooltipHtml(ctrlLabels.passwordExplanation)}</span>
 								</div>
 							</label>
 							<input class="homey-form-input" id="broker${itemNo}Password" type="text" value="${item.password ? item.password : ""}""/>
@@ -8666,7 +8680,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 								<span class="homey-form-checkbox-checkmark"></span>
 								<span class="homey-form-checkbox-text">${ctrlLabels.enabled}</span>
 								<div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
-									<span class="tooltiptext">${ctrlLabels.enabledExplanation}</span>
+									<span class="tooltiptext">${normalizeTooltipHtml(ctrlLabels.enabledExplanation)}</span>
 								</div>
 							</label>
 
@@ -9059,14 +9073,14 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 
 						<label class="homey-form-label" for="${Side}${Page}CustomMQTT${ItemNo}Id">${ctrlLabels.id}
 							<div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
-								<span class="tooltiptext">${ctrlLabels.idExplanation}</span>
+								<span class="tooltiptext">${normalizeTooltipHtml(ctrlLabels.idExplanation)}</span>
 							</div>
 						</label>
 						<input class="homey-form-input" id="${Side}${Page}CustomMQTT${ItemNo}Id" type="text" value="${Topic.id}"/>
 
 						<label class="homey-form-label" for="${Side}${Page}CustomMQTT${ItemNo}Type">${ctrlLabels.type}
 							<div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
-								<span class="tooltiptext">${ctrlLabels.typeExplanation}</span>
+								<span class="tooltiptext">${normalizeTooltipHtml(ctrlLabels.typeExplanation)}</span>
 							</div>
 						</label>
 						<select class="homey-form-select" id="${Side}${Page}CustomMQTT${ItemNo}Type">
@@ -9077,21 +9091,21 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 
 						<label class="homey-form-label" for="${Side}${Page}CustomMQTT${ItemNo}topic">${ctrlLabels.topic}
 							<div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
-								<span class="tooltiptext">${ctrlLabels.topicExplanation}</span>
+								<span class="tooltiptext">${normalizeTooltipHtml(ctrlLabels.topicExplanation)}</span>
 							</div>
 						</label>
 						<input class="homey-form-input" id="${Side}${Page}CustomMQTT${ItemNo}topic" type="text" value="${Topic.topic}" />
 
 						<label class="homey-form-label" for="${Side}${Page}CustomMQTT${ItemNo}payload">${ctrlLabels.payload}
 							<div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
-								<span class="tooltiptext">${ctrlLabels.payloadExplanation}</span>
+								<span class="tooltiptext">${normalizeTooltipHtml(ctrlLabels.payloadExplanation)}</span>
 							</div>
 						</label>
 						<input class="homey-form-input" id="${Side}${Page}CustomMQTT${ItemNo}payload" type="text" value="${Topic.payload}" />
 
 						<label class="homey-form-label" for="${Side}${Page}CustomMQTT${ItemNo}BrokerId">${ctrlLabels.brokerId}
 							<div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
-								<span class="tooltiptext">${ctrlLabels.brokerIdExplanation}</span>
+								<span class="tooltiptext">${normalizeTooltipHtml(ctrlLabels.brokerIdExplanation)}</span>
 							</div>
 						</label>
 						<select class="homey-form-select" id="${Side}${Page}CustomMQTT${ItemNo}BrokerId">
@@ -9819,99 +9833,99 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 
                                 <label class="homey-form-label" for="${side}${page}Device"><span>${ctrlLabels.device}</span>
                                     <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                        <span class="tooltiptext">${ctrlExplanations.device}</span>
-                                    </div>
-                                </label>
-	                                <div class="button-device-select-row">
-	                                	<div class="button-device-active-icon" id="${side}${page}DeviceActiveIcon" aria-hidden="true"></div>
-	                                	<select class="homey-form-select" id="${side}${page}Device" onChange="buttonDeviceChanged('${side}', ${page})">
-	                                    	<option value="" selected disabled hidden>${ctrlLabels.device}</option>
-	                                	</select>
-	                                </div>
+															<span class="tooltiptext">${normalizeTooltipHtml(ctrlExplanations.device)}</span>
+														</div>
+													</label>
+													<div class="button-device-select-row">
+														<div class="button-device-active-icon" id="${side}${page}DeviceActiveIcon" aria-hidden="true"></div>
+														<select class="homey-form-select" id="${side}${page}Device" onChange="buttonDeviceChanged('${side}', ${page})">
+															<option value="" selected disabled hidden>${ctrlLabels.device}</option>
+														</select>
+													</div>
 
-                                <span>
-                                    <div id="${side}${page}CapabilityDiv">
-                                        <label class="homey-form-label" id="${side}${page}CapabilityLabel" for="${side}${page}Capability"><span>${ctrlLabels.capability}</span>
-                                            <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                                <span class="tooltiptext">${ctrlExplanations.capability}</span>
-                                            </div>
-                                        </label>
-	                                        <div class="button-capability-select-row">
-	                                        	<div class="button-capability-active-icon" id="${side}${page}CapabilityActiveIcon" aria-hidden="true"></div>
-	                                        	<select class="homey-form-select" id="${side}${page}Capability" onChange="buttonCapabilityChanged('${side}', ${page})">
-	                                            	<option value="" selected disabled hidden>${ctrlLabels.capability}</option>
-	                                        	</select>
-	                                        </div>
-                                    </div>
-                                </span>
+													<span>
+														<div id="${side}${page}CapabilityDiv">
+															<label class="homey-form-label" id="${side}${page}CapabilityLabel" for="${side}${page}Capability"><span>${ctrlLabels.capability}</span>
+																<div class="tooltip"><i class="fi fi-rr-info"></i>
+																	<span class="tooltiptext">${normalizeTooltipHtml(ctrlExplanations.capability)}</span>
+																</div>
+															</label>
+															<div class="button-capability-select-row">
+																<div class="button-capability-active-icon" id="${side}${page}CapabilityActiveIcon" aria-hidden="true"></div>
+																<select class="homey-form-select" id="${side}${page}Capability" onChange="buttonCapabilityChanged('${side}', ${page})">
+																	<option value="" selected disabled hidden>${ctrlLabels.capability}</option>
+																</select>
+															</div>
+														</div>
+													</span>
 
-                                <label class="homey-form-label" for="${side}${page}TopText"><span>${ctrlLabels.topLabel}</span>
-                                    <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                        <span class="tooltiptext">${ctrlExplanations.topLabel}</span>
-                                    </div>
-                                </label>
-                                <input class="homey-form-input" id="${side}${page}TopText" type="text" maxlength="20" oninput="onButtonLabelChange(this, '${side}${page}')" value />
+													<label class="homey-form-label" for="${side}${page}TopText"><span>${ctrlLabels.topLabel}</span>
+														<div class="tooltip"><i class="fi fi-rr-info"></i>
+															<span class="tooltiptext">${normalizeTooltipHtml(ctrlExplanations.topLabel)}</span>
+														</div>
+													</label>
+													<input class="homey-form-input" id="${side}${page}TopText" type="text" maxlength="20" oninput="onButtonLabelChange(this, '${side}${page}')" value />
 
-                                <span>
-                                    <div id="${side}${page}OnTextDiv">
-                                        <label class="homey-form-label" id="${side}${page}OnTextLabel" for="${side}${page}OnText"><span>${ctrlLabels.labelOn}</span>
-                                            <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                                <span class="tooltiptext">${ctrlExplanations.labelOn}</span>
-                                            </div>
-                                        </label>
-                                        <input class="homey-form-input" id="${side}${page}OnText" type="text" maxlength="20" value="" value />
-                                    </div>
-                                </span>
+													<span>
+														<div id="${side}${page}OnTextDiv">
+															<label class="homey-form-label" id="${side}${page}OnTextLabel" for="${side}${page}OnText"><span>${ctrlLabels.labelOn}</span>
+																<div class="tooltip"><i class="fi fi-rr-info"></i>
+																	<span class="tooltiptext">${normalizeTooltipHtml(ctrlExplanations.labelOn)}</span>
+																</div>
+															</label>
+															<input class="homey-form-input" id="${side}${page}OnText" type="text" maxlength="20" value="" value />
+														</div>
+													</span>
 
-                                <span>
-                                    <div id="${side}${page}DimChangeDiv">
-                                        <label class="homey-form-label" id="${side}${page}DimChangeLabel" for="${side}${page}DimChange"><span>${ctrlLabels.dimChange}</span>
-                                            <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                                <span class="tooltiptext">${ctrlExplanations.dimChange}</span>
-                                            </div>
-                                        </label>
-                                        <input class="homey-form-input" id="${side}${page}DimChange" type="text" maxlength="20" value />
-                                    </div>
-                                </span>
+													<span>
+														<div id="${side}${page}DimChangeDiv">
+															<label class="homey-form-label" id="${side}${page}DimChangeLabel" for="${side}${page}DimChange"><span>${ctrlLabels.dimChange}</span>
+																<div class="tooltip"><i class="fi fi-rr-info"></i>
+																	<span class="tooltiptext">${normalizeTooltipHtml(ctrlExplanations.dimChange)}</span>
+																</div>
+															</label>
+															<input class="homey-form-input" id="${side}${page}DimChange" type="text" maxlength="20" value />
+														</div>
+													</span>
 
-                                <label class="homey-form-label" id="${side}${page}OffTextLabel" for="${side}${page}OffText"><span>${ctrlLabels.labelOff}</span>
-                                    <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                        <span class="tooltiptext">${ctrlExplanations.labelOff}</span>
-                                    </div>
-                                </label>
-                                <input class="homey-form-input" id="${side}${page}OffText" type="text" maxlength="20" value />
+													<label class="homey-form-label" id="${side}${page}OffTextLabel" for="${side}${page}OffText"><span>${ctrlLabels.labelOff}</span>
+														<div class="tooltip"><i class="fi fi-rr-info"></i>
+															<span class="tooltiptext">${normalizeTooltipHtml(ctrlExplanations.labelOff)}</span>
+														</div>
+													</label>
+													<input class="homey-form-input" id="${side}${page}OffText" type="text" maxlength="20" value />
 
-                                <label class="homey-form-label" id="${side}${page}FrontLEDOnColorLabel" for="${side}${page}FrontLEDOnColor"><span>${ctrlLabels.frontLEDOnColor}</span>
-                                    <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                        <span class="tooltiptext">${ctrlExplanations.frontLEDOnColor}</span>
-                                    </div>
-                                </label>
-                                <input class="homey-form-input" id="${side}${page}FrontLEDOnColor" type="color" value=#ff0000 />
+													<label class="homey-form-label" id="${side}${page}FrontLEDOnColorLabel" for="${side}${page}FrontLEDOnColor"><span>${ctrlLabels.frontLEDOnColor}</span>
+														<div class="tooltip"><i class="fi fi-rr-info"></i>
+															<span class="tooltiptext">${normalizeTooltipHtml(ctrlExplanations.frontLEDOnColor)}</span>
+														</div>
+													</label>
+													<input class="homey-form-input" id="${side}${page}FrontLEDOnColor" type="color" value=#ff0000 />
 
-                                <label class="homey-form-label" id="${side}${page}WallLEDOnColorLabel" for="${side}${page}FrontLEDOnColor"><span>${ctrlLabels.wallLEDOnColor}</span>
-                                    <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                        <span class="tooltiptext">${ctrlExplanations.wallLEDOnColor}</span>
-                                    </div>
-                                </label>
-                                <input class="homey-form-input" id="${side}${page}WallLEDOnColor" type="color" value=#ff0000 />
+													<label class="homey-form-label" id="${side}${page}WallLEDOnColorLabel" for="${side}${page}FrontLEDOnColor"><span>${ctrlLabels.wallLEDOnColor}</span>
+														<div class="tooltip"><i class="fi fi-rr-info"></i>
+															<span class="tooltiptext">${normalizeTooltipHtml(ctrlExplanations.wallLEDOnColor)}</span>
+														</div>
+													</label>
+													<input class="homey-form-input" id="${side}${page}WallLEDOnColor" type="color" value=#ff0000 />
 
-                                <label class="homey-form-label" id="${side}${page}FrontLEDOffColorLabel" for="${side}${page}FrontLEDOffColor"><span>${ctrlLabels.frontLEDOffColor}</span>
-                                    <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                        <span class="tooltiptext">${ctrlExplanations.frontLEDOffColor}</span>
-                                    </div>
-                                </label>
-                                <input class="homey-form-input" id="${side}${page}FrontLEDOffColor" type="color" value=#ff0000 />
+													<label class="homey-form-label" id="${side}${page}FrontLEDOffColorLabel" for="${side}${page}FrontLEDOffColor"><span>${ctrlLabels.frontLEDOffColor}</span>
+														<div class="tooltip"><i class="fi fi-rr-info"></i>
+															<span class="tooltiptext">${normalizeTooltipHtml(ctrlExplanations.frontLEDOffColor)}</span>
+														</div>
+													</label>
+													<input class="homey-form-input" id="${side}${page}FrontLEDOffColor" type="color" value=#ff0000 />
 
-                                <label class="homey-form-label" id="${side}${page}WallLEDOffColorLabel" for="${side}${page}FrontLEDOffColor"><span>${ctrlLabels.wallLEDOffColor}</span>
-                                    <div class="tooltip"><i class="fi fi-rr-info"></i>
-                                        <span class="tooltiptext">${ctrlExplanations.wallLEDOffColor}</span>
-                                    </div>
-                                </label>
-                                <input class="homey-form-input" id="${side}${page}WallLEDOffColor" type="color" value=#ff0000 />
+													<label class="homey-form-label" id="${side}${page}WallLEDOffColorLabel" for="${side}${page}FrontLEDOffColor"><span>${ctrlLabels.wallLEDOffColor}</span>
+														<div class="tooltip"><i class="fi fi-rr-info"></i>
+															<span class="tooltiptext">${normalizeTooltipHtml(ctrlExplanations.wallLEDOffColor)}</span>
+														</div>
+													</label>
+													<input class="homey-form-input" id="${side}${page}WallLEDOffColor" type="color" value=#ff0000 />
 
-                                <span>
-                                    <div id="${side}${page}CustomMQTTDiv">
-                                        <br>
+													<span>
+														<div id="${side}${page}CustomMQTTDiv">
+															<br>
                                             <div id="${side}${page}CustomMQTTTopicsSection"></div>
 											<p><button class="homey-button-secondary-shadow" id="new${side}${page}CustomMQTTItem" onClick="newMQTTTopic('${side}', ${page}); return false;"><span>${ctrlLabels.newCustomMQTTItem}</span></button></p>
                                     </div>
