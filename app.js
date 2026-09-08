@@ -256,6 +256,62 @@ class MyApp extends Homey.App
 					{
 						buttonConfiguration[page].rightSVG = '';
 					}
+
+					for (const side of ['left', 'right'])
+					{
+						if (!buttonConfiguration[page][`${side}Mode`])
+						{
+							buttonConfiguration[page][`${side}Mode`] = 'basic';
+						}
+
+						if (!buttonConfiguration[page][`${side}LedDevice`])
+						{
+							buttonConfiguration[page][`${side}LedDevice`] = 'none';
+						}
+
+						if (!buttonConfiguration[page][`${side}LedCapability`])
+						{
+							buttonConfiguration[page][`${side}LedCapability`] = '';
+						}
+
+						if (!buttonConfiguration[page][`${side}DisplayDevice`])
+						{
+							buttonConfiguration[page][`${side}DisplayDevice`] = 'none';
+						}
+
+						if (!buttonConfiguration[page][`${side}DisplayCapability`])
+						{
+							buttonConfiguration[page][`${side}DisplayCapability`] = '';
+						}
+
+						if (!buttonConfiguration[page][`${side}DisplayBooleanRender`])
+						{
+							buttonConfiguration[page][`${side}DisplayBooleanRender`] = 'text';
+						}
+
+						for (const eventName of ['Click', 'Double', 'Long'])
+						{
+							if (!buttonConfiguration[page][`${side}${eventName}Device`])
+							{
+								buttonConfiguration[page][`${side}${eventName}Device`] = 'none';
+							}
+
+							if (!buttonConfiguration[page][`${side}${eventName}Capability`])
+							{
+								buttonConfiguration[page][`${side}${eventName}Capability`] = '';
+							}
+
+							if (!buttonConfiguration[page][`${side}${eventName}ValueStep`])
+							{
+								buttonConfiguration[page][`${side}${eventName}ValueStep`] = '+10';
+							}
+
+							if (!buttonConfiguration[page][`${side}${eventName}NumericAction`])
+							{
+								buttonConfiguration[page][`${side}${eventName}NumericAction`] = 'change';
+							}
+						}
+					}
 				}
 			}
 
@@ -1055,6 +1111,24 @@ class MyApp extends Homey.App
 				leftOffText: '',
 				leftDevice: 'none',
 				leftCapability: '',
+				leftMode: 'basic',
+				leftLedDevice: 'none',
+				leftLedCapability: '',
+				leftDisplayDevice: 'none',
+				leftDisplayCapability: '',
+				leftDisplayBooleanRender: 'text',
+				leftClickDevice: 'none',
+				leftClickCapability: '',
+				leftClickValueStep: '+10',
+				leftClickNumericAction: 'change',
+				leftDoubleDevice: 'none',
+				leftDoubleCapability: '',
+				leftDoubleValueStep: '+10',
+				leftDoubleNumericAction: 'change',
+				leftLongDevice: 'none',
+				leftLongCapability: '',
+				leftLongValueStep: '+10',
+				leftLongNumericAction: 'change',
 				leftBrokerId: 'Default',
 				leftDimChange: '+10',
 				leftFrontLEDOnColor: '#ff0000',
@@ -1070,6 +1144,24 @@ class MyApp extends Homey.App
 				rightOffText: '',
 				rightDevice: 'none',
 				rightCapability: '',
+				rightMode: 'basic',
+				rightLedDevice: 'none',
+				rightLedCapability: '',
+				rightDisplayDevice: 'none',
+				rightDisplayCapability: '',
+				rightDisplayBooleanRender: 'text',
+				rightClickDevice: 'none',
+				rightClickCapability: '',
+				rightClickValueStep: '+10',
+				rightClickNumericAction: 'change',
+				rightDoubleDevice: 'none',
+				rightDoubleCapability: '',
+				rightDoubleValueStep: '+10',
+				rightDoubleNumericAction: 'change',
+				rightLongDevice: 'none',
+				rightLongCapability: '',
+				rightLongValueStep: '+10',
+				rightLongNumericAction: 'change',
 				rightBrokerId: 'Default',
 				rightDimChange: '+10',
 				rightFrontLEDOnColor: '#ff0000',
@@ -1181,6 +1273,33 @@ class MyApp extends Homey.App
 						pageConfig[capabilityNameKey] = 'Dim (dim)';
 						changed = true;
 						this.updateLog(`Sanitized Button+ target capability in config ${configNo}, page ${pageNo}, side ${side}: ${targetCapability} -> dim (${source})`, 0);
+					}
+
+					for (const advancedBindingKey of [`${side}Led`, `${side}Display`, `${side}Click`, `${side}Double`, `${side}Long`])
+					{
+						const advancedDeviceKey = `${advancedBindingKey}Device`;
+						const advancedCapabilityKey = `${advancedBindingKey}Capability`;
+						const advancedTargetDeviceId = pageConfig[advancedDeviceKey];
+						const advancedTargetCapability = String(pageConfig[advancedCapabilityKey] || '');
+
+						if (!advancedTargetDeviceId || advancedTargetDeviceId === 'none' || advancedTargetDeviceId === '_variable_' || advancedTargetDeviceId === 'customMQTT')
+						{
+							continue;
+						}
+
+						// Only actionable event targets are sanitized for Button+ recursion safety.
+						if (!advancedBindingKey.endsWith('Click') && !advancedBindingKey.endsWith('Double') && !advancedBindingKey.endsWith('Long'))
+						{
+							continue;
+						}
+
+						const isAdvancedButtonPlusTarget = await this.isButtonPlusDeviceId(advancedTargetDeviceId, buttonPlusDeviceCache);
+						if (isAdvancedButtonPlusTarget && advancedTargetCapability !== 'dim')
+						{
+							pageConfig[advancedCapabilityKey] = 'dim';
+							changed = true;
+							this.updateLog(`Sanitized advanced Button+ target in config ${configNo}, page ${pageNo}, field ${advancedBindingKey}: ${advancedTargetCapability} -> dim (${source})`, 0);
+						}
 					}
 				}
 			}

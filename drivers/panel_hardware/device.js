@@ -6,7 +6,7 @@
 const { Device } = require('homey');
 const _ = require('lodash');
 const { checkSEMVerGreaterOrEqual } = require('../../lib/HttpHelper');
-const { isSvgTextContent } = require('../../lib/SvgHelper');
+const { isSvgTextContent, normalizeSvgText } = require('../../lib/SvgHelper');
 
 const V3_LONG_PRESS_EVENT_INTERVAL_MS = 20;
 const DOUBLE_CLICK_WINDOW_MS = 350;
@@ -24,6 +24,7 @@ class PanelDevice extends Device
 		this.initFinished = false;
 		this.longPressOccurred = new Map();
 		this.longPressEventCounts = new Map();
+		this.longPressLastProcessedAt = new Map();
 		this.lastLongPressTimes = new Map();
 		this.buttonValues = new Map();
 		this.dimDirections = new Map();
@@ -32,8 +33,19 @@ class PanelDevice extends Device
 		this.clickEventTimers = new Map();
 		this.pendingClickedTriggers = new Map();
 		this.pendingReleasedTriggers = new Map();
+		this.pendingAdvancedClickActions = new Map();
+		this.pendingAdvancedClickFallbackTimers = new Map();
+		this.pendingAdvancedLongReleaseCommits = new Map();
+		this.advancedLongReleaseCommitTimers = new Map();
+		this.advancedLongLastEventTimes = new Map();
+		this.longPressHeartbeatAt = new Map();
+		this.advancedLongSyntheticTickTimers = new Map();
+		this.advancedLastClickProcessedAt = new Map();
 		this.pickerPendingValues = new Map();
 		this.pickerCommitTimers = new Map();
+		this.advancedPendingValues = new Map();
+		this.advancedCommitTimers = new Map();
+		this.advancedDirectionStates = new Map();
 		this.capabilityDispatchInFlight = new Set();
 		this.barConfigured = [false, false, false, false, false, false, false, false];
 		this.page = 1;
@@ -582,6 +594,10 @@ class PanelDevice extends Device
 		{
 			this.longPressEventCounts.clear();
 		}
+		if (this.longPressLastProcessedAt)
+		{
+			this.longPressLastProcessedAt.clear();
+		}
 		if (this.lastLongPressTimes)
 		{
 			this.lastLongPressTimes.clear();
@@ -622,6 +638,50 @@ class PanelDevice extends Device
 		{
 			this.pendingReleasedTriggers.clear();
 		}
+		if (this.pendingAdvancedClickActions)
+		{
+			this.pendingAdvancedClickActions.clear();
+		}
+		if (this.pendingAdvancedClickFallbackTimers)
+		{
+			for (const timer of this.pendingAdvancedClickFallbackTimers.values())
+			{
+				this.homey.clearTimeout(timer);
+			}
+			this.pendingAdvancedClickFallbackTimers.clear();
+		}
+		if (this.pendingAdvancedLongReleaseCommits)
+		{
+			this.pendingAdvancedLongReleaseCommits.clear();
+		}
+		if (this.advancedLongReleaseCommitTimers)
+		{
+			for (const timer of this.advancedLongReleaseCommitTimers.values())
+			{
+				this.homey.clearTimeout(timer);
+			}
+			this.advancedLongReleaseCommitTimers.clear();
+		}
+		if (this.advancedLongLastEventTimes)
+		{
+			this.advancedLongLastEventTimes.clear();
+		}
+		if (this.longPressHeartbeatAt)
+		{
+			this.longPressHeartbeatAt.clear();
+		}
+		if (this.advancedLongSyntheticTickTimers)
+		{
+			for (const timer of this.advancedLongSyntheticTickTimers.values())
+			{
+				this.homey.clearTimeout(timer);
+			}
+			this.advancedLongSyntheticTickTimers.clear();
+		}
+		if (this.advancedLastClickProcessedAt)
+		{
+			this.advancedLastClickProcessedAt.clear();
+		}
 		if (this.pickerCommitTimers)
 		{
 			for (const timer of this.pickerCommitTimers.values())
@@ -633,6 +693,22 @@ class PanelDevice extends Device
 		if (this.pickerPendingValues)
 		{
 			this.pickerPendingValues.clear();
+		}
+		if (this.advancedCommitTimers)
+		{
+			for (const timer of this.advancedCommitTimers.values())
+			{
+				this.homey.clearTimeout(timer);
+			}
+			this.advancedCommitTimers.clear();
+		}
+		if (this.advancedPendingValues)
+		{
+			this.advancedPendingValues.clear();
+		}
+		if (this.advancedDirectionStates)
+		{
+			this.advancedDirectionStates.clear();
 		}
 
 		await super.onDeleted();
@@ -1369,6 +1445,7 @@ class PanelDevice extends Device
 			}
 
 			this.unsetWarning();
+			const originalDeviceConfigurations = _.cloneDeep(deviceConfigurations);
 
 			if (deviceConfigurations.info && deviceConfigurations.info.firmware)
 			{
@@ -1400,6 +1477,33 @@ class PanelDevice extends Device
 			await this.uploadPanelSensorConfiguration(deviceConfigurations);
 			delete deviceConfigurations.info;
 
+			const writableSectionKeys = ['core', 'buttons', 'displayitems', 'brokers', 'sensors'];
+			const changedConfiguration = {};
+			const changedSections = [];
+			for (const sectionKey of writableSectionKeys)
+			{
+				if (!Object.prototype.hasOwnProperty.call(deviceConfigurations, sectionKey))
+				{
+					continue;
+				}
+
+				const currentSection = deviceConfigurations[sectionKey];
+				const originalSection = originalDeviceConfigurations ? originalDeviceConfigurations[sectionKey] : undefined;
+				if (!this.compareObjects(currentSection, originalSection, false))
+				{
+					const mismatch = this.findFirstDifference(currentSection, originalSection);
+					if (mismatch)
+					{
+						this.homey.app.updateLog(`Configuration mismatch ${sectionKey} at ${mismatch.path}: desired=${this.homey.app.varToString(mismatch.left)} readback=${this.homey.app.varToString(mismatch.right)}`);
+					}
+
+					changedConfiguration[sectionKey] = currentSection;
+					changedSections.push(sectionKey);
+				}
+			}
+
+			const hasConfigurationChanges = changedSections.length > 0;
+
 			if (this.numPages > 1)
 			{
 				const brokerId = this.homey.settings.get('defaultBroker');
@@ -1421,37 +1525,61 @@ class PanelDevice extends Device
 				delay = 10000;
 			}
 
-			while (tries > 0)
+			if (hasConfigurationChanges)
 			{
-				error = await this.homey.app.writeDeviceConfiguration(this.ip, deviceConfigurations, this.firmwareVersion)
-				if (error == null)
+				this.homey.app.updateLog(`Configuration sections changed for ${this.ip}: ${changedSections.join(', ')}`);
+
+				while (tries > 0)
 				{
-					// Send the MQTT messages after a short delay to allow the device to reset and connect to the broker
-					setTimeout(async () =>
+					error = await this.homey.app.writeDeviceConfiguration(this.ip, changedConfiguration, this.firmwareVersion)
+					if (error == null)
 					{
-						for (const mqttMsg of mqttQue)
+						// Send the MQTT messages after a short delay to allow the device to reset and connect to the broker
+						setTimeout(async () =>
 						{
-							if (!mqttMsg || typeof mqttMsg !== 'object' || !mqttMsg.message)
+							for (const mqttMsg of mqttQue)
 							{
-								this.homey.app.updateLog(`Skipping malformed mqtt queue entry: ${this.homey.app.varToString(mqttMsg)}`, 0);
-								continue;
+								if (!mqttMsg || typeof mqttMsg !== 'object' || !mqttMsg.message)
+								{
+									this.homey.app.updateLog(`Skipping malformed mqtt queue entry: ${this.homey.app.varToString(mqttMsg)}`, 0);
+									continue;
+								}
+
+								const brokerId = mqttMsg.brokerId || 'Default';
+								this.homey.app.publishMQTTMessage(brokerId, mqttMsg.message, mqttMsg.value, false).catch(this.error);
 							}
 
-							const brokerId = mqttMsg.brokerId || 'Default';
-							this.homey.app.publishMQTTMessage(brokerId, mqttMsg.message, mqttMsg.value, false).catch(this.error);
-						}
+							mqttQue = null;
+						}, delay);
 
-						mqttQue = null;
-					}, delay);
+						await this.setupMQTTSubscriptions('Default');
 
-					await this.setupMQTTSubscriptions('Default');
+						break;
+					}
 
-					break;
+					this.homey.app.updateLog(`Retrying write configuration to ${this.ip}`, 0);
+					tries--;
+				};
+			}
+			else
+			{
+				this.homey.app.updateLog(`Skipping hardware configuration write for ${this.ip}; panel configuration already matches`);
+
+				for (const mqttMsg of mqttQue)
+				{
+					if (!mqttMsg || typeof mqttMsg !== 'object' || !mqttMsg.message)
+					{
+						this.homey.app.updateLog(`Skipping malformed mqtt queue entry: ${this.homey.app.varToString(mqttMsg)}`, 0);
+						continue;
+					}
+
+					const brokerId = mqttMsg.brokerId || 'Default';
+					this.homey.app.publishMQTTMessage(brokerId, mqttMsg.message, mqttMsg.value, false).catch(this.error);
 				}
 
-				this.homey.app.updateLog(`Retrying write configuration to ${this.ip}`, 0);
-				tries--;
-			};
+				mqttQue = null;
+				await this.setupMQTTSubscriptions('Default');
+			}
 
 			if (error)
 			{
@@ -2002,7 +2130,11 @@ class PanelDevice extends Device
 			const longPressKey = `${parameters.connector}_${parameters.side}_${parameters.page}`;
 			this.longPressOccurred.set(longPressKey, 0);
 			this.longPressEventCounts.delete(longPressKey);
+			this.longPressLastProcessedAt.delete(longPressKey);
 			this.lastLongPressTimes.delete(longPressKey);
+			this.longPressHeartbeatAt.delete(longPressKey);
+			this.cancelAdvancedLongSyntheticTick(longPressKey);
+			this.pendingAdvancedLongReleaseCommits.delete(longPressKey);
 
 			// The button was pressed
 			this.handleButtonClick(parameters);
@@ -2060,6 +2192,1033 @@ class PanelDevice extends Device
 		return Number.isNaN(configuredDelay) ? DEFAULT_LONG_PRESS_DELAY_MS : Math.max(0, Math.min(configuredDelay, 10000));
 	}
 
+	getConfiguredLongPressRepeatMs(parameters)
+	{
+		if ((parameters.configNo == null) || (parameters.connectorType === 2) || (parameters.connectorType === 3))
+		{
+			return 500;
+		}
+
+		const buttonPanelConfiguration = this.homey.app.buttonConfigurations[parameters.configNo];
+		const buttonPageConfiguration = buttonPanelConfiguration ? (buttonPanelConfiguration[parameters.page] || buttonPanelConfiguration[0] || {}) : {};
+		const configuredRepeat = parseInt(buttonPageConfiguration[`${parameters.side}LongRepeatMs`], 10);
+
+		return Number.isNaN(configuredRepeat) ? 500 : Math.max(50, Math.min(configuredRepeat, 10000));
+	}
+
+	getAdvancedCommitDelayMs(parameters)
+	{
+		const longDelay = this.getConfiguredLongPressDelayMs(parameters);
+		const longRepeat = this.getConfiguredLongPressRepeatMs(parameters);
+		return Math.max(500, longDelay + longRepeat + 2000);
+	}
+
+	cancelAdvancedLongSyntheticTick(key)
+	{
+		if (!this.advancedLongSyntheticTickTimers)
+		{
+			return;
+		}
+
+		const timer = this.advancedLongSyntheticTickTimers.get(key);
+		if (timer)
+		{
+			this.homey.clearTimeout(timer);
+		}
+
+		this.advancedLongSyntheticTickTimers.delete(key);
+	}
+
+	armAdvancedLongSyntheticTick(parameters, key, repeatIntervalMs)
+	{
+		if (!this.advancedLongSyntheticTickTimers)
+		{
+			return;
+		}
+
+		this.cancelAdvancedLongSyntheticTick(key);
+
+		const scheduleNext = () =>
+		{
+			const timer = this.homey.setTimeout(async () =>
+			{
+				this.advancedLongSyntheticTickTimers.delete(key);
+
+				const repeatCount = this.longPressOccurred ? (this.longPressOccurred.get(key) || 0) : 0;
+				if (repeatCount <= 0)
+				{
+					return;
+				}
+
+				const now = Date.now();
+				const heartbeatAt = this.longPressHeartbeatAt ? (this.longPressHeartbeatAt.get(key) || 0) : 0;
+				const heartbeatGraceMs = Math.max(150, Math.floor(repeatIntervalMs * 1.25));
+				const isFirmwareQuiet = (now - heartbeatAt) > heartbeatGraceMs;
+				if (!isFirmwareQuiet)
+				{
+					scheduleNext();
+					return;
+				}
+
+				const lastProcessedAt = this.longPressLastProcessedAt ? (this.longPressLastProcessedAt.get(key) || 0) : 0;
+				if ((now - lastProcessedAt) < repeatIntervalMs)
+				{
+					scheduleNext();
+					return;
+				}
+
+				this.longPressLastProcessedAt.set(key, now);
+
+				try
+				{
+					if (await this.runAdvancedEventMapping(parameters, 'long'))
+					{
+						if ((parameters.page === 0) || (this.page === parameters.page))
+						{
+							this.safeSetCapabilityValue(`${parameters.side}_button.connector${parameters.connector}`, false);
+						}
+					}
+
+					const currentCount = this.longPressOccurred.get(key) || 0;
+					if (currentCount > 0)
+					{
+						this.longPressOccurred.set(key, currentCount + 1);
+					}
+				}
+				catch (err)
+				{
+					this.error(err);
+				}
+
+				scheduleNext();
+			}, repeatIntervalMs);
+
+			this.advancedLongSyntheticTickTimers.set(key, timer);
+		};
+
+		scheduleNext();
+	}
+
+	getEventConfigNameForType(eventType)
+	{
+		switch (eventType)
+		{
+			case 'double': return 'Double';
+			case 'long': return 'Long';
+			case 'click':
+			default:
+				return 'Click';
+		}
+	}
+
+	getNumericActionForValueType(rawValue, fallbackAction)
+	{
+		if (typeof rawValue === 'number')
+		{
+			return fallbackAction || 'change';
+		}
+
+		return 'change';
+	}
+
+	parseValueStep(rawStep, defaultValue = 10)
+	{
+		const parsedStep = Number(rawStep);
+		if (!Number.isFinite(parsedStep) || parsedStep === 0)
+		{
+			return defaultValue;
+		}
+
+		return parsedStep;
+	}
+
+	formatDimPercentageValue(rawValue)
+	{
+		const numericValue = Number(rawValue);
+		const clampedValue = Number.isFinite(numericValue) ? Math.max(0, Math.min(1, numericValue)) : 0;
+		return `${Math.round(clampedValue * 100)}%`;
+	}
+
+	getCapabilityUnitText(capability)
+	{
+		if (!capability)
+		{
+			return '';
+		}
+
+		const rawUnit = capability.units || capability.unit || '';
+		if (typeof rawUnit === 'string')
+		{
+			return rawUnit.trim();
+		}
+
+		if (rawUnit && typeof rawUnit === 'object')
+		{
+			if (typeof rawUnit.en === 'string' && rawUnit.en.trim())
+			{
+				return rawUnit.en.trim();
+			}
+
+			for (const value of Object.values(rawUnit))
+			{
+				if (typeof value === 'string' && value.trim())
+				{
+					return value.trim();
+				}
+			}
+		}
+
+		return '';
+	}
+
+	formatAdvancedNumberValue(rawValue, capability)
+	{
+		const numericValue = Number(rawValue);
+		if (!Number.isFinite(numericValue))
+		{
+			return '';
+		}
+
+		const normalizedValue = Math.round(numericValue * 100) / 100;
+		const numberText = Number.isInteger(normalizedValue)
+			? String(normalizedValue)
+			: String(normalizedValue);
+		const unitText = this.getCapabilityUnitText(capability);
+		if (!unitText)
+		{
+			return numberText;
+		}
+
+		if (unitText.startsWith(' '))
+		{
+			return `${numberText}${unitText}`;
+		}
+
+		return `${numberText} ${unitText}`;
+	}
+
+	shouldShowAdvancedDirectionIndicator(parameters, binding, capability)
+	{
+		if (!parameters || !binding || !capability || capability.type !== 'number' || binding.capabilityName === 'dim')
+		{
+			return false;
+		}
+
+		for (const eventType of ['click', 'double', 'long'])
+		{
+			const eventBinding = this.resolveAdvancedEventBinding(parameters, eventType);
+			if (!eventBinding)
+			{
+				continue;
+			}
+
+			if (eventBinding.deviceID !== binding.deviceID || eventBinding.capabilityName !== binding.capabilityName)
+			{
+				continue;
+			}
+
+			const action = eventBinding.numericAction || 'change';
+			if (action === 'change' || action === 'setPlus' || action === 'setMinus' || action === 'toggleDirection')
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	getAdvancedDirectionKey(parameters)
+	{
+		return `${parameters.connector}_${parameters.side}`;
+	}
+
+	getAdvancedDirection(parameters)
+	{
+		const key = this.getAdvancedDirectionKey(parameters);
+		const existing = this.advancedDirectionStates.get(key);
+		return existing === '-' ? '-' : '+';
+	}
+
+	setAdvancedDirection(parameters, direction)
+	{
+		const key = this.getAdvancedDirectionKey(parameters);
+		this.advancedDirectionStates.set(key, direction === '-' ? '-' : '+');
+	}
+
+	toggleAdvancedDirection(parameters)
+	{
+		const nextDirection = this.getAdvancedDirection(parameters) === '+' ? '-' : '+';
+		this.setAdvancedDirection(parameters, nextDirection);
+		return nextDirection;
+	}
+
+	resolveAdvancedSideConfig(parameters)
+	{
+		if ((parameters.configNo == null) || (parameters.connectorType === 2) || (parameters.connectorType === 3))
+		{
+			return null;
+		}
+
+		const pageSideConfig = this.getConfigPageSide(null, parameters.page, parameters.side, parameters.configNo);
+		return pageSideConfig && pageSideConfig.raw ? pageSideConfig.raw : null;
+	}
+
+	resolveAdvancedEventBinding(parameters, eventType)
+	{
+		const sideConfig = this.resolveAdvancedSideConfig(parameters);
+		if (!sideConfig)
+		{
+			return null;
+		}
+
+		const side = parameters.side;
+		const mode = String(sideConfig[`${side}Mode`] || 'basic').toLowerCase();
+		if (mode !== 'advanced')
+		{
+			return null;
+		}
+
+		const eventName = this.getEventConfigNameForType(eventType);
+		const deviceID = sideConfig[`${side}${eventName}Device`] || 'none';
+		const capabilityName = sideConfig[`${side}${eventName}Capability`] || '';
+		const numericAction = sideConfig[`${side}${eventName}NumericAction`] || 'change';
+		const rawStep = sideConfig[`${side}${eventName}ValueStep`] || '+10';
+		const directionOnly = (numericAction === 'toggleDirection') && !capabilityName;
+
+		if (!directionOnly && (!deviceID || deviceID === 'none' || !capabilityName))
+		{
+			return null;
+		}
+
+		const brokerId = sideConfig[`${side}BrokerId`] || sideConfig[`${side}brokerid`] || 'Default';
+		return {
+			deviceID,
+			capabilityName,
+			numericAction,
+			directionOnly,
+			valueStep: this.parseValueStep(rawStep, 10),
+			brokerId,
+			eventName,
+		};
+	}
+
+	async shouldDeferAdvancedClickMapping(parameters)
+	{
+		if (!parameters || parameters.event !== 'click')
+		{
+			return false;
+		}
+
+		const clickBinding = this.resolveAdvancedEventBinding(parameters, 'click');
+		if (!clickBinding)
+		{
+			return false;
+		}
+
+		if (!clickBinding.directionOnly)
+		{
+			if (clickBinding.deviceID === '_variable_')
+			{
+				const variable = await this.homey.app.getVariable(clickBinding.capabilityName);
+				if (variable && variable.type === 'boolean')
+				{
+					this.homey.app.updateLog(`ADVDBG map click: bypass defer for boolean variable ${clickBinding.capabilityName}`, 1);
+					return false;
+				}
+			}
+			else if (clickBinding.deviceID !== 'customMQTT')
+			{
+				const device = await this.homey.app.getHomeyDeviceById(clickBinding.deviceID);
+				const capability = device ? await this.homey.app.getHomeyCapabilityByName(device, clickBinding.capabilityName) : null;
+				if (capability && capability.type === 'boolean')
+				{
+					this.homey.app.updateLog(`ADVDBG map click: bypass defer for boolean capability ${clickBinding.capabilityName}`, 1);
+					return false;
+				}
+			}
+		}
+
+		const longBinding = this.resolveAdvancedEventBinding(parameters, 'long');
+		return !!longBinding;
+	}
+
+	queueAdvancedLongReleaseCommit(parameters, binding, valueToCommit)
+	{
+		if (!parameters || !binding)
+		{
+			return;
+		}
+
+		const key = this.getButtonStateKey(parameters.connector, parameters.side, parameters.page);
+		this.pendingAdvancedLongReleaseCommits.set(key, {
+			deviceID: binding.deviceID,
+			capabilityName: binding.capabilityName,
+			valueToCommit,
+		});
+		this.advancedLongLastEventTimes.set(key, Date.now());
+
+		// Some firmware/message paths can delay or miss a release; flush buffered long value after repeat goes idle.
+		this.scheduleAdvancedLongReleaseCommitFallback(parameters, key);
+	}
+
+	clearAdvancedLongReleaseCommitTimer(key)
+	{
+		const pendingTimer = this.advancedLongReleaseCommitTimers.get(key);
+		if (pendingTimer)
+		{
+			this.homey.clearTimeout(pendingTimer);
+			this.advancedLongReleaseCommitTimers.delete(key);
+		}
+	}
+
+	scheduleAdvancedLongReleaseCommitFallback(parameters, key)
+	{
+		if (!parameters)
+		{
+			return;
+		}
+
+		this.clearAdvancedLongReleaseCommitTimer(key);
+		const flushDelayMs = Math.max(1200, this.getConfiguredLongPressRepeatMs(parameters) * 3);
+		const timer = this.homey.setTimeout(() =>
+		{
+			const lastEventAt = this.advancedLongLastEventTimes.get(key) || 0;
+			if ((Date.now() - lastEventAt) < flushDelayMs)
+			{
+				this.scheduleAdvancedLongReleaseCommitFallback(parameters, key);
+				return;
+			}
+
+			this.flushAdvancedLongReleaseCommitByKey(key, 'advanced:long:fallbackCommit').catch((err) => this.error(err));
+		}, flushDelayMs);
+		this.advancedLongReleaseCommitTimers.set(key, timer);
+	}
+
+	getQueuedAdvancedLongReleaseValue(parameters, binding)
+	{
+		if (!parameters || !binding)
+		{
+			return undefined;
+		}
+
+		const key = this.getButtonStateKey(parameters.connector, parameters.side, parameters.page);
+		const pending = this.pendingAdvancedLongReleaseCommits.get(key);
+		if (!pending)
+		{
+			return undefined;
+		}
+
+		if (pending.deviceID !== binding.deviceID || pending.capabilityName !== binding.capabilityName)
+		{
+			return undefined;
+		}
+
+		return pending.valueToCommit;
+	}
+
+	async flushAdvancedLongReleaseCommit(parameters)
+	{
+		if (!parameters)
+		{
+			return;
+		}
+
+		const key = this.getButtonStateKey(parameters.connector, parameters.side, parameters.page);
+		await this.flushAdvancedLongReleaseCommitByKey(key, 'advanced:long:releaseCommit');
+		await this.applyAdvancedDisplayBinding(parameters);
+		await this.applyAdvancedLedBinding(parameters);
+	}
+
+	async flushAdvancedLongReleaseCommitByKey(key, sourceLabel)
+	{
+		if (!key)
+		{
+			return;
+		}
+
+		this.clearAdvancedLongReleaseCommitTimer(key);
+		this.advancedLongLastEventTimes.delete(key);
+		const pending = this.pendingAdvancedLongReleaseCommits.get(key);
+		if (!pending)
+		{
+			return;
+		}
+
+		this.pendingAdvancedLongReleaseCommits.delete(key);
+
+		if (!pending.deviceID || pending.deviceID === 'none' || pending.deviceID === '_variable_' || pending.deviceID === 'customMQTT' || !pending.capabilityName)
+		{
+			return;
+		}
+
+		const device = await this.homey.app.getHomeyDeviceById(pending.deviceID);
+		if (!device)
+		{
+			return;
+		}
+
+		await this.guardedSetCapabilityValueOnDevice(device, pending.capabilityName, pending.valueToCommit, sourceLabel || 'advanced:long:releaseCommit');
+	}
+
+	getPendingAdvancedLongDisplayOverride(parameters, binding)
+	{
+		if (!parameters || !binding)
+		{
+			return undefined;
+		}
+
+		const key = this.getButtonStateKey(parameters.connector, parameters.side, parameters.page);
+		const pending = this.pendingAdvancedLongReleaseCommits.get(key);
+		if (!pending)
+		{
+			return undefined;
+		}
+
+		if (pending.deviceID !== binding.deviceID || pending.capabilityName !== binding.capabilityName)
+		{
+			return undefined;
+		}
+
+		return pending.valueToCommit;
+	}
+
+	resolveAdvancedDisplayBinding(parameters)
+	{
+		const sideConfig = this.resolveAdvancedSideConfig(parameters);
+		if (!sideConfig)
+		{
+			return null;
+		}
+
+		const side = parameters.side;
+		const mode = String(sideConfig[`${side}Mode`] || 'basic').toLowerCase();
+		if (mode !== 'advanced')
+		{
+			return null;
+		}
+
+		let deviceID = sideConfig[`${side}DisplayDevice`] || 'none';
+		let capabilityName = sideConfig[`${side}DisplayCapability`] || '';
+
+		if (!capabilityName)
+		{
+			const legacySideConfig = this.getConfigPageSide(null, parameters.page, side, parameters.configNo);
+			if (legacySideConfig && legacySideConfig.deviceID && legacySideConfig.deviceID !== 'none' && legacySideConfig.capabilityName)
+			{
+				deviceID = legacySideConfig.deviceID;
+				capabilityName = legacySideConfig.capabilityName;
+				this.homey.app.updateLog(`ADVDBG displayBinding fallback: ${parameters.connector}/${parameters.side}/${parameters.page} using Legacy ${deviceID}/${capabilityName}`, 1);
+			}
+		}
+
+		if (!capabilityName)
+		{
+			for (const eventName of ['Click', 'Long', 'Double'])
+			{
+				const fallbackDeviceId = sideConfig[`${side}${eventName}Device`] || 'none';
+				const fallbackCapabilityName = sideConfig[`${side}${eventName}Capability`] || '';
+				if (!fallbackCapabilityName || fallbackDeviceId === 'none' || fallbackDeviceId === '_variable_' || fallbackDeviceId === 'customMQTT')
+				{
+					continue;
+				}
+
+				deviceID = fallbackDeviceId;
+				capabilityName = fallbackCapabilityName;
+				this.homey.app.updateLog(`ADVDBG displayBinding fallback: ${parameters.connector}/${parameters.side}/${parameters.page} using ${eventName} ${deviceID}/${capabilityName}`, 1);
+				break;
+			}
+		}
+
+		if (!deviceID || deviceID === 'none' || !capabilityName)
+		{
+			return null;
+		}
+
+		return {
+			deviceID,
+			capabilityName,
+			booleanRender: sideConfig[`${side}DisplayBooleanRender`] || 'text',
+			onText: sideConfig[`${side}OnText`] || '',
+			offText: sideConfig[`${side}OffText`] || '',
+			onSVG: normalizeSvgText(sideConfig[`${side}OnSVG`] || ''),
+			offSVG: normalizeSvgText(sideConfig[`${side}OffSVG`] || ''),
+			brokerId: sideConfig[`${side}BrokerId`] || sideConfig[`${side}brokerid`] || 'Default',
+		};
+	}
+
+	resolveAdvancedLedBinding(parameters)
+	{
+		const sideConfig = this.resolveAdvancedSideConfig(parameters);
+		if (!sideConfig)
+		{
+			return null;
+		}
+
+		const side = parameters.side;
+		const mode = String(sideConfig[`${side}Mode`] || 'basic').toLowerCase();
+		if (mode !== 'advanced')
+		{
+			return null;
+		}
+
+		const deviceID = sideConfig[`${side}LedDevice`] || 'none';
+		const capabilityName = sideConfig[`${side}LedCapability`] || '';
+		if (!deviceID || deviceID === 'none' || !capabilityName)
+		{
+			return null;
+		}
+
+		const brokerId = sideConfig[`${side}BrokerId`] || sideConfig[`${side}brokerid`] || 'Default';
+		return {
+			deviceID,
+			capabilityName,
+			brokerId,
+			frontLEDOnColor: sideConfig[`${side}FrontLEDOnColor`] || '#ff0000',
+			wallLEDOnColor: sideConfig[`${side}WallLEDOnColor`] || '#ff0000',
+			frontLEDOffColor: sideConfig[`${side}FrontLEDOffColor`] || '#000000',
+			wallLEDOffColor: sideConfig[`${side}WallLEDOffColor`] || '#000000',
+		};
+	}
+
+	async resolveAdvancedDisplayValue(binding, overrideValue, parameters)
+	{
+		if (!binding)
+		{
+			return { textValue: null, svgValue: null };
+		}
+
+		if (binding.deviceID === '_variable_')
+		{
+			const variable = await this.homey.app.getVariable(binding.capabilityName);
+			if (!variable)
+			{
+				return { textValue: '', svgValue: null };
+			}
+
+			if (variable.type === 'boolean')
+			{
+				const isOn = !!variable.value;
+				if (binding.booleanRender === 'svg')
+				{
+					return { textValue: null, svgValue: isOn ? binding.onSVG : binding.offSVG };
+				}
+				return { textValue: isOn ? binding.onText : binding.offText, svgValue: null };
+			}
+
+			return { textValue: variable.value == null ? '' : String(variable.value), svgValue: null };
+		}
+
+		const device = await this.homey.app.getHomeyDeviceById(binding.deviceID);
+		if (!device)
+		{
+			return { textValue: '', svgValue: null };
+		}
+
+		const capability = await this.homey.app.getHomeyCapabilityByName(device, binding.capabilityName);
+		if (!capability)
+		{
+			return { textValue: '', svgValue: null };
+		}
+
+		const effectiveValue = (overrideValue === undefined) ? capability.value : overrideValue;
+
+		if (capability.type === 'boolean')
+		{
+			const isOn = !!effectiveValue;
+			if (binding.booleanRender === 'svg')
+			{
+				return { textValue: null, svgValue: isOn ? binding.onSVG : binding.offSVG };
+			}
+			return { textValue: isOn ? binding.onText : binding.offText, svgValue: null };
+		}
+
+		if ((capability.type === 'enum') && Array.isArray(capability.values))
+		{
+			const match = capability.values.find((entry) => entry.id === effectiveValue);
+			return { textValue: match ? (match.title || match.id) : ((effectiveValue == null) ? '' : String(effectiveValue)), svgValue: null };
+		}
+
+		if (binding.capabilityName === 'dim')
+		{
+			return { textValue: this.formatDimPercentageValue(effectiveValue), svgValue: null };
+		}
+
+		if (capability.type === 'number')
+		{
+			let textValue = this.formatAdvancedNumberValue(effectiveValue, capability);
+			if (this.shouldShowAdvancedDirectionIndicator(parameters, binding, capability))
+			{
+				textValue = `${textValue} ${this.getAdvancedDirection(parameters)}`;
+			}
+			return { textValue, svgValue: null };
+		}
+
+		return { textValue: effectiveValue == null ? '' : String(effectiveValue), svgValue: null };
+	}
+
+	async applyAdvancedDisplayBinding(parameters, overrideValue)
+	{
+		const binding = this.resolveAdvancedDisplayBinding(parameters);
+		if (!binding)
+		{
+			this.homey.app.updateLog(`ADVDBG applyDisplay skip: ${parameters ? `${parameters.connector}/${parameters.side}/${parameters.page}` : 'unknown'}`, 1);
+			return;
+		}
+
+		const pendingOverride = this.getPendingAdvancedLongDisplayOverride(parameters, binding);
+		const effectiveOverride = (overrideValue === undefined) ? pendingOverride : overrideValue;
+		const value = await this.resolveAdvancedDisplayValue(binding, effectiveOverride, parameters);
+		const buttonIdx = parameters.connector * 2 + (parameters.side === 'left' ? 0 : 1) + 1;
+		this.homey.app.updateLog(`ADVDBG applyDisplay ok: ${parameters.connector}/${parameters.side}/${parameters.page}, value=${value && value.textValue != null ? value.textValue : ''}, svg=${value && value.svgValue ? 'yes' : 'no'}, override=${effectiveOverride === undefined ? 'none' : effectiveOverride}`, 1);
+		if (value && value.svgValue)
+		{
+			this.homey.app.publishMQTTMessage(binding.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/svg/set`, value.svgValue).catch((err) => this.error(err));
+			this.homey.app.publishMQTTMessage(binding.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/label/set`, '').catch(this.error);
+		}
+		else
+		{
+			this.homey.app.publishMQTTMessage(binding.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/svg/set`, '').catch((err) => this.error(err));
+			this.homey.app.publishMQTTMessage(binding.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/label/set`, value && value.textValue != null ? value.textValue : '').catch(this.error);
+		}
+	}
+
+	async applyAdvancedDisplayPreviewValue(parameters, eventBinding, capability, previewValue)
+	{
+		const displayBinding = this.resolveAdvancedDisplayBinding(parameters);
+		if (!displayBinding)
+		{
+			return false;
+		}
+
+		if (displayBinding.deviceID !== eventBinding.deviceID || displayBinding.capabilityName !== eventBinding.capabilityName)
+		{
+			return false;
+		}
+
+		const buttonIdx = parameters.connector * 2 + (parameters.side === 'left' ? 0 : 1) + 1;
+		if ((capability.type === 'boolean') && displayBinding.booleanRender === 'svg')
+		{
+			const svgValue = previewValue ? displayBinding.onSVG : displayBinding.offSVG;
+			this.homey.app.publishMQTTMessage(displayBinding.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/svg/set`, svgValue || '').catch((err) => this.error(err));
+			this.homey.app.publishMQTTMessage(displayBinding.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/label/set`, '').catch(this.error);
+			return true;
+		}
+
+		let textValue = '';
+		if ((capability.type === 'boolean') && displayBinding.booleanRender === 'text')
+		{
+			textValue = previewValue ? displayBinding.onText : displayBinding.offText;
+		}
+		else if ((capability.type === 'enum') && Array.isArray(capability.values))
+		{
+			const matched = capability.values.find((entry) => entry.id === previewValue);
+			textValue = matched ? (matched.title || matched.id) : String(previewValue);
+		}
+		else
+		{
+			if (eventBinding.capabilityName === 'dim')
+			{
+				textValue = this.formatDimPercentageValue(previewValue);
+			}
+			else if (capability.type === 'number')
+			{
+				textValue = this.formatAdvancedNumberValue(previewValue, capability);
+				textValue = `${textValue} ${this.getAdvancedDirection(parameters)}`;
+			}
+			else
+			{
+				textValue = (previewValue === null || previewValue === undefined) ? '' : String(previewValue);
+			}
+		}
+
+		this.homey.app.publishMQTTMessage(displayBinding.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/svg/set`, '').catch((err) => this.error(err));
+		this.homey.app.publishMQTTMessage(displayBinding.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/label/set`, textValue).catch(this.error);
+		return true;
+	}
+
+	applyAdvancedFallbackSelectionPreview(parameters, eventBinding, capability, previewValue)
+	{
+		if (!parameters || !eventBinding || !capability)
+		{
+			return;
+		}
+
+		const buttonIdx = parameters.connector * 2 + (parameters.side === 'left' ? 0 : 1) + 1;
+		let textValue = '';
+
+		if ((capability.type === 'enum') && Array.isArray(capability.values))
+		{
+			const matched = capability.values.find((entry) => entry.id === previewValue);
+			textValue = matched ? (matched.title || matched.id) : String(previewValue);
+		}
+		else if (capability.type === 'boolean')
+		{
+			textValue = previewValue ? 'On' : 'Off';
+		}
+		else
+		{
+			if (eventBinding.capabilityName === 'dim')
+			{
+				textValue = this.formatDimPercentageValue(previewValue);
+			}
+			else if (capability.type === 'number')
+			{
+				textValue = this.formatAdvancedNumberValue(previewValue, capability);
+				textValue = `${textValue} ${this.getAdvancedDirection(parameters)}`;
+			}
+			else
+			{
+				textValue = (previewValue === null || previewValue === undefined) ? '' : String(previewValue);
+			}
+		}
+
+		this.homey.app.publishMQTTMessage(eventBinding.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/svg/set`, '').catch((err) => this.error(err));
+		this.homey.app.publishMQTTMessage(eventBinding.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/label/set`, textValue).catch(this.error);
+	}
+
+	async applyAdvancedLedBinding(parameters)
+	{
+		const binding = this.resolveAdvancedLedBinding(parameters);
+		if (!binding)
+		{
+			return;
+		}
+
+		let ledState = false;
+		if (binding.deviceID === '_variable_')
+		{
+			const variable = await this.homey.app.getVariable(binding.capabilityName);
+			ledState = !!(variable && variable.type === 'boolean' && variable.value);
+		}
+		else
+		{
+			const device = await this.homey.app.getHomeyDeviceById(binding.deviceID);
+			if (binding.capabilityName === 'dim')
+			{
+				ledState = await this.getDimButtonLedState(binding);
+			}
+			else
+			{
+				const capability = device ? await this.homey.app.getHomeyCapabilityByName(device, binding.capabilityName) : null;
+				if (capability && (capability.type === 'boolean'))
+				{
+					ledState = !!capability.value;
+				}
+				else
+				{
+					const followState = await this.getCapabilityLedState(binding);
+					ledState = (followState === null) ? false : followState;
+				}
+			}
+		}
+
+		const buttonIdx = parameters.connector * 2 + (parameters.side === 'left' ? 0 : 1) + 1;
+		this.setLEDOnOff(binding, null, buttonIdx, parameters.page, ledState);
+	}
+
+	async commitAdvancedValueWithDebounce(parameters, binding, device, capabilityName, valueToCommit)
+	{
+		const commitKey = `${parameters.connector}_${parameters.side}_${parameters.page}_${binding.deviceID}_${capabilityName}`;
+		this.advancedPendingValues.set(commitKey, valueToCommit);
+
+		const existingTimer = this.advancedCommitTimers.get(commitKey);
+		if (existingTimer)
+		{
+			this.homey.clearTimeout(existingTimer);
+		}
+
+		const commitDelayMs = this.getAdvancedCommitDelayMs(parameters);
+		const timer = this.homey.setTimeout(() =>
+		{
+			this.advancedCommitTimers.delete(commitKey);
+			const pendingValue = this.advancedPendingValues.get(commitKey);
+			this.advancedPendingValues.delete(commitKey);
+			if (pendingValue === undefined)
+			{
+				return;
+			}
+
+			this.guardedSetCapabilityValueOnDevice(device, capabilityName, pendingValue, 'advanced:commit').catch((err) => this.error(err));
+		}, commitDelayMs);
+
+		this.advancedCommitTimers.set(commitKey, timer);
+	}
+
+	async runAdvancedEventMapping(parameters, eventType)
+	{
+		const binding = this.resolveAdvancedEventBinding(parameters, eventType);
+		if (!binding)
+		{
+			this.homey.app.updateLog(`ADVDBG map ${eventType}: no binding ${parameters ? `${parameters.connector}/${parameters.side}/${parameters.page}` : 'unknown'}`, 1);
+			return false;
+		}
+
+		this.homey.app.updateLog(`ADVDBG map ${eventType}: ${parameters.connector}/${parameters.side}/${parameters.page} -> ${binding.deviceID}/${binding.capabilityName}, action=${binding.numericAction}, step=${binding.valueStep}`, 1);
+
+		const shouldBufferUntilRelease = eventType === 'long';
+		let hasLocalPreview = false;
+
+		if (binding.directionOnly)
+		{
+			this.toggleAdvancedDirection(parameters);
+			await this.applyAdvancedDisplayBinding(parameters);
+			await this.applyAdvancedLedBinding(parameters);
+			return true;
+		}
+
+		if (binding.deviceID === '_variable_' || binding.deviceID === 'customMQTT')
+		{
+			this.homey.app.updateLog(`ADVDBG map ${eventType}: special source ${binding.deviceID}`, 1);
+			return true;
+		}
+
+		const device = await this.homey.app.getHomeyDeviceById(binding.deviceID);
+		if (!device)
+		{
+			this.homey.app.updateLog(`ADVDBG map ${eventType}: device missing ${binding.deviceID}`, 1);
+			return true;
+		}
+
+		const capability = await this.homey.app.getHomeyCapabilityByName(device, binding.capabilityName);
+		if (!capability || capability.setable === false)
+		{
+			this.homey.app.updateLog(`ADVDBG map ${eventType}: capability missing/not setable ${binding.capabilityName}`, 1);
+			return true;
+		}
+
+		let valueToWrite = capability.value;
+		if (capability.type === 'boolean')
+		{
+			const queuedValue = shouldBufferUntilRelease ? this.getQueuedAdvancedLongReleaseValue(parameters, binding) : undefined;
+			const currentBoolean = queuedValue === undefined ? Boolean(capability.value) : Boolean(queuedValue);
+			valueToWrite = !currentBoolean;
+			const previewApplied = await this.applyAdvancedDisplayPreviewValue(parameters, binding, capability, valueToWrite);
+			let localPreviewApplied = previewApplied;
+			if (shouldBufferUntilRelease && !previewApplied)
+			{
+				this.applyAdvancedFallbackSelectionPreview(parameters, binding, capability, valueToWrite);
+				localPreviewApplied = true;
+			}
+			hasLocalPreview = hasLocalPreview || localPreviewApplied;
+			if (shouldBufferUntilRelease)
+			{
+				this.queueAdvancedLongReleaseCommit(parameters, binding, valueToWrite);
+			}
+			else
+			{
+				await this.guardedSetCapabilityValueOnDevice(device, binding.capabilityName, valueToWrite, `advanced:${eventType}:boolean`);
+			}
+		}
+		else if ((capability.type === 'enum') && Array.isArray(capability.values) && capability.values.length > 0)
+		{
+			const queuedValue = shouldBufferUntilRelease ? this.getQueuedAdvancedLongReleaseValue(parameters, binding) : undefined;
+			const currentEnumValue = queuedValue === undefined ? capability.value : queuedValue;
+			const currentIndex = capability.values.findIndex((entry) => entry.id === currentEnumValue);
+			const nextIndex = currentIndex >= 0 ? ((currentIndex + 1) % capability.values.length) : 0;
+			const nextItem = capability.values[nextIndex];
+			if (nextItem)
+			{
+				valueToWrite = nextItem.id;
+				const previewApplied = await this.applyAdvancedDisplayPreviewValue(parameters, binding, capability, valueToWrite);
+				let localPreviewApplied = previewApplied;
+				if (shouldBufferUntilRelease && !previewApplied)
+				{
+					this.applyAdvancedFallbackSelectionPreview(parameters, binding, capability, valueToWrite);
+					localPreviewApplied = true;
+				}
+				hasLocalPreview = hasLocalPreview || localPreviewApplied;
+				if (shouldBufferUntilRelease)
+				{
+					this.queueAdvancedLongReleaseCommit(parameters, binding, valueToWrite);
+				}
+				else
+				{
+					await this.commitAdvancedValueWithDebounce(parameters, binding, device, binding.capabilityName, valueToWrite);
+				}
+			}
+		}
+		else if ((capability.type === 'number') || (binding.capabilityName === 'dim'))
+		{
+			const queuedValue = shouldBufferUntilRelease ? this.getQueuedAdvancedLongReleaseValue(parameters, binding) : undefined;
+			const currentNumericValue = Number.isFinite(Number(queuedValue)) ? Number(queuedValue) : capability.value;
+			const numericAction = this.getNumericActionForValueType(currentNumericValue, binding.numericAction);
+			if (numericAction === 'setPlus')
+			{
+				this.setAdvancedDirection(parameters, '+');
+			}
+			else if (numericAction === 'setMinus')
+			{
+				this.setAdvancedDirection(parameters, '-');
+			}
+			else if (numericAction === 'toggleDirection')
+			{
+				this.toggleAdvancedDirection(parameters);
+			}
+			else
+			{
+				const direction = this.getAdvancedDirection(parameters);
+				const step = Math.abs(binding.valueStep);
+				if (binding.capabilityName === 'dim')
+				{
+					const currentDim = Number.isFinite(Number(currentNumericValue)) ? Number(currentNumericValue) : 0;
+					const delta = step / 100;
+					valueToWrite = direction === '-' ? currentDim - delta : currentDim + delta;
+					valueToWrite = Math.max(0, Math.min(1, valueToWrite));
+					valueToWrite = Math.round(valueToWrite * 1000) / 1000;
+				}
+				else
+				{
+					const currentNumber = Number.isFinite(Number(currentNumericValue)) ? Number(currentNumericValue) : 0;
+					const delta = step;
+					valueToWrite = direction === '-' ? currentNumber - delta : currentNumber + delta;
+					if (Number.isFinite(Number(capability.min)))
+					{
+						valueToWrite = Math.max(Number(capability.min), valueToWrite);
+					}
+					if (Number.isFinite(Number(capability.max)))
+					{
+						valueToWrite = Math.min(Number(capability.max), valueToWrite);
+					}
+				}
+
+				const previewApplied = await this.applyAdvancedDisplayPreviewValue(parameters, binding, capability, valueToWrite);
+				let localPreviewApplied = previewApplied;
+				if (shouldBufferUntilRelease && !previewApplied)
+				{
+					this.applyAdvancedFallbackSelectionPreview(parameters, binding, capability, valueToWrite);
+					localPreviewApplied = true;
+				}
+				hasLocalPreview = hasLocalPreview || localPreviewApplied;
+				if (shouldBufferUntilRelease)
+				{
+					this.queueAdvancedLongReleaseCommit(parameters, binding, valueToWrite);
+				}
+				else
+				{
+					await this.guardedSetCapabilityValueOnDevice(device, binding.capabilityName, valueToWrite, `advanced:${eventType}:number`);
+				}
+			}
+		}
+
+		// For debounced updates, avoid immediately re-reading the old device value and overwriting preview feedback.
+		if (!hasLocalPreview)
+		{
+			await this.applyAdvancedDisplayBinding(parameters);
+		}
+		if (!shouldBufferUntilRelease)
+		{
+			await this.applyAdvancedDisplayBinding(parameters);
+		}
+		await this.applyAdvancedLedBinding(parameters);
+		this.homey.app.updateLog(`ADVDBG map ${eventType}: done localPreview=${hasLocalPreview}, buffered=${shouldBufferUntilRelease}`, 1);
+		if ((eventType === 'click') && this.advancedLastClickProcessedAt)
+		{
+			const key = this.getButtonStateKey(parameters.connector, parameters.side, parameters.page);
+			this.advancedLastClickProcessedAt.set(key, Date.now());
+		}
+		return true;
+	}
+
 	// Defers firing a 'clicked'/'released' Flow trigger until we know whether the press turns into a double click;
 	// if a second click/release arrives within the double click window the pending fns are discarded instead of fired
 	queueClickedTrigger(key, fireFn)
@@ -2082,8 +3241,63 @@ class PanelDevice extends Device
 		this.pendingReleasedTriggers.get(key).push(fireFn);
 	}
 
+	queuePendingAdvancedClickAction(key, fireFn)
+	{
+		if (!this.pendingAdvancedClickActions.has(key))
+		{
+			this.pendingAdvancedClickActions.set(key, []);
+		}
+
+		this.pendingAdvancedClickActions.get(key).push(fireFn);
+	}
+
+	clearPendingAdvancedClickFallbackTimer(key)
+	{
+		const pendingTimer = this.pendingAdvancedClickFallbackTimers.get(key);
+		if (pendingTimer)
+		{
+			this.homey.clearTimeout(pendingTimer);
+			this.pendingAdvancedClickFallbackTimers.delete(key);
+		}
+	}
+
+	schedulePendingAdvancedClickFallback(parameters, key)
+	{
+		if (!parameters)
+		{
+			return;
+		}
+
+		// Real panel presses always get resolved by release -> handleGenericDoubleClick.
+		// Running this fallback timer for physical clicks can fire a click mapping before
+		// the hold is recognized as long press, causing an unwanted pre-step.
+		if (!parameters.fromButton && parameters.event === 'click')
+		{
+			this.clearPendingAdvancedClickFallbackTimer(key);
+			return;
+		}
+
+		this.clearPendingAdvancedClickFallbackTimer(key);
+		const fallbackDelayMs = Math.max(DOUBLE_CLICK_WINDOW_MS + 50, this.getConfiguredLongPressDelayMs(parameters) + 120);
+		const timer = this.homey.setTimeout(() =>
+		{
+			this.pendingAdvancedClickFallbackTimers.delete(key);
+			this.firePendingSingleClickTriggers(key);
+		}, fallbackDelayMs);
+
+		this.pendingAdvancedClickFallbackTimers.set(key, timer);
+	}
+
 	firePendingSingleClickTriggers(key)
 	{
+		this.clearPendingAdvancedClickFallbackTimer(key);
+		const advancedClickFns = this.pendingAdvancedClickActions.get(key);
+		this.pendingAdvancedClickActions.delete(key);
+		if (advancedClickFns)
+		{
+			advancedClickFns.forEach((fireFn) => fireFn());
+		}
+
 		const clickedFns = this.pendingClickedTriggers.get(key);
 		this.pendingClickedTriggers.delete(key);
 		if (clickedFns)
@@ -2101,8 +3315,10 @@ class PanelDevice extends Device
 
 	discardPendingSingleClickTriggers(key)
 	{
+		this.clearPendingAdvancedClickFallbackTimer(key);
 		this.pendingClickedTriggers.delete(key);
 		this.pendingReleasedTriggers.delete(key);
+		this.pendingAdvancedClickActions.delete(key);
 	}
 
 	// Real physical clicks are paired with a release that resolves single-vs-double via handleGenericDoubleClick,
@@ -2183,6 +3399,30 @@ class PanelDevice extends Device
 
 	async handleButtonClick(parameters)
 	{
+		if (await this.shouldDeferAdvancedClickMapping(parameters))
+		{
+			const key = this.getButtonStateKey(parameters.connector, parameters.side, parameters.page);
+			const deferredParameters = _.cloneDeep(parameters);
+			this.queuePendingAdvancedClickAction(key, () => this.runAdvancedEventMapping(deferredParameters, 'click').catch((err) => this.error(err)));
+			this.schedulePendingAdvancedClickFallback(parameters, key);
+
+			if (parameters.fromButton && ((parameters.page === 0) || (this.page === parameters.page)))
+			{
+				setImmediate(() => this.safeSetCapabilityValue(parameters.buttonCapability, false));
+			}
+
+			return null;
+		}
+
+		if (await this.runAdvancedEventMapping(parameters, 'click'))
+		{
+			if (parameters.fromButton && ((parameters.page === 0) || (this.page === parameters.page)))
+			{
+				setImmediate(() => this.safeSetCapabilityValue(parameters.buttonCapability, false));
+			}
+			return null;
+		}
+
 		const config = this.resolveConnectorConfig(parameters);
 
 		if (this.isDimButtonConfig(config))
@@ -2394,6 +3634,17 @@ class PanelDevice extends Device
 			this.homey.clearTimeout(pendingTimer);
 			this.clickEventTimers.delete(key);
 			this.discardPendingSingleClickTriggers(key);
+
+			if (await this.runAdvancedEventMapping(parameters, 'double'))
+			{
+				const value = this.buttonValues.get(`${parameters.side}_${parameters.connector}_${parameters.page}`) || false;
+				this.homey.app.triggerButtonEvent(this, parameters.side, parameters.connector, 'double', value, value.toString(), 0);
+				if (parameters.configNo != null)
+				{
+					this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'double', value, value.toString(), parameters.page);
+				}
+				return;
+			}
 
 			// Toggle first (if applicable) so the reported button/LED state reflects the new value
 			await this.toggleOnOffForNonBooleanCapability(config);
@@ -2827,28 +4078,44 @@ class PanelDevice extends Device
 
 		let buttonPanelConfiguration = null;
 		let buttonPageConfiguration = null;
+		const hasAdvancedLongMapping = !!this.resolveAdvancedEventBinding(parameters, 'long');
 		if ((parameters.configNo != null) && (parameters.connectorType !== 2) && (parameters.connectorType !== 3))
 		{
 			buttonPanelConfiguration = this.homey.app.buttonConfigurations[parameters.configNo];
 			buttonPageConfiguration = buttonPanelConfiguration ? (buttonPanelConfiguration[parameters.page] || buttonPanelConfiguration[0] || {}) : {};
-			if (buttonPageConfiguration[`${parameters.side}DisableLongRepeat`] && (repeatCount > 0))
+			const disableLongRepeatRaw = buttonPageConfiguration[`${parameters.side}DisableLongRepeat`];
+			const disableLongRepeat = disableLongRepeatRaw === true
+				|| disableLongRepeatRaw === 1
+				|| disableLongRepeatRaw === '1'
+				|| (typeof disableLongRepeatRaw === 'string' && disableLongRepeatRaw.trim().toLowerCase() === 'true');
+			if (!hasAdvancedLongMapping && disableLongRepeat && (repeatCount > 0))
 			{
+				this.homey.app.updateLog(`ADVDBG long gate: disabled repeat for ${parameters.connector}/${parameters.side}/${parameters.page}, raw=${disableLongRepeatRaw}`, 1);
 				return null;
 			}
+		}
+
+		if (hasAdvancedLongMapping)
+		{
+			this.longPressHeartbeatAt.set(longPressKey, Date.now());
 		}
 
 		if (isFirmwareV3)
 		{
 			const configuredRepeatMs = parseInt(buttonPageConfiguration && buttonPageConfiguration[`${parameters.side}LongRepeatMs`], 10);
 			const repeatIntervalMs = Number.isNaN(configuredRepeatMs) ? 500 : Math.max(50, Math.min(configuredRepeatMs, 10000));
-			const eventsPerRepeat = Math.max(1, Math.ceil(repeatIntervalMs / V3_LONG_PRESS_EVENT_INTERVAL_MS));
-			const eventCount = this.longPressEventCounts.get(longPressKey) || 0;
-			this.longPressEventCounts.set(longPressKey, eventCount + 1);
-
-			if ((eventCount % eventsPerRepeat) !== 0)
+			if (hasAdvancedLongMapping)
+			{
+				this.armAdvancedLongSyntheticTick(parameters, longPressKey, repeatIntervalMs);
+			}
+			const now = Date.now();
+			const lastProcessedAt = this.longPressLastProcessedAt.get(longPressKey) || 0;
+			if ((repeatCount > 0) && ((now - lastProcessedAt) < repeatIntervalMs))
 			{
 				return null;
 			}
+
+			this.longPressLastProcessedAt.set(longPressKey, now);
 		}
 
 		if (repeatCount === 0)
@@ -2857,8 +4124,36 @@ class PanelDevice extends Device
 		}
 
 		this.longPressOccurred.set(longPressKey, repeatCount + 1);
+		if (repeatCount === 0)
+		{
+			// Once a hold is confirmed as a long press, discard any deferred single-click actions for this press.
+			this.discardPendingSingleClickTriggers(longPressKey);
+		}
 		this.homey.app.triggerButtonLongPress(this, parameters.side === 'left', parameters.connector + 1, repeatCount, parameters.page);
 		this.homey.app.triggerButtonEvent(this, parameters.side, parameters.connector, 'long', parameters.value, parameters.value.toString(), 0);
+
+		if (hasAdvancedLongMapping && (repeatCount === 0) && this.advancedLastClickProcessedAt)
+		{
+			const lastClickAt = this.advancedLastClickProcessedAt.get(longPressKey) || 0;
+			const suppressInitialLongMs = Math.max(150, Math.min(2000, this.getConfiguredLongPressDelayMs(parameters) + 250));
+			if (lastClickAt > 0 && ((Date.now() - lastClickAt) < suppressInitialLongMs))
+			{
+				if ((parameters.page === 0) || (this.page === parameters.page))
+				{
+					this.safeSetCapabilityValue(`${parameters.side}_button.connector${parameters.connector}`, false);
+				}
+				return null;
+			}
+		}
+
+		if (await this.runAdvancedEventMapping(parameters, 'long'))
+		{
+			if ((parameters.page === 0) || (this.page === parameters.page))
+			{
+				this.safeSetCapabilityValue(`${parameters.side}_button.connector${parameters.connector}`, false);
+			}
+			return null;
+		}
 
 		if ((parameters.connectorType === 2) || (parameters.connectorType === 3))
 		{
@@ -2902,6 +4197,7 @@ class PanelDevice extends Device
 		const config = this.getConfigPageSide(null, parameters.page, parameters.side, parameters.configNo);
 
 		const releaseKey = `${parameters.connector}_${parameters.side}_${parameters.page}`;
+		await this.flushAdvancedLongReleaseCommit(parameters);
 
 		// Defer the 'released' Flow triggers: they're discarded instead of fired if this turns into a double click
 		this.queueReleasedTrigger(releaseKey, () => this.homey.app.triggerButtonEvent(this, parameters.side, parameters.connector, 'released', parameters.value, parameters.value.toString(), 0));
@@ -2985,7 +4281,10 @@ class PanelDevice extends Device
 			const longPressKey = `${parameters.connector}_${parameters.side}_${parameters.page}`;
 			this.longPressOccurred.set(longPressKey, 0);
 			this.longPressEventCounts.delete(longPressKey);
+			this.longPressLastProcessedAt.delete(longPressKey);
 			this.lastLongPressTimes.delete(longPressKey);
+			this.longPressHeartbeatAt.delete(longPressKey);
+			this.cancelAdvancedLongSyntheticTick(longPressKey);
 		}
 	}
 
@@ -3094,8 +4393,7 @@ class PanelDevice extends Device
 						this.numPages = numPages;
 					}
 
-					const hasConfigNo = configNo != null;
-					let buttonPanelConfiguration = hasConfigNo ? this.homey.app.buttonConfigurations[configNo] : null;
+					let buttonPanelConfiguration = applyConfigNo != null ? this.homey.app.buttonConfigurations[applyConfigNo] : null;
 					let pages = buttonPanelConfiguration ? buttonPanelConfiguration.length : 1;
 					for (let page = 0; page < pages; page++)
 					{
@@ -3325,26 +4623,11 @@ class PanelDevice extends Device
 			this.buttonValues = new Map();
 		}
 
-		// check the configuration to see if this capability is being monitored by one of the buttons
-		if (this.hasCapability('configuration_button.connector0'))
+		// Check every connector; checkStateChangeForConnector resolves whether a usable
+		// button/display configuration exists for the connector.
+		for (let connector = 0; connector < 8; connector++)
 		{
-			this.checkStateChangeForConnector(0, deviceId, capability, value);
-		}
-		if (this.hasCapability('configuration_button.connector1'))
-		{
-			this.checkStateChangeForConnector(1, deviceId, capability, value);
-		}
-		if (this.hasCapability('configuration_button.connector2'))
-		{
-			this.checkStateChangeForConnector(2, deviceId, capability, value);
-		}
-		if (this.hasCapability('configuration_button.connector3'))
-		{
-			this.checkStateChangeForConnector(3, deviceId, capability, value);
-		}
-		if (this.hasCapability('configuration_button.connector4'))
-		{
-			this.checkStateChangeForConnector(4, deviceId, capability, value);
+			this.checkStateChangeForConnector(connector, deviceId, capability, value);
 		}
 
 		const configNo = this.getCapabilityValue('configuration_display');
@@ -3353,8 +4636,19 @@ class PanelDevice extends Device
 
 	async checkStateChangeForConnector(connector, deviceId, capability, value)
 	{
-		// Get the configuration for this connector
-		const configNo = this.getCapabilityValue(`configuration_button.connector${connector}`);
+		const connectorType = this.getSetting(`connect${connector}Type`);
+		const rawCapabilityValue = value;
+
+		// Display connectors have no configuration_button.*, so fall back to
+		// configuration_display when display button events are enabled.
+		let configNo = this.hasCapability(`configuration_button.connector${connector}`)
+			? this.getCapabilityValue(`configuration_button.connector${connector}`)
+			: null;
+		if ((configNo == null) && (this.displayButtonEvents === true) && ((connectorType === 2) || (connectorType === 3)) && this.hasCapability('configuration_display'))
+		{
+			configNo = this.getCapabilityValue('configuration_display');
+		}
+
 		if (configNo == null)
 		{
 			// Connector not configured
@@ -3368,6 +4662,10 @@ class PanelDevice extends Device
 		}
 
 		const config = this.homey.app.buttonConfigurations[configNo];
+		if (!Array.isArray(config) || config.length === 0)
+		{
+			return;
+		}
 		const numPages = config.length;
 
 		for (let page = 0; page < numPages; page++)
@@ -3376,19 +4674,76 @@ class PanelDevice extends Device
 			let side = 'left';
 			for (let i = 0; i < 2; i++)
 			{
-				const config = this.getConfigPageSide(null, page, side, configNo);
-				const isConfiguredCapabilityMatch = (config.deviceID === deviceId) && (config.capabilityName === capability);
+				const rawPageConfig = config[page] || config[0] || {};
+				const sideMode = String(rawPageConfig[`${side}Mode`] || 'basic').toLowerCase();
+				if (sideMode === 'advanced')
+				{
+					const advancedParameters = {
+						connector,
+						side,
+						page,
+						configNo,
+						connectorType,
+					};
+
+					const ledBinding = this.resolveAdvancedLedBinding(advancedParameters);
+					let shouldApplyAdvancedLedBinding = false;
+					if (ledBinding && (ledBinding.deviceID === deviceId) && ledBinding.capabilityName)
+					{
+						if (ledBinding.capabilityName === capability)
+						{
+							shouldApplyAdvancedLedBinding = true;
+						}
+						else if (capability === 'onoff')
+						{
+							if (ledBinding.capabilityName === 'dim')
+							{
+								shouldApplyAdvancedLedBinding = true;
+							}
+							else
+							{
+								const sourceDevice = await this.homey.app.getHomeyDeviceById(ledBinding.deviceID);
+								const sourceCapability = sourceDevice ? await this.homey.app.getHomeyCapabilityByName(sourceDevice, ledBinding.capabilityName) : null;
+								if (sourceCapability && (sourceCapability.type !== 'boolean'))
+								{
+									shouldApplyAdvancedLedBinding = true;
+								}
+							}
+						}
+					}
+
+					if (shouldApplyAdvancedLedBinding)
+					{
+						// eslint-disable-next-line no-await-in-loop
+						await this.applyAdvancedLedBinding(advancedParameters);
+					}
+
+					const displayBinding = this.resolveAdvancedDisplayBinding(advancedParameters);
+					if (displayBinding && (displayBinding.deviceID === deviceId) && (displayBinding.capabilityName === capability))
+					{
+						// eslint-disable-next-line no-await-in-loop
+						this.homey.app.updateLog(`ADVDBG stateChange: applyAdvancedDisplayBinding ${connector}/${side}/${page}`, 1);
+						await this.applyAdvancedDisplayBinding(advancedParameters, rawCapabilityValue);
+					}
+
+					// Advanced mode owns rendering/state sync for this side; avoid legacy basic-path overwrites.
+					side = 'right';
+					continue;
+				}
+
+				const sideConfig = this.getConfigPageSide(null, page, side, configNo);
+				const isConfiguredCapabilityMatch = (sideConfig.deviceID === deviceId) && (sideConfig.capabilityName === capability);
 				// Dim buttons have no on/off value of their own, so also react to the target device's onoff changes to drive the LED
-				const isDimOnOffFollow = (config.deviceID === deviceId) && (config.capabilityName === 'dim') && (capability === 'onoff');
+				const isDimOnOffFollow = (sideConfig.deviceID === deviceId) && (sideConfig.capabilityName === 'dim') && (capability === 'onoff');
 
 				// Other non-boolean capabilities have no on/off value of their own either; if the target device also
 				// exposes an onoff capability, react to its changes too so the LED can follow it
 				let isNonBooleanOnOffFollow = false;
-				if (!isConfiguredCapabilityMatch && !isDimOnOffFollow && (capability === 'onoff') && (config.deviceID === deviceId)
-					&& (config.deviceID !== '_variable_') && (config.capabilityName !== 'dim') && (config.capabilityName !== 'windowcoverings_state') && (config.capabilityName !== 'onoff') && config.capabilityName)
+				if (!isConfiguredCapabilityMatch && !isDimOnOffFollow && (capability === 'onoff') && (sideConfig.deviceID === deviceId)
+					&& (sideConfig.deviceID !== '_variable_') && (sideConfig.capabilityName !== 'dim') && (sideConfig.capabilityName !== 'windowcoverings_state') && (sideConfig.capabilityName !== 'onoff') && sideConfig.capabilityName)
 				{
 					// eslint-disable-next-line no-await-in-loop
-					const { capability: configuredCapability } = await this.getDeviceAndCapability(config);
+					const { capability: configuredCapability } = await this.getDeviceAndCapability(sideConfig);
 					isNonBooleanOnOffFollow = !!configuredCapability && (configuredCapability.type !== 'boolean');
 				}
 
@@ -3401,23 +4756,23 @@ class PanelDevice extends Device
 					const isOnOffFollowOnly = isDimOnOffFollow || isNonBooleanOnOffFollow;
 
 					// Text/number variables and non-boolean device capabilities (text/picker) have no on/off state: just refresh what's shown on the button
-					const isNonBooleanVariable = !isOnOffFollowOnly && (config.deviceID === '_variable_') && (typeof value !== 'boolean');
-					const isNonBooleanDeviceCapability = !isOnOffFollowOnly && (config.deviceID !== '_variable_') && (config.capabilityName !== 'dim') && (config.capabilityName !== 'windowcoverings_state') && (typeof value !== 'boolean');
+					const isNonBooleanVariable = !isOnOffFollowOnly && (sideConfig.deviceID === '_variable_') && (typeof value !== 'boolean');
+					const isNonBooleanDeviceCapability = !isOnOffFollowOnly && (sideConfig.deviceID !== '_variable_') && (sideConfig.capabilityName !== 'dim') && (sideConfig.capabilityName !== 'windowcoverings_state') && (typeof value !== 'boolean');
 					const skipOnOffHandling = isNonBooleanVariable || isNonBooleanDeviceCapability;
 
 					if (isNonBooleanVariable)
 					{
-						this.publishTextButtonLabel(config.brokerId, buttonIdx, page, value);
+						this.publishTextButtonLabel(sideConfig.brokerId, buttonIdx, page, value);
 					}
 					else if (isNonBooleanDeviceCapability)
 					{
 						// eslint-disable-next-line no-await-in-loop
-						const displayText = await this.resolveCapabilityDisplayText(config, value);
-						this.publishTextButtonLabel(config.brokerId, buttonIdx, page, displayText);
+						const displayText = await this.resolveCapabilityDisplayText(sideConfig, value);
+						this.publishTextButtonLabel(sideConfig.brokerId, buttonIdx, page, displayText);
 					}
-					else if (!isOnOffFollowOnly && (config.capabilityName !== 'dim'))
+					else if (!isOnOffFollowOnly && (sideConfig.capabilityName !== 'dim'))
 					{
-						if (config.capabilityName !== 'windowcoverings_state')
+						if (sideConfig.capabilityName !== 'windowcoverings_state')
 						{
 							// and trigger the flow
 							if (value)
@@ -3442,40 +4797,40 @@ class PanelDevice extends Device
 							value = value === 'up';
 						}
 
-						if (config.onMessage !== '' || config.offMessage !== '')
+						if (sideConfig.onMessage !== '' || sideConfig.offMessage !== '')
 						{
-							this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/label/set`, value ? config.onMessage : config.offMessage).catch(this.error);
+							this.homey.app.publishMQTTMessage(sideConfig.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/label/set`, value ? sideConfig.onMessage : sideConfig.offMessage).catch(this.error);
 						}
-						this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/svg/set`, value ? config.onSVG : config.offSVG).catch((err) => this.error(err));
+						this.homey.app.publishMQTTMessage(sideConfig.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/svg/set`, value ? sideConfig.onSVG : sideConfig.offSVG).catch((err) => this.error(err));
 					}
 					else if (!isOnOffFollowOnly && (capability === 'dim'))
 					{
 						// Dim capability: show the current level and toggled brighten/darken direction on the button
 						const dimKey = this.getDimButtonKey(connector, side, page);
-						const direction = this.getDimDirection(dimKey, config.dimChange);
-						this.publishDimButtonLabel(config.brokerId, buttonIdx, page, value, direction);
+						const direction = this.getDimDirection(dimKey, sideConfig.dimChange);
+						this.publishDimButtonLabel(sideConfig.brokerId, buttonIdx, page, value, direction);
 					}
 
 					// Dim buttons have no on/off value of their own, so drive the LED from the target device's onoff state
-					if (config.capabilityName === 'dim')
+					if (sideConfig.capabilityName === 'dim')
 					{
 						// eslint-disable-next-line no-await-in-loop
-						const ledState = await this.getDimButtonLedState(config);
-						this.setLEDOnOff(config, null, buttonIdx, page, ledState);
+						const ledState = await this.getDimButtonLedState(sideConfig);
+						this.setLEDOnOff(sideConfig, null, buttonIdx, page, ledState);
 					}
 					else if (isNonBooleanDeviceCapability || isNonBooleanOnOffFollow)
 					{
 						// eslint-disable-next-line no-await-in-loop
-						const ledState = await this.getCapabilityLedState(config);
+						const ledState = await this.getCapabilityLedState(sideConfig);
 						if (ledState !== null)
 						{
-							this.setLEDOnOff(config, null, buttonIdx, page, ledState);
+							this.setLEDOnOff(sideConfig, null, buttonIdx, page, ledState);
 						}
 					}
 					else if (!skipOnOffHandling)
 					{
 						// Add the front and wall colours or the on/off state to the message queue based on the on/off value and firmware version
-						this.setLEDOnOff(config, null, buttonIdx, page, value);
+						this.setLEDOnOff(sideConfig, null, buttonIdx, page, value);
 					}
 				}
 
@@ -3681,10 +5036,143 @@ class PanelDevice extends Device
 
 		const side = ((buttonIdx & 1) === 0) ? 'left' : 'right';
 		const sideConfig = this.getConfigPageSide(config ? config[page] : null, page, side);
+		const rawConfig = sideConfig.raw || null;
+		const sideMode = String(rawConfig && rawConfig[`${side}Mode`] ? rawConfig[`${side}Mode`] : 'basic').toLowerCase();
 
 		const connector = parseInt(buttonIdx / 2, 10);
 
 		buttonIdx += 1;
+
+		if (sideMode === 'advanced' && rawConfig)
+		{
+			const registeredAdvancedSources = new Set();
+			const advancedBindingKeys = [`${side}Led`, `${side}Display`, `${side}Click`, `${side}Double`, `${side}Long`];
+			for (const bindingKey of advancedBindingKeys)
+			{
+				const deviceId = rawConfig[`${bindingKey}Device`];
+				const capabilityName = rawConfig[`${bindingKey}Capability`];
+				if (!deviceId || !capabilityName || deviceId === 'none' || deviceId === '_variable_' || deviceId === 'customMQTT')
+				{
+					continue;
+				}
+
+				registeredAdvancedSources.add(`${deviceId}::${capabilityName}`);
+
+				const sourceDevice = await this.homey.app.getHomeyDeviceById(deviceId);
+				if (sourceDevice)
+				{
+					this.homey.app.registerDeviceCapabilityStateChange(sourceDevice, capabilityName);
+					if ((bindingKey === `${side}Led`) && (capabilityName === 'dim'))
+					{
+						this.homey.app.registerDeviceCapabilityStateChange(sourceDevice, 'onoff');
+					}
+					else if (bindingKey === `${side}Led`)
+					{
+						const sourceCapability = await this.homey.app.getHomeyCapabilityByName(sourceDevice, capabilityName);
+						if (sourceCapability && (sourceCapability.type !== 'boolean'))
+						{
+							this.homey.app.registerDeviceCapabilityStateChange(sourceDevice, 'onoff');
+						}
+					}
+				}
+			}
+
+			if (sideConfig.deviceID && sideConfig.deviceID !== 'none' && sideConfig.deviceID !== '_variable_' && sideConfig.deviceID !== 'customMQTT' && sideConfig.capabilityName)
+			{
+				const legacyKey = `${sideConfig.deviceID}::${sideConfig.capabilityName}`;
+				if (!registeredAdvancedSources.has(legacyKey))
+				{
+					const legacySourceDevice = await this.homey.app.getHomeyDeviceById(sideConfig.deviceID);
+					if (legacySourceDevice)
+					{
+						this.homey.app.registerDeviceCapabilityStateChange(legacySourceDevice, sideConfig.capabilityName);
+					}
+				}
+			}
+
+			let advancedConfigNo = this.hasCapability(`configuration_button.connector${connector}`)
+				? this.getCapabilityValue(`configuration_button.connector${connector}`)
+				: null;
+			const connectorType = this.getSetting(`connect${connector}Type`);
+			if ((advancedConfigNo == null) && (this.displayButtonEvents === true) && ((connectorType === 2) || (connectorType === 3)) && this.hasCapability('configuration_display'))
+			{
+				advancedConfigNo = this.getCapabilityValue('configuration_display');
+			}
+
+			const advancedParameters = {
+				connector,
+				side,
+				page,
+				configNo: advancedConfigNo,
+				connectorType,
+			};
+
+			const displayBinding = this.resolveAdvancedDisplayBinding(advancedParameters);
+			const ledBinding = this.resolveAdvancedLedBinding(advancedParameters);
+			const fallbackDisplayBinding = (sideConfig.deviceID && sideConfig.deviceID !== 'none' && sideConfig.capabilityName)
+				? {
+					deviceID: sideConfig.deviceID,
+					capabilityName: sideConfig.capabilityName,
+					booleanRender: String((rawConfig && rawConfig[`${side}DisplayBooleanRender`]) || 'text').toLowerCase(),
+					onText: sideConfig.onMessage || 'On',
+					offText: sideConfig.offMessage || 'Off',
+					onSVG: sideConfig.onSVG || '',
+					offSVG: sideConfig.offSVG || '',
+					brokerId: sideConfig.brokerId,
+				}
+				: null;
+			const effectiveDisplayBinding = displayBinding || fallbackDisplayBinding;
+
+			const displayBrokerId = displayBinding ? displayBinding.brokerId : sideConfig.brokerId;
+
+			if (ledBinding)
+			{
+				let ledState = false;
+				if (ledBinding.deviceID === '_variable_')
+				{
+					const variable = await this.homey.app.getVariable(ledBinding.capabilityName);
+					ledState = !!(variable && variable.type === 'boolean' && variable.value);
+				}
+				else
+				{
+					const sourceDevice = await this.homey.app.getHomeyDeviceById(ledBinding.deviceID);
+					const sourceCapability = sourceDevice ? await this.homey.app.getHomeyCapabilityByName(sourceDevice, ledBinding.capabilityName) : null;
+					ledState = !!(sourceCapability && sourceCapability.type === 'boolean' && sourceCapability.value);
+				}
+
+				this.setLEDOnOff(ledBinding, mqttQueue, buttonIdx, page, ledState);
+			}
+
+			mqttQueue.push(
+				{
+					brokerId: displayBrokerId,
+					message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/toplabel/set`,
+					value: sideConfig.topLabel,
+				},
+			);
+
+			if (effectiveDisplayBinding)
+			{
+				const displayValue = await this.resolveAdvancedDisplayValue(effectiveDisplayBinding, undefined, advancedParameters);
+				mqttQueue.push(
+					{
+						brokerId: effectiveDisplayBinding.brokerId || displayBrokerId,
+						message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/svg/set`,
+						value: (displayValue && displayValue.svgValue) ? displayValue.svgValue : '',
+					},
+				);
+
+				mqttQueue.push(
+					{
+						brokerId: effectiveDisplayBinding.brokerId || displayBrokerId,
+						message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/label/set`,
+						value: (displayValue && displayValue.svgValue) ? '' : ((displayValue && displayValue.textValue != null) ? displayValue.textValue : ''),
+					},
+				);
+			}
+
+			return mqttQueue;
+		}
 
 		// Setup value based on the configuration
 		if (sideConfig.deviceID === '_variable_')
@@ -3902,6 +5390,7 @@ class PanelDevice extends Device
 				page,
 				onSVG: '',
 				offSVG: '',
+				raw: null,
 			};
 		}
 
@@ -3920,8 +5409,9 @@ class PanelDevice extends Device
 			frontLEDOffColor: config[`${side}FrontLEDOffColor`],
 			wallLEDOffColor: config[`${side}WallLEDOffColor`],
 			page: config['PageNum'] === 'Default' ? 0 : config['PageNum'],
-			onSVG: config[`${side}OnSVG`] || '',
-			offSVG: config[`${side}OffSVG`] || '',
+			onSVG: normalizeSvgText(config[`${side}OnSVG`] || ''),
+			offSVG: normalizeSvgText(config[`${side}OffSVG`] || ''),
+			raw: config,
 		};
 	}
 
@@ -3947,10 +5437,41 @@ class PanelDevice extends Device
 		return { device, capability };
 	}
 
-	compareObjects(obj1, obj2)
+	compareObjects(obj1, obj2, strict = true)
 	{
 		function customizer(value1, value2)
 		{
+			if (value1 === value2)
+			{
+				return true;
+			}
+
+			// Treat numeric strings and numbers as equal when they represent the same value.
+			if (((typeof value1 === 'number') && (typeof value2 === 'string')) || ((typeof value1 === 'string') && (typeof value2 === 'number')))
+			{
+				const value1Num = Number(value1);
+				const value2Num = Number(value2);
+				if (!Number.isNaN(value1Num) && !Number.isNaN(value2Num))
+				{
+					return value1Num === value2Num;
+				}
+			}
+
+			// Treat booleans and 0/1 as equal for firmware payload compatibility.
+			if (((typeof value1 === 'boolean') && ((typeof value2 === 'number') || (typeof value2 === 'string')))
+				|| ((typeof value2 === 'boolean') && ((typeof value1 === 'number') || (typeof value1 === 'string'))))
+			{
+				const value1Bool = (typeof value1 === 'boolean') ? value1 : (Number(value1) !== 0);
+				const value2Bool = (typeof value2 === 'boolean') ? value2 : (Number(value2) !== 0);
+				if (!Number.isNaN(Number(value1)) || (typeof value1 === 'boolean'))
+				{
+					if (!Number.isNaN(Number(value2)) || (typeof value2 === 'boolean'))
+					{
+						return value1Bool === value2Bool;
+					}
+				}
+			}
+
 			if (Array.isArray(value1) && Array.isArray(value2))
 			{
 				value1.sort((a, b) =>
@@ -3986,12 +5507,12 @@ class PanelDevice extends Device
 
 				value2.sort((a, b) =>
 				{
-					if (a.eventtype)
+					if (a.eventtype !== undefined)
 					{
 						return a.eventtype - b.eventtype;
 					}
 
-					if (a.brokerid)
+					if (a.brokerid !== undefined)
 					{
 						return a.brokerid.localeCompare(b.brokerid);
 					}
@@ -4035,7 +5556,7 @@ class PanelDevice extends Device
 					}
 					else
 					{
-						if (!value2.hasOwnProperty(key))
+						if (!Object.prototype.hasOwnProperty.call(value2, key))
 						{
 							return false;
 						}
@@ -4047,14 +5568,17 @@ class PanelDevice extends Device
 					}
 				}
 
-				// For each item in value2 check if it is in value1
-				for (const key in value2)
+				if (strict)
 				{
-					if (key !== 'buttonid')
+					// In strict mode, read-back objects must not contain additional keys
+					for (const key in value2)
 					{
-						if (!value1.hasOwnProperty(key))
+						if (key !== 'buttonid')
 						{
-							return false;
+							if (!Object.prototype.hasOwnProperty.call(value1, key))
+							{
+								return false;
+							}
 						}
 					}
 				}
@@ -4069,6 +5593,64 @@ class PanelDevice extends Device
 		const obj1Copy = _.cloneDeep(obj1);
 		const obj2Copy = _.cloneDeep(obj2);
 		return _.isEqualWith(obj1Copy, obj2Copy, customizer);
+	}
+
+	findFirstDifference(left, right, path = '$')
+	{
+		if (this.compareObjects(left, right, false))
+		{
+			return null;
+		}
+
+		const leftIsArray = Array.isArray(left);
+		const rightIsArray = Array.isArray(right);
+		if (leftIsArray || rightIsArray)
+		{
+			if (!(leftIsArray && rightIsArray))
+			{
+				return { path, left, right };
+			}
+
+			const maxLen = Math.max(left.length, right.length);
+			for (let i = 0; i < maxLen; i++)
+			{
+				if (!this.compareObjects(left[i], right[i], false))
+				{
+					const nested = this.findFirstDifference(left[i], right[i], `${path}[${i}]`);
+					return nested || { path: `${path}[${i}]`, left: left[i], right: right[i] };
+				}
+			}
+
+			return { path, left, right };
+		}
+
+		const leftIsObject = (left && typeof left === 'object');
+		const rightIsObject = (right && typeof right === 'object');
+		if (leftIsObject || rightIsObject)
+		{
+			if (!(leftIsObject && rightIsObject))
+			{
+				return { path, left, right };
+			}
+
+			for (const key of Object.keys(left))
+			{
+				if (!Object.prototype.hasOwnProperty.call(right, key))
+				{
+					return { path: `${path}.${key}`, left: left[key], right: undefined };
+				}
+
+				if (!this.compareObjects(left[key], right[key], false))
+				{
+					const nested = this.findFirstDifference(left[key], right[key], `${path}.${key}`);
+					return nested || { path: `${path}.${key}`, left: left[key], right: right[key] };
+				}
+			}
+
+			return { path, left, right };
+		}
+
+		return { path, left, right };
 	}
 
 	setLEDOnOff(config, mqttQueue, buttonIdx, page, value)

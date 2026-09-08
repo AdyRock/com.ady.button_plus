@@ -1240,6 +1240,7 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 		const MAX_SVG_FIELD_LENGTH = 3 * 1024;
 		const BUTTON_MAIN_DIAGNOSTICS_ENABLED = false;
 		let trimmedSVGFieldCount = 0;
+		let invalidButtonSVGFields = [];
 
 		function clampSVGField(svgValue)
 		{
@@ -1251,6 +1252,34 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 			}
 
 			return value;
+		}
+
+		function collectInvalidButtonSVGField(side, page, state)
+		{
+			const sideLabel = side === 'left' ? Homey.__("settings.leftPanel") : Homey.__("settings.rightPanel");
+			const pageLabel = formatButtonPageLabel(page);
+			const stateLabel = state === 'On' ? 'On SVG' : 'Off SVG';
+			const warning = `${sideLabel} / Page ${pageLabel} / ${stateLabel}`;
+
+			if (!invalidButtonSVGFields.includes(warning))
+			{
+				invalidButtonSVGFields.push(warning);
+			}
+		}
+
+		function sanitizeAndValidateButtonSVGField(svgValue, side, page, state)
+		{
+			const clampedValue = clampSVGField(svgValue);
+			const normalizedValue = normalizeSvgText(clampedValue);
+
+			if (clampedValue.trim() && !isSvgTextContent(normalizedValue))
+			{
+				collectInvalidButtonSVGField(side, page, state);
+				appendClientDiagnosticLog(`Invalid SVG detected at ${side} page ${page} ${state}SVG; storing original text.`, 'WARN');
+				return clampedValue;
+			}
+
+			return normalizedValue;
 		}
 
 		function appendClientDiagnosticLog(message, level = 'INFO')
@@ -1730,6 +1759,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				try
 				{
 					trimmedSVGFieldCount = 0;
+					invalidButtonSVGFields = [];
 
 					if (!storeBrokerSettings())
 					{
@@ -1776,10 +1806,21 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 						console.log('Device upload completed successfully via /settings_changed/.', variables || {});
 						appendClientDiagnosticLog('Device upload completed successfully via /settings_changed/.', 'INFO');
 
-						if (trimmedSVGFieldCount > 0)
+						if ((trimmedSVGFieldCount > 0) || (invalidButtonSVGFields.length > 0))
 						{
-							Homey.alert(`${Homey.__("settings.saved")}\n\nWarning: ${trimmedSVGFieldCount} SVG field(s) exceeded ${MAX_SVG_FIELD_LENGTH} characters and might be too big.`);
-							appendClientDiagnosticLog(`Save completed with warning: ${trimmedSVGFieldCount} SVG field(s) exceeded ${MAX_SVG_FIELD_LENGTH} characters.`, 'WARN');
+							const warningLines = [];
+							if (trimmedSVGFieldCount > 0)
+							{
+								warningLines.push(`${trimmedSVGFieldCount} SVG field(s) exceeded ${MAX_SVG_FIELD_LENGTH} characters and might be too big.`);
+							}
+
+							if (invalidButtonSVGFields.length > 0)
+							{
+								warningLines.push(`Invalid SVG detected in ${invalidButtonSVGFields.length} field(s): ${invalidButtonSVGFields.join('; ')}`);
+							}
+
+							Homey.alert(`${Homey.__("settings.saved")}\n\nWarning: ${warningLines.join('\n')}`);
+							appendClientDiagnosticLog(`Save completed with warning: ${warningLines.join(' | ')}`, 'WARN');
 						}
 						else
 						{
@@ -1889,8 +1930,8 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				ButtonPanelConfiguration[`${side}DisableLongRepeat`] = !longRepeatElement.checked;
 				ButtonPanelConfiguration[`${side}LongDelayMs`] = normalizeLongPressTimingMs(longDelayMsElement.value, 0, 750);
 				ButtonPanelConfiguration[`${side}LongRepeatMs`] = normalizeLongPressTimingMs(longRepeatMsElement.value, 50, 500);
-				ButtonPanelConfiguration[`${side}OnSVG`] = clampSVGField(OnSVGElement?.value || '');
-				ButtonPanelConfiguration[`${side}OffSVG`] = clampSVGField(OffSVGElement?.value || '');
+				ButtonPanelConfiguration[`${side}OnSVG`] = sanitizeAndValidateButtonSVGField(OnSVGElement?.value || '', side, page, 'On');
+				ButtonPanelConfiguration[`${side}OffSVG`] = sanitizeAndValidateButtonSVGField(OffSVGElement?.value || '', side, page, 'Off');
 			};
 
 			buttonConfigurationNoElement.addEventListener('change', function (e)
@@ -3057,7 +3098,21 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				// Position as a viewport-fixed overlay so it never gets clipped by, or adds scroll height to,
 				// a scrollable ancestor (e.g. a popup body) - avoids a second, redundant scrollbar there.
 				const rect = input.getBoundingClientRect();
-				dropdown.style.top = `${rect.bottom - 1}px`;
+				const viewportPadding = 8;
+				const preferredMaxHeight = 320;
+				const minUsableHeight = 120;
+				const spaceBelow = Math.max(0, window.innerHeight - rect.bottom - viewportPadding);
+				const spaceAbove = Math.max(0, rect.top - viewportPadding);
+				const openUpward = spaceBelow < minUsableHeight && spaceAbove > spaceBelow;
+				const naturalHeight = Math.min(preferredMaxHeight, Math.max(minUsableHeight, dropdown.scrollHeight || minUsableHeight));
+				const availableHeight = openUpward
+					? Math.max(minUsableHeight, Math.min(naturalHeight, spaceAbove))
+					: Math.max(minUsableHeight, Math.min(naturalHeight, spaceBelow || naturalHeight));
+
+				dropdown.style.maxHeight = `${availableHeight}px`;
+				dropdown.style.top = openUpward
+					? `${Math.max(viewportPadding, rect.top - availableHeight)}px`
+					: `${rect.bottom - 1}px`;
 				dropdown.style.left = `${rect.left}px`;
 				dropdown.style.width = `${rect.width}px`;
 			};
@@ -3718,6 +3773,124 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			return `${Math.max(minimum, Math.min(10000, Math.round(parsedValue / 10) * 10))}`;
 		}
 
+		function ensureButtonSideAdvancedDefaults(pageConfig, side)
+		{
+			if (!pageConfig || typeof pageConfig !== 'object')
+			{
+				return;
+			}
+
+			if (!pageConfig[`${side}Mode`]) pageConfig[`${side}Mode`] = 'basic';
+			if (!pageConfig[`${side}LedDevice`]) pageConfig[`${side}LedDevice`] = 'none';
+			if (!pageConfig[`${side}LedCapability`]) pageConfig[`${side}LedCapability`] = '';
+			if (!pageConfig[`${side}DisplayDevice`]) pageConfig[`${side}DisplayDevice`] = 'none';
+			if (!pageConfig[`${side}DisplayCapability`]) pageConfig[`${side}DisplayCapability`] = '';
+			if (!pageConfig[`${side}DisplayBooleanRender`]) pageConfig[`${side}DisplayBooleanRender`] = 'text';
+			if (!pageConfig[`${side}BasicBooleanRender`]) pageConfig[`${side}BasicBooleanRender`] = 'text';
+
+			for (const eventName of ['Click', 'Double', 'Long'])
+			{
+				if (!pageConfig[`${side}${eventName}Device`]) pageConfig[`${side}${eventName}Device`] = 'none';
+				if (!pageConfig[`${side}${eventName}Capability`]) pageConfig[`${side}${eventName}Capability`] = '';
+				if (!pageConfig[`${side}${eventName}ValueStep`]) pageConfig[`${side}${eventName}ValueStep`] = '+10';
+				if (!pageConfig[`${side}${eventName}NumericAction`]) pageConfig[`${side}${eventName}NumericAction`] = 'change';
+			}
+		}
+
+		function isConcreteButtonSourceDevice(deviceId)
+		{
+			return !!deviceId && deviceId !== 'none' && deviceId !== '_variable_' && deviceId !== 'customMQTT';
+		}
+
+		function getPreferredButtonSideDisplayDevice(pageConfig, side)
+		{
+			const advancedDisplayDevice = pageConfig[`${side}DisplayDevice`];
+			if (isConcreteButtonSourceDevice(advancedDisplayDevice))
+			{
+				return advancedDisplayDevice;
+			}
+
+			const basicDisplayDevice = pageConfig[`${side}Device`];
+			if (isConcreteButtonSourceDevice(basicDisplayDevice))
+			{
+				return basicDisplayDevice;
+			}
+
+			return 'none';
+		}
+
+		function seedAdvancedButtonDevicesFromDisplay(pageConfig, side)
+		{
+			const displayDevice = getPreferredButtonSideDisplayDevice(pageConfig, side);
+			if (!isConcreteButtonSourceDevice(displayDevice))
+			{
+				return;
+			}
+
+			if (!isConcreteButtonSourceDevice(pageConfig[`${side}DisplayDevice`]))
+			{
+				pageConfig[`${side}DisplayDevice`] = displayDevice;
+			}
+
+			if (!isConcreteButtonSourceDevice(pageConfig[`${side}LedDevice`]))
+			{
+				pageConfig[`${side}LedDevice`] = displayDevice;
+			}
+
+			for (const eventName of ['Click', 'Double', 'Long'])
+			{
+				if (!isConcreteButtonSourceDevice(pageConfig[`${side}${eventName}Device`]))
+				{
+					pageConfig[`${side}${eventName}Device`] = displayDevice;
+				}
+			}
+		}
+
+		function isButtonSideAdvanced(pageConfig, side)
+		{
+			ensureButtonSideAdvancedDefaults(pageConfig, side);
+			return String(pageConfig[`${side}Mode`] || 'basic').toLowerCase() === 'advanced';
+		}
+
+		function onButtonModeToggleChange(side, page, checked)
+		{
+			const config = localButtonConfigurations[currentButtonConfigurationNo];
+			if (!Array.isArray(config) || !config[page])
+			{
+				return;
+			}
+
+			ensureButtonSideAdvancedDefaults(config[page], side);
+			const wasAdvanced = isButtonSideAdvanced(config[page], side);
+			config[page][`${side}Mode`] = checked ? 'advanced' : 'basic';
+			if (checked && !wasAdvanced)
+			{
+				seedAdvancedButtonDevicesFromDisplay(config[page], side);
+			}
+			configDraftDirtySinceLoad = true;
+			flushConfigurationDraftPersist();
+			renderInlineButtonPagePreview(page);
+			if (buttonPagePopupOverlayElement && buttonPagePopupOverlayElement.classList.contains('visible'))
+			{
+				renderButtonPagePopup();
+			}
+		}
+
+		function findAdvancedDefaultDeviceForSide(pageConfig, side)
+		{
+			const candidateKeys = [`${side}ClickDevice`, `${side}DoubleDevice`, `${side}LongDevice`, `${side}LedDevice`, `${side}DisplayDevice`];
+			for (const key of candidateKeys)
+			{
+				const value = pageConfig[key];
+				if (value && value !== 'none' && value !== '_variable_' && value !== 'customMQTT')
+				{
+					return value;
+				}
+			}
+
+			return 'none';
+		}
+
 		function renderButtonMainPage()
 		{
 			const pageSections = Array.from(document.querySelectorAll('.button-main-page'));
@@ -3909,6 +4082,12 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				event.stopPropagation();
 			}
 
+			if (typeof fieldSuffix === 'string' && fieldSuffix.endsWith('Color'))
+			{
+				openButtonAdvancedPopup(side, page, 'led');
+				return false;
+			}
+
 			focusButtonControlFromPopup(side, page, fieldSuffix);
 			return false;
 		}
@@ -3920,7 +4099,34 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				return false;
 			}
 
-			return /<svg(?:\s|>)/i.test(value.replace(/^\uFEFF/, '').trim());
+			const normalized = normalizeSvgText(value);
+			return /<svg(?:\s|>)/i.test(normalized);
+		}
+
+		function normalizeSvgText(value)
+		{
+			if (typeof value !== 'string')
+			{
+				return '';
+			}
+
+			let normalized = value.replace(/^\uFEFF/, '').trim();
+			if (!normalized)
+			{
+				return '';
+			}
+
+			if (/&lt;svg(?:\s|&gt;)/i.test(normalized))
+			{
+				normalized = normalized
+					.replace(/&lt;/gi, '<')
+					.replace(/&gt;/gi, '>')
+					.replace(/&quot;/gi, '"')
+					.replace(/&#39;/gi, "'")
+					.replace(/&amp;/gi, '&');
+			}
+
+			return normalized;
 		}
 
 		function getButtonPanelPreviewSvg(svgText)
@@ -3930,8 +4136,14 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				return '';
 			}
 
+			const normalizedSvgText = normalizeSvgText(svgText);
+			if (!normalizedSvgText)
+			{
+				return '';
+			}
+
 			const parserWrapper = document.createElement('div');
-			parserWrapper.innerHTML = svgText;
+			parserWrapper.innerHTML = normalizedSvgText;
 			const svgElement = parserWrapper.querySelector('svg');
 			if (!svgElement)
 			{
@@ -4089,12 +4301,24 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				}
 			}
 
+			if (selectedOption.dataset.type === 'number')
+			{
+				const valueText = sanitizeDisplayString(selectedOption.dataset.value || '', '');
+				const unitText = sanitizeDisplayString(selectedOption.dataset.unit || '', '');
+				const withUnit = unitText ? `${valueText}${valueText ? ' ' : ''}${unitText}` : valueText;
+				return withUnit ? `${withUnit} +/-` : '+/-';
+			}
+
 			return selectedOption.dataset.value || '';
 		}
 
 		function getButtonPanelPreviewMarkup(pageConfig, side, pageIndex = buttonPagePopupCurrentPage)
 		{
-			const topText = escapeHtml(getLiveButtonPanelFieldValue(pageConfig, side, 'TopText', Homey.__(`settings.${side}Panel`), pageIndex));
+			ensureButtonSideAdvancedDefaults(pageConfig, side);
+			const isAdvancedMode = isButtonSideAdvanced(pageConfig, side);
+			const topTextRaw = sanitizeDisplayString(getLiveButtonPanelFieldValue(pageConfig, side, 'TopText', '', pageIndex), '');
+			const hasTopText = !!topTextRaw;
+			const topText = hasTopText ? escapeHtml(topTextRaw) : '<span class="button-sim-placeholder">Click to add a title</span>';
 			const deviceValue = getLiveButtonPanelFieldValue(pageConfig, side, 'Device', '', pageIndex);
 			const capabilityValue = getLiveButtonPanelFieldValue(pageConfig, side, 'Capability', '', pageIndex);
 			const isDimCapability = (capabilityValue === 'dim');
@@ -4102,27 +4326,32 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			const capabilityPreviewText = (variablePreviewText === null) ? getButtonPanelCapabilityPreviewText(side, pageIndex, deviceValue, capabilityValue) : null;
 			const nonBooleanPreviewText = (variablePreviewText !== null) ? variablePreviewText : capabilityPreviewText;
 			const isNonBooleanVariable = (nonBooleanPreviewText !== null);
-			const onText = escapeHtml(getLiveButtonPanelFieldValue(pageConfig, side, 'OnText', Homey.__('settings.labelOn'), pageIndex));
-			const offText = escapeHtml(getLiveButtonPanelFieldValue(pageConfig, side, 'OffText', Homey.__('settings.labelOff'), pageIndex));
+			const onTextRaw = sanitizeDisplayString(getLiveButtonPanelFieldValue(pageConfig, side, 'OnText', '', pageIndex), '');
+			const offTextRaw = sanitizeDisplayString(getLiveButtonPanelFieldValue(pageConfig, side, 'OffText', '', pageIndex), '');
 			const isVariableSvg = isNonBooleanVariable && isSvgTextContent(nonBooleanPreviewText);
-			let stateText;
+			let stateTextRaw = '';
 			if (isDimCapability)
 			{
-				stateText = escapeHtml(getButtonPanelDimPreviewText(pageConfig, side, pageIndex));
+				stateTextRaw = getButtonPanelDimPreviewText(pageConfig, side, pageIndex);
 			}
 			else if (isNonBooleanVariable && !isVariableSvg)
 			{
-				stateText = escapeHtml(nonBooleanPreviewText);
+				stateTextRaw = sanitizeDisplayString(nonBooleanPreviewText, '');
 			}
 			else
 			{
-				stateText = (buttonPagePopupLedState === 'on') ? onText : offText;
+				stateTextRaw = (buttonPagePopupLedState === 'on') ? onTextRaw : offTextRaw;
 			}
+			const hasStateText = !!sanitizeDisplayString(stateTextRaw, '');
+			const stateText = hasStateText ? escapeHtml(stateTextRaw) : '<span class="button-sim-placeholder">Click to add a value</span>';
 			const textFieldSuffix = isDimCapability ? 'DimChange' : (isNonBooleanVariable ? 'Capability' : ((buttonPagePopupLedState === 'on') ? 'OnText' : 'OffText'));
 			const svgFieldSuffix = (buttonPagePopupLedState === 'on') ? 'OnSVG' : 'OffSVG';
 			const selectedSvgText = isVariableSvg ? nonBooleanPreviewText : ((isDimCapability || isNonBooleanVariable) ? '' : getLiveButtonPanelFieldValue(pageConfig, side, svgFieldSuffix, '', pageIndex));
 			const svgMarkup = getButtonPanelPreviewSvg(selectedSvgText || '');
 			const ledMarkup = `<div class="button-sim-leds ${side === 'right' ? 'button-sim-leds-right' : ''}">${getButtonPanelLedMarkup(pageConfig, side, pageIndex)}</div>`;
+			const advancedBadge = isAdvancedMode
+				? `<span class="button-sim-advanced-badge ${side === 'right' ? 'button-sim-advanced-badge-right' : ''}" role="button" tabindex="0" title="Advanced mappings enabled" onclick="openButtonAdvancedPopup('${side}', ${pageIndex}, 'event'); return false;" onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openButtonAdvancedPopup('${side}', ${pageIndex}, 'event'); return false; }"><span class="button-sim-advanced-badge-label">ADV</span></span>`
+				: '';
 			const contentMarkup = svgMarkup
 				? `
 					<div class="button-sim-content button-sim-content-svg" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, '${svgFieldSuffix}');">
@@ -4143,6 +4372,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			{
 				return `
 					<div class="button-sim-shell button-sim-shell-left">
+						${advancedBadge}
 						${ledMarkup}
 						${contentMarkup}
 					</div>`;
@@ -4150,6 +4380,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 
 			return `
 				<div class="button-sim-shell button-sim-shell-right">
+					${advancedBadge}
 					${contentMarkup}
 					${ledMarkup}
 				</div>`;
@@ -4168,12 +4399,19 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			if (previewElement)
 			{
 				previewElement.innerHTML =
-					`<button class="button-sim-item" onclick="focusButtonPanelFromPopup('left', ${page})" title="Open left panel settings">
+					`<button class="button-sim-item" onclick="return handleButtonSimShellClick(event, 'left', ${page});" title="Open left panel settings">
 						${getButtonPanelPreviewMarkup(pageConfig, 'left', page)}
 					</button>
-					<button class="button-sim-item" onclick="focusButtonPanelFromPopup('right', ${page})" title="Open right panel settings">
+					<div class="button-sim-click-zones-help" role="note" title="Clickable zones help">
+						<span class="tooltip button-sim-click-zones-tooltip" aria-label="Clickable zones help">
+							<i class="fi fi-rr-info" aria-hidden="true"></i>
+							<span class="tooltiptext">Click title to edit the top label.<br>Click value text to edit the state value.<br>Click icon area to edit SVG.<br>Click ADV to open advanced mappings.</span>
+						</span>
+					</div>
+					<button class="button-sim-item" onclick="return handleButtonSimShellClick(event, 'right', ${page});" title="Open right panel settings">
 						${getButtonPanelPreviewMarkup(pageConfig, 'right', page)}
-					</button>`;
+					</button>
+					`;
 			}
 
 			const stateToggleElement = document.getElementById(`${page}ButtonInlineSimState`);
@@ -4231,10 +4469,16 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			const pageConfig = config[buttonPagePopupCurrentPage];
 			buttonPagePopupContentElement.innerHTML =
 				`<div class="button-sim-bar">
-					<button class="button-sim-item" onclick="focusButtonPanelFromPopup('left', ${buttonPagePopupCurrentPage})" title="Open left panel settings">
+					<button class="button-sim-item" onclick="return handleButtonSimShellClick(event, 'left', ${buttonPagePopupCurrentPage});" title="Open left panel settings">
 						${getButtonPanelPreviewMarkup(pageConfig, 'left')}
 					</button>
-					<button class="button-sim-item" onclick="focusButtonPanelFromPopup('right', ${buttonPagePopupCurrentPage})" title="Open right panel settings">
+					<div class="button-sim-click-zones-help" role="note" title="Clickable zones help">
+						<span class="tooltip button-sim-click-zones-tooltip" aria-label="Clickable zones help">
+							<i class="fi fi-rr-info" aria-hidden="true"></i>
+							<span class="tooltiptext">Click title to edit the top label.<br>Click value text to edit the state value.<br>Click icon area to edit SVG.<br>Click ADV to open advanced mappings.</span>
+						</span>
+					</div>
+					<button class="button-sim-item" onclick="return handleButtonSimShellClick(event, 'right', ${buttonPagePopupCurrentPage});" title="Open right panel settings">
 						${getButtonPanelPreviewMarkup(pageConfig, 'right')}
 					</button>
 				</div>`;
@@ -4341,9 +4585,677 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			focusButtonControlFromPopup(side, page, 'Device');
 		}
 
-		function getButtonFieldPopupSpec(side, fieldSuffix)
+		function handleButtonSimShellClick(event, side, page)
+		{
+			if (event)
+			{
+				event.preventDefault();
+				event.stopPropagation();
+			}
+
+			const config = localButtonConfigurations[currentButtonConfigurationNo];
+			if (!Array.isArray(config) || !config[page])
+			{
+				return false;
+			}
+
+			if (isButtonSideAdvanced(config[page], side))
+			{
+				openButtonAdvancedPopup(side, page, 'event');
+				return false;
+			}
+
+			focusButtonPanelFromPopup(side, page);
+			return false;
+		}
+
+		function buildDeviceSelectHtml(id)
+		{
+			return `<select class="homey-form-select" id="${id}"></select>`;
+		}
+
+		function fillPopupDeviceSelector(selectElement, includeVariable, includeNone = true)
+		{
+			if (!selectElement)
+			{
+				return;
+			}
+
+			selectElement.innerHTML = '';
+			if (includeNone)
+			{
+				const noneOption = document.createElement('option');
+				noneOption.value = 'none';
+				noneOption.text = Homey.__('settings.none');
+				selectElement.add(noneOption);
+			}
+
+			if (includeVariable)
+			{
+				const variableOption = document.createElement('option');
+				variableOption.value = '_variable_';
+				variableOption.text = Homey.__('settings.variable');
+				selectElement.add(variableOption);
+			}
+
+			let currentGroup = '';
+			for (const device of buttonDevicesArray)
+			{
+				const zoneName = (device.zone && device.zone.name) ? device.zone.name : (device.zoneName || '');
+				if (zoneName && zoneName !== currentGroup)
+				{
+					const groupOption = document.createElement('option');
+					groupOption.disabled = true;
+					groupOption.value = zoneName;
+					groupOption.text = zoneName;
+					selectElement.add(groupOption);
+					currentGroup = zoneName;
+				}
+
+				const option = document.createElement('option');
+				option.value = device.id;
+				option.text = `  ${device.name}`;
+				selectElement.add(option);
+			}
+		}
+
+		function fillPopupCapabilitySelector(selectElement, deviceId, selectedCapability, filterMode)
+		{
+			if (!selectElement)
+			{
+				return Promise.resolve();
+			}
+
+			const requestToken = `${Date.now()}_${Math.random().toString(16).slice(2)}`;
+			selectElement.dataset.popupCapabilityRequestToken = requestToken;
+			const isStaleRequest = () => selectElement.dataset.popupCapabilityRequestToken !== requestToken;
+
+			selectElement.innerHTML = '';
+			const seenCapabilityIds = new Set();
+			const getDedupKey = (capabilityId) => String(capabilityId || '').trim().toLowerCase();
+
+			if (filterMode === 'event')
+			{
+				const toggleOption = document.createElement('option');
+				toggleOption.value = '__toggleDirection__';
+				toggleOption.text = 'Toggle direction';
+				toggleOption.dataset.type = 'direction';
+				selectElement.add(toggleOption);
+			}
+
+			if (!deviceId || deviceId === 'none')
+			{
+				if (filterMode === 'event')
+				{
+					selectElement.value = '__toggleDirection__';
+				}
+				return Promise.resolve();
+			}
+
+			if (deviceId === '_variable_')
+			{
+				if (!variablesFetched)
+				{
+					return new Promise((resolve) =>
+					{
+						Homey.api('POST', '/get_variables/', {}, function (err, variables)
+						{
+							if (isStaleRequest())
+							{
+								resolve();
+								return;
+							}
+							if (!err && variables)
+							{
+								variablesArray = Object.values(variables);
+								variablesFetched = true;
+							}
+							for (const variable of variablesArray)
+							{
+								if (filterMode === 'led' && variable.type !== 'boolean')
+								{
+									continue;
+								}
+								const dedupKey = getDedupKey(variable.id);
+								if (!dedupKey || seenCapabilityIds.has(dedupKey))
+								{
+									continue;
+								}
+								seenCapabilityIds.add(dedupKey);
+								const option = document.createElement('option');
+								option.value = variable.id;
+								option.text = variable.type === 'boolean' ? variable.name : `${variable.name} (${variable.type})`;
+								option.dataset.type = variable.type;
+								selectElement.add(option);
+							}
+							if (selectedCapability)
+							{
+								selectElement.value = selectedCapability;
+							}
+							resolve();
+						});
+					});
+				}
+
+				for (const variable of variablesArray)
+				{
+					if (filterMode === 'led' && variable.type !== 'boolean')
+					{
+						continue;
+					}
+					const dedupKey = getDedupKey(variable.id);
+					if (!dedupKey || seenCapabilityIds.has(dedupKey))
+					{
+						continue;
+					}
+					seenCapabilityIds.add(dedupKey);
+					const option = document.createElement('option');
+					option.value = variable.id;
+					option.text = variable.type === 'boolean' ? variable.name : `${variable.name} (${variable.type})`;
+					option.dataset.type = variable.type;
+					selectElement.add(option);
+				}
+				if (selectedCapability)
+				{
+					selectElement.value = selectedCapability;
+				}
+				return Promise.resolve();
+			}
+
+			return new Promise((resolve) =>
+			{
+				Homey.api('POST', '/device_capabilities/', { deviceId }, function (err, capabilities)
+				{
+					if (isStaleRequest())
+					{
+						resolve();
+						return;
+					}
+					if (!err && capabilities)
+					{
+						const inferCapabilityType = function (capabilityId)
+						{
+							if (capabilityId === 'onoff')
+							{
+								return 'boolean';
+							}
+							if (capabilityId === 'dim')
+							{
+								return 'number';
+							}
+							if (capabilityId === 'windowcoverings_state')
+							{
+								return 'enum';
+							}
+							return '';
+						};
+
+						for (const [capabilityKey, capability] of Object.entries(capabilities))
+						{
+							const capabilityId = (typeof capability === 'string')
+								? capability
+								: ((capability && capability.id) ? capability.id : capabilityKey);
+							const capabilityTitle = (capability && typeof capability === 'object' && capability.title) ? capability.title : capabilityId;
+							const type = String((capability && typeof capability === 'object' && capability.type) || inferCapabilityType(capabilityId));
+							const isSetable = !(capability && typeof capability === 'object' && capability.setable === false);
+							const dedupKey = getDedupKey(capabilityId);
+							if (!dedupKey || seenCapabilityIds.has(dedupKey))
+							{
+								continue;
+							}
+							if (filterMode === 'event')
+							{
+								if (!isSetable)
+								{
+									continue;
+								}
+								const isLikelyEventCapability = (capabilityId === 'onoff') || (capabilityId === 'dim') || (capabilityId === 'windowcoverings_state');
+								if (!(type === 'boolean' || type === 'enum' || type === 'number' || isLikelyEventCapability))
+								{
+									continue;
+								}
+							}
+							else if (filterMode === 'led')
+							{
+								if (type !== 'boolean')
+								{
+									continue;
+								}
+							}
+
+							const option = document.createElement('option');
+							option.value = capabilityId;
+							option.text = `${capabilityTitle} (${capabilityId})`;
+							option.dataset.type = type;
+							selectElement.add(option);
+							seenCapabilityIds.add(dedupKey);
+						}
+					}
+
+					if (selectedCapability && selectElement.querySelector(`option[value="${selectedCapability}"]`))
+					{
+						selectElement.value = selectedCapability;
+					}
+					else if (filterMode === 'led' && selectElement.querySelector('option[value="onoff"]'))
+					{
+						selectElement.value = 'onoff';
+					}
+					else if (filterMode === 'event')
+					{
+						const firstCapabilityOption = Array.from(selectElement.options).find((option) => option.value !== '__toggleDirection__');
+						if (firstCapabilityOption)
+						{
+							selectElement.value = firstCapabilityOption.value;
+						}
+						else
+						{
+							selectElement.value = '__toggleDirection__';
+						}
+					}
+					else if (selectElement.options.length > 0)
+					{
+						selectElement.selectedIndex = 0;
+					}
+					resolve();
+				});
+			});
+		}
+
+		async function resolvePopupCapabilityType(deviceId, capabilityId)
+		{
+			if (!deviceId || deviceId === 'none' || deviceId === 'customMQTT' || !capabilityId)
+			{
+				return '';
+			}
+
+			if (deviceId === '_variable_')
+			{
+				if (!variablesFetched)
+				{
+					await new Promise((resolve) =>
+					{
+						Homey.api('POST', '/get_variables/', {}, function (err, variables)
+						{
+							if (!err && variables)
+							{
+								variablesArray = Object.values(variables);
+								variablesFetched = true;
+							}
+							resolve();
+						});
+					});
+				}
+
+				const selectedVariable = variablesArray.find((variable) => variable.id === capabilityId);
+				return selectedVariable ? String(selectedVariable.type || '') : '';
+			}
+
+			return await new Promise((resolve) =>
+			{
+				Homey.api('POST', '/device_capabilities/', { deviceId }, function (err, capabilities)
+				{
+					if (err || !capabilities)
+					{
+						resolve('');
+						return;
+					}
+
+					if (capabilityId === 'onoff')
+					{
+						resolve('boolean');
+						return;
+					}
+					if (capabilityId === 'dim')
+					{
+						resolve('number');
+						return;
+					}
+
+					for (const [capabilityKey, capability] of Object.entries(capabilities))
+					{
+						const currentId = (typeof capability === 'string')
+							? capability
+							: ((capability && capability.id) ? capability.id : capabilityKey);
+						if (currentId === capabilityId)
+						{
+							resolve(String((capability && typeof capability === 'object' && capability.type) || ''));
+							return;
+						}
+					}
+
+					resolve('');
+				});
+			});
+		}
+
+		async function openButtonAdvancedPopup(side, page, mode = 'event')
+		{
+			if (!buttonFieldPopupOverlayElement || !buttonFieldPopupBodyElement || !buttonFieldPopupTitleElement)
+			{
+				return;
+			}
+
+			const config = localButtonConfigurations[currentButtonConfigurationNo];
+			if (!Array.isArray(config) || !config[page])
+			{
+				return;
+			}
+
+			const pageConfig = config[page];
+			ensureButtonSideAdvancedDefaults(pageConfig, side);
+			const showLedSourceSelectors = mode === 'led' && isButtonSideAdvanced(pageConfig, side);
+
+			buttonFieldPopupBindings = [];
+			buttonFieldPopupContext = { side, page, isAdvancedPopup: true, popupMode: mode };
+			buttonFieldPopupTitleElement.textContent = `${Homey.__(`settings.${side}Panel`)} - ${mode === 'led' ? 'LEDs' : 'Advanced mappings'}`;
+
+			if (mode !== 'led')
+			{
+				buttonFieldPopupBodyElement.innerHTML = `
+					<div class="button-field-popup-field button-popup-radio-row" id="popup${side}${page}DisplayRenderRow">
+						<label class="button-popup-radio-option"><input type="radio" name="popup${side}${page}DisplayBooleanRender" value="text"> Text</label>
+						<label class="button-popup-radio-option"><input type="radio" name="popup${side}${page}DisplayBooleanRender" value="svg"> SVG</label>
+					</div>
+					<div class="button-field-popup-field" id="popup${side}${page}DisplayOnTextRow">
+						<label class="button-field-popup-label" for="popup${side}${page}DisplayOnText"><span>Display On text</span></label>
+						<input class="homey-form-input" id="popup${side}${page}DisplayOnText" type="text" maxlength="20">
+					</div>
+					<div class="button-field-popup-field" id="popup${side}${page}DisplayOffTextRow">
+						<label class="button-field-popup-label" for="popup${side}${page}DisplayOffText"><span>Display Off text</span></label>
+						<input class="homey-form-input" id="popup${side}${page}DisplayOffText" type="text" maxlength="20">
+					</div>
+					<div class="button-field-popup-field" id="popup${side}${page}DisplayOnSvgRow">
+						<label class="button-field-popup-label" for="popup${side}${page}DisplayOnSVG"><span>Display On SVG</span></label>
+						<textarea class="homey-form-textarea" id="popup${side}${page}DisplayOnSVG" style="min-height:120px;"></textarea>
+					</div>
+					<div class="button-field-popup-field" id="popup${side}${page}DisplayOffSvgRow">
+						<label class="button-field-popup-label" for="popup${side}${page}DisplayOffSVG"><span>Display Off SVG</span></label>
+						<textarea class="homey-form-textarea" id="popup${side}${page}DisplayOffSVG" style="min-height:120px;"></textarea>
+					</div>
+					<hr>
+					<div class="button-field-popup-field">
+						<label class="button-field-popup-label" for="popup${side}${page}ClickDevice"><span>Click target device</span></label>
+						${buildDeviceSelectHtml(`popup${side}${page}ClickDevice`)}
+					</div>
+					<div class="button-field-popup-field">
+						<label class="button-field-popup-label" for="popup${side}${page}ClickCapability"><span>Click action / capability</span></label>
+						<select class="homey-form-select" id="popup${side}${page}ClickCapability"></select>
+					</div>
+					<div class="button-field-popup-field" id="popup${side}${page}ClickValueStepRow">
+						<label class="button-field-popup-label" for="popup${side}${page}ClickValueStep"><span>Click value step</span></label>
+						<input class="homey-form-input" id="popup${side}${page}ClickValueStep" type="text">
+					</div>
+					<hr>
+					<div class="button-field-popup-field">
+						<label class="button-field-popup-label" for="popup${side}${page}DoubleDevice"><span>Double-click target device</span></label>
+						${buildDeviceSelectHtml(`popup${side}${page}DoubleDevice`)}
+					</div>
+					<div class="button-field-popup-field">
+						<label class="button-field-popup-label" for="popup${side}${page}DoubleCapability"><span>Double-click action / capability</span></label>
+						<select class="homey-form-select" id="popup${side}${page}DoubleCapability"></select>
+					</div>
+					<div class="button-field-popup-field" id="popup${side}${page}DoubleValueStepRow">
+						<label class="button-field-popup-label" for="popup${side}${page}DoubleValueStep"><span>Double-click value step</span></label>
+						<input class="homey-form-input" id="popup${side}${page}DoubleValueStep" type="text">
+					</div>
+					<hr>
+					<div class="button-field-popup-field">
+						<label class="button-field-popup-label" for="popup${side}${page}LongDevice"><span>Long/repeat target device</span></label>
+						${buildDeviceSelectHtml(`popup${side}${page}LongDevice`)}
+					</div>
+					<div class="button-field-popup-field">
+						<label class="button-field-popup-label" for="popup${side}${page}LongCapability"><span>Long/repeat action / capability</span></label>
+						<select class="homey-form-select" id="popup${side}${page}LongCapability"></select>
+					</div>
+					<div class="button-field-popup-field" id="popup${side}${page}LongValueStepRow">
+						<label class="button-field-popup-label" for="popup${side}${page}LongValueStep"><span>Long/repeat value step</span></label>
+						<input class="homey-form-input" id="popup${side}${page}LongValueStep" type="text">
+					</div>`;
+			}
+			else
+			{
+				buttonFieldPopupBodyElement.innerHTML = `
+					${showLedSourceSelectors ? `
+					<div class="button-field-popup-field">
+						<label class="button-field-popup-label" for="popup${side}${page}LedDevice"><span>LED source device</span></label>
+						${buildDeviceSelectHtml(`popup${side}${page}LedDevice`)}
+					</div>
+					<div class="button-field-popup-field">
+						<label class="button-field-popup-label" for="popup${side}${page}LedCapability"><span>LED source capability (boolean)</span></label>
+						<select class="homey-form-select" id="popup${side}${page}LedCapability"></select>
+					</div>` : ''}
+					<div class="button-popup-led-matrix">
+						<div class="button-popup-led-empty"></div>
+						<div class="button-popup-led-header button-popup-led-header-on">On</div>
+						<div class="button-popup-led-header button-popup-led-header-off">Off</div>
+						<div class="button-popup-led-row button-popup-led-row-front">Front</div>
+						<input class="homey-form-input button-popup-led-input button-popup-led-input-front-on" id="popup${side}${page}FrontLEDOnColor" type="color">
+						<input class="homey-form-input button-popup-led-input button-popup-led-input-front-off" id="popup${side}${page}FrontLEDOffColor" type="color">
+						<div class="button-popup-led-row button-popup-led-row-wall">Wall</div>
+						<input class="homey-form-input button-popup-led-input button-popup-led-input-wall-on" id="popup${side}${page}WallLEDOnColor" type="color">
+						<input class="homey-form-input button-popup-led-input button-popup-led-input-wall-off" id="popup${side}${page}WallLEDOffColor" type="color">
+					</div>`;
+			}
+
+			buttonFieldPopupOverlayElement.classList.add('visible');
+			buttonFieldPopupOverlayElement.setAttribute('aria-hidden', 'false');
+
+			if (mode !== 'led')
+			{
+				const displayRenderRowElement = document.getElementById(`popup${side}${page}DisplayRenderRow`);
+				const displayOnTextRow = document.getElementById(`popup${side}${page}DisplayOnTextRow`);
+				const displayOffTextRow = document.getElementById(`popup${side}${page}DisplayOffTextRow`);
+				const displayOnSvgRow = document.getElementById(`popup${side}${page}DisplayOnSvgRow`);
+				const displayOffSvgRow = document.getElementById(`popup${side}${page}DisplayOffSvgRow`);
+				const displayOnTextElement = document.getElementById(`popup${side}${page}DisplayOnText`);
+				const displayOffTextElement = document.getElementById(`popup${side}${page}DisplayOffText`);
+				const displayOnSvgElement = document.getElementById(`popup${side}${page}DisplayOnSVG`);
+				const displayOffSvgElement = document.getElementById(`popup${side}${page}DisplayOffSVG`);
+
+				const displayDeviceId = pageConfig[`${side}DisplayDevice`] || 'none';
+				const displayCapabilityId = pageConfig[`${side}DisplayCapability`] || '';
+				const displayCapabilityType = await resolvePopupCapabilityType(displayDeviceId, displayCapabilityId);
+				const updateDisplayRenderVisibility = function ()
+				{
+					if (!displayRenderRowElement)
+					{
+						return;
+					}
+
+					const selectedType = displayCapabilityType;
+					const isBooleanVariable = displayDeviceId === '_variable_' && selectedType === 'boolean';
+					const isBooleanDeviceCapability = displayDeviceId !== '_variable_' && selectedType === 'boolean';
+					const isBooleanSelection = isBooleanVariable || isBooleanDeviceCapability;
+					displayRenderRowElement.style.display = isBooleanSelection ? '' : 'none';
+
+					const selectedRenderInput = buttonFieldPopupBodyElement.querySelector(`input[name="popup${side}${page}DisplayBooleanRender"]:checked`);
+					const renderMode = selectedRenderInput ? selectedRenderInput.value : 'text';
+					const showTextRows = isBooleanSelection && renderMode !== 'svg';
+					const showSvgRows = isBooleanSelection && renderMode === 'svg';
+
+					if (displayOnTextRow) displayOnTextRow.style.display = showTextRows ? '' : 'none';
+					if (displayOffTextRow) displayOffTextRow.style.display = showTextRows ? '' : 'none';
+					if (displayOnSvgRow) displayOnSvgRow.style.display = showSvgRows ? '' : 'none';
+					if (displayOffSvgRow) displayOffSvgRow.style.display = showSvgRows ? '' : 'none';
+				};
+
+				if (displayOnTextElement) displayOnTextElement.value = pageConfig[`${side}OnText`] || '';
+				if (displayOffTextElement) displayOffTextElement.value = pageConfig[`${side}OffText`] || '';
+				if (displayOnSvgElement) displayOnSvgElement.value = pageConfig[`${side}OnSVG`] || '';
+				if (displayOffSvgElement) displayOffSvgElement.value = pageConfig[`${side}OffSVG`] || '';
+
+				const renderValue = pageConfig[`${side}DisplayBooleanRender`] || 'text';
+				const renderInput = buttonFieldPopupBodyElement.querySelector(`input[name="popup${side}${page}DisplayBooleanRender"][value="${renderValue}"]`);
+				if (renderInput)
+				{
+					renderInput.checked = true;
+				}
+
+				buttonFieldPopupBodyElement.querySelectorAll(`input[name="popup${side}${page}DisplayBooleanRender"]`).forEach((input) =>
+				{
+					input.addEventListener('change', updateDisplayRenderVisibility);
+				});
+
+				const defaultDevice = findAdvancedDefaultDeviceForSide(pageConfig, side);
+				for (const eventName of ['Click', 'Double', 'Long'])
+				{
+					const devElement = document.getElementById(`popup${side}${page}${eventName}Device`);
+					const capElement = document.getElementById(`popup${side}${page}${eventName}Capability`);
+					const stepElement = document.getElementById(`popup${side}${page}${eventName}ValueStep`);
+					const stepRowElement = document.getElementById(`popup${side}${page}${eventName}ValueStepRow`);
+					if (!devElement || !capElement || !stepElement || !stepRowElement)
+					{
+						continue;
+					}
+
+					const updateStepVisibility = function ()
+					{
+						const selectedOption = capElement.selectedOptions ? capElement.selectedOptions[0] : null;
+						const selectedType = selectedOption ? (selectedOption.dataset.type || '') : '';
+						const selectedValue = capElement.value || '';
+						const showStep = selectedType === 'number' || selectedValue === 'dim';
+						stepRowElement.style.display = showStep ? '' : 'none';
+					};
+
+					fillPopupDeviceSelector(devElement, false, true);
+					const eventDevice = pageConfig[`${side}${eventName}Device`] || defaultDevice || 'none';
+					devElement.value = eventDevice;
+					const storedNumericAction = pageConfig[`${side}${eventName}NumericAction`] || 'change';
+					const storedCapability = pageConfig[`${side}${eventName}Capability`] || '';
+					const combinedSelection = (storedNumericAction === 'toggleDirection') ? '__toggleDirection__' : storedCapability;
+					await fillPopupCapabilitySelector(capElement, devElement.value, combinedSelection, 'event');
+					stepElement.value = pageConfig[`${side}${eventName}ValueStep`] || '+10';
+					updateStepVisibility();
+
+					devElement.addEventListener('change', function ()
+					{
+						fillPopupCapabilitySelector(capElement, devElement.value, '', 'event').then(() =>
+						{
+							updateStepVisibility();
+						});
+					});
+
+					capElement.addEventListener('change', updateStepVisibility);
+				}
+
+				updateDisplayRenderVisibility();
+			}
+			else
+			{
+				const ledDeviceElement = document.getElementById(`popup${side}${page}LedDevice`);
+				const ledCapabilityElement = document.getElementById(`popup${side}${page}LedCapability`);
+				if (ledDeviceElement && ledCapabilityElement)
+				{
+					fillPopupDeviceSelector(ledDeviceElement, true, true);
+					ledDeviceElement.value = pageConfig[`${side}LedDevice`] || 'none';
+					await fillPopupCapabilitySelector(ledCapabilityElement, ledDeviceElement.value, pageConfig[`${side}LedCapability`], 'led');
+					ledDeviceElement.addEventListener('change', function ()
+					{
+						fillPopupCapabilitySelector(ledCapabilityElement, ledDeviceElement.value, '', 'led');
+					});
+				}
+
+				document.getElementById(`popup${side}${page}FrontLEDOnColor`).value = pageConfig[`${side}FrontLEDOnColor`] || '#ff0000';
+				document.getElementById(`popup${side}${page}FrontLEDOffColor`).value = pageConfig[`${side}FrontLEDOffColor`] || '#000000';
+				document.getElementById(`popup${side}${page}WallLEDOnColor`).value = pageConfig[`${side}WallLEDOnColor`] || '#ff0000';
+				document.getElementById(`popup${side}${page}WallLEDOffColor`).value = pageConfig[`${side}WallLEDOffColor`] || '#000000';
+			}
+		}
+
+		function saveAdvancedButtonPopup()
+		{
+			if (!buttonFieldPopupContext || !buttonFieldPopupContext.isAdvancedPopup)
+			{
+				return false;
+			}
+
+			const { side, page, popupMode } = buttonFieldPopupContext;
+			const config = localButtonConfigurations[currentButtonConfigurationNo];
+			if (!Array.isArray(config) || !config[page])
+			{
+				return true;
+			}
+
+			const pageConfig = config[page];
+			ensureButtonSideAdvancedDefaults(pageConfig, side);
+
+			const syncMainControlValue = function (suffix, value)
+			{
+				const element = document.getElementById(`${side}${page}${suffix}`);
+				if (element)
+				{
+					element.value = value;
+				}
+			};
+
+			if (popupMode !== 'led')
+			{
+				pageConfig[`${side}Mode`] = 'advanced';
+				const displayRenderInput = buttonFieldPopupBodyElement.querySelector(`input[name="popup${side}${page}DisplayBooleanRender"]:checked`);
+				pageConfig[`${side}DisplayBooleanRender`] = displayRenderInput ? displayRenderInput.value : 'text';
+				pageConfig[`${side}OnText`] = document.getElementById(`popup${side}${page}DisplayOnText`).value || '';
+				pageConfig[`${side}OffText`] = document.getElementById(`popup${side}${page}DisplayOffText`).value || '';
+				pageConfig[`${side}OnSVG`] = document.getElementById(`popup${side}${page}DisplayOnSVG`).value || '';
+				pageConfig[`${side}OffSVG`] = document.getElementById(`popup${side}${page}DisplayOffSVG`).value || '';
+
+				// Keep hidden main controls in sync so draft snapshot/save paths do not overwrite popup edits.
+				syncMainControlValue('OnText', pageConfig[`${side}OnText`]);
+				syncMainControlValue('OffText', pageConfig[`${side}OffText`]);
+				syncMainControlValue('OnSVG', pageConfig[`${side}OnSVG`]);
+				syncMainControlValue('OffSVG', pageConfig[`${side}OffSVG`]);
+
+				for (const eventName of ['Click', 'Double', 'Long'])
+				{
+					const eventCapabilityElement = document.getElementById(`popup${side}${page}${eventName}Capability`);
+					const selectedEventOption = (eventCapabilityElement && eventCapabilityElement.selectedOptions) ? eventCapabilityElement.selectedOptions[0] : null;
+					const selectedEventType = selectedEventOption ? (selectedEventOption.dataset.type || '') : '';
+					const selectedEventValue = eventCapabilityElement ? (eventCapabilityElement.value || '') : '';
+					const isToggleDirection = selectedEventValue === '__toggleDirection__';
+					const isNumericCapability = selectedEventType === 'number' || selectedEventValue === 'dim';
+					pageConfig[`${side}${eventName}Device`] = document.getElementById(`popup${side}${page}${eventName}Device`).value || 'none';
+					pageConfig[`${side}${eventName}Capability`] = isToggleDirection ? '' : selectedEventValue;
+					pageConfig[`${side}${eventName}NumericAction`] = isToggleDirection ? 'toggleDirection' : (isNumericCapability ? 'change' : 'none');
+					pageConfig[`${side}${eventName}ValueStep`] = document.getElementById(`popup${side}${page}${eventName}ValueStep`).value || '+10';
+				}
+			}
+			else
+			{
+				const ledDeviceElement = document.getElementById(`popup${side}${page}LedDevice`);
+				const ledCapabilityElement = document.getElementById(`popup${side}${page}LedCapability`);
+				if (ledDeviceElement && ledCapabilityElement)
+				{
+					pageConfig[`${side}LedDevice`] = ledDeviceElement.value || 'none';
+					pageConfig[`${side}LedCapability`] = ledCapabilityElement.value || '';
+				}
+				pageConfig[`${side}FrontLEDOnColor`] = document.getElementById(`popup${side}${page}FrontLEDOnColor`).value || '#ff0000';
+				pageConfig[`${side}FrontLEDOffColor`] = document.getElementById(`popup${side}${page}FrontLEDOffColor`).value || '#000000';
+				pageConfig[`${side}WallLEDOnColor`] = document.getElementById(`popup${side}${page}WallLEDOnColor`).value || '#ff0000';
+				pageConfig[`${side}WallLEDOffColor`] = document.getElementById(`popup${side}${page}WallLEDOffColor`).value || '#000000';
+
+				// Keep hidden main controls in sync so draft snapshot/save paths do not overwrite popup edits.
+				syncMainControlValue('FrontLEDOnColor', pageConfig[`${side}FrontLEDOnColor`]);
+				syncMainControlValue('FrontLEDOffColor', pageConfig[`${side}FrontLEDOffColor`]);
+				syncMainControlValue('WallLEDOnColor', pageConfig[`${side}WallLEDOnColor`]);
+				syncMainControlValue('WallLEDOffColor', pageConfig[`${side}WallLEDOffColor`]);
+			}
+
+			configDraftDirtySinceLoad = true;
+			flushConfigurationDraftPersist();
+			renderInlineButtonPagePreview(page);
+			if (buttonPagePopupOverlayElement && buttonPagePopupOverlayElement.classList.contains('visible'))
+			{
+				renderButtonPagePopup();
+			}
+
+			return true;
+		}
+
+		function getButtonFieldPopupSpec(side, page, fieldSuffix)
 		{
 			const sideLabel = Homey.__(`settings.${side}Panel`);
+			const config = localButtonConfigurations[currentButtonConfigurationNo];
+			const pageConfig = Array.isArray(config) ? config[page] : null;
+			const isAdvancedMode = pageConfig ? isButtonSideAdvanced(pageConfig, side) : false;
 			const labels = {
 				Device: Homey.__('settings.device'),
 				Capability: Homey.__('settings.capability'),
@@ -4352,7 +5264,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				OffText: Homey.__('settings.labelOff'),
 				OnSVG: 'On SVG Data',
 				OffSVG: 'Off SVG Data',
-				DimChange: Homey.__('settings.dimChange'),
+				DimChange: 'Value increment / decrement',
 				FrontLEDOnColor: Homey.__('settings.frontLEDOnColor'),
 				WallLEDOnColor: Homey.__('settings.wallLEDOnColor'),
 				FrontLEDOffColor: Homey.__('settings.frontLEDOffColor'),
@@ -4372,7 +5284,9 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				FrontLEDOffColor: 'settings.frontLEDOffColorExplanation',
 				WallLEDOffColor: 'settings.wallLEDOffColorExplanation',
 			};
-			const textAndSvgFields = ['Device', 'Capability', 'OnText', 'OffText', 'OnSVG', 'OffSVG', 'DimChange'];
+			const textAndSvgFields = isAdvancedMode
+				? ['Device', 'Capability', 'OnText', 'OffText', 'OnSVG', 'OffSVG']
+				: ['Device', 'Capability', 'OnText', 'OffText', 'OnSVG', 'OffSVG', 'DimChange'];
 
 			if (fieldSuffix === 'TopText')
 			{
@@ -4416,6 +5330,11 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 
 			if (fieldSuffix === 'DimChange')
 			{
+				if (isAdvancedMode)
+				{
+					return null;
+				}
+
 				return {
 					title: `${sideLabel} - ${Homey.__('settings.text')}`,
 					fields: textAndSvgFields,
@@ -4512,14 +5431,33 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			const selectedCapabilityType = selectedCapabilityOption ? selectedCapabilityOption.dataset.type : '';
 			const isNonBooleanDeviceCapability = (deviceValue !== '_variable_') && !isDimCapability && (capabilityElement.value !== 'windowcoverings_state') && (selectedCapabilityType !== '') && (selectedCapabilityType !== 'boolean');
 			const hideOnOffFields = isDimCapability || isNonBooleanVariable || isNonBooleanDeviceCapability;
-			for (const suffix of ['OnText', 'OffText', 'OnSVG', 'OffSVG'])
+			const booleanRenderMode = popupElementsBySuffix.__booleanRenderMode || 'text';
+			const showSvgFields = booleanRenderMode === 'svg';
+			const booleanRenderRow = popupElementsBySuffix.__booleanRenderRow || null;
+
+			for (const suffix of ['OnText', 'OffText'])
 			{
 				const fieldElement = popupElementsBySuffix[suffix];
 				const fieldRowElement = fieldElement ? fieldElement.closest('.button-field-popup-field') : null;
 				if (fieldRowElement)
 				{
-					fieldRowElement.style.display = hideOnOffFields ? 'none' : '';
+					fieldRowElement.style.display = hideOnOffFields ? 'none' : (showSvgFields ? 'none' : '');
 				}
+			}
+
+			for (const suffix of ['OnSVG', 'OffSVG'])
+			{
+				const fieldElement = popupElementsBySuffix[suffix];
+				const fieldRowElement = fieldElement ? fieldElement.closest('.button-field-popup-field') : null;
+				if (fieldRowElement)
+				{
+					fieldRowElement.style.display = hideOnOffFields ? 'none' : (showSvgFields ? '' : 'none');
+				}
+			}
+
+			if (booleanRenderRow)
+			{
+				booleanRenderRow.style.display = hideOnOffFields ? 'none' : 'flex';
 			}
 
 			const dimChangeRowElement = popupElementsBySuffix.DimChange ? popupElementsBySuffix.DimChange.closest('.button-field-popup-field') : null;
@@ -4559,6 +5497,55 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			buttonFieldPopupBodyElement.appendChild(sourceSectionElement);
 			buttonFieldPopupContext.customMQTTSectionElement = sourceSectionElement;
 			buttonFieldPopupContext.customMQTTSectionPlaceholder = placeholderElement;
+		}
+
+		function appendButtonFieldPopupBooleanRenderControls(side, page, popupElementsBySuffix)
+		{
+			if (!buttonFieldPopupBodyElement || !popupElementsBySuffix || !popupElementsBySuffix.OnText || !popupElementsBySuffix.OnSVG)
+			{
+				return;
+			}
+
+			const existingRow = buttonFieldPopupBodyElement.querySelector('.button-popup-radio-row[data-render-mode="basic-button"]');
+			if (existingRow)
+			{
+				existingRow.remove();
+			}
+
+			const config = localButtonConfigurations[currentButtonConfigurationNo];
+			const pageConfig = Array.isArray(config) ? config[page] : null;
+			if (pageConfig)
+			{
+				ensureButtonSideAdvancedDefaults(pageConfig, side);
+			}
+
+			const selectedMode = (pageConfig && pageConfig[`${side}BasicBooleanRender`]) ? pageConfig[`${side}BasicBooleanRender`] : 'text';
+			popupElementsBySuffix.__booleanRenderMode = selectedMode === 'svg' ? 'svg' : 'text';
+
+			const renderRow = document.createElement('div');
+			renderRow.className = 'button-field-popup-field button-popup-radio-row';
+			renderRow.dataset.renderMode = 'basic-button';
+
+			const radioName = `buttonPopup${side}${page}BasicBooleanRender`;
+			renderRow.innerHTML = `
+				<label class="button-popup-radio-option"><input type="radio" name="${radioName}" value="text"> Text</label>
+				<label class="button-popup-radio-option"><input type="radio" name="${radioName}" value="svg"> SVG</label>`;
+
+			const checkedInput = renderRow.querySelector(`input[name="${radioName}"][value="${popupElementsBySuffix.__booleanRenderMode}"]`);
+			if (checkedInput)
+			{
+				checkedInput.checked = true;
+			}
+
+			renderRow.addEventListener('change', function ()
+			{
+				const selectedInput = renderRow.querySelector(`input[name="${radioName}"]:checked`);
+				popupElementsBySuffix.__booleanRenderMode = selectedInput ? selectedInput.value : 'text';
+				updateButtonFieldPopupCapabilityState(popupElementsBySuffix);
+			});
+
+			popupElementsBySuffix.__booleanRenderRow = renderRow;
+			buttonFieldPopupBodyElement.appendChild(renderRow);
 		}
 
 		function normalizeTooltipHtml(value)
@@ -4653,6 +5640,12 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 
 		function saveButtonFieldPopup()
 		{
+			if (saveAdvancedButtonPopup())
+			{
+				closeButtonFieldPopup();
+				return;
+			}
+
 			if (!buttonFieldPopupBindings || buttonFieldPopupBindings.length === 0)
 			{
 				closeButtonFieldPopup();
@@ -4663,6 +5656,13 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			{
 				const side = buttonFieldPopupContext.side;
 				const page = buttonFieldPopupContext.page;
+				const config = localButtonConfigurations[currentButtonConfigurationNo];
+				const pageConfig = Array.isArray(config) ? config[page] : null;
+				if (pageConfig)
+				{
+					ensureButtonSideAdvancedDefaults(pageConfig, side);
+					pageConfig[`${side}BasicBooleanRender`] = buttonFieldPopupContext.popupElementsBySuffix.__booleanRenderMode || 'text';
+				}
 				const deviceValue = buttonFieldPopupContext.popupElementsBySuffix.Device.value;
 				const capabilityValue = buttonFieldPopupContext.popupElementsBySuffix.Capability.value;
 				const shouldApplyCapability = (deviceValue !== 'none' && deviceValue !== 'customMQTT');
@@ -4754,7 +5754,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				return;
 			}
 
-			const popupSpec = getButtonFieldPopupSpec(side, fieldSuffix);
+			const popupSpec = getButtonFieldPopupSpec(side, page, fieldSuffix);
 			if (!popupSpec)
 			{
 				focusButtonControlFromPopup(side, page, fieldSuffix, false);
@@ -4880,6 +5880,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 
 			if (popupElementsBySuffix.Device && popupElementsBySuffix.Capability)
 			{
+				appendButtonFieldPopupBooleanRenderControls(side, page, popupElementsBySuffix);
 				appendButtonFieldPopupCustomMQTTSection(side, page);
 
 				if (popupDeviceIndicatorElement)
@@ -4947,6 +5948,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				{
 					updatePopupCapabilityIndicator(popupElementsBySuffix.Capability, popupCapabilityIndicatorElement);
 				}
+				updateButtonFieldPopupCapabilityState(popupElementsBySuffix);
 			}
 
 			buttonFieldPopupOverlayElement.classList.add('visible');
@@ -4963,7 +5965,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 		{
 			if (openPopup)
 			{
-				const popupSpec = getButtonFieldPopupSpec(side, fieldSuffix);
+				const popupSpec = getButtonFieldPopupSpec(side, page, fieldSuffix);
 				if (popupSpec)
 				{
 					openButtonFieldPopup(side, page, fieldSuffix);
@@ -7060,6 +8062,14 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 							option.text = `${capability.title} (${capabilityId})`;
 							option.value = capabilityId;
 							option.dataset.type = capability.type || '';
+							if (typeof capability.units === 'string')
+							{
+								option.dataset.unit = capability.units;
+							}
+							else if (capability.units && typeof capability.units === 'object')
+							{
+								option.dataset.unit = String(capability.units.en || Object.values(capability.units)[0] || '');
+							}
 							const capabilityIconUrl = getCapabilityIconUrl(capability);
 							if (capabilityIconUrl)
 							{
@@ -7192,6 +8202,8 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 		// Update the controls for the specified side and page
 		function updateButtonPanelControlsSection(side, page, ButtonPanelConfiguration)
 		{
+			ensureButtonSideAdvancedDefaults(ButtonPanelConfiguration, side);
+
 			if (buttonConfigurationNoElement.value == "")
 			{
 				// fillButtonConfigListElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
@@ -7213,6 +8225,11 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				document.getElementById(`${side}${page}LongRepeatMs`).value = "500";
 				document.getElementById(`${side}${page}OnSVG`).value = "";
 				document.getElementById(`${side}${page}OffSVG`).value = "";
+				const advancedToggle = document.getElementById(`${side}${page}AdvancedMode`);
+				if (advancedToggle)
+				{
+					advancedToggle.checked = false;
+				}
 			}
 			else
 			{
@@ -7260,6 +8277,11 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				document.getElementById(`${side}${page}LongRepeatMs`).value = ButtonPanelConfiguration[`${side}LongRepeatMs`] ?? "500";
 				document.getElementById(`${side}${page}OnSVG`).value = ButtonPanelConfiguration[`${side}OnSVG`] || '';
 				document.getElementById(`${side}${page}OffSVG`).value = ButtonPanelConfiguration[`${side}OffSVG`] || '';
+				const advancedToggle = document.getElementById(`${side}${page}AdvancedMode`);
+				if (advancedToggle)
+				{
+					advancedToggle.checked = isButtonSideAdvanced(ButtonPanelConfiguration, side);
+				}
 			}
 		}
 
@@ -9741,6 +10763,18 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 										<span class="homey-form-label button-main-canvas-title">Simulate</span>
 										<button class="homey-button-secondary-shadow button-inline-state-toggle" id="${page}ButtonInlineSimState" onClick="toggleInlineButtonSimState(); return false;">On state</button>
 									</div>
+									<div class="button-mode-toggle-grid">
+										<label class="homey-form-checkbox button-mode-toggle-option" for="left${page}AdvancedMode">
+											<input class="homey-form-checkbox-input" id="left${page}AdvancedMode" type="checkbox" onchange="onButtonModeToggleChange('left', ${page}, this.checked)">
+											<span class="homey-form-checkbox-checkmark"></span>
+											<span class="homey-form-checkbox-text button-mode-toggle-label"><span>Left advanced</span><span class="tooltip button-mode-toggle-tooltip" aria-label="Advanced mode help"><i class="fi fi-rr-info" aria-hidden="true"></i><span class="tooltiptext">Enable this per side when you need more than simple on/off behavior.<br>Map click, double-click and long/repeat to different devices or capabilities, including numeric step actions.<br>Choose separate sources for display content and LED state so visuals can follow a different capability than the action target.</span></span></span>
+										</label>
+										<label class="homey-form-checkbox button-mode-toggle-option" for="right${page}AdvancedMode">
+											<input class="homey-form-checkbox-input" id="right${page}AdvancedMode" type="checkbox" onchange="onButtonModeToggleChange('right', ${page}, this.checked)">
+											<span class="homey-form-checkbox-checkmark"></span>
+											<span class="homey-form-checkbox-text button-mode-toggle-label"><span>Right advanced</span><span class="tooltip button-mode-toggle-tooltip" aria-label="Advanced mode help"><i class="fi fi-rr-info" aria-hidden="true"></i><span class="tooltiptext">Enable this per side when you need more than simple on/off behavior.<br>Map click, double-click and long/repeat to different devices or capabilities, including numeric step actions.<br>Choose separate sources for display content and LED state so visuals can follow a different capability than the action target.</span></span></span>
+										</label>
+									</div>
 									<div class="button-sim-bar button-inline-sim-grid" id="${page}ButtonInlineSimContent"></div>
 									</div>
 									<div class="button-inline-settings-toggle-row">
@@ -9790,7 +10824,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				topLabel: Homey.__("settings.topLabel"),
 				labelOn: Homey.__("settings.labelOn"),
 				labelOff: Homey.__("settings.labelOff"),
-				dimChange: Homey.__("settings.dimChange"),
+				dimChange: 'Value increment / decrement',
 				frontLEDOnColor: Homey.__("settings.frontLEDOnColor"),
 				frontLEDOffColor: Homey.__("settings.frontLEDOffColor"),
 				wallLEDOffColor: Homey.__("settings.wallLEDOffColor"),
