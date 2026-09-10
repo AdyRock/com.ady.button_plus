@@ -2168,6 +2168,10 @@ class PanelDevice extends Device
 			}
 
 			this.lastPhysicalClickAt.set(longPressKey, now);
+			// A new physical click starts a fresh cycle; clear any stale suppression state
+			// left over from a previous incomplete/aborted cycle.
+			this.releaseSuppressions.delete(longPressKey);
+			this.clickedSuppressions.delete(longPressKey);
 			this.longPressOccurred.set(longPressKey, 0);
 			this.longPressEventCounts.delete(longPressKey);
 			this.longPressLastProcessedAt.delete(longPressKey);
@@ -2178,7 +2182,7 @@ class PanelDevice extends Device
 
 			// The button was pressed
 			const clickResult = await this.handleButtonClick(parameters);
-			if (!(clickResult && clickResult.suppressGenericClick) && !this.consumeSuppression(this.clickedSuppressions, longPressKey))
+			if (!(clickResult && clickResult.suppressGenericClick))
 			{
 				const clickedFire = () => this.homey.app.triggerButtonEvent(this, parameters.side, parameters.connector, 'clicked', parameters.value, parameters.value.toString(), 0);
 				if (this.isWaitingForClickResolution(longPressKey))
@@ -2325,10 +2329,51 @@ class PanelDevice extends Device
 		return true;
 	}
 
+	async triggerAdvancedMappedConfigClicked(parameters)
+	{
+		if (parameters.configNo == null)
+		{
+			return;
+		}
+
+		const flowParameters = _.cloneDeep(parameters);
+		const config = this.resolveConnectorConfig(flowParameters);
+		const rawValue = this.buttonValues.get(`${flowParameters.side}_${flowParameters.connector}_${flowParameters.page}`);
+		const flowBooleanValue = (typeof rawValue === 'boolean')
+			? rawValue
+			: ((typeof flowParameters.value === 'boolean') ? flowParameters.value : false);
+		const fallbackState = typeof rawValue === 'boolean' ? rawValue : false;
+		const buttonState = await this.getConfigLedButtonState(config, fallbackState);
+		const displayValue = (rawValue === null || rawValue === undefined) ? String(flowBooleanValue) : String(rawValue);
+
+		this.homey.app.triggerConfigButton(this, flowParameters.side, flowParameters.connectorType, flowParameters.configNo, 'clicked', buttonState, displayValue, flowParameters.page);
+	}
+
+	async triggerAdvancedMappedConfigLong(parameters, repeatCount = 0)
+	{
+		if (parameters.configNo == null)
+		{
+			return;
+		}
+
+		const flowParameters = _.cloneDeep(parameters);
+		const config = this.resolveConnectorConfig(flowParameters);
+		const rawValue = this.buttonValues.get(`${flowParameters.side}_${flowParameters.connector}_${flowParameters.page}`);
+		const flowBooleanValue = (typeof rawValue === 'boolean')
+			? rawValue
+			: ((typeof flowParameters.value === 'boolean') ? flowParameters.value : false);
+		const fallbackState = typeof rawValue === 'boolean' ? rawValue : false;
+		const buttonState = await this.getConfigLedButtonState(config, fallbackState);
+		const displayValue = (rawValue === null || rawValue === undefined) ? String(flowBooleanValue) : String(rawValue);
+
+		this.homey.app.triggerConfigButton(this, flowParameters.side, flowParameters.connectorType, flowParameters.configNo, 'long', buttonState, displayValue, flowParameters.page, repeatCount);
+	}
+
 	async executeSingleClickAction(parameters)
 	{
 		if (await this.runAdvancedEventMapping(parameters, 'click'))
 		{
+			await this.triggerAdvancedMappedConfigClicked(parameters);
 			if (parameters.fromButton && ((parameters.page === 0) || (this.page === parameters.page)))
 			{
 				setImmediate(() => this.safeSetCapabilityValue(parameters.buttonCapability, false));
@@ -2357,22 +2402,28 @@ class PanelDevice extends Device
 
 		const clickTimeoutMs = DOUBLE_CLICK_WINDOW_MS;
 
-		const resolveSingleClick = () =>
+		const resolveSingleClick = async () =>
 		{
 			const currentState = this.clickEventStates.get(key);
 			if (currentState && currentState.waitingForRelease)
 			{
-				const retryTimer = this.homey.setTimeout(resolveSingleClick, 50);
+				const retryTimer = this.homey.setTimeout(() =>
+				{
+					resolveSingleClick().catch((err) => this.error(err));
+				}, 50);
 				this.pendingAdvancedClickFallbackTimers.set(key, retryTimer);
 				return;
 			}
 
 			this.clearClickResolutionTimers(key);
-			this.firePendingSingleClickTriggers(key);
+			await this.firePendingSingleClickTriggers(key);
 			this.clickEventStates.delete(key);
 		};
 
-		const clickTimer = this.homey.setTimeout(resolveSingleClick, clickTimeoutMs);
+		const clickTimer = this.homey.setTimeout(() =>
+		{
+			resolveSingleClick().catch((err) => this.error(err));
+		}, clickTimeoutMs);
 
 		this.pendingAdvancedClickFallbackTimers.set(key, clickTimer);
 
@@ -3402,14 +3453,14 @@ class PanelDevice extends Device
 		}
 	}
 
-	firePendingSingleClickTriggers(key)
+	async firePendingSingleClickTriggers(key)
 	{
 		this.clearPendingAdvancedClickFallbackTimer(key);
 		const advancedClickFns = this.pendingAdvancedClickActions.get(key);
 		this.pendingAdvancedClickActions.delete(key);
 		if (advancedClickFns)
 		{
-			advancedClickFns.forEach((fireFn) => fireFn());
+			await Promise.allSettled(advancedClickFns.map((fireFn) => Promise.resolve().then(() => fireFn())));
 		}
 
 		const clickedFns = this.pendingClickedTriggers.get(key);
@@ -3754,7 +3805,6 @@ class PanelDevice extends Device
 		this.clickEventTimers.delete(key);
 		this.discardPendingSingleClickTriggers(key);
 		this.clearPendingAdvancedClickFallbackTimer(key);
-		this.incrementSuppression(this.clickedSuppressions, key);
 		this.incrementSuppression(this.releaseSuppressions, key);
 
 		if (this.isDimButtonConfig(config))
@@ -4259,6 +4309,7 @@ class PanelDevice extends Device
 
 		if (await this.runAdvancedEventMapping(parameters, 'long'))
 		{
+			await this.triggerAdvancedMappedConfigLong(parameters, repeatCount);
 			if ((parameters.page === 0) || (this.page === parameters.page))
 			{
 				this.safeSetCapabilityValue(`${parameters.side}_button.connector${parameters.connector}`, false);
@@ -4326,6 +4377,10 @@ class PanelDevice extends Device
 					releaseConfigFire();
 				}
 			}
+		}
+		else
+		{
+			this.homey.app.updateLog(`Release: suppressed queued release for ${releaseKey}`, 1);
 		}
 
 		// Check if a large display or if no configuration assigned to this connector
