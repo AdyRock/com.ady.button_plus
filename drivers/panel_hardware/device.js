@@ -11,6 +11,7 @@ const { isSvgTextContent, normalizeSvgText } = require('../../lib/SvgHelper');
 const V3_LONG_PRESS_EVENT_INTERVAL_MS = 20;
 const DOUBLE_CLICK_WINDOW_MS = 350;
 const DEFAULT_LONG_PRESS_DELAY_MS = 750;
+const DUPLICATE_CLICK_DEBOUNCE_MS = 120;
 
 class PanelDevice extends Device
 {
@@ -29,6 +30,9 @@ class PanelDevice extends Device
 		this.buttonValues = new Map();
 		this.dimDirections = new Map();
 		this.dimClickTimers = new Map();
+		this.dimClickSequences = new Map();
+		this.dimReleaseHandledSequences = new Map();
+		this.lastPhysicalClickAt = new Map();
 		this.dimToggleValues = new Map();
 		this.clickEventTimers = new Map();
 		this.pendingClickedTriggers = new Map();
@@ -613,6 +617,18 @@ class PanelDevice extends Device
 				this.homey.clearTimeout(timer);
 			}
 			this.dimClickTimers.clear();
+		}
+		if (this.dimClickSequences)
+		{
+			this.dimClickSequences.clear();
+		}
+		if (this.dimReleaseHandledSequences)
+		{
+			this.dimReleaseHandledSequences.clear();
+		}
+		if (this.lastPhysicalClickAt)
+		{
+			this.lastPhysicalClickAt.clear();
 		}
 		if (this.dimDirections)
 		{
@@ -2123,11 +2139,40 @@ class PanelDevice extends Device
 		parameters.buttonCapability = `${parameters.side}_button.connector${parameters.connector}`;
 		parameters.value = !this.buttonValues.get(`${parameters.side}_${parameters.connector}_${parameters.page}`);
 
+		// Normalize page before creating per-button state keys so click/long/release share the same key.
+		if ((parameters.configNo != null) && (parameters.connectorType !== 2) && (parameters.connectorType !== 3))
+		{
+			const lookupPage = (parameters.page == null) ? 0 : parameters.page;
+			const mappedConfig = this.getConfigPageSide(null, lookupPage, parameters.side, parameters.configNo);
+			if (mappedConfig)
+			{
+				const mappedPage = parseInt(mappedConfig.page, 10);
+				if (!Number.isNaN(mappedPage))
+				{
+					parameters.page = mappedPage;
+				}
+			}
+		}
+
 		// Now process the message
 		if (MQTTMessage.event === 'click')
 		{
 			this.homey.app.updateLog(`Panel processing MQTT message: ${MQTTMessage.event}`);
 			const longPressKey = `${parameters.connector}_${parameters.side}_${parameters.page}`;
+			this.homey.app.updateLog(`TIMING click ts=${new Date().toISOString()} ms=${Date.now()} key=${longPressKey} configNo=${parameters.configNo} page=${parameters.page}`, 0);
+
+			// Some firmware/message paths can emit duplicated click events for one physical press.
+			// Ignore near-immediate duplicates so single presses cannot toggle twice.
+			const now = Date.now();
+			const lastClickAt = this.lastPhysicalClickAt.get(longPressKey) || 0;
+			if ((now - lastClickAt) < DUPLICATE_CLICK_DEBOUNCE_MS)
+			{
+				this.homey.app.updateLog(`Ignoring duplicate physical click for ${longPressKey} (${now - lastClickAt}ms apart)`, 1);
+				return;
+			}
+
+			this.lastPhysicalClickAt.set(longPressKey, now);
+			this.dimClickSequences.set(longPressKey, (this.dimClickSequences.get(longPressKey) || 0) + 1);
 			this.longPressOccurred.set(longPressKey, 0);
 			this.longPressEventCounts.delete(longPressKey);
 			this.longPressLastProcessedAt.delete(longPressKey);
@@ -2137,22 +2182,26 @@ class PanelDevice extends Device
 			this.pendingAdvancedLongReleaseCommits.delete(longPressKey);
 
 			// The button was pressed
-			this.handleButtonClick(parameters);
+			await this.handleButtonClick(parameters);
 			// Defer the generic 'clicked' Flow trigger: it's discarded instead of fired if this turns into a double click
 			this.queueClickedTrigger(longPressKey, () => this.homey.app.triggerButtonEvent(this, parameters.side, parameters.connector, 'clicked', parameters.value, parameters.value.toString(), 0));
 		}
 		else if (MQTTMessage.event === 'longpress')
 		{
 			// The button has been pressed for a long time
-			this.processLongPressMessage(parameters);
+			const longPressKey = `${parameters.connector}_${parameters.side}_${parameters.page}`;
+			this.homey.app.updateLog(`TIMING longpress ts=${new Date().toISOString()} ms=${Date.now()} key=${longPressKey} configNo=${parameters.configNo} page=${parameters.page}`, 0);
+			await this.processLongPressMessage(parameters);
 		}
 		else if (MQTTMessage.event === 'release')
 		{
 			this.homey.app.updateLog(`Panel processing MQTT message: ${MQTTMessage.event}`);
+			const releaseKey = `${parameters.connector}_${parameters.side}_${parameters.page}`;
+			this.homey.app.updateLog(`TIMING release ts=${new Date().toISOString()} ms=${Date.now()} key=${releaseKey} configNo=${parameters.configNo} page=${parameters.page}`, 0);
 
 			// The button has been released; button_event's 'released' trigger is queued from within
 			// processReleaseMessage itself so it can be discarded there if this turns into a double click
-			this.processReleaseMessage(parameters);
+			await this.processReleaseMessage(parameters);
 		}
 	}
 
@@ -3433,9 +3482,20 @@ class PanelDevice extends Device
 			const percent = capability && (typeof capability.value === 'number') ? capability.value * 100 : 0;
 			const direction = this.getDimDirection(key, config.dimChange);
 
+			// Keep dim display content in sync on every press so value/direction don't disappear between updates.
+			await this.refreshDimButtonDisplay(parameters, config, key);
+
 			// Dim buttons have no on/off value of their own: the button/LED state instead follows the target device's onoff capability
 			const ledState = await this.getDimButtonLedState(config);
 			this.fireOrQueueClickedTrigger(parameters, key, () => this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'clicked', ledState, this.formatDimLabel(percent, direction), parameters.page));
+
+			if (!parameters.fromButton && parameters.event === 'click')
+			{
+				const deferredParameters = _.cloneDeep(parameters);
+				deferredParameters.event = 'deferred_click';
+				this.queuePendingAdvancedClickAction(key, () => this.toggleDimOnOff(deferredParameters, config, key).catch((err) => this.error(err)));
+				this.homey.app.updateLog(`TIMING defer-click ts=${new Date().toISOString()} ms=${Date.now()} key=${key} configNo=${parameters.configNo} page=${parameters.page} kind=dim`, 0);
+			}
 			return null;
 		}
 
@@ -3444,40 +3504,69 @@ class PanelDevice extends Device
 			const kind = await this.getCapabilityDisplayKind(config);
 			if (kind === 'picker')
 			{
-				// Item list capabilities toggle the target device's onoff state on a plain click; holding the
-				// button (long press repeat) steps through the available items instead, see processLongPressMessage
+				// For physical presses, defer picker single-click behavior until release/double-click resolution.
+				// This prevents the initial click from toggling onoff before a long press is recognized.
+				if (!parameters.fromButton && parameters.event === 'click')
+				{
+					const key = this.getButtonStateKey(parameters.connector, parameters.side, parameters.page);
+					const deferredParameters = _.cloneDeep(parameters);
+					deferredParameters.event = 'deferred_click';
+					this.queueClickedTrigger(key, () => this.handlePickerToggleClick(deferredParameters, config).catch((err) => this.error(err)));
+
+					// Keep the current enum label visible immediately while waiting for click resolution.
+					await this.refreshPickerButtonDisplay(parameters, config);
+					return null;
+				}
+
+				// Virtual presses keep the original immediate behavior.
 				return this.handlePickerToggleClick(parameters, config);
 			}
+		}
 
-			if (kind === 'text')
-			{
-				return this.handleTextButtonClick(parameters, config);
-			}
+		// Match the timing diagram for physical input: run single-click action only after
+		// release resolves single-vs-double and long-press has had the chance to cancel it.
+		if (!parameters.fromButton && parameters.event === 'click')
+		{
+			const key = this.getButtonStateKey(parameters.connector, parameters.side, parameters.page);
+			const deferredParameters = _.cloneDeep(parameters);
+			deferredParameters.event = 'deferred_click';
+			this.queuePendingAdvancedClickAction(key, () => this.processClickMessage(deferredParameters).catch((err) => this.error(err)));
+			this.homey.app.updateLog(`TIMING defer-click ts=${new Date().toISOString()} ms=${Date.now()} key=${key} configNo=${parameters.configNo} page=${parameters.page}`, 0);
+			return null;
 		}
 
 		return this.processClickMessage(parameters);
 	}
 
-	async handlePickerToggleClick(parameters, config)
+	async refreshPickerButtonDisplay(parameters, config)
 	{
-		await this.toggleOnOffForNonBooleanCapability(config);
-
 		const { capability } = await this.getDeviceAndCapability(config);
 		const currentValue = capability ? capability.value : undefined;
-		const currentOption = capability && Array.isArray(capability.values) ? capability.values.find((entry) => entry.id === currentValue) : null;
-		const displayValue = currentOption ? (currentOption.title || currentOption.id) : ((currentValue === null || currentValue === undefined) ? '' : String(currentValue));
+		const displayValue = await this.resolveCapabilityDisplayText(config, currentValue);
 
 		const buttonIdx = parameters.connector * 2 + (parameters.side === 'left' ? 0 : 1) + 1;
-		const key = this.getButtonStateKey(parameters.connector, parameters.side, parameters.page);
+		this.publishTextButtonLabel(config.brokerId, buttonIdx, parameters.page, displayValue);
 
-		// Item list capabilities have no on/off value of their own: the button/LED state instead follows the target device's onoff capability
 		const ledState = await this.getCapabilityLedState(config);
-		this.fireOrQueueClickedTrigger(parameters, key, () => this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'clicked', ledState !== null ? ledState : false, displayValue, parameters.page));
-
 		if (ledState !== null)
 		{
 			this.setLEDOnOff(config, null, buttonIdx, parameters.page, ledState);
 		}
+
+		return {
+			displayValue,
+			ledState,
+		};
+	}
+
+	async handlePickerToggleClick(parameters, config)
+	{
+		await this.toggleOnOffForNonBooleanCapability(config);
+		const { displayValue, ledState } = await this.refreshPickerButtonDisplay(parameters, config);
+		const key = this.getButtonStateKey(parameters.connector, parameters.side, parameters.page);
+
+		// Item list capabilities have no on/off value of their own: the button/LED state instead follows the target device's onoff capability
+		this.fireOrQueueClickedTrigger(parameters, key, () => this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'clicked', ledState !== null ? ledState : false, displayValue, parameters.page));
 
 		if (parameters.fromButton && ((parameters.page === 0) || (this.page === parameters.page)))
 		{
@@ -3635,6 +3724,11 @@ class PanelDevice extends Device
 			this.clickEventTimers.delete(key);
 			this.discardPendingSingleClickTriggers(key);
 
+			if (this.isDimButtonConfig(config))
+			{
+				await this.toggleDimDirection(parameters, config, key);
+			}
+
 			if (await this.runAdvancedEventMapping(parameters, 'double'))
 			{
 				const value = this.buttonValues.get(`${parameters.side}_${parameters.connector}_${parameters.page}`) || false;
@@ -3748,6 +3842,17 @@ class PanelDevice extends Device
 
 	async handleDimButtonRelease(parameters, config, key)
 	{
+		// Some panels/firmware paths can emit more than one release for a single physical click.
+		// Only handle one release per click sequence so a duplicate release cannot be mistaken for double click.
+		const clickSequence = this.dimClickSequences.get(key) || 0;
+		const handledSequence = this.dimReleaseHandledSequences.get(key) || 0;
+		if (clickSequence <= handledSequence)
+		{
+			return null;
+		}
+
+		this.dimReleaseHandledSequences.set(key, clickSequence);
+
 		const pendingTimer = this.dimClickTimers.get(key);
 		if (pendingTimer)
 		{
@@ -4230,14 +4335,7 @@ class PanelDevice extends Device
 		{
 			if (this.isDimButtonConfig(config))
 			{
-				const longPressKey = `${parameters.connector}_${parameters.side}_${parameters.page}`;
-				const longPressHappened = this.longPressOccurred && (this.longPressOccurred.get(longPressKey) > 0);
-				if (!longPressHappened)
-				{
-					// Only a plain click (no long press) reaches here, so it's safe to decide single vs double click now
-					const dimKey = this.getDimButtonKey(parameters.connector, parameters.side, parameters.page);
-					this.handleDimButtonRelease(parameters, config, dimKey).catch((err) => this.error(err));
-				}
+				// Dim now follows the shared click timing resolver (single deferred; double cancels single; long cancels single).
 			}
 			else if (this.longPressOccurred && (this.longPressOccurred.get(`${parameters.connector}_${parameters.side}_${parameters.page}`) > 0) && (config.capabilityName === 'windowcoverings_state'))
 			{
@@ -5219,16 +5317,8 @@ class PanelDevice extends Device
 					}
 					else if (isNonBooleanCapability)
 					{
-						// Text/picker capabilities have no on/off state; show their content (or the picker's active option title) instead
-						if ((capability.type === 'enum') && Array.isArray(capability.values))
-						{
-							const matchedOption = capability.values.find((entry) => entry.id === value);
-							rawTextValue = matchedOption ? (matchedOption.title || matchedOption.id) : value;
-						}
-						else
-						{
-							rawTextValue = value;
-						}
+						// Text/picker capabilities have no on/off state; normalize display content (enum title or text fallback).
+						rawTextValue = await this.resolveCapabilityDisplayText(sideConfig, value);
 					}
 
 					if (isNonBooleanCapability)
