@@ -2355,18 +2355,24 @@ class PanelDevice extends Device
 	{
 		this.clearPendingAdvancedClickFallbackTimer(key);
 
-		const longDelayMs = timingContext.longPressDefined
-			? (this.getConfiguredLongPressDelayMs(parameters) + Math.max(150, this.getConfiguredLongPressRepeatMs(parameters)))
-			: 0;
-		const doubleDelayMs = timingContext.doubleClickDefined ? DOUBLE_CLICK_WINDOW_MS : 0;
-		const clickTimeoutMs = Math.max(longDelayMs, doubleDelayMs) + 500;
+		const clickTimeoutMs = DOUBLE_CLICK_WINDOW_MS;
 
-		const clickTimer = this.homey.setTimeout(() =>
+		const resolveSingleClick = () =>
 		{
+			const currentState = this.clickEventStates.get(key);
+			if (currentState && currentState.waitingForRelease)
+			{
+				const retryTimer = this.homey.setTimeout(resolveSingleClick, 50);
+				this.pendingAdvancedClickFallbackTimers.set(key, retryTimer);
+				return;
+			}
+
 			this.clearClickResolutionTimers(key);
 			this.firePendingSingleClickTriggers(key);
 			this.clickEventStates.delete(key);
-		}, clickTimeoutMs);
+		};
+
+		const clickTimer = this.homey.setTimeout(resolveSingleClick, clickTimeoutMs);
 
 		this.pendingAdvancedClickFallbackTimers.set(key, clickTimer);
 
@@ -3519,6 +3525,7 @@ class PanelDevice extends Device
 			const state = this.clickEventStates.get(key) || {
 				clickCount: 0,
 				longPressActive: false,
+				waitingForRelease: false,
 			};
 
 			if (state.longPressActive)
@@ -3530,6 +3537,7 @@ class PanelDevice extends Device
 			if (state.clickCount === 0)
 			{
 				state.clickCount = 1;
+				state.waitingForRelease = true;
 				this.clickEventStates.set(key, state);
 
 				const deferredParameters = _.cloneDeep(parameters);
@@ -3544,6 +3552,7 @@ class PanelDevice extends Device
 			if (timingContext.doubleClickDefined && this.clickEventTimers.has(key))
 			{
 				state.clickCount += 1;
+				state.waitingForRelease = true;
 				this.clickEventStates.set(key, state);
 				const config = this.resolveConnectorConfig(parameters);
 				await this.handleGenericDoubleClick(parameters, key, config);
@@ -4283,6 +4292,12 @@ class PanelDevice extends Device
 		const config = this.getConfigPageSide(null, parameters.page, parameters.side, parameters.configNo);
 
 		const releaseKey = `${parameters.connector}_${parameters.side}_${parameters.page}`;
+		const clickStateOnRelease = this.clickEventStates.get(releaseKey);
+		if (clickStateOnRelease)
+		{
+			clickStateOnRelease.waitingForRelease = false;
+			this.clickEventStates.set(releaseKey, clickStateOnRelease);
+		}
 		await this.flushAdvancedLongReleaseCommit(parameters);
 
 		if (!this.consumeSuppression(this.releaseSuppressions, releaseKey))
