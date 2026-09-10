@@ -29,16 +29,16 @@ class PanelDevice extends Device
 		this.lastLongPressTimes = new Map();
 		this.buttonValues = new Map();
 		this.dimDirections = new Map();
-		this.dimClickTimers = new Map();
-		this.dimClickSequences = new Map();
-		this.dimReleaseHandledSequences = new Map();
 		this.lastPhysicalClickAt = new Map();
 		this.dimToggleValues = new Map();
 		this.clickEventTimers = new Map();
+		this.clickEventStates = new Map();
 		this.pendingClickedTriggers = new Map();
 		this.pendingReleasedTriggers = new Map();
 		this.pendingAdvancedClickActions = new Map();
 		this.pendingAdvancedClickFallbackTimers = new Map();
+		this.releaseSuppressions = new Map();
+		this.clickedSuppressions = new Map();
 		this.pendingAdvancedLongReleaseCommits = new Map();
 		this.advancedLongReleaseCommitTimers = new Map();
 		this.advancedLongLastEventTimes = new Map();
@@ -610,22 +610,6 @@ class PanelDevice extends Device
 		{
 			this.buttonValues.clear();
 		}
-		if (this.dimClickTimers)
-		{
-			for (const timer of this.dimClickTimers.values())
-			{
-				this.homey.clearTimeout(timer);
-			}
-			this.dimClickTimers.clear();
-		}
-		if (this.dimClickSequences)
-		{
-			this.dimClickSequences.clear();
-		}
-		if (this.dimReleaseHandledSequences)
-		{
-			this.dimReleaseHandledSequences.clear();
-		}
 		if (this.lastPhysicalClickAt)
 		{
 			this.lastPhysicalClickAt.clear();
@@ -646,6 +630,10 @@ class PanelDevice extends Device
 			}
 			this.clickEventTimers.clear();
 		}
+		if (this.clickEventStates)
+		{
+			this.clickEventStates.clear();
+		}
 		if (this.pendingClickedTriggers)
 		{
 			this.pendingClickedTriggers.clear();
@@ -665,6 +653,14 @@ class PanelDevice extends Device
 				this.homey.clearTimeout(timer);
 			}
 			this.pendingAdvancedClickFallbackTimers.clear();
+		}
+		if (this.releaseSuppressions)
+		{
+			this.releaseSuppressions.clear();
+		}
+		if (this.clickedSuppressions)
+		{
+			this.clickedSuppressions.clear();
 		}
 		if (this.pendingAdvancedLongReleaseCommits)
 		{
@@ -2172,7 +2168,6 @@ class PanelDevice extends Device
 			}
 
 			this.lastPhysicalClickAt.set(longPressKey, now);
-			this.dimClickSequences.set(longPressKey, (this.dimClickSequences.get(longPressKey) || 0) + 1);
 			this.longPressOccurred.set(longPressKey, 0);
 			this.longPressEventCounts.delete(longPressKey);
 			this.longPressLastProcessedAt.delete(longPressKey);
@@ -2182,9 +2177,19 @@ class PanelDevice extends Device
 			this.pendingAdvancedLongReleaseCommits.delete(longPressKey);
 
 			// The button was pressed
-			await this.handleButtonClick(parameters);
-			// Defer the generic 'clicked' Flow trigger: it's discarded instead of fired if this turns into a double click
-			this.queueClickedTrigger(longPressKey, () => this.homey.app.triggerButtonEvent(this, parameters.side, parameters.connector, 'clicked', parameters.value, parameters.value.toString(), 0));
+			const clickResult = await this.handleButtonClick(parameters);
+			if (!(clickResult && clickResult.suppressGenericClick) && !this.consumeSuppression(this.clickedSuppressions, longPressKey))
+			{
+				const clickedFire = () => this.homey.app.triggerButtonEvent(this, parameters.side, parameters.connector, 'clicked', parameters.value, parameters.value.toString(), 0);
+				if (this.isWaitingForClickResolution(longPressKey))
+				{
+					this.queueClickedTrigger(longPressKey, clickedFire);
+				}
+				else
+				{
+					clickedFire();
+				}
+			}
 		}
 		else if (MQTTMessage.event === 'longpress')
 		{
@@ -2253,6 +2258,127 @@ class PanelDevice extends Device
 		const configuredRepeat = parseInt(buttonPageConfiguration[`${parameters.side}LongRepeatMs`], 10);
 
 		return Number.isNaN(configuredRepeat) ? 500 : Math.max(50, Math.min(configuredRepeat, 10000));
+	}
+
+	getEventTimingContext(parameters)
+	{
+		const sideConfig = this.resolveAdvancedSideConfig(parameters);
+		const side = parameters && parameters.side ? parameters.side : 'left';
+		const mode = String((sideConfig && sideConfig[`${side}Mode`]) || 'basic').toLowerCase();
+		const simpleMode = mode !== 'advanced';
+
+		if (simpleMode)
+		{
+			return {
+				simpleMode: true,
+				doubleClickDefined: false,
+				longPressDefined: false,
+			};
+		}
+
+		return {
+			simpleMode: false,
+			doubleClickDefined: !!this.resolveAdvancedEventBinding(parameters, 'double'),
+			longPressDefined: !!this.resolveAdvancedEventBinding(parameters, 'long'),
+		};
+	}
+
+	isWaitingForClickResolution(key)
+	{
+		return this.pendingAdvancedClickActions.has(key)
+			|| this.pendingAdvancedClickFallbackTimers.has(key)
+			|| this.clickEventTimers.has(key);
+	}
+
+	incrementSuppression(map, key)
+	{
+		if (!map || !key)
+		{
+			return;
+		}
+
+		map.set(key, (map.get(key) || 0) + 1);
+	}
+
+	consumeSuppression(map, key)
+	{
+		if (!map || !key)
+		{
+			return false;
+		}
+
+		const remaining = map.get(key) || 0;
+		if (remaining <= 0)
+		{
+			return false;
+		}
+
+		if (remaining === 1)
+		{
+			map.delete(key);
+		}
+		else
+		{
+			map.set(key, remaining - 1);
+		}
+
+		return true;
+	}
+
+	async executeSingleClickAction(parameters)
+	{
+		if (await this.runAdvancedEventMapping(parameters, 'click'))
+		{
+			if (parameters.fromButton && ((parameters.page === 0) || (this.page === parameters.page)))
+			{
+				setImmediate(() => this.safeSetCapabilityValue(parameters.buttonCapability, false));
+			}
+			return null;
+		}
+
+		return this.processClickMessage(parameters);
+	}
+
+	clearClickResolutionTimers(key)
+	{
+		this.clearPendingAdvancedClickFallbackTimer(key);
+
+		const pendingDoubleTimer = this.clickEventTimers.get(key);
+		if (pendingDoubleTimer)
+		{
+			this.homey.clearTimeout(pendingDoubleTimer);
+			this.clickEventTimers.delete(key);
+		}
+	}
+
+	armClickResolutionTimers(parameters, key, timingContext)
+	{
+		this.clearPendingAdvancedClickFallbackTimer(key);
+
+		const longDelayMs = timingContext.longPressDefined
+			? (this.getConfiguredLongPressDelayMs(parameters) + Math.max(150, this.getConfiguredLongPressRepeatMs(parameters)))
+			: 0;
+		const doubleDelayMs = timingContext.doubleClickDefined ? DOUBLE_CLICK_WINDOW_MS : 0;
+		const clickTimeoutMs = Math.max(longDelayMs, doubleDelayMs) + 500;
+
+		const clickTimer = this.homey.setTimeout(() =>
+		{
+			this.clearClickResolutionTimers(key);
+			this.firePendingSingleClickTriggers(key);
+			this.clickEventStates.delete(key);
+		}, clickTimeoutMs);
+
+		this.pendingAdvancedClickFallbackTimers.set(key, clickTimer);
+
+		if (timingContext.doubleClickDefined)
+		{
+			const doubleTimer = this.homey.setTimeout(() =>
+			{
+				this.clickEventTimers.delete(key);
+			}, DOUBLE_CLICK_WINDOW_MS);
+
+			this.clickEventTimers.set(key, doubleTimer);
+		}
 	}
 
 	getAdvancedCommitDelayMs(parameters)
@@ -2549,46 +2675,6 @@ class PanelDevice extends Device
 			brokerId,
 			eventName,
 		};
-	}
-
-	async shouldDeferAdvancedClickMapping(parameters)
-	{
-		if (!parameters || parameters.event !== 'click')
-		{
-			return false;
-		}
-
-		const clickBinding = this.resolveAdvancedEventBinding(parameters, 'click');
-		if (!clickBinding)
-		{
-			return false;
-		}
-
-		if (!clickBinding.directionOnly)
-		{
-			if (clickBinding.deviceID === '_variable_')
-			{
-				const variable = await this.homey.app.getVariable(clickBinding.capabilityName);
-				if (variable && variable.type === 'boolean')
-				{
-					this.homey.app.updateLog(`ADVDBG map click: bypass defer for boolean variable ${clickBinding.capabilityName}`, 1);
-					return false;
-				}
-			}
-			else if (clickBinding.deviceID !== 'customMQTT')
-			{
-				const device = await this.homey.app.getHomeyDeviceById(clickBinding.deviceID);
-				const capability = device ? await this.homey.app.getHomeyCapabilityByName(device, clickBinding.capabilityName) : null;
-				if (capability && capability.type === 'boolean')
-				{
-					this.homey.app.updateLog(`ADVDBG map click: bypass defer for boolean capability ${clickBinding.capabilityName}`, 1);
-					return false;
-				}
-			}
-		}
-
-		const longBinding = this.resolveAdvancedEventBinding(parameters, 'long');
-		return !!longBinding;
 	}
 
 	queueAdvancedLongReleaseCommit(parameters, binding, valueToCommit)
@@ -2889,7 +2975,7 @@ class PanelDevice extends Device
 
 		if (binding.capabilityName === 'dim')
 		{
-			return { textValue: this.formatDimPercentageValue(effectiveValue), svgValue: null };
+			return { textValue: `${this.formatDimPercentageValue(effectiveValue)} ${this.getAdvancedDirection(parameters)}`, svgValue: null };
 		}
 
 		if (capability.type === 'number')
@@ -2967,7 +3053,7 @@ class PanelDevice extends Device
 		{
 			if (eventBinding.capabilityName === 'dim')
 			{
-				textValue = this.formatDimPercentageValue(previewValue);
+				textValue = `${this.formatDimPercentageValue(previewValue)} ${this.getAdvancedDirection(parameters)}`;
 			}
 			else if (capability.type === 'number')
 			{
@@ -3008,7 +3094,7 @@ class PanelDevice extends Device
 		{
 			if (eventBinding.capabilityName === 'dim')
 			{
-				textValue = this.formatDimPercentageValue(previewValue);
+				textValue = `${this.formatDimPercentageValue(previewValue)} ${this.getAdvancedDirection(parameters)}`;
 			}
 			else if (capability.type === 'number')
 			{
@@ -3310,33 +3396,6 @@ class PanelDevice extends Device
 		}
 	}
 
-	schedulePendingAdvancedClickFallback(parameters, key)
-	{
-		if (!parameters)
-		{
-			return;
-		}
-
-		// Real panel presses always get resolved by release -> handleGenericDoubleClick.
-		// Running this fallback timer for physical clicks can fire a click mapping before
-		// the hold is recognized as long press, causing an unwanted pre-step.
-		if (!parameters.fromButton && parameters.event === 'click')
-		{
-			this.clearPendingAdvancedClickFallbackTimer(key);
-			return;
-		}
-
-		this.clearPendingAdvancedClickFallbackTimer(key);
-		const fallbackDelayMs = Math.max(DOUBLE_CLICK_WINDOW_MS + 50, this.getConfiguredLongPressDelayMs(parameters) + 120);
-		const timer = this.homey.setTimeout(() =>
-		{
-			this.pendingAdvancedClickFallbackTimers.delete(key);
-			this.firePendingSingleClickTriggers(key);
-		}, fallbackDelayMs);
-
-		this.pendingAdvancedClickFallbackTimers.set(key, timer);
-	}
-
 	firePendingSingleClickTriggers(key)
 	{
 		this.clearPendingAdvancedClickFallbackTimer(key);
@@ -3360,6 +3419,8 @@ class PanelDevice extends Device
 		{
 			releasedFns.forEach((fireFn) => fireFn());
 		}
+
+		this.clickEventStates.delete(key);
 	}
 
 	discardPendingSingleClickTriggers(key)
@@ -3368,6 +3429,7 @@ class PanelDevice extends Device
 		this.pendingClickedTriggers.delete(key);
 		this.pendingReleasedTriggers.delete(key);
 		this.pendingAdvancedClickActions.delete(key);
+		this.clickEventStates.delete(key);
 	}
 
 	// Real physical clicks are paired with a release that resolves single-vs-double via handleGenericDoubleClick,
@@ -3375,7 +3437,7 @@ class PanelDevice extends Device
 	// long press repeat) must fire immediately since nothing will ever resolve/discard them
 	fireOrQueueClickedTrigger(parameters, key, fireFn)
 	{
-		if (parameters.event === 'click')
+		if ((parameters.event === 'click' || parameters.event === 'deferred_click') && this.isWaitingForClickResolution(key))
 		{
 			this.queueClickedTrigger(key, fireFn);
 		}
@@ -3448,94 +3510,51 @@ class PanelDevice extends Device
 
 	async handleButtonClick(parameters)
 	{
-		if (await this.shouldDeferAdvancedClickMapping(parameters))
-		{
-			const key = this.getButtonStateKey(parameters.connector, parameters.side, parameters.page);
-			const deferredParameters = _.cloneDeep(parameters);
-			this.queuePendingAdvancedClickAction(key, () => this.runAdvancedEventMapping(deferredParameters, 'click').catch((err) => this.error(err)));
-			this.schedulePendingAdvancedClickFallback(parameters, key);
+		const key = this.getButtonStateKey(parameters.connector, parameters.side, parameters.page);
+		const timingContext = this.getEventTimingContext(parameters);
+		const advancedTimingEnabled = !timingContext.simpleMode && (timingContext.doubleClickDefined || timingContext.longPressDefined);
 
-			if (parameters.fromButton && ((parameters.page === 0) || (this.page === parameters.page)))
+		if (advancedTimingEnabled && !parameters.fromButton && parameters.event === 'click')
+		{
+			const state = this.clickEventStates.get(key) || {
+				clickCount: 0,
+				longPressActive: false,
+			};
+
+			if (state.longPressActive)
 			{
-				setImmediate(() => this.safeSetCapabilityValue(parameters.buttonCapability, false));
+				this.homey.app.updateLog(`Click: ignoring click while long press active for ${key}`, 0);
+				return null;
 			}
 
-			return null;
-		}
-
-		if (await this.runAdvancedEventMapping(parameters, 'click'))
-		{
-			if (parameters.fromButton && ((parameters.page === 0) || (this.page === parameters.page)))
+			if (state.clickCount === 0)
 			{
-				setImmediate(() => this.safeSetCapabilityValue(parameters.buttonCapability, false));
-			}
-			return null;
-		}
+				state.clickCount = 1;
+				this.clickEventStates.set(key, state);
 
-		const config = this.resolveConnectorConfig(parameters);
-
-		if (this.isDimButtonConfig(config))
-		{
-			// Dim buttons only decide their click action on release, once we know for certain whether it was a long press
-			const key = this.getDimButtonKey(parameters.connector, parameters.side, parameters.page);
-			const { capability } = await this.getDeviceAndCapability(config);
-			const percent = capability && (typeof capability.value === 'number') ? capability.value * 100 : 0;
-			const direction = this.getDimDirection(key, config.dimChange);
-
-			// Keep dim display content in sync on every press so value/direction don't disappear between updates.
-			await this.refreshDimButtonDisplay(parameters, config, key);
-
-			// Dim buttons have no on/off value of their own: the button/LED state instead follows the target device's onoff capability
-			const ledState = await this.getDimButtonLedState(config);
-			this.fireOrQueueClickedTrigger(parameters, key, () => this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'clicked', ledState, this.formatDimLabel(percent, direction), parameters.page));
-
-			if (!parameters.fromButton && parameters.event === 'click')
-			{
 				const deferredParameters = _.cloneDeep(parameters);
 				deferredParameters.event = 'deferred_click';
-				this.queuePendingAdvancedClickAction(key, () => this.toggleDimOnOff(deferredParameters, config, key).catch((err) => this.error(err)));
-				this.homey.app.updateLog(`TIMING defer-click ts=${new Date().toISOString()} ms=${Date.now()} key=${key} configNo=${parameters.configNo} page=${parameters.page} kind=dim`, 0);
-			}
-			return null;
-		}
+				this.queuePendingAdvancedClickAction(key, () => this.executeSingleClickAction(deferredParameters).catch((err) => this.error(err)));
+				this.armClickResolutionTimers(parameters, key, timingContext);
 
-		if (config && (config.deviceID !== 'none') && (config.deviceID !== 'customMQTT'))
-		{
-			const kind = await this.getCapabilityDisplayKind(config);
-			if (kind === 'picker')
+				this.homey.app.updateLog(`Click: queued first click for ${key} long=${timingContext.longPressDefined} double=${timingContext.doubleClickDefined}`, 0);
+				return null;
+			}
+
+			if (timingContext.doubleClickDefined && this.clickEventTimers.has(key))
 			{
-				// For physical presses, defer picker single-click behavior until release/double-click resolution.
-				// This prevents the initial click from toggling onoff before a long press is recognized.
-				if (!parameters.fromButton && parameters.event === 'click')
-				{
-					const key = this.getButtonStateKey(parameters.connector, parameters.side, parameters.page);
-					const deferredParameters = _.cloneDeep(parameters);
-					deferredParameters.event = 'deferred_click';
-					this.queueClickedTrigger(key, () => this.handlePickerToggleClick(deferredParameters, config).catch((err) => this.error(err)));
-
-					// Keep the current enum label visible immediately while waiting for click resolution.
-					await this.refreshPickerButtonDisplay(parameters, config);
-					return null;
-				}
-
-				// Virtual presses keep the original immediate behavior.
-				return this.handlePickerToggleClick(parameters, config);
+				state.clickCount += 1;
+				this.clickEventStates.set(key, state);
+				const config = this.resolveConnectorConfig(parameters);
+				await this.handleGenericDoubleClick(parameters, key, config);
+				return { suppressGenericClick: true };
 			}
-		}
 
-		// Match the timing diagram for physical input: run single-click action only after
-		// release resolves single-vs-double and long-press has had the chance to cancel it.
-		if (!parameters.fromButton && parameters.event === 'click')
-		{
-			const key = this.getButtonStateKey(parameters.connector, parameters.side, parameters.page);
-			const deferredParameters = _.cloneDeep(parameters);
-			deferredParameters.event = 'deferred_click';
-			this.queuePendingAdvancedClickAction(key, () => this.processClickMessage(deferredParameters).catch((err) => this.error(err)));
-			this.homey.app.updateLog(`TIMING defer-click ts=${new Date().toISOString()} ms=${Date.now()} key=${key} configNo=${parameters.configNo} page=${parameters.page}`, 0);
+			this.homey.app.updateLog(`Click: ignored second click for ${key} (double window closed)`, 0);
 			return null;
 		}
 
-		return this.processClickMessage(parameters);
+		return this.executeSingleClickAction(parameters);
 	}
 
 	async refreshPickerButtonDisplay(parameters, config)
@@ -3716,54 +3735,45 @@ class PanelDevice extends Device
 	async handleGenericDoubleClick(parameters, key, config)
 	{
 		const pendingTimer = this.clickEventTimers.get(key);
-		if (pendingTimer)
+		if (!pendingTimer)
 		{
-			// Second click arrived within the double click window: discard the deferred 'clicked'/'released'
-			// triggers from both presses (they never fire for a double click) and fire the double click triggers instead
-			this.homey.clearTimeout(pendingTimer);
-			this.clickEventTimers.delete(key);
-			this.discardPendingSingleClickTriggers(key);
-
-			if (this.isDimButtonConfig(config))
-			{
-				await this.toggleDimDirection(parameters, config, key);
-			}
-
-			if (await this.runAdvancedEventMapping(parameters, 'double'))
-			{
-				const value = this.buttonValues.get(`${parameters.side}_${parameters.connector}_${parameters.page}`) || false;
-				this.homey.app.triggerButtonEvent(this, parameters.side, parameters.connector, 'double', value, value.toString(), 0);
-				if (parameters.configNo != null)
-				{
-					this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'double', value, value.toString(), parameters.page);
-				}
-				return;
-			}
-
-			// Toggle first (if applicable) so the reported button/LED state reflects the new value
-			await this.toggleOnOffForNonBooleanCapability(config);
-
-			const value = this.buttonValues.get(`${parameters.side}_${parameters.connector}_${parameters.page}`) || false;
-			const buttonState = await this.getConfigLedButtonState(config, value);
-			this.homey.app.triggerButtonEvent(this, parameters.side, parameters.connector, 'double', buttonState, value.toString(), 0);
-			if (parameters.configNo != null)
-			{
-				this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'double', buttonState, value.toString(), parameters.page);
-			}
-
 			return;
 		}
 
-		// Wait to see if a second click follows before giving up on this being a double click
-		const timer = this.homey.setTimeout(() =>
+		// Second click arrived within the double click window: discard deferred single-click paths
+		this.homey.clearTimeout(pendingTimer);
+		this.clickEventTimers.delete(key);
+		this.discardPendingSingleClickTriggers(key);
+		this.clearPendingAdvancedClickFallbackTimer(key);
+		this.incrementSuppression(this.clickedSuppressions, key);
+		this.incrementSuppression(this.releaseSuppressions, key);
+
+		if (this.isDimButtonConfig(config))
 		{
-			this.clickEventTimers.delete(key);
+			await this.toggleDimDirection(parameters, config, key);
+		}
 
-			// No second click arrived, so this was a plain single click/release: fire the deferred triggers now
-			this.firePendingSingleClickTriggers(key);
-		}, DOUBLE_CLICK_WINDOW_MS);
+		if (await this.runAdvancedEventMapping(parameters, 'double'))
+		{
+			const value = this.buttonValues.get(`${parameters.side}_${parameters.connector}_${parameters.page}`) || false;
+			this.homey.app.triggerButtonEvent(this, parameters.side, parameters.connector, 'double', value, value.toString(), 0);
+			if (parameters.configNo != null)
+			{
+				this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'double', value, value.toString(), parameters.page);
+			}
+			return;
+		}
 
-		this.clickEventTimers.set(key, timer);
+		// Toggle first (if applicable) so the reported button/LED state reflects the new value
+		await this.toggleOnOffForNonBooleanCapability(config);
+
+		const value = this.buttonValues.get(`${parameters.side}_${parameters.connector}_${parameters.page}`) || false;
+		const buttonState = await this.getConfigLedButtonState(config, value);
+		this.homey.app.triggerButtonEvent(this, parameters.side, parameters.connector, 'double', buttonState, value.toString(), 0);
+		if (parameters.configNo != null)
+		{
+			this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'double', buttonState, value.toString(), parameters.page);
+		}
 	}
 
 	async toggleOnOffForNonBooleanCapability(config)
@@ -3838,40 +3848,6 @@ class PanelDevice extends Device
 		// Dim buttons have no on/off value of their own, so drive the LED from the target device's onoff state
 		const ledState = await this.getDimButtonLedState(config);
 		this.setLEDOnOff(config, null, buttonIdx, parameters.page, ledState);
-	}
-
-	async handleDimButtonRelease(parameters, config, key)
-	{
-		// Some panels/firmware paths can emit more than one release for a single physical click.
-		// Only handle one release per click sequence so a duplicate release cannot be mistaken for double click.
-		const clickSequence = this.dimClickSequences.get(key) || 0;
-		const handledSequence = this.dimReleaseHandledSequences.get(key) || 0;
-		if (clickSequence <= handledSequence)
-		{
-			return null;
-		}
-
-		this.dimReleaseHandledSequences.set(key, clickSequence);
-
-		const pendingTimer = this.dimClickTimers.get(key);
-		if (pendingTimer)
-		{
-			// Second click arrived within the double click window
-			this.homey.clearTimeout(pendingTimer);
-			this.dimClickTimers.delete(key);
-			return this.toggleDimDirection(parameters, config, key);
-		}
-
-		// Wait to see if a second click follows before treating this as a single click; by this point (release)
-		// we already know for certain this press did not turn into a long press
-		const timer = this.homey.setTimeout(() =>
-		{
-			this.dimClickTimers.delete(key);
-			this.toggleDimOnOff(parameters, config, key).catch((err) => this.error(err));
-		}, DOUBLE_CLICK_WINDOW_MS);
-
-		this.dimClickTimers.set(key, timer);
-		return null;
 	}
 
 	async toggleDimDirection(parameters, config, key)
@@ -4183,7 +4159,8 @@ class PanelDevice extends Device
 
 		let buttonPanelConfiguration = null;
 		let buttonPageConfiguration = null;
-		const hasAdvancedLongMapping = !!this.resolveAdvancedEventBinding(parameters, 'long');
+		const timingContext = this.getEventTimingContext(parameters);
+		const hasAdvancedLongMapping = !timingContext.simpleMode && timingContext.longPressDefined;
 		if ((parameters.configNo != null) && (parameters.connectorType !== 2) && (parameters.connectorType !== 3))
 		{
 			buttonPanelConfiguration = this.homey.app.buttonConfigurations[parameters.configNo];
@@ -4231,11 +4208,31 @@ class PanelDevice extends Device
 		this.longPressOccurred.set(longPressKey, repeatCount + 1);
 		if (repeatCount === 0)
 		{
-			// Once a hold is confirmed as a long press, discard any deferred single-click actions for this press.
-			this.discardPendingSingleClickTriggers(longPressKey);
+			if (this.isWaitingForClickResolution(longPressKey))
+			{
+				// Any confirmed hold must cancel pending click resolution for the same press,
+				// otherwise click actions (e.g. onoff) can leak into dim-hold behavior.
+				this.clearClickResolutionTimers(longPressKey);
+				this.discardPendingSingleClickTriggers(longPressKey);
+				const clickState = this.clickEventStates.get(longPressKey) || { clickCount: 0, longPressActive: false };
+				clickState.longPressActive = true;
+				this.clickEventStates.set(longPressKey, clickState);
+			}
 		}
 		this.homey.app.triggerButtonLongPress(this, parameters.side === 'left', parameters.connector + 1, repeatCount, parameters.page);
 		this.homey.app.triggerButtonEvent(this, parameters.side, parameters.connector, 'long', parameters.value, parameters.value.toString(), 0);
+
+		if (!hasAdvancedLongMapping)
+		{
+			if (parameters.configNo != null)
+			{
+				const config = this.getConfigPageSide(null, parameters.page, parameters.side, parameters.configNo);
+				const value = this.buttonValues.get(`${parameters.side}_${parameters.connector}_${parameters.page}`) || false;
+				const buttonState = await this.getConfigLedButtonState(config, value);
+				this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'long', buttonState, value.toString(), parameters.page, repeatCount);
+			}
+			return null;
+		}
 
 		if (hasAdvancedLongMapping && (repeatCount === 0) && this.advancedLastClickProcessedAt)
 		{
@@ -4262,7 +4259,6 @@ class PanelDevice extends Device
 
 		if ((parameters.connectorType === 2) || (parameters.connectorType === 3))
 		{
-			// Display connector buttons: fire the configuration button trigger so long presses can start flows
 			const value = this.buttonValues.get(`${parameters.side}_${parameters.connector}_${parameters.page}`) || false;
 			this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'long', value, value.toString(), parameters.page, repeatCount);
 		}
@@ -4272,21 +4268,6 @@ class PanelDevice extends Device
 			const config = this.getConfigPageSide(null, parameters.page, parameters.side, parameters.configNo);
 			const buttonState = await this.getConfigLedButtonState(config, value);
 			this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'long', buttonState, value.toString(), parameters.page, repeatCount);
-
-			const capability = parameters.side === 'left' ? buttonPageConfiguration.leftCapability : buttonPageConfiguration.rightCapability;
-
-			if (capability === 'dim')
-			{
-				// process another click message to change the dim value
-				return this.processClickMessage(parameters);
-			}
-
-			const kind = await this.getCapabilityDisplayKind(config);
-			if (kind === 'picker')
-			{
-				// Holding the button steps through the item list instead of the plain click, which toggles onoff
-				return this.handlePickerButtonClick(parameters, config);
-			}
 		}
 
 		return null;
@@ -4304,20 +4285,32 @@ class PanelDevice extends Device
 		const releaseKey = `${parameters.connector}_${parameters.side}_${parameters.page}`;
 		await this.flushAdvancedLongReleaseCommit(parameters);
 
-		// Defer the 'released' Flow triggers: they're discarded instead of fired if this turns into a double click
-		this.queueReleasedTrigger(releaseKey, () => this.homey.app.triggerButtonEvent(this, parameters.side, parameters.connector, 'released', parameters.value, parameters.value.toString(), 0));
-
-		if (parameters.configNo != null)
+		if (!this.consumeSuppression(this.releaseSuppressions, releaseKey))
 		{
-			const value = this.buttonValues.get(`${parameters.side}_${parameters.connector}_${parameters.page}`) || false;
-			const buttonState = await this.getConfigLedButtonState(config, value);
-			this.queueReleasedTrigger(releaseKey, () => this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'released', buttonState, value.toString(), parameters.page));
-		}
+			const releaseFire = () => this.homey.app.triggerButtonEvent(this, parameters.side, parameters.connector, 'released', parameters.value, parameters.value.toString(), 0);
+			if (this.isWaitingForClickResolution(releaseKey))
+			{
+				this.queueReleasedTrigger(releaseKey, releaseFire);
+			}
+			else
+			{
+				releaseFire();
+			}
 
-		if (!(this.longPressOccurred && (this.longPressOccurred.get(releaseKey) > 0)))
-		{
-			// Only a plain click (no long press) can be part of a double click
-			this.handleGenericDoubleClick(parameters, releaseKey, config).catch((err) => this.error(err));
+			if (parameters.configNo != null)
+			{
+				const value = this.buttonValues.get(`${parameters.side}_${parameters.connector}_${parameters.page}`) || false;
+				const buttonState = await this.getConfigLedButtonState(config, value);
+				const releaseConfigFire = () => this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'released', buttonState, value.toString(), parameters.page);
+				if (this.isWaitingForClickResolution(releaseKey))
+				{
+					this.queueReleasedTrigger(releaseKey, releaseConfigFire);
+				}
+				else
+				{
+					releaseConfigFire();
+				}
+			}
 		}
 
 		// Check if a large display or if no configuration assigned to this connector
@@ -4378,6 +4371,19 @@ class PanelDevice extends Device
 			// Record that the long press has finished
 			const longPressKey = `${parameters.connector}_${parameters.side}_${parameters.page}`;
 			this.longPressOccurred.set(longPressKey, 0);
+			const clickState = this.clickEventStates.get(longPressKey);
+			if (clickState)
+			{
+				clickState.longPressActive = false;
+				if (!this.isWaitingForClickResolution(longPressKey) && (clickState.clickCount === 0))
+				{
+					this.clickEventStates.delete(longPressKey);
+				}
+				else
+				{
+					this.clickEventStates.set(longPressKey, clickState);
+				}
+			}
 			this.longPressEventCounts.delete(longPressKey);
 			this.longPressLastProcessedAt.delete(longPressKey);
 			this.lastLongPressTimes.delete(longPressKey);
