@@ -30,11 +30,44 @@ const i = require('./nodemailer');
 const MAX_BUTTON_CONFIGURATIONS = 40;
 const MAX_DISPLAY_CONFIGURATIONS = 20;
 
+/**
+ * MyApp - Main application controller for Button Plus device management.
+ *
+ * Architecture Overview:
+ * - Manages MQTT broker setup (Homey's built-in broker + external broker support)
+ * - Coordinates button device pairing, configuration upload, and state synchronization
+ * - Acts as bridge between Homey flows/devices and physical panel devices via MQTT
+ * - Maintains capability listener registry for state change subscriptions
+ * - Manages display and button configurations, supports multiple connector types
+ *
+ * Core Responsibilities:
+ * 1. Broker Management: start Homey MQTT server, connect to external brokers, handle reconnection
+ * 2. Device Configuration: generate and upload button/display bindings to hardware
+ * 3. Homey Integration: resolve devices/capabilities, trigger flows, subscribe to state changes
+ * 4. MQTT Communication: publish device commands, queue messages, de-duplicate retransmissions
+ * 5. Time Synchronization: periodically sync date/time to devices for display
+ * 6. Logging & Diagnostics: centralized log for debugging device communication
+ *
+ * Configuration Flow:
+ * - User configures button(s) → stored in buttonConfigurations array
+ * - Button config includes device ID, capability name, action type (toggle/cycle/adjust)
+ * - uploadConfigurations() generates MQTT messages to device
+ * - applyButtonConfiguration() converts config to device-compatible format
+ * - setupCustomMQTTTopics() handles variable and custom MQTT action bindings
+ *
+ * Event Flow:
+ * - Device publishes MQTT message for button press/long-press/release
+ * - PanelDevice.processMQTTMessage() receives and processes event
+ * - runAdvancedEventMapping() applies configured action (toggle, cycle, adjust)
+ * - triggerFlow() fires Homey flows with button tokens (connector, page, state, etc.)
+ * - Capability listeners push state changes back to devices for display feedback
+ */
 class MyApp extends Homey.App
 {
 
 	/**
 	 * onInit is called when the app is initialized.
+	 * Sets up MQTT server, device list, broker configuration, and capability listeners.
 	 */
 	async onInit()
 	{
@@ -848,6 +881,12 @@ class MyApp extends Homey.App
 		this.scheduleDisplayRegistrationRecheck();
 	}
 
+	// ========== TIME SYNCHRONIZATION ==========
+	/**
+	 * Periodically sync date and time to all connected panel devices.
+	 * Called every 10 seconds to keep device clocks in sync with Homey.
+	 * Device uses time for display and scheduling features.
+	 */
 	async syncTime()
 	{
 		if (!await this.checkAPIConnection())
@@ -981,6 +1020,10 @@ class MyApp extends Homey.App
 		}
 	}
 
+	/**
+	 * Update time capability with formatted date/time based on device locale.
+	 * Respects user's chosen format (ISO, locale-specific) and language code.
+	 */
 	updateTime()
 	{
 		// Allow for Homey's timezone setting
@@ -1006,7 +1049,15 @@ class MyApp extends Homey.App
 		return (60 - dateTime.getSeconds()) * 1000;
 	}
 
+	// ========== CONFIGURATION GENERATION ==========
+	// Generate button and display configurations in device-compatible format
+
 	// Make all the device upload their button bar configurations to the panels
+	/**
+	 * Trigger configuration upload to all connected panel devices.
+	 * Reads from buttonConfigurations array, generates MQTT messages, and publishes.
+	 * Handles retries if device IP lookup fails.
+	 */
 	async uploadConfigurations()
 	{
 		// Get devices to upload their configurations
@@ -1091,6 +1142,14 @@ class MyApp extends Homey.App
 	// 	}
 	// }
 
+	// ========== CONFIGURATION GENERATION ==========
+	// Generate button and display configurations in device-compatible format
+
+	/**
+	 * Generate button configuration array from UI settings.
+	 * Stored in homey.settings.buttonConfigurations, indexed by config ID (0-39).
+	 * Each config maps a physical connector/page to device capability and action.
+	 */
 	createbuttonConfigurations()
 	{
 		// make sure there is an array of button configurations
@@ -1181,6 +1240,11 @@ class MyApp extends Homey.App
 		this.homey.settings.set('buttonConfigurations', this.buttonConfigurations);
 	}
 
+	/**
+	 * Generate display (large screen) configuration array from settings.
+	 * Stored separately from button configs; max 20 display configurations.
+	 * Each config includes item type (image, label, graph), content, and styling.
+	 */
 	createDisplayConfigurations()
 	{
 		if (!this.displayConfigurations)
@@ -1322,6 +1386,14 @@ class MyApp extends Homey.App
 		return changed;
 	}
 
+	// ========== DEVICE CONFIGURATION UPLOAD ==========
+	// Convert configurations to device format and publish via MQTT
+
+	/**
+	 * Upload display configuration to a panel device.
+	 * Display is a large screen; config can contain images, labels, charts, sensor data.
+	 * Invoked when display binding is created/modified.
+	 */
 	async uploadDisplayConfiguration(ip, configurationNo, firmwareVersion, ButtonDevice)
 	{
 		try
@@ -1345,6 +1417,11 @@ class MyApp extends Homey.App
 		}
 	}
 
+	/**
+	 * Apply display configuration: convert settings to MQTT-compatible format and push to device.
+	 * Handles text labels, images, charts, and styling for large display.
+	 * Returns the change counter for tracking modifications.
+	 */
 	async applyDisplayConfiguration(sectionConfiguration, configurationNo, firmwareVersion, ButtonDevice)
 	{
 		// Safety check: ensure sectionConfiguration exists
@@ -1569,6 +1646,11 @@ class MyApp extends Homey.App
 		return { svg: '', textValue: value };
 	}
 
+	/**
+	 * Upload button configuration for a specific connector to panel device.
+	 * Converts high-level button config (device/capability/action) to device wire format.
+	 * Handles connector type detection (display, button, etc) and MQTT topic setup.
+	 */
 	async uploadButtonPanelConfiguration(ip, panelId, connectorNo, configurationNo, firmwareVersion)
 	{
 		try
@@ -1623,6 +1705,11 @@ class MyApp extends Homey.App
 		}
 	}
 
+	/**
+	 * Convert button config to device wire format: map action type, device ID, capability name.
+	 * Handles legacy basic mode and advanced mode with separate click/long/double bindings.
+	 * Generates MQTT topic list and parameter values for device firmware.
+	 */
 	async applyButtonConfiguration(panelId, connectorType, sectionConfiguration, connectorNo, configurationNo, firmwareVersion)
 	{
 		if ((configurationNo === null) || (configurationNo === undefined))
@@ -1800,6 +1887,11 @@ class MyApp extends Homey.App
 		return maxPages > 1 ? maxPages - 1 : 1;
 	}
 
+	/**
+	 * Set up custom MQTT topic subscriptions for actions using variables or custom MQTT.
+	 * Allows actions to publish/subscribe to arbitrary topics or Homey Logic variables.
+	 * Handles multi-page scenarios by registering topics for each page.
+	 */
 	async setupCustomMQTTTopics(buttons, ButtonPanelConfiguration, connectorNo, side, page = 0)
 	{
 		// Safety check: ensure buttons object exists
@@ -1866,6 +1958,14 @@ class MyApp extends Homey.App
 		}
 	}
 
+	// ========== DEVICE CONFIGURATION I/O ==========
+	// Read/write device configuration via HTTP API
+
+	/**
+	 * Read device configuration via HTTP API (requires device to have REST endpoint).
+	 * Returns device info, connector types, firmware version, paired devices, etc.
+	 * Used during device pairing to detect hardware and capabilities.
+	 */
 	async readDeviceConfiguration(ip)
 	{
 		// Read the device configuration from the specified device
@@ -1887,6 +1987,11 @@ class MyApp extends Homey.App
 		return null;
 	}
 
+	/**
+	 * Write device configuration via HTTP API (full config push).
+	 * Merges updates with existing config to preserve unmodified fields.
+	 * Applies broker settings and restarts device after write.
+	 */
 	async writeDeviceConfiguration(ip, deviceConfiguration, firmwareVersion)
 	{
 		this.updateLog(`writeDeviceConfiguration: ${this.varToString(deviceConfiguration)}`);
@@ -1914,6 +2019,11 @@ class MyApp extends Homey.App
 		return 'No IP address';
 	}
 
+	/**
+	 * Apply MQTT broker configuration to device.
+	 * Sets broker URL, port, WebSocket port, credentials for the device to use.
+	 * Handles multiple brokers (primary + fallback) and connection parameters.
+	 */
 	async applyBrokerConfiguration(ip)
 	{
 		// Make sure the device configuration has the MQTT broker Id's define
@@ -1963,6 +2073,11 @@ class MyApp extends Homey.App
 		return sectionConfiguration;
 	}
 
+	/**
+	 * Trigger firmware update on device via HTTP API.
+	 * Device checks for new firmware and updates if available.
+	 * Returns status of the update request.
+	 */
 	async updateFirmware(ip)
 	{
 		return this.httpHelperLocal.post(`http://${ip}/updatefirmware`);
@@ -1973,6 +2088,14 @@ class MyApp extends Homey.App
 		return this.deviceManager.checkAPIConnection();
 	}
 
+	// ========== DEVICE RESOLUTION ==========
+	// Resolve Homey devices, capabilities, and variables by ID or name
+
+	/**
+	 * Get Homey devices filtered by type and/or IDs.
+	 * Queries Homey SDK device registry through DeviceManager.
+	 * Used to resolve button configuration targets and capability bindings.
+	 */
 	async getHomeyDevices({ type = '', ids = null })
 	{
 		if (this.deviceManager)
@@ -2059,6 +2182,11 @@ class MyApp extends Homey.App
 		return [];
 	}
 
+	/**
+	 * Get a specific Homey device by its ID.
+	 * Returns the device object with capabilities, class, and metadata.
+	 * Returns null if device not found or DeviceManager not initialized.
+	 */
 	async getHomeyDeviceById(id)
 	{
 		if (this.deviceManager)
@@ -2078,6 +2206,11 @@ class MyApp extends Homey.App
 		return undefined;
 	}
 
+	/**
+	 * Get a specific capability from a Homey device by name.
+	 * Returns the capability object with getter, setter, and value.
+	 * Returns null if capability not found on the device.
+	 */
 	async getHomeyCapabilityByName(device, name)
 	{
 		if (this.deviceManager && device)
@@ -2152,6 +2285,14 @@ class MyApp extends Homey.App
 		return [];
 	}
 
+	// ========== VARIABLE MANAGEMENT ==========
+	// Homey Logic variables integration - read, write, and subscribe to variables
+
+	/**
+	 * Get all Homey Logic variables available in the system.
+	 * Returns array of variable objects with ID, name, type, and current value.
+	 * Used for button binding selection dropdowns.
+	 */
 	async getVariables()
 	{
 		if (this.variableDispather)
@@ -2168,6 +2309,11 @@ class MyApp extends Homey.App
 		return [];
 	}
 
+	/**
+	 * Get a specific Homey Logic variable by ID.
+	 * Returns the variable object with current value, type, and metadata.
+	 * Returns null if variable not found.
+	 */
 	async getVariable(id)
 	{
 		if (this.variableDispather)
@@ -2200,6 +2346,11 @@ class MyApp extends Homey.App
 		return null;
 	}
 
+	/**
+	 * Get all paired Button Plus panel devices from the panel_hardware driver.
+	 * Returns array of device objects with pairing data, settings, and IP address.
+	 * Used for device-specific configuration and settings UI.
+	 */
 	async getButtonDevices()
 	{
 		// Get the apps devices
@@ -2543,6 +2694,14 @@ class MyApp extends Homey.App
 		}
 	}
 
+	// ========== MQTT COMMUNICATION ==========
+	// MQTT broker connection, message publishing, and topic subscriptions
+
+	/**
+	 * Get MQTT client for a specific broker ID.
+	 * Handles 'Default' broker lookup from settings.
+	 * Returns configured mqtt.js client instance for pub/sub operations.
+	 */
 	getMqttClient(brokerId)
 	{
 		if (brokerId === 'Default')
@@ -2567,6 +2726,12 @@ class MyApp extends Homey.App
 	}
 
 	// eslint-disable-next-line camelcase
+	/**
+	 * Publish message to MQTT topic on specified broker.
+	 * Handles broker resolution (Default → settings), message deduplication,
+	 * and automatic queueing if broker is disconnected.
+	 * Used for sending device commands and receiving device state updates.
+	 */
 	async publishMQTTMessage(MQTT_Id, topic, message, Ignoresame = true, Retain = true)
 	{
 		if (MQTT_Id === 'Default')
@@ -3045,8 +3210,16 @@ class MyApp extends Homey.App
 		return false;
 	}
 
+	// ========== FLOW TRIGGERS & AUTOMATION ==========
+	// Fire Homey flow triggers for button events and automation
+
 	// Device Flow Card Triggers
 
+	/**
+	 * Fire 'page_change' trigger for Homey flows when device switches page.
+	 * Passed when user changes display page on physical panel device.
+	 * Provides page number token to flow conditions and actions.
+	 */
 	triggerPageChange(device, page)
 	{
 		const tokens = { page };
@@ -3055,6 +3228,11 @@ class MyApp extends Homey.App
 		return this;
 	}
 
+	/**
+	 * Fire 'button_on' trigger for Homey flows when button is pressed (down state).
+	 * Provides connector, page, and left/right side tokens.
+	 * Also triggers button_change event for additional flow customization.
+	 */
 	triggerButtonOn(device, leftright, connector, page)
 	{
 		const tokens = { left_right: leftright, connector, page };
@@ -3064,6 +3242,11 @@ class MyApp extends Homey.App
 		return this;
 	}
 
+	/**
+	 * Fire 'button_off' trigger for Homey flows when button is released (up state).
+	 * Provides connector, page, and left/right side tokens.
+	 * Also triggers button_change event for additional flow customization.
+	 */
 	triggerButtonOff(device, leftright, connector, page)
 	{
 		const tokens = { left_right: leftright, connector, page };
