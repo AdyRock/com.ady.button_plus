@@ -2571,6 +2571,28 @@ class PanelDevice extends Device
 		return `${Math.round(clampedValue * 100)}%`;
 	}
 
+	formatWindowCoveringsSetPercentage(rawValue)
+	{
+		const numericValue = Number(rawValue);
+		if (!Number.isFinite(numericValue))
+		{
+			return '';
+		}
+
+		if (numericValue >= 0 && numericValue <= 1)
+		{
+			return `${Math.round(numericValue * 100)}%`;
+		}
+
+		if (numericValue >= 0 && numericValue <= 100)
+		{
+			return `${Math.round(numericValue)}%`;
+		}
+
+		const clamped = Math.max(0, Math.min(1, numericValue));
+		return `${Math.round(clamped * 100)}%`;
+	}
+
 	getCapabilityUnitText(capability)
 	{
 		if (!capability)
@@ -2682,6 +2704,27 @@ class PanelDevice extends Device
 		const nextDirection = this.getAdvancedDirection(parameters) === '+' ? '-' : '+';
 		this.setAdvancedDirection(parameters, nextDirection);
 		return nextDirection;
+	}
+
+	applyAdvancedDirectionAtBounds(parameters, value, minValue, maxValue)
+	{
+		const numericValue = Number(value);
+		const min = Number(minValue);
+		const max = Number(maxValue);
+		if (!Number.isFinite(numericValue) || !Number.isFinite(min) || !Number.isFinite(max) || max <= min)
+		{
+			return;
+		}
+
+		const epsilon = Math.max(1e-6, Math.abs(max - min) * 0.001);
+		if (numericValue >= (max - epsilon))
+		{
+			this.setAdvancedDirection(parameters, '-');
+		}
+		else if (numericValue <= (min + epsilon))
+		{
+			this.setAdvancedDirection(parameters, '+');
+		}
 	}
 
 	resolveAdvancedSideConfig(parameters)
@@ -3035,6 +3078,11 @@ class PanelDevice extends Device
 			return { textValue: `${this.formatDimPercentageValue(effectiveValue)} ${this.getAdvancedDirection(parameters)}`, svgValue: null };
 		}
 
+		if (binding.capabilityName === 'windowcoverings_set')
+		{
+			return { textValue: `${this.formatWindowCoveringsSetPercentage(effectiveValue)} ${this.getAdvancedDirection(parameters)}`, svgValue: null };
+		}
+
 		if (capability.type === 'number')
 		{
 			let textValue = this.formatAdvancedNumberValue(effectiveValue, capability);
@@ -3112,6 +3160,10 @@ class PanelDevice extends Device
 			{
 				textValue = `${this.formatDimPercentageValue(previewValue)} ${this.getAdvancedDirection(parameters)}`;
 			}
+			else if (eventBinding.capabilityName === 'windowcoverings_set')
+			{
+				textValue = `${this.formatWindowCoveringsSetPercentage(previewValue)} ${this.getAdvancedDirection(parameters)}`;
+			}
 			else if (capability.type === 'number')
 			{
 				textValue = this.formatAdvancedNumberValue(previewValue, capability);
@@ -3153,6 +3205,10 @@ class PanelDevice extends Device
 			{
 				textValue = `${this.formatDimPercentageValue(previewValue)} ${this.getAdvancedDirection(parameters)}`;
 			}
+			else if (eventBinding.capabilityName === 'windowcoverings_set')
+			{
+				textValue = `${this.formatWindowCoveringsSetPercentage(previewValue)} ${this.getAdvancedDirection(parameters)}`;
+			}
 			else if (capability.type === 'number')
 			{
 				textValue = this.formatAdvancedNumberValue(previewValue, capability);
@@ -3168,6 +3224,80 @@ class PanelDevice extends Device
 		this.homey.app.publishMQTTMessage(eventBinding.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/label/set`, textValue).catch(this.error);
 	}
 
+	normalizeLedLevel(rawValue, capability)
+	{
+		const numericValue = Number(rawValue);
+		if (!Number.isFinite(numericValue))
+		{
+			return null;
+		}
+
+		const min = capability && Number.isFinite(Number(capability.min)) ? Number(capability.min) : null;
+		const max = capability && Number.isFinite(Number(capability.max)) ? Number(capability.max) : null;
+		if ((min !== null) && (max !== null) && (max > min))
+		{
+			return Math.max(0, Math.min(1, (numericValue - min) / (max - min)));
+		}
+
+		if (numericValue >= 0 && numericValue <= 1)
+		{
+			return numericValue;
+		}
+
+		if (numericValue >= 0 && numericValue <= 100)
+		{
+			return numericValue / 100;
+		}
+
+		return Math.max(0, Math.min(1, numericValue));
+	}
+
+	async resolveLedBindingValue(binding)
+	{
+		if (!binding)
+		{
+			return false;
+		}
+
+		if (binding.deviceID === '_variable_')
+		{
+			const variable = await this.homey.app.getVariable(binding.capabilityName);
+			if (!variable)
+			{
+				return false;
+			}
+
+			if (variable.type === 'boolean')
+			{
+				return !!variable.value;
+			}
+
+			if (variable.type === 'number')
+			{
+				const level = this.normalizeLedLevel(variable.value, null);
+				return level === null ? false : level;
+			}
+
+			return false;
+		}
+
+		const device = await this.homey.app.getHomeyDeviceById(binding.deviceID);
+		const capability = device ? await this.homey.app.getHomeyCapabilityByName(device, binding.capabilityName) : null;
+		if (capability && (capability.type === 'boolean'))
+		{
+			return !!capability.value;
+		}
+
+		if (capability && (capability.type === 'number'))
+		{
+			const level = this.normalizeLedLevel(capability.value, capability);
+			return level === null ? false : level;
+		}
+
+		const followState = await this.getCapabilityLedState(binding);
+		return (followState === null) ? false : followState;
+	}
+
 	async applyAdvancedLedBinding(parameters)
 	{
 		const binding = this.resolveAdvancedLedBinding(parameters);
@@ -3176,36 +3306,10 @@ class PanelDevice extends Device
 			return;
 		}
 
-		let ledState = false;
-		if (binding.deviceID === '_variable_')
-		{
-			const variable = await this.homey.app.getVariable(binding.capabilityName);
-			ledState = !!(variable && variable.type === 'boolean' && variable.value);
-		}
-		else
-		{
-			const device = await this.homey.app.getHomeyDeviceById(binding.deviceID);
-			if (binding.capabilityName === 'dim')
-			{
-				ledState = await this.getDimButtonLedState(binding);
-			}
-			else
-			{
-				const capability = device ? await this.homey.app.getHomeyCapabilityByName(device, binding.capabilityName) : null;
-				if (capability && (capability.type === 'boolean'))
-				{
-					ledState = !!capability.value;
-				}
-				else
-				{
-					const followState = await this.getCapabilityLedState(binding);
-					ledState = (followState === null) ? false : followState;
-				}
-			}
-		}
+		const ledValue = await this.resolveLedBindingValue(binding);
 
 		const buttonIdx = parameters.connector * 2 + (parameters.side === 'left' ? 0 : 1) + 1;
-		this.setLEDOnOff(binding, null, buttonIdx, parameters.page, ledState);
+		this.setLEDOnOff(binding, null, buttonIdx, parameters.page, ledValue);
 	}
 
 	async commitAdvancedValueWithDebounce(parameters, binding, device, capabilityName, valueToCommit)
@@ -3357,6 +3461,18 @@ class PanelDevice extends Device
 					valueToWrite = direction === '-' ? currentDim - delta : currentDim + delta;
 					valueToWrite = Math.max(0, Math.min(1, valueToWrite));
 					valueToWrite = Math.round(valueToWrite * 1000) / 1000;
+					this.applyAdvancedDirectionAtBounds(parameters, valueToWrite, 0, 1);
+				}
+				else if (binding.capabilityName === 'windowcoverings_set')
+				{
+					const currentCoverings = Number.isFinite(Number(currentNumericValue)) ? Number(currentNumericValue) : 0;
+					const delta = step / 100;
+					valueToWrite = direction === '-' ? currentCoverings - delta : currentCoverings + delta;
+					const min = Number.isFinite(Number(capability.min)) ? Number(capability.min) : 0;
+					const max = Number.isFinite(Number(capability.max)) ? Number(capability.max) : 1;
+					valueToWrite = Math.max(min, Math.min(max, valueToWrite));
+					valueToWrite = Math.round(valueToWrite * 1000) / 1000;
+					this.applyAdvancedDirectionAtBounds(parameters, valueToWrite, min, max);
 				}
 				else
 				{
@@ -3370,6 +3486,11 @@ class PanelDevice extends Device
 					if (Number.isFinite(Number(capability.max)))
 					{
 						valueToWrite = Math.min(Number(capability.max), valueToWrite);
+					}
+
+					if (Number.isFinite(Number(capability.min)) && Number.isFinite(Number(capability.max)))
+					{
+						this.applyAdvancedDirectionAtBounds(parameters, valueToWrite, Number(capability.min), Number(capability.max));
 					}
 				}
 
@@ -5016,6 +5137,11 @@ class PanelDevice extends Device
 	async resolveCapabilityDisplayText(config, rawValue)
 	{
 		const { capability } = await this.getDeviceAndCapability(config);
+		if ((config && config.capabilityName === 'windowcoverings_set') || (capability && capability.id === 'windowcoverings_set'))
+		{
+			return this.formatWindowCoveringsSetPercentage(rawValue);
+		}
+
 		if (capability && (capability.type === 'enum') && Array.isArray(capability.values))
 		{
 			const match = capability.values.find((entry) => entry.id === rawValue);
@@ -5301,20 +5427,8 @@ class PanelDevice extends Device
 
 			if (ledBinding)
 			{
-				let ledState = false;
-				if (ledBinding.deviceID === '_variable_')
-				{
-					const variable = await this.homey.app.getVariable(ledBinding.capabilityName);
-					ledState = !!(variable && variable.type === 'boolean' && variable.value);
-				}
-				else
-				{
-					const sourceDevice = await this.homey.app.getHomeyDeviceById(ledBinding.deviceID);
-					const sourceCapability = sourceDevice ? await this.homey.app.getHomeyCapabilityByName(sourceDevice, ledBinding.capabilityName) : null;
-					ledState = !!(sourceCapability && sourceCapability.type === 'boolean' && sourceCapability.value);
-				}
-
-				this.setLEDOnOff(ledBinding, mqttQueue, buttonIdx, page, ledState);
+				const ledValue = await this.resolveLedBindingValue(ledBinding);
+				this.setLEDOnOff(ledBinding, mqttQueue, buttonIdx, page, ledValue);
 			}
 
 			mqttQueue.push(
@@ -5819,157 +5933,150 @@ class PanelDevice extends Device
 		return { path, left, right };
 	}
 
+	parseHexColor(hexColor)
+	{
+		if (typeof hexColor !== 'string')
+		{
+			return null;
+		}
+
+		const trimmed = hexColor.trim().replace('#', '');
+		if (!/^[0-9a-fA-F]{6}$/.test(trimmed))
+		{
+			return null;
+		}
+
+		return {
+			r: parseInt(trimmed.substring(0, 2), 16),
+			g: parseInt(trimmed.substring(2, 4), 16),
+			b: parseInt(trimmed.substring(4, 6), 16),
+		};
+	}
+
+	rgbToInteger(color)
+	{
+		if (!color)
+		{
+			return 0;
+		}
+
+		const r = Math.max(0, Math.min(255, Math.round(color.r || 0)));
+		const g = Math.max(0, Math.min(255, Math.round(color.g || 0)));
+		const b = Math.max(0, Math.min(255, Math.round(color.b || 0)));
+		return (r << 16) + (g << 8) + b;
+	}
+
+	interpolateColor(offHex, onHex, level)
+	{
+		const clampedLevel = Math.max(0, Math.min(1, Number(level)));
+		const offColor = this.parseHexColor(offHex);
+		const onColor = this.parseHexColor(onHex);
+		if (!offColor && !onColor)
+		{
+			return 0;
+		}
+
+		if (!offColor)
+		{
+			return this.rgbToInteger(onColor);
+		}
+
+		if (!onColor)
+		{
+			return this.rgbToInteger(offColor);
+		}
+
+		return this.rgbToInteger({
+			r: offColor.r + ((onColor.r - offColor.r) * clampedLevel),
+			g: offColor.g + ((onColor.g - offColor.g) * clampedLevel),
+			b: offColor.b + ((onColor.b - offColor.b) * clampedLevel),
+		});
+	}
+
+	queueOrPublishLedColor(mqttQueue, brokerId, rgbTopic, onTopic, rgbValue)
+	{
+		if (mqttQueue)
+		{
+			mqttQueue.push(
+				{
+					brokerId,
+					message: rgbTopic,
+					value: rgbValue,
+					retain: false,
+				},
+			);
+
+			mqttQueue.push(
+				{
+					brokerId,
+					message: onTopic,
+					value: 1,
+					retain: false,
+				},
+			);
+		}
+		else
+		{
+			this.homey.app.publishMQTTMessage(brokerId, rgbTopic, rgbValue).catch(this.error);
+			this.homey.app.publishMQTTMessage(brokerId, onTopic, 1).catch(this.error);
+		}
+	}
+
 	setLEDOnOff(config, mqttQueue, buttonIdx, page, value)
 	{
 		if (checkSEMVerGreaterOrEqual(this.firmwareVersion, '1.12.0'))
 		{
-			if ((value === true) || (value === 'up'))
+			const numericLevel = (typeof value === 'number' && Number.isFinite(value))
+				? Math.max(0, Math.min(1, value))
+				: null;
+			const isOn = numericLevel === null ? ((value === true) || (value === 'up')) : numericLevel > 0;
+
+			const frontRgbValue = numericLevel === null
+				? this.interpolateColor(config.frontLEDOffColor, config.frontLEDOnColor, isOn ? 1 : 0)
+				: this.interpolateColor(config.frontLEDOffColor, config.frontLEDOnColor, numericLevel);
+			const wallRgbValue = numericLevel === null
+				? this.interpolateColor(config.wallLEDOffColor, config.wallLEDOnColor, isOn ? 1 : 0)
+				: this.interpolateColor(config.wallLEDOffColor, config.wallLEDOnColor, numericLevel);
+
+			if (config.frontLEDOnColor || config.frontLEDOffColor)
 			{
-				// Send the front and wall colours to the device after a short delay to allow the device to connect to the broker
-				if (config.frontLEDOnColor)
-				{
-					const frontLEDOnColor = parseInt(config.frontLEDOnColor.substring(1), 16);
-					if (mqttQueue)
-					{
-						mqttQueue.push(
-							{
-								brokerId: config.brokerId,
-								message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/front/rgb/set`,
-								value: frontLEDOnColor,
-								retain: false,
-							},
-						);
-
-						// Always send the On command as we control the LED via the colour and use RGB(0) to turn it off
-						mqttQueue.push(
-							{
-								brokerId: config.brokerId,
-								message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/front/on/set`,
-								value: 1,
-								retain: false,
-							},
-						);
-					}
-					else
-					{
-						this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/front/rgb/set`, frontLEDOnColor).catch(this.error);
-						this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/front/on/set`, 1).catch(this.error); // Always send the On command as we control the LED via the colour and use RGB(0) to turn it off
-					}
-				}
-
-				if (config.wallLEDOnColor)
-				{
-					const wallLEDOnColor = parseInt(config.wallLEDOnColor.substring(1), 16);
-					if (mqttQueue)
-					{
-						mqttQueue.push(
-							{
-								brokerId: config.brokerId,
-								message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/wall/rgb/set`,
-								value: wallLEDOnColor,
-								retain: false,
-							},
-						);
-
-						// Always send the On command as we control the LED via the colour and use RGB(0) to turn it off
-						mqttQueue.push(
-							{
-								brokerId: config.brokerId,
-								message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/wall/on/set`,
-								value: 1,
-								retain: false,
-							},
-						);
-					}
-					else
-					{
-						this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/wall/rgb/set`, wallLEDOnColor).catch(this.error);
-						this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/wall/on/set`, 1).catch(this.error); // Always send the On command as we control the LED via the colour and use RGB(0) to turn it off
-					}
-				}
+				this.queueOrPublishLedColor(
+					mqttQueue,
+					config.brokerId,
+					`buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/front/rgb/set`,
+					`buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/front/on/set`,
+					frontRgbValue,
+				);
 			}
-			else
+
+			if (config.wallLEDOnColor || config.wallLEDOffColor)
 			{
-				// Send 0 to the front and wall colours of the device after a short delay to allow the device to connect to the broker
-				if (config.frontLEDOffColor)
-				{
-					const frontLEDOffColor = parseInt(config.frontLEDOffColor.substring(1), 16);
-					if (mqttQueue)
-					{
-						mqttQueue.push(
-							{
-								brokerId: config.brokerId,
-								message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/front/rgb/set`,
-								value: frontLEDOffColor,
-								retain: false,
-							},
-						);
-
-						// Always send the On command as we control the LED via the colour and use RGB(0) to turn it off
-						mqttQueue.push(
-							{
-								brokerId: config.brokerId,
-								message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/front/on/set`,
-								value: 1,
-								retain: false,
-							},
-						);
-					}
-					else
-					{
-						this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/front/rgb/set`, frontLEDOffColor).catch(this.error);
-						this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/front/on/set`, 1).catch(this.error); // Always send the On command as we control the LED via the colour and use RGB(0) to turn it off
-					}
-				}
-
-				if (config.wallLEDOffColor)
-				{
-					const wallLEDOffColor = parseInt(config.wallLEDOffColor.substring(1), 16);
-					if (mqttQueue)
-					{
-						mqttQueue.push(
-							{
-								brokerId: config.brokerId,
-								message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/wall/rgb/set`,
-								value: wallLEDOffColor,
-								retain: false,
-							},
-						);
-
-						// Always send the On command as we control the LED via the colour and use RGB(0) to turn it off
-						mqttQueue.push(
-							{
-								brokerId: config.brokerId,
-								message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/wall/on/set`,
-								value: 1,
-								retain: false,
-							},
-						);
-					}
-					else
-					{
-						this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/wall/rgb/set`, wallLEDOffColor).catch(this.error);
-						this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/wall/on/set`, 1).catch(this.error);  // Always send the On command as we control the LED via the colour and use RGB(0) to turn it off
-					}
-				}
+				this.queueOrPublishLedColor(
+					mqttQueue,
+					config.brokerId,
+					`buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/wall/rgb/set`,
+					`buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/led/wall/on/set`,
+					wallRgbValue,
+				);
 			}
 		}
 		else
 		{
 			// Send the value to the device after a short delay to allow the device to connect to the broker
+			const legacyValue = (typeof value === 'number' && Number.isFinite(value)) ? value > 0 : value;
 			if (mqttQueue)
 			{
 				mqttQueue.push(
 					{
 						brokerId: config.brokerId,
 						message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}`,
-						value,
+						value: legacyValue,
 					},
 				);
 			}
 			else
 			{
-				this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/${buttonIdx}-${page}`, value).catch(this.error);
+				this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/${buttonIdx}-${page}`, legacyValue).catch(this.error);
 			}
 		}
 	}

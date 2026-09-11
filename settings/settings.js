@@ -4712,7 +4712,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 							}
 							for (const variable of variablesArray)
 							{
-								if (filterMode === 'led' && variable.type !== 'boolean')
+								if (filterMode === 'led' && variable.type !== 'boolean' && variable.type !== 'number')
 								{
 									continue;
 								}
@@ -4739,7 +4739,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 
 				for (const variable of variablesArray)
 				{
-					if (filterMode === 'led' && variable.type !== 'boolean')
+					if (filterMode === 'led' && variable.type !== 'boolean' && variable.type !== 'number')
 					{
 						continue;
 					}
@@ -4817,7 +4817,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 							}
 							else if (filterMode === 'led')
 							{
-								if (type !== 'boolean')
+								if (type !== 'boolean' && type !== 'number')
 								{
 									continue;
 								}
@@ -5021,7 +5021,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 						${buildDeviceSelectHtml(`popup${side}${page}LedDevice`)}
 					</div>
 					<div class="button-field-popup-field">
-						<label class="button-field-popup-label" for="popup${side}${page}LedCapability"><span>LED source capability (boolean)</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}LedCapability"><span>LED source capability (boolean/number)</span></label>
 						<select class="homey-form-select" id="popup${side}${page}LedCapability"></select>
 					</div>` : ''}
 					<div class="button-popup-led-matrix">
