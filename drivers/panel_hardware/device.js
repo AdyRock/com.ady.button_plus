@@ -40,8 +40,6 @@ class PanelDevice extends Device
 		this.releaseSuppressions = new Map();
 		this.clickedSuppressions = new Map();
 		this.pendingAdvancedLongReleaseCommits = new Map();
-		this.advancedLongReleaseCommitTimers = new Map();
-		this.advancedLongLastEventTimes = new Map();
 		this.longPressHeartbeatAt = new Map();
 		this.advancedLongSyntheticTickTimers = new Map();
 		this.advancedLastClickProcessedAt = new Map();
@@ -665,18 +663,6 @@ class PanelDevice extends Device
 		if (this.pendingAdvancedLongReleaseCommits)
 		{
 			this.pendingAdvancedLongReleaseCommits.clear();
-		}
-		if (this.advancedLongReleaseCommitTimers)
-		{
-			for (const timer of this.advancedLongReleaseCommitTimers.values())
-			{
-				this.homey.clearTimeout(timer);
-			}
-			this.advancedLongReleaseCommitTimers.clear();
-		}
-		if (this.advancedLongLastEventTimes)
-		{
-			this.advancedLongLastEventTimes.clear();
 		}
 		if (this.longPressHeartbeatAt)
 		{
@@ -1958,6 +1944,7 @@ class PanelDevice extends Device
 	{
 		const targetDeviceId = this.getHomeyDeviceId(device) || 'unknown-device';
 		const key = `${targetDeviceId}::${capabilityName}`;
+		const shouldUseCapabilityListener = capabilityName === 'light_hue' || capabilityName === 'light_saturation';
 
 		if (this.capabilityDispatchInFlight.has(key))
 		{
@@ -1971,7 +1958,22 @@ class PanelDevice extends Device
 		this.capabilityDispatchInFlight.add(key);
 		try
 		{
-			await device.setCapabilityValue(capabilityName, value);
+			if (shouldUseCapabilityListener && typeof device.triggerCapabilityListener === 'function')
+			{
+				try
+				{
+					await device.triggerCapabilityListener(capabilityName, value, { source: 'button_plus' });
+				}
+				catch (listenerError)
+				{
+					this.homey.app.updateLog(`Capability listener write failed for ${key}: ${listenerError && listenerError.message ? listenerError.message : listenerError}; falling back to setCapabilityValue`, 1);
+					await device.setCapabilityValue(capabilityName, value);
+				}
+			}
+			else
+			{
+				await device.setCapabilityValue(capabilityName, value);
+			}
 			return true;
 		}
 		finally
@@ -2790,43 +2792,6 @@ class PanelDevice extends Device
 			capabilityName: binding.capabilityName,
 			valueToCommit,
 		});
-		this.advancedLongLastEventTimes.set(key, Date.now());
-
-		// Some firmware/message paths can delay or miss a release; flush buffered long value after repeat goes idle.
-		this.scheduleAdvancedLongReleaseCommitFallback(parameters, key);
-	}
-
-	clearAdvancedLongReleaseCommitTimer(key)
-	{
-		const pendingTimer = this.advancedLongReleaseCommitTimers.get(key);
-		if (pendingTimer)
-		{
-			this.homey.clearTimeout(pendingTimer);
-			this.advancedLongReleaseCommitTimers.delete(key);
-		}
-	}
-
-	scheduleAdvancedLongReleaseCommitFallback(parameters, key)
-	{
-		if (!parameters)
-		{
-			return;
-		}
-
-		this.clearAdvancedLongReleaseCommitTimer(key);
-		const flushDelayMs = Math.max(1200, this.getConfiguredLongPressRepeatMs(parameters) * 3);
-		const timer = this.homey.setTimeout(() =>
-		{
-			const lastEventAt = this.advancedLongLastEventTimes.get(key) || 0;
-			if ((Date.now() - lastEventAt) < flushDelayMs)
-			{
-				this.scheduleAdvancedLongReleaseCommitFallback(parameters, key);
-				return;
-			}
-
-			this.flushAdvancedLongReleaseCommitByKey(key, 'advanced:long:fallbackCommit').catch((err) => this.error(err));
-		}, flushDelayMs);
-		this.advancedLongReleaseCommitTimers.set(key, timer);
 	}
 
 	getQueuedAdvancedLongReleaseValue(parameters, binding)
@@ -2851,6 +2816,17 @@ class PanelDevice extends Device
 		return pending.valueToCommit;
 	}
 
+	getPendingAdvancedDebounceValue(parameters, binding)
+	{
+		if (!parameters || !binding)
+		{
+			return undefined;
+		}
+
+		const commitKey = `${parameters.connector}_${parameters.side}_${parameters.page}_${binding.deviceID}_${binding.capabilityName}`;
+		return this.advancedPendingValues.get(commitKey);
+	}
+
 	async flushAdvancedLongReleaseCommit(parameters)
 	{
 		if (!parameters)
@@ -2864,6 +2840,23 @@ class PanelDevice extends Device
 		await this.applyAdvancedLedBinding(parameters);
 	}
 
+	async flushAdvancedLongReleaseCommitFamily(connector, side, excludeKey)
+	{
+		if (connector === undefined || connector === null || !side)
+		{
+			return;
+		}
+
+		const prefix = `${connector}_${side}_`;
+		const pendingKeys = Array.from(this.pendingAdvancedLongReleaseCommits.keys())
+			.filter((key) => typeof key === 'string' && key.startsWith(prefix) && key !== excludeKey);
+
+		for (const key of pendingKeys)
+		{
+			await this.flushAdvancedLongReleaseCommitByKey(key, 'advanced:long:releaseFamilyCommit');
+		}
+	}
+
 	async flushAdvancedLongReleaseCommitByKey(key, sourceLabel)
 	{
 		if (!key)
@@ -2871,8 +2864,6 @@ class PanelDevice extends Device
 			return;
 		}
 
-		this.clearAdvancedLongReleaseCommitTimer(key);
-		this.advancedLongLastEventTimes.delete(key);
 		const pending = this.pendingAdvancedLongReleaseCommits.get(key);
 		if (!pending)
 		{
@@ -2895,8 +2886,65 @@ class PanelDevice extends Device
 		await this.guardedSetCapabilityValueOnDevice(device, pending.capabilityName, pending.valueToCommit, sourceLabel || 'advanced:long:releaseCommit');
 	}
 
+	async clearLongPressTrackingForRelease(connector, side, releaseKey)
+	{
+		const relatedKeys = new Set();
+		if (releaseKey)
+		{
+			relatedKeys.add(releaseKey);
+		}
+
+		const prefix = `${connector}_${side}_`;
+		if (this.longPressOccurred)
+		{
+			for (const key of this.longPressOccurred.keys())
+			{
+				if (typeof key === 'string' && key.startsWith(prefix))
+				{
+					relatedKeys.add(key);
+				}
+			}
+		}
+
+		for (const key of relatedKeys)
+		{
+			if (key !== releaseKey && this.pendingAdvancedLongReleaseCommits.has(key))
+			{
+				await this.flushAdvancedLongReleaseCommitByKey(key, 'advanced:long:relatedReleaseCommit');
+			}
+
+			if (this.longPressOccurred)
+			{
+				this.longPressOccurred.set(key, 0);
+			}
+
+			const clickState = this.clickEventStates.get(key);
+			if (clickState)
+			{
+				clickState.longPressActive = false;
+				if (!this.isWaitingForClickResolution(key) && (clickState.clickCount === 0))
+				{
+					this.clickEventStates.delete(key);
+				}
+				else
+				{
+					this.clickEventStates.set(key, clickState);
+				}
+			}
+
+			this.longPressEventCounts.delete(key);
+			this.longPressLastProcessedAt.delete(key);
+			this.lastLongPressTimes.delete(key);
+			this.longPressHeartbeatAt.delete(key);
+			this.cancelAdvancedLongSyntheticTick(key);
+			this.pendingAdvancedLongReleaseCommits.delete(key);
+		}
+	}
+
 	getPendingAdvancedLongDisplayOverride(parameters, binding)
 	{
+		// Long-press changes are buffered until release. Use that pending value for
+		// display feedback only when it belongs to the same device capability.
 		if (!parameters || !binding)
 		{
 			return undefined;
@@ -2919,6 +2967,8 @@ class PanelDevice extends Device
 
 	resolveAdvancedDisplayBinding(parameters)
 	{
+		// Display bindings are only meaningful for a button side configured in
+		// advanced mode. Basic-mode rendering follows the legacy configuration path.
 		const sideConfig = this.resolveAdvancedSideConfig(parameters);
 		if (!sideConfig)
 		{
@@ -2935,6 +2985,8 @@ class PanelDevice extends Device
 		let deviceID = sideConfig[`${side}DisplayDevice`] || 'none';
 		let capabilityName = sideConfig[`${side}DisplayCapability`] || '';
 
+		// Older configurations stored one shared device/capability pair instead of
+		// a dedicated display binding. Preserve that value when upgrading configs.
 		if (!capabilityName)
 		{
 			const legacySideConfig = this.getConfigPageSide(null, parameters.page, side, parameters.configNo);
@@ -2946,6 +2998,8 @@ class PanelDevice extends Device
 			}
 		}
 
+		// If no display source was selected, mirror the first local Homey capability
+		// used by an action. Variables and custom MQTT actions cannot be read here.
 		if (!capabilityName)
 		{
 			for (const eventName of ['Click', 'Long', 'Double'])
@@ -2983,6 +3037,8 @@ class PanelDevice extends Device
 
 	resolveAdvancedLedBinding(parameters)
 	{
+		// LED state has its own binding and deliberately does not inherit the display
+		// fallback chain: an unconfigured LED should retain its existing behaviour.
 		const sideConfig = this.resolveAdvancedSideConfig(parameters);
 		if (!sideConfig)
 		{
@@ -3022,6 +3078,8 @@ class PanelDevice extends Device
 			return { textValue: null, svgValue: null };
 		}
 
+		// Homey Logic variables are resolved separately because they are not device
+		// capabilities, but can still provide boolean, numeric, or text display data.
 		if (binding.deviceID === '_variable_')
 		{
 			const variable = await this.homey.app.getVariable(binding.capabilityName);
@@ -3055,6 +3113,8 @@ class PanelDevice extends Device
 			return { textValue: '', svgValue: null };
 		}
 
+		// A preview/buffered value takes precedence over the last committed device
+		// value so the panel reacts immediately while writes are being debounced.
 		const effectiveValue = (overrideValue === undefined) ? capability.value : overrideValue;
 
 		if (capability.type === 'boolean')
@@ -3110,6 +3170,8 @@ class PanelDevice extends Device
 		const value = await this.resolveAdvancedDisplayValue(binding, effectiveOverride, parameters);
 		const buttonIdx = parameters.connector * 2 + (parameters.side === 'left' ? 0 : 1) + 1;
 		this.homey.app.updateLog(`ADVDBG applyDisplay ok: ${parameters.connector}/${parameters.side}/${parameters.page}, value=${value && value.textValue != null ? value.textValue : ''}, svg=${value && value.svgValue ? 'yes' : 'no'}, override=${effectiveOverride === undefined ? 'none' : effectiveOverride}`, 1);
+		// The firmware renders either an SVG or a text label. Clear the unused field
+		// to prevent stale content from a previous render mode remaining visible.
 		if (value && value.svgValue)
 		{
 			this.homey.app.publishMQTTMessage(binding.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/svg/set`, value.svgValue).catch((err) => this.error(err));
@@ -3436,7 +3498,10 @@ class PanelDevice extends Device
 		else if ((capability.type === 'number') || (binding.capabilityName === 'dim'))
 		{
 			const queuedValue = shouldBufferUntilRelease ? this.getQueuedAdvancedLongReleaseValue(parameters, binding) : undefined;
-			const currentNumericValue = Number.isFinite(Number(queuedValue)) ? Number(queuedValue) : capability.value;
+			const pendingDebounceValue = this.getPendingAdvancedDebounceValue(parameters, binding);
+			const currentNumericValue = Number.isFinite(Number(queuedValue))
+				? Number(queuedValue)
+				: (Number.isFinite(Number(pendingDebounceValue)) ? Number(pendingDebounceValue) : capability.value);
 			const numericAction = this.getNumericActionForValueType(currentNumericValue, binding.numericAction);
 			if (numericAction === 'setPlus')
 			{
@@ -4464,89 +4529,52 @@ class PanelDevice extends Device
 		const config = this.getConfigPageSide(null, parameters.page, parameters.side, parameters.configNo);
 
 		const releaseKey = `${parameters.connector}_${parameters.side}_${parameters.page}`;
-		const clickStateOnRelease = this.clickEventStates.get(releaseKey);
-		if (clickStateOnRelease)
+		try
 		{
-			clickStateOnRelease.waitingForRelease = false;
-			this.clickEventStates.set(releaseKey, clickStateOnRelease);
-		}
-		await this.flushAdvancedLongReleaseCommit(parameters);
-
-		if (!this.consumeSuppression(this.releaseSuppressions, releaseKey))
-		{
-			const releaseFire = () => this.homey.app.triggerButtonEvent(this, parameters.side, parameters.connector, 'released', parameters.value, parameters.value.toString(), 0);
-			if (this.isWaitingForClickResolution(releaseKey))
+			const clickStateOnRelease = this.clickEventStates.get(releaseKey);
+			if (clickStateOnRelease)
 			{
-				this.queueReleasedTrigger(releaseKey, releaseFire);
+				clickStateOnRelease.waitingForRelease = false;
+				this.clickEventStates.set(releaseKey, clickStateOnRelease);
 			}
-			else
-			{
-				releaseFire();
-			}
+			await this.flushAdvancedLongReleaseCommit(parameters);
+			await this.flushAdvancedLongReleaseCommitFamily(parameters.connector, parameters.side, releaseKey);
 
-			if (parameters.configNo != null)
+			if (!this.consumeSuppression(this.releaseSuppressions, releaseKey))
 			{
-				const value = this.buttonValues.get(`${parameters.side}_${parameters.connector}_${parameters.page}`) || false;
-				const buttonState = await this.getConfigLedButtonState(config, value);
-				const releaseConfigFire = () => this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'released', buttonState, value.toString(), parameters.page);
+				const releaseFire = () => this.homey.app.triggerButtonEvent(this, parameters.side, parameters.connector, 'released', parameters.value, parameters.value.toString(), 0);
 				if (this.isWaitingForClickResolution(releaseKey))
 				{
-					this.queueReleasedTrigger(releaseKey, releaseConfigFire);
+					this.queueReleasedTrigger(releaseKey, releaseFire);
 				}
 				else
 				{
-					releaseConfigFire();
-				}
-			}
-		}
-		else
-		{
-			this.homey.app.updateLog(`Release: suppressed queued release for ${releaseKey}`, 1);
-		}
-
-		// Check if a large display or if no configuration assigned to this connector
-		if ((parameters.connectorType === 2) || (parameters.connectorType === 3) || (parameters.configNo == null))
-		{
-			this.setLEDOnOff(config, null, buttonIdx, parameters.page, false);
-			if (parameters.page === this.page)
-			{
-				this.safeSetCapabilityValue(`${parameters.side}_button.connector${parameters.connector}`, false);
-			}
-
-			this.buttonValues.set(`${parameters.side}_${parameters.connector}_${parameters.page}`, false);
-		}
-		else if (config)
-		{
-			if (this.isDimButtonConfig(config))
-			{
-				// Dim now follows the shared click timing resolver (single deferred; double cancels single; long cancels single).
-			}
-			else if (this.longPressOccurred && (this.longPressOccurred.get(`${parameters.connector}_${parameters.side}_${parameters.page}`) > 0) && (config.capabilityName === 'windowcoverings_state'))
-			{
-				// Send the pause command to the device if the LongPress was received
-				if (config.deviceID === 'customMQTT')
-				{
-					// we don't handle customMQTT messages
-					return;
+					releaseFire();
 				}
 
-				// Find the Homey device that is defined in the configuration
-				const { device, capability } = await this.getDeviceAndCapability(config);
-				if (capability && ((parameters.page === 0) || (this.page === parameters.page)))
+				if (parameters.configNo != null)
 				{
-					try
+					const value = this.buttonValues.get(`${parameters.side}_${parameters.connector}_${parameters.page}`) || false;
+					const buttonState = await this.getConfigLedButtonState(config, value);
+					const releaseConfigFire = () => this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'released', buttonState, value.toString(), parameters.page);
+					if (this.isWaitingForClickResolution(releaseKey))
 					{
-						await device.setCapabilityValue(config.capabilityName, 'idle');
+						this.queueReleasedTrigger(releaseKey, releaseConfigFire);
 					}
-					catch (error)
+					else
 					{
-						this.homey.app.updateLog(`Device ${device.name}: Capability ${config.capabilityName}, ${error.message}`);
+						releaseConfigFire();
 					}
 				}
 			}
-			else if (config.onMessage === '' && config.offMessage !== '')
+			else
 			{
-				// There is only an Off message so don't latch the button state
+				this.homey.app.updateLog(`Release: suppressed queued release for ${releaseKey}`, 1);
+			}
+
+			// Check if a large display or if no configuration assigned to this connector
+			if ((parameters.connectorType === 2) || (parameters.connectorType === 3) || (parameters.configNo == null))
+			{
 				this.setLEDOnOff(config, null, buttonIdx, parameters.page, false);
 				if (parameters.page === this.page)
 				{
@@ -4555,31 +4583,48 @@ class PanelDevice extends Device
 
 				this.buttonValues.set(`${parameters.side}_${parameters.connector}_${parameters.page}`, false);
 			}
-		}
-
-		if (this.longPressOccurred)
-		{
-			// Record that the long press has finished
-			const longPressKey = `${parameters.connector}_${parameters.side}_${parameters.page}`;
-			this.longPressOccurred.set(longPressKey, 0);
-			const clickState = this.clickEventStates.get(longPressKey);
-			if (clickState)
+			else if (config)
 			{
-				clickState.longPressActive = false;
-				if (!this.isWaitingForClickResolution(longPressKey) && (clickState.clickCount === 0))
+				if (this.isDimButtonConfig(config))
 				{
-					this.clickEventStates.delete(longPressKey);
+					// Dim now follows the shared click timing resolver (single deferred; double cancels single; long cancels single).
 				}
-				else
+				else if (this.longPressOccurred && (this.longPressOccurred.get(`${parameters.connector}_${parameters.side}_${parameters.page}`) > 0) && (config.capabilityName === 'windowcoverings_state'))
 				{
-					this.clickEventStates.set(longPressKey, clickState);
+					// Send the pause command to the device if the LongPress was received
+					if (config.deviceID !== 'customMQTT')
+					{
+						// Find the Homey device that is defined in the configuration
+						const { device, capability } = await this.getDeviceAndCapability(config);
+						if (capability && ((parameters.page === 0) || (this.page === parameters.page)))
+						{
+							try
+							{
+								await device.setCapabilityValue(config.capabilityName, 'idle');
+							}
+							catch (error)
+							{
+								this.homey.app.updateLog(`Device ${device.name}: Capability ${config.capabilityName}, ${error.message}`);
+							}
+						}
+					}
+				}
+				else if (config.onMessage === '' && config.offMessage !== '')
+				{
+					// There is only an Off message so don't latch the button state
+					this.setLEDOnOff(config, null, buttonIdx, parameters.page, false);
+					if (parameters.page === this.page)
+					{
+						this.safeSetCapabilityValue(`${parameters.side}_button.connector${parameters.connector}`, false);
+					}
+
+					this.buttonValues.set(`${parameters.side}_${parameters.connector}_${parameters.page}`, false);
 				}
 			}
-			this.longPressEventCounts.delete(longPressKey);
-			this.longPressLastProcessedAt.delete(longPressKey);
-			this.lastLongPressTimes.delete(longPressKey);
-			this.longPressHeartbeatAt.delete(longPressKey);
-			this.cancelAdvancedLongSyntheticTick(longPressKey);
+		}
+		finally
+		{
+			await this.clearLongPressTrackingForRelease(parameters.connector, parameters.side, releaseKey);
 		}
 	}
 

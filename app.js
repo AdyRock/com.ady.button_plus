@@ -2446,7 +2446,7 @@ class MyApp extends Homey.App
 
 					this.updateLog(`MQTTclient.on message: ${topic}, ${this.varToString(mqttMessage)}`);
 
-					// Look for homey at the start of the topic string
+					// Look for homey's buttonplus topic at the start of the topic string
 					const topicParts = topic.split('/');
 					if (topicParts.length >= 3 && topicParts[0] === 'buttonplus')
 					{
@@ -2463,6 +2463,7 @@ class MyApp extends Homey.App
 								{
 									if (device.processMQTTMessage)
 									{
+										// Each device that has a processMQTTMessage method will handle the message and check if it is relevant to itself
 										try
 										{
 											// topic parts contains 'buttonplus', deviceId, 'button'', buttonIdx-page, 'pushbutton', so create a message object that has the id: deviceId, idx: buttonIdx, page: page, so the buttonIdx-page needs to be split at the - to get the buttonIdx and page
@@ -2511,6 +2512,7 @@ class MyApp extends Homey.App
 							{
 								if (device && device.processMQTTBtnMessage && typeof device.processMQTTBtnMessage === 'function')
 								{
+									// Each device that has a processMQTTBtnMessage method will handle the message and check if it is relevant to itself
 									device.processMQTTBtnMessage(topicParts, mqttMessage).catch((err) =>
 									{
 										if (device && device.error && typeof device.error === 'function')
