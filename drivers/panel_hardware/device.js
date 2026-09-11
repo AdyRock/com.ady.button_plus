@@ -13,11 +13,35 @@ const DOUBLE_CLICK_WINDOW_MS = 350;
 const DEFAULT_LONG_PRESS_DELAY_MS = 750;
 const DUPLICATE_CLICK_DEBOUNCE_MS = 120;
 
+/**
+ * PanelDevice - Physical button panel device connected via MQTT to Homey.
+ *
+ * Architecture Overview:
+ * - Communicates with device via MQTT topics: buttonplus/{id}/button/{btn}-{page}/{action}
+ * - Processes button events (click/longpress/release) through event flow state machines
+ * - Supports "basic" mode (simple capability mapping) and "advanced" mode (rich event handling)
+ * - Advanced mode allows click/long/double actions to map to any Homey device capability
+ * - Display feedback shows target capability's current state; LED state controlled independently
+ *
+ * Event Processing Flow:
+ * 1. processMQTTMessage() receives click/longpress/release from device
+ * 2. handleButtonClick() detects single vs double click (requires release to resolve)
+ * 3. runAdvancedEventMapping() finds device/capability and applies action (toggle/cycle/adjust)
+ * 4. applyAdvancedDisplayBinding() updates panel screen with feedback
+ * 5. Long presses are buffered until release to show smooth preview (e.g., dim level changing)
+ *
+ * State Management:
+ * - Maps track per-button state: click timing, long-press count, pending debounced values, direction
+ * - Click resolution window (350ms) defers 'clicked' trigger until double-click window closes
+ * - Long-press values committed on release, not during repetition, to avoid flickering
+ * - Debounce delay prevents excessive MQTT publishes during rapid adjustments
+ */
 class PanelDevice extends Device
 {
 
 	/**
 	 * onInit is called when the device is initialized.
+	 * Initializes all internal Maps for tracking button state across MQTT events.
 	 */
 	async onInit()
 	{
@@ -250,6 +274,21 @@ class PanelDevice extends Device
 		this.log('PanelDevice has been initialized');
 	}
 
+	/**
+	 * Initialize hardware communication with the physical device.
+	 * Reads device configuration (firmware version, connectors) and uploads current panel settings.
+	 * Sets up MQTT subscriptions for button events and sensor readings.
+	 * Called on startup and when device becomes available after disconnect.
+	 */
+	// ========== HARDWARE INITIALIZATION ==========
+	// Initialize and maintain device connection, fetch firmware version, upload configuration
+
+	/**
+	 * Initialize hardware communication with the physical device.
+	 * Reads device configuration (firmware version, connectors) and uploads current panel settings.
+	 * Sets up MQTT subscriptions for button events and sensor readings.
+	 * Called on startup and when device becomes available after disconnect.
+	 */
 	async intiHardware()
 	{
 		if (this.initHardwareTimer || this.initInProgress)
@@ -334,6 +373,25 @@ class PanelDevice extends Device
 		}
 	}
 
+	/**
+	 * Subscribe to MQTT topics for this button device's events.
+	 * Brokers map to dedicated MQTT clients; retries if broker not ready.
+	 * Topics:
+	 *   buttonplus/{id}/page/state - panel's current page changes
+	 *   buttonplus/{id}/sensor/1,2,3,4,5 - temperature, light, humidity, pressure, sound
+	 *   buttonplus/{id}/brightness/* - hardware brightness level updates
+	 */
+	// ========== MQTT COMMUNICATION ==========
+	// Subscribe to device topics, process incoming messages, publish state updates
+
+	/**
+	 * Subscribe to MQTT topics for this button device's events.
+	 * Brokers map to dedicated MQTT clients; retries if broker not ready.
+	 * Topics subscribed:
+	 *   buttonplus/{id}/page/state - panel's current display page
+	 *   buttonplus/{id}/sensor/1-5 - temperature, luminance, humidity, pressure, sound
+	 *   buttonplus/{id}/button/{btn}-{page}/label/set - text label updates
+	 */
 	async setupMQTTSubscriptions(brokerOrStringId)
 	{
 		let mqttClient = null;
@@ -398,6 +456,19 @@ class PanelDevice extends Device
 		}
 	}
 
+	/**
+	 * Capability listener for dim level changes.
+	 * Publishes new brightness to MQTT so the physical device updates its display/LED brightness.
+	 * When change originates from MQTT (opts.mqtt=true), skip loopback to avoid echoes.
+	 */
+	// ========== CAPABILITY LISTENERS ==========
+	// Handle Homey capability changes: dim level, button presses, page navigation, configuration selection
+
+	/**
+	 * Capability listener for dim level changes.
+	 * Publishes new brightness to MQTT so the physical device updates its display/LED brightness.
+	 * When change originates from MQTT (opts.mqtt=true), skip loopback to avoid echoes.
+	 */
 	async onCapabilityDim(value, opts)
 	{
 		if (opts && opts.mqtt)
@@ -413,6 +484,13 @@ class PanelDevice extends Device
 
 	/**
 	 * onAdded is called when the user adds the device, called just after pairing.
+	 */
+	// ========== DEVICE LIFECYCLE ==========
+	// Handle device added, deleted, renamed, settings changed, repaired
+
+	/**
+	 * onAdded is called when the user adds the device, called just after pairing.
+	 * Initializes default dim level and calls parent handler.
 	 */
 	async onAdded()
 	{
@@ -713,6 +791,10 @@ class PanelDevice extends Device
 		this.log('PanelDevice has been deleted');
 	}
 
+	/**
+	 * Process physical MQTT brightness control messages from the device.
+	 * The device may publish brightness changes from its own UI.
+	 */
 	async processMQTTBtnMessage(topic, MQTTMessage)
 	{
 		if (!this.initFinished)
@@ -736,6 +818,10 @@ class PanelDevice extends Device
 		}
 	}
 
+	/**
+	 * Get the MQTT broker ID and button index for a given side, connector, and page.
+	 * Returns an object with 'brokerId' and 'buttonIdx'.
+	 */
 	getBrokerIdAndBtnIdx(side, connector, page)
 	{
 		let brokerId = 'Default';
@@ -777,6 +863,10 @@ class PanelDevice extends Device
 		return { brokerId, buttonIdx };
 	}
 
+	/**
+	 * Find the button connector that is using the given configuration number.
+	 * Returns the connector index (0-7) or throws an error if not found.
+	 */
 	findConnectorUsingConfigNo(configNo)
 	{
 		// Find the button connector that has this configuration
@@ -860,6 +950,10 @@ class PanelDevice extends Device
 	}
 
 
+	/**
+	 * Update date and time capability values based on device timezone and locale settings.
+	 * Respects user's chosen weekday/date/month/year/time format and language code.
+	 */
 	async updateDateAndTime(dateTime)
 	{
 		if (this.hasCapability('date'))
@@ -913,6 +1007,10 @@ class PanelDevice extends Device
 		}
 	}
 
+	/**
+	 * Update the device status bar (separator between display and buttons).
+	 * Only applies to firmware >= 1.09.0.
+	 */
 	async updateStatusBar(deviceConfigurations)
 	{
 		if (this.ip !== '')
@@ -951,6 +1049,10 @@ class PanelDevice extends Device
 		return null;
 	}
 
+	/**
+	 * Set hardware brightness levels: large display, mini display, or LED brightness.
+	 * Updates both the dim capability and MQTT topics for the device.
+	 */
 	async setDimLevel(large, mini, led)
 	{
 		if (this.ip !== '')
@@ -999,6 +1101,10 @@ class PanelDevice extends Device
 		return null;
 	}
 
+	/**
+	 * Set LED color for a button (front/wall, on/off state).
+	 * Front/wall distinction added in firmware 1.12.0; older firmware supports only 'both'.
+	 */
 	async setConnectorLEDColour(left_right, connector, rgbString, front_wall, page)
 	{
 		if (!checkSEMVerGreaterOrEqual(this.firmwareVersion, '1.12.0'))
@@ -1404,6 +1510,14 @@ class PanelDevice extends Device
 		return null;
 	}
 
+	// ========== CONFIGURATION UPLOAD ==========
+	// Upload device settings: button configs, display items, brightness, sensor topics, MQTT brokers
+
+	/**
+	 * Upload all panel configurations to the device.
+	 * Reads device config, compares with desired state, writes differences, then sends MQTT messages.
+	 * Handles retries with exponential backoff if device is unreachable.
+	 */
 	async uploadConfigurations()
 	{
 		try
@@ -2009,6 +2123,10 @@ class PanelDevice extends Device
 		return this.triggerCapabilityListener(capability, value).catch(this.error);
 	}
 
+	/**
+	 * Process core/sensor MQTT messages (page state, temperature, luminance, etc).
+	 * These are status messages, not button events.
+	 */
 	async checkCoreMQTTMessage(topicParts, value)
 	{
 		if (topicParts[1] === this.buttonId)
@@ -2105,6 +2223,24 @@ class PanelDevice extends Device
 		}
 	}
 
+	// ========== BUTTON EVENT PROCESSING ==========
+	// Core state machines for click/longpress/release events with timing and debouncing
+
+	/**
+	 * Main button event processor. Entry point for all physical button presses.
+	 * Routes to click/longpress/release handlers with proper state tracking.
+	 *
+	 * Event flow:
+	 *  - Click: defer ~350ms to check for double-click, then fire single-click or queue for resolution
+	 *  - Longpress: start repeating fire, buffer value changes until release
+	 *  - Release: commit buffered values, fire released trigger, clear long-press state
+	 *
+	 * State machines track:
+	 *  - Click count and timing for double-click detection
+	 *  - Long-press repetition count and last heartbeat
+	 *  - Pending value commits (debounced device writes)
+	 *  - Release suppressions (to avoid duplicate events)
+	 */
 	async processMQTTMessage(MQTTMessage)
 	{
 		if (!this.initFinished)
@@ -2216,6 +2352,13 @@ class PanelDevice extends Device
 		}
 	}
 
+	// ========== CONFIGURATION RESOLUTION ==========
+	// Resolve button configuration, connector type, and advanced event bindings
+
+	/**
+	 * Resolve the config object for a button based on its page and side.
+	 * For display connectors, returns null. For button connectors, maps to the assigned config.
+	 */
 	resolveConnectorConfig(parameters)
 	{
 		// Check if a large display or if no configuration assigned to this connector
@@ -2233,6 +2376,13 @@ class PanelDevice extends Device
 		return config;
 	}
 
+	// ========== DIM BUTTON HANDLING ==========
+	// Specialized logic for brightness control buttons (dim capability)
+
+	/**
+	 * Check if a config represents a dim button (adjusts brightness).
+	 * Dim buttons have independent direction state and LED control.
+	 */
 	isDimButtonConfig(config)
 	{
 		return !!config && (config.capabilityName === 'dim') && (config.deviceID !== 'none') && (config.deviceID !== 'customMQTT') && (config.deviceID !== '_variable_');
@@ -2266,6 +2416,14 @@ class PanelDevice extends Device
 		return Number.isNaN(configuredRepeat) ? 500 : Math.max(50, Math.min(configuredRepeat, 10000));
 	}
 
+	// ========== STATE MANAGEMENT & TIMING ==========
+	// Manage button state timers, debouncing, suppression, and event sequencing
+
+	/**
+	 * Detect single vs double click within 350ms window.
+	 * Uses timed state machine to defer single-click trigger until double-click window closes.
+	 * Returns context object indicating whether double/long clicks are configured.
+	 */
 	getEventTimingContext(parameters)
 	{
 		const sideConfig = this.resolveAdvancedSideConfig(parameters);
@@ -2386,6 +2544,10 @@ class PanelDevice extends Device
 		return this.processClickMessage(parameters);
 	}
 
+	/**
+	 * Clear pending single/double-click timers and queued triggers.
+	 * Called when transitioning to a different event (e.g., double-click detected).
+	 */
 	clearClickResolutionTimers(key)
 	{
 		this.clearPendingAdvancedClickFallbackTimer(key);
@@ -2398,6 +2560,11 @@ class PanelDevice extends Device
 		}
 	}
 
+	/**
+	 * Arm timers to detect single vs double click.
+	 * Single-click fires after 350ms if no second click arrives.
+	 * Double-click timer cleared if second click arrives within window.
+	 */
 	armClickResolutionTimers(parameters, key, timingContext)
 	{
 		this.clearPendingAdvancedClickFallbackTimer(key);
@@ -2463,6 +2630,11 @@ class PanelDevice extends Device
 		this.advancedLongSyntheticTickTimers.delete(key);
 	}
 
+	/**
+	 * Arm synthetic tick timer for long-press repeat events.
+	 * Fires updates at 500ms intervals (or configured repeat rate) while button is held.
+	 * Respects firmware heartbeat to avoid duplicate events during device lag.
+	 */
 	armAdvancedLongSyntheticTick(parameters, key, repeatIntervalMs)
 	{
 		if (!this.advancedLongSyntheticTickTimers)
@@ -2566,6 +2738,9 @@ class PanelDevice extends Device
 		return parsedStep;
 	}
 
+	/**
+	 * Format brightness (dim) as percentage with current adjustment direction indicator (+ or -).
+	 */
 	formatDimPercentageValue(rawValue)
 	{
 		const numericValue = Number(rawValue);
@@ -2573,6 +2748,9 @@ class PanelDevice extends Device
 		return `${Math.round(clampedValue * 100)}%`;
 	}
 
+	/**
+	 * Format window coverings set position as percentage (handles 0-1 and 0-100 ranges).
+	 */
 	formatWindowCoveringsSetPercentage(rawValue)
 	{
 		const numericValue = Number(rawValue);
@@ -2595,6 +2773,10 @@ class PanelDevice extends Device
 		return `${Math.round(clamped * 100)}%`;
 	}
 
+	/**
+	 * Extract capability's unit text from 'unit' or 'units' property.
+	 * Handles both string (e.g., '°C') and localized object (e.g., { en: '°C', nl: '°C' }).
+	 */
 	getCapabilityUnitText(capability)
 	{
 		if (!capability)
@@ -2627,6 +2809,10 @@ class PanelDevice extends Device
 		return '';
 	}
 
+	/**
+	 * Format a numeric value with units for display.
+	 * Rounds to 2 decimals and appends capability's unit string (°C, %, dB, etc).
+	 */
 	formatAdvancedNumberValue(rawValue, capability)
 	{
 		const numericValue = Number(rawValue);
@@ -2653,6 +2839,10 @@ class PanelDevice extends Device
 		return `${numberText} ${unitText}`;
 	}
 
+	/**
+	 * Determine whether to show a direction indicator (+ or -) for this numeric binding.
+	 * True if any click/long/double action uses setPlus/setMinus/toggleDirection on the same capability.
+	 */
 	shouldShowAdvancedDirectionIndicator(parameters, binding, capability)
 	{
 		if (!parameters || !binding || !capability || capability.type !== 'number' || binding.capabilityName === 'dim')
@@ -2688,6 +2878,13 @@ class PanelDevice extends Device
 		return `${parameters.connector}_${parameters.side}`;
 	}
 
+	// ========== DIRECTION STATE ==========
+	// Track direction for numeric adjustments (dim, window coverings, etc.)
+
+	/**
+	 * Get stored direction for a button (+ or -).
+	 * Defaults to + unless previously set or specified in config.
+	 */
 	getAdvancedDirection(parameters)
 	{
 		const key = this.getAdvancedDirectionKey(parameters);
@@ -2701,6 +2898,10 @@ class PanelDevice extends Device
 		this.advancedDirectionStates.set(key, direction === '-' ? '-' : '+');
 	}
 
+	/**
+	 * Toggle direction state for numeric adjustments.
+	 * Used by 'toggleDirection' action to alternate + and - on repeated presses.
+	 */
 	toggleAdvancedDirection(parameters)
 	{
 		const nextDirection = this.getAdvancedDirection(parameters) === '+' ? '-' : '+';
@@ -2708,6 +2909,10 @@ class PanelDevice extends Device
 		return nextDirection;
 	}
 
+	/**
+	 * Clamp numeric value to min/max range and auto-flip direction at boundaries.
+	 * Used to toggle direction automatically when dim/brightness reaches 0% or 100%.
+	 */
 	applyAdvancedDirectionAtBounds(parameters, value, minValue, maxValue)
 	{
 		const numericValue = Number(value);
@@ -2740,6 +2945,11 @@ class PanelDevice extends Device
 		return pageSideConfig && pageSideConfig.raw ? pageSideConfig.raw : null;
 	}
 
+	/**
+	 * Resolve the action binding for a specific event (click/long/double).
+	 * Returns device/capability pair, action type, and step size if numeric.
+	 * Returns null if event is not configured or binding is incomplete.
+	 */
 	resolveAdvancedEventBinding(parameters, eventType)
 	{
 		const sideConfig = this.resolveAdvancedSideConfig(parameters);
@@ -2886,6 +3096,10 @@ class PanelDevice extends Device
 		await this.guardedSetCapabilityValueOnDevice(device, pending.capabilityName, pending.valueToCommit, sourceLabel || 'advanced:long:releaseCommit');
 	}
 
+	/**
+	 * Clear long-press tracking and commit any buffered values for a button release.
+	 * Handles related keys (same button, different pages) to clean up shared state.
+	 */
 	async clearLongPressTrackingForRelease(connector, side, releaseKey)
 	{
 		const relatedKeys = new Set();
@@ -3071,6 +3285,14 @@ class PanelDevice extends Device
 		};
 	}
 
+	// ========== DISPLAY & LED FEEDBACK ==========
+	// Resolve and apply display text/SVG and LED color based on device state
+
+	/**
+	 * Resolve the current display value (text or SVG) for a binding.
+	 * Uses overrideValue (preview during long-press) if provided, else reads device capability.
+	 * Handles boolean (On/Off), enum (picker values), number (with units), and text display types.
+	 */
 	async resolveAdvancedDisplayValue(binding, overrideValue, parameters)
 	{
 		if (!binding)
@@ -3156,6 +3378,11 @@ class PanelDevice extends Device
 		return { textValue: effectiveValue == null ? '' : String(effectiveValue), svgValue: null };
 	}
 
+	/**
+	 * Apply display binding to the panel: publish SVG or text label via MQTT.
+	 * Called after each event and during long-press to provide live feedback.
+	 * Reads device capability or pending buffered value to show current/preview state.
+	 */
 	async applyAdvancedDisplayBinding(parameters, overrideValue)
 	{
 		const binding = this.resolveAdvancedDisplayBinding(parameters);
@@ -3184,6 +3411,19 @@ class PanelDevice extends Device
 		}
 	}
 
+	/**
+	 * Apply live display preview during long-press adjustment.
+	 * Shows preview value on panel before debounce commit to device.
+	 * Used by numeric (dim, window coverings) and enum (picker) adjustments.
+	 */
+	// ========== DISPLAY PREVIEW & FALLBACK ==========
+	// Show preview values during long-press adjustments
+
+	/**
+	 * Apply live display preview during long-press adjustment.
+	 * Shows preview value on panel before debounce commit to device.
+	 * Used by numeric (dim, window coverings) and enum (picker) adjustments.
+	 */
 	async applyAdvancedDisplayPreviewValue(parameters, eventBinding, capability, previewValue)
 	{
 		const displayBinding = this.resolveAdvancedDisplayBinding(parameters);
@@ -3242,6 +3482,14 @@ class PanelDevice extends Device
 		return true;
 	}
 
+	/**
+	 * Apply fallback selection preview: show picker cycle in action button's display (not display binding).
+	 * Useful when display binding is not configured but action displays the cycling value.
+	 */
+	/**
+	 * Apply fallback selection preview: show picker cycle in action button's display (not display binding).
+	 * Useful when display binding is not configured but action displays the cycling value.
+	 */
 	applyAdvancedFallbackSelectionPreview(parameters, eventBinding, capability, previewValue)
 	{
 		if (!parameters || !eventBinding || !capability)
@@ -3286,6 +3534,10 @@ class PanelDevice extends Device
 		this.homey.app.publishMQTTMessage(eventBinding.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/label/set`, textValue).catch(this.error);
 	}
 
+	/**
+	 * Normalize numeric LED value to 0-1 range for device write.
+	 * Handles 0-1 ranges, 0-100 percentage ranges, and arbitrary min/max from capability schema.
+	 */
 	normalizeLedLevel(rawValue, capability)
 	{
 		const numericValue = Number(rawValue);
@@ -3314,6 +3566,10 @@ class PanelDevice extends Device
 		return Math.max(0, Math.min(1, numericValue));
 	}
 
+	/**
+	 * Resolve current value and normalize LED state (boolean, numeric 0-1, or fallback state).
+	 * Handles variables, devices, and edge cases (unknown device, missing capability).
+	 */
 	async resolveLedBindingValue(binding)
 	{
 		if (!binding)
@@ -3360,6 +3616,10 @@ class PanelDevice extends Device
 		return (followState === null) ? false : followState;
 	}
 
+	/**
+	 * Apply LED binding: set button LED color based on device capability state.
+	 * LED state is independent from display feedback.
+	 */
 	async applyAdvancedLedBinding(parameters)
 	{
 		const binding = this.resolveAdvancedLedBinding(parameters);
@@ -3374,6 +3634,11 @@ class PanelDevice extends Device
 		this.setLEDOnOff(binding, null, buttonIdx, parameters.page, ledValue);
 	}
 
+	/**
+	 * Queue a capability write to be committed after long-press delay + repeat interval.
+	 * Prevents rapid writes during long-press adjustment (e.g., dimming).
+	 * Pending value shown on display immediately via preview, but device write is deferred.
+	 */
 	async commitAdvancedValueWithDebounce(parameters, binding, device, capabilityName, valueToCommit)
 	{
 		const commitKey = `${parameters.connector}_${parameters.side}_${parameters.page}_${binding.deviceID}_${capabilityName}`;
@@ -3402,6 +3667,12 @@ class PanelDevice extends Device
 		this.advancedCommitTimers.set(commitKey, timer);
 	}
 
+	/**
+	 * Execute an advanced event action (click/long/double).
+	 * Resolves binding, applies action (toggle/cycle/adjust), updates display feedback.
+	 * For long presses, buffers value changes until release to avoid flickering writes.
+	 * Returns true if handled, false if no binding configured.
+	 */
 	async runAdvancedEventMapping(parameters, eventType)
 	{
 		const binding = this.resolveAdvancedEventBinding(parameters, eventType);
@@ -3751,6 +4022,14 @@ class PanelDevice extends Device
 		return fallback;
 	}
 
+	// ========== BUTTON TYPE HANDLERS ==========
+	// Specialized event handling for button, picker, text display, and dim buttons
+
+	/**
+	 * Main entry point for button click detection.
+	 * Distinguishes single vs double click, applies debouncing for physical press duplicates.
+	 * In advanced mode, defers single-click until double-click window closes.
+	 */
 	async handleButtonClick(parameters)
 	{
 		const key = this.getButtonStateKey(parameters.connector, parameters.side, parameters.page);
@@ -3840,6 +4119,10 @@ class PanelDevice extends Device
 		}
 	}
 
+	/**
+	 * Handle text display button click: show current device value (read-only display).
+	 * No action taken; serves as informational display.
+	 */
 	async handleTextButtonClick(parameters, config)
 	{
 		const { capability } = await this.getDeviceAndCapability(config);
@@ -3877,6 +4160,10 @@ class PanelDevice extends Device
 		return values[nextIndex];
 	}
 
+	/**
+	 * Handle picker button click: cycle to next enum value with debounced commit.
+	 * Displays selected value immediately, but writes to device after long-press delay.
+	 */
 	async handlePickerButtonClick(parameters, config)
 	{
 		const { device, capability } = await this.getDeviceAndCapability(config);
@@ -3978,6 +4265,10 @@ class PanelDevice extends Device
 		this.publishTextOrSvg(brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/svg/set`, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/label/set`, text);
 	}
 
+	/**
+	 * Handle generic double-click: toggle onoff for non-boolean capabilities or cycle dim direction.
+	 * Discards pending single-click triggers and suppresses click event.
+	 */
 	async handleGenericDoubleClick(parameters, key, config)
 	{
 		const pendingTimer = this.clickEventTimers.get(key);
@@ -4095,6 +4386,10 @@ class PanelDevice extends Device
 		this.setLEDOnOff(config, null, buttonIdx, parameters.page, ledState);
 	}
 
+	/**
+	 * Toggle dim direction (+ up or - down) for next long-press adjustment.
+	 * Double-click on a dim button toggles direction.
+	 */
 	async toggleDimDirection(parameters, config, key)
 	{
 		const currentDirection = this.getDimDirection(key, config.dimChange);
@@ -4103,6 +4398,10 @@ class PanelDevice extends Device
 		await this.refreshDimButtonDisplay(parameters, config, key);
 	}
 
+	/**
+	 * Toggle device onoff or cycle between on/off when adjusting brightness.
+	 * Dim buttons control both brightness (long-press) and on/off (click).
+	 */
 	async toggleDimOnOff(parameters, config, key)
 	{
 		const device = await this.homey.app.getHomeyDeviceById(config.deviceID);
