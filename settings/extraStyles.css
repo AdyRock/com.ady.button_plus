@@ -1068,10 +1068,10 @@ summary::-webkit-details-marker {
 			top: 4px;
 			left: 4px;
 			z-index: 4;
-			width: 42px;
-			height: 22px;
+			width: 70px;
+			height: 18px;
 			min-width: 42px !important;
-			min-height: 22px !important;
+			min-height: 18px !important;
 			padding: 0 4px !important;
 			display: inline-flex;
 			align-items: center;
@@ -1108,6 +1108,22 @@ summary::-webkit-details-marker {
 			-webkit-user-select: none;
 			user-select: none;
 			pointer-events: none;
+		}
+
+		/* Mirror the badge for the left button: dot hugs the left edge, label is right-aligned. */
+		.button-sim-advanced-badge-left {
+			justify-content: flex-end;
+		}
+
+		.button-sim-advanced-badge-left::after {
+			right: auto;
+			left: 2px;
+		}
+
+		.button-sim-advanced-badge-left .button-sim-advanced-badge-label {
+			margin-left: 0;
+			margin-right: 1px;
+			text-align: right;
 		}
 
 		.button-sim-advanced-badge:hover {

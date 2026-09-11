@@ -452,6 +452,12 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 				return false;
 			}
 
+			// Switching which existing configuration is being viewed isn't an edit, so it must not mark the draft dirty.
+			if (target.id === 'ButtonPanelConfigurationNo' || target.id === 'displayConfigurationNo')
+			{
+				return false;
+			}
+
 			return !!target.closest('#panelConfig, #displayConfig, #brokerConfig, #buttonFieldPopupOverlay, #displayFieldPopupOverlay');
 		}
 
@@ -1506,6 +1512,11 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 			setTextById('displayFieldPopupTitle', 'displayFieldPopupTitle');
 			setTextById('displayFieldPopupCancel', 'cancel');
 			setTextById('displayFieldPopupSave', 'displayFieldPopupSave');
+			setTextById('buttonFieldPopupTitle', 'buttonFieldPopupTitle');
+			setTextById('buttonFieldPopupCancel', 'cancel');
+			setTextById('buttonFieldPopupSave', 'buttonFieldPopupSave');
+			setTextById('sendSupportPopupTitle', 'sendSupportTitle');
+			setTextById('sendSupportPopupMessage', 'sendSupportMessage');
 			setTextById('configDraftRestoreTitle', 'unsavedSettingsDetectedTitle');
 			setTextById('configDraftRestoreMessage', 'unsavedSettingsDetectedMessage');
 			setTextById('configDraftRestoreRetrieve', 'unsavedSettingsRetrieve');
@@ -1717,7 +1728,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			{
 				if (!lastSentIpElement.value)
 				{
-					Homey.alert('Please select a device from the list');
+					Homey.alert(Homey.__("settings.selectDeviceFromListError"));
 					return;
 				}
 
@@ -1833,7 +1844,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				{
 					console.error('Save failed before /settings_changed/ was called:', saveError);
 					appendClientDiagnosticLog(`Save failed before /settings_changed/ was called: ${saveError && saveError.message ? saveError.message : saveError}`, 'ERROR');
-					Homey.alert(`Save failed: ${saveError && saveError.message ? saveError.message : saveError}`);
+					Homey.alert(Homey.__("settings.saveFailedError", { error: saveError && saveError.message ? saveError.message : `${saveError}` }));
 				}
 			});
 
@@ -1891,35 +1902,46 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				ButtonPanelConfiguration[`${side}TopText`] = topTextElement.value;
 				ButtonPanelConfiguration[`${side}OnText`] = onTextElement.value;
 				ButtonPanelConfiguration[`${side}OffText`] = offTextElement.value;
-				ButtonPanelConfiguration[`${side}Device`] = deviceElement.value;
 
-				if (deviceElement.selectedIndex >= 0)
+				// The device/capability selects start out with an empty placeholder option until
+				// fillButtonDevices()/getCapabilities() finish their async population. If this runs
+				// before that completes (e.g. right after switching configs), don't let the still-empty
+				// select wipe out the real stored device/capability for this page.
+				if (deviceElement.value !== '')
 				{
-					ButtonPanelConfiguration[`${side}DeviceName`] = deviceElement.options && deviceElement.options[deviceElement.selectedIndex] ? deviceElement.options[deviceElement.selectedIndex].text : deviceElement.value;
-				}
-				else
-				{
-					ButtonPanelConfiguration[`${side}DeviceName`] = deviceElement.value;
-				}
+					ButtonPanelConfiguration[`${side}Device`] = deviceElement.value;
 
-				// Remove any leading spaces from the device name
-				ButtonPanelConfiguration[`${side}DeviceName`] = ButtonPanelConfiguration[`${side}DeviceName`].trim();
+					if (deviceElement.selectedIndex >= 0)
+					{
+						ButtonPanelConfiguration[`${side}DeviceName`] = deviceElement.options && deviceElement.options[deviceElement.selectedIndex] ? deviceElement.options[deviceElement.selectedIndex].text : deviceElement.value;
+					}
+					else
+					{
+						ButtonPanelConfiguration[`${side}DeviceName`] = deviceElement.value;
+					}
 
-				// Remove all occurrences of ' (Missing Devices)' from the capability name
-				ButtonPanelConfiguration[`${side}DeviceName`] = ButtonPanelConfiguration[`${side}DeviceName`].replace(/ \(Missing Devices\)/g, '');
+					// Remove any leading spaces from the device name
+					ButtonPanelConfiguration[`${side}DeviceName`] = ButtonPanelConfiguration[`${side}DeviceName`].trim();
 
-				ButtonPanelConfiguration[`${side}Capability`] = capabilityElement.value;
-				if (capabilityElement.selectedIndex >= 0)
-				{
-					ButtonPanelConfiguration[`${side}CapabilityName`] = capabilityElement.options && capabilityElement.options[capabilityElement.selectedIndex] ? capabilityElement.options[capabilityElement.selectedIndex].text : capabilityElement.value;
-				}
-				else
-				{
-					ButtonPanelConfiguration[`${side}CapabilityName`] = capabilityElement.value;
+					// Remove all occurrences of ' (Missing Devices)' from the capability name
+					ButtonPanelConfiguration[`${side}DeviceName`] = ButtonPanelConfiguration[`${side}DeviceName`].replace(/ \(Missing Devices\)/g, '');
 				}
 
-				// Remove ' (Missing)' from the capability name
-				ButtonPanelConfiguration[`${side}CapabilityName`] = ButtonPanelConfiguration[`${side}CapabilityName`].replace(/ \(Missing\)/g, '');
+				if (capabilityElement.value !== '')
+				{
+					ButtonPanelConfiguration[`${side}Capability`] = capabilityElement.value;
+					if (capabilityElement.selectedIndex >= 0)
+					{
+						ButtonPanelConfiguration[`${side}CapabilityName`] = capabilityElement.options && capabilityElement.options[capabilityElement.selectedIndex] ? capabilityElement.options[capabilityElement.selectedIndex].text : capabilityElement.value;
+					}
+					else
+					{
+						ButtonPanelConfiguration[`${side}CapabilityName`] = capabilityElement.value;
+					}
+
+					// Remove ' (Missing)' from the capability name
+					ButtonPanelConfiguration[`${side}CapabilityName`] = ButtonPanelConfiguration[`${side}CapabilityName`].replace(/ \(Missing\)/g, '');
+				}
 
 				ButtonPanelConfiguration[`${side}BrokerId`] = getBrokerSelectValue(brokerIdElement, ButtonPanelConfiguration[`${side}BrokerId`]);
 				ButtonPanelConfiguration[`${side}DimChange`] = dimChangeElement.value;
@@ -3225,7 +3247,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				{
 					const noMatch = document.createElement('div');
 					noMatch.className = 'filterable-select-dropdown-option filterable-select-disabled';
-					noMatch.textContent = 'No matches';
+					noMatch.textContent = Homey.__("settings.noMatches");
 					dropdown.appendChild(noMatch);
 					activeIndex = -1;
 					return;
@@ -3674,7 +3696,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			}
 
 			toggleElement.classList.toggle('is-open', detailElement.open);
-			toggleElement.title = detailElement.open ? 'Collapse long press auto-repeat and broker settings' : 'Expand long press auto-repeat and broker settings';
+			toggleElement.title = detailElement.open ? Homey.__("settings.collapseAutoRepeatBrokerSettings") : Homey.__("settings.expandAutoRepeatBrokerSettings");
 			toggleElement.setAttribute('aria-label', toggleElement.title);
 			toggleElement.setAttribute('aria-expanded', detailElement.open ? 'true' : 'false');
 		}
@@ -4318,7 +4340,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			const isAdvancedMode = isButtonSideAdvanced(pageConfig, side);
 			const topTextRaw = sanitizeDisplayString(getLiveButtonPanelFieldValue(pageConfig, side, 'TopText', '', pageIndex), '');
 			const hasTopText = !!topTextRaw;
-			const topText = hasTopText ? escapeHtml(topTextRaw) : '<span class="button-sim-placeholder">Click to add a title</span>';
+			const topText = hasTopText ? escapeHtml(topTextRaw) : `<span class="button-sim-placeholder">${Homey.__("settings.clickToAddTitle")}</span>`;
 			const deviceValue = getLiveButtonPanelFieldValue(pageConfig, side, 'Device', '', pageIndex);
 			const capabilityValue = getLiveButtonPanelFieldValue(pageConfig, side, 'Capability', '', pageIndex);
 			const isDimCapability = (capabilityValue === 'dim');
@@ -4343,25 +4365,25 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				stateTextRaw = (buttonPagePopupLedState === 'on') ? onTextRaw : offTextRaw;
 			}
 			const hasStateText = !!sanitizeDisplayString(stateTextRaw, '');
-			const stateText = hasStateText ? escapeHtml(stateTextRaw) : '<span class="button-sim-placeholder">Click to add a value</span>';
+			const stateText = hasStateText ? escapeHtml(stateTextRaw) : `<span class="button-sim-placeholder">${Homey.__("settings.clickToAddValue")}</span>`;
 			const textFieldSuffix = isDimCapability ? 'DimChange' : (isNonBooleanVariable ? 'Capability' : ((buttonPagePopupLedState === 'on') ? 'OnText' : 'OffText'));
 			const svgFieldSuffix = (buttonPagePopupLedState === 'on') ? 'OnSVG' : 'OffSVG';
 			const selectedSvgText = isVariableSvg ? nonBooleanPreviewText : ((isDimCapability || isNonBooleanVariable) ? '' : getLiveButtonPanelFieldValue(pageConfig, side, svgFieldSuffix, '', pageIndex));
 			const svgMarkup = getButtonPanelPreviewSvg(selectedSvgText || '');
 			const ledMarkup = `<div class="button-sim-leds ${side === 'right' ? 'button-sim-leds-right' : ''}">${getButtonPanelLedMarkup(pageConfig, side, pageIndex)}</div>`;
 			const advancedBadge = isAdvancedMode
-				? `<span class="button-sim-advanced-badge ${side === 'right' ? 'button-sim-advanced-badge-right' : ''}" role="button" tabindex="0" title="Advanced mappings enabled" onclick="openButtonAdvancedPopup('${side}', ${pageIndex}, 'event'); return false;" onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openButtonAdvancedPopup('${side}', ${pageIndex}, 'event'); return false; }"><span class="button-sim-advanced-badge-label">ADV</span></span>`
+				? `<span class="button-sim-advanced-badge ${side === 'right' ? 'button-sim-advanced-badge-right' : 'button-sim-advanced-badge-left'}" role="button" tabindex="0" title="${Homey.__("settings.advancedMappingsEnabled")}" onclick="openButtonAdvancedPopup('${side}', ${pageIndex}, 'event'); return false;" onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openButtonAdvancedPopup('${side}', ${pageIndex}, 'event'); return false; }"><span class="button-sim-advanced-badge-label">${Homey.__("settings.advancedBadgeLabel")}</span></span>`
 				: '';
 			const contentMarkup = svgMarkup
 				? `
 					<div class="button-sim-content button-sim-content-svg" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, '${svgFieldSuffix}');">
-						<div class="button-sim-top-hit-area" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');" title="Edit top label"></div>
+						<div class="button-sim-top-hit-area" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');" title="${Homey.__("settings.editTopLabel")}"></div>
 						<div class="button-sim-top" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');">${topText}</div>
 						<div class="button-sim-icon" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, '${svgFieldSuffix}');">${svgMarkup}</div>
 					</div>`
 				: `
 					<div class="button-sim-content">
-						<div class="button-sim-top-hit-area" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');" title="Edit top label"></div>
+						<div class="button-sim-top-hit-area" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');" title="${Homey.__("settings.editTopLabel")}"></div>
 						<div class="button-sim-top" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');">${topText}</div>
 							<div class="button-sim-state-block" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, '${textFieldSuffix}');">
 							<div class="button-sim-state-line" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, '${textFieldSuffix}');">${stateText}</div>
@@ -4399,16 +4421,16 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			if (previewElement)
 			{
 				previewElement.innerHTML =
-					`<button class="button-sim-item" onclick="return handleButtonSimShellClick(event, 'left', ${page});" title="Open left panel settings">
+					`<button class="button-sim-item" onclick="return handleButtonSimShellClick(event, 'left', ${page});" title="${Homey.__("settings.openLeftPanelSettings")}">
 						${getButtonPanelPreviewMarkup(pageConfig, 'left', page)}
 					</button>
-					<div class="button-sim-click-zones-help" role="note" title="Clickable zones help">
-						<span class="tooltip button-sim-click-zones-tooltip" aria-label="Clickable zones help">
+					<div class="button-sim-click-zones-help" role="note" title="${Homey.__("settings.clickableZonesHelp")}">
+						<span class="tooltip button-sim-click-zones-tooltip" aria-label="${Homey.__("settings.clickableZonesHelp")}">
 							<i class="fi fi-rr-info" aria-hidden="true"></i>
-							<span class="tooltiptext">Click title to edit the top label.<br>Click value text to edit the state value.<br>Click icon area to edit SVG.<br>Click ADV to open advanced mappings.</span>
+							<span class="tooltiptext">${normalizeTooltipHtml(Homey.__("settings.clickZonesHelpTooltip"))}</span>
 						</span>
 					</div>
-					<button class="button-sim-item" onclick="return handleButtonSimShellClick(event, 'right', ${page});" title="Open right panel settings">
+					<button class="button-sim-item" onclick="return handleButtonSimShellClick(event, 'right', ${page});" title="${Homey.__("settings.openRightPanelSettings")}">
 						${getButtonPanelPreviewMarkup(pageConfig, 'right', page)}
 					</button>
 					`;
@@ -4417,7 +4439,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			const stateToggleElement = document.getElementById(`${page}ButtonInlineSimState`);
 			if (stateToggleElement)
 			{
-				stateToggleElement.textContent = (buttonPagePopupLedState === 'on') ? 'On state' : 'Off state';
+				stateToggleElement.textContent = (buttonPagePopupLedState === 'on') ? Homey.__("settings.onState") : Homey.__("settings.offState");
 			}
 		}
 
@@ -4469,28 +4491,28 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			const pageConfig = config[buttonPagePopupCurrentPage];
 			buttonPagePopupContentElement.innerHTML =
 				`<div class="button-sim-bar">
-					<button class="button-sim-item" onclick="return handleButtonSimShellClick(event, 'left', ${buttonPagePopupCurrentPage});" title="Open left panel settings">
+					<button class="button-sim-item" onclick="return handleButtonSimShellClick(event, 'left', ${buttonPagePopupCurrentPage});" title="${Homey.__("settings.openLeftPanelSettings")}">
 						${getButtonPanelPreviewMarkup(pageConfig, 'left')}
 					</button>
-					<div class="button-sim-click-zones-help" role="note" title="Clickable zones help">
-						<span class="tooltip button-sim-click-zones-tooltip" aria-label="Clickable zones help">
+					<div class="button-sim-click-zones-help" role="note" title="${Homey.__("settings.clickableZonesHelp")}">
+						<span class="tooltip button-sim-click-zones-tooltip" aria-label="${Homey.__("settings.clickableZonesHelp")}">
 							<i class="fi fi-rr-info" aria-hidden="true"></i>
-							<span class="tooltiptext">Click title to edit the top label.<br>Click value text to edit the state value.<br>Click icon area to edit SVG.<br>Click ADV to open advanced mappings.</span>
+							<span class="tooltiptext">${normalizeTooltipHtml(Homey.__("settings.clickZonesHelpTooltip"))}</span>
 						</span>
 					</div>
-					<button class="button-sim-item" onclick="return handleButtonSimShellClick(event, 'right', ${buttonPagePopupCurrentPage});" title="Open right panel settings">
+					<button class="button-sim-item" onclick="return handleButtonSimShellClick(event, 'right', ${buttonPagePopupCurrentPage});" title="${Homey.__("settings.openRightPanelSettings")}">
 						${getButtonPanelPreviewMarkup(pageConfig, 'right')}
 					</button>
 				</div>`;
 
 			if (buttonPagePopupStateToggleElement)
 			{
-				buttonPagePopupStateToggleElement.textContent = `${buttonPagePopupLedState === 'on' ? 'On state' : 'Off state'}`;
+				buttonPagePopupStateToggleElement.textContent = `${buttonPagePopupLedState === 'on' ? Homey.__("settings.onState") : Homey.__("settings.offState")}`;
 			}
 
 			if (buttonPagePopupTitleElement)
 			{
-				buttonPagePopupTitleElement.textContent = `Page ${formatButtonPageLabel(buttonPagePopupCurrentPage)}`;
+				buttonPagePopupTitleElement.textContent = `${Homey.__("settings.page")} ${formatButtonPageLabel(buttonPagePopupCurrentPage)}`;
 			}
 
 			if (buttonPagePopupPrevElement)
@@ -4678,7 +4700,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			{
 				const toggleOption = document.createElement('option');
 				toggleOption.value = '__toggleDirection__';
-				toggleOption.text = 'Toggle direction';
+				toggleOption.text = Homey.__("settings.toggleDirection");
 				toggleOption.dataset.type = 'direction';
 				selectElement.add(toggleOption);
 			}
@@ -4687,7 +4709,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			{
 				const noneOption = document.createElement('option');
 				noneOption.value = 'none';
-				noneOption.text = 'None';
+				noneOption.text = Homey.__("settings.none");
 				selectElement.add(noneOption);
 			}
 
@@ -4970,68 +4992,68 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 
 			buttonFieldPopupBindings = [];
 			buttonFieldPopupContext = { side, page, isAdvancedPopup: true, popupMode: mode };
-			buttonFieldPopupTitleElement.textContent = `${Homey.__(`settings.${side}Panel`)} - ${mode === 'led' ? 'LEDs' : 'Advanced mappings'}`;
+			buttonFieldPopupTitleElement.textContent = `${Homey.__(`settings.${side}Panel`)} - ${mode === 'led' ? Homey.__("settings.ledsPopupTitle") : Homey.__("settings.advancedMappingsPopupTitle")}`;
 
 			if (mode !== 'led')
 			{
 				buttonFieldPopupBodyElement.innerHTML = `
 					<div class="button-field-popup-field button-popup-radio-row" id="popup${side}${page}DisplayRenderRow">
-						<label class="button-popup-radio-option"><input type="radio" name="popup${side}${page}DisplayBooleanRender" value="text"> Text</label>
-						<label class="button-popup-radio-option"><input type="radio" name="popup${side}${page}DisplayBooleanRender" value="svg"> SVG</label>
+						<label class="button-popup-radio-option"><input type="radio" name="popup${side}${page}DisplayBooleanRender" value="text"> ${Homey.__("settings.textLabel")}</label>
+						<label class="button-popup-radio-option"><input type="radio" name="popup${side}${page}DisplayBooleanRender" value="svg"> ${Homey.__("settings.svgLabel")}</label>
 					</div>
 					<div class="button-field-popup-field" id="popup${side}${page}DisplayOnTextRow">
-						<label class="button-field-popup-label" for="popup${side}${page}DisplayOnText"><span>Display On text</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}DisplayOnText"><span>${Homey.__("settings.displayOnText")}</span></label>
 						<input class="homey-form-input" id="popup${side}${page}DisplayOnText" type="text" maxlength="20">
 					</div>
 					<div class="button-field-popup-field" id="popup${side}${page}DisplayOffTextRow">
-						<label class="button-field-popup-label" for="popup${side}${page}DisplayOffText"><span>Display Off text</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}DisplayOffText"><span>${Homey.__("settings.displayOffText")}</span></label>
 						<input class="homey-form-input" id="popup${side}${page}DisplayOffText" type="text" maxlength="20">
 					</div>
 					<div class="button-field-popup-field" id="popup${side}${page}DisplayOnSvgRow">
-						<label class="button-field-popup-label" for="popup${side}${page}DisplayOnSVG"><span>Display On SVG</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}DisplayOnSVG"><span>${Homey.__("settings.displayOnSvg")}</span></label>
 						<textarea class="homey-form-textarea" id="popup${side}${page}DisplayOnSVG" style="min-height:120px;"></textarea>
 					</div>
 					<div class="button-field-popup-field" id="popup${side}${page}DisplayOffSvgRow">
-						<label class="button-field-popup-label" for="popup${side}${page}DisplayOffSVG"><span>Display Off SVG</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}DisplayOffSVG"><span>${Homey.__("settings.displayOffSvg")}</span></label>
 						<textarea class="homey-form-textarea" id="popup${side}${page}DisplayOffSVG" style="min-height:120px;"></textarea>
 					</div>
 					<hr>
 					<div class="button-field-popup-field">
-						<label class="button-field-popup-label" for="popup${side}${page}ClickDevice"><span>Click target device</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}ClickDevice"><span>${Homey.__("settings.clickTargetDevice")}</span></label>
 						${buildDeviceSelectHtml(`popup${side}${page}ClickDevice`)}
 					</div>
 					<div class="button-field-popup-field">
-						<label class="button-field-popup-label" for="popup${side}${page}ClickCapability"><span>Click action / capability</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}ClickCapability"><span>${Homey.__("settings.clickActionCapability")}</span></label>
 						<select class="homey-form-select" id="popup${side}${page}ClickCapability"></select>
 					</div>
 					<div class="button-field-popup-field" id="popup${side}${page}ClickValueStepRow">
-						<label class="button-field-popup-label" for="popup${side}${page}ClickValueStep"><span>Click value step</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}ClickValueStep"><span>${Homey.__("settings.clickValueStep")}</span></label>
 						<input class="homey-form-input" id="popup${side}${page}ClickValueStep" type="text">
 					</div>
 					<hr>
 					<div class="button-field-popup-field">
-						<label class="button-field-popup-label" for="popup${side}${page}DoubleDevice"><span>Double-click target device</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}DoubleDevice"><span>${Homey.__("settings.doubleClickTargetDevice")}</span></label>
 						${buildDeviceSelectHtml(`popup${side}${page}DoubleDevice`)}
 					</div>
 					<div class="button-field-popup-field">
-						<label class="button-field-popup-label" for="popup${side}${page}DoubleCapability"><span>Double-click action / capability</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}DoubleCapability"><span>${Homey.__("settings.doubleClickActionCapability")}</span></label>
 						<select class="homey-form-select" id="popup${side}${page}DoubleCapability"></select>
 					</div>
 					<div class="button-field-popup-field" id="popup${side}${page}DoubleValueStepRow">
-						<label class="button-field-popup-label" for="popup${side}${page}DoubleValueStep"><span>Double-click value step</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}DoubleValueStep"><span>${Homey.__("settings.doubleClickValueStep")}</span></label>
 						<input class="homey-form-input" id="popup${side}${page}DoubleValueStep" type="text">
 					</div>
 					<hr>
 					<div class="button-field-popup-field">
-						<label class="button-field-popup-label" for="popup${side}${page}LongDevice"><span>Long/repeat target device</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}LongDevice"><span>${Homey.__("settings.longRepeatTargetDevice")}</span></label>
 						${buildDeviceSelectHtml(`popup${side}${page}LongDevice`)}
 					</div>
 					<div class="button-field-popup-field">
-						<label class="button-field-popup-label" for="popup${side}${page}LongCapability"><span>Long/repeat action / capability</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}LongCapability"><span>${Homey.__("settings.longRepeatActionCapability")}</span></label>
 						<select class="homey-form-select" id="popup${side}${page}LongCapability"></select>
 					</div>
 					<div class="button-field-popup-field" id="popup${side}${page}LongValueStepRow">
-						<label class="button-field-popup-label" for="popup${side}${page}LongValueStep"><span>Long/repeat value step</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}LongValueStep"><span>${Homey.__("settings.longRepeatValueStep")}</span></label>
 						<input class="homey-form-input" id="popup${side}${page}LongValueStep" type="text">
 					</div>`;
 			}
@@ -5040,26 +5062,26 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				buttonFieldPopupBodyElement.innerHTML = `
 					${showLedSourceSelectors ? `
 					<div class="button-field-popup-field">
-						<label class="button-field-popup-label" for="popup${side}${page}LedDevice"><span>LED source device</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}LedDevice"><span>${Homey.__("settings.ledSourceDevice")}</span></label>
 						${buildDeviceSelectHtml(`popup${side}${page}LedDevice`)}
 					</div>
 					<div class="button-field-popup-field">
-						<label class="button-field-popup-label" for="popup${side}${page}LedCapability"><span>LED source capability (boolean/number)</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}LedCapability"><span>${Homey.__("settings.ledSourceCapability")}</span></label>
 						<select class="homey-form-select" id="popup${side}${page}LedCapability"></select>
 					</div>` : ''}
 					${showLedSourceSelectors ? `
 					<div class="button-field-popup-field" id="popup${side}${page}LedOnOffRow">
-						<label class="button-field-popup-label" for="popup${side}${page}LedOnOffCapability"><span>LED on/off capability</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}LedOnOffCapability"><span>${Homey.__("settings.ledOnOffCapability")}</span></label>
 						<select class="homey-form-select" id="popup${side}${page}LedOnOffCapability"></select>
 					</div>` : ''}
 					<div class="button-popup-led-matrix" id="popup${side}${page}LedColorMatrix">
 						<div class="button-popup-led-empty"></div>
-						<div class="button-popup-led-header button-popup-led-header-on">On</div>
-						<div class="button-popup-led-header button-popup-led-header-off">Off</div>
-						<div class="button-popup-led-row button-popup-led-row-front">Front</div>
+						<div class="button-popup-led-header button-popup-led-header-on">${Homey.__("settings.ledMatrixOn")}</div>
+						<div class="button-popup-led-header button-popup-led-header-off">${Homey.__("settings.ledMatrixOff")}</div>
+						<div class="button-popup-led-row button-popup-led-row-front">${Homey.__("settings.ledMatrixFront")}</div>
 						<input class="homey-form-input button-popup-led-input button-popup-led-input-front-on" id="popup${side}${page}FrontLEDOnColor" type="color">
 						<input class="homey-form-input button-popup-led-input button-popup-led-input-front-off" id="popup${side}${page}FrontLEDOffColor" type="color">
-						<div class="button-popup-led-row button-popup-led-row-wall">Wall</div>
+						<div class="button-popup-led-row button-popup-led-row-wall">${Homey.__("settings.ledMatrixWall")}</div>
 						<input class="homey-form-input button-popup-led-input button-popup-led-input-wall-on" id="popup${side}${page}WallLEDOnColor" type="color">
 						<input class="homey-form-input button-popup-led-input button-popup-led-input-wall-off" id="popup${side}${page}WallLEDOffColor" type="color">
 					</div>`;
@@ -5414,7 +5436,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			if (fieldSuffix.endsWith('Color'))
 			{
 				return {
-					title: `${sideLabel} - LEDs`,
+					title: `${sideLabel} - ${Homey.__("settings.ledsPopupTitle")}`,
 					fields: ['FrontLEDOnColor', 'WallLEDOnColor', 'FrontLEDOffColor', 'WallLEDOffColor'],
 					labels,
 					tooltipKeys,
@@ -5596,8 +5618,8 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 
 			const radioName = `buttonPopup${side}${page}BasicBooleanRender`;
 			renderRow.innerHTML = `
-				<label class="button-popup-radio-option"><input type="radio" name="${radioName}" value="text"> Text</label>
-				<label class="button-popup-radio-option"><input type="radio" name="${radioName}" value="svg"> SVG</label>`;
+				<label class="button-popup-radio-option"><input type="radio" name="${radioName}" value="text"> ${Homey.__("settings.textLabel")}</label>
+				<label class="button-popup-radio-option"><input type="radio" name="${radioName}" value="svg"> ${Homey.__("settings.svgLabel")}</label>`;
 
 			const checkedInput = renderRow.querySelector(`input[name="${radioName}"][value="${popupElementsBySuffix.__booleanRenderMode}"]`);
 			if (checkedInput)
@@ -10568,7 +10590,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 		function deleteButtonPage(page)
 		{
 			const pageLabel = formatButtonPageLabel(page);
-			Homey.confirm(`Delete page ${pageLabel}?`, null, function (err, ok)
+			Homey.confirm(Homey.__("settings.deletePageConfirm", { pageLabel }), null, function (err, ok)
 			{
 				if (err || !ok)
 				{
@@ -10648,7 +10670,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 
 				if (buttonPanelConfiguration.length <= beforeLength)
 				{
-					Homey.alert('Unable to add a new page.');
+					Homey.alert(Homey.__("settings.unableToAddPage"));
 					return;
 				}
 
@@ -10679,7 +10701,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			catch (error)
 			{
 				console.error('[addButtonPage] failed', error);
-				Homey.alert(`Unable to add page: ${error && error.message ? error.message : error}`);
+				Homey.alert(Homey.__("settings.unableToAddPageError", { error: error && error.message ? error.message : `${error}` }));
 			}
 		}
 
@@ -10817,39 +10839,39 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 											<div class="display-sim-title">${getButtonPageHeaderTitleMarkup(page, numPages)}</div>
 										</div>
 										<div class="display-sim-title-group button-main-page-nav">
-											<button class="homey-button-secondary-shadow display-sim-page-nav button-main-page-prev" type="button" onclick="stepButtonMainPage(-1); return false;" title="Previous page" aria-label="Previous page">&lt;</button>
-											<button class="homey-button-secondary-shadow display-sim-page-nav button-main-page-next" type="button" onclick="stepButtonMainPage(1); return false;" title="Next page" aria-label="Next page">&gt;</button>
-											<button class="homey-button-secondary-shadow display-inline-sim-action-btn button-page-add-btn" type="button" data-action="add-page" title="Add page" aria-label="Add page"><i class="fi fi-rr-plus"></i></button>
+											<button class="homey-button-secondary-shadow display-sim-page-nav button-main-page-prev" type="button" onclick="stepButtonMainPage(-1); return false;" title="${Homey.__("settings.previousPage")}" aria-label="${Homey.__("settings.previousPage")}">&lt;</button>
+											<button class="homey-button-secondary-shadow display-sim-page-nav button-main-page-next" type="button" onclick="stepButtonMainPage(1); return false;" title="${Homey.__("settings.nextPage")}" aria-label="${Homey.__("settings.nextPage")}">&gt;</button>
+											<button class="homey-button-secondary-shadow display-inline-sim-action-btn button-page-add-btn" type="button" data-action="add-page" title="${Homey.__("settings.addPage")}" aria-label="${Homey.__("settings.addPage")}"><i class="fi fi-rr-plus"></i></button>
 										</div>
 									</div>
 									<div class="button-page-header-actions">
-										${page !== 0 ? `<button class="homey-button-secondary-shadow display-inline-sim-action-btn button-page-delete-btn" id="deletePage${page}" type="button" data-action="delete-page" data-page="${page}" title="Delete page" aria-label="Delete page"><i class="fi fi-rr-trash"></i></button>` : ''}
+										${page !== 0 ? `<button class="homey-button-secondary-shadow display-inline-sim-action-btn button-page-delete-btn" id="deletePage${page}" type="button" data-action="delete-page" data-page="${page}" title="${Homey.__("settings.deletePage")}" aria-label="${Homey.__("settings.deletePage")}"><i class="fi fi-rr-trash"></i></button>` : ''}
 									</div>
 								</div>
 								<div class="button-main-canvas">
 									<div class="button-main-canvas-header">
-										<span class="homey-form-label button-main-canvas-title">Simulate</span>
-										<button class="homey-button-secondary-shadow button-inline-state-toggle" id="${page}ButtonInlineSimState" onClick="toggleInlineButtonSimState(); return false;">On state</button>
+										<span class="homey-form-label button-main-canvas-title">${Homey.__("settings.simulate")}</span>
+										<button class="homey-button-secondary-shadow button-inline-state-toggle" id="${page}ButtonInlineSimState" onClick="toggleInlineButtonSimState(); return false;">${Homey.__("settings.onState")}</button>
 									</div>
 									<div class="button-mode-toggle-grid">
 										<label class="homey-form-checkbox button-mode-toggle-option" for="left${page}AdvancedMode">
 											<input class="homey-form-checkbox-input" id="left${page}AdvancedMode" type="checkbox" onchange="onButtonModeToggleChange('left', ${page}, this.checked)">
 											<span class="homey-form-checkbox-checkmark"></span>
-											<span class="homey-form-checkbox-text button-mode-toggle-label"><span>Left advanced</span><span class="tooltip button-mode-toggle-tooltip" aria-label="Advanced mode help"><i class="fi fi-rr-info" aria-hidden="true"></i><span class="tooltiptext">Enable this per side when you need more than simple on/off behavior.<br>Map click, double-click and long/repeat to different devices or capabilities, including numeric step actions.<br>Choose separate sources for display content and LED state so visuals can follow a different capability than the action target.</span></span></span>
+											<span class="homey-form-checkbox-text button-mode-toggle-label"><span>${Homey.__("settings.leftAdvancedLabel")}</span><span class="tooltip button-mode-toggle-tooltip" aria-label="${Homey.__("settings.advancedModeHelpAria")}"><i class="fi fi-rr-info" aria-hidden="true"></i><span class="tooltiptext">${normalizeTooltipHtml(Homey.__("settings.advancedModeTooltip"))}</span></span></span>
 										</label>
 										<label class="homey-form-checkbox button-mode-toggle-option" for="right${page}AdvancedMode">
 											<input class="homey-form-checkbox-input" id="right${page}AdvancedMode" type="checkbox" onchange="onButtonModeToggleChange('right', ${page}, this.checked)">
 											<span class="homey-form-checkbox-checkmark"></span>
-											<span class="homey-form-checkbox-text button-mode-toggle-label"><span>Right advanced</span><span class="tooltip button-mode-toggle-tooltip" aria-label="Advanced mode help"><i class="fi fi-rr-info" aria-hidden="true"></i><span class="tooltiptext">Enable this per side when you need more than simple on/off behavior.<br>Map click, double-click and long/repeat to different devices or capabilities, including numeric step actions.<br>Choose separate sources for display content and LED state so visuals can follow a different capability than the action target.</span></span></span>
+											<span class="homey-form-checkbox-text button-mode-toggle-label"><span>${Homey.__("settings.rightAdvancedLabel")}</span><span class="tooltip button-mode-toggle-tooltip" aria-label="${Homey.__("settings.advancedModeHelpAria")}"><i class="fi fi-rr-info" aria-hidden="true"></i><span class="tooltiptext">${normalizeTooltipHtml(Homey.__("settings.advancedModeTooltip"))}</span></span></span>
 										</label>
 									</div>
 									<div class="button-sim-bar button-inline-sim-grid" id="${page}ButtonInlineSimContent"></div>
 									</div>
 									<div class="button-inline-settings-toggle-row">
-										<button class="homey-button-secondary-shadow button-inline-settings-toggle" id="${page}ButtonInlineSettingsToggle" type="button" onClick="toggleButtonInlineSettingsSection(${page}); return false;" aria-expanded="false" title="Expand long press auto-repeat and broker settings" aria-label="Expand long press auto-repeat and broker settings"><span>Auto-repeat / Broker</span><span class="icon" style='font-size:22px;'>&#8628;</span></button>
+										<button class="homey-button-secondary-shadow button-inline-settings-toggle" id="${page}ButtonInlineSettingsToggle" type="button" onClick="toggleButtonInlineSettingsSection(${page}); return false;" aria-expanded="false" title="${Homey.__("settings.expandAutoRepeatBrokerSettings")}" aria-label="${Homey.__("settings.expandAutoRepeatBrokerSettings")}"><span>${Homey.__("settings.autoRepeatBroker")}</span><span class="icon" style='font-size:22px;'>&#8628;</span></button>
 									</div>
 									<details id="${page}ButtonInlineSettingsDetails" class="button-inline-settings-details" ontoggle="updateButtonInlineSettingsToggleState(${page})">
-										<summary class="button-inline-settings-summary">Repeat / Broker</summary>
+										<summary class="button-inline-settings-summary">${Homey.__("settings.repeatBrokerSummary")}</summary>
 										<div class="button-inline-main-control-grid">
 											${getButtonInlineMainControlHtml("left", page)}
 											${getButtonInlineMainControlHtml("right", page)}
