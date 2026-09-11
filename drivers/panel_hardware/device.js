@@ -2057,8 +2057,10 @@ class PanelDevice extends Device
 	async guardedSetCapabilityValueOnDevice(device, capabilityName, value, sourceLabel)
 	{
 		const targetDeviceId = this.getHomeyDeviceId(device) || 'unknown-device';
-		const key = `${targetDeviceId}::${capabilityName}`;
-		const shouldUseCapabilityListener = capabilityName === 'light_hue' || capabilityName === 'light_saturation';
+		const isLightColorComponent = capabilityName === 'light_hue' || capabilityName === 'light_saturation';
+		const key = isLightColorComponent
+			? `${targetDeviceId}::light_hue_saturation`
+			: `${targetDeviceId}::${capabilityName}`;
 
 		if (this.capabilityDispatchInFlight.has(key))
 		{
@@ -2072,16 +2074,106 @@ class PanelDevice extends Device
 		this.capabilityDispatchInFlight.add(key);
 		try
 		{
-			if (shouldUseCapabilityListener && typeof device.triggerCapabilityListener === 'function')
+			if (isLightColorComponent)
 			{
-				try
+				const hueCapability = await this.homey.app.getHomeyCapabilityByName(device, 'light_hue');
+				const saturationCapability = await this.homey.app.getHomeyCapabilityByName(device, 'light_saturation');
+
+				const sanitizePairValue = (rawValue, fallbackValue = 0) =>
 				{
-					await device.triggerCapabilityListener(capabilityName, value, { source: 'button_plus' });
+					let numericValue = Number(rawValue);
+					if (!Number.isFinite(numericValue))
+					{
+						numericValue = Number(fallbackValue);
+					}
+
+					if (!Number.isFinite(numericValue))
+					{
+						numericValue = 0;
+					}
+
+					numericValue = Math.max(0, Math.min(1, numericValue));
+					return Math.round(numericValue * 1000) / 1000;
+				};
+
+				const currentHue = hueCapability ? hueCapability.value : undefined;
+				const currentSaturation = saturationCapability ? saturationCapability.value : undefined;
+				const hsPair = {
+					light_hue: sanitizePairValue(capabilityName === 'light_hue' ? value : currentHue, currentHue),
+					light_saturation: sanitizePairValue(capabilityName === 'light_saturation' ? value : currentSaturation, currentSaturation),
+				};
+
+				if (!Number.isFinite(Number(hsPair.light_hue)) || !Number.isFinite(Number(hsPair.light_saturation)))
+				{
+					this.homey.app.updateLog(`Skipping non-numeric ${capabilityName} write for ${targetDeviceId}: ${value}`, 0);
+					return false;
 				}
-				catch (listenerError)
+
+				let wrotePair = false;
+				const transactionId = `button-plus-hs-${Date.now()}-${Math.floor(Math.random() * 1000000)}`;
+				const transactionTime = Date.now();
+
+				// Try object/pair-style APIs first; fallback gracefully for devices that only
+				// support single capability updates.
+				if (typeof device.setCapabilityValues === 'function')
 				{
-					this.homey.app.updateLog(`Capability listener write failed for ${key}: ${listenerError && listenerError.message ? listenerError.message : listenerError}; falling back to setCapabilityValue`, 1);
-					await device.setCapabilityValue(capabilityName, value);
+					try
+					{
+						await device.setCapabilityValues(hsPair);
+						wrotePair = true;
+					}
+					catch (error)
+					{
+						this.homey.app.updateLog(`setCapabilityValues pair write failed for ${targetDeviceId}: ${error.message}`, 1);
+					}
+				}
+
+				if (!wrotePair && (typeof device.setMultipleCapabilityValue === 'function'))
+				{
+					try
+					{
+						await device.setMultipleCapabilityValue(hsPair);
+						wrotePair = true;
+					}
+					catch (error)
+					{
+						this.homey.app.updateLog(`setMultipleCapabilityValue pair write failed for ${targetDeviceId}: ${error.message}`, 1);
+					}
+				}
+
+				if (!wrotePair)
+				{
+					try
+					{
+						await Promise.all([
+							device.setCapabilityValue({
+								capabilityId: 'light_hue',
+								value: hsPair.light_hue,
+								transactionId,
+								transactionTime,
+							}),
+							device.setCapabilityValue({
+								capabilityId: 'light_saturation',
+								value: hsPair.light_saturation,
+								transactionId,
+								transactionTime,
+							}),
+						]);
+						wrotePair = true;
+					}
+					catch (error)
+					{
+						this.homey.app.updateLog(`Object option pair write failed for ${targetDeviceId}: ${error.message}`, 1);
+					}
+				}
+
+				if (!wrotePair)
+				{
+					// Last-resort legacy path.
+					await Promise.all([
+						device.setCapabilityValue('light_hue', hsPair.light_hue),
+						device.setCapabilityValue('light_saturation', hsPair.light_saturation),
+					]);
 				}
 			}
 			else
@@ -2335,9 +2427,7 @@ class PanelDevice extends Device
 		}
 		else if (MQTTMessage.event === 'longpress')
 		{
-			// The button has been pressed for a long time
-			const longPressKey = `${parameters.connector}_${parameters.side}_${parameters.page}`;
-			this.homey.app.updateLog(`TIMING longpress ts=${new Date().toISOString()} ms=${Date.now()} key=${longPressKey} configNo=${parameters.configNo} page=${parameters.page}`, 0);
+			// The button has been pressed for a long time or a repeat
 			await this.processLongPressMessage(parameters);
 		}
 		else if (MQTTMessage.event === 'release')
@@ -3570,6 +3660,39 @@ class PanelDevice extends Device
 	 * Resolve current value and normalize LED state (boolean, numeric 0-1, or fallback state).
 	 * Handles variables, devices, and edge cases (unknown device, missing capability).
 	 */
+	async resolveLightColor(binding, override)
+	{
+		const device = await this.homey.app.getHomeyDeviceById(binding.deviceID);
+		const hueCapability = device ? await this.homey.app.getHomeyCapabilityByName(device, 'light_hue') : null;
+		const saturationCapability = device ? await this.homey.app.getHomeyCapabilityByName(device, 'light_saturation') : null;
+		const hue = Number(override && override.capabilityName === 'light_hue' ? override.value : hueCapability && hueCapability.value);
+		const saturation = Number(override && override.capabilityName === 'light_saturation' ? override.value : saturationCapability && saturationCapability.value);
+		if (!Number.isFinite(hue) || !Number.isFinite(saturation))
+		{
+			return null;
+		}
+
+		const normalizedHue = Math.max(0, Math.min(1, hue));
+		const normalizedSaturation = Math.max(0, Math.min(1, saturation));
+		const segment = normalizedHue * 6;
+		const index = Math.floor(segment);
+		const fraction = segment - index;
+		const chroma = normalizedSaturation;
+		const match = 1 - chroma;
+		const ascending = match + (chroma * fraction);
+		const descending = 1 - (chroma * fraction);
+		const channels = [
+			[chroma, ascending, match],
+			[descending, chroma, match],
+			[match, chroma, ascending],
+			[match, descending, chroma],
+			[ascending, match, chroma],
+			[chroma, match, descending],
+		][index % 6];
+
+		return `#${channels.map((channel) => Math.round(channel * 255).toString(16).padStart(2, '0')).join('')}`;
+	}
+
 	async resolveLedBindingValue(binding)
 	{
 		if (!binding)
@@ -3620,7 +3743,7 @@ class PanelDevice extends Device
 	 * Apply LED binding: set button LED color based on device capability state.
 	 * LED state is independent from display feedback.
 	 */
-	async applyAdvancedLedBinding(parameters)
+	async applyAdvancedLedBinding(parameters, override)
 	{
 		const binding = this.resolveAdvancedLedBinding(parameters);
 		if (!binding)
@@ -3628,7 +3751,19 @@ class PanelDevice extends Device
 			return;
 		}
 
-		const ledValue = await this.resolveLedBindingValue(binding);
+		const isLightColorBinding = binding.capabilityName === 'light_hue' || binding.capabilityName === 'light_saturation';
+		const ledValue = isLightColorBinding ? true : await this.resolveLedBindingValue(binding);
+		if (isLightColorBinding)
+		{
+			const lightColor = await this.resolveLightColor(binding, override);
+			if (lightColor)
+			{
+				binding.frontLEDOnColor = lightColor;
+				binding.wallLEDOnColor = lightColor;
+				binding.frontLEDOffColor = '#000000';
+				binding.wallLEDOffColor = '#000000';
+			}
+		}
 
 		const buttonIdx = parameters.connector * 2 + (parameters.side === 'left' ? 0 : 1) + 1;
 		this.setLEDOnOff(binding, null, buttonIdx, parameters.page, ledValue);
@@ -3858,7 +3993,11 @@ class PanelDevice extends Device
 		{
 			await this.applyAdvancedDisplayBinding(parameters);
 		}
-		await this.applyAdvancedLedBinding(parameters);
+		await this.applyAdvancedLedBinding(parameters, {
+			deviceID: binding.deviceID,
+			capabilityName: binding.capabilityName,
+			value: valueToWrite,
+		});
 		this.homey.app.updateLog(`ADVDBG map ${eventType}: done localPreview=${hasLocalPreview}, buffered=${shouldBufferUntilRelease}`, 1);
 		if ((eventType === 'click') && this.advancedLastClickProcessedAt)
 		{
@@ -4695,6 +4834,8 @@ class PanelDevice extends Device
 			this.lastLongPressTimes.set(longPressKey, Date.now());
 		}
 
+		this.homey.app.updateLog(`TIMING longpress ts=${new Date().toISOString()} ms=${Date.now()} key=${longPressKey} configNo=${parameters.configNo} page=${parameters.page}`, 0);
+
 		let repeatCount = this.longPressOccurred.get(longPressKey);
 		if (repeatCount === undefined)
 		{
@@ -5329,7 +5470,9 @@ class PanelDevice extends Device
 					let shouldApplyAdvancedLedBinding = false;
 					if (ledBinding && (ledBinding.deviceID === deviceId) && ledBinding.capabilityName)
 					{
-						if (ledBinding.capabilityName === capability)
+						if (ledBinding.capabilityName === capability
+							|| ((ledBinding.capabilityName === 'light_hue' || ledBinding.capabilityName === 'light_saturation')
+								&& (capability === 'light_hue' || capability === 'light_saturation')))
 						{
 							shouldApplyAdvancedLedBinding = true;
 						}
@@ -5706,7 +5849,13 @@ class PanelDevice extends Device
 				if (sourceDevice)
 				{
 					this.homey.app.registerDeviceCapabilityStateChange(sourceDevice, capabilityName);
-					if ((bindingKey === `${side}Led`) && (capabilityName === 'dim'))
+					if ((bindingKey === `${side}Led`)
+						&& (capabilityName === 'light_hue' || capabilityName === 'light_saturation'))
+					{
+						this.homey.app.registerDeviceCapabilityStateChange(sourceDevice, 'light_hue');
+						this.homey.app.registerDeviceCapabilityStateChange(sourceDevice, 'light_saturation');
+					}
+					else if ((bindingKey === `${side}Led`) && (capabilityName === 'dim'))
 					{
 						this.homey.app.registerDeviceCapabilityStateChange(sourceDevice, 'onoff');
 					}
@@ -5771,7 +5920,19 @@ class PanelDevice extends Device
 
 			if (ledBinding)
 			{
-				const ledValue = await this.resolveLedBindingValue(ledBinding);
+				const isLightColorBinding = ledBinding.capabilityName === 'light_hue' || ledBinding.capabilityName === 'light_saturation';
+				const ledValue = isLightColorBinding ? true : await this.resolveLedBindingValue(ledBinding);
+				if (isLightColorBinding)
+				{
+					const lightColor = await this.resolveLightColor(ledBinding);
+					if (lightColor)
+					{
+						ledBinding.frontLEDOnColor = lightColor;
+						ledBinding.wallLEDOnColor = lightColor;
+						ledBinding.frontLEDOffColor = '#000000';
+						ledBinding.wallLEDOffColor = '#000000';
+					}
+				}
 				this.setLEDOnOff(ledBinding, mqttQueue, buttonIdx, page, ledValue);
 			}
 

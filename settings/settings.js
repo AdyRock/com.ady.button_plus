@@ -5024,7 +5024,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 						<label class="button-field-popup-label" for="popup${side}${page}LedCapability"><span>LED source capability (boolean/number)</span></label>
 						<select class="homey-form-select" id="popup${side}${page}LedCapability"></select>
 					</div>` : ''}
-					<div class="button-popup-led-matrix">
+					<div class="button-popup-led-matrix" id="popup${side}${page}LedColorMatrix">
 						<div class="button-popup-led-empty"></div>
 						<div class="button-popup-led-header button-popup-led-header-on">On</div>
 						<div class="button-popup-led-header button-popup-led-header-off">Off</div>
@@ -5146,19 +5146,38 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				const ledCapabilityElement = document.getElementById(`popup${side}${page}LedCapability`);
 				if (ledDeviceElement && ledCapabilityElement)
 				{
+					const ledColorMatrixElement = document.getElementById(`popup${side}${page}LedColorMatrix`);
+					const updateLedColorMatrixVisibility = function ()
+					{
+						if (!ledColorMatrixElement)
+						{
+							return;
+						}
+
+						const capability = ledCapabilityElement.value;
+						const usesDeviceColor = capability === 'light_hue' || capability === 'light_saturation';
+						ledColorMatrixElement.style.display = usesDeviceColor ? 'none' : '';
+					};
+
 					fillPopupDeviceSelector(ledDeviceElement, true, true);
 					ledDeviceElement.value = pageConfig[`${side}LedDevice`] || 'none';
 					await fillPopupCapabilitySelector(ledCapabilityElement, ledDeviceElement.value, pageConfig[`${side}LedCapability`], 'led');
+					updateLedColorMatrixVisibility();
 					ledDeviceElement.addEventListener('change', function ()
 					{
-						fillPopupCapabilitySelector(ledCapabilityElement, ledDeviceElement.value, '', 'led');
+						fillPopupCapabilitySelector(ledCapabilityElement, ledDeviceElement.value, '', 'led').then(updateLedColorMatrixVisibility);
 					});
+					ledCapabilityElement.addEventListener('change', updateLedColorMatrixVisibility);
 				}
 
-				document.getElementById(`popup${side}${page}FrontLEDOnColor`).value = pageConfig[`${side}FrontLEDOnColor`] || '#ff0000';
-				document.getElementById(`popup${side}${page}FrontLEDOffColor`).value = pageConfig[`${side}FrontLEDOffColor`] || '#000000';
-				document.getElementById(`popup${side}${page}WallLEDOnColor`).value = pageConfig[`${side}WallLEDOnColor`] || '#ff0000';
-				document.getElementById(`popup${side}${page}WallLEDOffColor`).value = pageConfig[`${side}WallLEDOffColor`] || '#000000';
+				const frontLEDOnColorElement = document.getElementById(`popup${side}${page}FrontLEDOnColor`);
+				const frontLEDOffColorElement = document.getElementById(`popup${side}${page}FrontLEDOffColor`);
+				const wallLEDOnColorElement = document.getElementById(`popup${side}${page}WallLEDOnColor`);
+				const wallLEDOffColorElement = document.getElementById(`popup${side}${page}WallLEDOffColor`);
+				if (frontLEDOnColorElement) frontLEDOnColorElement.value = pageConfig[`${side}FrontLEDOnColor`] || '#ff0000';
+				if (frontLEDOffColorElement) frontLEDOffColorElement.value = pageConfig[`${side}FrontLEDOffColor`] || '#000000';
+				if (wallLEDOnColorElement) wallLEDOnColorElement.value = pageConfig[`${side}WallLEDOnColor`] || '#ff0000';
+				if (wallLEDOffColorElement) wallLEDOffColorElement.value = pageConfig[`${side}WallLEDOffColor`] || '#000000';
 			}
 		}
 
@@ -5227,16 +5246,20 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 					pageConfig[`${side}LedDevice`] = ledDeviceElement.value || 'none';
 					pageConfig[`${side}LedCapability`] = ledCapabilityElement.value || '';
 				}
-				pageConfig[`${side}FrontLEDOnColor`] = document.getElementById(`popup${side}${page}FrontLEDOnColor`).value || '#ff0000';
-				pageConfig[`${side}FrontLEDOffColor`] = document.getElementById(`popup${side}${page}FrontLEDOffColor`).value || '#000000';
-				pageConfig[`${side}WallLEDOnColor`] = document.getElementById(`popup${side}${page}WallLEDOnColor`).value || '#ff0000';
-				pageConfig[`${side}WallLEDOffColor`] = document.getElementById(`popup${side}${page}WallLEDOffColor`).value || '#000000';
+				const frontLEDOnColorElement = document.getElementById(`popup${side}${page}FrontLEDOnColor`);
+				const frontLEDOffColorElement = document.getElementById(`popup${side}${page}FrontLEDOffColor`);
+				const wallLEDOnColorElement = document.getElementById(`popup${side}${page}WallLEDOnColor`);
+				const wallLEDOffColorElement = document.getElementById(`popup${side}${page}WallLEDOffColor`);
+				if (frontLEDOnColorElement) pageConfig[`${side}FrontLEDOnColor`] = frontLEDOnColorElement.value || '#ff0000';
+				if (frontLEDOffColorElement) pageConfig[`${side}FrontLEDOffColor`] = frontLEDOffColorElement.value || '#000000';
+				if (wallLEDOnColorElement) pageConfig[`${side}WallLEDOnColor`] = wallLEDOnColorElement.value || '#ff0000';
+				if (wallLEDOffColorElement) pageConfig[`${side}WallLEDOffColor`] = wallLEDOffColorElement.value || '#000000';
 
 				// Keep hidden main controls in sync so draft snapshot/save paths do not overwrite popup edits.
-				syncMainControlValue('FrontLEDOnColor', pageConfig[`${side}FrontLEDOnColor`]);
-				syncMainControlValue('FrontLEDOffColor', pageConfig[`${side}FrontLEDOffColor`]);
-				syncMainControlValue('WallLEDOnColor', pageConfig[`${side}WallLEDOnColor`]);
-				syncMainControlValue('WallLEDOffColor', pageConfig[`${side}WallLEDOffColor`]);
+				if (frontLEDOnColorElement) syncMainControlValue('FrontLEDOnColor', pageConfig[`${side}FrontLEDOnColor`]);
+				if (frontLEDOffColorElement) syncMainControlValue('FrontLEDOffColor', pageConfig[`${side}FrontLEDOffColor`]);
+				if (wallLEDOnColorElement) syncMainControlValue('WallLEDOnColor', pageConfig[`${side}WallLEDOnColor`]);
+				if (wallLEDOffColorElement) syncMainControlValue('WallLEDOffColor', pageConfig[`${side}WallLEDOffColor`]);
 			}
 
 			configDraftDirtySinceLoad = true;
