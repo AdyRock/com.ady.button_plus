@@ -4683,6 +4683,14 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				selectElement.add(toggleOption);
 			}
 
+			if (filterMode === 'onoff')
+			{
+				const noneOption = document.createElement('option');
+				noneOption.value = 'none';
+				noneOption.text = 'None';
+				selectElement.add(noneOption);
+			}
+
 			if (!deviceId || deviceId === 'none')
 			{
 				if (filterMode === 'event')
@@ -4694,6 +4702,11 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 
 			if (deviceId === '_variable_')
 			{
+				if (filterMode === 'onoff')
+				{
+					return Promise.resolve();
+				}
+
 				if (!variablesFetched)
 				{
 					return new Promise((resolve) =>
@@ -4822,6 +4835,12 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 									continue;
 								}
 							}
+							else if (filterMode === 'onoff'
+								&& capabilityId !== 'onoff'
+								&& !capabilityId.startsWith('onoff.'))
+							{
+								continue;
+							}
 
 							const option = document.createElement('option');
 							option.value = capabilityId;
@@ -4851,6 +4870,10 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 						{
 							selectElement.value = '__toggleDirection__';
 						}
+					}
+					else if (filterMode === 'onoff')
+					{
+						selectElement.value = 'none';
 					}
 					else if (selectElement.options.length > 0)
 					{
@@ -5024,6 +5047,11 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 						<label class="button-field-popup-label" for="popup${side}${page}LedCapability"><span>LED source capability (boolean/number)</span></label>
 						<select class="homey-form-select" id="popup${side}${page}LedCapability"></select>
 					</div>` : ''}
+					${showLedSourceSelectors ? `
+					<div class="button-field-popup-field" id="popup${side}${page}LedOnOffRow">
+						<label class="button-field-popup-label" for="popup${side}${page}LedOnOffCapability"><span>LED on/off capability</span></label>
+						<select class="homey-form-select" id="popup${side}${page}LedOnOffCapability"></select>
+					</div>` : ''}
 					<div class="button-popup-led-matrix" id="popup${side}${page}LedColorMatrix">
 						<div class="button-popup-led-empty"></div>
 						<div class="button-popup-led-header button-popup-led-header-on">On</div>
@@ -5147,6 +5175,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				if (ledDeviceElement && ledCapabilityElement)
 				{
 					const ledColorMatrixElement = document.getElementById(`popup${side}${page}LedColorMatrix`);
+					const ledOnOffRowElement = document.getElementById(`popup${side}${page}LedOnOffRow`);
 					const updateLedColorMatrixVisibility = function ()
 					{
 						if (!ledColorMatrixElement)
@@ -5156,16 +5185,28 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 
 						const capability = ledCapabilityElement.value;
 						const usesDeviceColor = capability === 'light_hue' || capability === 'light_saturation';
+						if (ledOnOffRowElement)
+						{
+							ledOnOffRowElement.style.display = capability === 'onoff' ? 'none' : '';
+						}
 						ledColorMatrixElement.style.display = usesDeviceColor ? 'none' : '';
 					};
 
 					fillPopupDeviceSelector(ledDeviceElement, true, true);
 					ledDeviceElement.value = pageConfig[`${side}LedDevice`] || 'none';
 					await fillPopupCapabilitySelector(ledCapabilityElement, ledDeviceElement.value, pageConfig[`${side}LedCapability`], 'led');
+					const ledOnOffCapabilityElement = document.getElementById(`popup${side}${page}LedOnOffCapability`);
+					if (ledOnOffCapabilityElement)
+					{
+						await fillPopupCapabilitySelector(ledOnOffCapabilityElement, ledDeviceElement.value, pageConfig[`${side}LedOnOffCapability`] || 'none', 'onoff');
+					}
 					updateLedColorMatrixVisibility();
 					ledDeviceElement.addEventListener('change', function ()
 					{
-						fillPopupCapabilitySelector(ledCapabilityElement, ledDeviceElement.value, '', 'led').then(updateLedColorMatrixVisibility);
+						Promise.all([
+							fillPopupCapabilitySelector(ledCapabilityElement, ledDeviceElement.value, '', 'led'),
+							ledOnOffCapabilityElement ? fillPopupCapabilitySelector(ledOnOffCapabilityElement, ledDeviceElement.value, 'none', 'onoff') : Promise.resolve(),
+						]).then(updateLedColorMatrixVisibility);
 					});
 					ledCapabilityElement.addEventListener('change', updateLedColorMatrixVisibility);
 				}
@@ -5245,6 +5286,10 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				{
 					pageConfig[`${side}LedDevice`] = ledDeviceElement.value || 'none';
 					pageConfig[`${side}LedCapability`] = ledCapabilityElement.value || '';
+					const ledOnOffCapabilityElement = document.getElementById(`popup${side}${page}LedOnOffCapability`);
+					pageConfig[`${side}LedOnOffCapability`] = (ledCapabilityElement.value === 'onoff')
+						? 'none'
+						: (ledOnOffCapabilityElement ? (ledOnOffCapabilityElement.value || 'none') : 'none');
 				}
 				const frontLEDOnColorElement = document.getElementById(`popup${side}${page}FrontLEDOnColor`);
 				const frontLEDOffColorElement = document.getElementById(`popup${side}${page}FrontLEDOffColor`);

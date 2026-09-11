@@ -3358,6 +3358,7 @@ class PanelDevice extends Device
 
 		const deviceID = sideConfig[`${side}LedDevice`] || 'none';
 		const capabilityName = sideConfig[`${side}LedCapability`] || '';
+		const onOffCapabilityName = sideConfig[`${side}LedOnOffCapability`] || 'none';
 		if (!deviceID || deviceID === 'none' || !capabilityName)
 		{
 			return null;
@@ -3367,6 +3368,7 @@ class PanelDevice extends Device
 		return {
 			deviceID,
 			capabilityName,
+			onOffCapabilityName,
 			brokerId,
 			frontLEDOnColor: sideConfig[`${side}FrontLEDOnColor`] || '#ff0000',
 			wallLEDOnColor: sideConfig[`${side}WallLEDOnColor`] || '#ff0000',
@@ -3656,6 +3658,44 @@ class PanelDevice extends Device
 		return Math.max(0, Math.min(1, numericValue));
 	}
 
+	getNumericLedRange(capabilityName, capability)
+	{
+		const min = capability && Number.isFinite(Number(capability.min)) ? Number(capability.min) : null;
+		const max = capability && Number.isFinite(Number(capability.max)) ? Number(capability.max) : null;
+		if ((min !== null) && (max !== null) && (max > min))
+		{
+			return { min, max };
+		}
+
+		switch (capabilityName)
+		{
+			case 'measure_temperature':
+				return { min: -20, max: 50 };
+			case 'windowcoverings_set':
+			case 'measure_position':
+				return { min: 0, max: 1 };
+			default:
+				return null;
+		}
+	}
+
+	normalizeNumericLedLevel(rawValue, capabilityName, capability)
+	{
+		const range = this.getNumericLedRange(capabilityName, capability);
+		if (range)
+		{
+			const numericValue = Number(rawValue);
+			if (!Number.isFinite(numericValue))
+			{
+				return null;
+			}
+
+			return Math.max(0, Math.min(1, (numericValue - range.min) / (range.max - range.min)));
+		}
+
+		return this.normalizeLedLevel(rawValue, capability);
+	}
+
 	/**
 	 * Resolve current value and normalize LED state (boolean, numeric 0-1, or fallback state).
 	 * Handles variables, devices, and edge cases (unknown device, missing capability).
@@ -3693,7 +3733,7 @@ class PanelDevice extends Device
 		return `#${channels.map((channel) => Math.round(channel * 255).toString(16).padStart(2, '0')).join('')}`;
 	}
 
-	async resolveLedBindingValue(binding)
+	async resolveLedBindingValue(binding, override)
 	{
 		if (!binding)
 		{
@@ -3715,7 +3755,8 @@ class PanelDevice extends Device
 
 			if (variable.type === 'number')
 			{
-				const level = this.normalizeLedLevel(variable.value, null);
+				const value = override && override.capabilityName === binding.capabilityName ? override.value : variable.value;
+				const level = this.normalizeNumericLedLevel(value, binding.capabilityName, null);
 				return level === null ? false : level;
 			}
 
@@ -3723,6 +3764,18 @@ class PanelDevice extends Device
 		}
 
 		const device = await this.homey.app.getHomeyDeviceById(binding.deviceID);
+		if (binding.onOffCapabilityName && binding.onOffCapabilityName !== 'none')
+		{
+			const onOffCapability = device ? await this.homey.app.getHomeyCapabilityByName(device, binding.onOffCapabilityName) : null;
+			const onOffValue = override && override.capabilityName === binding.onOffCapabilityName
+				? override.value
+				: (onOffCapability && onOffCapability.value);
+			if (onOffValue !== true)
+			{
+				return false;
+			}
+		}
+
 		const capability = device ? await this.homey.app.getHomeyCapabilityByName(device, binding.capabilityName) : null;
 		if (capability && (capability.type === 'boolean'))
 		{
@@ -3731,7 +3784,8 @@ class PanelDevice extends Device
 
 		if (capability && (capability.type === 'number'))
 		{
-			const level = this.normalizeLedLevel(capability.value, capability);
+			const value = override && override.capabilityName === binding.capabilityName ? override.value : capability.value;
+			const level = this.normalizeNumericLedLevel(value, binding.capabilityName, capability);
 			return level === null ? false : level;
 		}
 
@@ -3752,7 +3806,20 @@ class PanelDevice extends Device
 		}
 
 		const isLightColorBinding = binding.capabilityName === 'light_hue' || binding.capabilityName === 'light_saturation';
-		const ledValue = isLightColorBinding ? true : await this.resolveLedBindingValue(binding);
+		let ledValue = await this.resolveLedBindingValue(binding, override);
+		if (isLightColorBinding)
+		{
+			ledValue = true;
+			if (binding.onOffCapabilityName && binding.onOffCapabilityName !== 'none')
+			{
+				const device = await this.homey.app.getHomeyDeviceById(binding.deviceID);
+				const onOffCapability = device ? await this.homey.app.getHomeyCapabilityByName(device, binding.onOffCapabilityName) : null;
+				const onOffValue = override && override.capabilityName === binding.onOffCapabilityName
+					? override.value
+					: (onOffCapability && onOffCapability.value);
+				ledValue = onOffValue === true;
+			}
+		}
 		if (isLightColorBinding)
 		{
 			const lightColor = await this.resolveLightColor(binding, override);
@@ -5471,6 +5538,7 @@ class PanelDevice extends Device
 					if (ledBinding && (ledBinding.deviceID === deviceId) && ledBinding.capabilityName)
 					{
 						if (ledBinding.capabilityName === capability
+							|| (ledBinding.onOffCapabilityName === capability)
 							|| ((ledBinding.capabilityName === 'light_hue' || ledBinding.capabilityName === 'light_saturation')
 								&& (capability === 'light_hue' || capability === 'light_saturation')))
 						{
@@ -5849,6 +5917,11 @@ class PanelDevice extends Device
 				if (sourceDevice)
 				{
 					this.homey.app.registerDeviceCapabilityStateChange(sourceDevice, capabilityName);
+					const onOffCapabilityName = rawConfig[`${bindingKey}OnOffCapability`];
+					if ((bindingKey === `${side}Led`) && onOffCapabilityName && onOffCapabilityName !== 'none')
+					{
+						this.homey.app.registerDeviceCapabilityStateChange(sourceDevice, onOffCapabilityName);
+					}
 					if ((bindingKey === `${side}Led`)
 						&& (capabilityName === 'light_hue' || capabilityName === 'light_saturation'))
 					{
@@ -5921,9 +5994,12 @@ class PanelDevice extends Device
 			if (ledBinding)
 			{
 				const isLightColorBinding = ledBinding.capabilityName === 'light_hue' || ledBinding.capabilityName === 'light_saturation';
-				const ledValue = isLightColorBinding ? true : await this.resolveLedBindingValue(ledBinding);
+				let ledValue = await this.resolveLedBindingValue(ledBinding);
 				if (isLightColorBinding)
 				{
+					ledValue = (ledBinding.onOffCapabilityName && ledBinding.onOffCapabilityName !== 'none')
+						? (ledValue !== false)
+						: true;
 					const lightColor = await this.resolveLightColor(ledBinding);
 					if (lightColor)
 					{
