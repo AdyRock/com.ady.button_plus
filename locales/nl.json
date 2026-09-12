@@ -261,6 +261,11 @@
         ,"advancedModeTooltip": "Schakel dit per zijde in wanneer je meer nodig hebt dan eenvoudig aan/uit-gedrag.<br>Koppel klik, dubbelklik en lang indrukken/herhalen aan verschillende apparaten of functies, inclusief numerieke stapacties.<br>Kies afzonderlijke bronnen voor de weergave-inhoud en LED-status zodat de visuals een andere functie kunnen volgen dan het actiedoel."
         ,"previousPage": "Vorige pagina"
         ,"nextPage": "Volgende pagina"
+		,"configurationsShown": "Getoonde configuraties"
+		,"configurationHasNoPage": "Deze configuratie heeft hier geen pagina"
+        ,"panelControls": "Paneelbediening"
+        ,"expandPanelControls": "Paneelbediening tonen"
+        ,"collapsePanelControls": "Paneelbediening verbergen"
         ,"buttonFieldPopupTitle": "Button veld bewerken"
         ,"buttonFieldPopupSave": "Opslaan"
     },

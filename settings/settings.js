@@ -29,6 +29,9 @@
 		var buttonConfigurationsFetched = false;
 		var localButtonConfigurations = [];
 		var currentButtonConfigurationNo = 0;
+		var buttonVisibleConfigurationCount = 1;
+		var buttonVisibleConfigurationNos = [0];
+		var buttonPanelControlsExpanded = true;
 		var customMQTTItemsElements = [];
 		var customDisplayMQTTItemsElements = [];
 
@@ -117,6 +120,8 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 		var configDraftRestoreDecisionMade = false;
 		var restoredDraftDefaultBroker = null;
 		var configDraftStoreButtonSettingsFn = null;
+		var fixedTopResizeObserver = null;
+		var mainTopOffsetAnimationFrame = null;
 		var capabilityRequestTokens = new Map();
 		var displayCapabilityRequestTokens = new Map();
 
@@ -482,6 +487,7 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 				currentButtonConfigurationNo = Number.isNaN(restoredButtonNo)
 					? 0
 					: Math.max(0, Math.min(restoredButtonNo, localButtonConfigurations.length - 1));
+				buttonVisibleConfigurationNos[0] = currentButtonConfigurationNo;
 				buttonConfigurationNoElement.value = `${currentButtonConfigurationNo}`;
 				const buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo] || [];
 				writeButtonsections(buttonPanelConfiguration.length || 1);
@@ -1327,18 +1333,29 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 		function adjustMainTopOffset()
 		{
 			const fixedTopElement = document.querySelector('.fixedTop');
-			const separatorElement = fixedTopElement ? fixedTopElement.querySelector('.hr-separator') : null;
 			const mainElement = document.querySelector('.main');
 			if (!fixedTopElement || !mainElement)
 			{
 				return;
 			}
 
-			const referenceBottom = separatorElement
-				? separatorElement.getBoundingClientRect().bottom
-				: fixedTopElement.getBoundingClientRect().bottom;
-			const offset = Math.ceil(referenceBottom);
+			const offset = Math.ceil(fixedTopElement.getBoundingClientRect().bottom);
 			mainElement.style.marginTop = `${offset}px`;
+			document.documentElement.style.setProperty('--settings-fixed-top-offset', `${offset}px`);
+		}
+
+		function scheduleMainTopOffsetAdjustment()
+		{
+			if (mainTopOffsetAnimationFrame !== null)
+			{
+				return;
+			}
+
+			mainTopOffsetAnimationFrame = requestAnimationFrame(function ()
+			{
+				mainTopOffsetAnimationFrame = null;
+				adjustMainTopOffset();
+			});
 		}
 
 		function escapeHtml(value)
@@ -1535,7 +1552,21 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 			document.body.classList.toggle('homey-mobile-app', isHomeyMobileAppRuntime());
 			applyDisplaySimulatorLocalization();
 			adjustMainTopOffset();
-			window.addEventListener('resize', adjustMainTopOffset);
+			window.addEventListener('resize', scheduleMainTopOffsetAdjustment);
+			window.addEventListener('scroll', scheduleMainTopOffsetAdjustment, { passive: true });
+			const fixedTopElement = document.querySelector('.fixedTop');
+			if (fixedTopElement && typeof ResizeObserver === 'function')
+			{
+				fixedTopResizeObserver = new ResizeObserver(scheduleMainTopOffsetAdjustment);
+				try
+				{
+					fixedTopResizeObserver.observe(fixedTopElement, { box: 'border-box' });
+				}
+				catch (error)
+				{
+					fixedTopResizeObserver.observe(fixedTopElement);
+				}
+			}
 
 			Homey.get(CONFIG_DRAFT_STORAGE_KEY, function (err, loadedDraft)
 			{
@@ -4008,6 +4039,12 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 
 			updateButtonMainDiagnostics('renderButtonMainPage', { hasActiveSection });
 
+			const sharedTitle = document.querySelector('.button-shared-page-title');
+			if (sharedTitle)
+			{
+				sharedTitle.innerHTML = getButtonPageHeaderTitleMarkup(buttonMainCurrentPage, pageSections.length);
+			}
+
 			const prevButtons = document.querySelectorAll('.button-main-page-prev');
 			const nextButtons = document.querySelectorAll('.button-main-page-next');
 			prevButtons.forEach((button) =>
@@ -4088,25 +4125,25 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(color) ? color : fallback;
 		}
 
-		function getButtonPanelLedColor(pageConfig, side, ledType, pageIndex = buttonPagePopupCurrentPage)
+		function getButtonPanelLedColor(pageConfig, side, ledType, pageIndex = buttonPagePopupCurrentPage, configIndex = currentButtonConfigurationNo)
 		{
 			const suffix = (buttonPagePopupLedState === 'on') ? 'OnColor' : 'OffColor';
 			const fallback = (buttonPagePopupLedState === 'on') ? '#ffffff' : '#1f2937';
 			const colorInputId = `${side}${pageIndex}${ledType}${suffix}`;
-			const liveInputElement = document.getElementById(colorInputId);
+			const liveInputElement = Number(configIndex) === Number(currentButtonConfigurationNo) ? document.getElementById(colorInputId) : null;
 			const liveColor = liveInputElement ? liveInputElement.value : undefined;
 			const configColor = pageConfig[`${side}${ledType}${suffix}`];
 			return normalizeLedColor(liveColor || configColor, fallback);
 		}
 
-		function getButtonPanelLedMarkup(pageConfig, side, pageIndex = buttonPagePopupCurrentPage)
+		function getButtonPanelLedMarkup(pageConfig, side, pageIndex = buttonPagePopupCurrentPage, configIndex = currentButtonConfigurationNo)
 		{
-			const wallColor = escapeHtml(getButtonPanelLedColor(pageConfig, side, 'WallLED', pageIndex));
-			const frontColor = escapeHtml(getButtonPanelLedColor(pageConfig, side, 'FrontLED', pageIndex));
+			const wallColor = escapeHtml(getButtonPanelLedColor(pageConfig, side, 'WallLED', pageIndex, configIndex));
+			const frontColor = escapeHtml(getButtonPanelLedColor(pageConfig, side, 'FrontLED', pageIndex, configIndex));
 			const ledColorSuffix = (buttonPagePopupLedState === 'on') ? 'OnColor' : 'OffColor';
 			return `
-				<div class="button-sim-led button-sim-led-wall" title="${side} wall LED (${buttonPagePopupLedState})" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'WallLED${ledColorSuffix}');" style="background-color:${wallColor}; border-color:${wallColor};"></div>
-				<div class="button-sim-led button-sim-led-front" title="${side} front LED (${buttonPagePopupLedState})" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'FrontLED${ledColorSuffix}');" style="border-color:${frontColor}; box-shadow: 0 0 6px ${frontColor};"></div>`;
+				<div class="button-sim-led button-sim-led-wall" title="${side} wall LED (${buttonPagePopupLedState})" onclick="activateDisplayedButtonConfiguration(${configIndex}); return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'WallLED${ledColorSuffix}');" style="background-color:${wallColor}; border-color:${wallColor};"></div>
+				<div class="button-sim-led button-sim-led-front" title="${side} front LED (${buttonPagePopupLedState})" onclick="activateDisplayedButtonConfiguration(${configIndex}); return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'FrontLED${ledColorSuffix}');" style="border-color:${frontColor}; box-shadow: 0 0 6px ${frontColor};"></div>`;
 		}
 
 		function handleButtonSimFieldClick(event, side, page, fieldSuffix)
@@ -4188,10 +4225,12 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			return svgElement.outerHTML;
 		}
 
-		function getLiveButtonPanelFieldValue(pageConfig, side, fieldSuffix, fallback = '', pageIndex = buttonPagePopupCurrentPage)
+		function getLiveButtonPanelFieldValue(pageConfig, side, fieldSuffix, fallback = '', pageIndex = buttonPagePopupCurrentPage, configIndex = currentButtonConfigurationNo)
 		{
 			const fieldId = `${side}${pageIndex}${fieldSuffix}`;
-			const liveElement = document.getElementById(fieldId);
+			const liveElement = buttonDevicesFetched && Number(configIndex) === Number(currentButtonConfigurationNo)
+				? document.getElementById(fieldId)
+				: null;
 			if (liveElement && typeof liveElement.value === 'string')
 			{
 				return liveElement.value;
@@ -4279,14 +4318,14 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			return `${safeButtonPageLabel}: ${safeCurrentPageLabel} / <span class="display-sim-total-pages">${nonDefaultPageCount}</span><span class="tooltip display-sim-total-pages-tooltip"><i class="fi fi-rr-info" aria-hidden="true"></i><span class="tooltiptext">${sharedPageHeaderHint}</span></span>`;
 		}
 
-		function getButtonPanelDimPreviewText(pageConfig, side, pageIndex)
+		function getButtonPanelDimPreviewText(pageConfig, side, pageIndex, configIndex = currentButtonConfigurationNo)
 		{
-			const capabilityElement = document.getElementById(`${side}${pageIndex}Capability`);
+			const capabilityElement = Number(configIndex) === Number(currentButtonConfigurationNo) ? document.getElementById(`${side}${pageIndex}Capability`) : null;
 			const selectedOption = capabilityElement && capabilityElement.selectedOptions ? capabilityElement.selectedOptions[0] : null;
 			const rawValue = selectedOption ? parseFloat(selectedOption.dataset.value) : NaN;
 			const percent = Number.isNaN(rawValue) ? 50 : Math.round(rawValue * 100);
 
-			const dimChange = getLiveButtonPanelFieldValue(pageConfig, side, 'DimChange', '', pageIndex);
+			const dimChange = getLiveButtonPanelFieldValue(pageConfig, side, 'DimChange', '', pageIndex, configIndex);
 			const direction = (typeof dimChange === 'string' && dimChange.indexOf('-') >= 0) ? '-' : '+';
 
 			return `${percent}% ${direction}`;
@@ -4308,14 +4347,14 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			return (selectedVariable.value === undefined || selectedVariable.value === null) ? '' : String(selectedVariable.value);
 		}
 
-		function getButtonPanelCapabilityPreviewText(side, pageIndex, deviceValue, capabilityValue)
+		function getButtonPanelCapabilityPreviewText(side, pageIndex, deviceValue, capabilityValue, configIndex = currentButtonConfigurationNo)
 		{
 			if ((deviceValue === '_variable_') || (capabilityValue === 'dim') || (capabilityValue === 'windowcoverings_state') || !capabilityValue)
 			{
 				return null;
 			}
 
-			const capabilityElement = document.getElementById(`${side}${pageIndex}Capability`);
+			const capabilityElement = Number(configIndex) === Number(currentButtonConfigurationNo) ? document.getElementById(`${side}${pageIndex}Capability`) : null;
 			const selectedOption = capabilityElement && capabilityElement.selectedOptions ? capabilityElement.selectedOptions[0] : null;
 			if (!selectedOption || !selectedOption.dataset.type || (selectedOption.dataset.type === 'boolean'))
 			{
@@ -4347,27 +4386,27 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			return selectedOption.dataset.value || '';
 		}
 
-		function getButtonPanelPreviewMarkup(pageConfig, side, pageIndex = buttonPagePopupCurrentPage)
+		function getButtonPanelPreviewMarkup(pageConfig, side, pageIndex = buttonPagePopupCurrentPage, configIndex = currentButtonConfigurationNo)
 		{
 			ensureButtonSideAdvancedDefaults(pageConfig, side);
 			const isAdvancedMode = isButtonSideAdvanced(pageConfig, side);
-			const topTextRaw = sanitizeDisplayString(getLiveButtonPanelFieldValue(pageConfig, side, 'TopText', '', pageIndex), '');
+			const topTextRaw = sanitizeDisplayString(getLiveButtonPanelFieldValue(pageConfig, side, 'TopText', '', pageIndex, configIndex), '');
 			const hasTopText = !!topTextRaw;
 			const topText = hasTopText ? escapeHtml(topTextRaw) : `<span class="button-sim-placeholder">${Homey.__("settings.clickToAddTitle")}</span>`;
-			const deviceValue = getLiveButtonPanelFieldValue(pageConfig, side, 'Device', '', pageIndex);
-			const capabilityValue = getLiveButtonPanelFieldValue(pageConfig, side, 'Capability', '', pageIndex);
+			const deviceValue = getLiveButtonPanelFieldValue(pageConfig, side, 'Device', '', pageIndex, configIndex);
+			const capabilityValue = getLiveButtonPanelFieldValue(pageConfig, side, 'Capability', '', pageIndex, configIndex);
 			const isDimCapability = (capabilityValue === 'dim');
 			const variablePreviewText = getButtonPanelVariablePreviewText(deviceValue, capabilityValue);
-			const capabilityPreviewText = (variablePreviewText === null) ? getButtonPanelCapabilityPreviewText(side, pageIndex, deviceValue, capabilityValue) : null;
+			const capabilityPreviewText = (variablePreviewText === null) ? getButtonPanelCapabilityPreviewText(side, pageIndex, deviceValue, capabilityValue, configIndex) : null;
 			const nonBooleanPreviewText = (variablePreviewText !== null) ? variablePreviewText : capabilityPreviewText;
 			const isNonBooleanVariable = (nonBooleanPreviewText !== null);
-			const onTextRaw = sanitizeDisplayString(getLiveButtonPanelFieldValue(pageConfig, side, 'OnText', '', pageIndex), '');
-			const offTextRaw = sanitizeDisplayString(getLiveButtonPanelFieldValue(pageConfig, side, 'OffText', '', pageIndex), '');
+			const onTextRaw = sanitizeDisplayString(getLiveButtonPanelFieldValue(pageConfig, side, 'OnText', '', pageIndex, configIndex), '');
+			const offTextRaw = sanitizeDisplayString(getLiveButtonPanelFieldValue(pageConfig, side, 'OffText', '', pageIndex, configIndex), '');
 			const isVariableSvg = isNonBooleanVariable && isSvgTextContent(nonBooleanPreviewText);
 			let stateTextRaw = '';
 			if (isDimCapability)
 			{
-				stateTextRaw = getButtonPanelDimPreviewText(pageConfig, side, pageIndex);
+				stateTextRaw = getButtonPanelDimPreviewText(pageConfig, side, pageIndex, configIndex);
 			}
 			else if (isNonBooleanVariable && !isVariableSvg)
 			{
@@ -4381,25 +4420,26 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			const stateText = hasStateText ? escapeHtml(stateTextRaw) : `<span class="button-sim-placeholder">${Homey.__("settings.clickToAddValue")}</span>`;
 			const textFieldSuffix = isDimCapability ? 'DimChange' : (isNonBooleanVariable ? 'Capability' : ((buttonPagePopupLedState === 'on') ? 'OnText' : 'OffText'));
 			const svgFieldSuffix = (buttonPagePopupLedState === 'on') ? 'OnSVG' : 'OffSVG';
-			const selectedSvgText = isVariableSvg ? nonBooleanPreviewText : ((isDimCapability || isNonBooleanVariable) ? '' : getLiveButtonPanelFieldValue(pageConfig, side, svgFieldSuffix, '', pageIndex));
+			const selectedSvgText = isVariableSvg ? nonBooleanPreviewText : ((isDimCapability || isNonBooleanVariable) ? '' : getLiveButtonPanelFieldValue(pageConfig, side, svgFieldSuffix, '', pageIndex, configIndex));
 			const svgMarkup = getButtonPanelPreviewSvg(selectedSvgText || '');
-			const ledMarkup = `<div class="button-sim-leds ${side === 'right' ? 'button-sim-leds-right' : ''}">${getButtonPanelLedMarkup(pageConfig, side, pageIndex)}</div>`;
+			const ledMarkup = `<div class="button-sim-leds ${side === 'right' ? 'button-sim-leds-right' : ''}">${getButtonPanelLedMarkup(pageConfig, side, pageIndex, configIndex)}</div>`;
 			const advancedBadge = isAdvancedMode
-				? `<span class="button-sim-advanced-badge ${side === 'right' ? 'button-sim-advanced-badge-right' : 'button-sim-advanced-badge-left'}" role="button" tabindex="0" title="${Homey.__("settings.advancedMappingsEnabled")}" onclick="openButtonAdvancedPopup('${side}', ${pageIndex}, 'event'); return false;" onkeydown="if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openButtonAdvancedPopup('${side}', ${pageIndex}, 'event'); return false; }"><span class="button-sim-advanced-badge-label">${Homey.__("settings.advancedBadgeLabel")}</span></span>`
+				? `<span class="button-sim-advanced-badge ${side === 'right' ? 'button-sim-advanced-badge-right' : 'button-sim-advanced-badge-left'}" role="button" tabindex="0" title="${Homey.__("settings.advancedMappingsEnabled")}" onclick="activateDisplayedButtonConfiguration(${configIndex}); openButtonAdvancedPopup('${side}', ${pageIndex}, 'event'); return false;"><span class="button-sim-advanced-badge-label">${Homey.__("settings.advancedBadgeLabel")}</span></span>`
 				: '';
+			const activateConfig = `activateDisplayedButtonConfiguration(${configIndex}); `;
 			const contentMarkup = svgMarkup
 				? `
-					<div class="button-sim-content button-sim-content-svg" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, '${svgFieldSuffix}');">
-						<div class="button-sim-top-hit-area" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');" title="${Homey.__("settings.editTopLabel")}"></div>
-						<div class="button-sim-top" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');">${topText}</div>
-						<div class="button-sim-icon" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, '${svgFieldSuffix}');">${svgMarkup}</div>
+					<div class="button-sim-content button-sim-content-svg" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, '${svgFieldSuffix}');">
+						<div class="button-sim-top-hit-area" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');" title="${Homey.__("settings.editTopLabel")}"></div>
+						<div class="button-sim-top" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');">${topText}</div>
+						<div class="button-sim-icon" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, '${svgFieldSuffix}');">${svgMarkup}</div>
 					</div>`
 				: `
 					<div class="button-sim-content">
-						<div class="button-sim-top-hit-area" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');" title="${Homey.__("settings.editTopLabel")}"></div>
-						<div class="button-sim-top" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');">${topText}</div>
-							<div class="button-sim-state-block" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, '${textFieldSuffix}');">
-							<div class="button-sim-state-line" onclick="return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, '${textFieldSuffix}');">${stateText}</div>
+						<div class="button-sim-top-hit-area" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');" title="${Homey.__("settings.editTopLabel")}"></div>
+						<div class="button-sim-top" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');">${topText}</div>
+							<div class="button-sim-state-block" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, '${textFieldSuffix}');">
+							<div class="button-sim-state-line">${stateText}</div>
 						</div>
 					</div>`;
 
@@ -4423,19 +4463,20 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 
 		function renderInlineButtonPagePreview(page)
 		{
-			const config = localButtonConfigurations[currentButtonConfigurationNo];
-			if (!Array.isArray(config) || page < 0 || page >= config.length)
+			const previewElements = document.querySelectorAll(`[data-button-preview-page="${page}"]`);
+			previewElements.forEach((previewElement) =>
 			{
-				return;
-			}
+				const configIndex = Number(previewElement.dataset.configIndex);
+				const config = localButtonConfigurations[configIndex];
+				if (!Array.isArray(config) || !config[page])
+				{
+					return;
+				}
 
-			const pageConfig = config[page];
-			const previewElement = document.getElementById(`${page}ButtonInlineSimContent`);
-			if (previewElement)
-			{
+				const pageConfig = config[page];
 				previewElement.innerHTML =
-					`<button class="button-sim-item" onclick="return handleButtonSimShellClick(event, 'left', ${page});" title="${Homey.__("settings.openLeftPanelSettings")}">
-						${getButtonPanelPreviewMarkup(pageConfig, 'left', page)}
+					`<button class="button-sim-item" onclick="activateDisplayedButtonConfiguration(${configIndex}); return handleButtonSimShellClick(event, 'left', ${page});" title="${Homey.__("settings.openLeftPanelSettings")}">
+						${getButtonPanelPreviewMarkup(pageConfig, 'left', page, configIndex)}
 					</button>
 					<div class="button-sim-click-zones-help" role="note" title="${Homey.__("settings.clickableZonesHelp")}">
 						<span class="tooltip button-sim-click-zones-tooltip" aria-label="${Homey.__("settings.clickableZonesHelp")}">
@@ -4443,29 +4484,21 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 							<span class="tooltiptext">${normalizeTooltipHtml(Homey.__("settings.clickZonesHelpTooltip"))}</span>
 						</span>
 					</div>
-					<button class="button-sim-item" onclick="return handleButtonSimShellClick(event, 'right', ${page});" title="${Homey.__("settings.openRightPanelSettings")}">
-						${getButtonPanelPreviewMarkup(pageConfig, 'right', page)}
+					<button class="button-sim-item" onclick="activateDisplayedButtonConfiguration(${configIndex}); return handleButtonSimShellClick(event, 'right', ${page});" title="${Homey.__("settings.openRightPanelSettings")}">
+						${getButtonPanelPreviewMarkup(pageConfig, 'right', page, configIndex)}
 					</button>
 					`;
-			}
+			});
 
-			const stateToggleElement = document.getElementById(`${page}ButtonInlineSimState`);
-			if (stateToggleElement)
+			document.querySelectorAll('.button-inline-state-toggle').forEach((stateToggleElement) =>
 			{
 				stateToggleElement.textContent = (buttonPagePopupLedState === 'on') ? Homey.__("settings.onState") : Homey.__("settings.offState");
-			}
+			});
 		}
 
 		function renderInlineButtonPagePreviews()
 		{
-			let config = localButtonConfigurations[currentButtonConfigurationNo];
-			if (!Array.isArray(config))
-			{
-				config = [config];
-				localButtonConfigurations[currentButtonConfigurationNo] = config;
-			}
-
-			for (let page = 0; page < config.length; page++)
+			for (let page = 0; page < getDisplayedButtonPageCount(); page++)
 			{
 				renderInlineButtonPagePreview(page);
 			}
@@ -10639,6 +10672,43 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			});
 		}
 
+		function deleteDisplayedButtonPage(configNo, page)
+		{
+			configNo = Number(configNo);
+			page = Number(page);
+			const config = localButtonConfigurations[configNo];
+			if (!Array.isArray(config) || page <= 0 || page >= config.length)
+			{
+				return;
+			}
+
+			const pageLabel = formatButtonPageLabel(page);
+			Homey.confirm(Homey.__("settings.deletePageConfirm", { pageLabel }), null, function (err, ok)
+			{
+				if (err || !ok)
+				{
+					return;
+				}
+
+				if (Number(currentButtonConfigurationNo) === configNo && typeof configDraftStoreButtonSettingsFn === 'function')
+				{
+					configDraftStoreButtonSettingsFn(config);
+				}
+
+				config.splice(page, 1);
+				config.forEach((pageConfig, pageIndex) =>
+				{
+					pageConfig.PageNum = pageIndex;
+				});
+
+				configDraftDirtySinceLoad = true;
+				flushConfigurationDraftPersist();
+				writeButtonsections(getDisplayedButtonPageCount());
+				updateButtonPanelControls();
+				updateButtonMainDiagnostics('deleteDisplayedButtonPage', { configNo, page });
+			});
+		}
+
 		function addButtonPage()
 		{
 			try
@@ -10730,6 +10800,16 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 
 		window.deleteButtonPage = deleteButtonPage;
 		window.addButtonPage = addButtonPage;
+		window.activateDisplayedButtonConfiguration = activateDisplayedButtonConfiguration;
+		window.handleDisplayedButtonCardClick = handleDisplayedButtonCardClick;
+		window.changeDisplayedButtonConfiguration = changeDisplayedButtonConfiguration;
+		window.setButtonVisibleConfigurationCount = setButtonVisibleConfigurationCount;
+		window.toggleDisplayedButtonConfigName = toggleDisplayedButtonConfigName;
+		window.renameDisplayedButtonConfiguration = renameDisplayedButtonConfiguration;
+		window.updateDisplayedButtonSetting = updateDisplayedButtonSetting;
+		window.addDisplayedButtonPage = addDisplayedButtonPage;
+		window.deleteDisplayedButtonPage = deleteDisplayedButtonPage;
+		window.toggleButtonPanelControls = toggleButtonPanelControls;
 
 		function bindButtonPageHeaderActions()
 		{
@@ -10831,10 +10911,356 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			updateButtonMainDiagnostics('onButtonPageChange', { page, newPage });
 		}
 
+		function getDisplayedButtonConfigurationNos()
+		{
+			while (buttonVisibleConfigurationNos.length < buttonVisibleConfigurationCount)
+			{
+				buttonVisibleConfigurationNos.push(buttonVisibleConfigurationNos.length % MAX_BUTTON_CONFIGURATIONS);
+			}
+
+			return buttonVisibleConfigurationNos.slice(0, buttonVisibleConfigurationCount).map((configNo) =>
+			{
+				const normalized = Number(configNo);
+				return Number.isNaN(normalized) ? 0 : Math.max(0, Math.min(normalized, MAX_BUTTON_CONFIGURATIONS - 1));
+			});
+		}
+
+		function getDisplayedButtonPageCount()
+		{
+			return Math.max(1, ...getDisplayedButtonConfigurationNos().map((configNo) =>
+			{
+				const config = localButtonConfigurations[configNo];
+				return Array.isArray(config) ? config.length : 1;
+			}));
+		}
+
+		function getButtonConfigurationOptionsHtml(selectedConfigNo)
+		{
+			const label = Homey.__("settings.buttonConfig");
+			let options = '';
+			for (let configNo = 0; configNo < MAX_BUTTON_CONFIGURATIONS; configNo++)
+			{
+				const config = localButtonConfigurations[configNo];
+				const configName = Array.isArray(config) && config[0] && config[0].name ? config[0].name : '';
+				options += `<option value="${configNo}"${configNo === selectedConfigNo ? ' selected' : ''}>${escapeHtml(`${label} ${configNo + 1} - ${configName}`)}</option>`;
+			}
+			return options;
+		}
+
+		function activateDisplayedButtonConfiguration(configNo)
+		{
+			configNo = Number(configNo);
+			if (Number.isNaN(configNo) || configNo < 0 || configNo >= MAX_BUTTON_CONFIGURATIONS)
+			{
+				return false;
+			}
+
+			if (Number(currentButtonConfigurationNo) === configNo)
+			{
+				return true;
+			}
+
+			let nextConfig = localButtonConfigurations[configNo];
+			if (!Array.isArray(nextConfig))
+			{
+				nextConfig = nextConfig ? [nextConfig] : [{ PageNum: 0 }];
+				localButtonConfigurations[configNo] = nextConfig;
+			}
+
+			buttonConfigurationNoElement.value = `${configNo}`;
+			buttonConfigurationNoElement.dispatchEvent(new Event('change', { bubbles: true }));
+			return Number(currentButtonConfigurationNo) === configNo;
+		}
+
+		function handleDisplayedButtonCardClick(event, configNo)
+		{
+			if (!event || Number(currentButtonConfigurationNo) === Number(configNo))
+			{
+				return;
+			}
+
+			const target = event.target;
+			if (target && target.closest && target.closest('button, input, select, textarea, label, summary, a, [role="button"], .button-sim-bar'))
+			{
+				return;
+			}
+
+			activateDisplayedButtonConfiguration(configNo);
+		}
+
+		function changeDisplayedButtonConfiguration(slot, configNo)
+		{
+			slot = Number(slot);
+			configNo = Number(configNo);
+			if (Number.isNaN(slot) || Number.isNaN(configNo))
+			{
+				return;
+			}
+
+			buttonVisibleConfigurationNos[slot] = configNo;
+			activateDisplayedButtonConfiguration(configNo);
+			writeButtonsections(getDisplayedButtonPageCount());
+			updateButtonPanelControls();
+		}
+
+		function setButtonVisibleConfigurationCount(value)
+		{
+			buttonVisibleConfigurationCount = Math.max(1, Math.min(4, Number(value) || 1));
+			getDisplayedButtonConfigurationNos();
+			writeButtonsections(getDisplayedButtonPageCount());
+			updateButtonPanelControls();
+		}
+
+		function updateButtonPanelControlsExpander()
+		{
+			const section = document.getElementById('buttonItemsSection');
+			const button = document.getElementById('buttonPanelControlsExpander');
+			if (!section || !button)
+			{
+				return;
+			}
+
+			section.classList.toggle('button-preview-controls-collapsed', !buttonPanelControlsExpanded);
+			button.classList.toggle('is-open', buttonPanelControlsExpanded);
+			button.setAttribute('aria-expanded', buttonPanelControlsExpanded ? 'true' : 'false');
+			button.title = buttonPanelControlsExpanded
+				? Homey.__("settings.collapsePanelControls")
+				: Homey.__("settings.expandPanelControls");
+			button.setAttribute('aria-label', button.title);
+		}
+
+		function toggleButtonPanelControls()
+		{
+			buttonPanelControlsExpanded = !buttonPanelControlsExpanded;
+			updateButtonPanelControlsExpander();
+		}
+
+		function toggleDisplayedButtonConfigName(slot)
+		{
+			const row = document.getElementById(`buttonDisplayedConfigNameRow${slot}`);
+			if (row)
+			{
+				row.classList.toggle('visible');
+			}
+		}
+
+		function renameDisplayedButtonConfiguration(slot, value)
+		{
+			const configNo = getDisplayedButtonConfigurationNos()[Number(slot)];
+			const config = localButtonConfigurations[configNo];
+			if (!Array.isArray(config) || !config[0])
+			{
+				return;
+			}
+
+			config[0].name = value;
+			if (Number(currentButtonConfigurationNo) === configNo)
+			{
+				configNameElement.value = value;
+			}
+			fillConfigListElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
+			buttonConfigurationNoElement.value = `${currentButtonConfigurationNo}`;
+			configDraftDirtySinceLoad = true;
+			flushConfigurationDraftPersist();
+			writeButtonsections(getDisplayedButtonPageCount());
+			updateButtonPanelControls();
+		}
+
+		function getDisplayedButtonBrokerOptionsHtml(selectedBrokerId)
+		{
+			const selectedValue = selectedBrokerId || 'Default';
+			let options = `<option value="Default"${selectedValue === 'Default' ? ' selected' : ''}>${escapeHtml(Homey.__("settings.default"))}</option>`;
+			localBrokerItems.forEach((brokerItem) =>
+			{
+				if (!brokerItem || !brokerItem.enabled)
+				{
+					return;
+				}
+
+				const brokerId = brokerItem.brokerid || '';
+				options += `<option value="${escapeHtml(brokerId)}"${selectedValue === brokerId ? ' selected' : ''}>${escapeHtml(brokerId)}</option>`;
+			});
+			return options;
+		}
+
+		function updateDisplayedButtonSetting(configNo, page, side, field, value)
+		{
+			configNo = Number(configNo);
+			page = Number(page);
+			const config = localButtonConfigurations[configNo];
+			if (!Array.isArray(config) || !config[page] || (side !== 'left' && side !== 'right'))
+			{
+				return;
+			}
+
+			let normalizedValue = value;
+			if (field === 'DisableLongRepeat')
+			{
+				normalizedValue = !value;
+			}
+			else if (field === 'LongDelayMs')
+			{
+				normalizedValue = normalizeLongPressTimingMs(value, 0, 750);
+			}
+			else if (field === 'LongRepeatMs')
+			{
+				normalizedValue = normalizeLongPressTimingMs(value, 50, 500);
+			}
+
+			config[page][`${side}${field}`] = normalizedValue;
+			const canonicalElement = Number(currentButtonConfigurationNo) === configNo
+				? document.getElementById(`${side}${page}${field}`)
+				: null;
+			if (canonicalElement)
+			{
+				if (field === 'DisableLongRepeat')
+				{
+					canonicalElement.checked = value;
+				}
+				else if (field === 'BrokerId')
+				{
+					setBrokerSelectValue(canonicalElement, normalizedValue);
+				}
+				else
+				{
+					canonicalElement.value = normalizedValue;
+				}
+			}
+
+			configDraftDirtySinceLoad = true;
+			flushConfigurationDraftPersist();
+		}
+
+		function getDisplayedButtonInlineMainControlHtml(side, page, configNo, slot)
+		{
+			const pageConfig = localButtonConfigurations[configNo][page];
+			const idPrefix = `buttonCard${slot}Page${page}${side}`;
+			const panelLabel = side === 'left' ? Homey.__("settings.leftPanel") : Homey.__("settings.rightPanel");
+			const repeatEnabled = !pageConfig[`${side}DisableLongRepeat`];
+			const longDelayMs = normalizeLongPressTimingMs(pageConfig[`${side}LongDelayMs`], 0, 750);
+			const longRepeatMs = normalizeLongPressTimingMs(pageConfig[`${side}LongRepeatMs`], 50, 500);
+			const brokerId = pageConfig[`${side}BrokerId`] || 'Default';
+
+			return `<div class="button-inline-main-control-column">
+				<div class="button-inline-main-control-heading">${panelLabel}</div>
+				<div class="button-inline-main-controls">
+					<label class="homey-form-checkbox">
+						<input class="homey-form-checkbox-input" id="${idPrefix}Repeat" type="checkbox"${repeatEnabled ? ' checked' : ''} onchange="updateDisplayedButtonSetting(${configNo}, ${page}, '${side}', 'DisableLongRepeat', this.checked)">
+						<span class="homey-form-checkbox-checkmark"></span>
+						<span class="homey-form-checkbox-text">${Homey.__("settings.longRepeat")}</span>
+					</label>
+					<label class="homey-form-label" for="${idPrefix}Delay">${Homey.__("settings.longDelayMs")}</label>
+					<input class="homey-form-input" id="${idPrefix}Delay" type="number" min="0" max="10000" step="10" value="${longDelayMs}" onchange="updateDisplayedButtonSetting(${configNo}, ${page}, '${side}', 'LongDelayMs', this.value)">
+					<label class="homey-form-label" for="${idPrefix}Interval">${Homey.__("settings.longRepeatMs")}</label>
+					<input class="homey-form-input" id="${idPrefix}Interval" type="number" min="50" max="10000" step="10" value="${longRepeatMs}" onchange="updateDisplayedButtonSetting(${configNo}, ${page}, '${side}', 'LongRepeatMs', this.value)">
+					<label class="homey-form-label" for="${idPrefix}Broker">${Homey.__("settings.brokerId")}</label>
+					<select class="homey-form-select" id="${idPrefix}Broker" onchange="updateDisplayedButtonSetting(${configNo}, ${page}, '${side}', 'BrokerId', this.value)">${getDisplayedButtonBrokerOptionsHtml(brokerId)}</select>
+				</div>
+			</div>`;
+		}
+
+		function addDisplayedButtonPage(configNo, targetPage)
+		{
+			configNo = Number(configNo);
+			targetPage = Number(targetPage);
+			if (Number.isNaN(configNo) || Number.isNaN(targetPage) || targetPage < 0)
+			{
+				return;
+			}
+
+			let config = localButtonConfigurations[configNo];
+			if (!Array.isArray(config))
+			{
+				config = config ? [config] : [];
+				localButtonConfigurations[configNo] = config;
+			}
+
+			if (config.length === 0)
+			{
+				config.push({ PageNum: 0 });
+			}
+
+			while (config.length <= targetPage)
+			{
+				const sourcePage = config[config.length - 1] || config[0] || {};
+				let newPage;
+				try
+				{
+					newPage = JSON.parse(JSON.stringify(sourcePage));
+				}
+				catch (error)
+				{
+					newPage = { ...sourcePage };
+				}
+
+				newPage.PageNum = config.length;
+				config.push(newPage);
+			}
+
+			configDraftDirtySinceLoad = true;
+			flushConfigurationDraftPersist();
+			writeButtonsections(getDisplayedButtonPageCount());
+			updateButtonPanelControls();
+		}
+
+		function getDisplayedButtonCardsHtml(page)
+		{
+			return getDisplayedButtonConfigurationNos().map((configNo, slot) =>
+			{
+				const config = localButtonConfigurations[configNo];
+				const pageConfig = Array.isArray(config) ? config[page] : null;
+				const configName = Array.isArray(config) && config[0] && config[0].name ? config[0].name : '';
+				const activeClass = Number(currentButtonConfigurationNo) === configNo ? ' active' : '';
+				const content = pageConfig
+					? `<div class="button-mode-toggle-grid">
+						<label class="homey-form-checkbox button-mode-toggle-option">
+							<input class="homey-form-checkbox-input" type="checkbox"${isButtonSideAdvanced(pageConfig, 'left') ? ' checked' : ''} onchange="activateDisplayedButtonConfiguration(${configNo}); onButtonModeToggleChange('left', ${page}, this.checked)">
+							<span class="homey-form-checkbox-checkmark"></span>
+							<span class="homey-form-checkbox-text button-mode-toggle-label"><span>${Homey.__("settings.leftAdvancedLabel")}</span><span class="tooltip button-mode-toggle-tooltip" aria-label="${Homey.__("settings.advancedModeHelpAria")}"><i class="fi fi-rr-info" aria-hidden="true"></i><span class="tooltiptext">${normalizeTooltipHtml(Homey.__("settings.advancedModeTooltip"))}</span></span></span>
+						</label>
+						<label class="homey-form-checkbox button-mode-toggle-option">
+							<input class="homey-form-checkbox-input" type="checkbox"${isButtonSideAdvanced(pageConfig, 'right') ? ' checked' : ''} onchange="activateDisplayedButtonConfiguration(${configNo}); onButtonModeToggleChange('right', ${page}, this.checked)">
+							<span class="homey-form-checkbox-checkmark"></span>
+							<span class="homey-form-checkbox-text button-mode-toggle-label"><span>${Homey.__("settings.rightAdvancedLabel")}</span><span class="tooltip button-mode-toggle-tooltip" aria-label="${Homey.__("settings.advancedModeHelpAria")}"><i class="fi fi-rr-info" aria-hidden="true"></i><span class="tooltiptext">${normalizeTooltipHtml(Homey.__("settings.advancedModeTooltip"))}</span></span></span>
+						</label>
+					</div>
+					<div class="button-sim-bar button-inline-sim-grid" data-button-preview-page="${page}" data-config-index="${configNo}"></div>
+					<div class="button-card-footer">
+						<details class="button-card-settings-details">
+							<summary class="homey-button-secondary-shadow button-card-settings-summary"><span>${Homey.__("settings.autoRepeatBroker")}</span><span class="icon">&#8628;</span></summary>
+							<div class="button-inline-main-control-grid">
+								${getDisplayedButtonInlineMainControlHtml('left', page, configNo, slot)}
+								${getDisplayedButtonInlineMainControlHtml('right', page, configNo, slot)}
+							</div>
+						</details>
+						${page > 0 ? `<div class="button-card-page-action"><span>${Homey.__("settings.page")}</span><button class="homey-button-secondary-shadow button-card-delete-page" type="button" onclick="deleteDisplayedButtonPage(${configNo}, ${page}); return false;" title="${Homey.__("settings.deletePage")}" aria-label="${Homey.__("settings.deletePage")}"><i class="fi fi-rr-trash" aria-hidden="true"></i></button></div>` : ''}
+					</div>`
+					: `<div class="button-config-page-empty">
+						<span>${Homey.__("settings.configurationHasNoPage")}</span>
+						<button class="homey-button-secondary-shadow button-config-add-page" type="button" onclick="addDisplayedButtonPage(${configNo}, ${page}); return false;" title="${Homey.__("settings.addPage")}" aria-label="${Homey.__("settings.addPage")}"><i class="fi fi-rr-plus" aria-hidden="true"></i><span>${Homey.__("settings.addPage")}</span></button>
+					</div>`;
+
+				return `<section class="button-config-preview-card${activeClass}" onclick="handleDisplayedButtonCardClick(event, ${configNo})">
+					<div class="button-card-editor-controls">
+					<label class="homey-form-label">${Homey.__("settings.configtoedit")}</label>
+					<div class="panel-config-selector-row">
+						<select class="homey-form-select" onchange="changeDisplayedButtonConfiguration(${slot}, this.value)">${getButtonConfigurationOptionsHtml(configNo)}</select>
+						<button class="homey-button-secondary-shadow panel-config-toggle-btn" type="button" onclick="toggleDisplayedButtonConfigName(${slot}); return false;" title="${Homey.__("settings.configName")}" aria-label="${Homey.__("settings.configName")}"><span class="icon">&#8628;</span></button>
+					</div>
+					<div class="button-displayed-config-name-row" id="buttonDisplayedConfigNameRow${slot}">
+						<label class="homey-form-label">${Homey.__("settings.configName")}</label>
+						<input class="homey-form-input" maxlength="20" value="${escapeHtml(configName)}" onchange="renameDisplayedButtonConfiguration(${slot}, this.value)">
+					</div>
+					</div>
+					${content}
+				</section>`;
+			}).join('');
+		}
+
 		// Create the HTML for the button sections. Note this just creates the framework, the controls values are set using updateButtonPanelControls
 		function writeButtonsections(numPages)
 		{
-			numPages = Number(numPages);
+			numPages = Math.max(Number(numPages) || 0, getDisplayedButtonPageCount());
 			if (Number.isNaN(numPages) || numPages < 1)
 			{
 				numPages = 1;
@@ -10849,13 +11275,36 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				buttonMainCurrentPage = Math.max(0, numPages - 1);
 			}
 
-			var html = "";
+			var html = `<div class="button-global-controls">
+			<div class="button-main-canvas-header button-shared-sim-header">
+				<div class="button-shared-sim-actions">
+					<span class="homey-form-label button-main-canvas-title">${Homey.__("settings.simulate")}</span>
+					<button class="homey-button-secondary-shadow button-inline-state-toggle" onClick="toggleInlineButtonSimState(); return false;">${Homey.__("settings.onState")}</button>
+				</div>
+				<button class="homey-button-secondary-shadow button-panel-controls-expander" id="buttonPanelControlsExpander" type="button" onclick="toggleButtonPanelControls(); return false;" aria-expanded="${buttonPanelControlsExpanded ? 'true' : 'false'}"><span>${Homey.__("settings.panelControls")}</span><span class="icon">&#8628;</span></button>
+			</div>
+			<div class="button-shared-toolbar">
+				<div class="button-page-label-group">
+					<div class="display-sim-title button-shared-page-title">${getButtonPageHeaderTitleMarkup(buttonMainCurrentPage, numPages)}</div>
+					<div class="display-sim-title-group button-main-page-nav">
+						<button class="homey-button-secondary-shadow display-sim-page-nav button-main-page-prev" type="button" onclick="stepButtonMainPage(-1); return false;" title="${Homey.__("settings.previousPage")}" aria-label="${Homey.__("settings.previousPage")}">&lt;</button>
+						<button class="homey-button-secondary-shadow display-sim-page-nav button-main-page-next" type="button" onclick="stepButtonMainPage(1); return false;" title="${Homey.__("settings.nextPage")}" aria-label="${Homey.__("settings.nextPage")}">&gt;</button>
+						<button class="homey-button-secondary-shadow display-inline-sim-action-btn button-page-add-btn" type="button" data-action="add-page" title="${Homey.__("settings.addPage")}" aria-label="${Homey.__("settings.addPage")}"><i class="fi fi-rr-plus"></i></button>
+					</div>
+				</div>
+				<label class="button-visible-count-label">${Homey.__("settings.configurationsShown")}
+					<select class="homey-form-select button-visible-count-select" onchange="setButtonVisibleConfigurationCount(this.value)">
+						${[1, 2, 3, 4].map((count) => `<option value="${count}"${count === buttonVisibleConfigurationCount ? ' selected' : ''}>${count}</option>`).join('')}
+					</select>
+				</label>
+			</div>
+			</div>`;
 			for (page = 0; page < numPages; page++)
 			{
 				html += `<div class="horizontalcontainer button-main-page${page === buttonMainCurrentPage ? ' active' : ''}">
 					<div class="horizontalgroup" id="${page}ButtonPageSection">
                 		<div class="horizontalcontainer">
-							<div class="button-page-inner">
+							<div class="button-page-inner${Array.isArray(localButtonConfigurations[currentButtonConfigurationNo]) && localButtonConfigurations[currentButtonConfigurationNo][page] ? '' : ' button-page-active-config-missing'}">
 								<div class="button-page-header">
 									<div class="button-page-label-group">
 										<div class="button-page-label-title">
@@ -10876,6 +11325,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 										<span class="homey-form-label button-main-canvas-title">${Homey.__("settings.simulate")}</span>
 										<button class="homey-button-secondary-shadow button-inline-state-toggle" id="${page}ButtonInlineSimState" onClick="toggleInlineButtonSimState(); return false;">${Homey.__("settings.onState")}</button>
 									</div>
+									<div class="button-legacy-preview-controls">
 									<div class="button-mode-toggle-grid">
 										<label class="homey-form-checkbox button-mode-toggle-option" for="left${page}AdvancedMode">
 											<input class="homey-form-checkbox-input" id="left${page}AdvancedMode" type="checkbox" onchange="onButtonModeToggleChange('left', ${page}, this.checked)">
@@ -10890,10 +11340,12 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 									</div>
 									<div class="button-sim-bar button-inline-sim-grid" id="${page}ButtonInlineSimContent"></div>
 									</div>
-									<div class="button-inline-settings-toggle-row">
+									<div class="button-config-preview-stack">${getDisplayedButtonCardsHtml(page)}</div>
+									</div>
+									<div class="button-inline-settings-toggle-row button-canonical-settings">
 										<button class="homey-button-secondary-shadow button-inline-settings-toggle" id="${page}ButtonInlineSettingsToggle" type="button" onClick="toggleButtonInlineSettingsSection(${page}); return false;" aria-expanded="false" title="${Homey.__("settings.expandAutoRepeatBrokerSettings")}" aria-label="${Homey.__("settings.expandAutoRepeatBrokerSettings")}"><span>${Homey.__("settings.autoRepeatBroker")}</span><span class="icon" style='font-size:22px;'>&#8628;</span></button>
 									</div>
-									<details id="${page}ButtonInlineSettingsDetails" class="button-inline-settings-details" ontoggle="updateButtonInlineSettingsToggleState(${page})">
+									<details id="${page}ButtonInlineSettingsDetails" class="button-inline-settings-details button-canonical-settings" ontoggle="updateButtonInlineSettingsToggleState(${page})">
 										<summary class="button-inline-settings-summary">${Homey.__("settings.repeatBrokerSummary")}</summary>
 										<div class="button-inline-main-control-grid">
 											${getButtonInlineMainControlHtml("left", page)}
@@ -10919,6 +11371,8 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				updateButtonInlineSettingsToggleState(pageIndex);
 			}
 			renderButtonMainPage();
+			updateButtonPanelControlsExpander();
+			renderInlineButtonPagePreviews();
 			updateButtonMainDiagnostics('writeButtonsections', { numPages });
 		}
 

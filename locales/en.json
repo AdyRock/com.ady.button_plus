@@ -268,6 +268,11 @@
 		"advancedModeTooltip": "Enable this per side when you need more than simple on/off behavior.<br>Map click, double-click and long/repeat to different devices or capabilities, including numeric step actions.<br>Choose separate sources for display content and LED state so visuals can follow a different capability than the action target.",
 		"previousPage": "Previous page",
 		"nextPage": "Next page",
+        "configurationsShown": "Configurations shown",
+        "configurationHasNoPage": "This configuration has no page here",
+        "panelControls": "Panel controls",
+        "expandPanelControls": "Show panel controls",
+        "collapsePanelControls": "Hide panel controls",
 		"buttonFieldPopupTitle": "Edit button field",
 		"buttonFieldPopupSave": "Save"
 	},

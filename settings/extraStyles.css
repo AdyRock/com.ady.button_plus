@@ -278,6 +278,10 @@ summary::-webkit-details-marker {
 			border-radius: 10px;
 		}
 
+		.button-config-backing-editor {
+			display: none;
+		}
+
 		.panel-config-selector-row {
 			display: flex;
 			align-items: center;
@@ -798,6 +802,261 @@ summary::-webkit-details-marker {
 			margin-top: 12px;
 			margin-bottom: 10px;
 			padding: 0;
+		}
+
+		.button-global-controls {
+			position: sticky;
+			top: calc(var(--settings-fixed-top-offset, 64px) + 4px);
+			z-index: 150;
+			padding-top: 4px;
+			background: #fff;
+		}
+
+		.button-main-canvas-header.button-shared-sim-header {
+			justify-content: space-between;
+			margin-top: 0;
+			margin-bottom: 0;
+			width: 100%;
+		}
+
+		.button-shared-sim-actions {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+		}
+
+		.button-shared-toolbar {
+			display: grid;
+			grid-template-columns: minmax(0, 1fr) auto;
+			align-items: flex-end;
+			gap: 12px;
+			padding: 10px 0;
+			margin-bottom: 0;
+			border-bottom: 1px solid #d4deea;
+		}
+
+		.button-panel-controls-expander {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			gap: 6px;
+			width: auto;
+			height: 28px;
+			min-height: 28px !important;
+			padding: 0 8px !important;
+		}
+
+		.button-panel-controls-expander.is-open .icon {
+			transform: rotate(180deg);
+		}
+
+		.button-visible-count-label {
+			display: grid;
+			grid-template-columns: auto 64px;
+			align-items: center;
+			gap: 8px;
+			min-width: 0;
+			color: var(--homey-color-text-light);
+			font-size: var(--homey-font-size-small);
+			white-space: nowrap;
+		}
+
+		.button-visible-count-select {
+			width: 64px !important;
+			min-width: 64px !important;
+			box-sizing: border-box;
+			text-align: center;
+			padding-top: 5px;
+			padding-bottom: 5px;
+		}
+
+		@media (max-width: 480px) {
+			.button-shared-toolbar {
+				grid-template-columns: minmax(150px, 1fr) 112px;
+				gap: 8px;
+			}
+
+			.button-visible-count-label {
+				display: flex;
+				flex-direction: column;
+				align-items: flex-start;
+				gap: 4px;
+				white-space: normal;
+				text-align: left;
+				line-height: 1.15;
+			}
+
+			.button-visible-count-select {
+				width: 96px !important;
+				min-width: 96px !important;
+				margin-left: 0;
+			}
+		}
+
+		.button-main-page .button-page-header,
+		.button-main-page .button-main-canvas > .button-main-canvas-header,
+		.button-legacy-preview-controls,
+		.button-canonical-settings {
+			display: none !important;
+		}
+
+		.button-main-page > .horizontalgroup {
+			padding: 0;
+			margin-top: 0;
+			border: 0;
+			border-radius: 0;
+		}
+
+		.button-config-preview-stack {
+			display: grid;
+			gap: 12px;
+		}
+
+		.button-preview-controls-collapsed .button-config-preview-stack {
+			gap: 2px;
+		}
+
+		.button-preview-controls-collapsed .button-config-preview-card {
+			padding: 0;
+			overflow: hidden;
+		}
+
+		.button-preview-controls-collapsed .button-card-editor-controls,
+		.button-preview-controls-collapsed .button-mode-toggle-grid,
+		.button-preview-controls-collapsed .button-card-footer,
+		.button-preview-controls-collapsed .button-config-add-page {
+			display: none !important;
+		}
+
+		.button-preview-controls-collapsed .button-inline-sim-grid {
+			margin: 0;
+		}
+
+		.button-preview-controls-collapsed .button-config-page-empty {
+			padding: 8px;
+			border: 0;
+		}
+
+		.button-config-preview-card {
+			padding: 10px;
+			padding-top: 1px;
+			border: 1px solid #cdd8e5;
+			border-radius: 8px;
+			background: #fff;
+		}
+
+		.button-config-preview-card.active {
+			border: 2px solid #2f7df4;
+			box-shadow: 0 0 0 1px rgba(47, 125, 244, 0.18);
+		}
+
+		@media (hover: hover) and (pointer: fine) {
+			.button-config-preview-card:not(.active) {
+				cursor: pointer;
+			}
+
+			.button-config-preview-card:not(.active):hover {
+				border-color: #8db9f8;
+			}
+		}
+
+		.button-card-footer {
+			position: relative;
+			margin-top: 8px;
+			padding-top: 8px;
+			border-top: 1px solid #d4deea;
+		}
+
+		.button-card-settings-details {
+			min-height: 28px;
+		}
+
+		.button-card-settings-summary {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 6px;
+			width: max-content;
+			margin-right: auto;
+			padding: 4px 8px !important;
+			list-style: none;
+			cursor: pointer;
+		}
+
+		.button-card-settings-summary::-webkit-details-marker {
+			display: none;
+		}
+
+		.button-card-settings-details[open] .button-card-settings-summary .icon {
+			transform: rotate(180deg);
+		}
+
+		.button-card-settings-details .button-inline-main-control-grid {
+			margin-top: 8px;
+		}
+
+		.button-card-settings-details .button-inline-main-control-column {
+			padding: 4px;
+			border: 0;
+			border-radius: 0;
+			background: transparent;
+		}
+
+		.button-card-page-action {
+			position: absolute;
+			top: 8px;
+			right: 0;
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			color: var(--homey-color-text-light);
+			font-size: var(--homey-font-size-small);
+		}
+
+		.button-card-delete-page {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			width: 28px;
+			height: 28px;
+			min-width: 28px !important;
+			min-height: 28px !important;
+			padding: 0 !important;
+		}
+
+		.button-displayed-config-name-row {
+			display: none;
+			margin-bottom: 8px;
+		}
+
+		.button-displayed-config-name-row.visible {
+			display: block;
+		}
+
+		.button-config-page-empty {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			gap: 10px;
+			padding: 18px 10px;
+			border: 1px dashed #c7d0dd;
+			color: var(--homey-color-text-light);
+			font-size: var(--homey-font-size-small);
+			text-align: center;
+		}
+
+		.button-config-add-page {
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			gap: 6px;
+			width: auto;
+			padding: 6px 10px !important;
+		}
+
+		.button-page-active-config-missing > .button-inline-settings-toggle-row,
+		.button-page-active-config-missing > .button-inline-settings-details {
+			display: none;
 		}
 
 		.button-main-canvas-header {
@@ -1406,8 +1665,29 @@ summary::-webkit-details-marker {
 
 		/* Keep mobile behavior independent from web-specific text constraints. */
 		@media (hover: none), (pointer: coarse) {
-			.button-sim-bar {
+			.button-sim-overlay .button-sim-bar {
 				grid-template-columns: 1fr;
+			}
+
+			.button-inline-sim-grid {
+				grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+			}
+
+			.button-inline-sim-grid .button-sim-click-zones-help {
+				position: absolute;
+				left: 50%;
+				top: 50%;
+				transform: translate(-50%, -50%);
+				z-index: 12;
+				width: auto;
+				min-height: 0;
+				border: 0;
+				background: transparent;
+				pointer-events: none;
+			}
+
+			.button-inline-sim-grid .button-sim-click-zones-tooltip {
+				pointer-events: auto;
 			}
 
 			.button-sim-click-zones-help {
