@@ -11,6 +11,7 @@
 		var displayDevicesArray = [];
 		var displayDevicesFetched = false;
 		var configTypeElement = document.getElementById('configType');
+		var configTypeTabsElement = document.getElementById('configTypeTabs');
 		var saveButton = document.getElementById('save');
 		var saveBlock = document.getElementById('saveBlock');
 
@@ -1676,6 +1677,19 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				configTypeChanged(configTypeElement.value);
 			});
 
+			if (configTypeTabsElement)
+			{
+				configTypeTabsElement.querySelectorAll('.view-tab').forEach(function (tab)
+				{
+					tab.addEventListener('click', function ()
+					{
+						const view = tab.dataset.view;
+						configTypeElement.value = view;
+						configTypeChanged(view);
+					});
+				});
+			}
+
 			clearLogElement.addEventListener('click', function (e)
 			{
 				Homey.api('POST', '/clearLog/',
@@ -2075,11 +2089,12 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 						storeButtonSettings(currentButtonPanelConfiguration);
 					}
 
-					// Copy the current button configuration to the clipboard in JSON format
+					// Copy only the currently active page of the button configuration to the clipboard.
 					var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+					var activePageIndex = Math.max(0, Math.min(buttonMainCurrentPage, buttonPanelConfiguration.length - 1));
 					var copy = {};
 					copy.copySource = "ButtonPanel";
-					copy.butons = buttonPanelConfiguration;
+					copy.page = buttonPanelConfiguration[activePageIndex];
 					const jsonString = JSON.stringify(copy, null, 2);
 
 					copyTextElement.value = jsonString;
@@ -2105,7 +2120,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 						return;
 					}
 
-					const allowedTopLevelKeys = ['copySource', 'butons'];
+					const allowedTopLevelKeys = ['copySource', 'page', 'butons'];
 					const unknownTopLevelKeys = Object.keys(copy).filter(function (key)
 					{
 						return !allowedTopLevelKeys.includes(key);
@@ -2123,46 +2138,44 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 						return;
 					}
 
-					let buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-					let newButtonPanelConfiguration = copy.butons;
-					if (!Array.isArray(newButtonPanelConfiguration))
+					// Support the current single-page clipboard format, falling back to the
+					// legacy whole-configuration format by taking its first page.
+					const sourcePageConfiguration = copy.page || (Array.isArray(copy.butons) ? copy.butons[0] : undefined);
+					if (!sourcePageConfiguration || typeof sourcePageConfiguration !== 'object')
 					{
 						Homey.alert(Homey.__("settings.clipboardError", { error: "Invalid data" }));
 						return;
 					}
 
-					for (let page = 0; page < newButtonPanelConfiguration.length; page++)
+					let buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+					const targetPageIndex = Math.max(0, Math.min(buttonMainCurrentPage, buttonPanelConfiguration.length - 1));
+
+					// if the page doesn't exist, add it
+					if (!buttonPanelConfiguration[targetPageIndex])
 					{
-						const sourcePageConfiguration = newButtonPanelConfiguration[page];
-						if (!sourcePageConfiguration || typeof sourcePageConfiguration !== 'object')
-						{
-							continue;
-						}
-
-						// if the page doesn't exist, add it
-						if (!buttonPanelConfiguration[page])
-						{
-							buttonPanelConfiguration[page] = {};
-						}
-
-						// Copy every known field so newly introduced settings (for example SVG data) are preserved.
-						Object.keys(sourcePageConfiguration).forEach(function (fieldName)
-						{
-							if (fieldName === 'PageNum')
-							{
-								return;
-							}
-
-							if (sourcePageConfiguration[fieldName] !== undefined)
-							{
-								buttonPanelConfiguration[page][fieldName] = sourcePageConfiguration[fieldName];
-							}
-						});
-
-						buttonPanelConfiguration[page].PageNum = page;
+						buttonPanelConfiguration[targetPageIndex] = {};
 					}
+
+					// Copy every known field so newly introduced settings (for example SVG data) are preserved.
+					Object.keys(sourcePageConfiguration).forEach(function (fieldName)
+					{
+						if (fieldName === 'PageNum')
+						{
+							return;
+						}
+
+						if (sourcePageConfiguration[fieldName] !== undefined)
+						{
+							buttonPanelConfiguration[targetPageIndex][fieldName] = sourcePageConfiguration[fieldName];
+						}
+					});
+
+					buttonPanelConfiguration[targetPageIndex].PageNum = targetPageIndex;
+
 					// Update the controls
 					writeButtonsections(buttonPanelConfiguration.length);
+					buttonMainCurrentPage = targetPageIndex;
+					renderButtonMainPage();
 					updateButtonPanelControls();
 				}
 				catch (err)
@@ -8378,6 +8391,16 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 		function configTypeChanged(configSelected)
 		{
 			var i, tabcontent, tablinks;
+
+			if (configTypeTabsElement)
+			{
+				configTypeTabsElement.querySelectorAll('.view-tab').forEach(function (tab)
+				{
+					const isActive = tab.dataset.view === configSelected;
+					tab.classList.toggle('view-tab-active', isActive);
+					tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+				});
+			}
 
 			if (configSelected !== 'displayConfig')
 			{

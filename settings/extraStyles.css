@@ -71,6 +71,65 @@
     padding-top: 5px;
 }
 
+.visually-hidden {
+    position: absolute !important;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+#configType {
+    display: none !important;
+}
+
+label[for="configType"] {
+    display: none !important;
+}
+
+.view-tabs {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 4px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+}
+
+.view-tab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1 1 0;
+    min-width: 40px;
+    padding: 11px 4px;
+    background-color: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.view-tab:hover {
+    background-color: rgba(47, 79, 239, 0.08);
+}
+
+.view-tab-active {
+    background-color: rgba(47, 79, 239, 0.16);
+    border-color: #2f4fef;
+    box-shadow: inset 0 -3px 0 #2f4fef;
+}
+
+.view-tab-icon {
+    width: 22px;
+    height: 22px;
+    display: block;
+    pointer-events: none;
+}
+
 .bottomFixButtonComponent {
     position: fixed;
     bottom: 5px;
@@ -84,7 +143,7 @@
 }
 
 .main {
-	margin-top: 54px;
+	margin-top: 64px;
     /* Add a top margin to avoid content overlay */
 }
 
@@ -93,6 +152,10 @@
 #brokerConfig,
 #importExport {
     padding-top: 4px !important;
+}
+
+#displayConfig {
+    padding-bottom: 70px !important;
 }
 
 #panelConfig > .homey-form-group,
@@ -518,8 +581,9 @@ summary::-webkit-details-marker {
 			display: flex;
 			align-items: center;
 			justify-content: flex-end;
-			gap: 8px;
-			margin-top: 8px;
+			gap: 12px;
+			margin-top: 30px;
+			margin-right: 20px;
 		}
 		.display-inline-sim-footer {
 			display: flex;
@@ -1482,12 +1546,13 @@ summary::-webkit-details-marker {
 			position: relative;
 			width: min(100%, 520px);
 			aspect-ratio: 4 / 3;
-			background: linear-gradient(180deg, #0b1219 0%, #050b12 100%);
+			background: linear-gradient(180deg, #3a3a3a 0%, #202020 100%);
 			border: 1px solid #2f4459;
-			border-radius: 10px;
+			border-radius: 1px;
 			overflow: hidden;
-			margin: 0 auto;
+			margin: 25px auto;
 			font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+			outline: 25px solid #0b1219;
 		}
 		.display-sim-status-bar {
 			position: absolute;

@@ -137,6 +137,36 @@ class PanelDevice extends Device
 			settings.temperatureCalibration = 0;
 		}
 
+		this.autoBrightnessEnabled = settings.autoBrightnessEnabled === true;
+
+		this.autoBrightnessDimLuminance = settings.autoBrightnessDimLuminance;
+		if (this.autoBrightnessDimLuminance == null)
+		{
+			this.autoBrightnessDimLuminance = 10;
+			settings.autoBrightnessDimLuminance = this.autoBrightnessDimLuminance;
+		}
+
+		this.autoBrightnessDimPercent = settings.autoBrightnessDimPercent;
+		if (this.autoBrightnessDimPercent == null)
+		{
+			this.autoBrightnessDimPercent = 20;
+			settings.autoBrightnessDimPercent = this.autoBrightnessDimPercent;
+		}
+
+		this.autoBrightnessBrightLuminance = settings.autoBrightnessBrightLuminance;
+		if (this.autoBrightnessBrightLuminance == null)
+		{
+			this.autoBrightnessBrightLuminance = 500;
+			settings.autoBrightnessBrightLuminance = this.autoBrightnessBrightLuminance;
+		}
+
+		this.autoBrightnessBrightPercent = settings.autoBrightnessBrightPercent;
+		if (this.autoBrightnessBrightPercent == null)
+		{
+			this.autoBrightnessBrightPercent = 100;
+			settings.autoBrightnessBrightPercent = this.autoBrightnessBrightPercent;
+		}
+
 		this.setSettings(settings).catch(this.error);
 
 		if (this.hasCapability('configuration.display'))
@@ -235,6 +265,7 @@ class PanelDevice extends Device
 		{
 			await this.addCapability('page');
 			this.setCapabilityValue('page', '1').catch(this.error);
+			this.page = 1;
 		}
 		else
 		{
@@ -243,6 +274,11 @@ class PanelDevice extends Device
 			if (page < 1 || isNaN(page))
 			{
 				this.setCapabilityValue('page', '1').catch(this.error);
+				this.page = 1;
+			}
+			else
+			{
+				this.page = page;
 			}
 		}
 
@@ -359,6 +395,7 @@ class PanelDevice extends Device
 
 			this.initFinished = true;
 			this.setAvailable();
+			await this.updateButtonStatesForCurrentPage();
 
 			this.log('PanelDevice hardware initialization completed');
 		}
@@ -480,6 +517,61 @@ class PanelDevice extends Device
 		// Publish the new value to the MQTT broker
 		const brokerId = this.homey.settings.get('defaultBroker');
 		this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/brightness/set`, value * 100).catch(this.error);
+	}
+
+	/**
+	 * Map a luminance sensor reading to a dim (0-1) value using the configured
+	 * dim/bright luminance -> brightness % settings, then publish it as the panel's
+	 * own brightness, exactly like a manual dim capability change would.
+	 * Values outside the configured luminance range are clamped to the nearest end.
+	 */
+	async applyAutoBrightnessFromLuminance(luminance)
+	{
+		if (!this.autoBrightnessEnabled || !this.hasCapability('dim'))
+		{
+			return;
+		}
+
+		const luminanceValue = parseFloat(luminance);
+		if (isNaN(luminanceValue))
+		{
+			return;
+		}
+
+		const dimLuminance = parseFloat(this.autoBrightnessDimLuminance);
+		const brightLuminance = parseFloat(this.autoBrightnessBrightLuminance);
+		const dimPercent = parseFloat(this.autoBrightnessDimPercent);
+		const brightPercent = parseFloat(this.autoBrightnessBrightPercent);
+		if (isNaN(dimLuminance) || isNaN(brightLuminance) || isNaN(dimPercent) || isNaN(brightPercent))
+		{
+			return;
+		}
+
+		let percent;
+		if (brightLuminance === dimLuminance)
+		{
+			percent = brightPercent;
+		}
+		else
+		{
+			let ratio = (luminanceValue - dimLuminance) / (brightLuminance - dimLuminance);
+			ratio = Math.min(1, Math.max(0, ratio));
+			percent = dimPercent + (ratio * (brightPercent - dimPercent));
+		}
+		percent = Math.min(100, Math.max(0, percent));
+
+		const dimValue = percent / 100;
+		const currentDim = this.getCapabilityValue('dim');
+		// Ignore tiny changes to avoid flooding the device with MQTT writes
+		if (currentDim !== null && currentDim !== undefined && Math.abs(currentDim - dimValue) < 0.01)
+		{
+			return;
+		}
+
+		await this.setCapabilityValue('dim', dimValue).catch(this.error);
+
+		const brokerId = this.homey.settings.get('defaultBroker');
+		this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/brightness/set`, dimValue * 100).catch(this.error);
 	}
 
 	/**
@@ -615,6 +707,41 @@ class PanelDevice extends Device
 		if (changedKeys.includes('temperatureCalibration'))
 		{
 			this.temperatureCalibration = newSettings.temperatureCalibration;
+		}
+
+		if (changedKeys.includes('autoBrightnessEnabled'))
+		{
+			this.autoBrightnessEnabled = newSettings.autoBrightnessEnabled === true;
+
+			// Re-apply immediately using the last known luminance reading, if any
+			if (this.autoBrightnessEnabled && this.hasCapability('measure_luminance'))
+			{
+				const luminance = this.getCapabilityValue('measure_luminance');
+				if (luminance !== null && luminance !== undefined)
+				{
+					this.applyAutoBrightnessFromLuminance(luminance).catch(this.error);
+				}
+			}
+		}
+
+		if (changedKeys.includes('autoBrightnessDimLuminance'))
+		{
+			this.autoBrightnessDimLuminance = newSettings.autoBrightnessDimLuminance;
+		}
+
+		if (changedKeys.includes('autoBrightnessDimPercent'))
+		{
+			this.autoBrightnessDimPercent = newSettings.autoBrightnessDimPercent;
+		}
+
+		if (changedKeys.includes('autoBrightnessBrightLuminance'))
+		{
+			this.autoBrightnessBrightLuminance = newSettings.autoBrightnessBrightLuminance;
+		}
+
+		if (changedKeys.includes('autoBrightnessBrightPercent'))
+		{
+			this.autoBrightnessBrightPercent = newSettings.autoBrightnessBrightPercent;
 		}
 
 		if (changedKeys.includes('disabled'))
@@ -1238,23 +1365,18 @@ class PanelDevice extends Device
 		const brokerId = this.homey.settings.get('defaultBroker');
 		if (pageCommand === 'index')
 		{
-			if (!page)
+			const targetPage = (!page || page < 1) ? 1 : page;
+			if (this.page !== targetPage)
 			{
-				if (this.page !== 1)
+				this.page = targetPage;
+				if (this.hasCapability('page'))
 				{
-					this.page = 1;
-					this.homey.app.triggerPageChange(this, this.page);
+					this.setCapabilityValue('page', `${this.page}`).catch(this.error);
 				}
+				this.homey.app.triggerPageChange(this, this.page);
+				await this.updateButtonStatesForCurrentPage();
 			}
-			else
-			{
-				if (this.page !== page)
-				{
-					this.page = page;
-					this.homey.app.triggerPageChange(this, this.page);
-				}
-			}
-			pageCommand = `${this.page - 1}`;
+			pageCommand = `${targetPage - 1}`;
 		}
 
 		this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/page/set`, pageCommand, false).catch(this.error);
@@ -1999,7 +2121,8 @@ class PanelDevice extends Device
 	async onCapabilityLeftButton(connector, value, opts)
 	{
 		this.homey.app.updateLog(`onCapabilityLeftButton ${connector}, ${value}, ${opts}`);
-		this.buttonValues.set(`left_${connector}_${this.page}`, value);
+		const pageIndex = Math.max(0, this.page - 1);
+		this.buttonValues.set(`left_${connector}_${pageIndex}`, value);
 
 		// Setup parameters and call procesButtonClick
 		const parameters = {};
@@ -2007,15 +2130,16 @@ class PanelDevice extends Device
 		parameters.idx = connector * 2;
 		parameters.side = 'left';
 		parameters.value = value;
-		parameters.page = this.page;
+		parameters.page = pageIndex;
 
 		await this.processButtonCapability(parameters);
 	}
 
 	async onCapabilityRightButton(connector, value, opts)
 	{
-		this.homey.app.updateLog(`onCapabilityLeftButton ${connector}, ${value}, ${opts}`);
-		this.buttonValues.set(`right_${connector}_${this.page}`, value);
+		this.homey.app.updateLog(`onCapabilityRightButton ${connector}, ${value}, ${opts}`);
+		const pageIndex = Math.max(0, this.page - 1);
+		this.buttonValues.set(`right_${connector}_${pageIndex}`, value);
 
 		// Setup parameters and call procesButtonClick
 		const parameters = {};
@@ -2023,7 +2147,7 @@ class PanelDevice extends Device
 		parameters.idx = connector * 2 + 1;
 		parameters.side = 'right';
 		parameters.value = value;
-		parameters.page = this.page;
+		parameters.page = pageIndex;
 
 		await this.processButtonCapability(parameters);
 	}
@@ -2225,20 +2349,20 @@ class PanelDevice extends Device
 		{
 			if ((topicParts[2] === 'page') && (topicParts[3] === 'state'))
 			{
-				const page = parseInt(value, 10);
+				const pageIndex = parseInt(value, 10);
 				// Make sure the page is a number
-				if (!isNaN(page) && page !== this.page)
+				if (!isNaN(pageIndex))
 				{
-					this.page = page;
-					if (this.hasCapability('page'))
+					const newPageNumber = pageIndex + 1;
+					if (newPageNumber !== this.page)
 					{
-						let page = this.page;
-						if (page === 0)
+						this.page = newPageNumber;
+						if (this.hasCapability('page'))
 						{
-							page = 1;
+							this.setCapabilityValue('page', `${this.page}`).catch(this.error);
 						}
-						this.setCapabilityValue('page', `${page}`).catch(this.error);
 						this.homey.app.triggerPageChange(this, this.page);
+						await this.updateButtonStatesForCurrentPage();
 					}
 				}
 			}
@@ -2274,6 +2398,8 @@ class PanelDevice extends Device
 
 					const configNo = this.getCapabilityValue('configuration_display');
 					this.checkStateChangeForDisplay(configNo, this.__id, 'measure_luminance', luminance);
+
+					this.applyAutoBrightnessFromLuminance(luminance).catch(this.error);
 				}
 			}
 			else if ((topicParts[2] === 'sensor') && ((topicParts[3] === '3') || (topicParts[3] === 'sens3')))
@@ -2624,7 +2750,7 @@ class PanelDevice extends Device
 		if (await this.runAdvancedEventMapping(parameters, 'click'))
 		{
 			await this.triggerAdvancedMappedConfigClicked(parameters);
-			if (parameters.fromButton && ((parameters.page === 0) || (this.page === parameters.page)))
+			if (parameters.fromButton && (parameters.page === (this.page - 1)))
 			{
 				setImmediate(() => this.safeSetCapabilityValue(parameters.buttonCapability, false));
 			}
@@ -2769,7 +2895,7 @@ class PanelDevice extends Device
 				{
 					if (await this.runAdvancedEventMapping(parameters, 'long'))
 					{
-						if ((parameters.page === 0) || (this.page === parameters.page))
+						if (parameters.page === (this.page - 1))
 						{
 							this.safeSetCapabilityValue(`${parameters.side}_button.connector${parameters.connector}`, false);
 						}
@@ -3021,6 +3147,43 @@ class PanelDevice extends Device
 		else if (numericValue <= (min + epsilon))
 		{
 			this.setAdvancedDirection(parameters, '+');
+		}
+	}
+
+	/**
+	 * Re-evaluate direction (+/-) when a bound device/capability changes externally
+	 * (e.g. another flow, app or the device itself reaching 0%/100%), not just when
+	 * the panel button itself drives the value. Keeps the +/- indicator in sync with
+	 * the actual capability value regardless of what caused the change.
+	 */
+	async updateAdvancedDirectionForExternalChange(parameters, binding, rawValue)
+	{
+		if (!binding || (binding.deviceID === '_variable_'))
+		{
+			return;
+		}
+
+		if (rawValue === undefined)
+		{
+			// No explicit value supplied (e.g. config reload): read the capability's current value instead.
+			const { capability: currentCapability } = await this.getDeviceAndCapability(binding);
+			if (!currentCapability)
+			{
+				return;
+			}
+			rawValue = currentCapability.value;
+		}
+
+		if ((binding.capabilityName === 'dim') || (binding.capabilityName === 'windowcoverings_set'))
+		{
+			this.applyAdvancedDirectionAtBounds(parameters, rawValue, 0, 1);
+			return;
+		}
+
+		const { capability } = await this.getDeviceAndCapability(binding);
+		if (capability && (capability.type === 'number') && (capability.min !== undefined) && (capability.max !== undefined))
+		{
+			this.applyAdvancedDirectionAtBounds(parameters, rawValue, Number(capability.min), Number(capability.max));
 		}
 	}
 
@@ -4318,7 +4481,7 @@ class PanelDevice extends Device
 		// Item list capabilities have no on/off value of their own: the button/LED state instead follows the target device's onoff capability
 		this.fireOrQueueClickedTrigger(parameters, key, () => this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'clicked', ledState !== null ? ledState : false, displayValue, parameters.page));
 
-		if (parameters.fromButton && ((parameters.page === 0) || (this.page === parameters.page)))
+		if (parameters.fromButton && (parameters.page === (this.page - 1)))
 		{
 			// Momentary press: reset the virtual button state immediately
 			setImmediate(() => this.safeSetCapabilityValue(parameters.buttonCapability, false));
@@ -4346,7 +4509,7 @@ class PanelDevice extends Device
 			this.setLEDOnOff(config, null, buttonIdx, parameters.page, ledState);
 		}
 
-		if (parameters.fromButton && ((parameters.page === 0) || (this.page === parameters.page)))
+		if (parameters.fromButton && (parameters.page === (this.page - 1)))
 		{
 			// Momentary press: reset the virtual button state immediately
 			setImmediate(() => this.safeSetCapabilityValue(parameters.buttonCapability, false));
@@ -4426,7 +4589,7 @@ class PanelDevice extends Device
 
 		this.pickerCommitTimers.set(key, timer);
 
-		if (parameters.fromButton && ((parameters.page === 0) || (this.page === parameters.page)))
+		if (parameters.fromButton && (parameters.page === (this.page - 1)))
 		{
 			// Set the button state back to false immediately
 			setImmediate(() => this.safeSetCapabilityValue(parameters.buttonCapability, false));
@@ -4691,7 +4854,7 @@ class PanelDevice extends Device
 					this.publishTextButtonLabel(config.brokerId, buttonIdx, parameters.page, variable.value);
 					this.fireOrQueueClickedTrigger(parameters, key, () => this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'clicked', false, variable.value === undefined ? '' : String(variable.value), parameters.page));
 
-					if (parameters.fromButton && ((parameters.page === 0) || (this.page === parameters.page)))
+					if (parameters.fromButton && (parameters.page === (this.page - 1)))
 					{
 						// Momentary press: reset the virtual button state immediately
 						setImmediate(() => this.safeSetCapabilityValue(parameters.buttonCapability, false));
@@ -4766,7 +4929,7 @@ class PanelDevice extends Device
 							displayValue = this.formatDimLabel(value * 100, this.getDimDirection(dimKey, config.dimChange));
 							value *= 100;
 
-							if (parameters.fromButton && ((parameters.page === 0) || (this.page === parameters.page)))
+							if (parameters.fromButton && (parameters.page === (this.page - 1)))
 							{
 								// Set the button state back to false immediately
 								setImmediate(() => this.safeSetCapabilityValue(parameters.buttonCapability, false));
@@ -4829,7 +4992,7 @@ class PanelDevice extends Device
 
 		if (typeof value === 'boolean')
 		{
-			if (!parameters.fromButton && ((parameters.page === 0) || (this.page === parameters.page)))
+			if (!parameters.fromButton && (parameters.page === (this.page - 1)))
 			{
 				// Set the virtual button state
 				this.safeSetCapabilityValue(parameters.buttonCapability, value);
@@ -4992,7 +5155,7 @@ class PanelDevice extends Device
 			const suppressInitialLongMs = Math.max(150, Math.min(2000, this.getConfiguredLongPressDelayMs(parameters) + 250));
 			if (lastClickAt > 0 && ((Date.now() - lastClickAt) < suppressInitialLongMs))
 			{
-				if ((parameters.page === 0) || (this.page === parameters.page))
+				if (parameters.page === (this.page - 1))
 				{
 					this.safeSetCapabilityValue(`${parameters.side}_button.connector${parameters.connector}`, false);
 				}
@@ -5003,7 +5166,7 @@ class PanelDevice extends Device
 		if (await this.runAdvancedEventMapping(parameters, 'long'))
 		{
 			await this.triggerAdvancedMappedConfigLong(parameters, repeatCount);
-			if ((parameters.page === 0) || (this.page === parameters.page))
+			if (parameters.page === (this.page - 1))
 			{
 				this.safeSetCapabilityValue(`${parameters.side}_button.connector${parameters.connector}`, false);
 			}
@@ -5083,7 +5246,7 @@ class PanelDevice extends Device
 			if ((parameters.connectorType === 2) || (parameters.connectorType === 3) || (parameters.configNo == null))
 			{
 				this.setLEDOnOff(config, null, buttonIdx, parameters.page, false);
-				if (parameters.page === this.page)
+				if (parameters.page === (this.page - 1))
 				{
 					this.safeSetCapabilityValue(`${parameters.side}_button.connector${parameters.connector}`, false);
 				}
@@ -5103,7 +5266,7 @@ class PanelDevice extends Device
 					{
 						// Find the Homey device that is defined in the configuration
 						const { device, capability } = await this.getDeviceAndCapability(config);
-						if (capability && ((parameters.page === 0) || (this.page === parameters.page)))
+						if (capability && (parameters.page === (this.page - 1)))
 						{
 							try
 							{
@@ -5120,7 +5283,7 @@ class PanelDevice extends Device
 				{
 					// There is only an Off message so don't latch the button state
 					this.setLEDOnOff(config, null, buttonIdx, parameters.page, false);
-					if (parameters.page === this.page)
+					if (parameters.page === (this.page - 1))
 					{
 						this.safeSetCapabilityValue(`${parameters.side}_button.connector${parameters.connector}`, false);
 					}
@@ -5572,6 +5735,8 @@ class PanelDevice extends Device
 					if (displayBinding && (displayBinding.deviceID === deviceId) && (displayBinding.capabilityName === capability))
 					{
 						// eslint-disable-next-line no-await-in-loop
+						await this.updateAdvancedDirectionForExternalChange(advancedParameters, displayBinding, rawCapabilityValue);
+						// eslint-disable-next-line no-await-in-loop
 						this.homey.app.updateLog(`ADVDBG stateChange: applyAdvancedDisplayBinding ${connector}/${side}/${page}`, 1);
 						await this.applyAdvancedDisplayBinding(advancedParameters, rawCapabilityValue);
 					}
@@ -5634,7 +5799,7 @@ class PanelDevice extends Device
 								this.homey.app.triggerButtonOff(this, side === 'left', connector + 1, page);
 							}
 
-							if ((page === 0) || (this.page === page))
+							if (page === (this.page - 1))
 							{
 								// Set the device button state
 								this.safeSetCapabilityValue(`${side}_button.connector${connector}`, value);
@@ -6022,6 +6187,9 @@ class PanelDevice extends Device
 
 			if (effectiveDisplayBinding)
 			{
+				// Config reloads don't go through checkStateChangeForConnector, so the stored
+				// direction (default '+') would otherwise be stale if the value is already at a bound.
+				await this.updateAdvancedDirectionForExternalChange(advancedParameters, effectiveDisplayBinding);
 				const displayValue = await this.resolveAdvancedDisplayValue(effectiveDisplayBinding, undefined, advancedParameters);
 				mqttQueue.push(
 					{
@@ -6058,7 +6226,7 @@ class PanelDevice extends Device
 				rawTextValue = variable.value;
 			}
 
-			if ((page === 0) || (this.page === page))
+			if (page === (this.page - 1))
 			{
 				// Set the device button state
 				this.safeSetCapabilityValue(`${side}_button.connector${connector}`, value);
@@ -6119,7 +6287,7 @@ class PanelDevice extends Device
 
 						}
 					}
-					if ((page === 0) || (this.page === page))
+					if (page === (this.page - 1))
 					{
 						// make sure the value is a boolean for the button state
 						value = Boolean(value);
@@ -6669,7 +6837,132 @@ class PanelDevice extends Device
 			await this.triggerCapabilityListener(`${left_right}_button.connector${connector}`, state);
 		}
 
-		this.buttonValues.set(`${left_right}_${connector}_${page}`, state);
+		if (page === 0)
+		{
+			const configNo = this.hasCapability(`configuration_button.connector${connector}`)
+				? this.getCapabilityValue(`configuration_button.connector${connector}`)
+				: null;
+			const config = configNo != null ? this.homey.app.buttonConfigurations[configNo] : null;
+			const pages = Array.isArray(config) && config.length > 0 ? config.length : 1;
+			for (let p = 0; p < pages; p++)
+			{
+				this.buttonValues.set(`${left_right}_${connector}_${p}`, state);
+			}
+		}
+		else
+		{
+			this.buttonValues.set(`${left_right}_${connector}_${page - 1}`, state);
+		}
+	}
+
+	/**
+	 * Updates the Homey button capabilities (left_button.connectorX, right_button.connectorX)
+	 * to reflect the on/off state of the buttons for the currently active page.
+	 * Called whenever the active page changes or hardware is initialized.
+	 */
+	async updateButtonStatesForCurrentPage()
+	{
+		const pageIndex = Math.max(0, this.page - 1);
+		for (let connector = 0; connector < 8; connector++)
+		{
+			const connectorType = this.getSetting(`connect${connector}Type`);
+			let configNo = this.hasCapability(`configuration_button.connector${connector}`)
+				? this.getCapabilityValue(`configuration_button.connector${connector}`)
+				: null;
+			if ((configNo == null) && (this.displayButtonEvents === true) && ((connectorType === 2) || (connectorType === 3)) && this.hasCapability('configuration_display'))
+			{
+				configNo = this.getCapabilityValue('configuration_display');
+			}
+
+			for (const side of ['left', 'right'])
+			{
+				const capabilityName = `${side}_button.connector${connector}`;
+				if (!this.hasCapability(capabilityName))
+				{
+					continue;
+				}
+
+				const buttonKey = `${side}_${connector}_${pageIndex}`;
+				let value = false;
+
+				if (this.buttonValues && this.buttonValues.has(buttonKey))
+				{
+					value = Boolean(this.buttonValues.get(buttonKey));
+				}
+				else if (configNo != null)
+				{
+					const rawConfig = this.homey.app.buttonConfigurations[configNo];
+					const rawPageConfig = (Array.isArray(rawConfig) && (rawConfig[pageIndex] || rawConfig[0])) || {};
+					const sideMode = String(rawPageConfig[`${side}Mode`] || 'basic').toLowerCase();
+
+					if (sideMode === 'advanced')
+					{
+						const advancedParameters = {
+							connector,
+							side,
+							page: pageIndex,
+							configNo,
+							connectorType,
+						};
+						const ledBinding = this.resolveAdvancedLedBinding(advancedParameters);
+						if (ledBinding)
+						{
+							value = Boolean(await this.resolveLedBindingValue(ledBinding));
+						}
+					}
+					else
+					{
+						const sideConfig = this.getConfigPageSide(null, pageIndex, side, configNo);
+						if (sideConfig.deviceID === '_variable_')
+						{
+							const variable = await this.homey.app.getVariable(sideConfig.capabilityName);
+							if (variable && variable.type === 'boolean')
+							{
+								value = Boolean(variable.value);
+							}
+						}
+						else if (sideConfig.deviceID && sideConfig.deviceID !== 'none' && sideConfig.deviceID !== 'customMQTT')
+						{
+							try
+							{
+								const { device, capability } = await this.getDeviceAndCapability(sideConfig);
+								if (capability)
+								{
+									if (sideConfig.capabilityName === 'dim')
+									{
+										value = Boolean(await this.getDimButtonLedState(sideConfig));
+									}
+									else if (capability.type !== 'boolean' && capability.id !== 'windowcoverings_state')
+									{
+										const capLedState = await this.getCapabilityLedState(sideConfig);
+										value = (capLedState !== null) ? Boolean(capLedState) : Boolean(capability.value);
+									}
+									else if (capability.id === 'windowcoverings_state')
+									{
+										value = capability.value === 'up';
+									}
+									else
+									{
+										value = Boolean(capability.value);
+									}
+								}
+							}
+							catch (err)
+							{
+								this.homey.app.updateLog(`Error resolving button state for ${sideConfig.deviceID}: ${err.message}`, 0);
+							}
+						}
+					}
+
+					if (this.buttonValues)
+					{
+						this.buttonValues.set(buttonKey, value);
+					}
+				}
+
+				await this.safeSetCapabilityValue(capabilityName, value);
+			}
+		}
 	}
 }
 

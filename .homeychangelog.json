@@ -337,5 +337,8 @@
 	},
 	"0.7.46": {
 		"en": "Handle V3 long press event in the app as it has a fixed interval of 20ms."
+	},
+	"1.0.0": {
+		"en": "Added auto-brightness feature based on luminance sensor readings. Added advanced button configuration options for more granular control over button events and the types of capabilities that can be applied."
 	}
 }

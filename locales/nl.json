@@ -170,7 +170,7 @@
         "cancel": "Annuleren",
         "displayFieldPopupTitle": "Display veld bewerken",
         "displayFieldPopupSave": "Item bijwerken",
-        "displaySimStatusBar": "Statusbalk (i)",
+        "displaySimStatusBar": "Sim Statusbalk",
         "displaySimStatusBarHint": "Deze instelling voor de statusbalk heeft alleen invloed op het uiterlijk van de emulator op dit scherm. De echte statusbalk-instelling per Button+ stel je in bij de geavanceerde instellingen van dat apparaat.",
         "displaySimOff": "Uit",
         "displaySimTop": "Boven",

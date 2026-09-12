@@ -214,6 +214,92 @@
 		{
 			"type": "group",
 			"label": {
+				"en": "Automatic brightness (Advanced)",
+				"nl": "Automatische helderheid (Geavanceerd)"
+			},
+			"children": [
+				{
+					"id": "autoBrightnessEnabled",
+					"type": "checkbox",
+					"label": {
+						"en": "Control brightness from luminance sensor",
+						"nl": "Helderheid regelen via de lichtsensor"
+					},
+					"value": false,
+					"hint": {
+						"en": "When enabled, the panel's own brightness (dim capability) is automatically adjusted using the built-in luminance sensor, if fitted, instead of being set manually",
+						"nl": "Indien ingeschakeld wordt de helderheid van het paneel (dim capability) automatisch aangepast op basis van de ingebouwde lichtsensor (indien aanwezig), in plaats van handmatig ingesteld"
+					}
+				},
+				{
+					"id": "autoBrightnessDimLuminance",
+					"type": "number",
+					"label": {
+						"en": "Dim luminance",
+						"nl": "Donkere lichtsterkte"
+					},
+					"value": 10,
+					"units": "lux",
+					"step": 1,
+					"hint": {
+						"en": "The luminance sensor reading that is considered dark surroundings",
+						"nl": "De sensorwaarde die als donkere omgeving wordt beschouwd"
+					}
+				},
+				{
+					"id": "autoBrightnessDimPercent",
+					"type": "number",
+					"label": {
+						"en": "Brightness at dim luminance",
+						"nl": "Helderheid bij donkere lichtsterkte"
+					},
+					"value": 20,
+					"units": "%",
+					"min": 0,
+					"max": 100,
+					"step": 1,
+					"hint": {
+						"en": "The panel brightness percentage to use when the luminance sensor reads the dim luminance value or lower",
+						"nl": "Het helderheidspercentage van het paneel bij de donkere lichtsterkte of lager"
+					}
+				},
+				{
+					"id": "autoBrightnessBrightLuminance",
+					"type": "number",
+					"label": {
+						"en": "Bright luminance",
+						"nl": "Heldere lichtsterkte"
+					},
+					"value": 500,
+					"units": "lux",
+					"step": 1,
+					"hint": {
+						"en": "The luminance sensor reading that is considered bright surroundings",
+						"nl": "De sensorwaarde die als heldere omgeving wordt beschouwd"
+					}
+				},
+				{
+					"id": "autoBrightnessBrightPercent",
+					"type": "number",
+					"label": {
+						"en": "Brightness at bright luminance",
+						"nl": "Helderheid bij heldere lichtsterkte"
+					},
+					"value": 100,
+					"units": "%",
+					"min": 0,
+					"max": 100,
+					"step": 1,
+					"hint": {
+						"en": "The panel brightness percentage to use when the luminance sensor reads the bright luminance value or higher",
+						"nl": "Het helderheidspercentage van het paneel bij de heldere lichtsterkte of hoger"
+					}
+				}
+			]
+		},
+		{
+			"type": "group",
+			"label": {
 				"en": "Date and Time Format",
 				"nl": "Datum en Tijd Formaat"
 			},

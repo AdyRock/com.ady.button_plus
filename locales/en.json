@@ -174,7 +174,7 @@
         "cancel": "Cancel",
         "displayFieldPopupTitle": "Edit display field",
         "displayFieldPopupSave": "Update Item",
-        "displaySimStatusBar": "Status bar (i)",
+        "displaySimStatusBar": "Sim Status bar",
         "displaySimStatusBarHint": "This Status bar setting only affects the emulator appearance in this screen. The actual Status bar setting for each Button+ is configured in that device's Advanced Settings.",
         "displaySimOff": "Off",
         "displaySimTop": "Top",
