@@ -791,6 +791,104 @@ summary::-webkit-details-marker {
 			line-height: 1;
 		}
 
+		.button-sim-config-number {
+			position: absolute;
+			left: 50%;
+			top: 4px;
+			transform: translateX(-50%);
+			z-index: 13;
+			display: none;
+			align-items: center;
+			justify-content: center;
+			width: 22px;
+			height: 22px;
+			border: 1px solid rgba(122, 183, 255, 0.9);
+			border-radius: 999px;
+			box-sizing: border-box;
+			background: #243f5d;
+			color: #e7f3ff;
+			font-size: 11px;
+			font-weight: 700;
+			line-height: 1;
+			pointer-events: none;
+		}
+
+		.button-sim-config-select {
+			display: none;
+			position: absolute;
+			left: 50%;
+			top: 4px;
+			transform: translateX(-50%);
+			z-index: 14;
+			width: 22px;
+			height: 22px;
+			min-width: 22px;
+			min-height: 22px;
+			margin: 0;
+			padding: 0;
+			border: 0;
+			opacity: 0;
+			cursor: pointer;
+		}
+
+		.button-sim-mode-toggle {
+			position: absolute;
+			top: 8px;
+			z-index: 13;
+			display: inline-flex;
+			align-items: center;
+			justify-content: center;
+			width: 42px;
+			height: 18px;
+			min-width: 42px !important;
+			min-height: 18px !important;
+			padding: 0 5px !important;
+			border: 1px solid rgba(148, 163, 184, 0.75);
+			border-radius: 999px;
+			background: linear-gradient(180deg, #344252 0%, #273442 100%);
+			color: #fff !important;
+			-webkit-text-fill-color: #fff;
+			box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 0 0 1px rgba(0, 0, 0, 0.3);
+			font-size: 9px;
+			font-weight: 800;
+			line-height: 1;
+			cursor: pointer;
+		}
+
+		.button-sim-mode-toggle-left {
+			left: calc(50% - 38px);
+			transform: translateX(-50%);
+		}
+
+		.button-sim-mode-toggle-right {
+			left: calc(50% + 38px);
+			transform: translateX(-50%);
+		}
+
+		.button-sim-mode-toggle.advanced {
+			border-color: rgba(152, 232, 178, 0.75);
+			background: linear-gradient(180deg, #284e35 0%, #1f3f2b 100%);
+			color: #fff !important;
+			-webkit-text-fill-color: #fff;
+		}
+
+		.button-sim-mode-toggle:hover,
+		.button-sim-mode-toggle:focus,
+		.button-sim-mode-toggle:active,
+		.button-sim-mode-toggle[aria-pressed="true"] {
+			color: #fff !important;
+			-webkit-text-fill-color: #fff;
+		}
+
+		.button-sim-mode-toggle:hover {
+			box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.1), 0 2px 4px rgba(0, 0, 0, 0.35);
+		}
+
+		.button-sim-mode-toggle:focus {
+			outline: 2px solid #7ab7ff;
+			outline-offset: 1px;
+		}
+
 		.button-sim-click-zones-tooltip .tooltiptext {
 			left: -120px;
 			max-width: 280px;
@@ -923,8 +1021,7 @@ summary::-webkit-details-marker {
 
 		.button-preview-controls-collapsed .button-card-editor-controls,
 		.button-preview-controls-collapsed .button-mode-toggle-grid,
-		.button-preview-controls-collapsed .button-card-footer,
-		.button-preview-controls-collapsed .button-config-add-page {
+		.button-preview-controls-collapsed .button-card-footer {
 			display: none !important;
 		}
 
@@ -932,12 +1029,21 @@ summary::-webkit-details-marker {
 			margin: 0;
 		}
 
+		.button-preview-controls-collapsed .button-sim-config-number {
+			display: inline-flex;
+		}
+
+		.button-preview-controls-collapsed .button-sim-config-select {
+			display: block;
+		}
+
 		.button-preview-controls-collapsed .button-config-page-empty {
-			padding: 8px;
+			padding: 30px 8px 8px;
 			border: 0;
 		}
 
 		.button-config-preview-card {
+			position: relative;
 			padding: 10px;
 			padding-top: 1px;
 			border: 1px solid #cdd8e5;
@@ -1035,8 +1141,9 @@ summary::-webkit-details-marker {
 
 		.button-config-page-empty {
 			display: flex;
-			flex-direction: column;
+			flex-direction: row;
 			align-items: center;
+			justify-content: center;
 			gap: 10px;
 			padding: 18px 10px;
 			border: 1px dashed #c7d0dd;
@@ -1049,9 +1156,12 @@ summary::-webkit-details-marker {
 			display: inline-flex;
 			align-items: center;
 			justify-content: center;
-			gap: 6px;
-			width: auto;
-			padding: 6px 10px !important;
+			width: 30px;
+			height: 30px;
+			min-width: 30px !important;
+			min-height: 30px !important;
+			padding: 0 !important;
+			flex: 0 0 30px;
 		}
 
 		.button-page-active-config-missing > .button-inline-settings-toggle-row,
@@ -1349,6 +1459,10 @@ summary::-webkit-details-marker {
 			box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
 		}
 
+		.button-inline-sim-grid > .button-sim-item {
+			padding-top: 14px !important;
+		}
+
 		.button-inline-sim-grid .button-sim-item:first-child,
 		.button-sim-bar .button-sim-item:first-child {
 			border-top-right-radius: 0;
@@ -1388,13 +1502,13 @@ summary::-webkit-details-marker {
 
 		.button-sim-advanced-badge {
 			position: absolute;
-			top: 4px;
+			top: 8px;
 			left: 4px;
 			z-index: 4;
 			width: 70px;
-			height: 18px;
+			height: 22px;
 			min-width: 42px !important;
-			min-height: 18px !important;
+			min-height: 22px !important;
 			padding: 0 4px !important;
 			display: inline-flex;
 			align-items: center;
@@ -1463,6 +1577,12 @@ summary::-webkit-details-marker {
 			left: auto;
 			right: 4px;
 		}
+
+		.button-inline-sim-grid .button-sim-advanced-badge {
+			top: -8px;
+			z-index: 13;
+		}
+
 		.button-sim-shell-left {
 			grid-template-columns: auto minmax(0, 1fr);
 		}

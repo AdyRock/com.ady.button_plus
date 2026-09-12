@@ -4,6 +4,8 @@
 		const CONFIG_DRAFT_STORAGE_KEY = 'unsavedConfigurationDraft';
 		const CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY = 'unsavedConfigurationDraftDismissedSignature';
 		const CONFIG_DRAFT_SAVE_DEBOUNCE_MS = 500;
+		const BUTTON_VISIBLE_CONFIGURATION_COUNT_KEY = 'buttonVisibleConfigurationCount';
+		const BUTTON_PANEL_CONTROLS_COLLAPSED_KEY = 'buttonPanelControlsCollapsed';
 		var buttonDevicesArray = [];
 		var buttonDevicesFetched = false;
 		var variablesArray = [];
@@ -454,6 +456,11 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 			}
 
 			if (target.id === 'save')
+			{
+				return false;
+			}
+
+			if (target.closest('[data-view-only="true"]'))
 			{
 				return false;
 			}
@@ -1567,6 +1574,34 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 					fixedTopResizeObserver.observe(fixedTopElement);
 				}
 			}
+
+			Homey.get(BUTTON_VISIBLE_CONFIGURATION_COUNT_KEY, function (err, savedCount)
+			{
+				const parsedCount = parseInt(savedCount, 10);
+				if (err || Number.isNaN(parsedCount))
+				{
+					return;
+				}
+
+				buttonVisibleConfigurationCount = Math.max(1, Math.min(4, parsedCount));
+				getDisplayedButtonConfigurationNos();
+				if (buttonConfigurationsFetched)
+				{
+					writeButtonsections(getDisplayedButtonPageCount());
+					updateButtonPanelControls();
+				}
+			});
+
+			Homey.get(BUTTON_PANEL_CONTROLS_COLLAPSED_KEY, function (err, savedCollapsed)
+			{
+				if (err || (savedCollapsed !== true && savedCollapsed !== false))
+				{
+					return;
+				}
+
+				buttonPanelControlsExpanded = !savedCollapsed;
+				updateButtonPanelControlsExpander();
+			});
 
 			Homey.get(CONFIG_DRAFT_STORAGE_KEY, function (err, loadedDraft)
 			{
@@ -3942,6 +3977,29 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			}
 		}
 
+		function toggleDisplayedButtonMode(event, configNo, side, page)
+		{
+			if (event)
+			{
+				event.preventDefault();
+				event.stopPropagation();
+			}
+
+			if (Number(currentButtonConfigurationNo) !== Number(configNo))
+			{
+				activateDisplayedButtonConfiguration(configNo);
+			}
+
+			const config = localButtonConfigurations[configNo];
+			if (!Array.isArray(config) || !config[page])
+			{
+				return false;
+			}
+
+			onButtonModeToggleChange(side, page, !isButtonSideAdvanced(config[page], side));
+			return false;
+		}
+
 		function findAdvancedDefaultDeviceForSide(pageConfig, side)
 		{
 			const candidateKeys = [`${side}ClickDevice`, `${side}DoubleDevice`, `${side}LongDevice`, `${side}LedDevice`, `${side}DisplayDevice`];
@@ -4474,8 +4532,12 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				}
 
 				const pageConfig = config[page];
+				const leftAdvanced = isButtonSideAdvanced(pageConfig, 'left');
+				const rightAdvanced = isButtonSideAdvanced(pageConfig, 'right');
 				previewElement.innerHTML =
-					`<button class="button-sim-item" onclick="activateDisplayedButtonConfiguration(${configIndex}); return handleButtonSimShellClick(event, 'left', ${page});" title="${Homey.__("settings.openLeftPanelSettings")}">
+					`<button class="button-sim-mode-toggle button-sim-mode-toggle-left${leftAdvanced ? ' advanced' : ''}" type="button" onclick="return toggleDisplayedButtonMode(event, ${configIndex}, 'left', ${page});" aria-pressed="${leftAdvanced ? 'true' : 'false'}" title="${Homey.__("settings.leftAdvancedLabel")}">${leftAdvanced ? 'ADV' : 'STD'}</button>
+					<button class="button-sim-mode-toggle button-sim-mode-toggle-right${rightAdvanced ? ' advanced' : ''}" type="button" onclick="return toggleDisplayedButtonMode(event, ${configIndex}, 'right', ${page});" aria-pressed="${rightAdvanced ? 'true' : 'false'}" title="${Homey.__("settings.rightAdvancedLabel")}">${rightAdvanced ? 'ADV' : 'STD'}</button>
+					<button class="button-sim-item" onclick="activateDisplayedButtonConfiguration(${configIndex}); return handleButtonSimShellClick(event, 'left', ${page});" title="${Homey.__("settings.openLeftPanelSettings")}">
 						${getButtonPanelPreviewMarkup(pageConfig, 'left', page, configIndex)}
 					</button>
 					<div class="button-sim-click-zones-help" role="note" title="${Homey.__("settings.clickableZonesHelp")}">
@@ -10801,6 +10863,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 		window.deleteButtonPage = deleteButtonPage;
 		window.addButtonPage = addButtonPage;
 		window.activateDisplayedButtonConfiguration = activateDisplayedButtonConfiguration;
+		window.toggleDisplayedButtonMode = toggleDisplayedButtonMode;
 		window.handleDisplayedButtonCardClick = handleDisplayedButtonCardClick;
 		window.changeDisplayedButtonConfiguration = changeDisplayedButtonConfiguration;
 		window.setButtonVisibleConfigurationCount = setButtonVisibleConfigurationCount;
@@ -11005,7 +11068,14 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 
 		function setButtonVisibleConfigurationCount(value)
 		{
-			buttonVisibleConfigurationCount = Math.max(1, Math.min(4, Number(value) || 1));
+			const nextCount = Math.max(1, Math.min(4, Number(value) || 1));
+			if (nextCount === buttonVisibleConfigurationCount)
+			{
+				return;
+			}
+
+			buttonVisibleConfigurationCount = nextCount;
+			Homey.set(BUTTON_VISIBLE_CONFIGURATION_COUNT_KEY, buttonVisibleConfigurationCount);
 			getDisplayedButtonConfigurationNos();
 			writeButtonsections(getDisplayedButtonPageCount());
 			updateButtonPanelControls();
@@ -11032,6 +11102,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 		function toggleButtonPanelControls()
 		{
 			buttonPanelControlsExpanded = !buttonPanelControlsExpanded;
+			Homey.set(BUTTON_PANEL_CONTROLS_COLLAPSED_KEY, !buttonPanelControlsExpanded);
 			updateButtonPanelControlsExpander();
 		}
 
@@ -11212,19 +11283,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				const configName = Array.isArray(config) && config[0] && config[0].name ? config[0].name : '';
 				const activeClass = Number(currentButtonConfigurationNo) === configNo ? ' active' : '';
 				const content = pageConfig
-					? `<div class="button-mode-toggle-grid">
-						<label class="homey-form-checkbox button-mode-toggle-option">
-							<input class="homey-form-checkbox-input" type="checkbox"${isButtonSideAdvanced(pageConfig, 'left') ? ' checked' : ''} onchange="activateDisplayedButtonConfiguration(${configNo}); onButtonModeToggleChange('left', ${page}, this.checked)">
-							<span class="homey-form-checkbox-checkmark"></span>
-							<span class="homey-form-checkbox-text button-mode-toggle-label"><span>${Homey.__("settings.leftAdvancedLabel")}</span><span class="tooltip button-mode-toggle-tooltip" aria-label="${Homey.__("settings.advancedModeHelpAria")}"><i class="fi fi-rr-info" aria-hidden="true"></i><span class="tooltiptext">${normalizeTooltipHtml(Homey.__("settings.advancedModeTooltip"))}</span></span></span>
-						</label>
-						<label class="homey-form-checkbox button-mode-toggle-option">
-							<input class="homey-form-checkbox-input" type="checkbox"${isButtonSideAdvanced(pageConfig, 'right') ? ' checked' : ''} onchange="activateDisplayedButtonConfiguration(${configNo}); onButtonModeToggleChange('right', ${page}, this.checked)">
-							<span class="homey-form-checkbox-checkmark"></span>
-							<span class="homey-form-checkbox-text button-mode-toggle-label"><span>${Homey.__("settings.rightAdvancedLabel")}</span><span class="tooltip button-mode-toggle-tooltip" aria-label="${Homey.__("settings.advancedModeHelpAria")}"><i class="fi fi-rr-info" aria-hidden="true"></i><span class="tooltiptext">${normalizeTooltipHtml(Homey.__("settings.advancedModeTooltip"))}</span></span></span>
-						</label>
-					</div>
-					<div class="button-sim-bar button-inline-sim-grid" data-button-preview-page="${page}" data-config-index="${configNo}"></div>
+					? `<div class="button-sim-bar button-inline-sim-grid" data-button-preview-page="${page}" data-config-index="${configNo}"></div>
 					<div class="button-card-footer">
 						<details class="button-card-settings-details">
 							<summary class="homey-button-secondary-shadow button-card-settings-summary"><span>${Homey.__("settings.autoRepeatBroker")}</span><span class="icon">&#8628;</span></summary>
@@ -11237,14 +11296,16 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 					</div>`
 					: `<div class="button-config-page-empty">
 						<span>${Homey.__("settings.configurationHasNoPage")}</span>
-						<button class="homey-button-secondary-shadow button-config-add-page" type="button" onclick="addDisplayedButtonPage(${configNo}, ${page}); return false;" title="${Homey.__("settings.addPage")}" aria-label="${Homey.__("settings.addPage")}"><i class="fi fi-rr-plus" aria-hidden="true"></i><span>${Homey.__("settings.addPage")}</span></button>
+						<button class="homey-button-secondary-shadow button-config-add-page" type="button" onclick="addDisplayedButtonPage(${configNo}, ${page}); return false;" title="${Homey.__("settings.addPage")}" aria-label="${Homey.__("settings.addPage")}"><i class="fi fi-rr-plus" aria-hidden="true"></i></button>
 					</div>`;
 
 				return `<section class="button-config-preview-card${activeClass}" onclick="handleDisplayedButtonCardClick(event, ${configNo})">
+					<span class="button-sim-config-number" aria-hidden="true">${configNo + 1}</span>
+					<select class="button-sim-config-select" data-view-only="true" aria-label="${escapeHtml(`${Homey.__("settings.buttonConfig")} ${configNo + 1}`)}" onchange="changeDisplayedButtonConfiguration(${slot}, this.value)">${getButtonConfigurationOptionsHtml(configNo)}</select>
 					<div class="button-card-editor-controls">
 					<label class="homey-form-label">${Homey.__("settings.configtoedit")}</label>
 					<div class="panel-config-selector-row">
-						<select class="homey-form-select" onchange="changeDisplayedButtonConfiguration(${slot}, this.value)">${getButtonConfigurationOptionsHtml(configNo)}</select>
+						<select class="homey-form-select" data-view-only="true" onchange="changeDisplayedButtonConfiguration(${slot}, this.value)">${getButtonConfigurationOptionsHtml(configNo)}</select>
 						<button class="homey-button-secondary-shadow panel-config-toggle-btn" type="button" onclick="toggleDisplayedButtonConfigName(${slot}); return false;" title="${Homey.__("settings.configName")}" aria-label="${Homey.__("settings.configName")}"><span class="icon">&#8628;</span></button>
 					</div>
 					<div class="button-displayed-config-name-row" id="buttonDisplayedConfigNameRow${slot}">
@@ -11293,7 +11354,7 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 					</div>
 				</div>
 				<label class="button-visible-count-label">${Homey.__("settings.configurationsShown")}
-					<select class="homey-form-select button-visible-count-select" onchange="setButtonVisibleConfigurationCount(this.value)">
+					<select class="homey-form-select button-visible-count-select" data-view-only="true" onchange="setButtonVisibleConfigurationCount(this.value)">
 						${[1, 2, 3, 4].map((count) => `<option value="${count}"${count === buttonVisibleConfigurationCount ? ' selected' : ''}>${count}</option>`).join('')}
 					</select>
 				</label>
