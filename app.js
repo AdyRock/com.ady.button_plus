@@ -1092,6 +1092,24 @@ class MyApp extends Homey.App
 		await Promise.all(uploadTasks);
 	}
 
+	async syncGroupCapabilities()
+	{
+		const drivers = this.homey.drivers.getDrivers();
+		const syncTasks = [];
+		for (const driver of Object.values(drivers))
+		{
+			for (const device of Object.values(driver.getDevices()))
+			{
+				if (device.syncModeCapabilities)
+				{
+					syncTasks.push(device.syncModeCapabilities());
+				}
+			}
+		}
+
+		await Promise.all(syncTasks);
+	}
+
 	// // Make all the device upload their button bar configurations to the panels
 	// async refreshDisplayConfigurations()
 	// {
@@ -3558,7 +3576,18 @@ class MyApp extends Homey.App
 
 			if ((connectorType === 2) || (connectorType === 3))
 			{
-				button.leds = [];
+				button.leds = [
+					{
+						frontwall: 'front',
+						onrgb: 0,
+						topics: [],
+					},
+					{
+						frontwall: 'wall',
+						onrgb: 0,
+						topics: [],
+					}
+				];
 			}
 		}
 		else

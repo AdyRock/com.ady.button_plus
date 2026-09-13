@@ -349,6 +349,9 @@
 								type="button" title="Duplicate Group" aria-label="Duplicate Group"><i
 									class="fi fi-rr-copy" aria-hidden="true"></i></button>
 						</div>
+					</div>
+					<div class="group-sim-persistent-controls">
+						<button type="button" class="homey-button-secondary-shadow button-panel-controls-expander is-open" id="groupPanelControlsExpander" aria-expanded="true"><span id="groupPanelControlsLabel">Preview</span><span class="icon">&#8628;</span></button>
 						<div class="display-sim-title-group group-sim-nav-group">
 							<span id="groupSimPageTitle" class="display-sim-title button-shared-page-title">Page 1 of 1</span>
 							<button class="homey-button-secondary-shadow display-sim-page-nav" id="groupSimPrevPage" type="button" onclick="stepGroupSimPage(-1); return false;" title="Previous page" aria-label="Previous page">&lt;</button>
@@ -362,9 +365,6 @@
 				<div class="group-simulator-container">
 					<fieldset class="homey-form-fieldset group-simulator-fieldset">
 						<legend data-i18n="settings.groupSimulator">Group Panel Simulator</legend>
-						<div class="group-sim-toolbar">
-							<button type="button" class="homey-button-secondary-shadow" id="groupSimStateToggle">Toggle All Buttons On/Off</button>
-						</div>
 						<div id="groupSimulatorSurface" class="group-simulator-surface">
 							<!-- Rendered dynamically by JS -->
 						</div>

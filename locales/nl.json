@@ -264,6 +264,8 @@
 		,"configurationsShown": "Getoonde configuraties"
 		,"configurationHasNoPage": "Deze configuratie heeft hier geen pagina"
         ,"panelControls": "Paneelbediening"
+        ,"preview": "Voorbeeld"
+        ,"configure": "Configureren"
         ,"expandPanelControls": "Paneelbediening tonen"
         ,"collapsePanelControls": "Paneelbediening verbergen"
         ,"groupConfigs": "Groep Configuratie"

@@ -46,7 +46,7 @@ var deleteGroupBtnElement = document.getElementById('deleteGroupBtn');
 var copyGroupBtnElement = document.getElementById('copyGroupBtn');
 var groupDisplaySelectElement = document.getElementById('groupDisplaySelect');
 var groupConnectorsListElement = document.getElementById('groupConnectorsList');
-var groupSimStateToggleElement = document.getElementById('groupSimStateToggle');
+var groupPanelControlsExpanderElement = document.getElementById('groupPanelControlsExpander');
 var groupSimulatorSurfaceElement = document.getElementById('groupSimulatorSurface');
 var groupSimPageTitleElement = document.getElementById('groupSimPageTitle');
 var groupSimPrevPageElement = document.getElementById('groupSimPrevPage');
@@ -56,6 +56,7 @@ var localGroupConfigurations = [];
 var currentGroupIndex = 0;
 var groupConfigurationsFetched = false;
 var groupNameCollapsed = true;
+var groupPanelControlsExpanded = true;
 var groupSimCurrentPage = 0;
 var groupSimStates = {};
 
@@ -871,6 +872,8 @@ async function openSupportSendFlow(options)
 
 function startDisplayInlineLiveRefresh()
 {
+	refreshDisplayPopupLiveValues();
+
 	if (displayInlineLiveRefreshTimer)
 	{
 		return;
@@ -7126,8 +7129,8 @@ function refreshDisplayPopupLiveValues()
 				{
 					if (btnConfigNo === null || btnConfigNo === undefined || !localButtonConfigurations[btnConfigNo]) return;
 					const pages = Array.isArray(localButtonConfigurations[btnConfigNo]) ? localButtonConfigurations[btnConfigNo] : [localButtonConfigurations[btnConfigNo]];
-					const pageIdx = Math.min(groupSimCurrentPage, pages.length - 1);
-					const pConfig = pages[pageIdx] || pages[0] || {};
+					const pConfig = pages[groupSimCurrentPage];
+					if (!pConfig) return;
 					['left', 'right'].forEach((side) =>
 					{
 						const devId = pConfig[`${side}Device`];
@@ -8789,27 +8792,40 @@ function setupGroupUI()
 		});
 	}
 
-	if (groupSimStateToggleElement)
+	if (groupPanelControlsExpanderElement)
 	{
-		groupSimStateToggleElement.addEventListener('click', function ()
+		groupPanelControlsExpanderElement.addEventListener('click', function ()
 		{
-			let anyOn = false;
-			for (const key in groupSimStates)
-			{
-				if (groupSimStates[key] === 'on')
-				{
-					anyOn = true;
-					break;
-				}
-			}
-			const nextState = anyOn ? 'off' : 'on';
-			for (const key in groupSimStates)
-			{
-				groupSimStates[key] = nextState;
-			}
-			renderGroupSimulator();
+			groupPanelControlsExpanded = !groupPanelControlsExpanded;
+			updateGroupPanelControlsExpander();
 		});
+		updateGroupPanelControlsExpander();
 	}
+}
+
+function updateGroupPanelControlsExpander()
+{
+	if (!groupPanelControlsExpanderElement || !groupSimulatorSurfaceElement) return;
+
+	const groupConfigElement = document.getElementById('groupConfig');
+	if (groupConfigElement)
+	{
+		groupConfigElement.classList.toggle('group-controls-hidden', !groupPanelControlsExpanded);
+	}
+	groupSimulatorSurfaceElement.classList.toggle('group-panel-controls-collapsed', !groupPanelControlsExpanded);
+	groupPanelControlsExpanderElement.classList.toggle('is-open', groupPanelControlsExpanded);
+	groupPanelControlsExpanderElement.setAttribute('aria-expanded', groupPanelControlsExpanded ? 'true' : 'false');
+	const labelElement = document.getElementById('groupPanelControlsLabel');
+	if (labelElement)
+	{
+		labelElement.textContent = groupPanelControlsExpanded
+			? Homey.__("settings.preview")
+			: Homey.__("settings.configure");
+	}
+	groupPanelControlsExpanderElement.title = groupPanelControlsExpanded
+		? Homey.__("settings.collapsePanelControls")
+		: Homey.__("settings.expandPanelControls");
+	groupPanelControlsExpanderElement.setAttribute('aria-label', groupPanelControlsExpanderElement.title);
 }
 
 function fetchAndInitGroupConfigurations()
@@ -9037,6 +9053,7 @@ function stepGroupSimPage(delta)
 
 	groupSimCurrentPage = Math.max(0, Math.min(groupSimCurrentPage + delta, totalPages - 1));
 	renderGroupSimulator();
+	refreshDisplayPopupLiveValues();
 }
 
 function getGroupDisplayPreviewHtml(displayConfigNo, pageIndex = groupSimCurrentPage)
@@ -9157,7 +9174,7 @@ function getGroupDisplayPreviewHtml(displayConfigNo, pageIndex = groupSimCurrent
 		? `<div class="display-sim-empty-message">${escapeHtml(Homey.__("settings.displaySimEmptyMessage"))}</div>`
 		: '';
 
-	return `<div class="display-sim-surface">${statusBarMarkup}${emptyStateMarkup}${markup}</div>`;
+	return `<div class="group-display-panel-frame"><div class="display-sim-surface">${statusBarMarkup}${emptyStateMarkup}${markup}</div></div>`;
 }
 
 function renderGroupSimulator()
@@ -9255,8 +9272,8 @@ function renderGroupSimulator()
 		const btnConfigIdx = Number(btnConfigNo);
 		const configObj = localButtonConfigurations[btnConfigIdx];
 		const pages = Array.isArray(configObj) ? configObj : [configObj];
-		const pageIdx = Math.min(groupSimCurrentPage, pages.length - 1);
-		const pageConfig = pages[pageIdx] || pages[0] || {};
+		const pageIdx = groupSimCurrentPage;
+		const pageConfig = pages[pageIdx];
 		const barName = (pages[0] && pages[0].name) ? pages[0].name : '';
 
 		const leftKey = `group_${group.id}_bar_${barIdx}_left`;
@@ -9268,11 +9285,16 @@ function renderGroupSimulator()
 		const oldPopupCurrentPage = buttonPagePopupCurrentPage;
 		buttonPagePopupCurrentPage = pageIdx;
 
-		buttonPagePopupLedState = groupSimStates[leftKey];
-		const leftPreview = getButtonPanelPreviewMarkup(pageConfig, 'left', pageIdx, btnConfigIdx, true);
+		let leftPreview = '<div class="button-sim-shell button-sim-shell-left button-sim-shell-empty"><div class="button-sim-leds"></div><div class="button-sim-content"></div></div>';
+		let rightPreview = '<div class="button-sim-shell button-sim-shell-right button-sim-shell-empty"><div class="button-sim-content"></div><div class="button-sim-leds button-sim-leds-right"></div></div>';
+		if (pageConfig)
+		{
+			buttonPagePopupLedState = groupSimStates[leftKey];
+			leftPreview = getButtonPanelPreviewMarkup(pageConfig, 'left', pageIdx, btnConfigIdx, true);
 
-		buttonPagePopupLedState = groupSimStates[rightKey];
-		const rightPreview = getButtonPanelPreviewMarkup(pageConfig, 'right', pageIdx, btnConfigIdx, true);
+			buttonPagePopupLedState = groupSimStates[rightKey];
+			rightPreview = getButtonPanelPreviewMarkup(pageConfig, 'right', pageIdx, btnConfigIdx, true);
+		}
 
 		buttonPagePopupLedState = oldPopupLedState;
 		buttonPagePopupCurrentPage = oldPopupCurrentPage;
@@ -9340,7 +9362,6 @@ function configTypeChanged(configSelected)
 	else
 	{
 		startDisplayInlineLiveRefresh();
-		refreshDisplayPopupLiveValues();
 	}
 
 	// Get all elements with class="tabcontent" and hide them

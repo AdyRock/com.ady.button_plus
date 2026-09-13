@@ -30,6 +30,7 @@ module.exports = {
 
     // Settings changed
     async setSettingsChanged({ homey }) {
+        await homey.app.syncGroupCapabilities();
         return homey.app.uploadConfigurations();
     },
 

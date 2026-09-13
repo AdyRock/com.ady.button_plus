@@ -1060,11 +1060,42 @@ summary::-webkit-details-marker {
 
 .group-action-buttons {
 	display: flex;
-	justify-content: space-between;
+	justify-content: flex-start;
 	align-items: center;
 	gap: 12px;
 	margin-top: 12px;
 	margin-bottom: 12px;
+}
+
+.group-sim-persistent-controls {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding-bottom: 4px;
+}
+
+#groupConfig.group-controls-hidden .settings-main-note,
+#groupConfig.group-controls-hidden .group-selector-sticky>label,
+#groupConfig.group-controls-hidden .group-selector-sticky>.panel-config-selector-row,
+#groupConfig.group-controls-hidden #groupNameRow,
+#groupConfig.group-controls-hidden .group-action-buttons,
+#groupConfig.group-controls-hidden .hr-separator,
+#groupConfig.group-controls-hidden .group-simulator-fieldset>legend {
+	display: none !important;
+}
+
+#groupConfig.group-controls-hidden .group-selector-sticky {
+	top: calc(var(--settings-fixed-top-offset, 64px) - 10px);
+	margin-top: 0;
+	padding-top: 0;
+	padding-bottom: 2px;
+}
+
+#groupConfig.group-controls-hidden .group-simulator-container,
+#groupConfig.group-controls-hidden .group-simulator-fieldset {
+	margin-top: 0;
+	padding-top: 0;
 }
 
 .group-action-left {
@@ -1122,6 +1153,44 @@ summary::-webkit-details-marker {
 	border-radius: 10px;
 	padding: 12px;
 	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.group-simulator-surface.group-panel-controls-collapsed {
+	gap: 2px;
+	padding: 0;
+	background: transparent;
+	box-shadow: none;
+}
+
+.group-panel-controls-collapsed .group-sim-module-card {
+	padding: 0;
+	background: transparent;
+	border: 0;
+	border-radius: 0;
+	box-shadow: none;
+}
+
+.group-panel-controls-collapsed .group-sim-module-header {
+	display: none;
+}
+
+.group-panel-controls-collapsed .button-sim-shell {
+	column-gap: 5px;
+}
+
+.group-panel-controls-collapsed .button-sim-shell-left {
+	grid-template-columns: auto var(--button-sim-display-inner-width);
+	justify-content: start;
+}
+
+.group-panel-controls-collapsed .button-sim-shell-right {
+	grid-template-columns: var(--button-sim-display-inner-width) auto;
+	justify-content: end;
+}
+
+.group-panel-controls-collapsed .button-sim-content {
+	width: var(--button-sim-display-inner-width);
+	box-sizing: border-box;
 }
 
 .group-sim-module-header {
@@ -1202,6 +1271,47 @@ summary::-webkit-details-marker {
 
 .group-sim-module-body {
 	position: relative;
+}
+
+.group-display-panel-frame {
+	width: 100%;
+	padding: 25px;
+	box-sizing: border-box;
+	background: #000000;
+	border-radius: 10px;
+}
+
+.group-display-panel-frame .display-sim-surface {
+	margin: 0 auto;
+	outline: 0;
+}
+
+.group-sim-module-body .button-inline-sim-grid>.button-sim-item {
+	padding-top: 2px !important;
+}
+
+.group-sim-module-body .button-inline-sim-grid {
+	margin-left: 0;
+	margin-right: 0;
+}
+
+.group-sim-module-body .button-sim-shell {
+	--button-sim-led-gap: 1px;
+	--button-sim-top-label-offset: 0px;
+	--button-sim-display-height: calc(var(--button-sim-display-inner-height) + 6px);
+}
+
+.group-sim-module-body .button-sim-shell-empty .button-sim-leds {
+	width: calc(var(--button-sim-wall-led-width) + var(--button-sim-led-gap) + var(--button-sim-front-led-width));
+}
+
+.group-sim-module-body .button-sim-content {
+	padding-top: 3px;
+	padding-bottom: 3px;
+}
+
+.group-sim-module-body .button-sim-state-block {
+	padding-bottom: 0;
 }
 
 .group-sim-empty-module {

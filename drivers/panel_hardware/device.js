@@ -1930,11 +1930,7 @@ class PanelDevice extends Device
 			}
 			else if (type === 'button')
 			{
-				if (Array.isArray(group.connectorConfigNos) && group.connectorConfigNos[connector] !== undefined && group.connectorConfigNos[connector] !== null)
-				{
-					return Number(group.connectorConfigNos[connector]);
-				}
-				return null;
+				return this.getGroupButtonConfigNo(group, connector, currentSettings);
 			}
 		}
 		else
@@ -1948,6 +1944,43 @@ class PanelDevice extends Device
 				return this.hasCapability(`configuration_button.connector${connector}`) ? this.getCapabilityValue(`configuration_button.connector${connector}`) : null;
 			}
 		}
+		return null;
+	}
+
+	getGroupButtonConfigNo(group, connector, settings = null)
+	{
+		if (!group || !Array.isArray(group.connectorConfigNos))
+		{
+			return null;
+		}
+
+		const currentSettings = Object.assign({}, this.getSettings(), settings || {});
+		if (Number(currentSettings[`connect${connector}Type`]) !== 1)
+		{
+			return null;
+		}
+
+		const usesLegacyPhysicalSlots = group.connectorConfigNos.length >= 8
+			&& group.connectorConfigNos.some(configNo => configNo === null || configNo === undefined);
+		let groupIndex = connector;
+		if (!usesLegacyPhysicalSlots)
+		{
+			groupIndex = 0;
+			for (let physicalConnector = 0; physicalConnector < connector; physicalConnector++)
+				{
+					if (Number(currentSettings[`connect${physicalConnector}Type`]) === 1)
+					{
+						groupIndex++;
+					}
+				}
+			}
+
+		const configNo = group.connectorConfigNos[groupIndex];
+		if (configNo !== undefined && configNo !== null && configNo !== '')
+		{
+			return Number(configNo);
+		}
+
 		return null;
 	}
 
@@ -1975,7 +2008,7 @@ class PanelDevice extends Device
 			{
 				groupOptions.values.push({ id: 'group_0', title: 'Group 1' });
 			}
-			this.setCapabilityOptions('configuration_group', groupOptions);
+			await this.setCapabilityOptions('configuration_group', groupOptions);
 
 			const currentGroupVal = this.getCapabilityValue('configuration_group');
 			const validGroup = groups.find(g => String(g.id) === String(currentGroupVal));
@@ -2044,9 +2077,10 @@ class PanelDevice extends Device
 				{
 					for (let i = 0; i < 8; i++)
 					{
-						if (this.hasCapability(`configuration_button.connector${i}`) && group.connectorConfigNos[i] !== null && group.connectorConfigNos[i] !== undefined)
+						const configNo = this.getGroupButtonConfigNo(group, i, currentSettings);
+						if (this.hasCapability(`configuration_button.connector${i}`) && configNo !== null)
 						{
-							try { await this.setCapabilityValue(`configuration_button.connector${i}`, String(group.connectorConfigNos[i])); } catch (e) { this.error(e); }
+							try { await this.setCapabilityValue(`configuration_button.connector${i}`, String(configNo)); } catch (e) { this.error(e); }
 						}
 					}
 				}
@@ -5696,7 +5730,7 @@ class PanelDevice extends Device
 						// initialise buttonValues from the device's current state, even when the
 						// MQTT configuration has not changed and does not need to be republished.
 						const pageMqttMessages = await this.setupConnectorMQTTmessages(buttonPanelConfiguration, page, i);
-						const shouldPublishPage = force || !writeConfig || this.shouldPublishConnectorPageMQTT(deviceConfigurations, sectionConfiguration, i, page);
+						const shouldPublishPage = force || this.shouldPublishConnectorPageMQTT(deviceConfigurations, sectionConfiguration, i, page);
 						if (shouldPublishPage)
 						{
 							mqttQue = mqttQue.concat(pageMqttMessages);
@@ -6883,7 +6917,9 @@ class PanelDevice extends Device
 					// In strict mode, read-back objects must not contain additional keys
 					for (const key in value2)
 					{
-						if (key !== 'buttonid')
+						const isFirmwareDefault = (key === 'buttonid')
+							|| (key === 'svg' && value2[key] === '' && !Object.prototype.hasOwnProperty.call(value1, key));
+						if (!isFirmwareDefault)
 						{
 							if (!Object.prototype.hasOwnProperty.call(value1, key))
 							{
