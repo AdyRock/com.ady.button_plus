@@ -1,3834 +1,3871 @@
-﻿		// General declarations
-		const MAX_BUTTON_CONFIGURATIONS = 40;
-		const MAX_DISPLAY_CONFIGURATIONS = 20;
-		const CONFIG_DRAFT_STORAGE_KEY = 'unsavedConfigurationDraft';
-		const CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY = 'unsavedConfigurationDraftDismissedSignature';
-		const CONFIG_DRAFT_SAVE_DEBOUNCE_MS = 500;
-		const BUTTON_VISIBLE_CONFIGURATION_COUNT_KEY = 'buttonVisibleConfigurationCount';
-		const BUTTON_PANEL_CONTROLS_COLLAPSED_KEY = 'buttonPanelControlsCollapsed';
-		var buttonDevicesArray = [];
-		var buttonDevicesFetched = false;
-		var variablesArray = [];
-		var variablesFetched = false;
-		var displayDevicesArray = [];
-		var displayDevicesFetched = false;
-		var configTypeElement = document.getElementById('configType');
-		var configTypeTabsElement = document.getElementById('configTypeTabs');
-		var saveButton = document.getElementById('save');
-		var saveBlock = document.getElementById('saveBlock');
+﻿// General declarations
+const MAX_BUTTON_CONFIGURATIONS = 40;
+const MAX_DISPLAY_CONFIGURATIONS = 20;
+const CONFIG_DRAFT_STORAGE_KEY = 'unsavedConfigurationDraft';
+const CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY = 'unsavedConfigurationDraftDismissedSignature';
+const CONFIG_DRAFT_SAVE_DEBOUNCE_MS = 500;
+const BUTTON_VISIBLE_CONFIGURATION_COUNT_KEY = 'buttonVisibleConfigurationCount';
+const BUTTON_PANEL_CONTROLS_COLLAPSED_KEY = 'buttonPanelControlsCollapsed';
+var buttonDevicesArray = [];
+var buttonDevicesFetched = false;
+var variablesArray = [];
+var variablesFetched = false;
+var displayDevicesArray = [];
+var displayDevicesFetched = false;
+var configTypeElement = document.getElementById('configType');
+var configTypeTabsElement = document.getElementById('configTypeTabs');
+var saveButton = document.getElementById('save');
+var saveBlock = document.getElementById('saveBlock');
 
-		// Declarations for the Button Bar Config page
+// Declarations for the Button Bar Config page
 
-		var buttonConfigurationNoElement = document.getElementById('ButtonPanelConfigurationNo');
-		var configNameElement = document.getElementById('configName');
-		var configNameRowElement = document.getElementById('configNameRow');
-		var toggleConfigNameVisibilityElement = document.getElementById('toggleConfigNameVisibility');
-		var panelConfigNameCollapsed = true;
+var buttonConfigurationNoElement = document.getElementById('ButtonPanelConfigurationNo');
+var configNameElement = document.getElementById('configName');
+var configNameRowElement = document.getElementById('configNameRow');
+var toggleConfigNameVisibilityElement = document.getElementById('toggleConfigNameVisibility');
+var panelConfigNameCollapsed = true;
 
-		var copyButtonConfigElement = document.getElementById('copyButtonConfig');
-		var pasteButtonConfigElement = document.getElementById('pasteButtonConfig');
+var copyButtonConfigElement = document.getElementById('copyButtonConfig');
+var pasteButtonConfigElement = document.getElementById('pasteButtonConfig');
 
-		var buttonConfigurationsFetched = false;
-		var localButtonConfigurations = [];
-		var currentButtonConfigurationNo = 0;
-		var buttonVisibleConfigurationCount = 1;
-		var buttonVisibleConfigurationNos = [0];
-		var buttonPanelControlsExpanded = true;
-		var customMQTTItemsElements = [];
-		var customDisplayMQTTItemsElements = [];
+var buttonConfigurationsFetched = false;
+var localButtonConfigurations = [];
+var currentButtonConfigurationNo = 0;
+var buttonVisibleConfigurationCount = 1;
+var buttonVisibleConfigurationNos = [0];
+var buttonPanelControlsExpanded = true;
+var customMQTTItemsElements = [];
+var customDisplayMQTTItemsElements = [];
 
-		var openWebViewElement = document.getElementById('openwebview');
-		var webViewIpElement = document.getElementById('webviewip');
-		var buttonPagePopupOverlayElement = document.getElementById('buttonPagePopupOverlay');
-		var buttonPagePopupCloseElement = document.getElementById('buttonPagePopupClose');
-		var buttonPagePopupPrevElement = document.getElementById('buttonPagePopupPrev');
-		var buttonPagePopupNextElement = document.getElementById('buttonPagePopupNext');
-		var buttonPagePopupTitleElement = document.getElementById('buttonPagePopupTitle');
-		var buttonPagePopupContentElement = document.getElementById('buttonPagePopupContent');
-		var buttonPagePopupStateToggleElement = document.getElementById('buttonPagePopupStateToggle');
-		var buttonMainCurrentPage = 0;
-		var buttonFieldPopupOverlayElement = document.getElementById('buttonFieldPopupOverlay');
-		var buttonFieldPopupTitleElement = document.getElementById('buttonFieldPopupTitle');
-		var buttonFieldPopupBodyElement = document.getElementById('buttonFieldPopupBody');
-		var buttonFieldPopupCancelElement = document.getElementById('buttonFieldPopupCancel');
-		var buttonFieldPopupSaveElement = document.getElementById('buttonFieldPopupSave');
-		var buttonPagePopupCurrentPage = -1;
-		var buttonPagePopupLedState = 'on';
-		var buttonFieldPopupBindings = [];
-		var buttonFieldPopupContext = null;
-		var displayFieldPopupOverlayElement = document.getElementById('displayFieldPopupOverlay');
-		var displayFieldPopupTitleElement = document.getElementById('displayFieldPopupTitle');
-		var displayFieldPopupBodyElement = document.getElementById('displayFieldPopupBody');
-		var displayFieldPopupCancelElement = document.getElementById('displayFieldPopupCancel');
-		var displayFieldPopupSaveElement = document.getElementById('displayFieldPopupSave');
-		var sendSupportPopupOverlayElement = document.getElementById('sendSupportPopupOverlay');
-		var sendSupportPopupTitleElement = document.getElementById('sendSupportPopupTitle');
-		var sendSupportPopupMessageElement = document.getElementById('sendSupportPopupMessage');
-		var sendSupportEmailElement = document.getElementById('sendSupportEmail');
-		var sendSupportDescriptionElement = document.getElementById('sendSupportDescription');
-		var sendSupportPopupCancelElement = document.getElementById('sendSupportPopupCancel');
-		var sendSupportPopupSendElement = document.getElementById('sendSupportPopupSend');
-		var sendSupportPopupResolver = null;
-		var sendSupportPopupContext = null;
-		var lastSupportEmailValue = '';
-		var configDraftRestoreOverlayElement = document.getElementById('configDraftRestoreOverlay');
-		var configDraftRestoreRetrieveElement = document.getElementById('configDraftRestoreRetrieve');
-		var configDraftRestoreDiscardElement = document.getElementById('configDraftRestoreDiscard');
-		var configDraftRestoreDialogResolver = null;
-		var displayFieldPopupBindings = [];
-		var displayFieldPopupContext = null;
-		var displayPagePopupOpenElement = document.getElementById('displayPageSimOpen');
-		var displayPagePopupOverlayElement = document.getElementById('displayPagePopupOverlay');
-		var displayPagePopupCloseElement = document.getElementById('displayPagePopupClose');
-		var displayPagePopupPrevElement = document.getElementById('displayPagePopupPrev');
-		var displayPagePopupNextElement = document.getElementById('displayPagePopupNext');
-		var displayPagePopupTitleElement = document.getElementById('displayPagePopupTitle');
-		var displayPagePopupStatusBarPositionElement = document.getElementById('displayPagePopupStatusBarPosition');
-		var displayPagePopupSurfaceElement = document.getElementById('displayPagePopupSurface');
-		var displayInlineSimPrevElement = document.getElementById('displayInlineSimPrev');
-		var displayInlineSimNextElement = document.getElementById('displayInlineSimNext');
-		var displayInlineSimTitleElement = document.getElementById('displayInlineSimTitle');
-		var displayInlineSimStatusBarPositionElement = document.getElementById('displayInlineSimStatusBarPosition');
-		var displayInlineSimShowPageZeroElement = document.getElementById('displayInlineSimShowPageZero');
-		var displayInlineSimSurfaceElement = document.getElementById('displayInlineSimSurface');
-		var displayInlineSimAddPageElement = document.getElementById('displayInlineSimAddPage');
-		var displayInlineSimDeletePageElement = document.getElementById('displayInlineSimDeletePage');
-		var displayInlineSimAddItemElement = document.getElementById('displayInlineSimAddItem');
-		var displayInlineSimDeleteItemElement = document.getElementById('displayInlineSimDeleteItem');
-		var displayPagePopupCurrentPage = 0;
-		var displayPagePopupStatusBarPosition = null;
-		var displayInlineSelectedItemNo = -1;
+var groupSelectElement = document.getElementById('groupSelect');
+var toggleGroupNameVisibilityElement = document.getElementById('toggleGroupNameVisibility');
+var groupNameInputElement = document.getElementById('groupNameInput');
+var groupNameRowElement = document.getElementById('groupNameRow');
+var addGroupBtnElement = document.getElementById('addGroupBtn');
+var deleteGroupBtnElement = document.getElementById('deleteGroupBtn');
+var copyGroupBtnElement = document.getElementById('copyGroupBtn');
+var groupDisplaySelectElement = document.getElementById('groupDisplaySelect');
+var groupConnectorsListElement = document.getElementById('groupConnectorsList');
+var groupSimStateToggleElement = document.getElementById('groupSimStateToggle');
+var groupSimulatorSurfaceElement = document.getElementById('groupSimulatorSurface');
+var groupSimPageTitleElement = document.getElementById('groupSimPageTitle');
+var groupSimPrevPageElement = document.getElementById('groupSimPrevPage');
+var groupSimNextPageElement = document.getElementById('groupSimNextPage');
+
+var localGroupConfigurations = [];
+var currentGroupIndex = 0;
+var groupConfigurationsFetched = false;
+var groupNameCollapsed = true;
+var groupSimCurrentPage = 0;
+var groupSimStates = {};
+
+var openWebViewElement = document.getElementById('openwebview');
+var webViewIpElement = document.getElementById('webviewip');
+var buttonPagePopupOverlayElement = document.getElementById('buttonPagePopupOverlay');
+var buttonPagePopupCloseElement = document.getElementById('buttonPagePopupClose');
+var buttonPagePopupPrevElement = document.getElementById('buttonPagePopupPrev');
+var buttonPagePopupNextElement = document.getElementById('buttonPagePopupNext');
+var buttonPagePopupTitleElement = document.getElementById('buttonPagePopupTitle');
+var buttonPagePopupContentElement = document.getElementById('buttonPagePopupContent');
+var buttonPagePopupStateToggleElement = document.getElementById('buttonPagePopupStateToggle');
+var buttonMainCurrentPage = 0;
+var buttonFieldPopupOverlayElement = document.getElementById('buttonFieldPopupOverlay');
+var buttonFieldPopupTitleElement = document.getElementById('buttonFieldPopupTitle');
+var buttonFieldPopupBodyElement = document.getElementById('buttonFieldPopupBody');
+var buttonFieldPopupCancelElement = document.getElementById('buttonFieldPopupCancel');
+var buttonFieldPopupSaveElement = document.getElementById('buttonFieldPopupSave');
+var buttonPagePopupCurrentPage = -1;
+var buttonPagePopupLedState = 'on';
+var buttonFieldPopupBindings = [];
+var buttonFieldPopupContext = null;
+var displayFieldPopupOverlayElement = document.getElementById('displayFieldPopupOverlay');
+var displayFieldPopupTitleElement = document.getElementById('displayFieldPopupTitle');
+var displayFieldPopupBodyElement = document.getElementById('displayFieldPopupBody');
+var displayFieldPopupCancelElement = document.getElementById('displayFieldPopupCancel');
+var displayFieldPopupSaveElement = document.getElementById('displayFieldPopupSave');
+var sendSupportPopupOverlayElement = document.getElementById('sendSupportPopupOverlay');
+var sendSupportPopupTitleElement = document.getElementById('sendSupportPopupTitle');
+var sendSupportPopupMessageElement = document.getElementById('sendSupportPopupMessage');
+var sendSupportEmailElement = document.getElementById('sendSupportEmail');
+var sendSupportDescriptionElement = document.getElementById('sendSupportDescription');
+var sendSupportPopupCancelElement = document.getElementById('sendSupportPopupCancel');
+var sendSupportPopupSendElement = document.getElementById('sendSupportPopupSend');
+var sendSupportPopupResolver = null;
+var sendSupportPopupContext = null;
+var lastSupportEmailValue = '';
+var configDraftRestoreOverlayElement = document.getElementById('configDraftRestoreOverlay');
+var configDraftRestoreRetrieveElement = document.getElementById('configDraftRestoreRetrieve');
+var configDraftRestoreDiscardElement = document.getElementById('configDraftRestoreDiscard');
+var configDraftRestoreDialogResolver = null;
+var displayFieldPopupBindings = [];
+var displayFieldPopupContext = null;
+var displayPagePopupOpenElement = document.getElementById('displayPageSimOpen');
+var displayPagePopupOverlayElement = document.getElementById('displayPagePopupOverlay');
+var displayPagePopupCloseElement = document.getElementById('displayPagePopupClose');
+var displayPagePopupPrevElement = document.getElementById('displayPagePopupPrev');
+var displayPagePopupNextElement = document.getElementById('displayPagePopupNext');
+var displayPagePopupTitleElement = document.getElementById('displayPagePopupTitle');
+var displayPagePopupStatusBarPositionElement = document.getElementById('displayPagePopupStatusBarPosition');
+var displayPagePopupSurfaceElement = document.getElementById('displayPagePopupSurface');
+var displayInlineSimPrevElement = document.getElementById('displayInlineSimPrev');
+var displayInlineSimNextElement = document.getElementById('displayInlineSimNext');
+var displayInlineSimTitleElement = document.getElementById('displayInlineSimTitle');
+var displayInlineSimStatusBarPositionElement = document.getElementById('displayInlineSimStatusBarPosition');
+var displayInlineSimShowPageZeroElement = document.getElementById('displayInlineSimShowPageZero');
+var displayInlineSimSurfaceElement = document.getElementById('displayInlineSimSurface');
+var displayInlineSimAddPageElement = document.getElementById('displayInlineSimAddPage');
+var displayInlineSimDeletePageElement = document.getElementById('displayInlineSimDeletePage');
+var displayInlineSimAddItemElement = document.getElementById('displayInlineSimAddItem');
+var displayInlineSimDeleteItemElement = document.getElementById('displayInlineSimDeleteItem');
+var displayPagePopupCurrentPage = 0;
+var displayPagePopupStatusBarPosition = null;
+var displayInlineSelectedItemNo = -1;
 const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
-		const DISPLAY_BOLD_FONT_SIZES = new Set();
-		const DISPLAY_SIM_LIVE_REFRESH_MS = 12000;
-		var displayPagePopupLiveValueCache = new Map();
-		var displayPagePopupVariableValueCache = new Map();
-		var displayPagePopupVariableValueFetchedAt = 0;
-		var displayPagePopupLiveRefreshTimer = null;
-		var displayInlineLiveRefreshTimer = null;
-		var displayItemResizeState = null;
-		var displayItemMoveState = null;
-		var displaySimInitialPageSelectionConfigKey = null;
-		var configDraftSaveTimer = null;
-		var configDraftAutoSaveEnabled = false;
-		var configDraftPendingPersist = false;
-		var configDraftDirtySinceLoad = false;
-		var configDraftLastSnapshotSignature = null;
-		var configDraftDismissedSignature = null;
-		var configDraftDismissedAt = 0;
-		var configDraftDismissedSignatureLoaded = false;
-		var configDraftLoadedData = null;
-		var configDraftLoaded = false;
-		var configDraftRestoreDecisionMade = false;
-		var restoredDraftDefaultBroker = null;
-		var configDraftStoreButtonSettingsFn = null;
-		var fixedTopResizeObserver = null;
-		var mainTopOffsetAnimationFrame = null;
-		var capabilityRequestTokens = new Map();
-		var displayCapabilityRequestTokens = new Map();
+const DISPLAY_BOLD_FONT_SIZES = new Set();
+const DISPLAY_SIM_LIVE_REFRESH_MS = 12000;
+var displayPagePopupLiveValueCache = new Map();
+var displayPagePopupVariableValueCache = new Map();
+var displayPagePopupVariableValueFetchedAt = 0;
+var displayPagePopupLiveRefreshTimer = null;
+var displayInlineLiveRefreshTimer = null;
+var displayItemResizeState = null;
+var displayItemMoveState = null;
+var displaySimInitialPageSelectionConfigKey = null;
+var configDraftSaveTimer = null;
+var configDraftAutoSaveEnabled = false;
+var configDraftPendingPersist = false;
+var configDraftDirtySinceLoad = false;
+var configDraftLastSnapshotSignature = null;
+var configDraftDismissedSignature = null;
+var configDraftDismissedAt = 0;
+var configDraftDismissedSignatureLoaded = false;
+var configDraftLoadedData = null;
+var configDraftLoaded = false;
+var configDraftRestoreDecisionMade = false;
+var restoredDraftDefaultBroker = null;
+var configDraftStoreButtonSettingsFn = null;
+var fixedTopResizeObserver = null;
+var mainTopOffsetAnimationFrame = null;
+var capabilityRequestTokens = new Map();
+var displayCapabilityRequestTokens = new Map();
 
-		function enableConfigurationDraftAutoSave()
+function enableConfigurationDraftAutoSave()
+{
+	configDraftAutoSaveEnabled = true;
+	if (configDraftPendingPersist)
+	{
+		configDraftPendingPersist = false;
+		flushConfigurationDraftPersist();
+	}
+}
+
+function deepCloneData(data)
+{
+	if (data === undefined)
+	{
+		return undefined;
+	}
+
+	try
+	{
+		return JSON.parse(JSON.stringify(data));
+	}
+	catch (err)
+	{
+		return undefined;
+	}
+}
+
+function getSafeDefaultBrokerValue()
+{
+	if (!defaultBrokerElement || typeof defaultBrokerElement.value !== 'string')
+	{
+		return 'homey';
+	}
+
+	const selectedBroker = defaultBrokerElement.value.trim();
+	return selectedBroker || 'homey';
+}
+
+function getBrokerSelectValue(selectElement, previousValue, fallbackValue = 'Default')
+{
+	const selectedBroker = selectElement && typeof selectElement.value === 'string' ? selectElement.value.trim() : '';
+	if (selectedBroker)
+	{
+		return selectedBroker;
+	}
+
+	const previousBroker = typeof previousValue === 'string' ? previousValue.trim() : '';
+	return previousBroker || fallbackValue;
+}
+
+function setBrokerSelectValue(selectElement, brokerId, fallbackValue = 'Default')
+{
+	if (!selectElement)
+	{
+		return;
+	}
+
+	const selectedBroker = typeof brokerId === 'string' && brokerId.trim() ? brokerId.trim() : fallbackValue;
+	selectElement.value = selectedBroker;
+	if (selectElement.value === selectedBroker)
+	{
+		return;
+	}
+
+	const option = document.createElement('option');
+	option.value = selectedBroker;
+	option.text = selectedBroker;
+	selectElement.add(option);
+	selectElement.value = selectedBroker;
+}
+
+function syncBrokerSettingsToLocalWithoutValidation()
+{
+	if (!Array.isArray(localBrokerItems))
+	{
+		return;
+	}
+
+	for (let itemNo = 0; itemNo < localBrokerItems.length; itemNo++)
+	{
+		const idElement = document.getElementById(`broker${itemNo}Id`);
+		const enabledElement = document.getElementById(`broker${itemNo}Enabled`);
+		const addressElement = document.getElementById(`broker${itemNo}Address`);
+		const portElement = document.getElementById(`broker${itemNo}Port`);
+		const wsPortElement = document.getElementById(`broker${itemNo}WSPort`);
+		const usernameElement = document.getElementById(`broker${itemNo}Username`);
+		const passwordElement = document.getElementById(`broker${itemNo}Password`);
+
+		if (!idElement || !enabledElement || !addressElement || !portElement || !wsPortElement || !usernameElement || !passwordElement)
 		{
-			configDraftAutoSaveEnabled = true;
-			if (configDraftPendingPersist)
-			{
-				configDraftPendingPersist = false;
-				flushConfigurationDraftPersist();
-			}
+			continue;
 		}
 
-		function deepCloneData(data)
-		{
-			if (data === undefined)
-			{
-				return undefined;
-			}
+		localBrokerItems[itemNo].enabled = enabledElement.checked;
+		localBrokerItems[itemNo].brokerid = idElement.value;
+		localBrokerItems[itemNo].url = addressElement.value;
+		localBrokerItems[itemNo].port = portElement.value;
+		localBrokerItems[itemNo].wsport = wsPortElement.value;
+		localBrokerItems[itemNo].username = usernameElement.value;
+		localBrokerItems[itemNo].password = passwordElement.value;
+	}
+}
 
-			try
-			{
-				return JSON.parse(JSON.stringify(data));
-			}
-			catch (err)
-			{
-				return undefined;
-			}
+function syncCurrentButtonSettingsForDraftSnapshot()
+{
+	if (!buttonConfigurationsFetched || !Array.isArray(localButtonConfigurations) || localButtonConfigurations.length === 0)
+	{
+		return;
+	}
+
+	const currentButtonNo = parseInt(buttonConfigurationNoElement.value, 10);
+	if (Number.isNaN(currentButtonNo) || !localButtonConfigurations[currentButtonNo])
+	{
+		return;
+	}
+
+	if (typeof configDraftStoreButtonSettingsFn === 'function')
+	{
+		configDraftStoreButtonSettingsFn(localButtonConfigurations[currentButtonNo]);
+		return;
+	}
+
+	const activeButtonConfiguration = localButtonConfigurations[currentButtonNo];
+	if (!Array.isArray(activeButtonConfiguration) || activeButtonConfiguration.length === 0)
+	{
+		return;
+	}
+
+	if (activeButtonConfiguration[0] && configNameElement)
+	{
+		activeButtonConfiguration[0].name = configNameElement.value;
+	}
+
+	for (let page = 0; page < activeButtonConfiguration.length; page++)
+	{
+		const pageConfig = activeButtonConfiguration[page];
+		if (!pageConfig || typeof pageConfig !== 'object')
+		{
+			continue;
 		}
 
-		function getSafeDefaultBrokerValue()
+		pageConfig.PageNum = page;
+		for (const side of ['left', 'right'])
 		{
-			if (!defaultBrokerElement || typeof defaultBrokerElement.value !== 'string')
+			const topTextElement = document.getElementById(`${side}${page}TopText`);
+			const onTextElement = document.getElementById(`${side}${page}OnText`);
+			const offTextElement = document.getElementById(`${side}${page}OffText`);
+			const deviceElement = document.getElementById(`${side}${page}Device`);
+			const capabilityElement = document.getElementById(`${side}${page}Capability`);
+			const brokerIdElement = document.getElementById(`${side}${page}BrokerId`);
+			const dimChangeElement = document.getElementById(`${side}${page}DimChange`);
+			const frontLEDOnColorElement = document.getElementById(`${side}${page}FrontLEDOnColor`);
+			const wallLEDOnColorElement = document.getElementById(`${side}${page}WallLEDOnColor`);
+			const frontLEDOffColorElement = document.getElementById(`${side}${page}FrontLEDOffColor`);
+			const wallLEDOffColorElement = document.getElementById(`${side}${page}WallLEDOffColor`);
+			const longRepeatElement = document.getElementById(`${side}${page}DisableLongRepeat`);
+			const longDelayMsElement = document.getElementById(`${side}${page}LongDelayMs`);
+			const longRepeatMsElement = document.getElementById(`${side}${page}LongRepeatMs`);
+
+			if (topTextElement) pageConfig[`${side}TopText`] = topTextElement.value;
+			if (onTextElement) pageConfig[`${side}OnText`] = onTextElement.value;
+			if (offTextElement) pageConfig[`${side}OffText`] = offTextElement.value;
+			if (deviceElement)
 			{
-				return 'homey';
-			}
-
-			const selectedBroker = defaultBrokerElement.value.trim();
-			return selectedBroker || 'homey';
-		}
-
-		function getBrokerSelectValue(selectElement, previousValue, fallbackValue = 'Default')
-		{
-			const selectedBroker = selectElement && typeof selectElement.value === 'string' ? selectElement.value.trim() : '';
-			if (selectedBroker)
-			{
-				return selectedBroker;
-			}
-
-			const previousBroker = typeof previousValue === 'string' ? previousValue.trim() : '';
-			return previousBroker || fallbackValue;
-		}
-
-		function setBrokerSelectValue(selectElement, brokerId, fallbackValue = 'Default')
-		{
-			if (!selectElement)
-			{
-				return;
-			}
-
-			const selectedBroker = typeof brokerId === 'string' && brokerId.trim() ? brokerId.trim() : fallbackValue;
-			selectElement.value = selectedBroker;
-			if (selectElement.value === selectedBroker)
-			{
-				return;
-			}
-
-			const option = document.createElement('option');
-			option.value = selectedBroker;
-			option.text = selectedBroker;
-			selectElement.add(option);
-			selectElement.value = selectedBroker;
-		}
-
-		function syncBrokerSettingsToLocalWithoutValidation()
-		{
-			if (!Array.isArray(localBrokerItems))
-			{
-				return;
-			}
-
-			for (let itemNo = 0; itemNo < localBrokerItems.length; itemNo++)
-			{
-				const idElement = document.getElementById(`broker${itemNo}Id`);
-				const enabledElement = document.getElementById(`broker${itemNo}Enabled`);
-				const addressElement = document.getElementById(`broker${itemNo}Address`);
-				const portElement = document.getElementById(`broker${itemNo}Port`);
-				const wsPortElement = document.getElementById(`broker${itemNo}WSPort`);
-				const usernameElement = document.getElementById(`broker${itemNo}Username`);
-				const passwordElement = document.getElementById(`broker${itemNo}Password`);
-
-				if (!idElement || !enabledElement || !addressElement || !portElement || !wsPortElement || !usernameElement || !passwordElement)
+				pageConfig[`${side}Device`] = deviceElement.value;
+				if (deviceElement.selectedIndex >= 0 && deviceElement.options && deviceElement.options[deviceElement.selectedIndex])
 				{
-					continue;
-				}
-
-				localBrokerItems[itemNo].enabled = enabledElement.checked;
-				localBrokerItems[itemNo].brokerid = idElement.value;
-				localBrokerItems[itemNo].url = addressElement.value;
-				localBrokerItems[itemNo].port = portElement.value;
-				localBrokerItems[itemNo].wsport = wsPortElement.value;
-				localBrokerItems[itemNo].username = usernameElement.value;
-				localBrokerItems[itemNo].password = passwordElement.value;
-			}
-		}
-
-		function syncCurrentButtonSettingsForDraftSnapshot()
-		{
-			if (!buttonConfigurationsFetched || !Array.isArray(localButtonConfigurations) || localButtonConfigurations.length === 0)
-			{
-				return;
-			}
-
-			const currentButtonNo = parseInt(buttonConfigurationNoElement.value, 10);
-			if (Number.isNaN(currentButtonNo) || !localButtonConfigurations[currentButtonNo])
-			{
-				return;
-			}
-
-			if (typeof configDraftStoreButtonSettingsFn === 'function')
-			{
-				configDraftStoreButtonSettingsFn(localButtonConfigurations[currentButtonNo]);
-				return;
-			}
-
-			const activeButtonConfiguration = localButtonConfigurations[currentButtonNo];
-			if (!Array.isArray(activeButtonConfiguration) || activeButtonConfiguration.length === 0)
-			{
-				return;
-			}
-
-			if (activeButtonConfiguration[0] && configNameElement)
-			{
-				activeButtonConfiguration[0].name = configNameElement.value;
-			}
-
-			for (let page = 0; page < activeButtonConfiguration.length; page++)
-			{
-				const pageConfig = activeButtonConfiguration[page];
-				if (!pageConfig || typeof pageConfig !== 'object')
-				{
-					continue;
-				}
-
-				pageConfig.PageNum = page;
-				for (const side of ['left', 'right'])
-				{
-					const topTextElement = document.getElementById(`${side}${page}TopText`);
-					const onTextElement = document.getElementById(`${side}${page}OnText`);
-					const offTextElement = document.getElementById(`${side}${page}OffText`);
-					const deviceElement = document.getElementById(`${side}${page}Device`);
-					const capabilityElement = document.getElementById(`${side}${page}Capability`);
-					const brokerIdElement = document.getElementById(`${side}${page}BrokerId`);
-					const dimChangeElement = document.getElementById(`${side}${page}DimChange`);
-					const frontLEDOnColorElement = document.getElementById(`${side}${page}FrontLEDOnColor`);
-					const wallLEDOnColorElement = document.getElementById(`${side}${page}WallLEDOnColor`);
-					const frontLEDOffColorElement = document.getElementById(`${side}${page}FrontLEDOffColor`);
-					const wallLEDOffColorElement = document.getElementById(`${side}${page}WallLEDOffColor`);
-					const longRepeatElement = document.getElementById(`${side}${page}DisableLongRepeat`);
-					const longDelayMsElement = document.getElementById(`${side}${page}LongDelayMs`);
-					const longRepeatMsElement = document.getElementById(`${side}${page}LongRepeatMs`);
-
-					if (topTextElement) pageConfig[`${side}TopText`] = topTextElement.value;
-					if (onTextElement) pageConfig[`${side}OnText`] = onTextElement.value;
-					if (offTextElement) pageConfig[`${side}OffText`] = offTextElement.value;
-					if (deviceElement)
-					{
-						pageConfig[`${side}Device`] = deviceElement.value;
-						if (deviceElement.selectedIndex >= 0 && deviceElement.options && deviceElement.options[deviceElement.selectedIndex])
-						{
-							pageConfig[`${side}DeviceName`] = deviceElement.options[deviceElement.selectedIndex].text.trim();
-						}
-					}
-					if (capabilityElement)
-					{
-						pageConfig[`${side}Capability`] = capabilityElement.value;
-						if (capabilityElement.selectedIndex >= 0 && capabilityElement.options && capabilityElement.options[capabilityElement.selectedIndex])
-						{
-							pageConfig[`${side}CapabilityName`] = capabilityElement.options[capabilityElement.selectedIndex].text;
-						}
-					}
-					if (brokerIdElement) pageConfig[`${side}BrokerId`] = getBrokerSelectValue(brokerIdElement, pageConfig[`${side}BrokerId`]);
-					if (dimChangeElement) pageConfig[`${side}DimChange`] = dimChangeElement.value;
-					if (frontLEDOnColorElement) pageConfig[`${side}FrontLEDOnColor`] = frontLEDOnColorElement.value;
-					if (wallLEDOnColorElement) pageConfig[`${side}WallLEDOnColor`] = wallLEDOnColorElement.value;
-					if (frontLEDOffColorElement) pageConfig[`${side}FrontLEDOffColor`] = frontLEDOffColorElement.value;
-					if (wallLEDOffColorElement) pageConfig[`${side}WallLEDOffColor`] = wallLEDOffColorElement.value;
-					if (longRepeatElement) pageConfig[`${side}DisableLongRepeat`] = !longRepeatElement.checked;
-					if (longDelayMsElement) pageConfig[`${side}LongDelayMs`] = normalizeLongPressTimingMs(longDelayMsElement.value, 0, 750);
-					if (longRepeatMsElement) pageConfig[`${side}LongRepeatMs`] = normalizeLongPressTimingMs(longRepeatMsElement.value, 50, 500);
+					pageConfig[`${side}DeviceName`] = deviceElement.options[deviceElement.selectedIndex].text.trim();
 				}
 			}
-		}
-
-		function buildConfigurationDraftSnapshot()
-		{
-			syncCurrentButtonSettingsForDraftSnapshot();
-
-			if (displayConfigurationsFetched)
+			if (capabilityElement)
 			{
-				storeDisplaySettings();
+				pageConfig[`${side}Capability`] = capabilityElement.value;
+				if (capabilityElement.selectedIndex >= 0 && capabilityElement.options && capabilityElement.options[capabilityElement.selectedIndex])
+				{
+					pageConfig[`${side}CapabilityName`] = capabilityElement.options[capabilityElement.selectedIndex].text;
+				}
 			}
-
-			syncBrokerSettingsToLocalWithoutValidation();
-
-			return {
-				version: 1,
-				timestamp: Date.now(),
-				buttonConfigurations: deepCloneData(localButtonConfigurations) || [],
-				displayConfigurations: deepCloneData(localDisplayConfigurations) || [],
-				brokerConfigurationItems: deepCloneData(localBrokerItems) || [],
-				defaultBroker: getSafeDefaultBrokerValue(),
-				currentButtonConfigurationNo: parseInt(buttonConfigurationNoElement?.value, 10) || 0,
-				currentDisplayConfigurationNo: parseInt(displayConfigurationNoElement?.value, 10) || 0,
-				configType: configTypeElement ? configTypeElement.value : 'panelConfig',
-			};
+			if (brokerIdElement) pageConfig[`${side}BrokerId`] = getBrokerSelectValue(brokerIdElement, pageConfig[`${side}BrokerId`]);
+			if (dimChangeElement) pageConfig[`${side}DimChange`] = dimChangeElement.value;
+			if (frontLEDOnColorElement) pageConfig[`${side}FrontLEDOnColor`] = frontLEDOnColorElement.value;
+			if (wallLEDOnColorElement) pageConfig[`${side}WallLEDOnColor`] = wallLEDOnColorElement.value;
+			if (frontLEDOffColorElement) pageConfig[`${side}FrontLEDOffColor`] = frontLEDOffColorElement.value;
+			if (wallLEDOffColorElement) pageConfig[`${side}WallLEDOffColor`] = wallLEDOffColorElement.value;
+			if (longRepeatElement) pageConfig[`${side}DisableLongRepeat`] = !longRepeatElement.checked;
+			if (longDelayMsElement) pageConfig[`${side}LongDelayMs`] = normalizeLongPressTimingMs(longDelayMsElement.value, 0, 750);
+			if (longRepeatMsElement) pageConfig[`${side}LongRepeatMs`] = normalizeLongPressTimingMs(longRepeatMsElement.value, 50, 500);
 		}
+	}
+}
 
-		function buildComparableDraftPayload(source)
+function buildConfigurationDraftSnapshot()
+{
+	syncCurrentButtonSettingsForDraftSnapshot();
+
+	if (displayConfigurationsFetched)
+	{
+		storeDisplaySettings();
+	}
+
+	syncBrokerSettingsToLocalWithoutValidation();
+
+	return {
+		version: 1,
+		timestamp: Date.now(),
+		buttonConfigurations: deepCloneData(localButtonConfigurations) || [],
+		displayConfigurations: deepCloneData(localDisplayConfigurations) || [],
+		brokerConfigurationItems: deepCloneData(localBrokerItems) || [],
+		defaultBroker: getSafeDefaultBrokerValue(),
+		currentButtonConfigurationNo: parseInt(buttonConfigurationNoElement?.value, 10) || 0,
+		currentDisplayConfigurationNo: parseInt(displayConfigurationNoElement?.value, 10) || 0,
+		configType: configTypeElement ? configTypeElement.value : 'panelConfig',
+	};
+}
+
+function buildComparableDraftPayload(source)
+{
+	const draftSource = (source && typeof source === 'object') ? source : {};
+
+	const buttonConfigurations = (draftSource.buttonConfigurations !== undefined)
+		? draftSource.buttonConfigurations
+		: localButtonConfigurations;
+	const displayConfigurations = (draftSource.displayConfigurations !== undefined)
+		? draftSource.displayConfigurations
+		: localDisplayConfigurations;
+	const brokerConfigurationItems = (draftSource.brokerConfigurationItems !== undefined)
+		? draftSource.brokerConfigurationItems
+		: localBrokerItems;
+	const defaultBroker = (draftSource.defaultBroker !== undefined)
+		? draftSource.defaultBroker
+		: getSafeDefaultBrokerValue();
+
+	return {
+		buttonConfigurations: deepCloneData(buttonConfigurations) || [],
+		displayConfigurations: deepCloneData(displayConfigurations) || [],
+		brokerConfigurationItems: deepCloneData(brokerConfigurationItems) || [],
+		defaultBroker: (typeof defaultBroker === 'string') ? defaultBroker : 'homey',
+	};
+}
+
+function getComparableDraftSignature(source)
+{
+	return JSON.stringify(buildComparableDraftPayload(source));
+}
+
+function clearDraftSetting(settingKey)
+{
+	// Some Homey runtimes reject null as a missing value parameter.
+	return Homey.set(settingKey, '');
+}
+
+function persistConfigurationDraftNow()
+{
+	if (!configDraftAutoSaveEnabled)
+	{
+		configDraftPendingPersist = true;
+		return;
+	}
+
+	if (!configDraftDirtySinceLoad)
+	{
+		return;
+	}
+
+	const snapshot = buildConfigurationDraftSnapshot();
+	const snapshotSignature = getComparableDraftSignature(snapshot);
+	if (configDraftLastSnapshotSignature === snapshotSignature)
+	{
+		configDraftDirtySinceLoad = false;
+		return;
+	}
+
+	if (configDraftDismissedSignature)
+	{
+		configDraftDismissedSignature = null;
+		configDraftDismissedAt = 0;
+		clearDraftSetting(CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY);
+	}
+
+	Homey.set(CONFIG_DRAFT_STORAGE_KEY, snapshot);
+	configDraftLastSnapshotSignature = snapshotSignature;
+	configDraftDirtySinceLoad = false;
+}
+
+function scheduleConfigurationDraftPersist()
+{
+	if (!configDraftAutoSaveEnabled)
+	{
+		configDraftPendingPersist = true;
+		return;
+	}
+
+	if (configDraftSaveTimer)
+	{
+		clearTimeout(configDraftSaveTimer);
+	}
+
+	configDraftSaveTimer = setTimeout(function ()
+	{
+		configDraftSaveTimer = null;
+		persistConfigurationDraftNow();
+	}, CONFIG_DRAFT_SAVE_DEBOUNCE_MS);
+}
+
+function flushConfigurationDraftPersist()
+{
+	if (!configDraftAutoSaveEnabled)
+	{
+		configDraftPendingPersist = true;
+		return;
+	}
+
+	if (configDraftSaveTimer)
+	{
+		clearTimeout(configDraftSaveTimer);
+		configDraftSaveTimer = null;
+	}
+
+	persistConfigurationDraftNow();
+}
+
+function isDraftRelevantEventTarget(target)
+{
+	if (!target || !target.closest)
+	{
+		return false;
+	}
+
+	if (target.id === 'save')
+	{
+		return false;
+	}
+
+	if (target.closest('[data-view-only="true"]'))
+	{
+		return false;
+	}
+
+	// Switching which existing configuration is being viewed isn't an edit, so it must not mark the draft dirty.
+	if (target.id === 'ButtonPanelConfigurationNo' || target.id === 'displayConfigurationNo')
+	{
+		return false;
+	}
+
+	return !!target.closest('#panelConfig, #displayConfig, #brokerConfig, #buttonFieldPopupOverlay, #displayFieldPopupOverlay');
+}
+
+function applyConfigurationDraft(draft)
+{
+	if (!draft || typeof draft !== 'object')
+	{
+		return;
+	}
+
+	const draftButtons = deepCloneData(draft.buttonConfigurations);
+	const draftDisplays = deepCloneData(draft.displayConfigurations);
+	const draftBrokers = deepCloneData(draft.brokerConfigurationItems);
+
+	if (Array.isArray(draftButtons) && draftButtons.length > 0)
+	{
+		localButtonConfigurations = draftButtons;
+		buttonConfigurationsFetched = true;
+		fillConfigListElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
+		const restoredButtonNo = parseInt(draft.currentButtonConfigurationNo, 10);
+		currentButtonConfigurationNo = Number.isNaN(restoredButtonNo)
+			? 0
+			: Math.max(0, Math.min(restoredButtonNo, localButtonConfigurations.length - 1));
+		buttonVisibleConfigurationNos[0] = currentButtonConfigurationNo;
+		buttonConfigurationNoElement.value = `${currentButtonConfigurationNo}`;
+		const buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo] || [];
+		writeButtonsections(buttonPanelConfiguration.length || 1);
+		updateButtonPanelControls();
+	}
+
+	if (Array.isArray(draftDisplays) && draftDisplays.length > 0)
+	{
+		normalizeDisplayConfigurationsPages(draftDisplays);
+		localDisplayConfigurations = draftDisplays;
+		displayConfigurationsFetched = true;
+		fillConfigListElement(displayConfigurationNoElement, Homey.__("settings.displayConfig"), localDisplayConfigurations, MAX_DISPLAY_CONFIGURATIONS);
+		const restoredDisplayNo = parseInt(draft.currentDisplayConfigurationNo, 10);
+		currentDisplayConfigurationNo = Number.isNaN(restoredDisplayNo)
+			? 0
+			: Math.max(0, Math.min(restoredDisplayNo, localDisplayConfigurations.length - 1));
+		displayConfigurationNoElement.value = `${currentDisplayConfigurationNo}`;
+		updateDisplayConfiguration();
+	}
+
+	if (Array.isArray(draftBrokers))
+	{
+		localBrokerItems = draftBrokers;
+		brokerItemsFetched = true;
+		setupButtonBrokerItems();
+	}
+
+	if (typeof draft.defaultBroker === 'string' && draft.defaultBroker)
+	{
+		restoredDraftDefaultBroker = draft.defaultBroker;
+		if (defaultBrokerElement)
 		{
-			const draftSource = (source && typeof source === 'object') ? source : {};
-
-			const buttonConfigurations = (draftSource.buttonConfigurations !== undefined)
-				? draftSource.buttonConfigurations
-				: localButtonConfigurations;
-			const displayConfigurations = (draftSource.displayConfigurations !== undefined)
-				? draftSource.displayConfigurations
-				: localDisplayConfigurations;
-			const brokerConfigurationItems = (draftSource.brokerConfigurationItems !== undefined)
-				? draftSource.brokerConfigurationItems
-				: localBrokerItems;
-			const defaultBroker = (draftSource.defaultBroker !== undefined)
-				? draftSource.defaultBroker
-				: getSafeDefaultBrokerValue();
-
-			return {
-				buttonConfigurations: deepCloneData(buttonConfigurations) || [],
-				displayConfigurations: deepCloneData(displayConfigurations) || [],
-				brokerConfigurationItems: deepCloneData(brokerConfigurationItems) || [],
-				defaultBroker: (typeof defaultBroker === 'string') ? defaultBroker : 'homey',
-			};
+			defaultBrokerElement.value = draft.defaultBroker;
 		}
+	}
 
-		function getComparableDraftSignature(source)
+	if (typeof draft.configType === 'string' && draft.configType)
+	{
+		configTypeElement.value = draft.configType;
+		configTypeChanged(draft.configType);
+	}
+}
+
+function maybeHandleLoadedConfigurationDraft()
+{
+	if (configDraftRestoreDecisionMade)
+	{
+		return;
+	}
+
+	if (!configDraftLoaded || !configDraftDismissedSignatureLoaded || !buttonConfigurationsFetched || !displayConfigurationsFetched || !brokerItemsFetched || !defaultBrokerFetched)
+	{
+		return;
+	}
+
+	configDraftRestoreDecisionMade = true;
+
+	if (!configDraftLoadedData || typeof configDraftLoadedData !== 'object')
+	{
+		enableConfigurationDraftAutoSave();
+		return;
+	}
+
+	const loadedDraftSignature = getComparableDraftSignature(configDraftLoadedData);
+	const loadedDraftTimestamp = (configDraftLoadedData && Number.isFinite(Number(configDraftLoadedData.timestamp)))
+		? Number(configDraftLoadedData.timestamp)
+		: 0;
+	const shouldSuppressDismissedDraft = !!(
+		configDraftDismissedSignature
+		&& configDraftDismissedSignature === loadedDraftSignature
+		&& (!configDraftDismissedAt || !loadedDraftTimestamp || loadedDraftTimestamp <= configDraftDismissedAt)
+	);
+	if (shouldSuppressDismissedDraft)
+	{
+		configDraftLoadedData = null;
+		configDraftDirtySinceLoad = false;
+		configDraftLastSnapshotSignature = null;
+		clearDraftSetting(CONFIG_DRAFT_STORAGE_KEY);
+		enableConfigurationDraftAutoSave();
+		return;
+	}
+
+	const currentSettingsSignature = getComparableDraftSignature({
+		buttonConfigurations: localButtonConfigurations,
+		displayConfigurations: localDisplayConfigurations,
+		brokerConfigurationItems: localBrokerItems,
+		defaultBroker: getSafeDefaultBrokerValue(),
+	});
+	if (loadedDraftSignature === currentSettingsSignature)
+	{
+		configDraftLoadedData = null;
+		configDraftDirtySinceLoad = false;
+		configDraftLastSnapshotSignature = currentSettingsSignature;
+		clearDraftSetting(CONFIG_DRAFT_STORAGE_KEY);
+		enableConfigurationDraftAutoSave();
+		return;
+	}
+
+	showConfigDraftRestoreDialog().then((ok) =>
+	{
+		if (ok)
 		{
-			return JSON.stringify(buildComparableDraftPayload(source));
-		}
-
-		function clearDraftSetting(settingKey)
-		{
-			// Some Homey runtimes reject null as a missing value parameter.
-			return Homey.set(settingKey, '');
-		}
-
-		function persistConfigurationDraftNow()
-		{
-			if (!configDraftAutoSaveEnabled)
-			{
-				configDraftPendingPersist = true;
-				return;
-			}
-
-			if (!configDraftDirtySinceLoad)
-			{
-				return;
-			}
-
-			const snapshot = buildConfigurationDraftSnapshot();
-			const snapshotSignature = getComparableDraftSignature(snapshot);
-			if (configDraftLastSnapshotSignature === snapshotSignature)
-			{
-				configDraftDirtySinceLoad = false;
-				return;
-			}
-
-			if (configDraftDismissedSignature)
-			{
-				configDraftDismissedSignature = null;
-				configDraftDismissedAt = 0;
-				clearDraftSetting(CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY);
-			}
-
-			Homey.set(CONFIG_DRAFT_STORAGE_KEY, snapshot);
-			configDraftLastSnapshotSignature = snapshotSignature;
+			applyConfigurationDraft(configDraftLoadedData);
+			configDraftLastSnapshotSignature = getComparableDraftSignature(configDraftLoadedData);
+			configDraftDismissedSignature = null;
+			configDraftDismissedAt = 0;
+			clearDraftSetting(CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY);
 			configDraftDirtySinceLoad = false;
+			// Homey.alert(Homey.__("settings.unsavedSettingsRestored"));
 		}
-
-		function scheduleConfigurationDraftPersist()
+		else
 		{
-			if (!configDraftAutoSaveEnabled)
-			{
-				configDraftPendingPersist = true;
-				return;
-			}
-
-			if (configDraftSaveTimer)
-			{
-				clearTimeout(configDraftSaveTimer);
-			}
-
-			configDraftSaveTimer = setTimeout(function ()
-			{
-				configDraftSaveTimer = null;
-				persistConfigurationDraftNow();
-			}, CONFIG_DRAFT_SAVE_DEBOUNCE_MS);
-		}
-
-		function flushConfigurationDraftPersist()
-		{
-			if (!configDraftAutoSaveEnabled)
-			{
-				configDraftPendingPersist = true;
-				return;
-			}
-
-			if (configDraftSaveTimer)
-			{
-				clearTimeout(configDraftSaveTimer);
-				configDraftSaveTimer = null;
-			}
-
-			persistConfigurationDraftNow();
-		}
-
-		function isDraftRelevantEventTarget(target)
-		{
-			if (!target || !target.closest)
-			{
-				return false;
-			}
-
-			if (target.id === 'save')
-			{
-				return false;
-			}
-
-			if (target.closest('[data-view-only="true"]'))
-			{
-				return false;
-			}
-
-			// Switching which existing configuration is being viewed isn't an edit, so it must not mark the draft dirty.
-			if (target.id === 'ButtonPanelConfigurationNo' || target.id === 'displayConfigurationNo')
-			{
-				return false;
-			}
-
-			return !!target.closest('#panelConfig, #displayConfig, #brokerConfig, #buttonFieldPopupOverlay, #displayFieldPopupOverlay');
-		}
-
-		function applyConfigurationDraft(draft)
-		{
-			if (!draft || typeof draft !== 'object')
-			{
-				return;
-			}
-
-			const draftButtons = deepCloneData(draft.buttonConfigurations);
-			const draftDisplays = deepCloneData(draft.displayConfigurations);
-			const draftBrokers = deepCloneData(draft.brokerConfigurationItems);
-
-			if (Array.isArray(draftButtons) && draftButtons.length > 0)
-			{
-				localButtonConfigurations = draftButtons;
-				buttonConfigurationsFetched = true;
-				fillConfigListElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
-				const restoredButtonNo = parseInt(draft.currentButtonConfigurationNo, 10);
-				currentButtonConfigurationNo = Number.isNaN(restoredButtonNo)
-					? 0
-					: Math.max(0, Math.min(restoredButtonNo, localButtonConfigurations.length - 1));
-				buttonVisibleConfigurationNos[0] = currentButtonConfigurationNo;
-				buttonConfigurationNoElement.value = `${currentButtonConfigurationNo}`;
-				const buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo] || [];
-				writeButtonsections(buttonPanelConfiguration.length || 1);
-				updateButtonPanelControls();
-			}
-
-			if (Array.isArray(draftDisplays) && draftDisplays.length > 0)
-			{
-				normalizeDisplayConfigurationsPages(draftDisplays);
-				localDisplayConfigurations = draftDisplays;
-				displayConfigurationsFetched = true;
-				fillConfigListElement(displayConfigurationNoElement, Homey.__("settings.displayConfig"), localDisplayConfigurations, MAX_DISPLAY_CONFIGURATIONS);
-				const restoredDisplayNo = parseInt(draft.currentDisplayConfigurationNo, 10);
-				currentDisplayConfigurationNo = Number.isNaN(restoredDisplayNo)
-					? 0
-					: Math.max(0, Math.min(restoredDisplayNo, localDisplayConfigurations.length - 1));
-				displayConfigurationNoElement.value = `${currentDisplayConfigurationNo}`;
-				updateDisplayConfiguration();
-			}
-
-			if (Array.isArray(draftBrokers))
-			{
-				localBrokerItems = draftBrokers;
-				brokerItemsFetched = true;
-				setupButtonBrokerItems();
-			}
-
-			if (typeof draft.defaultBroker === 'string' && draft.defaultBroker)
-			{
-				restoredDraftDefaultBroker = draft.defaultBroker;
-				if (defaultBrokerElement)
-				{
-					defaultBrokerElement.value = draft.defaultBroker;
-				}
-			}
-
-			if (typeof draft.configType === 'string' && draft.configType)
-			{
-				configTypeElement.value = draft.configType;
-				configTypeChanged(draft.configType);
-			}
-		}
-
-		function maybeHandleLoadedConfigurationDraft()
-		{
-			if (configDraftRestoreDecisionMade)
-			{
-				return;
-			}
-
-			if (!configDraftLoaded || !configDraftDismissedSignatureLoaded || !buttonConfigurationsFetched || !displayConfigurationsFetched || !brokerItemsFetched || !defaultBrokerFetched)
-			{
-				return;
-			}
-
-			configDraftRestoreDecisionMade = true;
-
-			if (!configDraftLoadedData || typeof configDraftLoadedData !== 'object')
-			{
-				enableConfigurationDraftAutoSave();
-				return;
-			}
-
-			const loadedDraftSignature = getComparableDraftSignature(configDraftLoadedData);
-			const loadedDraftTimestamp = (configDraftLoadedData && Number.isFinite(Number(configDraftLoadedData.timestamp)))
+			const discardedSignature = getComparableDraftSignature(configDraftLoadedData);
+			const discardedTimestamp = (configDraftLoadedData && Number.isFinite(Number(configDraftLoadedData.timestamp)))
 				? Number(configDraftLoadedData.timestamp)
+				: Date.now();
+			configDraftDismissedSignature = discardedSignature;
+			configDraftDismissedAt = discardedTimestamp;
+			Homey.set(CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY, {
+				signature: discardedSignature,
+				timestamp: discardedTimestamp,
+			});
+			configDraftLoadedData = null;
+			configDraftDirtySinceLoad = false;
+			configDraftLastSnapshotSignature = null;
+			clearDraftSetting(CONFIG_DRAFT_STORAGE_KEY);
+		}
+
+		enableConfigurationDraftAutoSave();
+	});
+}
+
+function closeConfigDraftRestoreDialog(shouldRetrieve)
+{
+	if (!configDraftRestoreDialogResolver)
+	{
+		return;
+	}
+
+	const resolver = configDraftRestoreDialogResolver;
+	configDraftRestoreDialogResolver = null;
+
+	if (configDraftRestoreOverlayElement)
+	{
+		configDraftRestoreOverlayElement.classList.remove('visible');
+		configDraftRestoreOverlayElement.setAttribute('aria-hidden', 'true');
+	}
+
+	document.removeEventListener('keydown', handleConfigDraftRestoreDialogKeydown);
+	resolver(!!shouldRetrieve);
+}
+
+function handleConfigDraftRestoreDialogKeydown(event)
+{
+	if (!event || event.key !== 'Escape' || !configDraftRestoreDialogResolver)
+	{
+		return;
+	}
+
+	event.preventDefault();
+	closeConfigDraftRestoreDialog(false);
+}
+
+function showConfigDraftRestoreDialog()
+{
+	if (!configDraftRestoreOverlayElement || !configDraftRestoreRetrieveElement || !configDraftRestoreDiscardElement)
+	{
+		return new Promise((resolve) =>
+		{
+			Homey.confirm(Homey.__("settings.unsavedSettingsDetectedMessage"), null, function (err, ok)
+			{
+				resolve(!!ok);
+			});
+		});
+	}
+
+	if (configDraftRestoreDialogResolver)
+	{
+		closeConfigDraftRestoreDialog(false);
+	}
+
+	configDraftRestoreOverlayElement.classList.add('visible');
+	configDraftRestoreOverlayElement.setAttribute('aria-hidden', 'false');
+	document.addEventListener('keydown', handleConfigDraftRestoreDialogKeydown);
+
+	setTimeout(() =>
+	{
+		configDraftRestoreRetrieveElement.focus();
+	}, 0);
+
+	return new Promise((resolve) =>
+	{
+		configDraftRestoreDialogResolver = resolve;
+	});
+}
+
+function buildExportConfigurationText()
+{
+	return JSON.stringify(
+		{
+			copySource: 'Export',
+			buttonConfigurations: localButtonConfigurations,
+			displayConfigurations: localDisplayConfigurations,
+			groupConfigurations: localGroupConfigurations,
+			brokerItems: localBrokerItems,
+		}, null, 2);
+}
+
+function closeSendSupportPopup(result = null)
+{
+	if (!sendSupportPopupResolver)
+	{
+		return;
+	}
+
+	const resolver = sendSupportPopupResolver;
+	sendSupportPopupResolver = null;
+
+	if (sendSupportPopupOverlayElement)
+	{
+		sendSupportPopupOverlayElement.classList.remove('visible');
+		sendSupportPopupOverlayElement.setAttribute('aria-hidden', 'true');
+	}
+
+	document.removeEventListener('keydown', handleSendSupportPopupKeydown);
+	sendSupportPopupContext = null;
+	resolver(result);
+}
+
+function handleSendSupportPopupKeydown(event)
+{
+	if (!event || event.key !== 'Escape' || !sendSupportPopupResolver)
+	{
+		return;
+	}
+
+	event.preventDefault();
+	closeSendSupportPopup(null);
+}
+
+function submitSendSupportPopup()
+{
+	if (!sendSupportPopupResolver || !sendSupportPopupContext)
+	{
+		return;
+	}
+
+	const email = sendSupportEmailElement ? sendSupportEmailElement.value.trim() : '';
+	const description = sendSupportDescriptionElement ? sendSupportDescriptionElement.value.trim() : '';
+
+	if (!description)
+	{
+		Homey.alert(Homey.__("settings.descriptionExplanation"));
+		if (sendSupportDescriptionElement)
+		{
+			sendSupportDescriptionElement.focus();
+		}
+		return;
+	}
+
+	lastSupportEmailValue = email;
+	closeSendSupportPopup({
+		email,
+		description,
+		content: sendSupportPopupContext.content,
+		contentType: sendSupportPopupContext.contentType,
+		subject: sendSupportPopupContext.subject,
+	});
+}
+
+function showSendSupportPopup(context)
+{
+	if (!sendSupportPopupOverlayElement || !sendSupportPopupTitleElement || !sendSupportPopupMessageElement)
+	{
+		return Promise.resolve(null);
+	}
+
+	if (sendSupportPopupResolver)
+	{
+		closeSendSupportPopup(null);
+	}
+
+	sendSupportPopupContext = context || {};
+	sendSupportPopupTitleElement.textContent = sendSupportPopupContext.title || Homey.__("settings.sendSupportTitle");
+	sendSupportPopupMessageElement.textContent = sendSupportPopupContext.message || Homey.__("settings.sendSupportMessage");
+
+	if (sendSupportEmailElement)
+	{
+		sendSupportEmailElement.value = lastSupportEmailValue;
+	}
+	if (sendSupportDescriptionElement)
+	{
+		sendSupportDescriptionElement.value = '';
+	}
+
+	sendSupportPopupOverlayElement.classList.add('visible');
+	sendSupportPopupOverlayElement.setAttribute('aria-hidden', 'false');
+	document.addEventListener('keydown', handleSendSupportPopupKeydown);
+
+	setTimeout(() =>
+	{
+		if (sendSupportEmailElement)
+		{
+			sendSupportEmailElement.focus();
+		}
+	}, 0);
+
+	return new Promise((resolve) =>
+	{
+		sendSupportPopupResolver = resolve;
+	});
+}
+
+function sendSupportPayload(payload)
+{
+	if (!payload)
+	{
+		return;
+	}
+
+	Homey.api('POST', '/sendlog/',
+		{
+			notify: true,
+			email: payload.email,
+			description: payload.description,
+			content: payload.content,
+			contentType: payload.contentType,
+			subject: payload.subject,
+		}, function (err, result)
+	{
+		if (err)
+		{
+			Homey.alert(err);
+		}
+		else
+		{
+			Homey.alert(result || Homey.__("settings.logSent"));
+		}
+	});
+}
+
+async function openSupportSendFlow(options)
+{
+	const payload = await showSendSupportPopup(options);
+	if (!payload)
+	{
+		return;
+	}
+
+	sendSupportPayload(payload);
+}
+
+function startDisplayInlineLiveRefresh()
+{
+	if (displayInlineLiveRefreshTimer)
+	{
+		return;
+	}
+
+	displayInlineLiveRefreshTimer = setInterval(refreshDisplayPopupLiveValues, DISPLAY_SIM_LIVE_REFRESH_MS);
+}
+
+function stopDisplayInlineLiveRefresh()
+{
+	if (!displayInlineLiveRefreshTimer)
+	{
+		return;
+	}
+
+	clearInterval(displayInlineLiveRefreshTimer);
+	displayInlineLiveRefreshTimer = null;
+}
+
+function startDisplayItemMoveDrag(event, itemNo)
+{
+	if (!event)
+	{
+		return;
+	}
+
+	event.preventDefault();
+	event.stopPropagation();
+
+	const handleElement = event.currentTarget;
+	const itemElement = handleElement ? handleElement.closest('.display-sim-item') : null;
+	const surfaceElement = itemElement ? itemElement.closest('.display-sim-surface') : null;
+	if (!itemElement || !surfaceElement)
+	{
+		return;
+	}
+
+	const surfaceRect = surfaceElement.getBoundingClientRect();
+	const itemRect = itemElement.getBoundingClientRect();
+	if (!surfaceRect || !itemRect || surfaceRect.width <= 0 || surfaceRect.height <= 0)
+	{
+		return;
+	}
+
+	if (typeof handleElement.setPointerCapture === 'function' && event.pointerId !== undefined)
+	{
+		try
+		{
+			handleElement.setPointerCapture(event.pointerId);
+		}
+		catch (err)
+		{
+			// Ignore pointer capture errors from unsupported environments.
+		}
+	}
+
+	const xInputElement = document.getElementById(`display${itemNo}X`);
+	const yInputElement = document.getElementById(`display${itemNo}Y`);
+	const leftFromInput = xInputElement ? parseFloat(xInputElement.value) : NaN;
+	const topFromInput = yInputElement ? parseFloat(yInputElement.value) : NaN;
+	const leftFromStyle = parseFloat(itemElement.dataset.leftPercent || itemElement.style.left || '0');
+	const topFromStyle = parseFloat(itemElement.dataset.topPercent || itemElement.style.top || '0');
+	const startLeftPercent = Number.isNaN(leftFromInput)
+		? (Number.isNaN(leftFromStyle) ? 0 : leftFromStyle)
+		: leftFromInput;
+	const startTopPercent = Number.isNaN(topFromInput)
+		? (Number.isNaN(topFromStyle) ? 0 : topFromStyle)
+		: topFromInput;
+	const moveTooltipElement = itemElement.querySelector('.display-sim-move-tooltip');
+	if (moveTooltipElement)
+	{
+		moveTooltipElement.textContent = `X: ${Math.round(startLeftPercent)}% Y: ${Math.round(startTopPercent)}%`;
+		const itemMidpoint = itemRect.top - surfaceRect.top + (itemRect.height / 2);
+		const showTooltipBelow = itemMidpoint < (surfaceRect.height / 2);
+		moveTooltipElement.classList.toggle('display-sim-resize-tooltip-below', showTooltipBelow);
+	}
+	itemElement.classList.add('display-sim-item-moving');
+
+	displayItemMoveState = {
+		itemNo,
+		itemElement,
+		surfaceElement,
+		moveTooltipElement,
+		xInputElement,
+		yInputElement,
+		startClientX: event.clientX,
+		startClientY: event.clientY,
+		startLeftPercent,
+		startTopPercent,
+		itemWidthPercent: (itemRect.width / surfaceRect.width) * 100,
+		itemHeightPercent: (itemRect.height / surfaceRect.height) * 100,
+		pointerId: event.pointerId,
+	};
+
+	document.body.classList.add('display-sim-moving');
+	window.addEventListener('pointermove', onDisplayItemMoveDragMove);
+	window.addEventListener('pointerup', stopDisplayItemMoveDrag);
+	window.addEventListener('pointercancel', stopDisplayItemMoveDrag);
+}
+
+function onDisplayItemMoveDragMove(event)
+{
+	if (!displayItemMoveState || !event)
+	{
+		return;
+	}
+
+	if (displayItemMoveState.pointerId !== undefined && event.pointerId !== undefined && displayItemMoveState.pointerId !== event.pointerId)
+	{
+		return;
+	}
+
+	event.preventDefault();
+
+	const surfaceRect = displayItemMoveState.surfaceElement.getBoundingClientRect();
+	if (!surfaceRect || surfaceRect.width <= 0 || surfaceRect.height <= 0)
+	{
+		return;
+	}
+
+	const deltaX = event.clientX - displayItemMoveState.startClientX;
+	const deltaY = event.clientY - displayItemMoveState.startClientY;
+	const deltaXPercent = (deltaX / surfaceRect.width) * 100;
+	const deltaYPercent = (deltaY / surfaceRect.height) * 100;
+
+	const maxLeftPercent = Math.max(0, Math.floor(100 - displayItemMoveState.itemWidthPercent));
+	const maxTopPercent = Math.max(0, Math.floor(100 - displayItemMoveState.itemHeightPercent));
+	const displayLeftPercent = Math.max(0, Math.min(maxLeftPercent, Math.round(displayItemMoveState.startLeftPercent + deltaXPercent)));
+	const displayTopPercent = Math.max(0, Math.min(maxTopPercent, Math.round(displayItemMoveState.startTopPercent + deltaYPercent)));
+
+	displayItemMoveState.itemElement.style.left = `${displayLeftPercent}%`;
+	displayItemMoveState.itemElement.style.top = `${displayTopPercent}%`;
+	displayItemMoveState.itemElement.dataset.leftPercent = `${displayLeftPercent}`;
+	displayItemMoveState.itemElement.dataset.topPercent = `${displayTopPercent}`;
+
+	if (displayItemMoveState.moveTooltipElement)
+	{
+		displayItemMoveState.moveTooltipElement.textContent = `X: ${displayLeftPercent}% Y: ${displayTopPercent}%`;
+		const itemRect = displayItemMoveState.itemElement.getBoundingClientRect();
+		const itemMidpoint = itemRect.top - surfaceRect.top + (itemRect.height / 2);
+		const showTooltipBelow = itemMidpoint < (surfaceRect.height / 2);
+		displayItemMoveState.moveTooltipElement.classList.toggle('display-sim-resize-tooltip-below', showTooltipBelow);
+	}
+
+	if (displayItemMoveState.xInputElement)
+	{
+		displayItemMoveState.xInputElement.value = `${displayLeftPercent}`;
+	}
+
+	if (displayItemMoveState.yInputElement)
+	{
+		displayItemMoveState.yInputElement.value = `${displayTopPercent}`;
+	}
+}
+
+function stopDisplayItemMoveDrag(event)
+{
+	if (!displayItemMoveState)
+	{
+		return;
+	}
+
+	if (event && displayItemMoveState.pointerId !== undefined && event.pointerId !== undefined && displayItemMoveState.pointerId !== event.pointerId)
+	{
+		return;
+	}
+
+	const state = displayItemMoveState;
+	displayItemMoveState = null;
+
+	window.removeEventListener('pointermove', onDisplayItemMoveDragMove);
+	window.removeEventListener('pointerup', stopDisplayItemMoveDrag);
+	window.removeEventListener('pointercancel', stopDisplayItemMoveDrag);
+	document.body.classList.remove('display-sim-moving');
+	state.itemElement.classList.remove('display-sim-item-moving');
+
+	const finalLeftPercent = parseFloat(state.itemElement?.dataset?.leftPercent || state.xInputElement?.value || '0');
+	const finalTopPercent = parseFloat(state.itemElement?.dataset?.topPercent || state.yInputElement?.value || '0');
+	const safeLeftPercent = Number.isNaN(finalLeftPercent) ? 0 : Math.round(finalLeftPercent);
+	const safeTopPercent = Number.isNaN(finalTopPercent) ? 0 : Math.round(finalTopPercent);
+
+	if (state.xInputElement)
+	{
+		state.xInputElement.value = `${safeLeftPercent}`;
+	}
+
+	if (state.yInputElement)
+	{
+		state.yInputElement.value = `${safeTopPercent}`;
+	}
+
+	onDisplayLabelChange({ id: `display${state.itemNo}X`, value: '' }, state.itemNo);
+
+	const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+	if (displayConfiguration && Array.isArray(displayConfiguration.items) && displayConfiguration.items[state.itemNo])
+	{
+		displayConfiguration.items[state.itemNo].xPos = `${safeLeftPercent}`;
+		displayConfiguration.items[state.itemNo].yPos = `${safeTopPercent}`;
+	}
+
+	configDraftDirtySinceLoad = true;
+	flushConfigurationDraftPersist();
+
+	redisplayDisplyConfig(state.itemNo);
+	if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
+	{
+		renderDisplayPagePopup();
+	}
+}
+
+function startDisplayItemWidthDrag(event, itemNo)
+{
+	if (!event)
+	{
+		return;
+	}
+
+	event.preventDefault();
+	event.stopPropagation();
+
+	const handleElement = event.currentTarget;
+	const itemElement = handleElement ? handleElement.closest('.display-sim-item') : null;
+	const surfaceElement = itemElement ? itemElement.closest('.display-sim-surface') : null;
+	if (!itemElement || !surfaceElement)
+	{
+		return;
+	}
+
+	const surfaceRect = surfaceElement.getBoundingClientRect();
+	if (!surfaceRect || surfaceRect.width <= 0)
+	{
+		return;
+	}
+
+	if (typeof handleElement.setPointerCapture === 'function' && event.pointerId !== undefined)
+	{
+		try
+		{
+			handleElement.setPointerCapture(event.pointerId);
+		}
+		catch (err)
+		{
+			// Ignore pointer capture errors from unsupported environments.
+		}
+	}
+
+	const widthInputElement = document.getElementById(`display${itemNo}Width`);
+	const widthFromInput = widthInputElement ? parseFloat(widthInputElement.value) : NaN;
+	const widthFromStyle = parseFloat(itemElement.dataset.widthPercent || itemElement.style.width || '0');
+	const leftPercent = parseFloat(itemElement.dataset.leftPercent || itemElement.style.left || '0') || 0;
+	const initialWidthPercent = Number.isNaN(widthFromInput)
+		? (Number.isNaN(widthFromStyle) ? 100 : widthFromStyle)
+		: widthFromInput;
+	const resizeTooltipElement = itemElement.querySelector('.display-sim-size-tooltip');
+	if (resizeTooltipElement)
+	{
+		resizeTooltipElement.textContent = `W: ${Math.round(initialWidthPercent * 10) / 10}%`;
+		const itemRect = itemElement.getBoundingClientRect();
+		const itemMidpoint = itemRect.top - surfaceRect.top + (itemRect.height / 2);
+		const showTooltipBelow = itemMidpoint < (surfaceRect.height / 2);
+		resizeTooltipElement.classList.toggle('display-sim-resize-tooltip-below', showTooltipBelow);
+	}
+	itemElement.classList.add('display-sim-item-resizing');
+
+	displayItemResizeState = {
+		itemNo,
+		handleElement,
+		itemElement,
+		surfaceElement,
+		widthInputElement,
+		resizeTooltipElement,
+		startClientX: event.clientX,
+		startWidthPercent: initialWidthPercent,
+		leftPercent,
+		pointerId: event.pointerId,
+	};
+
+	document.body.classList.add('display-sim-resizing');
+	window.addEventListener('pointermove', onDisplayItemWidthDragMove);
+	window.addEventListener('pointerup', stopDisplayItemWidthDrag);
+	window.addEventListener('pointercancel', stopDisplayItemWidthDrag);
+}
+
+function onDisplayItemWidthDragMove(event)
+{
+	if (!displayItemResizeState || !event)
+	{
+		return;
+	}
+
+	if (displayItemResizeState.pointerId !== undefined && event.pointerId !== undefined && displayItemResizeState.pointerId !== event.pointerId)
+	{
+		return;
+	}
+
+	event.preventDefault();
+
+	const surfaceRect = displayItemResizeState.surfaceElement.getBoundingClientRect();
+	if (!surfaceRect || surfaceRect.width <= 0)
+	{
+		return;
+	}
+
+	const deltaX = event.clientX - displayItemResizeState.startClientX;
+	const deltaPercent = (deltaX / surfaceRect.width) * 100;
+	const maxWidthPercent = Math.max(2, 100 - displayItemResizeState.leftPercent);
+	const rawWidthPercent = Math.max(2, Math.min(maxWidthPercent, displayItemResizeState.startWidthPercent + deltaPercent));
+	const newWidthPercent = Math.max(2, Math.min(maxWidthPercent, Math.round(rawWidthPercent)));
+
+	displayItemResizeState.itemElement.style.width = `${newWidthPercent}%`;
+	displayItemResizeState.itemElement.dataset.widthPercent = `${newWidthPercent}`;
+
+	if (displayItemResizeState.widthInputElement)
+	{
+		displayItemResizeState.widthInputElement.value = `${newWidthPercent}`;
+	}
+
+	if (displayItemResizeState.resizeTooltipElement)
+	{
+		displayItemResizeState.resizeTooltipElement.textContent = `W: ${newWidthPercent}%`;
+	}
+}
+
+function stopDisplayItemWidthDrag(event)
+{
+	if (!displayItemResizeState)
+	{
+		return;
+	}
+
+	if (event && displayItemResizeState.pointerId !== undefined && event.pointerId !== undefined && displayItemResizeState.pointerId !== event.pointerId)
+	{
+		return;
+	}
+
+	const state = displayItemResizeState;
+	displayItemResizeState = null;
+
+	window.removeEventListener('pointermove', onDisplayItemWidthDragMove);
+	window.removeEventListener('pointerup', stopDisplayItemWidthDrag);
+	window.removeEventListener('pointercancel', stopDisplayItemWidthDrag);
+	document.body.classList.remove('display-sim-resizing');
+	state.itemElement.classList.remove('display-sim-item-resizing');
+
+	const finalWidthPercent = parseFloat(state.itemElement?.dataset?.widthPercent || state.widthInputElement?.value || '100');
+	const safeWidthPercent = Number.isNaN(finalWidthPercent) ? 100 : Math.max(2, Math.round(finalWidthPercent));
+
+	if (state.widthInputElement)
+	{
+		state.widthInputElement.value = `${safeWidthPercent}`;
+	}
+
+	onDisplayLabelChange({ id: `display${state.itemNo}Width`, value: '' }, state.itemNo);
+
+	const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+	if (displayConfiguration && Array.isArray(displayConfiguration.items) && displayConfiguration.items[state.itemNo])
+	{
+		displayConfiguration.items[state.itemNo].width = `${safeWidthPercent}`;
+	}
+
+	configDraftDirtySinceLoad = true;
+	flushConfigurationDraftPersist();
+
+	redisplayDisplyConfig(state.itemNo);
+	if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
+	{
+		renderDisplayPagePopup();
+	}
+}
+
+var lastSentIpElement = document.getElementById('sentip');
+var getLogElement = document.getElementById('getLog');
+var sentLogElement = document.getElementById('sentLog');
+
+// Declarations for the Display Config page
+
+var displayConfigurationNoElement = document.getElementById('displayConfigurationNo');
+var displayConfigNameElement = document.getElementById('displayConfigName');
+var displayConfigNameRowElement = document.getElementById('displayConfigNameRow');
+var toggleDisplayConfigNameVisibilityElement = document.getElementById('toggleDisplayConfigNameVisibility');
+var displayConfigNameCollapsed = true;
+var newDisplayItemButton = document.getElementById('newDisplayItem');
+
+var displayConfigurationsFetched = false;
+var localDisplayConfigurations = [];
+var currentDisplayConfigurationNo = 0;
+var displayCapabilityItems = new Map();
+var copyDisplayConfigElement = document.getElementById('copyDisplayConfig');
+var pasteDisplayConfigElement = document.getElementById('pasteDisplayConfig');
+
+// Declarations for the Broker Config page
+var defaultBrokerElement = document.getElementById('defaultBroker');
+var newBrokerItemButton = document.getElementById('newBrokerItem');
+var localBrokerItems = [];
+var brokerItemsFetched = false;
+var defaultBrokerFetched = false;
+
+var diagLogEnabledElement = document.getElementById('enableLog');
+var diagLogElement = document.getElementById('diagLog');
+var clearLogElement = document.getElementById('clearLog');
+var sendLogElement = document.getElementById('sendLog');
+var getListenersElement = document.getElementById('getListeners');
+
+var copyTextElement = document.getElementById('copyText');
+var importElement = document.getElementById('import');
+var exportElement = document.getElementById('export');
+var sendExportElement = document.getElementById('sendExport');
+
+var itemDisplyType = "flex";
+const MAX_SVG_FIELD_LENGTH = 3 * 1024;
+const BUTTON_MAIN_DIAGNOSTICS_ENABLED = false;
+let trimmedSVGFieldCount = 0;
+let invalidButtonSVGFields = [];
+
+function clampSVGField(svgValue)
+{
+	const value = (typeof svgValue === 'string') ? svgValue : '';
+	if (value.length > MAX_SVG_FIELD_LENGTH)
+	{
+		trimmedSVGFieldCount++;
+		// return value.substring(0, MAX_SVG_FIELD_LENGTH);
+	}
+
+	return value;
+}
+
+function collectInvalidButtonSVGField(side, page, state)
+{
+	const sideLabel = side === 'left' ? Homey.__("settings.leftPanel") : Homey.__("settings.rightPanel");
+	const pageLabel = formatButtonPageLabel(page);
+	const stateLabel = state === 'On' ? 'On SVG' : 'Off SVG';
+	const warning = `${sideLabel} / Page ${pageLabel} / ${stateLabel}`;
+
+	if (!invalidButtonSVGFields.includes(warning))
+	{
+		invalidButtonSVGFields.push(warning);
+	}
+}
+
+function sanitizeAndValidateButtonSVGField(svgValue, side, page, state)
+{
+	const clampedValue = clampSVGField(svgValue);
+	const normalizedValue = normalizeSvgText(clampedValue);
+
+	if (clampedValue.trim() && !isSvgTextContent(normalizedValue))
+	{
+		collectInvalidButtonSVGField(side, page, state);
+		appendClientDiagnosticLog(`Invalid SVG detected at ${side} page ${page} ${state}SVG; storing original text.`, 'WARN');
+		return clampedValue;
+	}
+
+	return normalizedValue;
+}
+
+function appendClientDiagnosticLog(message, level = 'INFO')
+{
+	if (!diagLogElement)
+	{
+		return;
+	}
+
+	const timestamp = new Date().toISOString();
+	const normalizedLevel = (typeof level === 'string' && level) ? level.toUpperCase() : 'INFO';
+	const messageText = (typeof message === 'string')
+		? message
+		: (message && message.message ? message.message : JSON.stringify(message));
+
+	if (diagLogElement.value && !diagLogElement.value.endsWith('\n'))
+	{
+		diagLogElement.value += '\n';
+	}
+
+	diagLogElement.value += `* ${timestamp}\n[settings:${normalizedLevel}] ${messageText}\n`;
+
+	if (diagLogElement.value.length > 60000)
+	{
+		diagLogElement.value = diagLogElement.value.slice(-60000);
+	}
+}
+
+function isHomeyMobileAppRuntime()
+{
+	const userAgent = (navigator && navigator.userAgent) ? navigator.userAgent.toLowerCase() : '';
+	const isAndroidWebView = userAgent.includes('android') && userAgent.includes('wv');
+	const coarsePointer = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+	const noHover = !!(window.matchMedia && window.matchMedia('(hover: none)').matches);
+	return isAndroidWebView && coarsePointer && noHover;
+}
+
+function adjustMainTopOffset()
+{
+	const fixedTopElement = document.querySelector('.fixedTop');
+	const mainElement = document.querySelector('.main');
+	if (!fixedTopElement || !mainElement)
+	{
+		return;
+	}
+
+	const offset = Math.ceil(fixedTopElement.getBoundingClientRect().bottom);
+	mainElement.style.marginTop = `${offset}px`;
+	document.documentElement.style.setProperty('--settings-fixed-top-offset', `${offset}px`);
+}
+
+function scheduleMainTopOffsetAdjustment()
+{
+	if (mainTopOffsetAnimationFrame !== null)
+	{
+		return;
+	}
+
+	mainTopOffsetAnimationFrame = requestAnimationFrame(function ()
+	{
+		mainTopOffsetAnimationFrame = null;
+		adjustMainTopOffset();
+	});
+}
+
+function escapeHtml(value)
+{
+	return String(value)
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&#39;');
+}
+
+function getSvgPreviewMarkup(svgText)
+{
+	const value = (typeof svgText === 'string') ? svgText.trim() : '';
+	if (!value)
+	{
+		return '';
+	}
+
+	// Only treat real SVG markup as SVG; plain text like "19:49" must remain text.
+	if (!/^<svg[\s>]/i.test(value))
+	{
+		return '';
+	}
+
+	return value;
+}
+
+function updateSvgPreview(textareaElement)
+{
+	if (!textareaElement)
+	{
+		return;
+	}
+
+	const previewId = textareaElement.dataset.svgPreviewTarget;
+	if (!previewId)
+	{
+		return;
+	}
+
+	const previewElement = document.getElementById(previewId);
+	if (!previewElement)
+	{
+		return;
+	}
+
+	const svgMarkup = getSvgPreviewMarkup(textareaElement.value);
+	if (!svgMarkup)
+	{
+		previewElement.innerHTML = '<div class="svg-preview-empty">No SVG</div>';
+		return;
+	}
+
+	try
+	{
+		previewElement.innerHTML = svgMarkup;
+		const importedSvg = previewElement.querySelector('svg');
+		if (!importedSvg)
+		{
+			previewElement.innerHTML = '<div class="svg-preview-empty">Invalid SVG</div>';
+			return;
+		}
+
+		if (!importedSvg.getAttribute('xmlns'))
+		{
+			importedSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+		}
+		if (!importedSvg.getAttribute('viewBox'))
+		{
+			importedSvg.setAttribute('viewBox', '0 0 13 13');
+		}
+		importedSvg.setAttribute('width', '50');
+		importedSvg.setAttribute('height', '50');
+		importedSvg.style.maxWidth = '100%';
+		importedSvg.style.maxHeight = '100%';
+	}
+	catch (err)
+	{
+		previewElement.innerHTML = '<div class="svg-preview-empty">Invalid SVG</div>';
+	}
+}
+
+function setupSvgPreviews(root = document)
+{
+	if (!root || typeof root.querySelectorAll !== 'function')
+	{
+		return;
+	}
+
+	const textareas = Array.from(root.querySelectorAll('textarea[data-svg-preview-target]'));
+	textareas.forEach((textareaElement) =>
+	{
+		if (textareaElement.dataset.svgPreviewBound === 'true')
+		{
+			updateSvgPreview(textareaElement);
+			return;
+		}
+
+		textareaElement.addEventListener('input', () => updateSvgPreview(textareaElement));
+		textareaElement.dataset.svgPreviewBound = 'true';
+		updateSvgPreview(textareaElement);
+	});
+}
+
+function applyDisplaySimulatorLocalization()
+{
+	if (typeof Homey === 'undefined' || !Homey || typeof Homey.__ !== 'function')
+	{
+		return;
+	}
+
+	const setTextById = (id, key) =>
+	{
+		const element = document.getElementById(id);
+		if (element)
+		{
+			element.textContent = Homey.__(`settings.${key}`);
+		}
+	};
+
+	const setAttributeById = (id, attributeName, key) =>
+	{
+		const element = document.getElementById(id);
+		if (element)
+		{
+			element.setAttribute(attributeName, Homey.__(`settings.${key}`));
+		}
+	};
+
+	const setSelectOptions = (id, optionKeys) =>
+	{
+		const element = document.getElementById(id);
+		if (!element || !Array.isArray(element.options))
+		{
+			return;
+		}
+
+		for (let index = 0; index < optionKeys.length && index < element.options.length; index++)
+		{
+			element.options[index].text = Homey.__(`settings.${optionKeys[index]}`);
+		}
+	};
+
+	setAttributeById('displayInlineSimPrev', 'title', 'displaySimPreviousPage');
+	setAttributeById('displayInlineSimPrev', 'aria-label', 'displaySimPreviousPage');
+	setAttributeById('displayInlineSimNext', 'title', 'displaySimNextPage');
+	setAttributeById('displayInlineSimNext', 'aria-label', 'displaySimNextPage');
+	setAttributeById('displayInlineSimAddPage', 'title', 'displaySimAddPage');
+	setAttributeById('displayInlineSimAddPage', 'aria-label', 'displaySimAddPage');
+	setAttributeById('displayInlineSimDeletePage', 'title', 'displaySimDeletePage');
+	setAttributeById('displayInlineSimDeletePage', 'aria-label', 'displaySimDeletePage');
+	setAttributeById('displayInlineSimAddItem', 'title', 'displaySimAddItem');
+	setAttributeById('displayInlineSimAddItem', 'aria-label', 'displaySimAddItem');
+	setAttributeById('displayInlineSimDeleteItem', 'title', 'displaySimDeleteItem');
+	setAttributeById('displayInlineSimDeleteItem', 'aria-label', 'displaySimDeleteItem');
+	setAttributeById('displayInlineSimStatusBarPosition', 'aria-label', 'displaySimInlineStatusBarPosition');
+	setAttributeById('displayInlineSimShowPageZero', 'title', 'displaySimShowDefaultItems');
+	setAttributeById('displayInlineSimShowPageZero', 'aria-label', 'displaySimShowDefaultItems');
+
+	setAttributeById('displayPagePopupPrev', 'title', 'displaySimPreviousPage');
+	setAttributeById('displayPagePopupPrev', 'aria-label', 'displaySimPreviousPage');
+	setAttributeById('displayPagePopupNext', 'title', 'displaySimNextPage');
+	setAttributeById('displayPagePopupNext', 'aria-label', 'displaySimNextPage');
+	setAttributeById('displayPagePopupStatusBarPosition', 'aria-label', 'displaySimStatusBarPosition');
+	setAttributeById('displayPagePopupClose', 'title', 'displaySimClose');
+	setAttributeById('displayPagePopupClose', 'aria-label', 'displaySimClose');
+	setAttributeById('displayPageSimOpen', 'title', 'displaySimOpen');
+	setAttributeById('displayPageSimOpen', 'aria-label', 'displaySimOpen');
+
+	setTextById('displayFieldPopupTitle', 'displayFieldPopupTitle');
+	setTextById('displayFieldPopupCancel', 'cancel');
+	setTextById('displayFieldPopupSave', 'displayFieldPopupSave');
+	setTextById('buttonFieldPopupTitle', 'buttonFieldPopupTitle');
+	setTextById('buttonFieldPopupCancel', 'cancel');
+	setTextById('buttonFieldPopupSave', 'buttonFieldPopupSave');
+	setTextById('sendSupportPopupTitle', 'sendSupportTitle');
+	setTextById('sendSupportPopupMessage', 'sendSupportMessage');
+	setTextById('configDraftRestoreTitle', 'unsavedSettingsDetectedTitle');
+	setTextById('configDraftRestoreMessage', 'unsavedSettingsDetectedMessage');
+	setTextById('configDraftRestoreRetrieve', 'unsavedSettingsRetrieve');
+	setTextById('configDraftRestoreDiscard', 'unsavedSettingsDiscard');
+
+	setSelectOptions('displayInlineSimStatusBarPosition', ['displaySimOff', 'displaySimTop', 'displaySimBottom']);
+	setSelectOptions('displayPagePopupStatusBarPosition', ['displaySimOff', 'displaySimTop', 'displaySimBottom']);
+}
+
+// a method named 'onHomeyReady' must be present in your code
+function onHomeyReady(Homey)
+{
+	itemDisplyType = document.getElementById('ButtonPanelConfigurationNo').style.display;
+	setupFilterableSelects();
+	document.body.classList.toggle('homey-mobile-app', isHomeyMobileAppRuntime());
+	applyDisplaySimulatorLocalization();
+	adjustMainTopOffset();
+	window.addEventListener('resize', scheduleMainTopOffsetAdjustment);
+	window.addEventListener('scroll', scheduleMainTopOffsetAdjustment, { passive: true });
+	const fixedTopElement = document.querySelector('.fixedTop');
+	if (fixedTopElement && typeof ResizeObserver === 'function')
+	{
+		fixedTopResizeObserver = new ResizeObserver(scheduleMainTopOffsetAdjustment);
+		try
+		{
+			fixedTopResizeObserver.observe(fixedTopElement, { box: 'border-box' });
+		}
+		catch (error)
+		{
+			fixedTopResizeObserver.observe(fixedTopElement);
+		}
+	}
+
+	Homey.get(BUTTON_VISIBLE_CONFIGURATION_COUNT_KEY, function (err, savedCount)
+	{
+		const parsedCount = parseInt(savedCount, 10);
+		if (err || Number.isNaN(parsedCount))
+		{
+			return;
+		}
+
+		buttonVisibleConfigurationCount = Math.max(1, Math.min(4, parsedCount));
+		getDisplayedButtonConfigurationNos();
+		if (buttonConfigurationsFetched)
+		{
+			writeButtonsections(getDisplayedButtonPageCount());
+			updateButtonPanelControls();
+		}
+	});
+
+	Homey.get(BUTTON_PANEL_CONTROLS_COLLAPSED_KEY, function (err, savedCollapsed)
+	{
+		if (err || (savedCollapsed !== true && savedCollapsed !== false))
+		{
+			return;
+		}
+
+		buttonPanelControlsExpanded = !savedCollapsed;
+		updateButtonPanelControlsExpander();
+	});
+
+	Homey.get(CONFIG_DRAFT_STORAGE_KEY, function (err, loadedDraft)
+	{
+		if (!err && loadedDraft && typeof loadedDraft === 'object')
+		{
+			configDraftLoadedData = loadedDraft;
+			configDraftLastSnapshotSignature = getComparableDraftSignature(loadedDraft);
+		}
+		else
+		{
+			configDraftRestoreDecisionMade = true;
+			enableConfigurationDraftAutoSave();
+		}
+		configDraftLoaded = true;
+		maybeHandleLoadedConfigurationDraft();
+	});
+
+	Homey.get(CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY, function (err, dismissedSignature)
+	{
+		if (!err && dismissedSignature && typeof dismissedSignature === 'object')
+		{
+			configDraftDismissedSignature = (typeof dismissedSignature.signature === 'string' && dismissedSignature.signature)
+				? dismissedSignature.signature
+				: null;
+			configDraftDismissedAt = Number.isFinite(Number(dismissedSignature.timestamp))
+				? Number(dismissedSignature.timestamp)
 				: 0;
-			const shouldSuppressDismissedDraft = !!(
-				configDraftDismissedSignature
-				&& configDraftDismissedSignature === loadedDraftSignature
-				&& (!configDraftDismissedAt || !loadedDraftTimestamp || loadedDraftTimestamp <= configDraftDismissedAt)
-			);
-			if (shouldSuppressDismissedDraft)
-			{
-				configDraftLoadedData = null;
-				configDraftDirtySinceLoad = false;
-				configDraftLastSnapshotSignature = null;
-				clearDraftSetting(CONFIG_DRAFT_STORAGE_KEY);
-				enableConfigurationDraftAutoSave();
-				return;
-			}
-
-			const currentSettingsSignature = getComparableDraftSignature({
-				buttonConfigurations: localButtonConfigurations,
-				displayConfigurations: localDisplayConfigurations,
-				brokerConfigurationItems: localBrokerItems,
-				defaultBroker: getSafeDefaultBrokerValue(),
-			});
-			if (loadedDraftSignature === currentSettingsSignature)
-			{
-				configDraftLoadedData = null;
-				configDraftDirtySinceLoad = false;
-				configDraftLastSnapshotSignature = currentSettingsSignature;
-				clearDraftSetting(CONFIG_DRAFT_STORAGE_KEY);
-				enableConfigurationDraftAutoSave();
-				return;
-			}
-
-			showConfigDraftRestoreDialog().then((ok) =>
-			{
-				if (ok)
-				{
-					applyConfigurationDraft(configDraftLoadedData);
-					configDraftLastSnapshotSignature = getComparableDraftSignature(configDraftLoadedData);
-					configDraftDismissedSignature = null;
-					configDraftDismissedAt = 0;
-					clearDraftSetting(CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY);
-					configDraftDirtySinceLoad = false;
-					// Homey.alert(Homey.__("settings.unsavedSettingsRestored"));
-				}
-				else
-				{
-					const discardedSignature = getComparableDraftSignature(configDraftLoadedData);
-					const discardedTimestamp = (configDraftLoadedData && Number.isFinite(Number(configDraftLoadedData.timestamp)))
-						? Number(configDraftLoadedData.timestamp)
-						: Date.now();
-					configDraftDismissedSignature = discardedSignature;
-					configDraftDismissedAt = discardedTimestamp;
-					Homey.set(CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY, {
-						signature: discardedSignature,
-						timestamp: discardedTimestamp,
-					});
-					configDraftLoadedData = null;
-					configDraftDirtySinceLoad = false;
-					configDraftLastSnapshotSignature = null;
-					clearDraftSetting(CONFIG_DRAFT_STORAGE_KEY);
-				}
-
-				enableConfigurationDraftAutoSave();
-			});
+		}
+		else if (!err && typeof dismissedSignature === 'string' && dismissedSignature)
+		{
+			configDraftDismissedSignature = dismissedSignature;
+			configDraftDismissedAt = 0;
+		}
+		else
+		{
+			configDraftDismissedSignature = null;
+			configDraftDismissedAt = 0;
 		}
 
-		function closeConfigDraftRestoreDialog(shouldRetrieve)
+		configDraftDismissedSignatureLoaded = true;
+		maybeHandleLoadedConfigurationDraft();
+	});
+
+
+	// Read the button configuration from the settings and write the controls
+	Homey.get('buttonConfigurations', function (err, buttonConfigurations)
+	{
+		if (err) return Homey.alert(err);
+		localButtonConfigurations = buttonConfigurations;
+		buttonConfigurationsFetched = true;
+		console.log('buttonConfigurations: ' + JSON.stringify(buttonConfigurations));
+
+		fillConfigListElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
+
+		// Make sure currentButtonConfigurationNo is set and within range
+		if (!currentButtonConfigurationNo || (currentButtonConfigurationNo >= localButtonConfigurations.length))
 		{
-			if (!configDraftRestoreDialogResolver)
-			{
-				return;
-			}
-
-			const resolver = configDraftRestoreDialogResolver;
-			configDraftRestoreDialogResolver = null;
-
-			if (configDraftRestoreOverlayElement)
-			{
-				configDraftRestoreOverlayElement.classList.remove('visible');
-				configDraftRestoreOverlayElement.setAttribute('aria-hidden', 'true');
-			}
-
-			document.removeEventListener('keydown', handleConfigDraftRestoreDialogKeydown);
-			resolver(!!shouldRetrieve);
+			currentButtonConfigurationNo = 0;
 		}
 
-		function handleConfigDraftRestoreDialogKeydown(event)
-		{
-			if (!event || event.key !== 'Escape' || !configDraftRestoreDialogResolver)
-			{
-				return;
-			}
+		// Get the current configuration
+		var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
 
-			event.preventDefault();
-			closeConfigDraftRestoreDialog(false);
+		writeButtonsections(buttonPanelConfiguration.length);
+		updateButtonPanelControls();
+		maybeHandleLoadedConfigurationDraft();
+	});
+
+	Homey.get('displayConfigurations', function (err, displayConfigurations)
+	{
+		if (err) return Homey.alert(err);
+		localDisplayConfigurations = displayConfigurations;
+		displayConfigurationsFetched = (localDisplayConfigurations.length > 0);
+
+		fillConfigListElement(displayConfigurationNoElement, Homey.__("settings.displayConfig"), localDisplayConfigurations, MAX_DISPLAY_CONFIGURATIONS);
+
+		// add the itemId and validate the page number to each item
+		let displayVersion = 0;
+		if (localDisplayConfigurations.length > 0)
+		{
+			displayVersion = localDisplayConfigurations[0].version | 0;
 		}
-
-		function showConfigDraftRestoreDialog()
+		for (let i = 0; i < localDisplayConfigurations.length; i++)
 		{
-			if (!configDraftRestoreOverlayElement || !configDraftRestoreRetrieveElement || !configDraftRestoreDiscardElement)
+			if (!localDisplayConfigurations[i].version || localDisplayConfigurations[i].version < 2)
 			{
-				return new Promise((resolve) =>
+				localDisplayConfigurations[i].version = 2;
+				const displayConfiguration = localDisplayConfigurations[i];
+				for (let j = 0; j < displayConfiguration.items.length; j++)
 				{
-					Homey.confirm(Homey.__("settings.unsavedSettingsDetectedMessage"), null, function (err, ok)
+					displayConfiguration.items[j].itemId = j;
+					if (displayConfiguration.items[j].page === undefined)
 					{
-						resolve(!!ok);
-					});
-				});
-			}
-
-			if (configDraftRestoreDialogResolver)
-			{
-				closeConfigDraftRestoreDialog(false);
-			}
-
-			configDraftRestoreOverlayElement.classList.add('visible');
-			configDraftRestoreOverlayElement.setAttribute('aria-hidden', 'false');
-			document.addEventListener('keydown', handleConfigDraftRestoreDialogKeydown);
-
-			setTimeout(() =>
-			{
-				configDraftRestoreRetrieveElement.focus();
-			}, 0);
-
-			return new Promise((resolve) =>
-			{
-				configDraftRestoreDialogResolver = resolve;
-			});
-		}
-
-		function buildExportConfigurationText()
-		{
-			return JSON.stringify(
-				{
-					copySource: 'Export',
-					buttonConfigurations: localButtonConfigurations,
-					displayConfigurations: localDisplayConfigurations,
-					brokerItems: localBrokerItems,
-				}, null, 2);
-		}
-
-		function closeSendSupportPopup(result = null)
-		{
-			if (!sendSupportPopupResolver)
-			{
-				return;
-			}
-
-			const resolver = sendSupportPopupResolver;
-			sendSupportPopupResolver = null;
-
-			if (sendSupportPopupOverlayElement)
-			{
-				sendSupportPopupOverlayElement.classList.remove('visible');
-				sendSupportPopupOverlayElement.setAttribute('aria-hidden', 'true');
-			}
-
-			document.removeEventListener('keydown', handleSendSupportPopupKeydown);
-			sendSupportPopupContext = null;
-			resolver(result);
-		}
-
-		function handleSendSupportPopupKeydown(event)
-		{
-			if (!event || event.key !== 'Escape' || !sendSupportPopupResolver)
-			{
-				return;
-			}
-
-			event.preventDefault();
-			closeSendSupportPopup(null);
-		}
-
-		function submitSendSupportPopup()
-		{
-			if (!sendSupportPopupResolver || !sendSupportPopupContext)
-			{
-				return;
-			}
-
-			const email = sendSupportEmailElement ? sendSupportEmailElement.value.trim() : '';
-			const description = sendSupportDescriptionElement ? sendSupportDescriptionElement.value.trim() : '';
-
-			if (!description)
-			{
-				Homey.alert(Homey.__("settings.descriptionExplanation"));
-				if (sendSupportDescriptionElement)
-				{
-					sendSupportDescriptionElement.focus();
+						displayConfiguration.items[j].page = 1;
+					}
+					else
+					{
+						displayConfiguration.items[j].page = parseInt(displayConfiguration.items[j].page, 10) + 1;
+					}
 				}
-				return;
 			}
+		}
+		normalizeDisplayConfigurationsPages(localDisplayConfigurations);
 
-			lastSupportEmailValue = email;
-			closeSendSupportPopup({
-				email,
-				description,
-				content: sendSupportPopupContext.content,
-				contentType: sendSupportPopupContext.contentType,
-				subject: sendSupportPopupContext.subject,
+		updateDisplayConfiguration();
+		maybeHandleLoadedConfigurationDraft();
+	});
+
+	getButtonList();
+
+	getDevices();
+
+	Homey.get('brokerConfigurationItems', function (err, brokerItems)
+	{
+		if (err) return Homey.alert(err);
+		brokerItemsFetched = true;
+		localBrokerItems = brokerItems;
+		setupButtonBrokerItems();
+		maybeHandleLoadedConfigurationDraft();
+	});
+
+	setupGroupUI();
+	fetchAndInitGroupConfigurations();
+
+	Homey.get('displayPagePopupStatusBarPosition', function (err, savedStatusBarPosition)
+	{
+		if (err) return;
+		const parsedStatusBarPosition = parseInt(savedStatusBarPosition, 10);
+		if (!Number.isNaN(parsedStatusBarPosition))
+		{
+			displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition, 2));
+		}
+	});
+
+	diagLogEnabledElement.addEventListener('click', function (e)
+	{
+		Homey.set('logEnabled', diagLogEnabledElement.checked);
+	});
+
+	configTypeElement.addEventListener('change', function (e)
+	{
+		configTypeChanged(configTypeElement.value);
+	});
+
+	if (configTypeTabsElement)
+	{
+		configTypeTabsElement.querySelectorAll('.view-tab').forEach(function (tab)
+		{
+			tab.addEventListener('click', function ()
+			{
+				const view = tab.dataset.view;
+				configTypeElement.value = view;
+				configTypeChanged(view);
 			});
+		});
+	}
+
+	clearLogElement.addEventListener('click', function (e)
+	{
+		Homey.api('POST', '/clearLog/',
+			{
+				notify: true
+			}, function (err, result)
+		{
+			if (err)
+			{
+				return Homey.alert(err);
+			}
+		});
+	});
+
+	openWebViewElement.addEventListener('click', function (e)
+	{
+		let ip = webViewIpElement.value;
+		Homey.openURL(`http://${ip}`);
+	});
+
+	sendLogElement.addEventListener('click', function (e)
+	{
+		openSupportSendFlow({
+			title: Homey.__("settings.sendLogPopupTitle"),
+			message: Homey.__("settings.sendLogPopupMessage"),
+			content: diagLogElement ? diagLogElement.value : '',
+			contentType: 'diagnosticLog',
+			subject: Homey.__("settings.sendLogMailSubject"),
+		});
+	});
+
+	getListenersElement.addEventListener('click', function (e)
+	{
+
+		Homey.api('GET', '/get_capability_listeners/', { notify: true }, function (err, result)
+		{
+			if (err)
+			{
+				Homey.alert(err);
+			}
+			else
+			{
+				// Add the listeners to the log view
+				diagLogElement.value += JSON.stringify(result, null, 2);
+			}
+		});
+	});
+
+	getLogElement.addEventListener('click', function (e)
+	{
+		if (!lastSentIpElement.value)
+		{
+			Homey.alert(Homey.__("settings.selectDeviceFromListError"));
+			return;
 		}
 
-		function showSendSupportPopup(context)
+		Homey.api('GET', `/getLog/?ip=${lastSentIpElement.value}`, { notify: true }, function (err, result)
 		{
-			if (!sendSupportPopupOverlayElement || !sendSupportPopupTitleElement || !sendSupportPopupMessageElement)
+			if (err)
 			{
-				return Promise.resolve(null);
+				Homey.alert(err);
 			}
-
-			if (sendSupportPopupResolver)
+			else if (result === null || result === undefined)
 			{
-				closeSendSupportPopup(null);
+				sentLogElement.value = 'No configuration data available for this device.\n\nConfiguration data is stored when you save a configuration to the device.\n\nDevice IP: ' + lastSentIpElement.value;
 			}
-
-			sendSupportPopupContext = context || {};
-			sendSupportPopupTitleElement.textContent = sendSupportPopupContext.title || Homey.__("settings.sendSupportTitle");
-			sendSupportPopupMessageElement.textContent = sendSupportPopupContext.message || Homey.__("settings.sendSupportMessage");
-
-			if (sendSupportEmailElement)
+			else
 			{
-				sendSupportEmailElement.value = lastSupportEmailValue;
-			}
-			if (sendSupportDescriptionElement)
-			{
-				sendSupportDescriptionElement.value = '';
-			}
-
-			sendSupportPopupOverlayElement.classList.add('visible');
-			sendSupportPopupOverlayElement.setAttribute('aria-hidden', 'false');
-			document.addEventListener('keydown', handleSendSupportPopupKeydown);
-
-			setTimeout(() =>
-			{
-				if (sendSupportEmailElement)
+				// Add the log to the log view
+				try
 				{
-					sendSupportEmailElement.focus();
+					// Handle both stringified JSON and objects
+					const data = typeof result === 'string' ? JSON.parse(result) : result;
+					sentLogElement.value = JSON.stringify(data, null, 2);
 				}
-			}, 0);
+				catch (parseErr)
+				{
+					// If parsing fails, just display the raw result
+					sentLogElement.value = result.toString();
+				}
+			}
+		});
+	});
 
-			return new Promise((resolve) =>
-			{
-				sendSupportPopupResolver = resolve;
-			});
-		}
+	Homey.on('com.ady.button_plus.logupdated', function (data)
+	{
+		diagLogElement.value = data.log;
+	});
 
-		function sendSupportPayload(payload)
+	saveButton.addEventListener('click', async function (e)
+	{
+		try
 		{
-			if (!payload)
+			trimmedSVGFieldCount = 0;
+			invalidButtonSVGFields = [];
+
+			if (!storeBrokerSettings())
 			{
 				return;
 			}
 
-			Homey.api('POST', '/sendlog/',
-				{
-					notify: true,
-					email: payload.email,
-					description: payload.description,
-					content: payload.content,
-					contentType: payload.contentType,
-					subject: payload.subject,
-				}, function (err, result)
+			await Homey.set('brokerConfigurationItems', localBrokerItems);
+			await Homey.set('defaultBroker', getSafeDefaultBrokerValue());
+
+			// Store the current button configuration
+			var buttonPanelConfigurationNo = buttonConfigurationNoElement.value;
+			var ButtonPanelConfiguration = localButtonConfigurations[buttonPanelConfigurationNo];
+
+			if (!Array.isArray(ButtonPanelConfiguration) || ButtonPanelConfiguration.length === 0)
+			{
+				throw new Error('Invalid button configuration selected');
+			}
+
+			storeButtonSettings(ButtonPanelConfiguration);
+
+			await Homey.set('buttonConfigurations', localButtonConfigurations);
+
+			//Copy the values from the controls to the displayConfiguration
+			storeDisplaySettings();
+			await Homey.set('displayConfigurations', localDisplayConfigurations);
+
+			// Store current group configuration
+			storeCurrentGroupFromForm();
+			await Homey.set('groupConfigurations', localGroupConfigurations);
+
+			await clearDraftSetting(CONFIG_DRAFT_STORAGE_KEY);
+			await clearDraftSetting(CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY);
+			configDraftDismissedSignature = null;
+			configDraftDismissedAt = 0;
+			configDraftLastSnapshotSignature = null;
+			configDraftDirtySinceLoad = false;
+
+			console.log('Save completed locally. Triggering device upload via /settings_changed/.');
+			appendClientDiagnosticLog('Local save completed. Triggering device upload via /settings_changed/.', 'INFO');
+			Homey.api('POST', '/settings_changed/', {}, function (err, variables)
 			{
 				if (err)
 				{
-					Homey.alert(err);
+					console.error('Device upload failed in /settings_changed/:', err);
+					appendClientDiagnosticLog(`Device upload failed in /settings_changed/: ${err && err.message ? err.message : err}`, 'ERROR');
+					return Homey.alert(err);
+				}
+
+				console.log('Device upload completed successfully via /settings_changed/.', variables || {});
+				appendClientDiagnosticLog('Device upload completed successfully via /settings_changed/.', 'INFO');
+
+				if ((trimmedSVGFieldCount > 0) || (invalidButtonSVGFields.length > 0))
+				{
+					const warningLines = [];
+					if (trimmedSVGFieldCount > 0)
+					{
+						warningLines.push(`${trimmedSVGFieldCount} SVG field(s) exceeded ${MAX_SVG_FIELD_LENGTH} characters and might be too big.`);
+					}
+
+					if (invalidButtonSVGFields.length > 0)
+					{
+						warningLines.push(`Invalid SVG detected in ${invalidButtonSVGFields.length} field(s): ${invalidButtonSVGFields.join('; ')}`);
+					}
+
+					Homey.alert(`${Homey.__("settings.saved")}\n\nWarning: ${warningLines.join('\n')}`);
+					appendClientDiagnosticLog(`Save completed with warning: ${warningLines.join(' | ')}`, 'WARN');
 				}
 				else
 				{
-					Homey.alert(result || Homey.__("settings.logSent"));
+					Homey.alert(Homey.__("settings.saved"));
+					appendClientDiagnosticLog('Save completed successfully.', 'INFO');
 				}
 			});
 		}
-
-		async function openSupportSendFlow(options)
+		catch (saveError)
 		{
-			const payload = await showSendSupportPopup(options);
-			if (!payload)
+			console.error('Save failed before /settings_changed/ was called:', saveError);
+			appendClientDiagnosticLog(`Save failed before /settings_changed/ was called: ${saveError && saveError.message ? saveError.message : saveError}`, 'ERROR');
+			Homey.alert(Homey.__("settings.saveFailedError", { error: saveError && saveError.message ? saveError.message : `${saveError}` }));
+		}
+	});
+
+	function storeButtonSettings(ButtonPanelConfiguration)
+	{
+		// Store the configuration name
+		ButtonPanelConfiguration[0].name = configNameElement.value;
+
+		for (page = 0; page < ButtonPanelConfiguration.length; page++)
+		{
+			ButtonPanelConfiguration[page].PageNum = page;
+
+			// Copy the values from the controls for each page to the displayConfiguration page
+			storeButtonSettingsSection('left', page, ButtonPanelConfiguration[page]);
+			storeButtonSettingsSection('right', page, ButtonPanelConfiguration[page]);
+		}
+	}
+
+	configDraftStoreButtonSettingsFn = storeButtonSettings;
+
+	function storeButtonSettingsSection(side, page, ButtonPanelConfiguration)
+	{
+		var topTextElement = document.getElementById(`${side}${page}TopText`);
+		var onTextElement = document.getElementById(`${side}${page}OnText`);
+		var offTextElement = document.getElementById(`${side}${page}OffText`);
+		var dimChangeElement = document.getElementById(`${side}${page}DimChange`);
+		var pageNumElement = document.getElementById(`${side}${page}PageNum`);
+		var deviceElement = document.getElementById(`${side}${page}Device`);
+		var capabilityElement = document.getElementById(`${side}${page}Capability`);
+		var brokerIdElement = document.getElementById(`${side}${page}BrokerId`);
+		var newCustomMQTTItemButton = document.getElementById(`new${side}${page}CustomMQTTItem`);
+		var frontLEDOnColorElement = document.getElementById(`${side}${page}FrontLEDOnColor`);
+		var wallLEDOnColorElement = document.getElementById(`${side}${page}WallLEDOnColor`);
+		var frontLEDOffColorElement = document.getElementById(`${side}${page}FrontLEDOffColor`);
+		var wallLEDOffColorElement = document.getElementById(`${side}${page}WallLEDOffColor`);
+		var longRepeatElement = document.getElementById(`${side}${page}DisableLongRepeat`);
+		var longDelayMsElement = document.getElementById(`${side}${page}LongDelayMs`);
+		var longRepeatMsElement = document.getElementById(`${side}${page}LongRepeatMs`);
+		var OnSVGElement = document.getElementById(`${side}${page}OnSVG`);
+		var OffSVGElement = document.getElementById(`${side}${page}OffSVG`);
+
+		if (capabilityElement.value === 'dim')
+		{
+			const dimVal = parseInt(dimChangeElement.value, 10);
+			if (dimVal < -100 || dimVal > 100 || dimVal === 0)
 			{
+				Homey.alert(Homey.__("settings.dimError", { leftRight: Homey.__(`settings.${side}Panel`) }));
 				return;
 			}
-
-			sendSupportPayload(payload);
 		}
 
-		function startDisplayInlineLiveRefresh()
+		storeCustomMQTTItems(side, page, ButtonPanelConfiguration);
+
+		// Copy the values from the controls to the buttonConfiguration
+		ButtonPanelConfiguration[`${side}TopText`] = topTextElement.value;
+		ButtonPanelConfiguration[`${side}OnText`] = onTextElement.value;
+		ButtonPanelConfiguration[`${side}OffText`] = offTextElement.value;
+
+		// The device/capability selects start out with an empty placeholder option until
+		// fillButtonDevices()/getCapabilities() finish their async population. If this runs
+		// before that completes (e.g. right after switching configs), don't let the still-empty
+		// select wipe out the real stored device/capability for this page.
+		if (deviceElement.value !== '')
 		{
-			if (displayInlineLiveRefreshTimer)
+			ButtonPanelConfiguration[`${side}Device`] = deviceElement.value;
+
+			if (deviceElement.selectedIndex >= 0)
 			{
-				return;
+				ButtonPanelConfiguration[`${side}DeviceName`] = deviceElement.options && deviceElement.options[deviceElement.selectedIndex] ? deviceElement.options[deviceElement.selectedIndex].text : deviceElement.value;
+			}
+			else
+			{
+				ButtonPanelConfiguration[`${side}DeviceName`] = deviceElement.value;
 			}
 
-			displayInlineLiveRefreshTimer = setInterval(refreshDisplayPopupLiveValues, DISPLAY_SIM_LIVE_REFRESH_MS);
+			// Remove any leading spaces from the device name
+			ButtonPanelConfiguration[`${side}DeviceName`] = ButtonPanelConfiguration[`${side}DeviceName`].trim();
+
+			// Remove all occurrences of ' (Missing Devices)' from the capability name
+			ButtonPanelConfiguration[`${side}DeviceName`] = ButtonPanelConfiguration[`${side}DeviceName`].replace(/ \(Missing Devices\)/g, '');
 		}
 
-		function stopDisplayInlineLiveRefresh()
+		if (capabilityElement.value !== '')
 		{
-			if (!displayInlineLiveRefreshTimer)
+			ButtonPanelConfiguration[`${side}Capability`] = capabilityElement.value;
+			if (capabilityElement.selectedIndex >= 0)
 			{
-				return;
+				ButtonPanelConfiguration[`${side}CapabilityName`] = capabilityElement.options && capabilityElement.options[capabilityElement.selectedIndex] ? capabilityElement.options[capabilityElement.selectedIndex].text : capabilityElement.value;
+			}
+			else
+			{
+				ButtonPanelConfiguration[`${side}CapabilityName`] = capabilityElement.value;
 			}
 
-			clearInterval(displayInlineLiveRefreshTimer);
-			displayInlineLiveRefreshTimer = null;
+			// Remove ' (Missing)' from the capability name
+			ButtonPanelConfiguration[`${side}CapabilityName`] = ButtonPanelConfiguration[`${side}CapabilityName`].replace(/ \(Missing\)/g, '');
 		}
 
-		function startDisplayItemMoveDrag(event, itemNo)
+		ButtonPanelConfiguration[`${side}BrokerId`] = getBrokerSelectValue(brokerIdElement, ButtonPanelConfiguration[`${side}BrokerId`]);
+		ButtonPanelConfiguration[`${side}DimChange`] = dimChangeElement.value;
+		ButtonPanelConfiguration[`${side}FrontLEDOnColor`] = frontLEDOnColorElement.value;
+		ButtonPanelConfiguration[`${side}WallLEDOnColor`] = wallLEDOnColorElement.value;
+		ButtonPanelConfiguration[`${side}FrontLEDOffColor`] = frontLEDOffColorElement.value;
+		ButtonPanelConfiguration[`${side}WallLEDOffColor`] = wallLEDOffColorElement.value;
+		ButtonPanelConfiguration[`${side}DisableLongRepeat`] = !longRepeatElement.checked;
+		ButtonPanelConfiguration[`${side}LongDelayMs`] = normalizeLongPressTimingMs(longDelayMsElement.value, 0, 750);
+		ButtonPanelConfiguration[`${side}LongRepeatMs`] = normalizeLongPressTimingMs(longRepeatMsElement.value, 50, 500);
+		ButtonPanelConfiguration[`${side}OnSVG`] = sanitizeAndValidateButtonSVGField(OnSVGElement?.value || '', side, page, 'On');
+		ButtonPanelConfiguration[`${side}OffSVG`] = sanitizeAndValidateButtonSVGField(OffSVGElement?.value || '', side, page, 'Off');
+	};
+
+	buttonConfigurationNoElement.addEventListener('change', function (e)
+	{
+		// Store the current configuration
+		var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+		storeButtonSettings(buttonPanelConfiguration);
+
+		currentButtonConfigurationNo = buttonConfigurationNoElement.value;
+
+		// Make sure currentButtonConfigurationNo is set and within range
+		if (!currentButtonConfigurationNo || (currentButtonConfigurationNo >= localButtonConfigurations.length))
 		{
-			if (!event)
+			currentButtonConfigurationNo = 0;
+		}
+
+		// Get the current configuration
+		var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+
+		writeButtonsections(buttonPanelConfiguration.length);
+		updateButtonPanelControls();
+		updateButtonMainDiagnostics('buttonConfigurationNo:change');
+	});
+
+	if (toggleConfigNameVisibilityElement)
+	{
+		toggleConfigNameVisibilityElement.addEventListener('click', function ()
+		{
+			panelConfigNameCollapsed = !panelConfigNameCollapsed;
+			if (configNameRowElement)
 			{
+				configNameRowElement.style.display = panelConfigNameCollapsed ? 'none' : 'block';
+			}
+
+			toggleConfigNameVisibilityElement.classList.toggle('is-open', !panelConfigNameCollapsed);
+			toggleConfigNameVisibilityElement.title = panelConfigNameCollapsed ? 'Show configuration name' : 'Hide configuration name';
+			toggleConfigNameVisibilityElement.setAttribute('aria-label', toggleConfigNameVisibilityElement.title);
+		});
+
+		toggleConfigNameVisibilityElement.classList.toggle('is-open', !panelConfigNameCollapsed);
+		toggleConfigNameVisibilityElement.title = panelConfigNameCollapsed ? 'Show configuration name' : 'Hide configuration name';
+		toggleConfigNameVisibilityElement.setAttribute('aria-label', toggleConfigNameVisibilityElement.title);
+		if (configNameRowElement)
+		{
+			configNameRowElement.style.display = panelConfigNameCollapsed ? 'none' : 'block';
+		}
+	}
+
+	if (toggleDisplayConfigNameVisibilityElement)
+	{
+		toggleDisplayConfigNameVisibilityElement.addEventListener('click', function ()
+		{
+			displayConfigNameCollapsed = !displayConfigNameCollapsed;
+			if (displayConfigNameRowElement)
+			{
+				displayConfigNameRowElement.style.display = displayConfigNameCollapsed ? 'none' : 'block';
+			}
+
+			toggleDisplayConfigNameVisibilityElement.classList.toggle('is-open', !displayConfigNameCollapsed);
+			toggleDisplayConfigNameVisibilityElement.title = displayConfigNameCollapsed ? 'Show configuration name' : 'Hide configuration name';
+			toggleDisplayConfigNameVisibilityElement.setAttribute('aria-label', toggleDisplayConfigNameVisibilityElement.title);
+		});
+
+		toggleDisplayConfigNameVisibilityElement.classList.toggle('is-open', !displayConfigNameCollapsed);
+		toggleDisplayConfigNameVisibilityElement.title = displayConfigNameCollapsed ? 'Show configuration name' : 'Hide configuration name';
+		toggleDisplayConfigNameVisibilityElement.setAttribute('aria-label', toggleDisplayConfigNameVisibilityElement.title);
+		if (displayConfigNameRowElement)
+		{
+			displayConfigNameRowElement.style.display = displayConfigNameCollapsed ? 'none' : 'block';
+		}
+	}
+
+	configNameElement.addEventListener('change', function ()
+	{
+		var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+		if (!Array.isArray(buttonPanelConfiguration) || buttonPanelConfiguration.length === 0)
+		{
+			buttonPanelConfiguration = [{ PageNum: 0 }];
+			localButtonConfigurations[currentButtonConfigurationNo] = buttonPanelConfiguration;
+		}
+
+		buttonPanelConfiguration[0].name = configNameElement.value;
+
+		// Update the configuration list
+		let txt = Homey.__("settings.buttonConfig");
+		var option = buttonConfigurationNoElement.options[buttonConfigurationNoElement.selectedIndex];
+		if (option)
+		{
+			option.text = `${txt} ${parseInt(currentButtonConfigurationNo, 10) + 1} - ${configNameElement.value}`;
+		}
+	});
+
+	displayConfigNameElement.addEventListener('change', function (e)
+	{
+		var DisplayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+		DisplayConfiguration.name = displayConfigNameElement.value;
+
+		// Update the configuration list
+		let txt = Homey.__("settings.displayConfig");
+		var option = displayConfigurationNoElement.options[displayConfigurationNoElement.selectedIndex];
+		option.text = `${txt} ${parseInt(currentDisplayConfigurationNo, 10) + 1} - ${displayConfigNameElement.value}`
+	});
+
+	// Display Config code
+
+	displayConfigurationNoElement.addEventListener('change', function (e)
+	{
+		redisplayDisplyConfig();
+	});
+
+	copyButtonConfigElement.addEventListener('click', function (e)
+	{
+		try
+		{
+			// Sync unsaved UI edits into the local model before copying.
+			var currentButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+			if (Array.isArray(currentButtonPanelConfiguration))
+			{
+				storeButtonSettings(currentButtonPanelConfiguration);
+			}
+
+			// Copy only the currently active page of the button configuration to the clipboard.
+			var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+			var activePageIndex = Math.max(0, Math.min(buttonMainCurrentPage, buttonPanelConfiguration.length - 1));
+			var copy = {};
+			copy.copySource = "ButtonPanel";
+			copy.page = buttonPanelConfiguration[activePageIndex];
+			const jsonString = JSON.stringify(copy, null, 2);
+
+			copyTextElement.value = jsonString;
+
+			// Notify the user
+			Homey.alert(Homey.__("settings.copied"));
+		}
+		catch (err)
+		{
+			Homey.alert(Homey.__("settings.clipboardError", { error: err }));
+		}
+	});
+
+	pasteButtonConfigElement.addEventListener('click', function (e)
+	{
+		try
+		{
+			// Parse the JSON string
+			const copy = JSON.parse(copyTextElement.value);
+			if (!copy || typeof copy !== 'object' || Array.isArray(copy))
+			{
+				Homey.alert(Homey.__("settings.clipboardError", { error: "Invalid top-level structure: expected an object" }));
 				return;
 			}
 
-			event.preventDefault();
-			event.stopPropagation();
-
-			const handleElement = event.currentTarget;
-			const itemElement = handleElement ? handleElement.closest('.display-sim-item') : null;
-			const surfaceElement = itemElement ? itemElement.closest('.display-sim-surface') : null;
-			if (!itemElement || !surfaceElement)
+			const allowedTopLevelKeys = ['copySource', 'page', 'butons'];
+			const unknownTopLevelKeys = Object.keys(copy).filter(function (key)
 			{
+				return !allowedTopLevelKeys.includes(key);
+			});
+
+			if (unknownTopLevelKeys.length > 0)
+			{
+				Homey.alert(Homey.__("settings.clipboardError", { error: `Unknown top-level field(s): ${unknownTopLevelKeys.join(', ')}` }));
 				return;
 			}
 
-			const surfaceRect = surfaceElement.getBoundingClientRect();
-			const itemRect = itemElement.getBoundingClientRect();
-			if (!surfaceRect || !itemRect || surfaceRect.width <= 0 || surfaceRect.height <= 0)
+			if (copy.copySource !== "ButtonPanel")
 			{
+				Homey.alert(Homey.__("settings.clipboardError", { error: "Invalid source" }));
 				return;
 			}
 
-			if (typeof handleElement.setPointerCapture === 'function' && event.pointerId !== undefined)
+			// Support the current single-page clipboard format, falling back to the
+			// legacy whole-configuration format by taking its first page.
+			const sourcePageConfiguration = copy.page || (Array.isArray(copy.butons) ? copy.butons[0] : undefined);
+			if (!sourcePageConfiguration || typeof sourcePageConfiguration !== 'object')
 			{
-				try
+				Homey.alert(Homey.__("settings.clipboardError", { error: "Invalid data" }));
+				return;
+			}
+
+			let buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+			const targetPageIndex = Math.max(0, Math.min(buttonMainCurrentPage, buttonPanelConfiguration.length - 1));
+
+			// if the page doesn't exist, add it
+			if (!buttonPanelConfiguration[targetPageIndex])
+			{
+				buttonPanelConfiguration[targetPageIndex] = {};
+			}
+
+			// Copy every known field so newly introduced settings (for example SVG data) are preserved.
+			Object.keys(sourcePageConfiguration).forEach(function (fieldName)
+			{
+				if (fieldName === 'PageNum')
 				{
-					handleElement.setPointerCapture(event.pointerId);
+					return;
 				}
-				catch (err)
+
+				if (sourcePageConfiguration[fieldName] !== undefined)
 				{
-					// Ignore pointer capture errors from unsupported environments.
+					buttonPanelConfiguration[targetPageIndex][fieldName] = sourcePageConfiguration[fieldName];
 				}
-			}
+			});
 
-			const xInputElement = document.getElementById(`display${itemNo}X`);
-			const yInputElement = document.getElementById(`display${itemNo}Y`);
-			const leftFromInput = xInputElement ? parseFloat(xInputElement.value) : NaN;
-			const topFromInput = yInputElement ? parseFloat(yInputElement.value) : NaN;
-			const leftFromStyle = parseFloat(itemElement.dataset.leftPercent || itemElement.style.left || '0');
-			const topFromStyle = parseFloat(itemElement.dataset.topPercent || itemElement.style.top || '0');
-			const startLeftPercent = Number.isNaN(leftFromInput)
-				? (Number.isNaN(leftFromStyle) ? 0 : leftFromStyle)
-				: leftFromInput;
-			const startTopPercent = Number.isNaN(topFromInput)
-				? (Number.isNaN(topFromStyle) ? 0 : topFromStyle)
-				: topFromInput;
-			const moveTooltipElement = itemElement.querySelector('.display-sim-move-tooltip');
-			if (moveTooltipElement)
-			{
-				moveTooltipElement.textContent = `X: ${Math.round(startLeftPercent)}% Y: ${Math.round(startTopPercent)}%`;
-				const itemMidpoint = itemRect.top - surfaceRect.top + (itemRect.height / 2);
-				const showTooltipBelow = itemMidpoint < (surfaceRect.height / 2);
-				moveTooltipElement.classList.toggle('display-sim-resize-tooltip-below', showTooltipBelow);
-			}
-			itemElement.classList.add('display-sim-item-moving');
+			buttonPanelConfiguration[targetPageIndex].PageNum = targetPageIndex;
 
-			displayItemMoveState = {
-				itemNo,
-				itemElement,
-				surfaceElement,
-				moveTooltipElement,
-				xInputElement,
-				yInputElement,
-				startClientX: event.clientX,
-				startClientY: event.clientY,
-				startLeftPercent,
-				startTopPercent,
-				itemWidthPercent: (itemRect.width / surfaceRect.width) * 100,
-				itemHeightPercent: (itemRect.height / surfaceRect.height) * 100,
-				pointerId: event.pointerId,
+			// Update the controls
+			writeButtonsections(buttonPanelConfiguration.length);
+			buttonMainCurrentPage = targetPageIndex;
+			renderButtonMainPage();
+			updateButtonPanelControls();
+		}
+		catch (err)
+		{
+			Homey.alert(Homey.__("settings.clipboardError", { error: err }));
+		}
+	});
+
+	copyDisplayConfigElement.addEventListener('click', function (e)
+	{
+		try
+		{
+			storeDisplaySettings();
+
+			// Copy the current button configuration to the clipboard in JSON format
+			var displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+			const copy = {
+				copySource: "Display",
+				displayConfiguration: displayConfiguration,
 			};
+			const jsonString = JSON.stringify(copy, null, 2);
 
-			document.body.classList.add('display-sim-moving');
-			window.addEventListener('pointermove', onDisplayItemMoveDragMove);
-			window.addEventListener('pointerup', stopDisplayItemMoveDrag);
-			window.addEventListener('pointercancel', stopDisplayItemMoveDrag);
+			copyTextElement.value = jsonString;
+
+			// Notify the user
+			Homey.alert(Homey.__("settings.copied"));
 		}
-
-		function onDisplayItemMoveDragMove(event)
+		catch (err)
 		{
-			if (!displayItemMoveState || !event)
-			{
-				return;
-			}
-
-			if (displayItemMoveState.pointerId !== undefined && event.pointerId !== undefined && displayItemMoveState.pointerId !== event.pointerId)
-			{
-				return;
-			}
-
-			event.preventDefault();
-
-			const surfaceRect = displayItemMoveState.surfaceElement.getBoundingClientRect();
-			if (!surfaceRect || surfaceRect.width <= 0 || surfaceRect.height <= 0)
-			{
-				return;
-			}
-
-			const deltaX = event.clientX - displayItemMoveState.startClientX;
-			const deltaY = event.clientY - displayItemMoveState.startClientY;
-			const deltaXPercent = (deltaX / surfaceRect.width) * 100;
-			const deltaYPercent = (deltaY / surfaceRect.height) * 100;
-
-			const maxLeftPercent = Math.max(0, Math.floor(100 - displayItemMoveState.itemWidthPercent));
-			const maxTopPercent = Math.max(0, Math.floor(100 - displayItemMoveState.itemHeightPercent));
-			const displayLeftPercent = Math.max(0, Math.min(maxLeftPercent, Math.round(displayItemMoveState.startLeftPercent + deltaXPercent)));
-			const displayTopPercent = Math.max(0, Math.min(maxTopPercent, Math.round(displayItemMoveState.startTopPercent + deltaYPercent)));
-
-			displayItemMoveState.itemElement.style.left = `${displayLeftPercent}%`;
-			displayItemMoveState.itemElement.style.top = `${displayTopPercent}%`;
-			displayItemMoveState.itemElement.dataset.leftPercent = `${displayLeftPercent}`;
-			displayItemMoveState.itemElement.dataset.topPercent = `${displayTopPercent}`;
-
-			if (displayItemMoveState.moveTooltipElement)
-			{
-				displayItemMoveState.moveTooltipElement.textContent = `X: ${displayLeftPercent}% Y: ${displayTopPercent}%`;
-				const itemRect = displayItemMoveState.itemElement.getBoundingClientRect();
-				const itemMidpoint = itemRect.top - surfaceRect.top + (itemRect.height / 2);
-				const showTooltipBelow = itemMidpoint < (surfaceRect.height / 2);
-				displayItemMoveState.moveTooltipElement.classList.toggle('display-sim-resize-tooltip-below', showTooltipBelow);
-			}
-
-			if (displayItemMoveState.xInputElement)
-			{
-				displayItemMoveState.xInputElement.value = `${displayLeftPercent}`;
-			}
-
-			if (displayItemMoveState.yInputElement)
-			{
-				displayItemMoveState.yInputElement.value = `${displayTopPercent}`;
-			}
+			Homey.alert(Homey.__("settings.clipboardError", { error: err }));
 		}
+	});
 
-		function stopDisplayItemMoveDrag(event)
+	pasteDisplayConfigElement.addEventListener('click', function (e)
+	{
+		try
 		{
-			if (!displayItemMoveState)
+			// Parse the JSON string
+			const copy = JSON.parse(copyTextElement.value);
+			if (!copy || typeof copy !== 'object' || Array.isArray(copy))
+			{
+				Homey.alert(Homey.__("settings.clipboardError", { error: "Invalid top-level structure: expected an object" }));
+				return;
+			}
+
+			if (copy.copySource !== "Display")
+			{
+				Homey.alert(Homey.__("settings.clipboardError", { error: "Invalid source" }));
+				return;
+			}
+
+			if (Object.prototype.hasOwnProperty.call(copy, 'displayConfiguration'))
+			{
+				const allowedTopLevelKeys = ['copySource', 'displayConfiguration'];
+				const unknownTopLevelKeys = Object.keys(copy).filter(function (key)
+				{
+					return !allowedTopLevelKeys.includes(key);
+				});
+
+				if (unknownTopLevelKeys.length > 0)
+				{
+					Homey.alert(Homey.__("settings.clipboardError", { error: `Unknown top-level field(s): ${unknownTopLevelKeys.join(', ')}` }));
+					return;
+				}
+			}
+
+			const newDisplayConfiguration = copy.displayConfiguration || copy;
+			if (!newDisplayConfiguration || typeof newDisplayConfiguration !== 'object')
+			{
+				Homey.alert(Homey.__("settings.clipboardError", { error: "Invalid data" }));
+				return;
+			}
+
+			let displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+
+			// Copy all available display fields so newly added properties are not lost.
+			Object.keys(newDisplayConfiguration).forEach(function (fieldName)
+			{
+				if (fieldName === 'copySource')
+				{
+					return;
+				}
+
+				if (newDisplayConfiguration[fieldName] !== undefined)
+				{
+					displayConfiguration[fieldName] = newDisplayConfiguration[fieldName];
+				}
+			});
+
+			// Update the controls
+			updateDisplayConfiguration();
+		}
+		catch (err)
+		{
+			Homey.alert(Homey.__("settings.clipboardError", { error: err }));
+		}
+	});
+
+	// Import button click handler
+	importElement.addEventListener('click', function (e)
+	{
+		try
+		{
+			// Parse the JSON string
+			const newConfigurations = JSON.parse(copyTextElement.value);
+
+			if (newConfigurations.copySource !== "Export")
+			{
+				Homey.alert(Homey.__("settings.clipboardError", { error: "Invalid source" }));
+				return;
+			}
+
+			// Copy the values from the new configuration to the current configuration
+			localButtonConfigurations = newConfigurations.buttonConfigurations;
+			localDisplayConfigurations = newConfigurations.displayConfigurations;
+			if (Array.isArray(newConfigurations.groupConfigurations))
+			{
+				localGroupConfigurations = newConfigurations.groupConfigurations;
+				updateGroupListDropdown();
+				loadGroupIntoForm(currentGroupIndex);
+			}
+			localBrokerItems = newConfigurations.brokerItems;
+
+			// replace the imported Homey broker IP with the current Homey IP
+			for (let i = 0; i < localBrokerItems.length; i++)
+			{
+				if (localBrokerItems[i].brokerid === 'homey')
+				{
+					// extract the ip address from the host url which is in the form '192-168-1-32.homey.homeylocal.com'
+					let ip = window.location.hostname.replace(/-/g, '.').replace('.homey.homeylocal.com', '');
+
+					// url will be 'mqtt://homeyip'
+					localBrokerItems[i].url = `mqtt://${ip}`;
+					break;
+				}
+			}
+
+			// If the imported version is less than 2 (or doesn't exist), increment all the display page numbers by 1
+			for (let i = 0; i < localDisplayConfigurations.length; i++)
+			{
+				if (localDisplayConfigurations[i].version < 2 || localDisplayConfigurations[i].version === undefined)
+				{
+					for (let j = 0; j < localDisplayConfigurations[i].items.length; j++)
+					{
+						let page = parseInt(localDisplayConfigurations[i].items[j].page, 10) + 1;
+						localDisplayConfigurations[i].items[j].page = `${page}`;
+					}
+
+					localDisplayConfigurations[i].version = 2;
+				}
+			}
+
+			// Update the controls
+			// Get the current configuration
+			var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+
+			// Make sure currentButtonConfigurationNo is an array
+			if (!Array.isArray(buttonPanelConfiguration))
+			{
+				buttonPanelConfiguration = [buttonPanelConfiguration];
+				localButtonConfigurations[currentButtonConfigurationNo] = buttonPanelConfiguration;
+			}
+
+			writeButtonsections(buttonPanelConfiguration.length);
+			updateDisplayConfiguration();
+			updateButtonPanelControls();
+			drawBrokerItems();
+
+			// Notify the user
+			Homey.alert(Homey.__("settings.imported"));
+		}
+		catch (err)
+		{
+			Homey.alert(Homey.__("settings.clipboardError", { error: err }));
+		}
+	});
+
+	// Export button click handler
+	exportElement.addEventListener('click', function (e)
+	{
+		try
+		{
+			// Copy the current configurations to the clipboard in JSON format
+			const jsonString = buildExportConfigurationText();
+
+			copyTextElement.value = jsonString;
+
+			// Notify the user
+			Homey.alert(Homey.__("settings.exported"));
+		}
+		catch (err)
+		{
+			Homey.alert(Homey.__("settings.clipboardError", { error: err }));
+		}
+	});
+
+	if (sendExportElement)
+	{
+		sendExportElement.addEventListener('click', function ()
+		{
+			const exportText = buildExportConfigurationText();
+			copyTextElement.value = exportText;
+			openSupportSendFlow({
+				title: Homey.__("settings.sendExportPopupTitle"),
+				message: Homey.__("settings.sendExportPopupMessage"),
+				content: exportText,
+				contentType: 'exportConfiguration',
+				subject: Homey.__("settings.sendExportMailSubject"),
+			});
+		});
+	}
+
+	if (newDisplayItemButton)
+	{
+		newDisplayItemButton.addEventListener('click', function (e)
+		{
+			addDisplayItem();
+		});
+	}
+
+	// newLeftCustomMQTTItemButton.addEventListener('click', function (e)
+	// {
+	// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+	// 	if (ButtonPanelConfiguration)
+	// 	{
+	// 		storeCustomMQTTItems("left", ButtonPanelConfiguration);
+
+	// 		var customMQTTItem = {
+	// 			id: '',
+	// 			type: 0,
+	// 			topic: "",
+	// 			payload: "",
+	// 			brokerId: 'Default',
+	// 			enable: true,
+	// 		};
+
+	// 		ButtonPanelConfiguration.leftCustomMQTTTopics.push(customMQTTItem);
+	// 		drawCustomMQTTTopics("left", ButtonPanelConfiguration);
+	// 	}
+	// });
+
+	// newRightCustomMQTTItemButton.addEventListener('click', function (e)
+	// {
+	// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+	// 	if (ButtonPanelConfiguration)
+	// 	{
+	// 		storeCustomMQTTItems("right", ButtonPanelConfiguration);
+	// 		var customMQTTItem = {
+	// 			id: '',
+	// 			type: 0,
+	// 			topic: "",
+	// 			payload: "",
+	// 			brokerId: 'Default',
+	// 			enable: true,
+	// 		};
+
+	// 		ButtonPanelConfiguration.rightCustomMQTTTopics.push(customMQTTItem);
+	// 		drawCustomMQTTTopics("right", ButtonPanelConfiguration);
+	// 	}
+	// });
+
+	newBrokerItemButton.addEventListener('click', function (e)
+	{
+		// Create a new broker item
+		var brokerItem = {
+			brokerid: "Unnamed",
+			url: "",
+			port: 1883,
+			wsPort: 9001,
+			enabled: true,
+			protected: false,
+		};
+
+		// Add the new broker to the local broker list
+		localBrokerItems.push(brokerItem);
+
+		// Add the broker to the broker lists
+		addBrokerToConfig(brokerItem);
+
+		// Redraw the broker items
+		drawBrokerItems();
+	});
+
+	if (!window.tooltipHoverListenerBound)
+	{
+		document.addEventListener('mouseover', function (event)
+		{
+			const tooltipTrigger = event.target.closest('.tooltip');
+			if (!tooltipTrigger)
 			{
 				return;
 			}
 
-			if (event && displayItemMoveState.pointerId !== undefined && event.pointerId !== undefined && displayItemMoveState.pointerId !== event.pointerId)
+			if (event.relatedTarget && tooltipTrigger.contains(event.relatedTarget))
 			{
 				return;
 			}
 
-			const state = displayItemMoveState;
-			displayItemMoveState = null;
+			suppressNativeTooltipTitles(tooltipTrigger);
+			position_tooltip.call(tooltipTrigger);
+		});
 
-			window.removeEventListener('pointermove', onDisplayItemMoveDragMove);
-			window.removeEventListener('pointerup', stopDisplayItemMoveDrag);
-			window.removeEventListener('pointercancel', stopDisplayItemMoveDrag);
-			document.body.classList.remove('display-sim-moving');
-			state.itemElement.classList.remove('display-sim-item-moving');
-
-			const finalLeftPercent = parseFloat(state.itemElement?.dataset?.leftPercent || state.xInputElement?.value || '0');
-			const finalTopPercent = parseFloat(state.itemElement?.dataset?.topPercent || state.yInputElement?.value || '0');
-			const safeLeftPercent = Number.isNaN(finalLeftPercent) ? 0 : Math.round(finalLeftPercent);
-			const safeTopPercent = Number.isNaN(finalTopPercent) ? 0 : Math.round(finalTopPercent);
-
-			if (state.xInputElement)
+		document.addEventListener('mouseout', function (event)
+		{
+			const tooltipTrigger = event.target.closest('.tooltip');
+			if (!tooltipTrigger)
 			{
-				state.xInputElement.value = `${safeLeftPercent}`;
+				return;
 			}
 
-			if (state.yInputElement)
+			if (event.relatedTarget && tooltipTrigger.contains(event.relatedTarget))
 			{
-				state.yInputElement.value = `${safeTopPercent}`;
+				return;
 			}
 
-			onDisplayLabelChange({ id: `display${state.itemNo}X`, value: '' }, state.itemNo);
+			restoreNativeTooltipTitles(tooltipTrigger);
+		});
+
+		window.tooltipHoverListenerBound = true;
+	}
+
+	if (buttonPagePopupCloseElement)
+	{
+		buttonPagePopupCloseElement.addEventListener('click', closeButtonPagePopup);
+	}
+
+	if (buttonFieldPopupCancelElement)
+	{
+		buttonFieldPopupCancelElement.addEventListener('click', closeButtonFieldPopup);
+	}
+
+	if (buttonFieldPopupSaveElement)
+	{
+		buttonFieldPopupSaveElement.addEventListener('click', saveButtonFieldPopup);
+	}
+
+	if (displayFieldPopupCancelElement)
+	{
+		displayFieldPopupCancelElement.addEventListener('click', closeDisplayFieldPopup);
+	}
+
+	if (displayFieldPopupSaveElement)
+	{
+		displayFieldPopupSaveElement.addEventListener('click', saveDisplayFieldPopup);
+	}
+
+	if (sendSupportPopupCancelElement)
+	{
+		sendSupportPopupCancelElement.addEventListener('click', function ()
+		{
+			closeSendSupportPopup(null);
+		});
+	}
+
+	if (sendSupportPopupSendElement)
+	{
+		sendSupportPopupSendElement.addEventListener('click', submitSendSupportPopup);
+	}
+
+	if (configDraftRestoreRetrieveElement)
+	{
+		configDraftRestoreRetrieveElement.addEventListener('click', function ()
+		{
+			closeConfigDraftRestoreDialog(true);
+		});
+	}
+
+	if (configDraftRestoreDiscardElement)
+	{
+		configDraftRestoreDiscardElement.addEventListener('click', function ()
+		{
+			closeConfigDraftRestoreDialog(false);
+		});
+	}
+
+	if (buttonPagePopupStateToggleElement)
+	{
+		buttonPagePopupStateToggleElement.addEventListener('click', function ()
+		{
+			buttonPagePopupLedState = (buttonPagePopupLedState === 'on') ? 'off' : 'on';
+			renderButtonPagePopup();
+		});
+	}
+
+	if (buttonPagePopupPrevElement)
+	{
+		buttonPagePopupPrevElement.addEventListener('click', function ()
+		{
+			stepButtonPagePopup(-1);
+		});
+	}
+
+	if (buttonPagePopupNextElement)
+	{
+		buttonPagePopupNextElement.addEventListener('click', function ()
+		{
+			stepButtonPagePopup(1);
+		});
+	}
+
+	if (displayPagePopupOpenElement)
+	{
+		displayPagePopupOpenElement.addEventListener('click', function ()
+		{
+			openDisplayPagePopup(displayPagePopupCurrentPage);
+		});
+	}
+
+	if (displayPagePopupCloseElement)
+	{
+		displayPagePopupCloseElement.addEventListener('click', closeDisplayPagePopup);
+	}
+
+	if (displayPagePopupPrevElement)
+	{
+		displayPagePopupPrevElement.addEventListener('click', function ()
+		{
+			stepDisplayPagePopup(-1);
+		});
+	}
+
+	if (displayPagePopupNextElement)
+	{
+		displayPagePopupNextElement.addEventListener('click', function ()
+		{
+			stepDisplayPagePopup(1);
+		});
+	}
+
+	if (displayInlineSimPrevElement)
+	{
+		displayInlineSimPrevElement.addEventListener('click', function ()
+		{
+			stepDisplayPagePopup(-1);
+			renderDisplayInlineSimulator();
+		});
+	}
+
+	if (displayInlineSimNextElement)
+	{
+		displayInlineSimNextElement.addEventListener('click', function ()
+		{
+			stepDisplayPagePopup(1);
+			renderDisplayInlineSimulator();
+		});
+	}
+
+	if (displayInlineSimStatusBarPositionElement)
+	{
+		displayInlineSimStatusBarPositionElement.addEventListener('change', function ()
+		{
+			const selectedStatusBarPosition = parseInt(this.value, 10) || 0;
+			displayPagePopupStatusBarPosition = selectedStatusBarPosition;
+			Homey.set('displayPagePopupStatusBarPosition', selectedStatusBarPosition);
 
 			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
-			if (displayConfiguration && Array.isArray(displayConfiguration.items) && displayConfiguration.items[state.itemNo])
+			if (displayConfiguration && Array.isArray(displayConfiguration.items))
 			{
-				displayConfiguration.items[state.itemNo].xPos = `${safeLeftPercent}`;
-				displayConfiguration.items[state.itemNo].yPos = `${safeTopPercent}`;
+				for (const item of displayConfiguration.items)
+				{
+					const itemPage = parseInt(item.page, 10) || 0;
+					if (itemPage === displayPagePopupCurrentPage)
+					{
+						item.statusBarPosition = selectedStatusBarPosition;
+					}
+				}
 			}
 
-			configDraftDirtySinceLoad = true;
-			flushConfigurationDraftPersist();
-
-			redisplayDisplyConfig(state.itemNo);
+			renderDisplayInlineSimulator();
 			if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
 			{
 				renderDisplayPagePopup();
 			}
-		}
+		});
+	}
 
-		function startDisplayItemWidthDrag(event, itemNo)
+	if (displayInlineSimAddPageElement)
+	{
+		displayInlineSimAddPageElement.addEventListener('click', function ()
 		{
-			if (!event)
-			{
-				return;
-			}
+			addDisplayPage();
+		});
+	}
 
-			event.preventDefault();
-			event.stopPropagation();
-
-			const handleElement = event.currentTarget;
-			const itemElement = handleElement ? handleElement.closest('.display-sim-item') : null;
-			const surfaceElement = itemElement ? itemElement.closest('.display-sim-surface') : null;
-			if (!itemElement || !surfaceElement)
-			{
-				return;
-			}
-
-			const surfaceRect = surfaceElement.getBoundingClientRect();
-			if (!surfaceRect || surfaceRect.width <= 0)
-			{
-				return;
-			}
-
-			if (typeof handleElement.setPointerCapture === 'function' && event.pointerId !== undefined)
-			{
-				try
-				{
-					handleElement.setPointerCapture(event.pointerId);
-				}
-				catch (err)
-				{
-					// Ignore pointer capture errors from unsupported environments.
-				}
-			}
-
-			const widthInputElement = document.getElementById(`display${itemNo}Width`);
-			const widthFromInput = widthInputElement ? parseFloat(widthInputElement.value) : NaN;
-			const widthFromStyle = parseFloat(itemElement.dataset.widthPercent || itemElement.style.width || '0');
-			const leftPercent = parseFloat(itemElement.dataset.leftPercent || itemElement.style.left || '0') || 0;
-			const initialWidthPercent = Number.isNaN(widthFromInput)
-				? (Number.isNaN(widthFromStyle) ? 100 : widthFromStyle)
-				: widthFromInput;
-			const resizeTooltipElement = itemElement.querySelector('.display-sim-size-tooltip');
-			if (resizeTooltipElement)
-			{
-				resizeTooltipElement.textContent = `W: ${Math.round(initialWidthPercent * 10) / 10}%`;
-				const itemRect = itemElement.getBoundingClientRect();
-				const itemMidpoint = itemRect.top - surfaceRect.top + (itemRect.height / 2);
-				const showTooltipBelow = itemMidpoint < (surfaceRect.height / 2);
-				resizeTooltipElement.classList.toggle('display-sim-resize-tooltip-below', showTooltipBelow);
-			}
-			itemElement.classList.add('display-sim-item-resizing');
-
-			displayItemResizeState = {
-				itemNo,
-				handleElement,
-				itemElement,
-				surfaceElement,
-				widthInputElement,
-				resizeTooltipElement,
-				startClientX: event.clientX,
-				startWidthPercent: initialWidthPercent,
-				leftPercent,
-				pointerId: event.pointerId,
-			};
-
-			document.body.classList.add('display-sim-resizing');
-			window.addEventListener('pointermove', onDisplayItemWidthDragMove);
-			window.addEventListener('pointerup', stopDisplayItemWidthDrag);
-			window.addEventListener('pointercancel', stopDisplayItemWidthDrag);
-		}
-
-		function onDisplayItemWidthDragMove(event)
+	if (displayInlineSimDeletePageElement)
+	{
+		displayInlineSimDeletePageElement.addEventListener('click', function ()
 		{
-			if (!displayItemResizeState || !event)
-			{
-				return;
-			}
+			deleteCurrentDisplayPage();
+		});
+	}
 
-			if (displayItemResizeState.pointerId !== undefined && event.pointerId !== undefined && displayItemResizeState.pointerId !== event.pointerId)
-			{
-				return;
-			}
-
-			event.preventDefault();
-
-			const surfaceRect = displayItemResizeState.surfaceElement.getBoundingClientRect();
-			if (!surfaceRect || surfaceRect.width <= 0)
-			{
-				return;
-			}
-
-			const deltaX = event.clientX - displayItemResizeState.startClientX;
-			const deltaPercent = (deltaX / surfaceRect.width) * 100;
-			const maxWidthPercent = Math.max(2, 100 - displayItemResizeState.leftPercent);
-			const rawWidthPercent = Math.max(2, Math.min(maxWidthPercent, displayItemResizeState.startWidthPercent + deltaPercent));
-			const newWidthPercent = Math.max(2, Math.min(maxWidthPercent, Math.round(rawWidthPercent)));
-
-			displayItemResizeState.itemElement.style.width = `${newWidthPercent}%`;
-			displayItemResizeState.itemElement.dataset.widthPercent = `${newWidthPercent}`;
-
-			if (displayItemResizeState.widthInputElement)
-			{
-				displayItemResizeState.widthInputElement.value = `${newWidthPercent}`;
-			}
-
-			if (displayItemResizeState.resizeTooltipElement)
-			{
-				displayItemResizeState.resizeTooltipElement.textContent = `W: ${newWidthPercent}%`;
-			}
-		}
-
-		function stopDisplayItemWidthDrag(event)
+	if (displayInlineSimAddItemElement)
+	{
+		displayInlineSimAddItemElement.addEventListener('click', function ()
 		{
-			if (!displayItemResizeState)
-			{
-				return;
-			}
+			addDisplayItem();
+			renderDisplayInlineSimulator();
+		});
+	}
 
-			if (event && displayItemResizeState.pointerId !== undefined && event.pointerId !== undefined && displayItemResizeState.pointerId !== event.pointerId)
-			{
-				return;
-			}
+	if (displayInlineSimDeleteItemElement)
+	{
+		displayInlineSimDeleteItemElement.addEventListener('click', function ()
+		{
+			deleteSelectedInlineDisplayItem();
+		});
+	}
 
-			const state = displayItemResizeState;
-			displayItemResizeState = null;
-
-			window.removeEventListener('pointermove', onDisplayItemWidthDragMove);
-			window.removeEventListener('pointerup', stopDisplayItemWidthDrag);
-			window.removeEventListener('pointercancel', stopDisplayItemWidthDrag);
-			document.body.classList.remove('display-sim-resizing');
-			state.itemElement.classList.remove('display-sim-item-resizing');
-
-			const finalWidthPercent = parseFloat(state.itemElement?.dataset?.widthPercent || state.widthInputElement?.value || '100');
-			const safeWidthPercent = Number.isNaN(finalWidthPercent) ? 100 : Math.max(2, Math.round(finalWidthPercent));
-
-			if (state.widthInputElement)
-			{
-				state.widthInputElement.value = `${safeWidthPercent}`;
-			}
-
-			onDisplayLabelChange({ id: `display${state.itemNo}Width`, value: '' }, state.itemNo);
-
-			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
-			if (displayConfiguration && Array.isArray(displayConfiguration.items) && displayConfiguration.items[state.itemNo])
-			{
-				displayConfiguration.items[state.itemNo].width = `${safeWidthPercent}`;
-			}
-
-			configDraftDirtySinceLoad = true;
-			flushConfigurationDraftPersist();
-
-			redisplayDisplyConfig(state.itemNo);
+	if (displayInlineSimShowPageZeroElement)
+	{
+		displayInlineSimShowPageZeroElement.addEventListener('change', function ()
+		{
+			renderDisplayInlineSimulator();
 			if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
 			{
 				renderDisplayPagePopup();
 			}
+			refreshDisplayPopupLiveValues();
+		});
+	}
+
+	if (displayInlineSimSurfaceElement)
+	{
+		displayInlineSimSurfaceElement.addEventListener('click', handleDisplaySurfaceBackgroundClick);
+	}
+
+	if (displayPagePopupSurfaceElement)
+	{
+		displayPagePopupSurfaceElement.addEventListener('click', handleDisplaySurfaceBackgroundClick);
+	}
+
+	const refreshButtonPagePopupFromControl = function (event)
+	{
+		const target = event.target;
+		if (!target || !target.id)
+		{
+			return;
 		}
 
-		var lastSentIpElement = document.getElementById('sentip');
-		var getLogElement = document.getElementById('getLog');
-		var sentLogElement = document.getElementById('sentLog');
-
-		// Declarations for the Display Config page
-
-		var displayConfigurationNoElement = document.getElementById('displayConfigurationNo');
-		var displayConfigNameElement = document.getElementById('displayConfigName');
-		var displayConfigNameRowElement = document.getElementById('displayConfigNameRow');
-		var toggleDisplayConfigNameVisibilityElement = document.getElementById('toggleDisplayConfigNameVisibility');
-		var displayConfigNameCollapsed = true;
-		var newDisplayItemButton = document.getElementById('newDisplayItem');
-
-		var displayConfigurationsFetched = false;
-		var localDisplayConfigurations = [];
-		var currentDisplayConfigurationNo = 0;
-		var displayCapabilityItems = new Map();
-		var copyDisplayConfigElement = document.getElementById('copyDisplayConfig');
-		var pasteDisplayConfigElement = document.getElementById('pasteDisplayConfig');
-
-		// Declarations for the Broker Config page
-		var defaultBrokerElement = document.getElementById('defaultBroker');
-		var newBrokerItemButton = document.getElementById('newBrokerItem');
-		var localBrokerItems = [];
-		var brokerItemsFetched = false;
-		var defaultBrokerFetched = false;
-
-		var diagLogEnabledElement = document.getElementById('enableLog');
-		var diagLogElement = document.getElementById('diagLog');
-		var clearLogElement = document.getElementById('clearLog');
-		var sendLogElement = document.getElementById('sendLog');
-		var getListenersElement = document.getElementById('getListeners');
-
-		var copyTextElement = document.getElementById('copyText');
-		var importElement = document.getElementById('import');
-		var exportElement = document.getElementById('export');
-		var sendExportElement = document.getElementById('sendExport');
-
-		var itemDisplyType = "flex";
-		const MAX_SVG_FIELD_LENGTH = 3 * 1024;
-		const BUTTON_MAIN_DIAGNOSTICS_ENABLED = false;
-		let trimmedSVGFieldCount = 0;
-		let invalidButtonSVGFields = [];
-
-		function clampSVGField(svgValue)
+		const pageNumMatch = target.id.match(/^(\d+)PageNum$/);
+		if (pageNumMatch)
 		{
-			const value = (typeof svgValue === 'string') ? svgValue : '';
-			if (value.length > MAX_SVG_FIELD_LENGTH)
+			const pageIndex = parseInt(pageNumMatch[1], 10);
+			if (!Number.isNaN(pageIndex) && pageIndex !== buttonPagePopupCurrentPage)
 			{
-				trimmedSVGFieldCount++;
-				// return value.substring(0, MAX_SVG_FIELD_LENGTH);
+				buttonPagePopupCurrentPage = pageIndex;
 			}
-
-			return value;
-		}
-
-		function collectInvalidButtonSVGField(side, page, state)
-		{
-			const sideLabel = side === 'left' ? Homey.__("settings.leftPanel") : Homey.__("settings.rightPanel");
-			const pageLabel = formatButtonPageLabel(page);
-			const stateLabel = state === 'On' ? 'On SVG' : 'Off SVG';
-			const warning = `${sideLabel} / Page ${pageLabel} / ${stateLabel}`;
-
-			if (!invalidButtonSVGFields.includes(warning))
+			renderInlineButtonPagePreview(pageIndex);
+			if (buttonPagePopupOverlayElement && buttonPagePopupOverlayElement.classList.contains('visible'))
 			{
-				invalidButtonSVGFields.push(warning);
-			}
-		}
-
-		function sanitizeAndValidateButtonSVGField(svgValue, side, page, state)
-		{
-			const clampedValue = clampSVGField(svgValue);
-			const normalizedValue = normalizeSvgText(clampedValue);
-
-			if (clampedValue.trim() && !isSvgTextContent(normalizedValue))
-			{
-				collectInvalidButtonSVGField(side, page, state);
-				appendClientDiagnosticLog(`Invalid SVG detected at ${side} page ${page} ${state}SVG; storing original text.`, 'WARN');
-				return clampedValue;
-			}
-
-			return normalizedValue;
-		}
-
-		function appendClientDiagnosticLog(message, level = 'INFO')
-		{
-			if (!diagLogElement)
-			{
-				return;
-			}
-
-			const timestamp = new Date().toISOString();
-			const normalizedLevel = (typeof level === 'string' && level) ? level.toUpperCase() : 'INFO';
-			const messageText = (typeof message === 'string')
-				? message
-				: (message && message.message ? message.message : JSON.stringify(message));
-
-			if (diagLogElement.value && !diagLogElement.value.endsWith('\n'))
-			{
-				diagLogElement.value += '\n';
-			}
-
-			diagLogElement.value += `* ${timestamp}\n[settings:${normalizedLevel}] ${messageText}\n`;
-
-			if (diagLogElement.value.length > 60000)
-			{
-				diagLogElement.value = diagLogElement.value.slice(-60000);
-			}
-		}
-
-		function isHomeyMobileAppRuntime()
-		{
-			const userAgent = (navigator && navigator.userAgent) ? navigator.userAgent.toLowerCase() : '';
-			const isAndroidWebView = userAgent.includes('android') && userAgent.includes('wv');
-			const coarsePointer = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
-			const noHover = !!(window.matchMedia && window.matchMedia('(hover: none)').matches);
-			return isAndroidWebView && coarsePointer && noHover;
-		}
-
-		function adjustMainTopOffset()
-		{
-			const fixedTopElement = document.querySelector('.fixedTop');
-			const mainElement = document.querySelector('.main');
-			if (!fixedTopElement || !mainElement)
-			{
-				return;
-			}
-
-			const offset = Math.ceil(fixedTopElement.getBoundingClientRect().bottom);
-			mainElement.style.marginTop = `${offset}px`;
-			document.documentElement.style.setProperty('--settings-fixed-top-offset', `${offset}px`);
-		}
-
-		function scheduleMainTopOffsetAdjustment()
-		{
-			if (mainTopOffsetAnimationFrame !== null)
-			{
-				return;
-			}
-
-			mainTopOffsetAnimationFrame = requestAnimationFrame(function ()
-			{
-				mainTopOffsetAnimationFrame = null;
-				adjustMainTopOffset();
-			});
-		}
-
-		function escapeHtml(value)
-		{
-			return String(value)
-				.replace(/&/g, '&amp;')
-				.replace(/</g, '&lt;')
-				.replace(/>/g, '&gt;')
-				.replace(/"/g, '&quot;')
-				.replace(/'/g, '&#39;');
-		}
-
-		function getSvgPreviewMarkup(svgText)
-		{
-			const value = (typeof svgText === 'string') ? svgText.trim() : '';
-			if (!value)
-			{
-				return '';
-			}
-
-			// Only treat real SVG markup as SVG; plain text like "19:49" must remain text.
-			if (!/^<svg[\s>]/i.test(value))
-			{
-				return '';
-			}
-
-			return value;
-		}
-
-		function updateSvgPreview(textareaElement)
-		{
-			if (!textareaElement)
-			{
-				return;
-			}
-
-			const previewId = textareaElement.dataset.svgPreviewTarget;
-			if (!previewId)
-			{
-				return;
-			}
-
-			const previewElement = document.getElementById(previewId);
-			if (!previewElement)
-			{
-				return;
-			}
-
-			const svgMarkup = getSvgPreviewMarkup(textareaElement.value);
-			if (!svgMarkup)
-			{
-				previewElement.innerHTML = '<div class="svg-preview-empty">No SVG</div>';
-				return;
-			}
-
-			try
-			{
-				previewElement.innerHTML = svgMarkup;
-				const importedSvg = previewElement.querySelector('svg');
-				if (!importedSvg)
-				{
-					previewElement.innerHTML = '<div class="svg-preview-empty">Invalid SVG</div>';
-					return;
-				}
-
-				if (!importedSvg.getAttribute('xmlns'))
-				{
-					importedSvg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-				}
-				if (!importedSvg.getAttribute('viewBox'))
-				{
-					importedSvg.setAttribute('viewBox', '0 0 13 13');
-				}
-				importedSvg.setAttribute('width', '50');
-				importedSvg.setAttribute('height', '50');
-				importedSvg.style.maxWidth = '100%';
-				importedSvg.style.maxHeight = '100%';
-			}
-			catch (err)
-			{
-				previewElement.innerHTML = '<div class="svg-preview-empty">Invalid SVG</div>';
-			}
-		}
-
-		function setupSvgPreviews(root = document)
-		{
-			if (!root || typeof root.querySelectorAll !== 'function')
-			{
-				return;
-			}
-
-			const textareas = Array.from(root.querySelectorAll('textarea[data-svg-preview-target]'));
-			textareas.forEach((textareaElement) =>
-			{
-				if (textareaElement.dataset.svgPreviewBound === 'true')
-				{
-					updateSvgPreview(textareaElement);
-					return;
-				}
-
-				textareaElement.addEventListener('input', () => updateSvgPreview(textareaElement));
-				textareaElement.dataset.svgPreviewBound = 'true';
-				updateSvgPreview(textareaElement);
-			});
-		}
-
-		function applyDisplaySimulatorLocalization()
-		{
-			if (typeof Homey === 'undefined' || !Homey || typeof Homey.__ !== 'function')
-			{
-				return;
-			}
-
-			const setTextById = (id, key) =>
-			{
-				const element = document.getElementById(id);
-				if (element)
-				{
-					element.textContent = Homey.__(`settings.${key}`);
-				}
-			};
-
-			const setAttributeById = (id, attributeName, key) =>
-			{
-				const element = document.getElementById(id);
-				if (element)
-				{
-					element.setAttribute(attributeName, Homey.__(`settings.${key}`));
-				}
-			};
-
-			const setSelectOptions = (id, optionKeys) =>
-			{
-				const element = document.getElementById(id);
-				if (!element || !Array.isArray(element.options))
-				{
-					return;
-				}
-
-				for (let index = 0; index < optionKeys.length && index < element.options.length; index++)
-				{
-					element.options[index].text = Homey.__(`settings.${optionKeys[index]}`);
-				}
-			};
-
-			setAttributeById('displayInlineSimPrev', 'title', 'displaySimPreviousPage');
-			setAttributeById('displayInlineSimPrev', 'aria-label', 'displaySimPreviousPage');
-			setAttributeById('displayInlineSimNext', 'title', 'displaySimNextPage');
-			setAttributeById('displayInlineSimNext', 'aria-label', 'displaySimNextPage');
-			setAttributeById('displayInlineSimAddPage', 'title', 'displaySimAddPage');
-			setAttributeById('displayInlineSimAddPage', 'aria-label', 'displaySimAddPage');
-			setAttributeById('displayInlineSimDeletePage', 'title', 'displaySimDeletePage');
-			setAttributeById('displayInlineSimDeletePage', 'aria-label', 'displaySimDeletePage');
-			setAttributeById('displayInlineSimAddItem', 'title', 'displaySimAddItem');
-			setAttributeById('displayInlineSimAddItem', 'aria-label', 'displaySimAddItem');
-			setAttributeById('displayInlineSimDeleteItem', 'title', 'displaySimDeleteItem');
-			setAttributeById('displayInlineSimDeleteItem', 'aria-label', 'displaySimDeleteItem');
-			setAttributeById('displayInlineSimStatusBarPosition', 'aria-label', 'displaySimInlineStatusBarPosition');
-			setAttributeById('displayInlineSimShowPageZero', 'title', 'displaySimShowDefaultItems');
-			setAttributeById('displayInlineSimShowPageZero', 'aria-label', 'displaySimShowDefaultItems');
-
-			setAttributeById('displayPagePopupPrev', 'title', 'displaySimPreviousPage');
-			setAttributeById('displayPagePopupPrev', 'aria-label', 'displaySimPreviousPage');
-			setAttributeById('displayPagePopupNext', 'title', 'displaySimNextPage');
-			setAttributeById('displayPagePopupNext', 'aria-label', 'displaySimNextPage');
-			setAttributeById('displayPagePopupStatusBarPosition', 'aria-label', 'displaySimStatusBarPosition');
-			setAttributeById('displayPagePopupClose', 'title', 'displaySimClose');
-			setAttributeById('displayPagePopupClose', 'aria-label', 'displaySimClose');
-			setAttributeById('displayPageSimOpen', 'title', 'displaySimOpen');
-			setAttributeById('displayPageSimOpen', 'aria-label', 'displaySimOpen');
-
-			setTextById('displayFieldPopupTitle', 'displayFieldPopupTitle');
-			setTextById('displayFieldPopupCancel', 'cancel');
-			setTextById('displayFieldPopupSave', 'displayFieldPopupSave');
-			setTextById('buttonFieldPopupTitle', 'buttonFieldPopupTitle');
-			setTextById('buttonFieldPopupCancel', 'cancel');
-			setTextById('buttonFieldPopupSave', 'buttonFieldPopupSave');
-			setTextById('sendSupportPopupTitle', 'sendSupportTitle');
-			setTextById('sendSupportPopupMessage', 'sendSupportMessage');
-			setTextById('configDraftRestoreTitle', 'unsavedSettingsDetectedTitle');
-			setTextById('configDraftRestoreMessage', 'unsavedSettingsDetectedMessage');
-			setTextById('configDraftRestoreRetrieve', 'unsavedSettingsRetrieve');
-			setTextById('configDraftRestoreDiscard', 'unsavedSettingsDiscard');
-
-			setSelectOptions('displayInlineSimStatusBarPosition', ['displaySimOff', 'displaySimTop', 'displaySimBottom']);
-			setSelectOptions('displayPagePopupStatusBarPosition', ['displaySimOff', 'displaySimTop', 'displaySimBottom']);
-		}
-
-		// a method named 'onHomeyReady' must be present in your code
-		function onHomeyReady(Homey)
-		{
-			itemDisplyType = document.getElementById('ButtonPanelConfigurationNo').style.display;
-			setupFilterableSelects();
-			document.body.classList.toggle('homey-mobile-app', isHomeyMobileAppRuntime());
-			applyDisplaySimulatorLocalization();
-			adjustMainTopOffset();
-			window.addEventListener('resize', scheduleMainTopOffsetAdjustment);
-			window.addEventListener('scroll', scheduleMainTopOffsetAdjustment, { passive: true });
-			const fixedTopElement = document.querySelector('.fixedTop');
-			if (fixedTopElement && typeof ResizeObserver === 'function')
-			{
-				fixedTopResizeObserver = new ResizeObserver(scheduleMainTopOffsetAdjustment);
-				try
-				{
-					fixedTopResizeObserver.observe(fixedTopElement, { box: 'border-box' });
-				}
-				catch (error)
-				{
-					fixedTopResizeObserver.observe(fixedTopElement);
-				}
-			}
-
-			Homey.get(BUTTON_VISIBLE_CONFIGURATION_COUNT_KEY, function (err, savedCount)
-			{
-				const parsedCount = parseInt(savedCount, 10);
-				if (err || Number.isNaN(parsedCount))
-				{
-					return;
-				}
-
-				buttonVisibleConfigurationCount = Math.max(1, Math.min(4, parsedCount));
-				getDisplayedButtonConfigurationNos();
-				if (buttonConfigurationsFetched)
-				{
-					writeButtonsections(getDisplayedButtonPageCount());
-					updateButtonPanelControls();
-				}
-			});
-
-			Homey.get(BUTTON_PANEL_CONTROLS_COLLAPSED_KEY, function (err, savedCollapsed)
-			{
-				if (err || (savedCollapsed !== true && savedCollapsed !== false))
-				{
-					return;
-				}
-
-				buttonPanelControlsExpanded = !savedCollapsed;
-				updateButtonPanelControlsExpander();
-			});
-
-			Homey.get(CONFIG_DRAFT_STORAGE_KEY, function (err, loadedDraft)
-			{
-				if (!err && loadedDraft && typeof loadedDraft === 'object')
-				{
-					configDraftLoadedData = loadedDraft;
-					configDraftLastSnapshotSignature = getComparableDraftSignature(loadedDraft);
-				}
-				else
-				{
-					configDraftRestoreDecisionMade = true;
-					enableConfigurationDraftAutoSave();
-				}
-				configDraftLoaded = true;
-				maybeHandleLoadedConfigurationDraft();
-			});
-
-			Homey.get(CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY, function (err, dismissedSignature)
-			{
-				if (!err && dismissedSignature && typeof dismissedSignature === 'object')
-				{
-					configDraftDismissedSignature = (typeof dismissedSignature.signature === 'string' && dismissedSignature.signature)
-						? dismissedSignature.signature
-						: null;
-					configDraftDismissedAt = Number.isFinite(Number(dismissedSignature.timestamp))
-						? Number(dismissedSignature.timestamp)
-						: 0;
-				}
-				else if (!err && typeof dismissedSignature === 'string' && dismissedSignature)
-				{
-					configDraftDismissedSignature = dismissedSignature;
-					configDraftDismissedAt = 0;
-				}
-				else
-				{
-					configDraftDismissedSignature = null;
-					configDraftDismissedAt = 0;
-				}
-
-				configDraftDismissedSignatureLoaded = true;
-				maybeHandleLoadedConfigurationDraft();
-			});
-
-
-			// Read the button configuration from the settings and write the controls
-			Homey.get('buttonConfigurations', function (err, buttonConfigurations)
-			{
-				if (err) return Homey.alert(err);
-				localButtonConfigurations = buttonConfigurations;
-				buttonConfigurationsFetched = true;
-				console.log('buttonConfigurations: ' + JSON.stringify(buttonConfigurations));
-
-				fillConfigListElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
-
-				// Make sure currentButtonConfigurationNo is set and within range
-				if (!currentButtonConfigurationNo || (currentButtonConfigurationNo >= localButtonConfigurations.length))
-				{
-					currentButtonConfigurationNo = 0;
-				}
-
-				// Get the current configuration
-				var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-
-				writeButtonsections(buttonPanelConfiguration.length);
-				updateButtonPanelControls();
-				maybeHandleLoadedConfigurationDraft();
-			});
-
-			Homey.get('displayConfigurations', function (err, displayConfigurations)
-			{
-				if (err) return Homey.alert(err);
-				localDisplayConfigurations = displayConfigurations;
-				displayConfigurationsFetched = (localDisplayConfigurations.length > 0);
-
-				fillConfigListElement(displayConfigurationNoElement, Homey.__("settings.displayConfig"), localDisplayConfigurations, MAX_DISPLAY_CONFIGURATIONS);
-
-				// add the itemId and validate the page number to each item
-				let displayVersion = 0;
-				if (localDisplayConfigurations.length > 0)
-				{
-					displayVersion = localDisplayConfigurations[0].version | 0;
-				}
-				for (let i = 0; i < localDisplayConfigurations.length; i++)
-				{
-					if (!localDisplayConfigurations[i].version || localDisplayConfigurations[i].version < 2)
-					{
-						localDisplayConfigurations[i].version = 2;
-						const displayConfiguration = localDisplayConfigurations[i];
-						for (let j = 0; j < displayConfiguration.items.length; j++)
-						{
-							displayConfiguration.items[j].itemId = j;
-							if (displayConfiguration.items[j].page === undefined)
-							{
-								displayConfiguration.items[j].page = 1;
-							}
-							else
-							{
-								displayConfiguration.items[j].page = parseInt(displayConfiguration.items[j].page, 10) + 1;
-							}
-						}
-					}
-				}
-				normalizeDisplayConfigurationsPages(localDisplayConfigurations);
-
-				updateDisplayConfiguration();
-				maybeHandleLoadedConfigurationDraft();
-			});
-
-			getButtonList();
-
-			getDevices();
-
-			Homey.get('brokerConfigurationItems', function (err, brokerItems)
-{
-if (err) return Homey.alert(err);
-brokerItemsFetched = true;
-localBrokerItems = brokerItems;
-setupButtonBrokerItems();
-maybeHandleLoadedConfigurationDraft();
-});
-
-Homey.get('displayPagePopupStatusBarPosition', function (err, savedStatusBarPosition)
-{
-if (err) return;
-const parsedStatusBarPosition = parseInt(savedStatusBarPosition, 10);
-if (!Number.isNaN(parsedStatusBarPosition))
-{
-displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition, 2));
-}
-});
-
-			diagLogEnabledElement.addEventListener('click', function (e)
-			{
-				Homey.set('logEnabled', diagLogEnabledElement.checked);
-			});
-
-			configTypeElement.addEventListener('change', function (e)
-			{
-				configTypeChanged(configTypeElement.value);
-			});
-
-			if (configTypeTabsElement)
-			{
-				configTypeTabsElement.querySelectorAll('.view-tab').forEach(function (tab)
-				{
-					tab.addEventListener('click', function ()
-					{
-						const view = tab.dataset.view;
-						configTypeElement.value = view;
-						configTypeChanged(view);
-					});
-				});
-			}
-
-			clearLogElement.addEventListener('click', function (e)
-			{
-				Homey.api('POST', '/clearLog/',
-					{
-						notify: true
-					}, function (err, result)
-				{
-					if (err)
-					{
-						return Homey.alert(err);
-					}
-				});
-			});
-
-			openWebViewElement.addEventListener('click', function (e)
-			{
-				let ip = webViewIpElement.value;
-				Homey.openURL(`http://${ip}`);
-			});
-
-			sendLogElement.addEventListener('click', function (e)
-			{
-				openSupportSendFlow({
-					title: Homey.__("settings.sendLogPopupTitle"),
-					message: Homey.__("settings.sendLogPopupMessage"),
-					content: diagLogElement ? diagLogElement.value : '',
-					contentType: 'diagnosticLog',
-					subject: Homey.__("settings.sendLogMailSubject"),
-				});
-			});
-
-			getListenersElement.addEventListener('click', function (e)
-			{
-
-				Homey.api('GET', '/get_capability_listeners/', { notify: true }, function (err, result)
-				{
-					if (err)
-					{
-						Homey.alert(err);
-					}
-					else
-					{
-						// Add the listeners to the log view
-						diagLogElement.value += JSON.stringify(result, null, 2);
-					}
-				});
-			});
-
-			getLogElement.addEventListener('click', function (e)
-			{
-				if (!lastSentIpElement.value)
-				{
-					Homey.alert(Homey.__("settings.selectDeviceFromListError"));
-					return;
-				}
-
-				Homey.api('GET', `/getLog/?ip=${lastSentIpElement.value}`, { notify: true }, function (err, result)
-				{
-					if (err)
-					{
-						Homey.alert(err);
-					}
-					else if (result === null || result === undefined)
-					{
-						sentLogElement.value = 'No configuration data available for this device.\n\nConfiguration data is stored when you save a configuration to the device.\n\nDevice IP: ' + lastSentIpElement.value;
-					}
-					else
-					{
-						// Add the log to the log view
-						try
-						{
-							// Handle both stringified JSON and objects
-							const data = typeof result === 'string' ? JSON.parse(result) : result;
-							sentLogElement.value = JSON.stringify(data, null, 2);
-						}
-						catch (parseErr)
-						{
-							// If parsing fails, just display the raw result
-							sentLogElement.value = result.toString();
-						}
-					}
-				});
-			});
-
-			Homey.on('com.ady.button_plus.logupdated', function (data)
-			{
-				diagLogElement.value = data.log;
-			});
-
-			saveButton.addEventListener('click', async function (e)
-			{
-				try
-				{
-					trimmedSVGFieldCount = 0;
-					invalidButtonSVGFields = [];
-
-					if (!storeBrokerSettings())
-					{
-						return;
-					}
-
-					await Homey.set('brokerConfigurationItems', localBrokerItems);
-					await Homey.set('defaultBroker', getSafeDefaultBrokerValue());
-
-					// Store the current button configuration
-					var buttonPanelConfigurationNo = buttonConfigurationNoElement.value;
-					var ButtonPanelConfiguration = localButtonConfigurations[buttonPanelConfigurationNo];
-
-					if (!Array.isArray(ButtonPanelConfiguration) || ButtonPanelConfiguration.length === 0)
-					{
-						throw new Error('Invalid button configuration selected');
-					}
-
-					storeButtonSettings(ButtonPanelConfiguration);
-
-					await Homey.set('buttonConfigurations', localButtonConfigurations);
-
-					//Copy the values from the controls to the displayConfiguration
-					storeDisplaySettings();
-					await Homey.set('displayConfigurations', localDisplayConfigurations);
-					await clearDraftSetting(CONFIG_DRAFT_STORAGE_KEY);
-					await clearDraftSetting(CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY);
-					configDraftDismissedSignature = null;
-					configDraftDismissedAt = 0;
-					configDraftLastSnapshotSignature = null;
-					configDraftDirtySinceLoad = false;
-
-					console.log('Save completed locally. Triggering device upload via /settings_changed/.');
-					appendClientDiagnosticLog('Local save completed. Triggering device upload via /settings_changed/.', 'INFO');
-					Homey.api('POST', '/settings_changed/', {}, function (err, variables)
-					{
-						if (err)
-						{
-							console.error('Device upload failed in /settings_changed/:', err);
-							appendClientDiagnosticLog(`Device upload failed in /settings_changed/: ${err && err.message ? err.message : err}`, 'ERROR');
-							return Homey.alert(err);
-						}
-
-						console.log('Device upload completed successfully via /settings_changed/.', variables || {});
-						appendClientDiagnosticLog('Device upload completed successfully via /settings_changed/.', 'INFO');
-
-						if ((trimmedSVGFieldCount > 0) || (invalidButtonSVGFields.length > 0))
-						{
-							const warningLines = [];
-							if (trimmedSVGFieldCount > 0)
-							{
-								warningLines.push(`${trimmedSVGFieldCount} SVG field(s) exceeded ${MAX_SVG_FIELD_LENGTH} characters and might be too big.`);
-							}
-
-							if (invalidButtonSVGFields.length > 0)
-							{
-								warningLines.push(`Invalid SVG detected in ${invalidButtonSVGFields.length} field(s): ${invalidButtonSVGFields.join('; ')}`);
-							}
-
-							Homey.alert(`${Homey.__("settings.saved")}\n\nWarning: ${warningLines.join('\n')}`);
-							appendClientDiagnosticLog(`Save completed with warning: ${warningLines.join(' | ')}`, 'WARN');
-						}
-						else
-						{
-							Homey.alert(Homey.__("settings.saved"));
-							appendClientDiagnosticLog('Save completed successfully.', 'INFO');
-						}
-					});
-				}
-				catch (saveError)
-				{
-					console.error('Save failed before /settings_changed/ was called:', saveError);
-					appendClientDiagnosticLog(`Save failed before /settings_changed/ was called: ${saveError && saveError.message ? saveError.message : saveError}`, 'ERROR');
-					Homey.alert(Homey.__("settings.saveFailedError", { error: saveError && saveError.message ? saveError.message : `${saveError}` }));
-				}
-			});
-
-			function storeButtonSettings(ButtonPanelConfiguration)
-			{
-				// Store the configuration name
-				ButtonPanelConfiguration[0].name = configNameElement.value;
-
-				for (page = 0; page < ButtonPanelConfiguration.length; page++)
-				{
-					ButtonPanelConfiguration[page].PageNum = page;
-
-					// Copy the values from the controls for each page to the displayConfiguration page
-					storeButtonSettingsSection('left', page, ButtonPanelConfiguration[page]);
-					storeButtonSettingsSection('right', page, ButtonPanelConfiguration[page]);
-				}
-			}
-
-			configDraftStoreButtonSettingsFn = storeButtonSettings;
-
-			function storeButtonSettingsSection(side, page, ButtonPanelConfiguration)
-			{
-				var topTextElement = document.getElementById(`${side}${page}TopText`);
-				var onTextElement = document.getElementById(`${side}${page}OnText`);
-				var offTextElement = document.getElementById(`${side}${page}OffText`);
-				var dimChangeElement = document.getElementById(`${side}${page}DimChange`);
-				var pageNumElement = document.getElementById(`${side}${page}PageNum`);
-				var deviceElement = document.getElementById(`${side}${page}Device`);
-				var capabilityElement = document.getElementById(`${side}${page}Capability`);
-				var brokerIdElement = document.getElementById(`${side}${page}BrokerId`);
-				var newCustomMQTTItemButton = document.getElementById(`new${side}${page}CustomMQTTItem`);
-				var frontLEDOnColorElement = document.getElementById(`${side}${page}FrontLEDOnColor`);
-				var wallLEDOnColorElement = document.getElementById(`${side}${page}WallLEDOnColor`);
-				var frontLEDOffColorElement = document.getElementById(`${side}${page}FrontLEDOffColor`);
-				var wallLEDOffColorElement = document.getElementById(`${side}${page}WallLEDOffColor`);
-				var longRepeatElement = document.getElementById(`${side}${page}DisableLongRepeat`);
-				var longDelayMsElement = document.getElementById(`${side}${page}LongDelayMs`);
-				var longRepeatMsElement = document.getElementById(`${side}${page}LongRepeatMs`);
-				var OnSVGElement = document.getElementById(`${side}${page}OnSVG`);
-				var OffSVGElement = document.getElementById(`${side}${page}OffSVG`);
-
-				if (capabilityElement.value === 'dim')
-				{
-					const dimVal = parseInt(dimChangeElement.value, 10);
-					if (dimVal < -100 || dimVal > 100 || dimVal === 0)
-					{
-						Homey.alert(Homey.__("settings.dimError", { leftRight: Homey.__(`settings.${side}Panel`) }));
-						return;
-					}
-				}
-
-				storeCustomMQTTItems(side, page, ButtonPanelConfiguration);
-
-				// Copy the values from the controls to the buttonConfiguration
-				ButtonPanelConfiguration[`${side}TopText`] = topTextElement.value;
-				ButtonPanelConfiguration[`${side}OnText`] = onTextElement.value;
-				ButtonPanelConfiguration[`${side}OffText`] = offTextElement.value;
-
-				// The device/capability selects start out with an empty placeholder option until
-				// fillButtonDevices()/getCapabilities() finish their async population. If this runs
-				// before that completes (e.g. right after switching configs), don't let the still-empty
-				// select wipe out the real stored device/capability for this page.
-				if (deviceElement.value !== '')
-				{
-					ButtonPanelConfiguration[`${side}Device`] = deviceElement.value;
-
-					if (deviceElement.selectedIndex >= 0)
-					{
-						ButtonPanelConfiguration[`${side}DeviceName`] = deviceElement.options && deviceElement.options[deviceElement.selectedIndex] ? deviceElement.options[deviceElement.selectedIndex].text : deviceElement.value;
-					}
-					else
-					{
-						ButtonPanelConfiguration[`${side}DeviceName`] = deviceElement.value;
-					}
-
-					// Remove any leading spaces from the device name
-					ButtonPanelConfiguration[`${side}DeviceName`] = ButtonPanelConfiguration[`${side}DeviceName`].trim();
-
-					// Remove all occurrences of ' (Missing Devices)' from the capability name
-					ButtonPanelConfiguration[`${side}DeviceName`] = ButtonPanelConfiguration[`${side}DeviceName`].replace(/ \(Missing Devices\)/g, '');
-				}
-
-				if (capabilityElement.value !== '')
-				{
-					ButtonPanelConfiguration[`${side}Capability`] = capabilityElement.value;
-					if (capabilityElement.selectedIndex >= 0)
-					{
-						ButtonPanelConfiguration[`${side}CapabilityName`] = capabilityElement.options && capabilityElement.options[capabilityElement.selectedIndex] ? capabilityElement.options[capabilityElement.selectedIndex].text : capabilityElement.value;
-					}
-					else
-					{
-						ButtonPanelConfiguration[`${side}CapabilityName`] = capabilityElement.value;
-					}
-
-					// Remove ' (Missing)' from the capability name
-					ButtonPanelConfiguration[`${side}CapabilityName`] = ButtonPanelConfiguration[`${side}CapabilityName`].replace(/ \(Missing\)/g, '');
-				}
-
-				ButtonPanelConfiguration[`${side}BrokerId`] = getBrokerSelectValue(brokerIdElement, ButtonPanelConfiguration[`${side}BrokerId`]);
-				ButtonPanelConfiguration[`${side}DimChange`] = dimChangeElement.value;
-				ButtonPanelConfiguration[`${side}FrontLEDOnColor`] = frontLEDOnColorElement.value;
-				ButtonPanelConfiguration[`${side}WallLEDOnColor`] = wallLEDOnColorElement.value;
-				ButtonPanelConfiguration[`${side}FrontLEDOffColor`] = frontLEDOffColorElement.value;
-				ButtonPanelConfiguration[`${side}WallLEDOffColor`] = wallLEDOffColorElement.value;
-				ButtonPanelConfiguration[`${side}DisableLongRepeat`] = !longRepeatElement.checked;
-				ButtonPanelConfiguration[`${side}LongDelayMs`] = normalizeLongPressTimingMs(longDelayMsElement.value, 0, 750);
-				ButtonPanelConfiguration[`${side}LongRepeatMs`] = normalizeLongPressTimingMs(longRepeatMsElement.value, 50, 500);
-				ButtonPanelConfiguration[`${side}OnSVG`] = sanitizeAndValidateButtonSVGField(OnSVGElement?.value || '', side, page, 'On');
-				ButtonPanelConfiguration[`${side}OffSVG`] = sanitizeAndValidateButtonSVGField(OffSVGElement?.value || '', side, page, 'Off');
-			};
-
-			buttonConfigurationNoElement.addEventListener('change', function (e)
-			{
-				// Store the current configuration
-				var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-				storeButtonSettings(buttonPanelConfiguration);
-
-				currentButtonConfigurationNo = buttonConfigurationNoElement.value;
-
-				// Make sure currentButtonConfigurationNo is set and within range
-				if (!currentButtonConfigurationNo || (currentButtonConfigurationNo >= localButtonConfigurations.length))
-				{
-					currentButtonConfigurationNo = 0;
-				}
-
-				// Get the current configuration
-				var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-
-				writeButtonsections(buttonPanelConfiguration.length);
-				updateButtonPanelControls();
-				updateButtonMainDiagnostics('buttonConfigurationNo:change');
-			});
-
-			if (toggleConfigNameVisibilityElement)
-			{
-				toggleConfigNameVisibilityElement.addEventListener('click', function ()
-				{
-					panelConfigNameCollapsed = !panelConfigNameCollapsed;
-					if (configNameRowElement)
-					{
-						configNameRowElement.style.display = panelConfigNameCollapsed ? 'none' : 'block';
-					}
-
-					toggleConfigNameVisibilityElement.classList.toggle('is-open', !panelConfigNameCollapsed);
-					toggleConfigNameVisibilityElement.title = panelConfigNameCollapsed ? 'Show configuration name' : 'Hide configuration name';
-					toggleConfigNameVisibilityElement.setAttribute('aria-label', toggleConfigNameVisibilityElement.title);
-				});
-
-				toggleConfigNameVisibilityElement.classList.toggle('is-open', !panelConfigNameCollapsed);
-				toggleConfigNameVisibilityElement.title = panelConfigNameCollapsed ? 'Show configuration name' : 'Hide configuration name';
-				toggleConfigNameVisibilityElement.setAttribute('aria-label', toggleConfigNameVisibilityElement.title);
-				if (configNameRowElement)
-				{
-					configNameRowElement.style.display = panelConfigNameCollapsed ? 'none' : 'block';
-				}
-			}
-
-			if (toggleDisplayConfigNameVisibilityElement)
-			{
-				toggleDisplayConfigNameVisibilityElement.addEventListener('click', function ()
-				{
-					displayConfigNameCollapsed = !displayConfigNameCollapsed;
-					if (displayConfigNameRowElement)
-					{
-						displayConfigNameRowElement.style.display = displayConfigNameCollapsed ? 'none' : 'block';
-					}
-
-					toggleDisplayConfigNameVisibilityElement.classList.toggle('is-open', !displayConfigNameCollapsed);
-					toggleDisplayConfigNameVisibilityElement.title = displayConfigNameCollapsed ? 'Show configuration name' : 'Hide configuration name';
-					toggleDisplayConfigNameVisibilityElement.setAttribute('aria-label', toggleDisplayConfigNameVisibilityElement.title);
-				});
-
-				toggleDisplayConfigNameVisibilityElement.classList.toggle('is-open', !displayConfigNameCollapsed);
-				toggleDisplayConfigNameVisibilityElement.title = displayConfigNameCollapsed ? 'Show configuration name' : 'Hide configuration name';
-				toggleDisplayConfigNameVisibilityElement.setAttribute('aria-label', toggleDisplayConfigNameVisibilityElement.title);
-				if (displayConfigNameRowElement)
-				{
-					displayConfigNameRowElement.style.display = displayConfigNameCollapsed ? 'none' : 'block';
-				}
-			}
-
-			configNameElement.addEventListener('change', function ()
-			{
-				var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-				if (!Array.isArray(buttonPanelConfiguration) || buttonPanelConfiguration.length === 0)
-				{
-					buttonPanelConfiguration = [{ PageNum: 0 }];
-					localButtonConfigurations[currentButtonConfigurationNo] = buttonPanelConfiguration;
-				}
-
-				buttonPanelConfiguration[0].name = configNameElement.value;
-
-				// Update the configuration list
-				let txt = Homey.__("settings.buttonConfig");
-				var option = buttonConfigurationNoElement.options[buttonConfigurationNoElement.selectedIndex];
-				if (option)
-				{
-					option.text = `${txt} ${parseInt(currentButtonConfigurationNo, 10) + 1} - ${configNameElement.value}`;
-				}
-			});
-
-			displayConfigNameElement.addEventListener('change', function (e)
-			{
-				var DisplayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
-				DisplayConfiguration.name = displayConfigNameElement.value;
-
-				// Update the configuration list
-				let txt = Homey.__("settings.displayConfig");
-				var option = displayConfigurationNoElement.options[displayConfigurationNoElement.selectedIndex];
-				option.text = `${txt} ${parseInt(currentDisplayConfigurationNo, 10) + 1} - ${displayConfigNameElement.value}`
-			});
-
-			// Display Config code
-
-			displayConfigurationNoElement.addEventListener('change', function (e)
-			{
-				redisplayDisplyConfig();
-			});
-
-			copyButtonConfigElement.addEventListener('click', function (e)
-			{
-				try
-				{
-					// Sync unsaved UI edits into the local model before copying.
-					var currentButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-					if (Array.isArray(currentButtonPanelConfiguration))
-					{
-						storeButtonSettings(currentButtonPanelConfiguration);
-					}
-
-					// Copy only the currently active page of the button configuration to the clipboard.
-					var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-					var activePageIndex = Math.max(0, Math.min(buttonMainCurrentPage, buttonPanelConfiguration.length - 1));
-					var copy = {};
-					copy.copySource = "ButtonPanel";
-					copy.page = buttonPanelConfiguration[activePageIndex];
-					const jsonString = JSON.stringify(copy, null, 2);
-
-					copyTextElement.value = jsonString;
-
-					// Notify the user
-					Homey.alert(Homey.__("settings.copied"));
-				}
-				catch (err)
-				{
-					Homey.alert(Homey.__("settings.clipboardError", { error: err }));
-				}
-			});
-
-			pasteButtonConfigElement.addEventListener('click', function (e)
-			{
-				try
-				{
-					// Parse the JSON string
-					const copy = JSON.parse(copyTextElement.value);
-					if (!copy || typeof copy !== 'object' || Array.isArray(copy))
-					{
-						Homey.alert(Homey.__("settings.clipboardError", { error: "Invalid top-level structure: expected an object" }));
-						return;
-					}
-
-					const allowedTopLevelKeys = ['copySource', 'page', 'butons'];
-					const unknownTopLevelKeys = Object.keys(copy).filter(function (key)
-					{
-						return !allowedTopLevelKeys.includes(key);
-					});
-
-					if (unknownTopLevelKeys.length > 0)
-					{
-						Homey.alert(Homey.__("settings.clipboardError", { error: `Unknown top-level field(s): ${unknownTopLevelKeys.join(', ')}` }));
-						return;
-					}
-
-					if (copy.copySource !== "ButtonPanel")
-					{
-						Homey.alert(Homey.__("settings.clipboardError", { error: "Invalid source" }));
-						return;
-					}
-
-					// Support the current single-page clipboard format, falling back to the
-					// legacy whole-configuration format by taking its first page.
-					const sourcePageConfiguration = copy.page || (Array.isArray(copy.butons) ? copy.butons[0] : undefined);
-					if (!sourcePageConfiguration || typeof sourcePageConfiguration !== 'object')
-					{
-						Homey.alert(Homey.__("settings.clipboardError", { error: "Invalid data" }));
-						return;
-					}
-
-					let buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-					const targetPageIndex = Math.max(0, Math.min(buttonMainCurrentPage, buttonPanelConfiguration.length - 1));
-
-					// if the page doesn't exist, add it
-					if (!buttonPanelConfiguration[targetPageIndex])
-					{
-						buttonPanelConfiguration[targetPageIndex] = {};
-					}
-
-					// Copy every known field so newly introduced settings (for example SVG data) are preserved.
-					Object.keys(sourcePageConfiguration).forEach(function (fieldName)
-					{
-						if (fieldName === 'PageNum')
-						{
-							return;
-						}
-
-						if (sourcePageConfiguration[fieldName] !== undefined)
-						{
-							buttonPanelConfiguration[targetPageIndex][fieldName] = sourcePageConfiguration[fieldName];
-						}
-					});
-
-					buttonPanelConfiguration[targetPageIndex].PageNum = targetPageIndex;
-
-					// Update the controls
-					writeButtonsections(buttonPanelConfiguration.length);
-					buttonMainCurrentPage = targetPageIndex;
-					renderButtonMainPage();
-					updateButtonPanelControls();
-				}
-				catch (err)
-				{
-					Homey.alert(Homey.__("settings.clipboardError", { error: err }));
-				}
-			});
-
-			copyDisplayConfigElement.addEventListener('click', function (e)
-			{
-				try
-				{
-					storeDisplaySettings();
-
-					// Copy the current button configuration to the clipboard in JSON format
-					var displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
-					const copy = {
-						copySource: "Display",
-						displayConfiguration: displayConfiguration,
-					};
-					const jsonString = JSON.stringify(copy, null, 2);
-
-					copyTextElement.value = jsonString;
-
-					// Notify the user
-					Homey.alert(Homey.__("settings.copied"));
-				}
-				catch (err)
-				{
-					Homey.alert(Homey.__("settings.clipboardError", { error: err }));
-				}
-			});
-
-			pasteDisplayConfigElement.addEventListener('click', function (e)
-			{
-				try
-				{
-					// Parse the JSON string
-					const copy = JSON.parse(copyTextElement.value);
-					if (!copy || typeof copy !== 'object' || Array.isArray(copy))
-					{
-						Homey.alert(Homey.__("settings.clipboardError", { error: "Invalid top-level structure: expected an object" }));
-						return;
-					}
-
-					if (copy.copySource !== "Display")
-					{
-						Homey.alert(Homey.__("settings.clipboardError", { error: "Invalid source" }));
-						return;
-					}
-
-					if (Object.prototype.hasOwnProperty.call(copy, 'displayConfiguration'))
-					{
-						const allowedTopLevelKeys = ['copySource', 'displayConfiguration'];
-						const unknownTopLevelKeys = Object.keys(copy).filter(function (key)
-						{
-							return !allowedTopLevelKeys.includes(key);
-						});
-
-						if (unknownTopLevelKeys.length > 0)
-						{
-							Homey.alert(Homey.__("settings.clipboardError", { error: `Unknown top-level field(s): ${unknownTopLevelKeys.join(', ')}` }));
-							return;
-						}
-					}
-
-					const newDisplayConfiguration = copy.displayConfiguration || copy;
-					if (!newDisplayConfiguration || typeof newDisplayConfiguration !== 'object')
-					{
-						Homey.alert(Homey.__("settings.clipboardError", { error: "Invalid data" }));
-						return;
-					}
-
-					let displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
-
-					// Copy all available display fields so newly added properties are not lost.
-					Object.keys(newDisplayConfiguration).forEach(function (fieldName)
-					{
-						if (fieldName === 'copySource')
-						{
-							return;
-						}
-
-						if (newDisplayConfiguration[fieldName] !== undefined)
-						{
-							displayConfiguration[fieldName] = newDisplayConfiguration[fieldName];
-						}
-					});
-
-					// Update the controls
-					updateDisplayConfiguration();
-				}
-				catch (err)
-				{
-					Homey.alert(Homey.__("settings.clipboardError", { error: err }));
-				}
-			});
-
-			// Import button click handler
-			importElement.addEventListener('click', function (e)
-			{
-				try
-				{
-					// Parse the JSON string
-					const newConfigurations = JSON.parse(copyTextElement.value);
-
-					if (newConfigurations.copySource !== "Export")
-					{
-						Homey.alert(Homey.__("settings.clipboardError", { error: "Invalid source" }));
-						return;
-					}
-
-					// Copy the values from the new configuration to the current configuration
-					localButtonConfigurations = newConfigurations.buttonConfigurations;
-					localDisplayConfigurations = newConfigurations.displayConfigurations;
-					localBrokerItems = newConfigurations.brokerItems;
-
-					// replace the imported Homey broker IP with the current Homey IP
-					for (let i = 0; i < localBrokerItems.length; i++)
-					{
-						if (localBrokerItems[i].brokerid === 'homey')
-						{
-							// extract the ip address from the host url which is in the form '192-168-1-32.homey.homeylocal.com'
-							let ip = window.location.hostname.replace(/-/g, '.').replace('.homey.homeylocal.com', '');
-
-							// url will be 'mqtt://homeyip'
-							localBrokerItems[i].url = `mqtt://${ip}`;
-							break;
-						}
-					}
-
-					// If the imported version is less than 2 (or doesn't exist), increment all the display page numbers by 1
-					for (let i = 0; i < localDisplayConfigurations.length; i++)
-					{
-						if (localDisplayConfigurations[i].version < 2 || localDisplayConfigurations[i].version === undefined)
-						{
-							for (let j = 0; j < localDisplayConfigurations[i].items.length; j++)
-							{
-								let page = parseInt(localDisplayConfigurations[i].items[j].page, 10) + 1;
-								localDisplayConfigurations[i].items[j].page = `${page}`;
-							}
-
-							localDisplayConfigurations[i].version = 2;
-						}
-					}
-
-					// Update the controls
-					// Get the current configuration
-					var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-
-					// Make sure currentButtonConfigurationNo is an array
-					if (!Array.isArray(buttonPanelConfiguration))
-					{
-						buttonPanelConfiguration = [buttonPanelConfiguration];
-						localButtonConfigurations[currentButtonConfigurationNo] = buttonPanelConfiguration;
-					}
-
-					writeButtonsections(buttonPanelConfiguration.length);
-					updateDisplayConfiguration();
-					updateButtonPanelControls();
-					drawBrokerItems();
-
-					// Notify the user
-					Homey.alert(Homey.__("settings.imported"));
-				}
-				catch (err)
-				{
-					Homey.alert(Homey.__("settings.clipboardError", { error: err }));
-				}
-			});
-
-			// Export button click handler
-			exportElement.addEventListener('click', function (e)
-			{
-				try
-				{
-					// Copy the current configurations to the clipboard in JSON format
-					const jsonString = buildExportConfigurationText();
-
-					copyTextElement.value = jsonString;
-
-					// Notify the user
-					Homey.alert(Homey.__("settings.exported"));
-				}
-				catch (err)
-				{
-					Homey.alert(Homey.__("settings.clipboardError", { error: err }));
-				}
-			});
-
-			if (sendExportElement)
-			{
-				sendExportElement.addEventListener('click', function ()
-				{
-					const exportText = buildExportConfigurationText();
-					copyTextElement.value = exportText;
-					openSupportSendFlow({
-						title: Homey.__("settings.sendExportPopupTitle"),
-						message: Homey.__("settings.sendExportPopupMessage"),
-						content: exportText,
-						contentType: 'exportConfiguration',
-						subject: Homey.__("settings.sendExportMailSubject"),
-					});
-				});
-			}
-
-			if (newDisplayItemButton)
-			{
-				newDisplayItemButton.addEventListener('click', function (e)
-				{
-					addDisplayItem();
-				});
-			}
-
-			// newLeftCustomMQTTItemButton.addEventListener('click', function (e)
-			// {
-			// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			// 	if (ButtonPanelConfiguration)
-			// 	{
-			// 		storeCustomMQTTItems("left", ButtonPanelConfiguration);
-
-			// 		var customMQTTItem = {
-			// 			id: '',
-			// 			type: 0,
-			// 			topic: "",
-			// 			payload: "",
-			// 			brokerId: 'Default',
-			// 			enable: true,
-			// 		};
-
-			// 		ButtonPanelConfiguration.leftCustomMQTTTopics.push(customMQTTItem);
-			// 		drawCustomMQTTTopics("left", ButtonPanelConfiguration);
-			// 	}
-			// });
-
-			// newRightCustomMQTTItemButton.addEventListener('click', function (e)
-			// {
-			// 	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			// 	if (ButtonPanelConfiguration)
-			// 	{
-			// 		storeCustomMQTTItems("right", ButtonPanelConfiguration);
-			// 		var customMQTTItem = {
-			// 			id: '',
-			// 			type: 0,
-			// 			topic: "",
-			// 			payload: "",
-			// 			brokerId: 'Default',
-			// 			enable: true,
-			// 		};
-
-			// 		ButtonPanelConfiguration.rightCustomMQTTTopics.push(customMQTTItem);
-			// 		drawCustomMQTTTopics("right", ButtonPanelConfiguration);
-			// 	}
-			// });
-
-			newBrokerItemButton.addEventListener('click', function (e)
-			{
-				// Create a new broker item
-				var brokerItem = {
-					brokerid: "Unnamed",
-					url: "",
-					port: 1883,
-					wsPort: 9001,
-					enabled: true,
-					protected: false,
-				};
-
-				// Add the new broker to the local broker list
-				localBrokerItems.push(brokerItem);
-
-				// Add the broker to the broker lists
-				addBrokerToConfig(brokerItem);
-
-				// Redraw the broker items
-				drawBrokerItems();
-			});
-
-			if (!window.tooltipHoverListenerBound)
-			{
-				document.addEventListener('mouseover', function (event)
-				{
-					const tooltipTrigger = event.target.closest('.tooltip');
-					if (!tooltipTrigger)
-					{
-						return;
-					}
-
-					if (event.relatedTarget && tooltipTrigger.contains(event.relatedTarget))
-					{
-						return;
-					}
-
-					suppressNativeTooltipTitles(tooltipTrigger);
-					position_tooltip.call(tooltipTrigger);
-				});
-
-				document.addEventListener('mouseout', function (event)
-				{
-					const tooltipTrigger = event.target.closest('.tooltip');
-					if (!tooltipTrigger)
-					{
-						return;
-					}
-
-					if (event.relatedTarget && tooltipTrigger.contains(event.relatedTarget))
-					{
-						return;
-					}
-
-					restoreNativeTooltipTitles(tooltipTrigger);
-				});
-
-				window.tooltipHoverListenerBound = true;
-			}
-
-			if (buttonPagePopupCloseElement)
-			{
-				buttonPagePopupCloseElement.addEventListener('click', closeButtonPagePopup);
-			}
-
-			if (buttonFieldPopupCancelElement)
-			{
-				buttonFieldPopupCancelElement.addEventListener('click', closeButtonFieldPopup);
-			}
-
-			if (buttonFieldPopupSaveElement)
-			{
-				buttonFieldPopupSaveElement.addEventListener('click', saveButtonFieldPopup);
-			}
-
-			if (displayFieldPopupCancelElement)
-			{
-				displayFieldPopupCancelElement.addEventListener('click', closeDisplayFieldPopup);
-			}
-
-			if (displayFieldPopupSaveElement)
-			{
-				displayFieldPopupSaveElement.addEventListener('click', saveDisplayFieldPopup);
-			}
-
-			if (sendSupportPopupCancelElement)
-			{
-				sendSupportPopupCancelElement.addEventListener('click', function ()
-				{
-					closeSendSupportPopup(null);
-				});
-			}
-
-			if (sendSupportPopupSendElement)
-			{
-				sendSupportPopupSendElement.addEventListener('click', submitSendSupportPopup);
-			}
-
-			if (configDraftRestoreRetrieveElement)
-			{
-				configDraftRestoreRetrieveElement.addEventListener('click', function ()
-				{
-					closeConfigDraftRestoreDialog(true);
-				});
-			}
-
-			if (configDraftRestoreDiscardElement)
-			{
-				configDraftRestoreDiscardElement.addEventListener('click', function ()
-				{
-					closeConfigDraftRestoreDialog(false);
-				});
-			}
-
-			if (buttonPagePopupStateToggleElement)
-			{
-				buttonPagePopupStateToggleElement.addEventListener('click', function ()
-				{
-					buttonPagePopupLedState = (buttonPagePopupLedState === 'on') ? 'off' : 'on';
-					renderButtonPagePopup();
-				});
-			}
-
-			if (buttonPagePopupPrevElement)
-			{
-				buttonPagePopupPrevElement.addEventListener('click', function ()
-				{
-					stepButtonPagePopup(-1);
-				});
-			}
-
-			if (buttonPagePopupNextElement)
-			{
-				buttonPagePopupNextElement.addEventListener('click', function ()
-				{
-					stepButtonPagePopup(1);
-				});
-			}
-
-			if (displayPagePopupOpenElement)
-			{
-				displayPagePopupOpenElement.addEventListener('click', function ()
-				{
-					openDisplayPagePopup(displayPagePopupCurrentPage);
-				});
-			}
-
-			if (displayPagePopupCloseElement)
-			{
-				displayPagePopupCloseElement.addEventListener('click', closeDisplayPagePopup);
-			}
-
-			if (displayPagePopupPrevElement)
-			{
-				displayPagePopupPrevElement.addEventListener('click', function ()
-				{
-					stepDisplayPagePopup(-1);
-				});
-			}
-
-			if (displayPagePopupNextElement)
-			{
-				displayPagePopupNextElement.addEventListener('click', function ()
-				{
-					stepDisplayPagePopup(1);
-				});
-			}
-
-			if (displayInlineSimPrevElement)
-			{
-				displayInlineSimPrevElement.addEventListener('click', function ()
-				{
-					stepDisplayPagePopup(-1);
-					renderDisplayInlineSimulator();
-				});
-			}
-
-			if (displayInlineSimNextElement)
-			{
-				displayInlineSimNextElement.addEventListener('click', function ()
-				{
-					stepDisplayPagePopup(1);
-					renderDisplayInlineSimulator();
-				});
-			}
-
-			if (displayInlineSimStatusBarPositionElement)
-			{
-				displayInlineSimStatusBarPositionElement.addEventListener('change', function ()
-				{
-					const selectedStatusBarPosition = parseInt(this.value, 10) || 0;
-					displayPagePopupStatusBarPosition = selectedStatusBarPosition;
-					Homey.set('displayPagePopupStatusBarPosition', selectedStatusBarPosition);
-
-					const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
-					if (displayConfiguration && Array.isArray(displayConfiguration.items))
-					{
-						for (const item of displayConfiguration.items)
-						{
-							const itemPage = parseInt(item.page, 10) || 0;
-							if (itemPage === displayPagePopupCurrentPage)
-							{
-								item.statusBarPosition = selectedStatusBarPosition;
-							}
-						}
-					}
-
-					renderDisplayInlineSimulator();
-					if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
-					{
-						renderDisplayPagePopup();
-					}
-				});
-			}
-
-			if (displayInlineSimAddPageElement)
-			{
-				displayInlineSimAddPageElement.addEventListener('click', function ()
-				{
-					addDisplayPage();
-				});
-			}
-
-			if (displayInlineSimDeletePageElement)
-			{
-				displayInlineSimDeletePageElement.addEventListener('click', function ()
-				{
-					deleteCurrentDisplayPage();
-				});
-			}
-
-			if (displayInlineSimAddItemElement)
-			{
-				displayInlineSimAddItemElement.addEventListener('click', function ()
-				{
-					addDisplayItem();
-					renderDisplayInlineSimulator();
-				});
-			}
-
-			if (displayInlineSimDeleteItemElement)
-			{
-				displayInlineSimDeleteItemElement.addEventListener('click', function ()
-				{
-					deleteSelectedInlineDisplayItem();
-				});
-			}
-
-			if (displayInlineSimShowPageZeroElement)
-			{
-				displayInlineSimShowPageZeroElement.addEventListener('change', function ()
-				{
-					renderDisplayInlineSimulator();
-					if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
-					{
-						renderDisplayPagePopup();
-					}
-					refreshDisplayPopupLiveValues();
-				});
-			}
-
-			if (displayInlineSimSurfaceElement)
-			{
-				displayInlineSimSurfaceElement.addEventListener('click', handleDisplaySurfaceBackgroundClick);
-			}
-
-			if (displayPagePopupSurfaceElement)
-			{
-				displayPagePopupSurfaceElement.addEventListener('click', handleDisplaySurfaceBackgroundClick);
-			}
-
-			const refreshButtonPagePopupFromControl = function (event)
-			{
-				const target = event.target;
-				if (!target || !target.id)
-				{
-					return;
-				}
-
-				const pageNumMatch = target.id.match(/^(\d+)PageNum$/);
-				if (pageNumMatch)
-				{
-					const pageIndex = parseInt(pageNumMatch[1], 10);
-					if (!Number.isNaN(pageIndex) && pageIndex !== buttonPagePopupCurrentPage)
-					{
-						buttonPagePopupCurrentPage = pageIndex;
-					}
-					renderInlineButtonPagePreview(pageIndex);
-					if (buttonPagePopupOverlayElement && buttonPagePopupOverlayElement.classList.contains('visible'))
-					{
-						renderButtonPagePopup();
-					}
-					return;
-				}
-
-				const match = target.id.match(/^(left|right)(\d+)(TopText|OnText|OffText|OnSVG|OffSVG|FrontLEDOnColor|WallLEDOnColor|FrontLEDOffColor|WallLEDOffColor)$/);
-				if (!match)
-				{
-					return;
-				}
-
-				const pageIndex = parseInt(match[2], 10);
-				const fieldSuffix = match[3];
-				if (/On(Text|SVG)|OnColor$/.test(fieldSuffix))
-				{
-					buttonPagePopupLedState = 'on';
-				}
-				else if (/Off(Text|SVG)|OffColor$/.test(fieldSuffix))
-				{
-					buttonPagePopupLedState = 'off';
-				}
-
-				if (pageIndex !== buttonPagePopupCurrentPage)
-				{
-					buttonPagePopupCurrentPage = pageIndex;
-				}
-
-				renderInlineButtonPagePreview(pageIndex);
-
-				if (buttonPagePopupOverlayElement && buttonPagePopupOverlayElement.classList.contains('visible'))
-				{
-					renderButtonPagePopup();
-				}
-			};
-
-			const refreshDisplayPagePopupFromControl = function (event)
-			{
-				const target = event.target;
-				if (!target || !target.id)
-				{
-					return;
-				}
-
-				if (target.id === 'displayConfigurationNo')
-				{
-					renderDisplayInlineSimulator();
-					renderDisplayPagePopup();
-					return;
-				}
-
-				const match = target.id.match(/^display(\d+)(Label|Text|X|Y|Width|FontSize|BoxType|SVG|page|Device|Capability|Unit|Rounding)$/);
-				if (!match)
-				{
-					return;
-				}
-
-				if (match[2] === 'page')
-				{
-					const pageValue = parseInt(target.value, 10);
-					if (!Number.isNaN(pageValue) && pageValue >= 0)
-					{
-						displayPagePopupCurrentPage = pageValue;
-					}
-				}
-
-				renderDisplayPagePopup();
-				renderDisplayInlineSimulator();
-
-				if (match[2] === 'Device' || match[2] === 'Capability' || match[2] === 'Unit' || match[2] === 'Rounding' || match[2] === 'page')
-				{
-					refreshDisplayPopupLiveValues();
-				}
-			};
-
-			document.addEventListener('input', refreshButtonPagePopupFromControl);
-			document.addEventListener('change', refreshButtonPagePopupFromControl);
-			document.addEventListener('input', refreshDisplayPagePopupFromControl);
-			document.addEventListener('change', refreshDisplayPagePopupFromControl);
-
-			const draftEventHandler = function (event)
-			{
-				if (event && event.isTrusted === false)
-				{
-					return;
-				}
-
-				if (isDraftRelevantEventTarget(event.target))
-				{
-					configDraftDirtySinceLoad = true;
-					if (event.type === 'input')
-					{
-						scheduleConfigurationDraftPersist();
-					}
-					else
-					{
-						flushConfigurationDraftPersist();
-					}
-				}
-			};
-			document.addEventListener('input', draftEventHandler);
-			document.addEventListener('change', draftEventHandler);
-			window.addEventListener('beforeunload', flushConfigurationDraftPersist);
-			window.addEventListener('pagehide', flushConfigurationDraftPersist);
-			document.addEventListener('visibilitychange', function ()
-			{
-				if (document.visibilityState === 'hidden')
-				{
-					flushConfigurationDraftPersist();
-				}
-			});
-
-			document.addEventListener('focusin', function (event)
-			{
-				const target = event.target;
-				if (!target || !target.id)
-				{
-					return;
-				}
-
-				const pageNumMatch = target.id.match(/^(\d+)PageNum$/);
-				if (pageNumMatch)
-				{
-					const pageIndex = parseInt(pageNumMatch[1], 10);
-					if (!Number.isNaN(pageIndex) && pageIndex !== buttonPagePopupCurrentPage)
-					{
-						buttonPagePopupCurrentPage = pageIndex;
-					}
-					if (buttonPagePopupOverlayElement && buttonPagePopupOverlayElement.classList.contains('visible'))
-					{
-						renderButtonPagePopup();
-					}
-					return;
-				}
-
-				if (!buttonPagePopupOverlayElement || !buttonPagePopupOverlayElement.classList.contains('visible'))
-				{
-					return;
-				}
-
-				const match = target.id.match(/^(left|right)(\d+)(TopText|OnText|OffText|OnSVG|OffSVG|FrontLEDOnColor|WallLEDOnColor|FrontLEDOffColor|WallLEDOffColor)$/);
-				if (!match)
-				{
-					return;
-				}
-
-				const pageIndex = parseInt(match[2], 10);
-				const fieldSuffix = match[3];
-				if (/On(Text|SVG)|OnColor$/.test(fieldSuffix))
-				{
-					buttonPagePopupLedState = 'on';
-				}
-				else if (/Off(Text|SVG)|OffColor$/.test(fieldSuffix))
-				{
-					buttonPagePopupLedState = 'off';
-				}
-
-				if (pageIndex !== buttonPagePopupCurrentPage)
-				{
-					buttonPagePopupCurrentPage = pageIndex;
-				}
-
 				renderButtonPagePopup();
-			});
+			}
+			return;
+		}
 
-			document.addEventListener('keydown', function (event)
+		const match = target.id.match(/^(left|right)(\d+)(TopText|OnText|OffText|OnSVG|OffSVG|FrontLEDOnColor|WallLEDOnColor|FrontLEDOffColor|WallLEDOffColor)$/);
+		if (!match)
+		{
+			return;
+		}
+
+		const pageIndex = parseInt(match[2], 10);
+		const fieldSuffix = match[3];
+		if (/On(Text|SVG)|OnColor$/.test(fieldSuffix))
+		{
+			buttonPagePopupLedState = 'on';
+		}
+		else if (/Off(Text|SVG)|OffColor$/.test(fieldSuffix))
+		{
+			buttonPagePopupLedState = 'off';
+		}
+
+		if (pageIndex !== buttonPagePopupCurrentPage)
+		{
+			buttonPagePopupCurrentPage = pageIndex;
+		}
+
+		renderInlineButtonPagePreview(pageIndex);
+
+		if (buttonPagePopupOverlayElement && buttonPagePopupOverlayElement.classList.contains('visible'))
+		{
+			renderButtonPagePopup();
+		}
+	};
+
+	const refreshDisplayPagePopupFromControl = function (event)
+	{
+		const target = event.target;
+		if (!target || !target.id)
+		{
+			return;
+		}
+
+		if (target.id === 'displayConfigurationNo')
+		{
+			renderDisplayInlineSimulator();
+			renderDisplayPagePopup();
+			return;
+		}
+
+		const match = target.id.match(/^display(\d+)(Label|Text|X|Y|Width|FontSize|BoxType|SVG|page|Device|Capability|Unit|Rounding)$/);
+		if (!match)
+		{
+			return;
+		}
+
+		if (match[2] === 'page')
+		{
+			const pageValue = parseInt(target.value, 10);
+			if (!Number.isNaN(pageValue) && pageValue >= 0)
 			{
-				if (event.key === 'Escape')
+				displayPagePopupCurrentPage = pageValue;
+			}
+		}
+
+		renderDisplayPagePopup();
+		renderDisplayInlineSimulator();
+
+		if (match[2] === 'Device' || match[2] === 'Capability' || match[2] === 'Unit' || match[2] === 'Rounding' || match[2] === 'page')
+		{
+			refreshDisplayPopupLiveValues();
+		}
+	};
+
+	document.addEventListener('input', refreshButtonPagePopupFromControl);
+	document.addEventListener('change', refreshButtonPagePopupFromControl);
+	document.addEventListener('input', refreshDisplayPagePopupFromControl);
+	document.addEventListener('change', refreshDisplayPagePopupFromControl);
+
+	const draftEventHandler = function (event)
+	{
+		if (event && event.isTrusted === false)
+		{
+			return;
+		}
+
+		if (isDraftRelevantEventTarget(event.target))
+		{
+			configDraftDirtySinceLoad = true;
+			if (event.type === 'input')
+			{
+				scheduleConfigurationDraftPersist();
+			}
+			else
+			{
+				flushConfigurationDraftPersist();
+			}
+		}
+	};
+	document.addEventListener('input', draftEventHandler);
+	document.addEventListener('change', draftEventHandler);
+	window.addEventListener('beforeunload', flushConfigurationDraftPersist);
+	window.addEventListener('pagehide', flushConfigurationDraftPersist);
+	document.addEventListener('visibilitychange', function ()
+	{
+		if (document.visibilityState === 'hidden')
+		{
+			flushConfigurationDraftPersist();
+		}
+	});
+
+	document.addEventListener('focusin', function (event)
+	{
+		const target = event.target;
+		if (!target || !target.id)
+		{
+			return;
+		}
+
+		const pageNumMatch = target.id.match(/^(\d+)PageNum$/);
+		if (pageNumMatch)
+		{
+			const pageIndex = parseInt(pageNumMatch[1], 10);
+			if (!Number.isNaN(pageIndex) && pageIndex !== buttonPagePopupCurrentPage)
+			{
+				buttonPagePopupCurrentPage = pageIndex;
+			}
+			if (buttonPagePopupOverlayElement && buttonPagePopupOverlayElement.classList.contains('visible'))
+			{
+				renderButtonPagePopup();
+			}
+			return;
+		}
+
+		if (!buttonPagePopupOverlayElement || !buttonPagePopupOverlayElement.classList.contains('visible'))
+		{
+			return;
+		}
+
+		const match = target.id.match(/^(left|right)(\d+)(TopText|OnText|OffText|OnSVG|OffSVG|FrontLEDOnColor|WallLEDOnColor|FrontLEDOffColor|WallLEDOffColor)$/);
+		if (!match)
+		{
+			return;
+		}
+
+		const pageIndex = parseInt(match[2], 10);
+		const fieldSuffix = match[3];
+		if (/On(Text|SVG)|OnColor$/.test(fieldSuffix))
+		{
+			buttonPagePopupLedState = 'on';
+		}
+		else if (/Off(Text|SVG)|OffColor$/.test(fieldSuffix))
+		{
+			buttonPagePopupLedState = 'off';
+		}
+
+		if (pageIndex !== buttonPagePopupCurrentPage)
+		{
+			buttonPagePopupCurrentPage = pageIndex;
+		}
+
+		renderButtonPagePopup();
+	});
+
+	document.addEventListener('keydown', function (event)
+	{
+		if (event.key === 'Escape')
+		{
+			closeButtonFieldPopup();
+			closeDisplayFieldPopup();
+			closeButtonPagePopup();
+			closeDisplayPagePopup();
+		}
+	});
+
+	if (!window.buttonMainDiagnosticsErrorHandlersBound)
+	{
+		window.addEventListener('error', function (event)
+		{
+			console.error('[ButtonMainDiagnostics][window.error]', {
+				message: event.message,
+				filename: event.filename,
+				lineno: event.lineno,
+				colno: event.colno,
+				error: event.error,
+			});
+			updateButtonMainDiagnostics('window:error', { message: event.message, lineno: event.lineno, colno: event.colno });
+		});
+
+		window.addEventListener('unhandledrejection', function (event)
+		{
+			console.error('[ButtonMainDiagnostics][unhandledrejection]', {
+				reason: event.reason,
+			});
+			updateButtonMainDiagnostics('window:unhandledrejection', { reason: String(event.reason) });
+		});
+
+		window.buttonMainDiagnosticsErrorHandlersBound = true;
+	}
+
+	// Tell Homey we're ready to be displayed
+	Homey.ready();
+
+	configTypeChanged('settings');
+	updateButtonMainDiagnostics('onHomeyReady:complete');
+}
+
+function position_tooltip()
+{
+	// Get tooltip text in the hovered tooltip trigger.
+	var tooltip = this.querySelector(".tooltiptext");
+	if (!tooltip)
+	{
+		return;
+	}
+
+	const margin = 10;
+
+	// Reset to the baseline position before re-measuring.
+	tooltip.style.left = '-100%';
+
+	// Get tooltip coordinates and size
+	var tooltip_rect = tooltip.getBoundingClientRect();
+	let correction = 0;
+	const viewportWidth = document.documentElement.clientWidth;
+
+	if (tooltip_rect.right > (viewportWidth - margin))
+	{
+		correction -= (tooltip_rect.right - (viewportWidth - margin));
+	}
+
+	if ((tooltip_rect.left + correction) < margin)
+	{
+		correction += (margin - (tooltip_rect.left + correction));
+	}
+
+	if (correction !== 0)
+	{
+		tooltip.style.left = `calc(-100% + ${Math.round(correction)}px)`;
+	}
+}
+
+function suppressNativeTooltipTitles(tooltipTrigger)
+{
+	if (!tooltipTrigger || tooltipTrigger._suppressedTitleElements)
+	{
+		return;
+	}
+
+	const suppressed = [];
+	let currentElement = tooltipTrigger;
+
+	while (currentElement && currentElement !== document.body)
+	{
+		if (currentElement.hasAttribute && currentElement.hasAttribute('title'))
+		{
+			suppressed.push({
+				element: currentElement,
+				title: currentElement.getAttribute('title'),
+			});
+			currentElement.removeAttribute('title');
+		}
+
+		currentElement = currentElement.parentElement;
+	}
+
+	tooltipTrigger._suppressedTitleElements = suppressed;
+}
+
+function restoreNativeTooltipTitles(tooltipTrigger)
+{
+	if (!tooltipTrigger || !tooltipTrigger._suppressedTitleElements)
+	{
+		return;
+	}
+
+	tooltipTrigger._suppressedTitleElements.forEach((entry) =>
+	{
+		if (entry && entry.element && entry.title !== null)
+		{
+			entry.element.setAttribute('title', entry.title);
+		}
+	});
+
+	delete tooltipTrigger._suppressedTitleElements;
+}
+
+function setupFilterableSelects()
+{
+	enhanceFilterableSelects(document);
+
+	if (window.filterableSelectsObserver)
+	{
+		return;
+	}
+
+	window.filterableSelectsObserver = new MutationObserver((mutations) =>
+	{
+		mutations.forEach((mutation) =>
+		{
+			mutation.addedNodes.forEach((node) =>
+			{
+				if (node.nodeType !== Node.ELEMENT_NODE)
 				{
-					closeButtonFieldPopup();
-					closeDisplayFieldPopup();
-					closeButtonPagePopup();
-					closeDisplayPagePopup();
+					return;
 				}
-			});
 
-			if (!window.buttonMainDiagnosticsErrorHandlersBound)
+				enhanceFilterableSelects(node);
+			});
+		});
+	});
+
+	window.filterableSelectsObserver.observe(document.body, { childList: true, subtree: true });
+}
+
+function enhanceFilterableSelects(root)
+{
+	if (!root || typeof root.querySelectorAll !== 'function')
+	{
+		return;
+	}
+
+	const selects = root.matches && root.matches('select.homey-form-select')
+		? [root]
+		: Array.from(root.querySelectorAll('select.homey-form-select'));
+
+	selects.forEach((selectElement) =>
+	{
+		enhanceFilterableSelect(selectElement);
+	});
+}
+
+function enhanceFilterableSelect(selectElement)
+{
+	if (selectElement && (/FontSize$/i.test(selectElement.id || '') || /page$/i.test(selectElement.id || '')))
+	{
+		selectElement.dataset.filterableEnhanced = 'native';
+		return;
+	}
+
+	if (selectElement && (selectElement.id === 'configType' || selectElement.id === 'displayConfigurationNo' || selectElement.id === 'defaultBroker' || selectElement.id === 'sentip'))
+	{
+		selectElement.dataset.filterableEnhanced = 'native';
+		return;
+	}
+
+	if (selectElement && selectElement.closest && selectElement.closest('#panelConfig'))
+	{
+		selectElement.dataset.filterableEnhanced = 'native';
+		return;
+	}
+
+	if (!selectElement || selectElement.dataset.filterableEnhanced === 'true')
+	{
+		return;
+	}
+
+	const wrapper = document.createElement('div');
+	wrapper.className = 'filterable-select-wrapper';
+
+	const input = document.createElement('input');
+	input.type = 'text';
+	input.className = 'homey-form-input filterable-select-input';
+	input.placeholder = 'Filter and select...';
+	input.setAttribute('title', 'Type to filter this list');
+
+	const dropdown = document.createElement('div');
+	dropdown.className = 'filterable-select-dropdown';
+	dropdown.style.display = 'none';
+
+	const parent = selectElement.parentNode;
+	if (!parent)
+	{
+		return;
+	}
+
+	parent.insertBefore(wrapper, selectElement);
+	wrapper.appendChild(input);
+	wrapper.appendChild(dropdown);
+	wrapper.appendChild(selectElement);
+
+	selectElement.classList.add('filterable-select-native');
+
+	let activeIndex = -1;
+	let dropdownOpen = false;
+
+	const getSelectedText = () =>
+	{
+		if (selectElement.selectedIndex < 0 || !selectElement.options[selectElement.selectedIndex])
+		{
+			return '';
+		}
+
+		return selectElement.options[selectElement.selectedIndex].text || '';
+	};
+
+	const syncInputDisplay = () =>
+	{
+		const selectedText = getSelectedText();
+		if (!dropdownOpen)
+		{
+			input.value = selectedText;
+			input.placeholder = selectedText ? '' : 'Filter and select...';
+			input.classList.add('filterable-select-closed');
+		}
+	};
+
+	const positionDropdown = () =>
+	{
+		// Position as a viewport-fixed overlay so it never gets clipped by, or adds scroll height to,
+		// a scrollable ancestor (e.g. a popup body) - avoids a second, redundant scrollbar there.
+		const rect = input.getBoundingClientRect();
+		const viewportPadding = 8;
+		const preferredMaxHeight = 320;
+		const minUsableHeight = 120;
+		const spaceBelow = Math.max(0, window.innerHeight - rect.bottom - viewportPadding);
+		const spaceAbove = Math.max(0, rect.top - viewportPadding);
+		const openUpward = spaceBelow < minUsableHeight && spaceAbove > spaceBelow;
+		const naturalHeight = Math.min(preferredMaxHeight, Math.max(minUsableHeight, dropdown.scrollHeight || minUsableHeight));
+		const availableHeight = openUpward
+			? Math.max(minUsableHeight, Math.min(naturalHeight, spaceAbove))
+			: Math.max(minUsableHeight, Math.min(naturalHeight, spaceBelow || naturalHeight));
+
+		dropdown.style.maxHeight = `${availableHeight}px`;
+		dropdown.style.top = openUpward
+			? `${Math.max(viewportPadding, rect.top - availableHeight)}px`
+			: `${rect.bottom - 1}px`;
+		dropdown.style.left = `${rect.left}px`;
+		dropdown.style.width = `${rect.width}px`;
+	};
+
+	const openDropdown = () =>
+	{
+		dropdownOpen = true;
+		input.readOnly = false;
+		input.classList.remove('filterable-select-closed');
+		if (input.value === getSelectedText())
+		{
+			input.value = '';
+		}
+		input.placeholder = 'Type to filter...';
+		dropdown.style.display = 'block';
+		positionDropdown();
+	};
+
+	const closeDropdown = () =>
+	{
+		dropdown.style.display = 'none';
+		dropdownOpen = false;
+		activeIndex = -1;
+		input.readOnly = true;
+		syncInputDisplay();
+	};
+
+	const getFilteredOptions = () =>
+	{
+		const query = (input.value || '').trim().toLowerCase();
+		const allOptions = Array.from(selectElement.options);
+		if (query === '')
+		{
+			return allOptions;
+		}
+
+		return allOptions.filter((option) =>
+		{
+			const optionText = option.text || '';
+			const optionValue = option.value || '';
+			const haystack = `${optionText} ${optionValue}`.toLowerCase();
+			return haystack.includes(query);
+		});
+	};
+
+	const getDeviceClassIcon = (deviceClass) =>
+	{
+		switch ((deviceClass || '').toLowerCase())
+		{
+			case 'light': return '💡';
+			case 'socket': return '🔌';
+			case 'sensor': return '📟';
+			case 'thermostat': return '🌡️';
+			case 'speaker': return '🔊';
+			case 'camera': return '📷';
+			case 'lock': return '🔒';
+			case 'windowcoverings': return '🪟';
+			default: return '•';
+		}
+	};
+
+	const appendOptionLabel = (optionNode, option, query) =>
+	{
+		const labelNode = document.createElement('span');
+		labelNode.className = 'filterable-select-option-label';
+
+		if (!option.disabled)
+		{
+			const iconUrl = option.dataset.iconUrl || '';
+			if (iconUrl)
 			{
-				window.addEventListener('error', function (event)
+				const iconImage = document.createElement('img');
+				iconImage.className = 'filterable-select-option-icon';
+				iconImage.src = iconUrl;
+				iconImage.alt = '';
+				iconImage.loading = 'lazy';
+				iconImage.decoding = 'async';
+				iconImage.addEventListener('error', function ()
 				{
-					console.error('[ButtonMainDiagnostics][window.error]', {
-						message: event.message,
-						filename: event.filename,
-						lineno: event.lineno,
-						colno: event.colno,
-						error: event.error,
-					});
-					updateButtonMainDiagnostics('window:error', { message: event.message, lineno: event.lineno, colno: event.colno });
+					const iconFallback = document.createElement('span');
+					iconFallback.className = 'filterable-select-option-icon-fallback';
+					iconFallback.textContent = getDeviceClassIcon(option.dataset.deviceClass || '');
+					if (iconImage.parentNode)
+					{
+						iconImage.parentNode.replaceChild(iconFallback, iconImage);
+					}
 				});
-
-				window.addEventListener('unhandledrejection', function (event)
-				{
-					console.error('[ButtonMainDiagnostics][unhandledrejection]', {
-						reason: event.reason,
-					});
-					updateButtonMainDiagnostics('window:unhandledrejection', { reason: String(event.reason) });
-				});
-
-				window.buttonMainDiagnosticsErrorHandlersBound = true;
+				optionNode.appendChild(iconImage);
 			}
-
-			// Tell Homey we're ready to be displayed
-			Homey.ready();
-
-			configTypeChanged('settings');
-			updateButtonMainDiagnostics('onHomeyReady:complete');
-		}
-
-		function position_tooltip()
-		{
-			// Get tooltip text in the hovered tooltip trigger.
-			var tooltip = this.querySelector(".tooltiptext");
-			if (!tooltip)
+			else
 			{
-				return;
-			}
-
-			const margin = 10;
-
-			// Reset to the baseline position before re-measuring.
-			tooltip.style.left = '-100%';
-
-			// Get tooltip coordinates and size
-			var tooltip_rect = tooltip.getBoundingClientRect();
-			let correction = 0;
-			const viewportWidth = document.documentElement.clientWidth;
-
-			if (tooltip_rect.right > (viewportWidth - margin))
-			{
-				correction -= (tooltip_rect.right - (viewportWidth - margin));
-			}
-
-			if ((tooltip_rect.left + correction) < margin)
-			{
-				correction += (margin - (tooltip_rect.left + correction));
-			}
-
-			if (correction !== 0)
-			{
-				tooltip.style.left = `calc(-100% + ${Math.round(correction)}px)`;
+				const iconFallback = document.createElement('span');
+				iconFallback.className = 'filterable-select-option-icon-fallback';
+				iconFallback.textContent = getDeviceClassIcon(option.dataset.deviceClass || '');
+				optionNode.appendChild(iconFallback);
 			}
 		}
 
-		function suppressNativeTooltipTitles(tooltipTrigger)
+		appendHighlightedText(labelNode, option.text || '', query);
+		optionNode.appendChild(labelNode);
+	};
+
+	const renderDropdown = () =>
+	{
+		dropdown.innerHTML = '';
+		const query = (input.value || '').trim().toLowerCase();
+		const filteredOptions = getFilteredOptions();
+
+		if (filteredOptions.length === 0)
 		{
-			if (!tooltipTrigger || tooltipTrigger._suppressedTitleElements)
-			{
-				return;
-			}
-
-			const suppressed = [];
-			let currentElement = tooltipTrigger;
-
-			while (currentElement && currentElement !== document.body)
-			{
-				if (currentElement.hasAttribute && currentElement.hasAttribute('title'))
-				{
-					suppressed.push({
-						element: currentElement,
-						title: currentElement.getAttribute('title'),
-					});
-					currentElement.removeAttribute('title');
-				}
-
-				currentElement = currentElement.parentElement;
-			}
-
-			tooltipTrigger._suppressedTitleElements = suppressed;
+			const noMatch = document.createElement('div');
+			noMatch.className = 'filterable-select-dropdown-option filterable-select-disabled';
+			noMatch.textContent = Homey.__("settings.noMatches");
+			dropdown.appendChild(noMatch);
+			activeIndex = -1;
+			return;
 		}
 
-		function restoreNativeTooltipTitles(tooltipTrigger)
+		filteredOptions.forEach((option, index) =>
 		{
-			if (!tooltipTrigger || !tooltipTrigger._suppressedTitleElements)
+			const optionNode = document.createElement('div');
+			optionNode.className = 'filterable-select-dropdown-option';
+			if (option.disabled)
 			{
-				return;
+				optionNode.classList.add('filterable-select-disabled');
 			}
 
-			tooltipTrigger._suppressedTitleElements.forEach((entry) =>
+			if (option.value === selectElement.value)
 			{
-				if (entry && entry.element && entry.title !== null)
+				optionNode.classList.add('filterable-select-selected');
+			}
+
+			if (index === activeIndex)
+			{
+				optionNode.classList.add('filterable-select-active');
+			}
+
+			appendOptionLabel(optionNode, option, query);
+			optionNode.addEventListener('mousedown', function (event)
+			{
+				event.preventDefault();
+				if (option.disabled)
 				{
-					entry.element.setAttribute('title', entry.title);
+					return;
 				}
+
+				selectElement.value = option.value;
+				selectElement.dispatchEvent(new Event('change', { bubbles: true }));
+				closeDropdown();
 			});
 
-			delete tooltipTrigger._suppressedTitleElements;
+			dropdown.appendChild(optionNode);
+		});
+	};
+
+	const appendHighlightedText = (container, text, query) =>
+	{
+		if (!query)
+		{
+			container.textContent = text;
+			return;
 		}
 
-		function setupFilterableSelects()
+		let start = 0;
+		const loweredText = text.toLowerCase();
+		let matchIndex = loweredText.indexOf(query, start);
+
+		if (matchIndex < 0)
 		{
-			enhanceFilterableSelects(document);
-
-			if (window.filterableSelectsObserver)
-			{
-				return;
-			}
-
-			window.filterableSelectsObserver = new MutationObserver((mutations) =>
-			{
-				mutations.forEach((mutation) =>
-				{
-					mutation.addedNodes.forEach((node) =>
-					{
-						if (node.nodeType !== Node.ELEMENT_NODE)
-						{
-							return;
-						}
-
-						enhanceFilterableSelects(node);
-					});
-				});
-			});
-
-			window.filterableSelectsObserver.observe(document.body, { childList: true, subtree: true });
+			container.textContent = text;
+			return;
 		}
 
-		function enhanceFilterableSelects(root)
+		while (matchIndex >= 0)
 		{
-			if (!root || typeof root.querySelectorAll !== 'function')
+			if (matchIndex > start)
 			{
-				return;
+				container.appendChild(document.createTextNode(text.substring(start, matchIndex)));
 			}
 
-			const selects = root.matches && root.matches('select.homey-form-select')
-				? [root]
-				: Array.from(root.querySelectorAll('select.homey-form-select'));
+			const matchNode = document.createElement('span');
+			matchNode.className = 'filterable-select-match';
+			matchNode.textContent = text.substring(matchIndex, matchIndex + query.length);
+			container.appendChild(matchNode);
 
-			selects.forEach((selectElement) =>
-			{
-				enhanceFilterableSelect(selectElement);
-			});
+			start = matchIndex + query.length;
+			matchIndex = loweredText.indexOf(query, start);
 		}
 
-		function enhanceFilterableSelect(selectElement)
+		if (start < text.length)
 		{
-			if (selectElement && (/FontSize$/i.test(selectElement.id || '') || /page$/i.test(selectElement.id || '')))
-			{
-				selectElement.dataset.filterableEnhanced = 'native';
-				return;
-			}
+			container.appendChild(document.createTextNode(text.substring(start)));
+		}
+	};
 
-			if (selectElement && (selectElement.id === 'configType' || selectElement.id === 'displayConfigurationNo' || selectElement.id === 'defaultBroker' || selectElement.id === 'sentip'))
-			{
-				selectElement.dataset.filterableEnhanced = 'native';
-				return;
-			}
+	const setActiveIndex = (newIndex) =>
+	{
+		const filteredOptions = getFilteredOptions().filter((option) => !option.disabled);
+		if (filteredOptions.length === 0)
+		{
+			activeIndex = -1;
+			renderDropdown();
+			return;
+		}
 
-			if (selectElement && selectElement.closest && selectElement.closest('#panelConfig'))
-			{
-				selectElement.dataset.filterableEnhanced = 'native';
-				return;
-			}
+		if (newIndex < 0)
+		{
+			activeIndex = filteredOptions.length - 1;
+		}
+		else if (newIndex >= filteredOptions.length)
+		{
+			activeIndex = 0;
+		}
+		else
+		{
+			activeIndex = newIndex;
+		}
 
-			if (!selectElement || selectElement.dataset.filterableEnhanced === 'true')
-			{
-				return;
-			}
+		renderDropdown();
 
-			const wrapper = document.createElement('div');
-			wrapper.className = 'filterable-select-wrapper';
+		const nodes = dropdown.querySelectorAll('.filterable-select-dropdown-option:not(.filterable-select-disabled)');
+		if (nodes[activeIndex])
+		{
+			nodes[activeIndex].scrollIntoView({ block: 'nearest' });
+		}
+	};
 
-			const input = document.createElement('input');
-			input.type = 'text';
-			input.className = 'homey-form-input filterable-select-input';
-			input.placeholder = 'Filter and select...';
-			input.setAttribute('title', 'Type to filter this list');
-
-			const dropdown = document.createElement('div');
-			dropdown.className = 'filterable-select-dropdown';
-			dropdown.style.display = 'none';
-
-			const parent = selectElement.parentNode;
-			if (!parent)
-			{
-				return;
-			}
-
-			parent.insertBefore(wrapper, selectElement);
-			wrapper.appendChild(input);
-			wrapper.appendChild(dropdown);
-			wrapper.appendChild(selectElement);
-
-			selectElement.classList.add('filterable-select-native');
-
-			let activeIndex = -1;
-			let dropdownOpen = false;
-
-			const getSelectedText = () =>
-			{
-				if (selectElement.selectedIndex < 0 || !selectElement.options[selectElement.selectedIndex])
-				{
-					return '';
-				}
-
-				return selectElement.options[selectElement.selectedIndex].text || '';
-			};
-
-			const syncInputDisplay = () =>
-			{
-				const selectedText = getSelectedText();
-				if (!dropdownOpen)
-				{
-					input.value = selectedText;
-					input.placeholder = selectedText ? '' : 'Filter and select...';
-					input.classList.add('filterable-select-closed');
-				}
-			};
-
-			const positionDropdown = () =>
-			{
-				// Position as a viewport-fixed overlay so it never gets clipped by, or adds scroll height to,
-				// a scrollable ancestor (e.g. a popup body) - avoids a second, redundant scrollbar there.
-				const rect = input.getBoundingClientRect();
-				const viewportPadding = 8;
-				const preferredMaxHeight = 320;
-				const minUsableHeight = 120;
-				const spaceBelow = Math.max(0, window.innerHeight - rect.bottom - viewportPadding);
-				const spaceAbove = Math.max(0, rect.top - viewportPadding);
-				const openUpward = spaceBelow < minUsableHeight && spaceAbove > spaceBelow;
-				const naturalHeight = Math.min(preferredMaxHeight, Math.max(minUsableHeight, dropdown.scrollHeight || minUsableHeight));
-				const availableHeight = openUpward
-					? Math.max(minUsableHeight, Math.min(naturalHeight, spaceAbove))
-					: Math.max(minUsableHeight, Math.min(naturalHeight, spaceBelow || naturalHeight));
-
-				dropdown.style.maxHeight = `${availableHeight}px`;
-				dropdown.style.top = openUpward
-					? `${Math.max(viewportPadding, rect.top - availableHeight)}px`
-					: `${rect.bottom - 1}px`;
-				dropdown.style.left = `${rect.left}px`;
-				dropdown.style.width = `${rect.width}px`;
-			};
-
-			const openDropdown = () =>
-			{
-				dropdownOpen = true;
-				input.readOnly = false;
-				input.classList.remove('filterable-select-closed');
-				if (input.value === getSelectedText())
-				{
-					input.value = '';
-				}
-				input.placeholder = 'Type to filter...';
-				dropdown.style.display = 'block';
-				positionDropdown();
-			};
-
-			const closeDropdown = () =>
-			{
-				dropdown.style.display = 'none';
-				dropdownOpen = false;
-				activeIndex = -1;
-				input.readOnly = true;
-				syncInputDisplay();
-			};
-
-			const getFilteredOptions = () =>
-			{
-				const query = (input.value || '').trim().toLowerCase();
-				const allOptions = Array.from(selectElement.options);
-				if (query === '')
-				{
-					return allOptions;
-				}
-
-				return allOptions.filter((option) =>
-				{
-					const optionText = option.text || '';
-					const optionValue = option.value || '';
-					const haystack = `${optionText} ${optionValue}`.toLowerCase();
-					return haystack.includes(query);
-				});
-			};
-
-			const getDeviceClassIcon = (deviceClass) =>
-			{
-				switch ((deviceClass || '').toLowerCase())
-				{
-					case 'light': return '💡';
-					case 'socket': return '🔌';
-					case 'sensor': return '📟';
-					case 'thermostat': return '🌡️';
-					case 'speaker': return '🔊';
-					case 'camera': return '📷';
-					case 'lock': return '🔒';
-					case 'windowcoverings': return '🪟';
-					default: return '•';
-				}
-			};
-
-			const appendOptionLabel = (optionNode, option, query) =>
-			{
-				const labelNode = document.createElement('span');
-				labelNode.className = 'filterable-select-option-label';
-
-				if (!option.disabled)
-				{
-					const iconUrl = option.dataset.iconUrl || '';
-					if (iconUrl)
-					{
-						const iconImage = document.createElement('img');
-						iconImage.className = 'filterable-select-option-icon';
-						iconImage.src = iconUrl;
-						iconImage.alt = '';
-						iconImage.loading = 'lazy';
-						iconImage.decoding = 'async';
-						iconImage.addEventListener('error', function ()
-						{
-							const iconFallback = document.createElement('span');
-							iconFallback.className = 'filterable-select-option-icon-fallback';
-							iconFallback.textContent = getDeviceClassIcon(option.dataset.deviceClass || '');
-							if (iconImage.parentNode)
-							{
-								iconImage.parentNode.replaceChild(iconFallback, iconImage);
-							}
-						});
-						optionNode.appendChild(iconImage);
-					}
-					else
-					{
-						const iconFallback = document.createElement('span');
-						iconFallback.className = 'filterable-select-option-icon-fallback';
-						iconFallback.textContent = getDeviceClassIcon(option.dataset.deviceClass || '');
-						optionNode.appendChild(iconFallback);
-					}
-				}
-
-				appendHighlightedText(labelNode, option.text || '', query);
-				optionNode.appendChild(labelNode);
-			};
-
-			const renderDropdown = () =>
-			{
-				dropdown.innerHTML = '';
-				const query = (input.value || '').trim().toLowerCase();
-				const filteredOptions = getFilteredOptions();
-
-				if (filteredOptions.length === 0)
-				{
-					const noMatch = document.createElement('div');
-					noMatch.className = 'filterable-select-dropdown-option filterable-select-disabled';
-					noMatch.textContent = Homey.__("settings.noMatches");
-					dropdown.appendChild(noMatch);
-					activeIndex = -1;
-					return;
-				}
-
-				filteredOptions.forEach((option, index) =>
-				{
-					const optionNode = document.createElement('div');
-					optionNode.className = 'filterable-select-dropdown-option';
-					if (option.disabled)
-					{
-						optionNode.classList.add('filterable-select-disabled');
-					}
-
-					if (option.value === selectElement.value)
-					{
-						optionNode.classList.add('filterable-select-selected');
-					}
-
-					if (index === activeIndex)
-					{
-						optionNode.classList.add('filterable-select-active');
-					}
-
-					appendOptionLabel(optionNode, option, query);
-					optionNode.addEventListener('mousedown', function (event)
-					{
-						event.preventDefault();
-						if (option.disabled)
-						{
-							return;
-						}
-
-						selectElement.value = option.value;
-						selectElement.dispatchEvent(new Event('change', { bubbles: true }));
-						closeDropdown();
-					});
-
-					dropdown.appendChild(optionNode);
-				});
-			};
-
-			const appendHighlightedText = (container, text, query) =>
-			{
-				if (!query)
-				{
-					container.textContent = text;
-					return;
-				}
-
-				let start = 0;
-				const loweredText = text.toLowerCase();
-				let matchIndex = loweredText.indexOf(query, start);
-
-				if (matchIndex < 0)
-				{
-					container.textContent = text;
-					return;
-				}
-
-				while (matchIndex >= 0)
-				{
-					if (matchIndex > start)
-					{
-						container.appendChild(document.createTextNode(text.substring(start, matchIndex)));
-					}
-
-					const matchNode = document.createElement('span');
-					matchNode.className = 'filterable-select-match';
-					matchNode.textContent = text.substring(matchIndex, matchIndex + query.length);
-					container.appendChild(matchNode);
-
-					start = matchIndex + query.length;
-					matchIndex = loweredText.indexOf(query, start);
-				}
-
-				if (start < text.length)
-				{
-					container.appendChild(document.createTextNode(text.substring(start)));
-				}
-			};
-
-			const setActiveIndex = (newIndex) =>
-			{
-				const filteredOptions = getFilteredOptions().filter((option) => !option.disabled);
-				if (filteredOptions.length === 0)
-				{
-					activeIndex = -1;
-					renderDropdown();
-					return;
-				}
-
-				if (newIndex < 0)
-				{
-					activeIndex = filteredOptions.length - 1;
-				}
-				else if (newIndex >= filteredOptions.length)
-				{
-					activeIndex = 0;
-				}
-				else
-				{
-					activeIndex = newIndex;
-				}
-
-				renderDropdown();
-
-				const nodes = dropdown.querySelectorAll('.filterable-select-dropdown-option:not(.filterable-select-disabled)');
-				if (nodes[activeIndex])
-				{
-					nodes[activeIndex].scrollIntoView({ block: 'nearest' });
-				}
-			};
-
-			input.addEventListener('focus', function ()
-			{
-				if (!dropdownOpen)
-				{
-					openDropdown();
-					renderDropdown();
-				}
-			});
-
-			input.addEventListener('click', function ()
-			{
-				openDropdown();
-				renderDropdown();
-			});
-
-			input.addEventListener('input', function ()
-			{
-				if (!dropdownOpen)
-				{
-					openDropdown();
-				}
-				activeIndex = -1;
-				renderDropdown();
-			});
-
-			input.addEventListener('keydown', function (event)
-			{
-				if (event.key === 'ArrowDown')
-				{
-					event.preventDefault();
-					openDropdown();
-					setActiveIndex(activeIndex + 1);
-					return;
-				}
-
-				if (event.key === 'ArrowUp')
-				{
-					event.preventDefault();
-					openDropdown();
-					setActiveIndex(activeIndex - 1);
-					return;
-				}
-
-				if (event.key === 'Enter')
-				{
-					event.preventDefault();
-					const filteredOptions = getFilteredOptions().filter((option) => !option.disabled);
-					if (filteredOptions.length === 0)
-					{
-						return;
-					}
-
-					const selection = filteredOptions[(activeIndex >= 0) ? activeIndex : 0];
-					selectElement.value = selection.value;
-					selectElement.dispatchEvent(new Event('change', { bubbles: true }));
-					closeDropdown();
-					return;
-				}
-
-				if (event.key === 'Escape')
-				{
-					event.preventDefault();
-					closeDropdown();
-					input.blur();
-				}
-			});
-
-			// Keep the fixed-position dropdown aligned with its input if the page or a scrollable
-			// ancestor (e.g. a popup body) scrolls, or the window resizes, while it's open.
-			window.addEventListener('scroll', function ()
-			{
-				if (dropdownOpen)
-				{
-					positionDropdown();
-				}
-			}, true);
-			window.addEventListener('resize', function ()
-			{
-				if (dropdownOpen)
-				{
-					positionDropdown();
-				}
-			});
-
-			wrapper.addEventListener('focusout', function ()
-			{
-				setTimeout(() =>
-				{
-					if (!wrapper.contains(document.activeElement))
-					{
-						closeDropdown();
-					}
-				}, 0);
-			});
-
-			selectElement.addEventListener('change', function ()
-			{
-				syncInputDisplay();
-				renderDropdown();
-			});
-
-			const observer = new MutationObserver(() =>
-			{
-				syncInputDisplay();
-				renderDropdown();
-			});
-
-			observer.observe(selectElement, { childList: true, subtree: true, characterData: true });
-			selectElement.dataset.filterableEnhanced = 'true';
-			selectElement._filterObserver = observer;
-			input.readOnly = true;
-
-			syncInputDisplay();
+	input.addEventListener('focus', function ()
+	{
+		if (!dropdownOpen)
+		{
+			openDropdown();
 			renderDropdown();
 		}
+	});
 
-		function fillConfigListElement(element, txt, configurations, NumConfigurations)
+	input.addEventListener('click', function ()
+	{
+		openDropdown();
+		renderDropdown();
+	});
+
+	input.addEventListener('input', function ()
+	{
+		if (!dropdownOpen)
 		{
-			//fill the configuration list with configuration number / names
-			element.innerHTML = "";
+			openDropdown();
+		}
+		activeIndex = -1;
+		renderDropdown();
+	});
 
-			var option = document.createElement("option");
-			for (let i = 0; i < NumConfigurations; i++)
+	input.addEventListener('keydown', function (event)
+	{
+		if (event.key === 'ArrowDown')
+		{
+			event.preventDefault();
+			openDropdown();
+			setActiveIndex(activeIndex + 1);
+			return;
+		}
+
+		if (event.key === 'ArrowUp')
+		{
+			event.preventDefault();
+			openDropdown();
+			setActiveIndex(activeIndex - 1);
+			return;
+		}
+
+		if (event.key === 'Enter')
+		{
+			event.preventDefault();
+			const filteredOptions = getFilteredOptions().filter((option) => !option.disabled);
+			if (filteredOptions.length === 0)
 			{
-				let config = configurations[i];
-				let configName = '';
-				if (Array.isArray(config))
-				{
-					configName = (config[0] && config[0].name) ? config[0].name : '';
-				}
-				else
-				{
-					configName = (config && config.name) ? config.name : '';
-				}
+				return;
+			}
 
+			const selection = filteredOptions[(activeIndex >= 0) ? activeIndex : 0];
+			selectElement.value = selection.value;
+			selectElement.dispatchEvent(new Event('change', { bubbles: true }));
+			closeDropdown();
+			return;
+		}
+
+		if (event.key === 'Escape')
+		{
+			event.preventDefault();
+			closeDropdown();
+			input.blur();
+		}
+	});
+
+	// Keep the fixed-position dropdown aligned with its input if the page or a scrollable
+	// ancestor (e.g. a popup body) scrolls, or the window resizes, while it's open.
+	window.addEventListener('scroll', function ()
+	{
+		if (dropdownOpen)
+		{
+			positionDropdown();
+		}
+	}, true);
+	window.addEventListener('resize', function ()
+	{
+		if (dropdownOpen)
+		{
+			positionDropdown();
+		}
+	});
+
+	wrapper.addEventListener('focusout', function ()
+	{
+		setTimeout(() =>
+		{
+			if (!wrapper.contains(document.activeElement))
+			{
+				closeDropdown();
+			}
+		}, 0);
+	});
+
+	selectElement.addEventListener('change', function ()
+	{
+		syncInputDisplay();
+		renderDropdown();
+	});
+
+	const observer = new MutationObserver(() =>
+	{
+		syncInputDisplay();
+		renderDropdown();
+	});
+
+	observer.observe(selectElement, { childList: true, subtree: true, characterData: true });
+	selectElement.dataset.filterableEnhanced = 'true';
+	selectElement._filterObserver = observer;
+	input.readOnly = true;
+
+	syncInputDisplay();
+	renderDropdown();
+}
+
+function fillConfigListElement(element, txt, configurations, NumConfigurations)
+{
+	//fill the configuration list with configuration number / names
+	element.innerHTML = "";
+
+	var option = document.createElement("option");
+	for (let i = 0; i < NumConfigurations; i++)
+	{
+		let config = configurations[i];
+		let configName = '';
+		if (Array.isArray(config))
+		{
+			configName = (config[0] && config[0].name) ? config[0].name : '';
+		}
+		else
+		{
+			configName = (config && config.name) ? config.name : '';
+		}
+
+		var option = document.createElement("option");
+		option.value = i;
+		option.text = `${txt} ${i + 1} - ${configName}`;
+		element.add(option);
+	}
+}
+
+function fillDefaultBrokerList()
+{
+	if (brokerItemsFetched)
+	{
+		//fill the broker lists with brokers
+		defaultBrokerElement.innerHTML = "";
+		for (let i = 0; i < localBrokerItems.length; i++)
+		{
+			const brokerItem = localBrokerItems[i];
+			if (brokerItem.enabled)
+			{
 				var option = document.createElement("option");
-				option.value = i;
-				option.text = `${txt} ${i + 1} - ${configName}`;
-				element.add(option);
+				option.value = brokerItem.brokerid;
+				option.text = brokerItem.brokerid;
+				defaultBrokerElement.add(option);
 			}
 		}
+	}
+}
 
-		function fillDefaultBrokerList()
+function onButtonPageChange(element, side)
+{
+
+}
+
+function onButtonLabelChange(element, side)
+{
+	document.getElementById(`button${side}Legend`).innerHTML = `<b><em>${Homey.__(`settings.${side}Panel`)}</em></b> - ${element.value}`;
+}
+
+function collectButtonMainDiagnostics(source, extra = {})
+{
+	const rawConfig = localButtonConfigurations[currentButtonConfigurationNo];
+	const pageSections = Array.from(document.querySelectorAll('.button-main-page'));
+	const activeIndex = pageSections.findIndex((section) => section.classList.contains('active'));
+	const activeSection = (activeIndex >= 0) ? pageSections[activeIndex] : null;
+	const activeGroup = activeSection ? activeSection.querySelector('.horizontalgroup') : null;
+	const buttonItemsSection = document.getElementById('buttonItemsSection');
+	const panelConfigTab = document.getElementById('panelConfig');
+	const visibleCount = pageSections.filter((section) => section.style.display !== 'none').length;
+	const getDisplayValue = function (element)
+	{
+		if (!element)
 		{
-			if (brokerItemsFetched)
-			{
-				//fill the broker lists with brokers
-				defaultBrokerElement.innerHTML = "";
-				for (let i = 0; i < localBrokerItems.length; i++)
-				{
-					const brokerItem = localBrokerItems[i];
-					if (brokerItem.enabled)
-					{
-						var option = document.createElement("option");
-						option.value = brokerItem.brokerid;
-						option.text = brokerItem.brokerid;
-						defaultBrokerElement.add(option);
-					}
-				}
-			}
+			return '(missing)';
 		}
 
-		function onButtonPageChange(element, side)
-		{
+		return {
+			inline: element.style.display || '(css)',
+			computed: window.getComputedStyle(element).display,
+		};
+	};
 
+	return {
+		source,
+		configIndex: Number(currentButtonConfigurationNo),
+		rawType: Array.isArray(rawConfig) ? 'array' : typeof rawConfig,
+		rawLength: Array.isArray(rawConfig) ? rawConfig.length : (rawConfig ? 1 : 0),
+		mainPageCurrent: Number(buttonMainCurrentPage),
+		mainPageActiveIndex: activeIndex,
+		mainPageSectionCount: pageSections.length,
+		mainPageVisibleCount: visibleCount,
+		mainPageActiveHeight: activeSection ? activeSection.offsetHeight : -1,
+		mainPageActiveChildCount: activeSection ? activeSection.childElementCount : -1,
+		mainPageActiveGroupHeight: activeGroup ? activeGroup.offsetHeight : -1,
+		mainPageActiveDisplay: getDisplayValue(activeSection),
+		buttonItemsSectionHeight: buttonItemsSection ? buttonItemsSection.offsetHeight : -1,
+		buttonItemsSectionDisplay: getDisplayValue(buttonItemsSection),
+		panelConfigTabHeight: panelConfigTab ? panelConfigTab.offsetHeight : -1,
+		panelConfigTabDisplay: getDisplayValue(panelConfigTab),
+		popupPageCurrent: Number(buttonPagePopupCurrentPage),
+		popupVisible: Boolean(buttonPagePopupOverlayElement && buttonPagePopupOverlayElement.classList.contains('visible')),
+		fieldPopupVisible: Boolean(buttonFieldPopupOverlayElement && buttonFieldPopupOverlayElement.classList.contains('visible')),
+		...extra,
+	};
+}
+
+function updateButtonMainDiagnostics(source, extra = {})
+{
+	if (!BUTTON_MAIN_DIAGNOSTICS_ENABLED)
+	{
+		return;
+	}
+
+	const diagnostics = collectButtonMainDiagnostics(source, extra);
+	console.log('[ButtonMainDiagnostics]', diagnostics);
+
+}
+
+function hidePopupManagedFieldsForSection(side, page)
+{
+	const hideById = function (id)
+	{
+		const element = document.getElementById(id);
+		if (element)
+		{
+			element.style.display = 'none';
+		}
+	};
+
+	const hideLabelFor = function (id)
+	{
+		const section = document.getElementById(`${side}${page}PanelSection`);
+		if (!section)
+		{
+			return;
 		}
 
-		function onButtonLabelChange(element, side)
+		const label = section.querySelector(`label[for="${id}"]`);
+		if (label)
 		{
-			document.getElementById(`button${side}Legend`).innerHTML = `<b><em>${Homey.__(`settings.${side}Panel`)}</em></b> - ${element.value}`;
+			label.style.display = 'none';
 		}
+	};
 
-		function collectButtonMainDiagnostics(source, extra = {})
+	hideById(`${side}${page}Device`);
+	hideLabelFor(`${side}${page}Device`);
+
+	hideById(`${side}${page}CapabilityDiv`);
+
+	hideById(`${side}${page}TopText`);
+	hideLabelFor(`${side}${page}TopText`);
+
+	hideById(`${side}${page}OnTextDiv`);
+	hideById(`${side}${page}OffText`);
+	hideById(`${side}${page}OffTextLabel`);
+
+	hideById(`${side}${page}FrontLEDOnColor`);
+	hideById(`${side}${page}FrontLEDOnColorLabel`);
+	hideById(`${side}${page}WallLEDOnColor`);
+	hideById(`${side}${page}WallLEDOnColorLabel`);
+	hideById(`${side}${page}FrontLEDOffColor`);
+	hideById(`${side}${page}FrontLEDOffColorLabel`);
+	hideById(`${side}${page}WallLEDOffColor`);
+	hideById(`${side}${page}WallLEDOffColorLabel`);
+
+	hideById(`${side}${page}OnSVG`);
+	hideLabelFor(`${side}${page}OnSVG`);
+	hideById(`${side}${page}OnSVGPreview`);
+	const onSvgElement = document.getElementById(`${side}${page}OnSVG`);
+	if (onSvgElement)
+	{
+		const onSvgWrapper = onSvgElement.closest('.svg-editor-wrapper');
+		if (onSvgWrapper)
 		{
-			const rawConfig = localButtonConfigurations[currentButtonConfigurationNo];
-			const pageSections = Array.from(document.querySelectorAll('.button-main-page'));
-			const activeIndex = pageSections.findIndex((section) => section.classList.contains('active'));
-			const activeSection = (activeIndex >= 0) ? pageSections[activeIndex] : null;
-			const activeGroup = activeSection ? activeSection.querySelector('.horizontalgroup') : null;
-			const buttonItemsSection = document.getElementById('buttonItemsSection');
-			const panelConfigTab = document.getElementById('panelConfig');
-			const visibleCount = pageSections.filter((section) => section.style.display !== 'none').length;
-			const getDisplayValue = function (element)
-			{
-				if (!element)
-				{
-					return '(missing)';
-				}
-
-				return {
-					inline: element.style.display || '(css)',
-					computed: window.getComputedStyle(element).display,
-				};
-			};
-
-			return {
-				source,
-				configIndex: Number(currentButtonConfigurationNo),
-				rawType: Array.isArray(rawConfig) ? 'array' : typeof rawConfig,
-				rawLength: Array.isArray(rawConfig) ? rawConfig.length : (rawConfig ? 1 : 0),
-				mainPageCurrent: Number(buttonMainCurrentPage),
-				mainPageActiveIndex: activeIndex,
-				mainPageSectionCount: pageSections.length,
-				mainPageVisibleCount: visibleCount,
-				mainPageActiveHeight: activeSection ? activeSection.offsetHeight : -1,
-				mainPageActiveChildCount: activeSection ? activeSection.childElementCount : -1,
-				mainPageActiveGroupHeight: activeGroup ? activeGroup.offsetHeight : -1,
-				mainPageActiveDisplay: getDisplayValue(activeSection),
-				buttonItemsSectionHeight: buttonItemsSection ? buttonItemsSection.offsetHeight : -1,
-				buttonItemsSectionDisplay: getDisplayValue(buttonItemsSection),
-				panelConfigTabHeight: panelConfigTab ? panelConfigTab.offsetHeight : -1,
-				panelConfigTabDisplay: getDisplayValue(panelConfigTab),
-				popupPageCurrent: Number(buttonPagePopupCurrentPage),
-				popupVisible: Boolean(buttonPagePopupOverlayElement && buttonPagePopupOverlayElement.classList.contains('visible')),
-				fieldPopupVisible: Boolean(buttonFieldPopupOverlayElement && buttonFieldPopupOverlayElement.classList.contains('visible')),
-				...extra,
-			};
+			onSvgWrapper.style.display = 'none';
 		}
+	}
 
-		function updateButtonMainDiagnostics(source, extra = {})
+	hideById(`${side}${page}OffSVG`);
+	hideLabelFor(`${side}${page}OffSVG`);
+	hideById(`${side}${page}OffSVGPreview`);
+	const offSvgElement = document.getElementById(`${side}${page}OffSVG`);
+	if (offSvgElement)
+	{
+		const offSvgWrapper = offSvgElement.closest('.svg-editor-wrapper');
+		if (offSvgWrapper)
 		{
-			if (!BUTTON_MAIN_DIAGNOSTICS_ENABLED)
-			{
-				return;
-			}
-
-			const diagnostics = collectButtonMainDiagnostics(source, extra);
-			console.log('[ButtonMainDiagnostics]', diagnostics);
-
+			offSvgWrapper.style.display = 'none';
 		}
+	}
+}
 
-		function hidePopupManagedFieldsForSection(side, page)
-		{
-			const hideById = function (id)
-			{
-				const element = document.getElementById(id);
-				if (element)
-				{
-					element.style.display = 'none';
-				}
-			};
+function hidePopupManagedFieldsForPage(page)
+{
+	hidePopupManagedFieldsForSection('left', page);
+	hidePopupManagedFieldsForSection('right', page);
+}
 
-			const hideLabelFor = function (id)
-			{
-				const section = document.getElementById(`${side}${page}PanelSection`);
-				if (!section)
-				{
-					return;
-				}
+function updateButtonAdvancedToggleState(side, page)
+{
+	const detailElement = document.getElementById(`${side}${page}Details`);
+	const toggleElement = document.getElementById(`${side}${page}AdvancedToggle`);
+	if (!detailElement || !toggleElement)
+	{
+		return;
+	}
 
-				const label = section.querySelector(`label[for="${id}"]`);
-				if (label)
-				{
-					label.style.display = 'none';
-				}
-			};
+	toggleElement.textContent = detailElement.open ? 'Hide Advanced' : 'Advanced';
+	toggleElement.setAttribute('aria-expanded', detailElement.open ? 'true' : 'false');
+}
 
-			hideById(`${side}${page}Device`);
-			hideLabelFor(`${side}${page}Device`);
+function updateButtonInlineSettingsToggleState(page)
+{
+	const detailElement = document.getElementById(`${page}ButtonInlineSettingsDetails`);
+	const toggleElement = document.getElementById(`${page}ButtonInlineSettingsToggle`);
+	if (!detailElement || !toggleElement)
+	{
+		return;
+	}
 
-			hideById(`${side}${page}CapabilityDiv`);
+	toggleElement.classList.toggle('is-open', detailElement.open);
+	toggleElement.title = detailElement.open ? Homey.__("settings.collapseAutoRepeatBrokerSettings") : Homey.__("settings.expandAutoRepeatBrokerSettings");
+	toggleElement.setAttribute('aria-label', toggleElement.title);
+	toggleElement.setAttribute('aria-expanded', detailElement.open ? 'true' : 'false');
+}
 
-			hideById(`${side}${page}TopText`);
-			hideLabelFor(`${side}${page}TopText`);
+function toggleButtonInlineSettingsSection(page)
+{
+	const detailElement = document.getElementById(`${page}ButtonInlineSettingsDetails`);
+	if (!detailElement)
+	{
+		return;
+	}
 
-			hideById(`${side}${page}OnTextDiv`);
-			hideById(`${side}${page}OffText`);
-			hideById(`${side}${page}OffTextLabel`);
+	detailElement.open = !detailElement.open;
+	if (detailElement.open)
+	{
+		scrollToTop(detailElement);
+	}
 
-			hideById(`${side}${page}FrontLEDOnColor`);
-			hideById(`${side}${page}FrontLEDOnColorLabel`);
-			hideById(`${side}${page}WallLEDOnColor`);
-			hideById(`${side}${page}WallLEDOnColorLabel`);
-			hideById(`${side}${page}FrontLEDOffColor`);
-			hideById(`${side}${page}FrontLEDOffColorLabel`);
-			hideById(`${side}${page}WallLEDOffColor`);
-			hideById(`${side}${page}WallLEDOffColorLabel`);
+	updateButtonInlineSettingsToggleState(page);
+}
 
-			hideById(`${side}${page}OnSVG`);
-			hideLabelFor(`${side}${page}OnSVG`);
-			hideById(`${side}${page}OnSVGPreview`);
-			const onSvgElement = document.getElementById(`${side}${page}OnSVG`);
-			if (onSvgElement)
-			{
-				const onSvgWrapper = onSvgElement.closest('.svg-editor-wrapper');
-				if (onSvgWrapper)
-				{
-					onSvgWrapper.style.display = 'none';
-				}
-			}
+function collapseAllDetails(root = document)
+{
+	if (!root || typeof root.querySelectorAll !== 'function')
+	{
+		return;
+	}
 
-			hideById(`${side}${page}OffSVG`);
-			hideLabelFor(`${side}${page}OffSVG`);
-			hideById(`${side}${page}OffSVGPreview`);
-			const offSvgElement = document.getElementById(`${side}${page}OffSVG`);
-			if (offSvgElement)
-			{
-				const offSvgWrapper = offSvgElement.closest('.svg-editor-wrapper');
-				if (offSvgWrapper)
-				{
-					offSvgWrapper.style.display = 'none';
-				}
-			}
-		}
+	root.querySelectorAll('details').forEach((detailElement) =>
+	{
+		detailElement.open = false;
+	});
+}
 
-		function hidePopupManagedFieldsForPage(page)
-		{
-			hidePopupManagedFieldsForSection('left', page);
-			hidePopupManagedFieldsForSection('right', page);
-		}
+function getButtonInlineMainControlHtml(side, page)
+{
+	const ctrlLabels = {
+		longRepeat: Homey.__("settings.longRepeat"),
+		longDelayMs: Homey.__("settings.longDelayMs"),
+		longRepeatMs: Homey.__("settings.longRepeatMs"),
+		brokerId: Homey.__("settings.brokerId"),
+	};
 
-		function updateButtonAdvancedToggleState(side, page)
-		{
-			const detailElement = document.getElementById(`${side}${page}Details`);
-			const toggleElement = document.getElementById(`${side}${page}AdvancedToggle`);
-			if (!detailElement || !toggleElement)
-			{
-				return;
-			}
+	const ctrlExplanations = {
+		longRepeat: Homey.__("settings.longRepeatExplanation"),
+		longDelayMs: Homey.__("settings.longDelayMsExplanation"),
+		longRepeatMs: Homey.__("settings.longRepeatMsExplanation"),
+		brokerId: Homey.__("settings.brokerIdExplanation"),
+	};
 
-			toggleElement.textContent = detailElement.open ? 'Hide Advanced' : 'Advanced';
-			toggleElement.setAttribute('aria-expanded', detailElement.open ? 'true' : 'false');
-		}
+	const panelLabel = side === 'left' ? Homey.__("settings.leftPanel") : Homey.__("settings.rightPanel");
 
-		function updateButtonInlineSettingsToggleState(page)
-		{
-			const detailElement = document.getElementById(`${page}ButtonInlineSettingsDetails`);
-			const toggleElement = document.getElementById(`${page}ButtonInlineSettingsToggle`);
-			if (!detailElement || !toggleElement)
-			{
-				return;
-			}
-
-			toggleElement.classList.toggle('is-open', detailElement.open);
-			toggleElement.title = detailElement.open ? Homey.__("settings.collapseAutoRepeatBrokerSettings") : Homey.__("settings.expandAutoRepeatBrokerSettings");
-			toggleElement.setAttribute('aria-label', toggleElement.title);
-			toggleElement.setAttribute('aria-expanded', detailElement.open ? 'true' : 'false');
-		}
-
-		function toggleButtonInlineSettingsSection(page)
-		{
-			const detailElement = document.getElementById(`${page}ButtonInlineSettingsDetails`);
-			if (!detailElement)
-			{
-				return;
-			}
-
-			detailElement.open = !detailElement.open;
-			if (detailElement.open)
-			{
-				scrollToTop(detailElement);
-			}
-
-			updateButtonInlineSettingsToggleState(page);
-		}
-
-		function collapseAllDetails(root = document)
-		{
-			if (!root || typeof root.querySelectorAll !== 'function')
-			{
-				return;
-			}
-
-			root.querySelectorAll('details').forEach((detailElement) =>
-			{
-				detailElement.open = false;
-			});
-		}
-
-		function getButtonInlineMainControlHtml(side, page)
-		{
-			const ctrlLabels = {
-				longRepeat: Homey.__("settings.longRepeat"),
-				longDelayMs: Homey.__("settings.longDelayMs"),
-				longRepeatMs: Homey.__("settings.longRepeatMs"),
-				brokerId: Homey.__("settings.brokerId"),
-			};
-
-			const ctrlExplanations = {
-				longRepeat: Homey.__("settings.longRepeatExplanation"),
-				longDelayMs: Homey.__("settings.longDelayMsExplanation"),
-				longRepeatMs: Homey.__("settings.longRepeatMsExplanation"),
-				brokerId: Homey.__("settings.brokerIdExplanation"),
-			};
-
-			const panelLabel = side === 'left' ? Homey.__("settings.leftPanel") : Homey.__("settings.rightPanel");
-
-			return `<div class="button-inline-main-control-column">
+	return `<div class="button-inline-main-control-column">
 				<div class="button-inline-main-control-heading">${panelLabel}</div>
 				<div class="button-inline-main-controls">
 					<label class="homey-form-checkbox">
@@ -3861,681 +3898,754 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 					</div>
 				</div>
 			</div>`;
-		}
+}
 
-		function normalizeLongPressTimingMs(value, minimum, defaultValue)
+function normalizeLongPressTimingMs(value, minimum, defaultValue)
+{
+	const parsedValue = Number(value);
+	if (!Number.isFinite(parsedValue))
+	{
+		return `${defaultValue}`;
+	}
+
+	return `${Math.max(minimum, Math.min(10000, Math.round(parsedValue / 10) * 10))}`;
+}
+
+function ensureButtonSideAdvancedDefaults(pageConfig, side)
+{
+	if (!pageConfig || typeof pageConfig !== 'object')
+	{
+		return;
+	}
+
+	if (!pageConfig[`${side}Mode`]) pageConfig[`${side}Mode`] = 'basic';
+	if (!pageConfig[`${side}LedDevice`]) pageConfig[`${side}LedDevice`] = 'none';
+	if (!pageConfig[`${side}LedCapability`]) pageConfig[`${side}LedCapability`] = '';
+	if (!pageConfig[`${side}DisplayDevice`]) pageConfig[`${side}DisplayDevice`] = 'none';
+	if (!pageConfig[`${side}DisplayCapability`]) pageConfig[`${side}DisplayCapability`] = '';
+	if (!pageConfig[`${side}DisplayBooleanRender`]) pageConfig[`${side}DisplayBooleanRender`] = 'text';
+	if (!pageConfig[`${side}BasicBooleanRender`]) pageConfig[`${side}BasicBooleanRender`] = 'text';
+
+	for (const eventName of ['Click', 'Double', 'Long'])
+	{
+		if (!pageConfig[`${side}${eventName}Device`]) pageConfig[`${side}${eventName}Device`] = 'none';
+		if (!pageConfig[`${side}${eventName}Capability`]) pageConfig[`${side}${eventName}Capability`] = '';
+		if (!pageConfig[`${side}${eventName}ValueStep`]) pageConfig[`${side}${eventName}ValueStep`] = '+10';
+		if (!pageConfig[`${side}${eventName}NumericAction`]) pageConfig[`${side}${eventName}NumericAction`] = 'change';
+	}
+}
+
+function isConcreteButtonSourceDevice(deviceId)
+{
+	return !!deviceId && deviceId !== 'none' && deviceId !== '_variable_' && deviceId !== 'customMQTT';
+}
+
+function getPreferredButtonSideDisplayDevice(pageConfig, side)
+{
+	const advancedDisplayDevice = pageConfig[`${side}DisplayDevice`];
+	if (isConcreteButtonSourceDevice(advancedDisplayDevice))
+	{
+		return advancedDisplayDevice;
+	}
+
+	const basicDisplayDevice = pageConfig[`${side}Device`];
+	if (isConcreteButtonSourceDevice(basicDisplayDevice))
+	{
+		return basicDisplayDevice;
+	}
+
+	return 'none';
+}
+
+function seedAdvancedButtonDevicesFromDisplay(pageConfig, side)
+{
+	const displayDevice = getPreferredButtonSideDisplayDevice(pageConfig, side);
+	if (!isConcreteButtonSourceDevice(displayDevice))
+	{
+		return;
+	}
+
+	if (!isConcreteButtonSourceDevice(pageConfig[`${side}DisplayDevice`]))
+	{
+		pageConfig[`${side}DisplayDevice`] = displayDevice;
+	}
+
+	if (!isConcreteButtonSourceDevice(pageConfig[`${side}LedDevice`]))
+	{
+		pageConfig[`${side}LedDevice`] = displayDevice;
+	}
+
+	for (const eventName of ['Click', 'Double', 'Long'])
+	{
+		if (!isConcreteButtonSourceDevice(pageConfig[`${side}${eventName}Device`]))
 		{
-			const parsedValue = Number(value);
-			if (!Number.isFinite(parsedValue))
-			{
-				return `${defaultValue}`;
-			}
-
-			return `${Math.max(minimum, Math.min(10000, Math.round(parsedValue / 10) * 10))}`;
+			pageConfig[`${side}${eventName}Device`] = displayDevice;
 		}
+	}
+}
 
-		function ensureButtonSideAdvancedDefaults(pageConfig, side)
+function isButtonSideAdvanced(pageConfig, side)
+{
+	ensureButtonSideAdvancedDefaults(pageConfig, side);
+	return String(pageConfig[`${side}Mode`] || 'basic').toLowerCase() === 'advanced';
+}
+
+function onButtonModeToggleChange(side, page, checked)
+{
+	const config = localButtonConfigurations[currentButtonConfigurationNo];
+	if (!Array.isArray(config) || !config[page])
+	{
+		return;
+	}
+
+	ensureButtonSideAdvancedDefaults(config[page], side);
+	const wasAdvanced = isButtonSideAdvanced(config[page], side);
+	config[page][`${side}Mode`] = checked ? 'advanced' : 'basic';
+	if (checked && !wasAdvanced)
+	{
+		seedAdvancedButtonDevicesFromDisplay(config[page], side);
+	}
+	configDraftDirtySinceLoad = true;
+	flushConfigurationDraftPersist();
+	renderInlineButtonPagePreview(page);
+	if (buttonPagePopupOverlayElement && buttonPagePopupOverlayElement.classList.contains('visible'))
+	{
+		renderButtonPagePopup();
+	}
+}
+
+function toggleDisplayedButtonMode(event, configNo, side, page)
+{
+	if (event)
+	{
+		event.preventDefault();
+		event.stopPropagation();
+	}
+
+	if (Number(currentButtonConfigurationNo) !== Number(configNo))
+	{
+		activateDisplayedButtonConfiguration(configNo);
+	}
+
+	const config = localButtonConfigurations[configNo];
+	if (!Array.isArray(config) || !config[page])
+	{
+		return false;
+	}
+
+	onButtonModeToggleChange(side, page, !isButtonSideAdvanced(config[page], side));
+	return false;
+}
+
+function findAdvancedDefaultDeviceForSide(pageConfig, side)
+{
+	const candidateKeys = [`${side}ClickDevice`, `${side}DoubleDevice`, `${side}LongDevice`, `${side}LedDevice`, `${side}DisplayDevice`];
+	for (const key of candidateKeys)
+	{
+		const value = pageConfig[key];
+		if (value && value !== 'none' && value !== '_variable_' && value !== 'customMQTT')
 		{
-			if (!pageConfig || typeof pageConfig !== 'object')
-			{
-				return;
-			}
+			return value;
+		}
+	}
 
-			if (!pageConfig[`${side}Mode`]) pageConfig[`${side}Mode`] = 'basic';
-			if (!pageConfig[`${side}LedDevice`]) pageConfig[`${side}LedDevice`] = 'none';
-			if (!pageConfig[`${side}LedCapability`]) pageConfig[`${side}LedCapability`] = '';
-			if (!pageConfig[`${side}DisplayDevice`]) pageConfig[`${side}DisplayDevice`] = 'none';
-			if (!pageConfig[`${side}DisplayCapability`]) pageConfig[`${side}DisplayCapability`] = '';
-			if (!pageConfig[`${side}DisplayBooleanRender`]) pageConfig[`${side}DisplayBooleanRender`] = 'text';
-			if (!pageConfig[`${side}BasicBooleanRender`]) pageConfig[`${side}BasicBooleanRender`] = 'text';
+	return 'none';
+}
 
-			for (const eventName of ['Click', 'Double', 'Long'])
+function renderButtonMainPage()
+{
+	const pageSections = Array.from(document.querySelectorAll('.button-main-page'));
+	if (!pageSections.length)
+	{
+		updateButtonMainDiagnostics('renderButtonMainPage:no-sections');
+		return;
+	}
+
+	buttonMainCurrentPage = Number(buttonMainCurrentPage);
+	if (Number.isNaN(buttonMainCurrentPage))
+	{
+		buttonMainCurrentPage = 0;
+	}
+
+	if (buttonMainCurrentPage < 0)
+	{
+		buttonMainCurrentPage = 0;
+	}
+	if (buttonMainCurrentPage >= pageSections.length)
+	{
+		buttonMainCurrentPage = pageSections.length - 1;
+	}
+
+	let hasActiveSection = false;
+	pageSections.forEach((section, index) =>
+	{
+		const isActive = (index === buttonMainCurrentPage);
+		section.classList.toggle('active', isActive);
+		if (isActive)
+		{
+			section.style.display = 'flex';
+			section.style.flexDirection = 'column';
+			section.style.width = '100%';
+			section.style.minHeight = '1px';
+			const activeGroup = section.querySelector('.horizontalgroup');
+			if (activeGroup)
 			{
-				if (!pageConfig[`${side}${eventName}Device`]) pageConfig[`${side}${eventName}Device`] = 'none';
-				if (!pageConfig[`${side}${eventName}Capability`]) pageConfig[`${side}${eventName}Capability`] = '';
-				if (!pageConfig[`${side}${eventName}ValueStep`]) pageConfig[`${side}${eventName}ValueStep`] = '+10';
-				if (!pageConfig[`${side}${eventName}NumericAction`]) pageConfig[`${side}${eventName}NumericAction`] = 'change';
+				activeGroup.style.display = 'block';
+				activeGroup.style.flex = '0 0 auto';
+				activeGroup.style.width = '100%';
+				activeGroup.style.minHeight = '1px';
 			}
 		}
-
-		function isConcreteButtonSourceDevice(deviceId)
+		else
 		{
-			return !!deviceId && deviceId !== 'none' && deviceId !== '_variable_' && deviceId !== 'customMQTT';
+			section.style.display = 'none';
 		}
+		hasActiveSection = hasActiveSection || isActive;
+	});
 
-		function getPreferredButtonSideDisplayDevice(pageConfig, side)
+	if (!hasActiveSection)
+	{
+		buttonMainCurrentPage = 0;
+		pageSections.forEach((section, index) =>
 		{
-			const advancedDisplayDevice = pageConfig[`${side}DisplayDevice`];
-			if (isConcreteButtonSourceDevice(advancedDisplayDevice))
+			const isActive = (index === 0);
+			section.classList.toggle('active', isActive);
+			if (isActive)
 			{
-				return advancedDisplayDevice;
-			}
-
-			const basicDisplayDevice = pageConfig[`${side}Device`];
-			if (isConcreteButtonSourceDevice(basicDisplayDevice))
-			{
-				return basicDisplayDevice;
-			}
-
-			return 'none';
-		}
-
-		function seedAdvancedButtonDevicesFromDisplay(pageConfig, side)
-		{
-			const displayDevice = getPreferredButtonSideDisplayDevice(pageConfig, side);
-			if (!isConcreteButtonSourceDevice(displayDevice))
-			{
-				return;
-			}
-
-			if (!isConcreteButtonSourceDevice(pageConfig[`${side}DisplayDevice`]))
-			{
-				pageConfig[`${side}DisplayDevice`] = displayDevice;
-			}
-
-			if (!isConcreteButtonSourceDevice(pageConfig[`${side}LedDevice`]))
-			{
-				pageConfig[`${side}LedDevice`] = displayDevice;
-			}
-
-			for (const eventName of ['Click', 'Double', 'Long'])
-			{
-				if (!isConcreteButtonSourceDevice(pageConfig[`${side}${eventName}Device`]))
+				section.style.display = 'flex';
+				section.style.flexDirection = 'column';
+				section.style.width = '100%';
+				section.style.minHeight = '1px';
+				const activeGroup = section.querySelector('.horizontalgroup');
+				if (activeGroup)
 				{
-					pageConfig[`${side}${eventName}Device`] = displayDevice;
+					activeGroup.style.display = 'block';
+					activeGroup.style.flex = '0 0 auto';
+					activeGroup.style.width = '100%';
+					activeGroup.style.minHeight = '1px';
 				}
-			}
-		}
-
-		function isButtonSideAdvanced(pageConfig, side)
-		{
-			ensureButtonSideAdvancedDefaults(pageConfig, side);
-			return String(pageConfig[`${side}Mode`] || 'basic').toLowerCase() === 'advanced';
-		}
-
-		function onButtonModeToggleChange(side, page, checked)
-		{
-			const config = localButtonConfigurations[currentButtonConfigurationNo];
-			if (!Array.isArray(config) || !config[page])
-			{
-				return;
-			}
-
-			ensureButtonSideAdvancedDefaults(config[page], side);
-			const wasAdvanced = isButtonSideAdvanced(config[page], side);
-			config[page][`${side}Mode`] = checked ? 'advanced' : 'basic';
-			if (checked && !wasAdvanced)
-			{
-				seedAdvancedButtonDevicesFromDisplay(config[page], side);
-			}
-			configDraftDirtySinceLoad = true;
-			flushConfigurationDraftPersist();
-			renderInlineButtonPagePreview(page);
-			if (buttonPagePopupOverlayElement && buttonPagePopupOverlayElement.classList.contains('visible'))
-			{
-				renderButtonPagePopup();
-			}
-		}
-
-		function toggleDisplayedButtonMode(event, configNo, side, page)
-		{
-			if (event)
-			{
-				event.preventDefault();
-				event.stopPropagation();
-			}
-
-			if (Number(currentButtonConfigurationNo) !== Number(configNo))
-			{
-				activateDisplayedButtonConfiguration(configNo);
-			}
-
-			const config = localButtonConfigurations[configNo];
-			if (!Array.isArray(config) || !config[page])
-			{
-				return false;
-			}
-
-			onButtonModeToggleChange(side, page, !isButtonSideAdvanced(config[page], side));
-			return false;
-		}
-
-		function findAdvancedDefaultDeviceForSide(pageConfig, side)
-		{
-			const candidateKeys = [`${side}ClickDevice`, `${side}DoubleDevice`, `${side}LongDevice`, `${side}LedDevice`, `${side}DisplayDevice`];
-			for (const key of candidateKeys)
-			{
-				const value = pageConfig[key];
-				if (value && value !== 'none' && value !== '_variable_' && value !== 'customMQTT')
-				{
-					return value;
-				}
-			}
-
-			return 'none';
-		}
-
-		function renderButtonMainPage()
-		{
-			const pageSections = Array.from(document.querySelectorAll('.button-main-page'));
-			if (!pageSections.length)
-			{
-				updateButtonMainDiagnostics('renderButtonMainPage:no-sections');
-				return;
-			}
-
-			buttonMainCurrentPage = Number(buttonMainCurrentPage);
-			if (Number.isNaN(buttonMainCurrentPage))
-			{
-				buttonMainCurrentPage = 0;
-			}
-
-			if (buttonMainCurrentPage < 0)
-			{
-				buttonMainCurrentPage = 0;
-			}
-			if (buttonMainCurrentPage >= pageSections.length)
-			{
-				buttonMainCurrentPage = pageSections.length - 1;
-			}
-
-			let hasActiveSection = false;
-			pageSections.forEach((section, index) =>
-			{
-				const isActive = (index === buttonMainCurrentPage);
-				section.classList.toggle('active', isActive);
-				if (isActive)
-				{
-					section.style.display = 'flex';
-					section.style.flexDirection = 'column';
-					section.style.width = '100%';
-					section.style.minHeight = '1px';
-					const activeGroup = section.querySelector('.horizontalgroup');
-					if (activeGroup)
-					{
-						activeGroup.style.display = 'block';
-						activeGroup.style.flex = '0 0 auto';
-						activeGroup.style.width = '100%';
-						activeGroup.style.minHeight = '1px';
-					}
-				}
-				else
-				{
-					section.style.display = 'none';
-				}
-				hasActiveSection = hasActiveSection || isActive;
-			});
-
-			if (!hasActiveSection)
-			{
-				buttonMainCurrentPage = 0;
-				pageSections.forEach((section, index) =>
-				{
-					const isActive = (index === 0);
-					section.classList.toggle('active', isActive);
-					if (isActive)
-					{
-						section.style.display = 'flex';
-						section.style.flexDirection = 'column';
-						section.style.width = '100%';
-						section.style.minHeight = '1px';
-						const activeGroup = section.querySelector('.horizontalgroup');
-						if (activeGroup)
-						{
-							activeGroup.style.display = 'block';
-							activeGroup.style.flex = '0 0 auto';
-							activeGroup.style.width = '100%';
-							activeGroup.style.minHeight = '1px';
-						}
-					}
-					else
-					{
-						section.style.display = 'none';
-					}
-				});
-			}
-
-			updateButtonMainDiagnostics('renderButtonMainPage', { hasActiveSection });
-
-			const sharedTitle = document.querySelector('.button-shared-page-title');
-			if (sharedTitle)
-			{
-				sharedTitle.innerHTML = getButtonPageHeaderTitleMarkup(buttonMainCurrentPage, pageSections.length);
-			}
-
-			const prevButtons = document.querySelectorAll('.button-main-page-prev');
-			const nextButtons = document.querySelectorAll('.button-main-page-next');
-			prevButtons.forEach((button) =>
-			{
-				button.disabled = (buttonMainCurrentPage <= 0);
-			});
-			nextButtons.forEach((button) =>
-			{
-				button.disabled = (buttonMainCurrentPage >= (pageSections.length - 1));
-			});
-		}
-
-		function ensureButtonMainContextVisible()
-		{
-			const panelConfigTab = document.getElementById('panelConfig');
-			const buttonItemsSection = document.getElementById('buttonItemsSection');
-
-			if (configTypeElement && configTypeElement.value === 'panelConfig' && panelConfigTab)
-			{
-				panelConfigTab.style.display = 'block';
-			}
-
-			if (buttonItemsSection)
-			{
-				buttonItemsSection.style.display = 'block';
-				buttonItemsSection.style.width = '100%';
-				buttonItemsSection.style.minHeight = '1px';
-				buttonItemsSection.style.overflow = 'visible';
-			}
-		}
-
-		function stepButtonMainPage(delta)
-		{
-			updateButtonMainDiagnostics('stepButtonMainPage:before', { delta });
-			const step = Number(delta);
-			ensureButtonMainContextVisible();
-			buttonMainCurrentPage = Number(buttonMainCurrentPage) + (Number.isNaN(step) ? 0 : step);
-			renderButtonMainPage();
-			ensureButtonMainContextVisible();
-			updateButtonMainDiagnostics('stepButtonMainPage:after', { delta, step });
-		}
-
-		function closeButtonPagePopup()
-		{
-			if (!buttonPagePopupOverlayElement)
-			{
-				return;
-			}
-
-			buttonPagePopupOverlayElement.classList.remove('visible');
-			buttonPagePopupOverlayElement.setAttribute('aria-hidden', 'true');
-			document.body.classList.remove('sim-panel-open');
-			document.documentElement.style.setProperty('--button-sim-scroll-offset', '0px');
-			buttonPagePopupCurrentPage = -1;
-		}
-
-		function updateButtonPagePopupScrollOffset()
-		{
-			if (!buttonPagePopupOverlayElement || !buttonPagePopupOverlayElement.classList.contains('visible'))
-			{
-				document.body.classList.remove('sim-panel-open');
-				document.documentElement.style.setProperty('--button-sim-scroll-offset', '0px');
-				return;
-			}
-
-			const fixedTopElement = document.querySelector('.fixedTop');
-			const fixedTopHeight = fixedTopElement ? fixedTopElement.offsetHeight : 0;
-			const simDialogElement = document.querySelector('.button-sim-overlay.visible .button-sim-dialog');
-			const simBottom = simDialogElement ? Math.max(0, simDialogElement.getBoundingClientRect().bottom) : 0;
-			const requiredOffset = Math.max(0, Math.round(simBottom - fixedTopHeight + 8));
-			document.documentElement.style.setProperty('--button-sim-scroll-offset', `${requiredOffset}px`);
-			document.body.classList.add('sim-panel-open');
-		}
-
-		function normalizeLedColor(value, fallback)
-		{
-			const color = (value || '').toString().trim();
-			return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(color) ? color : fallback;
-		}
-
-		function getButtonPanelLedColor(pageConfig, side, ledType, pageIndex = buttonPagePopupCurrentPage, configIndex = currentButtonConfigurationNo)
-		{
-			const suffix = (buttonPagePopupLedState === 'on') ? 'OnColor' : 'OffColor';
-			const fallback = (buttonPagePopupLedState === 'on') ? '#ffffff' : '#1f2937';
-			const colorInputId = `${side}${pageIndex}${ledType}${suffix}`;
-			const liveInputElement = Number(configIndex) === Number(currentButtonConfigurationNo) ? document.getElementById(colorInputId) : null;
-			const liveColor = liveInputElement ? liveInputElement.value : undefined;
-			const configColor = pageConfig[`${side}${ledType}${suffix}`];
-			return normalizeLedColor(liveColor || configColor, fallback);
-		}
-
-		function getButtonPanelLedMarkup(pageConfig, side, pageIndex = buttonPagePopupCurrentPage, configIndex = currentButtonConfigurationNo)
-		{
-			const wallColor = escapeHtml(getButtonPanelLedColor(pageConfig, side, 'WallLED', pageIndex, configIndex));
-			const frontColor = escapeHtml(getButtonPanelLedColor(pageConfig, side, 'FrontLED', pageIndex, configIndex));
-			const ledColorSuffix = (buttonPagePopupLedState === 'on') ? 'OnColor' : 'OffColor';
-			return `
-				<div class="button-sim-led button-sim-led-wall" title="${side} wall LED (${buttonPagePopupLedState})" onclick="activateDisplayedButtonConfiguration(${configIndex}); return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'WallLED${ledColorSuffix}');" style="background-color:${wallColor}; border-color:${wallColor};"></div>
-				<div class="button-sim-led button-sim-led-front" title="${side} front LED (${buttonPagePopupLedState})" onclick="activateDisplayedButtonConfiguration(${configIndex}); return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'FrontLED${ledColorSuffix}');" style="border-color:${frontColor}; box-shadow: 0 0 6px ${frontColor};"></div>`;
-		}
-
-		function handleButtonSimFieldClick(event, side, page, fieldSuffix)
-		{
-			if (event)
-			{
-				event.preventDefault();
-				event.stopPropagation();
-			}
-
-			if (typeof fieldSuffix === 'string' && fieldSuffix.endsWith('Color'))
-			{
-				openButtonAdvancedPopup(side, page, 'led');
-				return false;
-			}
-
-			focusButtonControlFromPopup(side, page, fieldSuffix);
-			return false;
-		}
-
-		function isSvgTextContent(value)
-		{
-			if (typeof value !== 'string')
-			{
-				return false;
-			}
-
-			const normalized = normalizeSvgText(value);
-			return /<svg(?:\s|>)/i.test(normalized);
-		}
-
-		function normalizeSvgText(value)
-		{
-			if (typeof value !== 'string')
-			{
-				return '';
-			}
-
-			let normalized = value.replace(/^\uFEFF/, '').trim();
-			if (!normalized)
-			{
-				return '';
-			}
-
-			if (/&lt;svg(?:\s|&gt;)/i.test(normalized))
-			{
-				normalized = normalized
-					.replace(/&lt;/gi, '<')
-					.replace(/&gt;/gi, '>')
-					.replace(/&quot;/gi, '"')
-					.replace(/&#39;/gi, "'")
-					.replace(/&amp;/gi, '&');
-			}
-
-			return normalized;
-		}
-
-		function getButtonPanelPreviewSvg(svgText)
-		{
-			if (!svgText)
-			{
-				return '';
-			}
-
-			const normalizedSvgText = normalizeSvgText(svgText);
-			if (!normalizedSvgText)
-			{
-				return '';
-			}
-
-			const parserWrapper = document.createElement('div');
-			parserWrapper.innerHTML = normalizedSvgText;
-			const svgElement = parserWrapper.querySelector('svg');
-			if (!svgElement)
-			{
-				return '';
-			}
-
-			return svgElement.outerHTML;
-		}
-
-		function getLiveButtonPanelFieldValue(pageConfig, side, fieldSuffix, fallback = '', pageIndex = buttonPagePopupCurrentPage, configIndex = currentButtonConfigurationNo)
-		{
-			const fieldId = `${side}${pageIndex}${fieldSuffix}`;
-			const liveElement = buttonDevicesFetched && Number(configIndex) === Number(currentButtonConfigurationNo)
-				? document.getElementById(fieldId)
-				: null;
-			if (liveElement && typeof liveElement.value === 'string')
-			{
-				return liveElement.value;
-			}
-
-			const configValue = pageConfig[`${side}${fieldSuffix}`];
-			if (configValue !== undefined && configValue !== null && configValue !== '')
-			{
-				return configValue;
-			}
-
-			return fallback;
-		}
-
-		function formatButtonPageLabel(pageIndex)
-		{
-			return pageIndex === 0 ? 'Default' : `${pageIndex}`;
-		}
-
-		function formatDisplayPageLabel(pageIndex)
-		{
-			return pageIndex === 0 ? 'Default' : `${pageIndex}`;
-		}
-
-		function renderDisplayPageHeaderTitle(titleElement, currentPage, totalPages)
-		{
-			if (!titleElement)
-			{
-				return;
-			}
-
-			const displayPageLabel = Homey.__("settings.page");
-			const currentPageLabel = formatDisplayPageLabel(currentPage);
-			const nonDefaultPageCount = Math.max(0, totalPages - 1);
-			if (nonDefaultPageCount === 0)
-			{
-				titleElement.textContent = `${displayPageLabel}: ${currentPageLabel}`;
-				return;
-			}
-
-			const totalPagesHint = escapeHtml(Homey.__("settings.displaySimTotalPagesHint"));
-			const sharedPageHeaderHint = normalizeTooltipHtml(getSharedPageHeaderTooltipText());
-			const safeDisplayPageLabel = escapeHtml(displayPageLabel);
-			const safeCurrentPageLabel = escapeHtml(currentPageLabel);
-			titleElement.innerHTML = `${safeDisplayPageLabel}: ${safeCurrentPageLabel} / <span class="display-sim-total-pages">${nonDefaultPageCount}</span><span class="tooltip display-sim-total-pages-tooltip"><i class="fi fi-rr-info" aria-hidden="true"></i><span class="tooltiptext">${sharedPageHeaderHint}</span></span>`;
-		}
-
-		function getSharedPageHeaderTooltipText()
-		{
-			const pageHelpText = (Homey.__("settings.buttonPageExplanation") || '').trim();
-			const totalPagesHelpText = (Homey.__("settings.displaySimTotalPagesHint") || '').trim();
-
-			if (!pageHelpText)
-			{
-				return totalPagesHelpText;
-			}
-
-			if (!totalPagesHelpText)
-			{
-				return pageHelpText;
-			}
-
-			if (pageHelpText === totalPagesHelpText)
-			{
-				return pageHelpText;
-			}
-
-			return `${pageHelpText} ${totalPagesHelpText}`;
-		}
-
-		function getButtonPageHeaderTitleMarkup(currentPage, totalPages)
-		{
-			const buttonPageLabel = Homey.__("settings.page");
-			const currentPageLabel = formatButtonPageLabel(currentPage);
-			const nonDefaultPageCount = Math.max(0, totalPages - 1);
-			const safeButtonPageLabel = escapeHtml(buttonPageLabel);
-			const safeCurrentPageLabel = escapeHtml(currentPageLabel);
-
-			if (nonDefaultPageCount === 0)
-			{
-				return `${safeButtonPageLabel}: ${safeCurrentPageLabel}`;
-			}
-
-			const sharedPageHeaderHint = normalizeTooltipHtml(getSharedPageHeaderTooltipText());
-			return `${safeButtonPageLabel}: ${safeCurrentPageLabel} / <span class="display-sim-total-pages">${nonDefaultPageCount}</span><span class="tooltip display-sim-total-pages-tooltip"><i class="fi fi-rr-info" aria-hidden="true"></i><span class="tooltiptext">${sharedPageHeaderHint}</span></span>`;
-		}
-
-		function getButtonPanelDimPreviewText(pageConfig, side, pageIndex, configIndex = currentButtonConfigurationNo)
-		{
-			const capabilityElement = Number(configIndex) === Number(currentButtonConfigurationNo) ? document.getElementById(`${side}${pageIndex}Capability`) : null;
-			const selectedOption = capabilityElement && capabilityElement.selectedOptions ? capabilityElement.selectedOptions[0] : null;
-			const rawValue = selectedOption ? parseFloat(selectedOption.dataset.value) : NaN;
-			const percent = Number.isNaN(rawValue) ? 50 : Math.round(rawValue * 100);
-
-			const dimChange = getLiveButtonPanelFieldValue(pageConfig, side, 'DimChange', '', pageIndex, configIndex);
-			const direction = (typeof dimChange === 'string' && dimChange.indexOf('-') >= 0) ? '-' : '+';
-
-			return `${percent}% ${direction}`;
-		}
-
-		function getButtonPanelVariablePreviewText(deviceValue, capabilityValue)
-		{
-			if (deviceValue !== '_variable_')
-			{
-				return null;
-			}
-
-			const selectedVariable = variablesArray.find((variable) => variable.id === capabilityValue);
-			if (!selectedVariable || (selectedVariable.type === 'boolean'))
-			{
-				return null;
-			}
-
-			return (selectedVariable.value === undefined || selectedVariable.value === null) ? '' : String(selectedVariable.value);
-		}
-
-		function getButtonPanelCapabilityPreviewText(side, pageIndex, deviceValue, capabilityValue, configIndex = currentButtonConfigurationNo)
-		{
-			if ((deviceValue === '_variable_') || (capabilityValue === 'dim') || (capabilityValue === 'windowcoverings_state') || !capabilityValue)
-			{
-				return null;
-			}
-
-			const capabilityElement = Number(configIndex) === Number(currentButtonConfigurationNo) ? document.getElementById(`${side}${pageIndex}Capability`) : null;
-			const selectedOption = capabilityElement && capabilityElement.selectedOptions ? capabilityElement.selectedOptions[0] : null;
-			if (!selectedOption || !selectedOption.dataset.type || (selectedOption.dataset.type === 'boolean'))
-			{
-				return null;
-			}
-
-			if (selectedOption.dataset.type === 'enum')
-			{
-				try
-				{
-					const values = JSON.parse(selectedOption.dataset.values || '[]');
-					const match = values.find((entry) => entry.id === selectedOption.dataset.value);
-					return match ? (match.title || match.id) : (selectedOption.dataset.value || '');
-				}
-				catch (err)
-				{
-					return selectedOption.dataset.value || '';
-				}
-			}
-
-			if (selectedOption.dataset.type === 'number')
-			{
-				const valueText = sanitizeDisplayString(selectedOption.dataset.value || '', '');
-				const unitText = sanitizeDisplayString(selectedOption.dataset.unit || '', '');
-				const withUnit = unitText ? `${valueText}${valueText ? ' ' : ''}${unitText}` : valueText;
-				return withUnit ? `${withUnit} +/-` : '+/-';
-			}
-
-			return selectedOption.dataset.value || '';
-		}
-
-		function getButtonPanelPreviewMarkup(pageConfig, side, pageIndex = buttonPagePopupCurrentPage, configIndex = currentButtonConfigurationNo)
-		{
-			ensureButtonSideAdvancedDefaults(pageConfig, side);
-			const isAdvancedMode = isButtonSideAdvanced(pageConfig, side);
-			const topTextRaw = sanitizeDisplayString(getLiveButtonPanelFieldValue(pageConfig, side, 'TopText', '', pageIndex, configIndex), '');
-			const hasTopText = !!topTextRaw;
-			const topText = hasTopText ? escapeHtml(topTextRaw) : `<span class="button-sim-placeholder">${Homey.__("settings.clickToAddTitle")}</span>`;
-			const deviceValue = getLiveButtonPanelFieldValue(pageConfig, side, 'Device', '', pageIndex, configIndex);
-			const capabilityValue = getLiveButtonPanelFieldValue(pageConfig, side, 'Capability', '', pageIndex, configIndex);
-			const isDimCapability = (capabilityValue === 'dim');
-			const variablePreviewText = getButtonPanelVariablePreviewText(deviceValue, capabilityValue);
-			const capabilityPreviewText = (variablePreviewText === null) ? getButtonPanelCapabilityPreviewText(side, pageIndex, deviceValue, capabilityValue, configIndex) : null;
-			const nonBooleanPreviewText = (variablePreviewText !== null) ? variablePreviewText : capabilityPreviewText;
-			const isNonBooleanVariable = (nonBooleanPreviewText !== null);
-			const onTextRaw = sanitizeDisplayString(getLiveButtonPanelFieldValue(pageConfig, side, 'OnText', '', pageIndex, configIndex), '');
-			const offTextRaw = sanitizeDisplayString(getLiveButtonPanelFieldValue(pageConfig, side, 'OffText', '', pageIndex, configIndex), '');
-			const isVariableSvg = isNonBooleanVariable && isSvgTextContent(nonBooleanPreviewText);
-			let stateTextRaw = '';
-			if (isDimCapability)
-			{
-				stateTextRaw = getButtonPanelDimPreviewText(pageConfig, side, pageIndex, configIndex);
-			}
-			else if (isNonBooleanVariable && !isVariableSvg)
-			{
-				stateTextRaw = sanitizeDisplayString(nonBooleanPreviewText, '');
 			}
 			else
 			{
-				stateTextRaw = (buttonPagePopupLedState === 'on') ? onTextRaw : offTextRaw;
+				section.style.display = 'none';
 			}
-			const hasStateText = !!sanitizeDisplayString(stateTextRaw, '');
-			const stateText = hasStateText ? escapeHtml(stateTextRaw) : `<span class="button-sim-placeholder">${Homey.__("settings.clickToAddValue")}</span>`;
-			const textFieldSuffix = isDimCapability ? 'DimChange' : (isNonBooleanVariable ? 'Capability' : ((buttonPagePopupLedState === 'on') ? 'OnText' : 'OffText'));
-			const svgFieldSuffix = (buttonPagePopupLedState === 'on') ? 'OnSVG' : 'OffSVG';
-			const selectedSvgText = isVariableSvg ? nonBooleanPreviewText : ((isDimCapability || isNonBooleanVariable) ? '' : getLiveButtonPanelFieldValue(pageConfig, side, svgFieldSuffix, '', pageIndex, configIndex));
-			const svgMarkup = getButtonPanelPreviewSvg(selectedSvgText || '');
-			const ledMarkup = `<div class="button-sim-leds ${side === 'right' ? 'button-sim-leds-right' : ''}">${getButtonPanelLedMarkup(pageConfig, side, pageIndex, configIndex)}</div>`;
-			const advancedBadge = isAdvancedMode
-				? `<span class="button-sim-advanced-badge ${side === 'right' ? 'button-sim-advanced-badge-right' : 'button-sim-advanced-badge-left'}" role="button" tabindex="0" title="${Homey.__("settings.advancedMappingsEnabled")}" onclick="activateDisplayedButtonConfiguration(${configIndex}); openButtonAdvancedPopup('${side}', ${pageIndex}, 'event'); return false;"><span class="button-sim-advanced-badge-label">${Homey.__("settings.advancedBadgeLabel")}</span></span>`
-				: '';
-			const activateConfig = `activateDisplayedButtonConfiguration(${configIndex}); `;
-			const contentMarkup = svgMarkup
-				? `
-					<div class="button-sim-content button-sim-content-svg" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, '${svgFieldSuffix}');">
-						<div class="button-sim-top-hit-area" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');" title="${Homey.__("settings.editTopLabel")}"></div>
-						<div class="button-sim-top" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');">${topText}</div>
-						<div class="button-sim-icon" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, '${svgFieldSuffix}');">${svgMarkup}</div>
-					</div>`
-				: `
-					<div class="button-sim-content">
-						<div class="button-sim-top-hit-area" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');" title="${Homey.__("settings.editTopLabel")}"></div>
-						<div class="button-sim-top" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');">${topText}</div>
-							<div class="button-sim-state-block" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, '${textFieldSuffix}');">
-							<div class="button-sim-state-line">${stateText}</div>
-						</div>
-					</div>`;
+		});
+	}
 
-			if (side === 'left')
+	updateButtonMainDiagnostics('renderButtonMainPage', { hasActiveSection });
+
+	const sharedTitle = document.querySelector('.button-shared-page-title');
+	if (sharedTitle)
+	{
+		sharedTitle.innerHTML = getButtonPageHeaderTitleMarkup(buttonMainCurrentPage, pageSections.length);
+	}
+
+	const prevButtons = document.querySelectorAll('.button-main-page-prev');
+	const nextButtons = document.querySelectorAll('.button-main-page-next');
+	prevButtons.forEach((button) =>
+	{
+		button.disabled = (buttonMainCurrentPage <= 0);
+	});
+	nextButtons.forEach((button) =>
+	{
+		button.disabled = (buttonMainCurrentPage >= (pageSections.length - 1));
+	});
+}
+
+function ensureButtonMainContextVisible()
+{
+	const panelConfigTab = document.getElementById('panelConfig');
+	const buttonItemsSection = document.getElementById('buttonItemsSection');
+
+	if (configTypeElement && configTypeElement.value === 'panelConfig' && panelConfigTab)
+	{
+		panelConfigTab.style.display = 'block';
+	}
+
+	if (buttonItemsSection)
+	{
+		buttonItemsSection.style.display = 'block';
+		buttonItemsSection.style.width = '100%';
+		buttonItemsSection.style.minHeight = '1px';
+		buttonItemsSection.style.overflow = 'visible';
+	}
+}
+
+function stepButtonMainPage(delta)
+{
+	updateButtonMainDiagnostics('stepButtonMainPage:before', { delta });
+	const step = Number(delta);
+	ensureButtonMainContextVisible();
+	buttonMainCurrentPage = Number(buttonMainCurrentPage) + (Number.isNaN(step) ? 0 : step);
+	renderButtonMainPage();
+	ensureButtonMainContextVisible();
+	updateButtonMainDiagnostics('stepButtonMainPage:after', { delta, step });
+}
+
+function closeButtonPagePopup()
+{
+	if (!buttonPagePopupOverlayElement)
+	{
+		return;
+	}
+
+	buttonPagePopupOverlayElement.classList.remove('visible');
+	buttonPagePopupOverlayElement.setAttribute('aria-hidden', 'true');
+	document.body.classList.remove('sim-panel-open');
+	document.documentElement.style.setProperty('--button-sim-scroll-offset', '0px');
+	buttonPagePopupCurrentPage = -1;
+}
+
+function updateButtonPagePopupScrollOffset()
+{
+	if (!buttonPagePopupOverlayElement || !buttonPagePopupOverlayElement.classList.contains('visible'))
+	{
+		document.body.classList.remove('sim-panel-open');
+		document.documentElement.style.setProperty('--button-sim-scroll-offset', '0px');
+		return;
+	}
+
+	const fixedTopElement = document.querySelector('.fixedTop');
+	const fixedTopHeight = fixedTopElement ? fixedTopElement.offsetHeight : 0;
+	const simDialogElement = document.querySelector('.button-sim-overlay.visible .button-sim-dialog');
+	const simBottom = simDialogElement ? Math.max(0, simDialogElement.getBoundingClientRect().bottom) : 0;
+	const requiredOffset = Math.max(0, Math.round(simBottom - fixedTopHeight + 8));
+	document.documentElement.style.setProperty('--button-sim-scroll-offset', `${requiredOffset}px`);
+	document.body.classList.add('sim-panel-open');
+}
+
+function normalizeLedColor(value, fallback)
+{
+	const color = (value || '').toString().trim();
+	return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(color) ? color : fallback;
+}
+
+function getButtonPanelLedColor(pageConfig, side, ledType, pageIndex = buttonPagePopupCurrentPage, configIndex = currentButtonConfigurationNo)
+{
+	const suffix = (buttonPagePopupLedState === 'on') ? 'OnColor' : 'OffColor';
+	const fallback = (buttonPagePopupLedState === 'on') ? '#ffffff' : '#1f2937';
+	const colorInputId = `${side}${pageIndex}${ledType}${suffix}`;
+	const liveInputElement = Number(configIndex) === Number(currentButtonConfigurationNo) ? document.getElementById(colorInputId) : null;
+	const liveColor = liveInputElement ? liveInputElement.value : undefined;
+	const configColor = pageConfig[`${side}${ledType}${suffix}`];
+	return normalizeLedColor(liveColor || configColor, fallback);
+}
+
+function getButtonPanelLedMarkup(pageConfig, side, pageIndex = buttonPagePopupCurrentPage, configIndex = currentButtonConfigurationNo)
+{
+	const wallColor = escapeHtml(getButtonPanelLedColor(pageConfig, side, 'WallLED', pageIndex, configIndex));
+	const frontColor = escapeHtml(getButtonPanelLedColor(pageConfig, side, 'FrontLED', pageIndex, configIndex));
+	const ledColorSuffix = (buttonPagePopupLedState === 'on') ? 'OnColor' : 'OffColor';
+	return `
+				<div class="button-sim-led button-sim-led-wall" title="${side} wall LED (${buttonPagePopupLedState})" onclick="activateDisplayedButtonConfiguration(${configIndex}); return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'WallLED${ledColorSuffix}');" style="background-color:${wallColor}; border-color:${wallColor};"></div>
+				<div class="button-sim-led button-sim-led-front" title="${side} front LED (${buttonPagePopupLedState})" onclick="activateDisplayedButtonConfiguration(${configIndex}); return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'FrontLED${ledColorSuffix}');" style="border-color:${frontColor}; box-shadow: 0 0 6px ${frontColor};"></div>`;
+}
+
+function handleButtonSimFieldClick(event, side, page, fieldSuffix)
+{
+	if (event)
+	{
+		event.preventDefault();
+		event.stopPropagation();
+	}
+
+	if (typeof fieldSuffix === 'string' && fieldSuffix.endsWith('Color'))
+	{
+		openButtonAdvancedPopup(side, page, 'led');
+		return false;
+	}
+
+	focusButtonControlFromPopup(side, page, fieldSuffix);
+	return false;
+}
+
+function isSvgTextContent(value)
+{
+	if (typeof value !== 'string')
+	{
+		return false;
+	}
+
+	const normalized = normalizeSvgText(value);
+	return /<svg(?:\s|>)/i.test(normalized);
+}
+
+function normalizeSvgText(value)
+{
+	if (typeof value !== 'string')
+	{
+		return '';
+	}
+
+	let normalized = value.replace(/^\uFEFF/, '').trim();
+	if (!normalized)
+	{
+		return '';
+	}
+
+	if (/&lt;svg(?:\s|&gt;)/i.test(normalized))
+	{
+		normalized = normalized
+			.replace(/&lt;/gi, '<')
+			.replace(/&gt;/gi, '>')
+			.replace(/&quot;/gi, '"')
+			.replace(/&#39;/gi, "'")
+			.replace(/&amp;/gi, '&');
+	}
+
+	return normalized;
+}
+
+function getButtonPanelPreviewSvg(svgText)
+{
+	if (!svgText)
+	{
+		return '';
+	}
+
+	const normalizedSvgText = normalizeSvgText(svgText);
+	if (!normalizedSvgText)
+	{
+		return '';
+	}
+
+	const parserWrapper = document.createElement('div');
+	parserWrapper.innerHTML = normalizedSvgText;
+	const svgElement = parserWrapper.querySelector('svg');
+	if (!svgElement)
+	{
+		return '';
+	}
+
+	return svgElement.outerHTML;
+}
+
+function getLiveButtonPanelFieldValue(pageConfig, side, fieldSuffix, fallback = '', pageIndex = buttonPagePopupCurrentPage, configIndex = currentButtonConfigurationNo)
+{
+	const fieldId = `${side}${pageIndex}${fieldSuffix}`;
+	const liveElement = buttonDevicesFetched && Number(configIndex) === Number(currentButtonConfigurationNo)
+		? document.getElementById(fieldId)
+		: null;
+	if (liveElement && typeof liveElement.value === 'string')
+	{
+		return liveElement.value;
+	}
+
+	const configValue = pageConfig[`${side}${fieldSuffix}`];
+	if (configValue !== undefined && configValue !== null && configValue !== '')
+	{
+		return configValue;
+	}
+
+	return fallback;
+}
+
+function formatButtonPageLabel(pageIndex)
+{
+	return pageIndex === 0 ? 'Default' : `${pageIndex}`;
+}
+
+function formatDisplayPageLabel(pageIndex)
+{
+	return pageIndex === 0 ? 'Default' : `${pageIndex}`;
+}
+
+function renderDisplayPageHeaderTitle(titleElement, currentPage, totalPages)
+{
+	if (!titleElement)
+	{
+		return;
+	}
+
+	const displayPageLabel = Homey.__("settings.page");
+	const currentPageLabel = formatDisplayPageLabel(currentPage);
+	const nonDefaultPageCount = Math.max(0, totalPages - 1);
+	if (nonDefaultPageCount === 0)
+	{
+		titleElement.textContent = `${displayPageLabel}: ${currentPageLabel}`;
+		return;
+	}
+
+	const totalPagesHint = escapeHtml(Homey.__("settings.displaySimTotalPagesHint"));
+	const sharedPageHeaderHint = normalizeTooltipHtml(getSharedPageHeaderTooltipText());
+	const safeDisplayPageLabel = escapeHtml(displayPageLabel);
+	const safeCurrentPageLabel = escapeHtml(currentPageLabel);
+	titleElement.innerHTML = `${safeDisplayPageLabel}: ${safeCurrentPageLabel} / <span class="display-sim-total-pages">${nonDefaultPageCount}</span><span class="tooltip display-sim-total-pages-tooltip"><i class="fi fi-rr-info" aria-hidden="true"></i><span class="tooltiptext">${sharedPageHeaderHint}</span></span>`;
+}
+
+function getSharedPageHeaderTooltipText()
+{
+	const pageHelpText = (Homey.__("settings.buttonPageExplanation") || '').trim();
+	const totalPagesHelpText = (Homey.__("settings.displaySimTotalPagesHint") || '').trim();
+
+	if (!pageHelpText)
+	{
+		return totalPagesHelpText;
+	}
+
+	if (!totalPagesHelpText)
+	{
+		return pageHelpText;
+	}
+
+	if (pageHelpText === totalPagesHelpText)
+	{
+		return pageHelpText;
+	}
+
+	return `${pageHelpText} ${totalPagesHelpText}`;
+}
+
+function getButtonPageHeaderTitleMarkup(currentPage, totalPages)
+{
+	const buttonPageLabel = Homey.__("settings.page");
+	const currentPageLabel = formatButtonPageLabel(currentPage);
+	const nonDefaultPageCount = Math.max(0, totalPages - 1);
+	const safeButtonPageLabel = escapeHtml(buttonPageLabel);
+	const safeCurrentPageLabel = escapeHtml(currentPageLabel);
+
+	if (nonDefaultPageCount === 0)
+	{
+		return `${safeButtonPageLabel}: ${safeCurrentPageLabel}`;
+	}
+
+	const sharedPageHeaderHint = normalizeTooltipHtml(getSharedPageHeaderTooltipText());
+	return `${safeButtonPageLabel}: ${safeCurrentPageLabel} / <span class="display-sim-total-pages">${nonDefaultPageCount}</span><span class="tooltip display-sim-total-pages-tooltip"><i class="fi fi-rr-info" aria-hidden="true"></i><span class="tooltiptext">${sharedPageHeaderHint}</span></span>`;
+}
+
+function getButtonPanelDimPreviewText(pageConfig, side, pageIndex, configIndex = currentButtonConfigurationNo)
+{
+	const deviceValue = getLiveButtonPanelFieldValue(pageConfig, side, 'Device', '', pageIndex, configIndex);
+	const capabilityValue = getLiveButtonPanelFieldValue(pageConfig, side, 'Capability', '', pageIndex, configIndex);
+
+	let percent = NaN;
+	if (deviceValue && capabilityValue && deviceValue !== 'none' && deviceValue !== 'customMQTT' && deviceValue !== '_variable_')
+	{
+		const cacheEntry = displayPagePopupLiveValueCache.get(`${deviceValue}_${capabilityValue}`);
+		if (cacheEntry && cacheEntry.value !== undefined && cacheEntry.value !== null)
+		{
+			const rawVal = parseFloat(cacheEntry.value);
+			if (!Number.isNaN(rawVal))
 			{
-				return `
+				percent = Math.round(rawVal <= 1 ? rawVal * 100 : rawVal);
+			}
+		}
+	}
+
+	if (Number.isNaN(percent) && Number(configIndex) === Number(currentButtonConfigurationNo))
+	{
+		const capabilityElement = document.getElementById(`${side}${pageIndex}Capability`);
+		const selectedOption = capabilityElement && capabilityElement.selectedOptions ? capabilityElement.selectedOptions[0] : null;
+		const rawValue = selectedOption ? parseFloat(selectedOption.dataset.value) : NaN;
+		if (!Number.isNaN(rawValue))
+		{
+			percent = Math.round(rawValue <= 1 ? rawValue * 100 : rawValue);
+		}
+	}
+
+	if (Number.isNaN(percent))
+	{
+		percent = 50;
+	}
+
+	const dimChange = getLiveButtonPanelFieldValue(pageConfig, side, 'DimChange', '', pageIndex, configIndex);
+	const direction = (typeof dimChange === 'string' && dimChange.indexOf('-') >= 0) ? '-' : '+';
+
+	return `${percent}% ${direction}`;
+}
+
+function getButtonPanelVariablePreviewText(deviceValue, capabilityValue)
+{
+	if (deviceValue !== '_variable_')
+	{
+		return null;
+	}
+
+	const selectedVariable = variablesArray.find((variable) => variable.id === capabilityValue);
+	if (!selectedVariable || (selectedVariable.type === 'boolean'))
+	{
+		return null;
+	}
+
+	return (selectedVariable.value === undefined || selectedVariable.value === null) ? '' : String(selectedVariable.value);
+}
+
+function getButtonPanelCapabilityPreviewText(side, pageIndex, deviceValue, capabilityValue, configIndex = currentButtonConfigurationNo)
+{
+	if ((deviceValue === '_variable_') || (capabilityValue === 'dim') || (capabilityValue === 'windowcoverings_state') || !capabilityValue)
+	{
+		return null;
+	}
+
+	if (deviceValue && capabilityValue && deviceValue !== 'none' && deviceValue !== 'customMQTT')
+	{
+		const cacheEntry = displayPagePopupLiveValueCache.get(`${deviceValue}_${capabilityValue}`);
+		if (cacheEntry && cacheEntry.value !== undefined && cacheEntry.value !== null)
+		{
+			const valueText = sanitizeDisplayString(formatDisplayPopupValue(cacheEntry.value, 1), '');
+			const unitText = sanitizeDisplayString(cacheEntry.unit || '', '');
+			const withUnit = unitText ? `${valueText}${valueText ? ' ' : ''}${unitText}` : valueText;
+			if (withUnit)
+			{
+				return withUnit;
+			}
+		}
+	}
+
+	const capabilityElement = Number(configIndex) === Number(currentButtonConfigurationNo) ? document.getElementById(`${side}${pageIndex}Capability`) : null;
+	const selectedOption = capabilityElement && capabilityElement.selectedOptions ? capabilityElement.selectedOptions[0] : null;
+	if (!selectedOption || !selectedOption.dataset.type || (selectedOption.dataset.type === 'boolean'))
+	{
+		return null;
+	}
+
+	if (selectedOption.dataset.type === 'enum')
+	{
+		try
+		{
+			const values = JSON.parse(selectedOption.dataset.values || '[]');
+			const match = values.find((entry) => entry.id === selectedOption.dataset.value);
+			return match ? (match.title || match.id) : (selectedOption.dataset.value || '');
+		}
+		catch (err)
+		{
+			return selectedOption.dataset.value || '';
+		}
+	}
+
+	if (selectedOption.dataset.type === 'number')
+	{
+		const valueText = sanitizeDisplayString(selectedOption.dataset.value || '', '');
+		const unitText = sanitizeDisplayString(selectedOption.dataset.unit || '', '');
+		const withUnit = unitText ? `${valueText}${valueText ? ' ' : ''}${unitText}` : valueText;
+		return withUnit ? `${withUnit} +/-` : '+/-';
+	}
+
+	return selectedOption.dataset.value || '';
+}
+
+function getButtonPanelPreviewMarkup(pageConfig, side, pageIndex = buttonPagePopupCurrentPage, configIndex = currentButtonConfigurationNo, isReadonly = false)
+{
+	ensureButtonSideAdvancedDefaults(pageConfig, side);
+	const isAdvancedMode = isButtonSideAdvanced(pageConfig, side);
+	const topTextRaw = sanitizeDisplayString(getLiveButtonPanelFieldValue(pageConfig, side, 'TopText', '', pageIndex, configIndex), '');
+	const deviceValue = getLiveButtonPanelFieldValue(pageConfig, side, 'Device', '', pageIndex, configIndex);
+	const capabilityValue = getLiveButtonPanelFieldValue(pageConfig, side, 'Capability', '', pageIndex, configIndex);
+
+	let resolvedTopText = topTextRaw;
+	if (!resolvedTopText && deviceValue && deviceValue !== 'none' && deviceValue !== 'customMQTT')
+	{
+		if (deviceValue === '_variable_')
+		{
+			const varObj = variablesArray.find((v) => v.id === capabilityValue);
+			if (varObj && varObj.name) resolvedTopText = varObj.name;
+		}
+		else
+		{
+			const devObj = buttonDevicesArray.find((d) => d.id === deviceValue);
+			if (devObj && devObj.name) resolvedTopText = devObj.name;
+		}
+	}
+
+	const hasTopText = !!resolvedTopText;
+	const topText = hasTopText ? escapeHtml(resolvedTopText) : (isReadonly ? '' : `<span class="button-sim-placeholder">${Homey.__("settings.clickToAddTitle")}</span>`);
+	const isDimCapability = (capabilityValue === 'dim');
+	const variablePreviewText = getButtonPanelVariablePreviewText(deviceValue, capabilityValue);
+	const capabilityPreviewText = (variablePreviewText === null) ? getButtonPanelCapabilityPreviewText(side, pageIndex, deviceValue, capabilityValue, configIndex) : null;
+	const nonBooleanPreviewText = (variablePreviewText !== null) ? variablePreviewText : capabilityPreviewText;
+	const isNonBooleanVariable = (nonBooleanPreviewText !== null);
+	const onTextRaw = sanitizeDisplayString(getLiveButtonPanelFieldValue(pageConfig, side, 'OnText', '', pageIndex, configIndex), '');
+	const offTextRaw = sanitizeDisplayString(getLiveButtonPanelFieldValue(pageConfig, side, 'OffText', '', pageIndex, configIndex), '');
+	const isVariableSvg = isNonBooleanVariable && isSvgTextContent(nonBooleanPreviewText);
+	let stateTextRaw = '';
+	if (isDimCapability)
+	{
+		stateTextRaw = getButtonPanelDimPreviewText(pageConfig, side, pageIndex, configIndex);
+	}
+	else if (isNonBooleanVariable && !isVariableSvg)
+	{
+		stateTextRaw = sanitizeDisplayString(nonBooleanPreviewText, '');
+	}
+	else
+	{
+		const defaultStateText = (buttonPagePopupLedState === 'on') ? 'On' : 'Off';
+		stateTextRaw = (buttonPagePopupLedState === 'on') ? (onTextRaw || defaultStateText) : (offTextRaw || defaultStateText);
+	}
+	const hasStateText = !!sanitizeDisplayString(stateTextRaw, '');
+	const stateText = hasStateText ? escapeHtml(stateTextRaw) : (isReadonly ? '' : `<span class="button-sim-placeholder">${Homey.__("settings.clickToAddValue")}</span>`);
+	const textFieldSuffix = isDimCapability ? 'DimChange' : (isNonBooleanVariable ? 'Capability' : ((buttonPagePopupLedState === 'on') ? 'OnText' : 'OffText'));
+	const svgFieldSuffix = (buttonPagePopupLedState === 'on') ? 'OnSVG' : 'OffSVG';
+	const customSvgText = getLiveButtonPanelFieldValue(pageConfig, side, svgFieldSuffix, '', pageIndex, configIndex);
+	const selectedSvgText = (customSvgText && isSvgTextContent(customSvgText))
+		? customSvgText
+		: (isVariableSvg ? nonBooleanPreviewText : customSvgText);
+	const svgMarkup = getButtonPanelPreviewSvg(selectedSvgText || '');
+	const ledMarkup = `<div class="button-sim-leds ${side === 'right' ? 'button-sim-leds-right' : ''}">${getButtonPanelLedMarkup(pageConfig, side, pageIndex, configIndex)}</div>`;
+	const advancedBadge = (isAdvancedMode && !isReadonly)
+		? `<span class="button-sim-advanced-badge ${side === 'right' ? 'button-sim-advanced-badge-right' : 'button-sim-advanced-badge-left'}" role="button" tabindex="0" title="${Homey.__("settings.advancedMappingsEnabled")}" onclick="activateDisplayedButtonConfiguration(${configIndex}); openButtonAdvancedPopup('${side}', ${pageIndex}, 'event'); return false;"><span class="button-sim-advanced-badge-label">${Homey.__("settings.advancedBadgeLabel")}</span></span>`
+		: '';
+	const activateConfig = isReadonly ? '' : `activateDisplayedButtonConfiguration(${configIndex}); `;
+	const contentMarkup = isReadonly
+		? (svgMarkup
+			? `<div class="button-sim-content button-sim-content-svg">
+					<div class="button-sim-top">${topText}</div>
+					<div class="button-sim-icon">${svgMarkup}</div>
+				</div>`
+			: `<div class="button-sim-content">
+					<div class="button-sim-top">${topText}</div>
+					<div class="button-sim-state-block">
+						<div class="button-sim-state-line">${stateText}</div>
+					</div>
+				</div>`)
+		: (svgMarkup
+			? `<div class="button-sim-content button-sim-content-svg" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, '${svgFieldSuffix}');">
+					<div class="button-sim-top-hit-area" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');" title="${Homey.__("settings.editTopLabel")}"></div>
+					<div class="button-sim-top" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');">${topText}</div>
+					<div class="button-sim-icon" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, '${svgFieldSuffix}');">${svgMarkup}</div>
+				</div>`
+			: `<div class="button-sim-content">
+					<div class="button-sim-top-hit-area" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');" title="${Homey.__("settings.editTopLabel")}"></div>
+					<div class="button-sim-top" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');">${topText}</div>
+					<div class="button-sim-state-block" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, '${textFieldSuffix}');">
+						<div class="button-sim-state-line">${stateText}</div>
+					</div>
+				</div>`);
+
+	if (side === 'left')
+	{
+		return `
 					<div class="button-sim-shell button-sim-shell-left">
 						${advancedBadge}
 						${ledMarkup}
 						${contentMarkup}
 					</div>`;
-			}
+	}
 
-			return `
+	return `
 				<div class="button-sim-shell button-sim-shell-right">
 					${advancedBadge}
 					${contentMarkup}
 					${ledMarkup}
 				</div>`;
+}
+
+function renderInlineButtonPagePreview(page)
+{
+	const previewElements = document.querySelectorAll(`[data-button-preview-page="${page}"]`);
+	previewElements.forEach((previewElement) =>
+	{
+		const configIndex = Number(previewElement.dataset.configIndex);
+		const config = localButtonConfigurations[configIndex];
+		if (!Array.isArray(config) || !config[page])
+		{
+			return;
 		}
 
-		function renderInlineButtonPagePreview(page)
-		{
-			const previewElements = document.querySelectorAll(`[data-button-preview-page="${page}"]`);
-			previewElements.forEach((previewElement) =>
-			{
-				const configIndex = Number(previewElement.dataset.configIndex);
-				const config = localButtonConfigurations[configIndex];
-				if (!Array.isArray(config) || !config[page])
-				{
-					return;
-				}
-
-				const pageConfig = config[page];
-				const leftAdvanced = isButtonSideAdvanced(pageConfig, 'left');
-				const rightAdvanced = isButtonSideAdvanced(pageConfig, 'right');
-				previewElement.innerHTML =
-					`<button class="button-sim-mode-toggle button-sim-mode-toggle-left${leftAdvanced ? ' advanced' : ''}" type="button" onclick="return toggleDisplayedButtonMode(event, ${configIndex}, 'left', ${page});" aria-pressed="${leftAdvanced ? 'true' : 'false'}" title="${Homey.__("settings.leftAdvancedLabel")}">${leftAdvanced ? 'ADV' : 'STD'}</button>
+		const pageConfig = config[page];
+		const leftAdvanced = isButtonSideAdvanced(pageConfig, 'left');
+		const rightAdvanced = isButtonSideAdvanced(pageConfig, 'right');
+		previewElement.innerHTML =
+			`<button class="button-sim-mode-toggle button-sim-mode-toggle-left${leftAdvanced ? ' advanced' : ''}" type="button" onclick="return toggleDisplayedButtonMode(event, ${configIndex}, 'left', ${page});" aria-pressed="${leftAdvanced ? 'true' : 'false'}" title="${Homey.__("settings.leftAdvancedLabel")}">${leftAdvanced ? 'ADV' : 'STD'}</button>
 					<button class="button-sim-mode-toggle button-sim-mode-toggle-right${rightAdvanced ? ' advanced' : ''}" type="button" onclick="return toggleDisplayedButtonMode(event, ${configIndex}, 'right', ${page});" aria-pressed="${rightAdvanced ? 'true' : 'false'}" title="${Homey.__("settings.rightAdvancedLabel")}">${rightAdvanced ? 'ADV' : 'STD'}</button>
 					<button class="button-sim-item" onclick="activateDisplayedButtonConfiguration(${configIndex}); return handleButtonSimShellClick(event, 'left', ${page});" title="${Homey.__("settings.openLeftPanelSettings")}">
 						${getButtonPanelPreviewMarkup(pageConfig, 'left', page, configIndex)}
@@ -4550,55 +4660,55 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 						${getButtonPanelPreviewMarkup(pageConfig, 'right', page, configIndex)}
 					</button>
 					`;
-			});
+	});
 
-			document.querySelectorAll('.button-inline-state-toggle').forEach((stateToggleElement) =>
-			{
-				stateToggleElement.textContent = (buttonPagePopupLedState === 'on') ? Homey.__("settings.onState") : Homey.__("settings.offState");
-			});
-		}
+	document.querySelectorAll('.button-inline-state-toggle').forEach((stateToggleElement) =>
+	{
+		stateToggleElement.textContent = (buttonPagePopupLedState === 'on') ? Homey.__("settings.onState") : Homey.__("settings.offState");
+	});
+}
 
-		function renderInlineButtonPagePreviews()
-		{
-			for (let page = 0; page < getDisplayedButtonPageCount(); page++)
-			{
-				renderInlineButtonPagePreview(page);
-			}
-		}
+function renderInlineButtonPagePreviews()
+{
+	for (let page = 0; page < getDisplayedButtonPageCount(); page++)
+	{
+		renderInlineButtonPagePreview(page);
+	}
+}
 
-		function toggleInlineButtonSimState()
-		{
-			buttonPagePopupLedState = (buttonPagePopupLedState === 'on') ? 'off' : 'on';
-			renderInlineButtonPagePreviews();
+function toggleInlineButtonSimState()
+{
+	buttonPagePopupLedState = (buttonPagePopupLedState === 'on') ? 'off' : 'on';
+	renderInlineButtonPagePreviews();
 
-			if (buttonPagePopupOverlayElement && buttonPagePopupOverlayElement.classList.contains('visible'))
-			{
-				renderButtonPagePopup();
-			}
-		}
+	if (buttonPagePopupOverlayElement && buttonPagePopupOverlayElement.classList.contains('visible'))
+	{
+		renderButtonPagePopup();
+	}
+}
 
-		function renderButtonPagePopup()
-		{
-			if (!buttonPagePopupContentElement || buttonPagePopupCurrentPage < 0)
-			{
-				return;
-			}
+function renderButtonPagePopup()
+{
+	if (!buttonPagePopupContentElement || buttonPagePopupCurrentPage < 0)
+	{
+		return;
+	}
 
-			const config = localButtonConfigurations[currentButtonConfigurationNo];
-			if (!Array.isArray(config) || config.length === 0)
-			{
-				return;
-			}
+	const config = localButtonConfigurations[currentButtonConfigurationNo];
+	if (!Array.isArray(config) || config.length === 0)
+	{
+		return;
+	}
 
-			buttonPagePopupCurrentPage = Math.max(0, Math.min(buttonPagePopupCurrentPage, config.length - 1));
-			if (!config[buttonPagePopupCurrentPage])
-			{
-				return;
-			}
+	buttonPagePopupCurrentPage = Math.max(0, Math.min(buttonPagePopupCurrentPage, config.length - 1));
+	if (!config[buttonPagePopupCurrentPage])
+	{
+		return;
+	}
 
-			const pageConfig = config[buttonPagePopupCurrentPage];
-			buttonPagePopupContentElement.innerHTML =
-				`<div class="button-sim-bar">
+	const pageConfig = config[buttonPagePopupCurrentPage];
+	buttonPagePopupContentElement.innerHTML =
+		`<div class="button-sim-bar">
 					<button class="button-sim-item" onclick="return handleButtonSimShellClick(event, 'left', ${buttonPagePopupCurrentPage});" title="${Homey.__("settings.openLeftPanelSettings")}">
 						${getButtonPanelPreviewMarkup(pageConfig, 'left')}
 					</button>
@@ -4613,498 +4723,498 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 					</button>
 				</div>`;
 
-			if (buttonPagePopupStateToggleElement)
-			{
-				buttonPagePopupStateToggleElement.textContent = `${buttonPagePopupLedState === 'on' ? Homey.__("settings.onState") : Homey.__("settings.offState")}`;
-			}
+	if (buttonPagePopupStateToggleElement)
+	{
+		buttonPagePopupStateToggleElement.textContent = `${buttonPagePopupLedState === 'on' ? Homey.__("settings.onState") : Homey.__("settings.offState")}`;
+	}
 
-			if (buttonPagePopupTitleElement)
-			{
-				buttonPagePopupTitleElement.textContent = `${Homey.__("settings.page")} ${formatButtonPageLabel(buttonPagePopupCurrentPage)}`;
-			}
+	if (buttonPagePopupTitleElement)
+	{
+		buttonPagePopupTitleElement.textContent = `${Homey.__("settings.page")} ${formatButtonPageLabel(buttonPagePopupCurrentPage)}`;
+	}
 
-			if (buttonPagePopupPrevElement)
-			{
-				buttonPagePopupPrevElement.disabled = (buttonPagePopupCurrentPage <= 0);
-			}
+	if (buttonPagePopupPrevElement)
+	{
+		buttonPagePopupPrevElement.disabled = (buttonPagePopupCurrentPage <= 0);
+	}
 
-			if (buttonPagePopupNextElement)
-			{
-				buttonPagePopupNextElement.disabled = (buttonPagePopupCurrentPage >= (config.length - 1));
-			}
+	if (buttonPagePopupNextElement)
+	{
+		buttonPagePopupNextElement.disabled = (buttonPagePopupCurrentPage >= (config.length - 1));
+	}
 
-			updateButtonPagePopupScrollOffset();
+	updateButtonPagePopupScrollOffset();
+}
+
+function stepButtonPagePopup(delta)
+{
+	const config = localButtonConfigurations[currentButtonConfigurationNo];
+	if (!Array.isArray(config) || config.length === 0 || buttonPagePopupCurrentPage < 0)
+	{
+		return;
+	}
+
+	buttonPagePopupCurrentPage = Math.max(0, Math.min(buttonPagePopupCurrentPage + delta, config.length - 1));
+	renderButtonPagePopup();
+	focusButtonPageSectionFromPopup(buttonPagePopupCurrentPage);
+}
+
+function focusButtonPageSectionFromPopup(page)
+{
+	if (configTypeElement && configTypeElement.value !== 'panelConfig')
+	{
+		configTypeElement.value = 'panelConfig';
+		configTypeChanged('panelConfig');
+	}
+
+	const alignPageSectionBelowSim = function (attempt = 0)
+	{
+		updateButtonPagePopupScrollOffset();
+
+		const pageSectionElement = document.getElementById(`${page}ButtonPageSection`);
+		if (!pageSectionElement)
+		{
+			if (attempt < 6)
+			{
+				setTimeout(() => alignPageSectionBelowSim(attempt + 1), 60);
+			}
+			return;
 		}
 
-		function stepButtonPagePopup(delta)
-		{
-			const config = localButtonConfigurations[currentButtonConfigurationNo];
-			if (!Array.isArray(config) || config.length === 0 || buttonPagePopupCurrentPage < 0)
-			{
-				return;
-			}
+		const fixedTopElement = document.querySelector('.fixedTop');
+		const fixedTopHeight = fixedTopElement ? fixedTopElement.offsetHeight : 0;
+		const simDialogElement = document.querySelector('.button-sim-overlay.visible .button-sim-dialog');
+		const simBottom = simDialogElement ? Math.max(0, simDialogElement.getBoundingClientRect().bottom) : 0;
+		const targetViewportTop = Math.max(fixedTopHeight + 8, simBottom + 6);
+		const targetTop = Math.max(0, pageSectionElement.getBoundingClientRect().top + window.scrollY - targetViewportTop);
+		window.scrollTo({ top: targetTop, behavior: 'smooth' });
 
-			buttonPagePopupCurrentPage = Math.max(0, Math.min(buttonPagePopupCurrentPage + delta, config.length - 1));
-			renderButtonPagePopup();
-			focusButtonPageSectionFromPopup(buttonPagePopupCurrentPage);
+		if (attempt === 0)
+		{
+			pageSectionElement.classList.add('button-page-highlight');
+			setTimeout(() =>
+			{
+				pageSectionElement.classList.remove('button-page-highlight');
+			}, 1400);
 		}
+	};
 
-		function focusButtonPageSectionFromPopup(page)
+	requestAnimationFrame(() =>
+	{
+		alignPageSectionBelowSim(0);
+
+		const pageNumElement = document.getElementById(`${page}PageNum`);
+		if (pageNumElement && typeof pageNumElement.focus === 'function')
 		{
-			if (configTypeElement && configTypeElement.value !== 'panelConfig')
+			try
 			{
-				configTypeElement.value = 'panelConfig';
-				configTypeChanged('panelConfig');
+				pageNumElement.focus({ preventScroll: true });
 			}
-
-			const alignPageSectionBelowSim = function (attempt = 0)
+			catch (focusError)
 			{
-				updateButtonPagePopupScrollOffset();
-
-				const pageSectionElement = document.getElementById(`${page}ButtonPageSection`);
-				if (!pageSectionElement)
-				{
-					if (attempt < 6)
-					{
-						setTimeout(() => alignPageSectionBelowSim(attempt + 1), 60);
-					}
-					return;
-				}
-
-				const fixedTopElement = document.querySelector('.fixedTop');
-				const fixedTopHeight = fixedTopElement ? fixedTopElement.offsetHeight : 0;
-				const simDialogElement = document.querySelector('.button-sim-overlay.visible .button-sim-dialog');
-				const simBottom = simDialogElement ? Math.max(0, simDialogElement.getBoundingClientRect().bottom) : 0;
-				const targetViewportTop = Math.max(fixedTopHeight + 8, simBottom + 6);
-				const targetTop = Math.max(0, pageSectionElement.getBoundingClientRect().top + window.scrollY - targetViewportTop);
-				window.scrollTo({ top: targetTop, behavior: 'smooth' });
-
-				if (attempt === 0)
-				{
-					pageSectionElement.classList.add('button-page-highlight');
-					setTimeout(() =>
-					{
-						pageSectionElement.classList.remove('button-page-highlight');
-					}, 1400);
-				}
-			};
-
-			requestAnimationFrame(() =>
-			{
-				alignPageSectionBelowSim(0);
-
-				const pageNumElement = document.getElementById(`${page}PageNum`);
-				if (pageNumElement && typeof pageNumElement.focus === 'function')
-				{
-					try
-					{
-						pageNumElement.focus({ preventScroll: true });
-					}
-					catch (focusError)
-					{
-						pageNumElement.focus();
-					}
-				}
-
-				setTimeout(() => alignPageSectionBelowSim(1), 120);
-			});
-		}
-
-		function focusButtonPanelFromPopup(side, page)
-		{
-			focusButtonControlFromPopup(side, page, 'Device');
-		}
-
-		function handleButtonSimShellClick(event, side, page)
-		{
-			if (event)
-			{
-				event.preventDefault();
-				event.stopPropagation();
-			}
-
-			const config = localButtonConfigurations[currentButtonConfigurationNo];
-			if (!Array.isArray(config) || !config[page])
-			{
-				return false;
-			}
-
-			if (isButtonSideAdvanced(config[page], side))
-			{
-				openButtonAdvancedPopup(side, page, 'event');
-				return false;
-			}
-
-			focusButtonPanelFromPopup(side, page);
-			return false;
-		}
-
-		function buildDeviceSelectHtml(id)
-		{
-			return `<select class="homey-form-select" id="${id}"></select>`;
-		}
-
-		function fillPopupDeviceSelector(selectElement, includeVariable, includeNone = true)
-		{
-			if (!selectElement)
-			{
-				return;
-			}
-
-			selectElement.innerHTML = '';
-			if (includeNone)
-			{
-				const noneOption = document.createElement('option');
-				noneOption.value = 'none';
-				noneOption.text = Homey.__('settings.none');
-				selectElement.add(noneOption);
-			}
-
-			if (includeVariable)
-			{
-				const variableOption = document.createElement('option');
-				variableOption.value = '_variable_';
-				variableOption.text = Homey.__('settings.variable');
-				selectElement.add(variableOption);
-			}
-
-			let currentGroup = '';
-			for (const device of buttonDevicesArray)
-			{
-				const zoneName = (device.zone && device.zone.name) ? device.zone.name : (device.zoneName || '');
-				if (zoneName && zoneName !== currentGroup)
-				{
-					const groupOption = document.createElement('option');
-					groupOption.disabled = true;
-					groupOption.value = zoneName;
-					groupOption.text = zoneName;
-					selectElement.add(groupOption);
-					currentGroup = zoneName;
-				}
-
-				const option = document.createElement('option');
-				option.value = device.id;
-				option.text = `  ${device.name}`;
-				selectElement.add(option);
+				pageNumElement.focus();
 			}
 		}
 
-		function fillPopupCapabilitySelector(selectElement, deviceId, selectedCapability, filterMode)
+		setTimeout(() => alignPageSectionBelowSim(1), 120);
+	});
+}
+
+function focusButtonPanelFromPopup(side, page)
+{
+	focusButtonControlFromPopup(side, page, 'Device');
+}
+
+function handleButtonSimShellClick(event, side, page)
+{
+	if (event)
+	{
+		event.preventDefault();
+		event.stopPropagation();
+	}
+
+	const config = localButtonConfigurations[currentButtonConfigurationNo];
+	if (!Array.isArray(config) || !config[page])
+	{
+		return false;
+	}
+
+	if (isButtonSideAdvanced(config[page], side))
+	{
+		openButtonAdvancedPopup(side, page, 'event');
+		return false;
+	}
+
+	focusButtonPanelFromPopup(side, page);
+	return false;
+}
+
+function buildDeviceSelectHtml(id)
+{
+	return `<select class="homey-form-select" id="${id}"></select>`;
+}
+
+function fillPopupDeviceSelector(selectElement, includeVariable, includeNone = true)
+{
+	if (!selectElement)
+	{
+		return;
+	}
+
+	selectElement.innerHTML = '';
+	if (includeNone)
+	{
+		const noneOption = document.createElement('option');
+		noneOption.value = 'none';
+		noneOption.text = Homey.__('settings.none');
+		selectElement.add(noneOption);
+	}
+
+	if (includeVariable)
+	{
+		const variableOption = document.createElement('option');
+		variableOption.value = '_variable_';
+		variableOption.text = Homey.__('settings.variable');
+		selectElement.add(variableOption);
+	}
+
+	let currentGroup = '';
+	for (const device of buttonDevicesArray)
+	{
+		const zoneName = (device.zone && device.zone.name) ? device.zone.name : (device.zoneName || '');
+		if (zoneName && zoneName !== currentGroup)
 		{
-			if (!selectElement)
-			{
-				return Promise.resolve();
-			}
+			const groupOption = document.createElement('option');
+			groupOption.disabled = true;
+			groupOption.value = zoneName;
+			groupOption.text = zoneName;
+			selectElement.add(groupOption);
+			currentGroup = zoneName;
+		}
 
-			const requestToken = `${Date.now()}_${Math.random().toString(16).slice(2)}`;
-			selectElement.dataset.popupCapabilityRequestToken = requestToken;
-			const isStaleRequest = () => selectElement.dataset.popupCapabilityRequestToken !== requestToken;
+		const option = document.createElement('option');
+		option.value = device.id;
+		option.text = `  ${device.name}`;
+		selectElement.add(option);
+	}
+}
 
-			selectElement.innerHTML = '';
-			const seenCapabilityIds = new Set();
-			const getDedupKey = (capabilityId) => String(capabilityId || '').trim().toLowerCase();
+function fillPopupCapabilitySelector(selectElement, deviceId, selectedCapability, filterMode)
+{
+	if (!selectElement)
+	{
+		return Promise.resolve();
+	}
 
-			if (filterMode === 'event')
-			{
-				const toggleOption = document.createElement('option');
-				toggleOption.value = '__toggleDirection__';
-				toggleOption.text = Homey.__("settings.toggleDirection");
-				toggleOption.dataset.type = 'direction';
-				selectElement.add(toggleOption);
-			}
+	const requestToken = `${Date.now()}_${Math.random().toString(16).slice(2)}`;
+	selectElement.dataset.popupCapabilityRequestToken = requestToken;
+	const isStaleRequest = () => selectElement.dataset.popupCapabilityRequestToken !== requestToken;
 
-			if (filterMode === 'onoff')
-			{
-				const noneOption = document.createElement('option');
-				noneOption.value = 'none';
-				noneOption.text = Homey.__("settings.none");
-				selectElement.add(noneOption);
-			}
+	selectElement.innerHTML = '';
+	const seenCapabilityIds = new Set();
+	const getDedupKey = (capabilityId) => String(capabilityId || '').trim().toLowerCase();
 
-			if (!deviceId || deviceId === 'none')
-			{
-				if (filterMode === 'event')
-				{
-					selectElement.value = '__toggleDirection__';
-				}
-				return Promise.resolve();
-			}
+	if (filterMode === 'event')
+	{
+		const toggleOption = document.createElement('option');
+		toggleOption.value = '__toggleDirection__';
+		toggleOption.text = Homey.__("settings.toggleDirection");
+		toggleOption.dataset.type = 'direction';
+		selectElement.add(toggleOption);
+	}
 
-			if (deviceId === '_variable_')
-			{
-				if (filterMode === 'onoff')
-				{
-					return Promise.resolve();
-				}
+	if (filterMode === 'onoff')
+	{
+		const noneOption = document.createElement('option');
+		noneOption.value = 'none';
+		noneOption.text = Homey.__("settings.none");
+		selectElement.add(noneOption);
+	}
 
-				if (!variablesFetched)
-				{
-					return new Promise((resolve) =>
-					{
-						Homey.api('POST', '/get_variables/', {}, function (err, variables)
-						{
-							if (isStaleRequest())
-							{
-								resolve();
-								return;
-							}
-							if (!err && variables)
-							{
-								variablesArray = Object.values(variables);
-								variablesFetched = true;
-							}
-							for (const variable of variablesArray)
-							{
-								if (filterMode === 'led' && variable.type !== 'boolean' && variable.type !== 'number')
-								{
-									continue;
-								}
-								const dedupKey = getDedupKey(variable.id);
-								if (!dedupKey || seenCapabilityIds.has(dedupKey))
-								{
-									continue;
-								}
-								seenCapabilityIds.add(dedupKey);
-								const option = document.createElement('option');
-								option.value = variable.id;
-								option.text = variable.type === 'boolean' ? variable.name : `${variable.name} (${variable.type})`;
-								option.dataset.type = variable.type;
-								selectElement.add(option);
-							}
-							if (selectedCapability)
-							{
-								selectElement.value = selectedCapability;
-							}
-							resolve();
-						});
-					});
-				}
+	if (!deviceId || deviceId === 'none')
+	{
+		if (filterMode === 'event')
+		{
+			selectElement.value = '__toggleDirection__';
+		}
+		return Promise.resolve();
+	}
 
-				for (const variable of variablesArray)
-				{
-					if (filterMode === 'led' && variable.type !== 'boolean' && variable.type !== 'number')
-					{
-						continue;
-					}
-					const dedupKey = getDedupKey(variable.id);
-					if (!dedupKey || seenCapabilityIds.has(dedupKey))
-					{
-						continue;
-					}
-					seenCapabilityIds.add(dedupKey);
-					const option = document.createElement('option');
-					option.value = variable.id;
-					option.text = variable.type === 'boolean' ? variable.name : `${variable.name} (${variable.type})`;
-					option.dataset.type = variable.type;
-					selectElement.add(option);
-				}
-				if (selectedCapability)
-				{
-					selectElement.value = selectedCapability;
-				}
-				return Promise.resolve();
-			}
+	if (deviceId === '_variable_')
+	{
+		if (filterMode === 'onoff')
+		{
+			return Promise.resolve();
+		}
 
+		if (!variablesFetched)
+		{
 			return new Promise((resolve) =>
 			{
-				Homey.api('POST', '/device_capabilities/', { deviceId }, function (err, capabilities)
+				Homey.api('POST', '/get_variables/', {}, function (err, variables)
 				{
 					if (isStaleRequest())
 					{
 						resolve();
 						return;
 					}
-					if (!err && capabilities)
+					if (!err && variables)
 					{
-						const inferCapabilityType = function (capabilityId)
-						{
-							if (capabilityId === 'onoff')
-							{
-								return 'boolean';
-							}
-							if (capabilityId === 'dim')
-							{
-								return 'number';
-							}
-							if (capabilityId === 'windowcoverings_state')
-							{
-								return 'enum';
-							}
-							return '';
-						};
-
-						for (const [capabilityKey, capability] of Object.entries(capabilities))
-						{
-							const capabilityId = (typeof capability === 'string')
-								? capability
-								: ((capability && capability.id) ? capability.id : capabilityKey);
-							const capabilityTitle = (capability && typeof capability === 'object' && capability.title) ? capability.title : capabilityId;
-							const type = String((capability && typeof capability === 'object' && capability.type) || inferCapabilityType(capabilityId));
-							const isSetable = !(capability && typeof capability === 'object' && capability.setable === false);
-							const dedupKey = getDedupKey(capabilityId);
-							if (!dedupKey || seenCapabilityIds.has(dedupKey))
-							{
-								continue;
-							}
-							if (filterMode === 'event')
-							{
-								if (!isSetable)
-								{
-									continue;
-								}
-								const isLikelyEventCapability = (capabilityId === 'onoff') || (capabilityId === 'dim') || (capabilityId === 'windowcoverings_state');
-								if (!(type === 'boolean' || type === 'enum' || type === 'number' || isLikelyEventCapability))
-								{
-									continue;
-								}
-							}
-							else if (filterMode === 'led')
-							{
-								if (type !== 'boolean' && type !== 'number')
-								{
-									continue;
-								}
-							}
-							else if (filterMode === 'onoff'
-								&& capabilityId !== 'onoff'
-								&& !capabilityId.startsWith('onoff.'))
-							{
-								continue;
-							}
-
-							const option = document.createElement('option');
-							option.value = capabilityId;
-							option.text = `${capabilityTitle} (${capabilityId})`;
-							option.dataset.type = type;
-							selectElement.add(option);
-							seenCapabilityIds.add(dedupKey);
-						}
+						variablesArray = Object.values(variables);
+						variablesFetched = true;
 					}
-
-					if (selectedCapability && selectElement.querySelector(`option[value="${selectedCapability}"]`))
+					for (const variable of variablesArray)
+					{
+						if (filterMode === 'led' && variable.type !== 'boolean' && variable.type !== 'number')
+						{
+							continue;
+						}
+						const dedupKey = getDedupKey(variable.id);
+						if (!dedupKey || seenCapabilityIds.has(dedupKey))
+						{
+							continue;
+						}
+						seenCapabilityIds.add(dedupKey);
+						const option = document.createElement('option');
+						option.value = variable.id;
+						option.text = variable.type === 'boolean' ? variable.name : `${variable.name} (${variable.type})`;
+						option.dataset.type = variable.type;
+						selectElement.add(option);
+					}
+					if (selectedCapability)
 					{
 						selectElement.value = selectedCapability;
-					}
-					else if (filterMode === 'led' && selectElement.querySelector('option[value="onoff"]'))
-					{
-						selectElement.value = 'onoff';
-					}
-					else if (filterMode === 'event')
-					{
-						const firstCapabilityOption = Array.from(selectElement.options).find((option) => option.value !== '__toggleDirection__');
-						if (firstCapabilityOption)
-						{
-							selectElement.value = firstCapabilityOption.value;
-						}
-						else
-						{
-							selectElement.value = '__toggleDirection__';
-						}
-					}
-					else if (filterMode === 'onoff')
-					{
-						selectElement.value = 'none';
-					}
-					else if (selectElement.options.length > 0)
-					{
-						selectElement.selectedIndex = 0;
 					}
 					resolve();
 				});
 			});
 		}
 
-		async function resolvePopupCapabilityType(deviceId, capabilityId)
+		for (const variable of variablesArray)
 		{
-			if (!deviceId || deviceId === 'none' || deviceId === 'customMQTT' || !capabilityId)
+			if (filterMode === 'led' && variable.type !== 'boolean' && variable.type !== 'number')
 			{
-				return '';
+				continue;
 			}
-
-			if (deviceId === '_variable_')
+			const dedupKey = getDedupKey(variable.id);
+			if (!dedupKey || seenCapabilityIds.has(dedupKey))
 			{
-				if (!variablesFetched)
-				{
-					await new Promise((resolve) =>
-					{
-						Homey.api('POST', '/get_variables/', {}, function (err, variables)
-						{
-							if (!err && variables)
-							{
-								variablesArray = Object.values(variables);
-								variablesFetched = true;
-							}
-							resolve();
-						});
-					});
-				}
-
-				const selectedVariable = variablesArray.find((variable) => variable.id === capabilityId);
-				return selectedVariable ? String(selectedVariable.type || '') : '';
+				continue;
 			}
+			seenCapabilityIds.add(dedupKey);
+			const option = document.createElement('option');
+			option.value = variable.id;
+			option.text = variable.type === 'boolean' ? variable.name : `${variable.name} (${variable.type})`;
+			option.dataset.type = variable.type;
+			selectElement.add(option);
+		}
+		if (selectedCapability)
+		{
+			selectElement.value = selectedCapability;
+		}
+		return Promise.resolve();
+	}
 
-			return await new Promise((resolve) =>
+	return new Promise((resolve) =>
+	{
+		Homey.api('POST', '/device_capabilities/', { deviceId }, function (err, capabilities)
+		{
+			if (isStaleRequest())
 			{
-				Homey.api('POST', '/device_capabilities/', { deviceId }, function (err, capabilities)
+				resolve();
+				return;
+			}
+			if (!err && capabilities)
+			{
+				const inferCapabilityType = function (capabilityId)
 				{
-					if (err || !capabilities)
-					{
-						resolve('');
-						return;
-					}
-
 					if (capabilityId === 'onoff')
 					{
-						resolve('boolean');
-						return;
+						return 'boolean';
 					}
 					if (capabilityId === 'dim')
 					{
-						resolve('number');
-						return;
+						return 'number';
 					}
-
-					for (const [capabilityKey, capability] of Object.entries(capabilities))
+					if (capabilityId === 'windowcoverings_state')
 					{
-						const currentId = (typeof capability === 'string')
-							? capability
-							: ((capability && capability.id) ? capability.id : capabilityKey);
-						if (currentId === capabilityId)
+						return 'enum';
+					}
+					return '';
+				};
+
+				for (const [capabilityKey, capability] of Object.entries(capabilities))
+				{
+					const capabilityId = (typeof capability === 'string')
+						? capability
+						: ((capability && capability.id) ? capability.id : capabilityKey);
+					const capabilityTitle = (capability && typeof capability === 'object' && capability.title) ? capability.title : capabilityId;
+					const type = String((capability && typeof capability === 'object' && capability.type) || inferCapabilityType(capabilityId));
+					const isSetable = !(capability && typeof capability === 'object' && capability.setable === false);
+					const dedupKey = getDedupKey(capabilityId);
+					if (!dedupKey || seenCapabilityIds.has(dedupKey))
+					{
+						continue;
+					}
+					if (filterMode === 'event')
+					{
+						if (!isSetable)
 						{
-							resolve(String((capability && typeof capability === 'object' && capability.type) || ''));
-							return;
+							continue;
+						}
+						const isLikelyEventCapability = (capabilityId === 'onoff') || (capabilityId === 'dim') || (capabilityId === 'windowcoverings_state');
+						if (!(type === 'boolean' || type === 'enum' || type === 'number' || isLikelyEventCapability))
+						{
+							continue;
 						}
 					}
+					else if (filterMode === 'led')
+					{
+						if (type !== 'boolean' && type !== 'number')
+						{
+							continue;
+						}
+					}
+					else if (filterMode === 'onoff'
+						&& capabilityId !== 'onoff'
+						&& !capabilityId.startsWith('onoff.'))
+					{
+						continue;
+					}
 
-					resolve('');
+					const option = document.createElement('option');
+					option.value = capabilityId;
+					option.text = `${capabilityTitle} (${capabilityId})`;
+					option.dataset.type = type;
+					selectElement.add(option);
+					seenCapabilityIds.add(dedupKey);
+				}
+			}
+
+			if (selectedCapability && selectElement.querySelector(`option[value="${selectedCapability}"]`))
+			{
+				selectElement.value = selectedCapability;
+			}
+			else if (filterMode === 'led' && selectElement.querySelector('option[value="onoff"]'))
+			{
+				selectElement.value = 'onoff';
+			}
+			else if (filterMode === 'event')
+			{
+				const firstCapabilityOption = Array.from(selectElement.options).find((option) => option.value !== '__toggleDirection__');
+				if (firstCapabilityOption)
+				{
+					selectElement.value = firstCapabilityOption.value;
+				}
+				else
+				{
+					selectElement.value = '__toggleDirection__';
+				}
+			}
+			else if (filterMode === 'onoff')
+			{
+				selectElement.value = 'none';
+			}
+			else if (selectElement.options.length > 0)
+			{
+				selectElement.selectedIndex = 0;
+			}
+			resolve();
+		});
+	});
+}
+
+async function resolvePopupCapabilityType(deviceId, capabilityId)
+{
+	if (!deviceId || deviceId === 'none' || deviceId === 'customMQTT' || !capabilityId)
+	{
+		return '';
+	}
+
+	if (deviceId === '_variable_')
+	{
+		if (!variablesFetched)
+		{
+			await new Promise((resolve) =>
+			{
+				Homey.api('POST', '/get_variables/', {}, function (err, variables)
+				{
+					if (!err && variables)
+					{
+						variablesArray = Object.values(variables);
+						variablesFetched = true;
+					}
+					resolve();
 				});
 			});
 		}
 
-		async function openButtonAdvancedPopup(side, page, mode = 'event')
+		const selectedVariable = variablesArray.find((variable) => variable.id === capabilityId);
+		return selectedVariable ? String(selectedVariable.type || '') : '';
+	}
+
+	return await new Promise((resolve) =>
+	{
+		Homey.api('POST', '/device_capabilities/', { deviceId }, function (err, capabilities)
 		{
-			if (!buttonFieldPopupOverlayElement || !buttonFieldPopupBodyElement || !buttonFieldPopupTitleElement)
+			if (err || !capabilities)
 			{
+				resolve('');
 				return;
 			}
 
-			const config = localButtonConfigurations[currentButtonConfigurationNo];
-			if (!Array.isArray(config) || !config[page])
+			if (capabilityId === 'onoff')
 			{
+				resolve('boolean');
+				return;
+			}
+			if (capabilityId === 'dim')
+			{
+				resolve('number');
 				return;
 			}
 
-			const pageConfig = config[page];
-			ensureButtonSideAdvancedDefaults(pageConfig, side);
-			const showLedSourceSelectors = mode === 'led' && isButtonSideAdvanced(pageConfig, side);
-
-			buttonFieldPopupBindings = [];
-			buttonFieldPopupContext = { side, page, isAdvancedPopup: true, popupMode: mode };
-			buttonFieldPopupTitleElement.textContent = `${Homey.__(`settings.${side}Panel`)} - ${mode === 'led' ? Homey.__("settings.ledsPopupTitle") : Homey.__("settings.advancedMappingsPopupTitle")}`;
-
-			if (mode !== 'led')
+			for (const [capabilityKey, capability] of Object.entries(capabilities))
 			{
-				buttonFieldPopupBodyElement.innerHTML = `
+				const currentId = (typeof capability === 'string')
+					? capability
+					: ((capability && capability.id) ? capability.id : capabilityKey);
+				if (currentId === capabilityId)
+				{
+					resolve(String((capability && typeof capability === 'object' && capability.type) || ''));
+					return;
+				}
+			}
+
+			resolve('');
+		});
+	});
+}
+
+async function openButtonAdvancedPopup(side, page, mode = 'event')
+{
+	if (!buttonFieldPopupOverlayElement || !buttonFieldPopupBodyElement || !buttonFieldPopupTitleElement)
+	{
+		return;
+	}
+
+	const config = localButtonConfigurations[currentButtonConfigurationNo];
+	if (!Array.isArray(config) || !config[page])
+	{
+		return;
+	}
+
+	const pageConfig = config[page];
+	ensureButtonSideAdvancedDefaults(pageConfig, side);
+	const showLedSourceSelectors = mode === 'led' && isButtonSideAdvanced(pageConfig, side);
+
+	buttonFieldPopupBindings = [];
+	buttonFieldPopupContext = { side, page, isAdvancedPopup: true, popupMode: mode };
+	buttonFieldPopupTitleElement.textContent = `${Homey.__(`settings.${side}Panel`)} - ${mode === 'led' ? Homey.__("settings.ledsPopupTitle") : Homey.__("settings.advancedMappingsPopupTitle")}`;
+
+	if (mode !== 'led')
+	{
+		buttonFieldPopupBodyElement.innerHTML = `
 					<div class="button-field-popup-field button-popup-radio-row" id="popup${side}${page}DisplayRenderRow">
 						<label class="button-popup-radio-option"><input type="radio" name="popup${side}${page}DisplayBooleanRender" value="text"> ${Homey.__("settings.textLabel")}</label>
 						<label class="button-popup-radio-option"><input type="radio" name="popup${side}${page}DisplayBooleanRender" value="svg"> ${Homey.__("settings.svgLabel")}</label>
@@ -5164,10 +5274,10 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 						<label class="button-field-popup-label" for="popup${side}${page}LongValueStep"><span>${Homey.__("settings.longRepeatValueStep")}</span></label>
 						<input class="homey-form-input" id="popup${side}${page}LongValueStep" type="text">
 					</div>`;
-			}
-			else
-			{
-				buttonFieldPopupBodyElement.innerHTML = `
+	}
+	else
+	{
+		buttonFieldPopupBodyElement.innerHTML = `
 					${showLedSourceSelectors ? `
 					<div class="button-field-popup-field">
 						<label class="button-field-popup-label" for="popup${side}${page}LedDevice"><span>${Homey.__("settings.ledSourceDevice")}</span></label>
@@ -5193,1781 +5303,1778 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 						<input class="homey-form-input button-popup-led-input button-popup-led-input-wall-on" id="popup${side}${page}WallLEDOnColor" type="color">
 						<input class="homey-form-input button-popup-led-input button-popup-led-input-wall-off" id="popup${side}${page}WallLEDOffColor" type="color">
 					</div>`;
+	}
+
+	buttonFieldPopupOverlayElement.classList.add('visible');
+	buttonFieldPopupOverlayElement.setAttribute('aria-hidden', 'false');
+
+	if (mode !== 'led')
+	{
+		const displayRenderRowElement = document.getElementById(`popup${side}${page}DisplayRenderRow`);
+		const displayOnTextRow = document.getElementById(`popup${side}${page}DisplayOnTextRow`);
+		const displayOffTextRow = document.getElementById(`popup${side}${page}DisplayOffTextRow`);
+		const displayOnSvgRow = document.getElementById(`popup${side}${page}DisplayOnSvgRow`);
+		const displayOffSvgRow = document.getElementById(`popup${side}${page}DisplayOffSvgRow`);
+		const displayOnTextElement = document.getElementById(`popup${side}${page}DisplayOnText`);
+		const displayOffTextElement = document.getElementById(`popup${side}${page}DisplayOffText`);
+		const displayOnSvgElement = document.getElementById(`popup${side}${page}DisplayOnSVG`);
+		const displayOffSvgElement = document.getElementById(`popup${side}${page}DisplayOffSVG`);
+
+		const displayDeviceId = pageConfig[`${side}DisplayDevice`] || 'none';
+		const displayCapabilityId = pageConfig[`${side}DisplayCapability`] || '';
+		const displayCapabilityType = await resolvePopupCapabilityType(displayDeviceId, displayCapabilityId);
+		const updateDisplayRenderVisibility = function ()
+		{
+			if (!displayRenderRowElement)
+			{
+				return;
 			}
 
-			buttonFieldPopupOverlayElement.classList.add('visible');
-			buttonFieldPopupOverlayElement.setAttribute('aria-hidden', 'false');
+			const selectedType = displayCapabilityType;
+			const isBooleanVariable = displayDeviceId === '_variable_' && selectedType === 'boolean';
+			const isBooleanDeviceCapability = displayDeviceId !== '_variable_' && selectedType === 'boolean';
+			const isBooleanSelection = isBooleanVariable || isBooleanDeviceCapability;
+			displayRenderRowElement.style.display = isBooleanSelection ? '' : 'none';
 
-			if (mode !== 'led')
+			const selectedRenderInput = buttonFieldPopupBodyElement.querySelector(`input[name="popup${side}${page}DisplayBooleanRender"]:checked`);
+			const renderMode = selectedRenderInput ? selectedRenderInput.value : 'text';
+			const showTextRows = isBooleanSelection && renderMode !== 'svg';
+			const showSvgRows = isBooleanSelection && renderMode === 'svg';
+
+			if (displayOnTextRow) displayOnTextRow.style.display = showTextRows ? '' : 'none';
+			if (displayOffTextRow) displayOffTextRow.style.display = showTextRows ? '' : 'none';
+			if (displayOnSvgRow) displayOnSvgRow.style.display = showSvgRows ? '' : 'none';
+			if (displayOffSvgRow) displayOffSvgRow.style.display = showSvgRows ? '' : 'none';
+		};
+
+		if (displayOnTextElement) displayOnTextElement.value = pageConfig[`${side}OnText`] || '';
+		if (displayOffTextElement) displayOffTextElement.value = pageConfig[`${side}OffText`] || '';
+		if (displayOnSvgElement) displayOnSvgElement.value = pageConfig[`${side}OnSVG`] || '';
+		if (displayOffSvgElement) displayOffSvgElement.value = pageConfig[`${side}OffSVG`] || '';
+
+		const renderValue = pageConfig[`${side}DisplayBooleanRender`] || 'text';
+		const renderInput = buttonFieldPopupBodyElement.querySelector(`input[name="popup${side}${page}DisplayBooleanRender"][value="${renderValue}"]`);
+		if (renderInput)
+		{
+			renderInput.checked = true;
+		}
+
+		buttonFieldPopupBodyElement.querySelectorAll(`input[name="popup${side}${page}DisplayBooleanRender"]`).forEach((input) =>
+		{
+			input.addEventListener('change', updateDisplayRenderVisibility);
+		});
+
+		const defaultDevice = findAdvancedDefaultDeviceForSide(pageConfig, side);
+		for (const eventName of ['Click', 'Double', 'Long'])
+		{
+			const devElement = document.getElementById(`popup${side}${page}${eventName}Device`);
+			const capElement = document.getElementById(`popup${side}${page}${eventName}Capability`);
+			const stepElement = document.getElementById(`popup${side}${page}${eventName}ValueStep`);
+			const stepRowElement = document.getElementById(`popup${side}${page}${eventName}ValueStepRow`);
+			if (!devElement || !capElement || !stepElement || !stepRowElement)
 			{
-				const displayRenderRowElement = document.getElementById(`popup${side}${page}DisplayRenderRow`);
-				const displayOnTextRow = document.getElementById(`popup${side}${page}DisplayOnTextRow`);
-				const displayOffTextRow = document.getElementById(`popup${side}${page}DisplayOffTextRow`);
-				const displayOnSvgRow = document.getElementById(`popup${side}${page}DisplayOnSvgRow`);
-				const displayOffSvgRow = document.getElementById(`popup${side}${page}DisplayOffSvgRow`);
-				const displayOnTextElement = document.getElementById(`popup${side}${page}DisplayOnText`);
-				const displayOffTextElement = document.getElementById(`popup${side}${page}DisplayOffText`);
-				const displayOnSvgElement = document.getElementById(`popup${side}${page}DisplayOnSVG`);
-				const displayOffSvgElement = document.getElementById(`popup${side}${page}DisplayOffSVG`);
+				continue;
+			}
 
-				const displayDeviceId = pageConfig[`${side}DisplayDevice`] || 'none';
-				const displayCapabilityId = pageConfig[`${side}DisplayCapability`] || '';
-				const displayCapabilityType = await resolvePopupCapabilityType(displayDeviceId, displayCapabilityId);
-				const updateDisplayRenderVisibility = function ()
+			const updateStepVisibility = function ()
+			{
+				const selectedOption = capElement.selectedOptions ? capElement.selectedOptions[0] : null;
+				const selectedType = selectedOption ? (selectedOption.dataset.type || '') : '';
+				const selectedValue = capElement.value || '';
+				const showStep = selectedType === 'number' || selectedValue === 'dim';
+				stepRowElement.style.display = showStep ? '' : 'none';
+			};
+
+			fillPopupDeviceSelector(devElement, false, true);
+			const eventDevice = pageConfig[`${side}${eventName}Device`] || defaultDevice || 'none';
+			devElement.value = eventDevice;
+			const storedNumericAction = pageConfig[`${side}${eventName}NumericAction`] || 'change';
+			const storedCapability = pageConfig[`${side}${eventName}Capability`] || '';
+			const combinedSelection = (storedNumericAction === 'toggleDirection') ? '__toggleDirection__' : storedCapability;
+			await fillPopupCapabilitySelector(capElement, devElement.value, combinedSelection, 'event');
+			stepElement.value = pageConfig[`${side}${eventName}ValueStep`] || '+10';
+			updateStepVisibility();
+
+			devElement.addEventListener('change', function ()
+			{
+				fillPopupCapabilitySelector(capElement, devElement.value, '', 'event').then(() =>
 				{
-					if (!displayRenderRowElement)
-					{
-						return;
-					}
-
-					const selectedType = displayCapabilityType;
-					const isBooleanVariable = displayDeviceId === '_variable_' && selectedType === 'boolean';
-					const isBooleanDeviceCapability = displayDeviceId !== '_variable_' && selectedType === 'boolean';
-					const isBooleanSelection = isBooleanVariable || isBooleanDeviceCapability;
-					displayRenderRowElement.style.display = isBooleanSelection ? '' : 'none';
-
-					const selectedRenderInput = buttonFieldPopupBodyElement.querySelector(`input[name="popup${side}${page}DisplayBooleanRender"]:checked`);
-					const renderMode = selectedRenderInput ? selectedRenderInput.value : 'text';
-					const showTextRows = isBooleanSelection && renderMode !== 'svg';
-					const showSvgRows = isBooleanSelection && renderMode === 'svg';
-
-					if (displayOnTextRow) displayOnTextRow.style.display = showTextRows ? '' : 'none';
-					if (displayOffTextRow) displayOffTextRow.style.display = showTextRows ? '' : 'none';
-					if (displayOnSvgRow) displayOnSvgRow.style.display = showSvgRows ? '' : 'none';
-					if (displayOffSvgRow) displayOffSvgRow.style.display = showSvgRows ? '' : 'none';
-				};
-
-				if (displayOnTextElement) displayOnTextElement.value = pageConfig[`${side}OnText`] || '';
-				if (displayOffTextElement) displayOffTextElement.value = pageConfig[`${side}OffText`] || '';
-				if (displayOnSvgElement) displayOnSvgElement.value = pageConfig[`${side}OnSVG`] || '';
-				if (displayOffSvgElement) displayOffSvgElement.value = pageConfig[`${side}OffSVG`] || '';
-
-				const renderValue = pageConfig[`${side}DisplayBooleanRender`] || 'text';
-				const renderInput = buttonFieldPopupBodyElement.querySelector(`input[name="popup${side}${page}DisplayBooleanRender"][value="${renderValue}"]`);
-				if (renderInput)
-				{
-					renderInput.checked = true;
-				}
-
-				buttonFieldPopupBodyElement.querySelectorAll(`input[name="popup${side}${page}DisplayBooleanRender"]`).forEach((input) =>
-				{
-					input.addEventListener('change', updateDisplayRenderVisibility);
-				});
-
-				const defaultDevice = findAdvancedDefaultDeviceForSide(pageConfig, side);
-				for (const eventName of ['Click', 'Double', 'Long'])
-				{
-					const devElement = document.getElementById(`popup${side}${page}${eventName}Device`);
-					const capElement = document.getElementById(`popup${side}${page}${eventName}Capability`);
-					const stepElement = document.getElementById(`popup${side}${page}${eventName}ValueStep`);
-					const stepRowElement = document.getElementById(`popup${side}${page}${eventName}ValueStepRow`);
-					if (!devElement || !capElement || !stepElement || !stepRowElement)
-					{
-						continue;
-					}
-
-					const updateStepVisibility = function ()
-					{
-						const selectedOption = capElement.selectedOptions ? capElement.selectedOptions[0] : null;
-						const selectedType = selectedOption ? (selectedOption.dataset.type || '') : '';
-						const selectedValue = capElement.value || '';
-						const showStep = selectedType === 'number' || selectedValue === 'dim';
-						stepRowElement.style.display = showStep ? '' : 'none';
-					};
-
-					fillPopupDeviceSelector(devElement, false, true);
-					const eventDevice = pageConfig[`${side}${eventName}Device`] || defaultDevice || 'none';
-					devElement.value = eventDevice;
-					const storedNumericAction = pageConfig[`${side}${eventName}NumericAction`] || 'change';
-					const storedCapability = pageConfig[`${side}${eventName}Capability`] || '';
-					const combinedSelection = (storedNumericAction === 'toggleDirection') ? '__toggleDirection__' : storedCapability;
-					await fillPopupCapabilitySelector(capElement, devElement.value, combinedSelection, 'event');
-					stepElement.value = pageConfig[`${side}${eventName}ValueStep`] || '+10';
 					updateStepVisibility();
+				});
+			});
 
-					devElement.addEventListener('change', function ()
-					{
-						fillPopupCapabilitySelector(capElement, devElement.value, '', 'event').then(() =>
-						{
-							updateStepVisibility();
-						});
-					});
-
-					capElement.addEventListener('change', updateStepVisibility);
-				}
-
-				updateDisplayRenderVisibility();
-			}
-			else
-			{
-				const ledDeviceElement = document.getElementById(`popup${side}${page}LedDevice`);
-				const ledCapabilityElement = document.getElementById(`popup${side}${page}LedCapability`);
-				if (ledDeviceElement && ledCapabilityElement)
-				{
-					const ledColorMatrixElement = document.getElementById(`popup${side}${page}LedColorMatrix`);
-					const ledOnOffRowElement = document.getElementById(`popup${side}${page}LedOnOffRow`);
-					const updateLedColorMatrixVisibility = function ()
-					{
-						if (!ledColorMatrixElement)
-						{
-							return;
-						}
-
-						const capability = ledCapabilityElement.value;
-						const usesDeviceColor = capability === 'light_hue' || capability === 'light_saturation';
-						if (ledOnOffRowElement)
-						{
-							ledOnOffRowElement.style.display = capability === 'onoff' ? 'none' : '';
-						}
-						ledColorMatrixElement.style.display = usesDeviceColor ? 'none' : '';
-					};
-
-					fillPopupDeviceSelector(ledDeviceElement, true, true);
-					ledDeviceElement.value = pageConfig[`${side}LedDevice`] || 'none';
-					await fillPopupCapabilitySelector(ledCapabilityElement, ledDeviceElement.value, pageConfig[`${side}LedCapability`], 'led');
-					const ledOnOffCapabilityElement = document.getElementById(`popup${side}${page}LedOnOffCapability`);
-					if (ledOnOffCapabilityElement)
-					{
-						await fillPopupCapabilitySelector(ledOnOffCapabilityElement, ledDeviceElement.value, pageConfig[`${side}LedOnOffCapability`] || 'none', 'onoff');
-					}
-					updateLedColorMatrixVisibility();
-					ledDeviceElement.addEventListener('change', function ()
-					{
-						Promise.all([
-							fillPopupCapabilitySelector(ledCapabilityElement, ledDeviceElement.value, '', 'led'),
-							ledOnOffCapabilityElement ? fillPopupCapabilitySelector(ledOnOffCapabilityElement, ledDeviceElement.value, 'none', 'onoff') : Promise.resolve(),
-						]).then(updateLedColorMatrixVisibility);
-					});
-					ledCapabilityElement.addEventListener('change', updateLedColorMatrixVisibility);
-				}
-
-				const frontLEDOnColorElement = document.getElementById(`popup${side}${page}FrontLEDOnColor`);
-				const frontLEDOffColorElement = document.getElementById(`popup${side}${page}FrontLEDOffColor`);
-				const wallLEDOnColorElement = document.getElementById(`popup${side}${page}WallLEDOnColor`);
-				const wallLEDOffColorElement = document.getElementById(`popup${side}${page}WallLEDOffColor`);
-				if (frontLEDOnColorElement) frontLEDOnColorElement.value = pageConfig[`${side}FrontLEDOnColor`] || '#ff0000';
-				if (frontLEDOffColorElement) frontLEDOffColorElement.value = pageConfig[`${side}FrontLEDOffColor`] || '#000000';
-				if (wallLEDOnColorElement) wallLEDOnColorElement.value = pageConfig[`${side}WallLEDOnColor`] || '#ff0000';
-				if (wallLEDOffColorElement) wallLEDOffColorElement.value = pageConfig[`${side}WallLEDOffColor`] || '#000000';
-			}
+			capElement.addEventListener('change', updateStepVisibility);
 		}
 
-		function saveAdvancedButtonPopup()
+		updateDisplayRenderVisibility();
+	}
+	else
+	{
+		const ledDeviceElement = document.getElementById(`popup${side}${page}LedDevice`);
+		const ledCapabilityElement = document.getElementById(`popup${side}${page}LedCapability`);
+		if (ledDeviceElement && ledCapabilityElement)
 		{
-			if (!buttonFieldPopupContext || !buttonFieldPopupContext.isAdvancedPopup)
+			const ledColorMatrixElement = document.getElementById(`popup${side}${page}LedColorMatrix`);
+			const ledOnOffRowElement = document.getElementById(`popup${side}${page}LedOnOffRow`);
+			const updateLedColorMatrixVisibility = function ()
 			{
-				return false;
-			}
-
-			const { side, page, popupMode } = buttonFieldPopupContext;
-			const config = localButtonConfigurations[currentButtonConfigurationNo];
-			if (!Array.isArray(config) || !config[page])
-			{
-				return true;
-			}
-
-			const pageConfig = config[page];
-			ensureButtonSideAdvancedDefaults(pageConfig, side);
-
-			const syncMainControlValue = function (suffix, value)
-			{
-				const element = document.getElementById(`${side}${page}${suffix}`);
-				if (element)
+				if (!ledColorMatrixElement)
 				{
-					element.value = value;
+					return;
 				}
+
+				const capability = ledCapabilityElement.value;
+				const usesDeviceColor = capability === 'light_hue' || capability === 'light_saturation';
+				if (ledOnOffRowElement)
+				{
+					ledOnOffRowElement.style.display = capability === 'onoff' ? 'none' : '';
+				}
+				ledColorMatrixElement.style.display = usesDeviceColor ? 'none' : '';
 			};
 
-			if (popupMode !== 'led')
+			fillPopupDeviceSelector(ledDeviceElement, true, true);
+			ledDeviceElement.value = pageConfig[`${side}LedDevice`] || 'none';
+			await fillPopupCapabilitySelector(ledCapabilityElement, ledDeviceElement.value, pageConfig[`${side}LedCapability`], 'led');
+			const ledOnOffCapabilityElement = document.getElementById(`popup${side}${page}LedOnOffCapability`);
+			if (ledOnOffCapabilityElement)
 			{
-				pageConfig[`${side}Mode`] = 'advanced';
-				const displayRenderInput = buttonFieldPopupBodyElement.querySelector(`input[name="popup${side}${page}DisplayBooleanRender"]:checked`);
-				pageConfig[`${side}DisplayBooleanRender`] = displayRenderInput ? displayRenderInput.value : 'text';
-				pageConfig[`${side}OnText`] = document.getElementById(`popup${side}${page}DisplayOnText`).value || '';
-				pageConfig[`${side}OffText`] = document.getElementById(`popup${side}${page}DisplayOffText`).value || '';
-				pageConfig[`${side}OnSVG`] = document.getElementById(`popup${side}${page}DisplayOnSVG`).value || '';
-				pageConfig[`${side}OffSVG`] = document.getElementById(`popup${side}${page}DisplayOffSVG`).value || '';
-
-				// Keep hidden main controls in sync so draft snapshot/save paths do not overwrite popup edits.
-				syncMainControlValue('OnText', pageConfig[`${side}OnText`]);
-				syncMainControlValue('OffText', pageConfig[`${side}OffText`]);
-				syncMainControlValue('OnSVG', pageConfig[`${side}OnSVG`]);
-				syncMainControlValue('OffSVG', pageConfig[`${side}OffSVG`]);
-
-				for (const eventName of ['Click', 'Double', 'Long'])
-				{
-					const eventCapabilityElement = document.getElementById(`popup${side}${page}${eventName}Capability`);
-					const selectedEventOption = (eventCapabilityElement && eventCapabilityElement.selectedOptions) ? eventCapabilityElement.selectedOptions[0] : null;
-					const selectedEventType = selectedEventOption ? (selectedEventOption.dataset.type || '') : '';
-					const selectedEventValue = eventCapabilityElement ? (eventCapabilityElement.value || '') : '';
-					const isToggleDirection = selectedEventValue === '__toggleDirection__';
-					const isNumericCapability = selectedEventType === 'number' || selectedEventValue === 'dim';
-					pageConfig[`${side}${eventName}Device`] = document.getElementById(`popup${side}${page}${eventName}Device`).value || 'none';
-					pageConfig[`${side}${eventName}Capability`] = isToggleDirection ? '' : selectedEventValue;
-					pageConfig[`${side}${eventName}NumericAction`] = isToggleDirection ? 'toggleDirection' : (isNumericCapability ? 'change' : 'none');
-					pageConfig[`${side}${eventName}ValueStep`] = document.getElementById(`popup${side}${page}${eventName}ValueStep`).value || '+10';
-				}
+				await fillPopupCapabilitySelector(ledOnOffCapabilityElement, ledDeviceElement.value, pageConfig[`${side}LedOnOffCapability`] || 'none', 'onoff');
 			}
-			else
+			updateLedColorMatrixVisibility();
+			ledDeviceElement.addEventListener('change', function ()
 			{
-				const ledDeviceElement = document.getElementById(`popup${side}${page}LedDevice`);
-				const ledCapabilityElement = document.getElementById(`popup${side}${page}LedCapability`);
-				if (ledDeviceElement && ledCapabilityElement)
-				{
-					pageConfig[`${side}LedDevice`] = ledDeviceElement.value || 'none';
-					pageConfig[`${side}LedCapability`] = ledCapabilityElement.value || '';
-					const ledOnOffCapabilityElement = document.getElementById(`popup${side}${page}LedOnOffCapability`);
-					pageConfig[`${side}LedOnOffCapability`] = (ledCapabilityElement.value === 'onoff')
-						? 'none'
-						: (ledOnOffCapabilityElement ? (ledOnOffCapabilityElement.value || 'none') : 'none');
-				}
-				const frontLEDOnColorElement = document.getElementById(`popup${side}${page}FrontLEDOnColor`);
-				const frontLEDOffColorElement = document.getElementById(`popup${side}${page}FrontLEDOffColor`);
-				const wallLEDOnColorElement = document.getElementById(`popup${side}${page}WallLEDOnColor`);
-				const wallLEDOffColorElement = document.getElementById(`popup${side}${page}WallLEDOffColor`);
-				if (frontLEDOnColorElement) pageConfig[`${side}FrontLEDOnColor`] = frontLEDOnColorElement.value || '#ff0000';
-				if (frontLEDOffColorElement) pageConfig[`${side}FrontLEDOffColor`] = frontLEDOffColorElement.value || '#000000';
-				if (wallLEDOnColorElement) pageConfig[`${side}WallLEDOnColor`] = wallLEDOnColorElement.value || '#ff0000';
-				if (wallLEDOffColorElement) pageConfig[`${side}WallLEDOffColor`] = wallLEDOffColorElement.value || '#000000';
-
-				// Keep hidden main controls in sync so draft snapshot/save paths do not overwrite popup edits.
-				if (frontLEDOnColorElement) syncMainControlValue('FrontLEDOnColor', pageConfig[`${side}FrontLEDOnColor`]);
-				if (frontLEDOffColorElement) syncMainControlValue('FrontLEDOffColor', pageConfig[`${side}FrontLEDOffColor`]);
-				if (wallLEDOnColorElement) syncMainControlValue('WallLEDOnColor', pageConfig[`${side}WallLEDOnColor`]);
-				if (wallLEDOffColorElement) syncMainControlValue('WallLEDOffColor', pageConfig[`${side}WallLEDOffColor`]);
-			}
-
-			configDraftDirtySinceLoad = true;
-			flushConfigurationDraftPersist();
-			renderInlineButtonPagePreview(page);
-			if (buttonPagePopupOverlayElement && buttonPagePopupOverlayElement.classList.contains('visible'))
-			{
-				renderButtonPagePopup();
-			}
-
-			return true;
+				Promise.all([
+					fillPopupCapabilitySelector(ledCapabilityElement, ledDeviceElement.value, '', 'led'),
+					ledOnOffCapabilityElement ? fillPopupCapabilitySelector(ledOnOffCapabilityElement, ledDeviceElement.value, 'none', 'onoff') : Promise.resolve(),
+				]).then(updateLedColorMatrixVisibility);
+			});
+			ledCapabilityElement.addEventListener('change', updateLedColorMatrixVisibility);
 		}
 
-		function getButtonFieldPopupSpec(side, page, fieldSuffix)
+		const frontLEDOnColorElement = document.getElementById(`popup${side}${page}FrontLEDOnColor`);
+		const frontLEDOffColorElement = document.getElementById(`popup${side}${page}FrontLEDOffColor`);
+		const wallLEDOnColorElement = document.getElementById(`popup${side}${page}WallLEDOnColor`);
+		const wallLEDOffColorElement = document.getElementById(`popup${side}${page}WallLEDOffColor`);
+		if (frontLEDOnColorElement) frontLEDOnColorElement.value = pageConfig[`${side}FrontLEDOnColor`] || '#ff0000';
+		if (frontLEDOffColorElement) frontLEDOffColorElement.value = pageConfig[`${side}FrontLEDOffColor`] || '#000000';
+		if (wallLEDOnColorElement) wallLEDOnColorElement.value = pageConfig[`${side}WallLEDOnColor`] || '#ff0000';
+		if (wallLEDOffColorElement) wallLEDOffColorElement.value = pageConfig[`${side}WallLEDOffColor`] || '#000000';
+	}
+}
+
+function saveAdvancedButtonPopup()
+{
+	if (!buttonFieldPopupContext || !buttonFieldPopupContext.isAdvancedPopup)
+	{
+		return false;
+	}
+
+	const { side, page, popupMode } = buttonFieldPopupContext;
+	const config = localButtonConfigurations[currentButtonConfigurationNo];
+	if (!Array.isArray(config) || !config[page])
+	{
+		return true;
+	}
+
+	const pageConfig = config[page];
+	ensureButtonSideAdvancedDefaults(pageConfig, side);
+
+	const syncMainControlValue = function (suffix, value)
+	{
+		const element = document.getElementById(`${side}${page}${suffix}`);
+		if (element)
 		{
-			const sideLabel = Homey.__(`settings.${side}Panel`);
-			const config = localButtonConfigurations[currentButtonConfigurationNo];
-			const pageConfig = Array.isArray(config) ? config[page] : null;
-			const isAdvancedMode = pageConfig ? isButtonSideAdvanced(pageConfig, side) : false;
-			const labels = {
-				Device: Homey.__('settings.device'),
-				Capability: Homey.__('settings.capability'),
-				TopText: Homey.__('settings.topLabel'),
-				OnText: Homey.__('settings.labelOn'),
-				OffText: Homey.__('settings.labelOff'),
-				OnSVG: 'On SVG Data',
-				OffSVG: 'Off SVG Data',
-				DimChange: 'Value increment / decrement',
-				FrontLEDOnColor: Homey.__('settings.frontLEDOnColor'),
-				WallLEDOnColor: Homey.__('settings.wallLEDOnColor'),
-				FrontLEDOffColor: Homey.__('settings.frontLEDOffColor'),
-				WallLEDOffColor: Homey.__('settings.wallLEDOffColor'),
-			};
-			const tooltipKeys = {
-				Device: 'settings.deviceExplanation',
-				Capability: 'settings.capabilityExplanation',
-				TopText: 'settings.topLabelExplanation',
-				OnText: 'settings.labelOnExplanation',
-				OffText: 'settings.labelOffExplanation',
-				OnSVG: 'settings.textExplanation',
-				OffSVG: 'settings.textExplanation',
-				DimChange: 'settings.dimChangeExplanation',
-				FrontLEDOnColor: 'settings.frontLEDOnColorExplanation',
-				WallLEDOnColor: 'settings.wallLEDOnColorExplanation',
-				FrontLEDOffColor: 'settings.frontLEDOffColorExplanation',
-				WallLEDOffColor: 'settings.wallLEDOffColorExplanation',
-			};
-			const textAndSvgFields = isAdvancedMode
-				? ['Device', 'Capability', 'OnText', 'OffText', 'OnSVG', 'OffSVG']
-				: ['Device', 'Capability', 'OnText', 'OffText', 'OnSVG', 'OffSVG', 'DimChange'];
+			element.value = value;
+		}
+	};
 
-			if (fieldSuffix === 'TopText')
-			{
-				return {
-					title: `${sideLabel} - ${labels.TopText}`,
-					fields: ['TopText'],
-					labels,
-					tooltipKeys,
-				};
-			}
+	if (popupMode !== 'led')
+	{
+		pageConfig[`${side}Mode`] = 'advanced';
+		const displayRenderInput = buttonFieldPopupBodyElement.querySelector(`input[name="popup${side}${page}DisplayBooleanRender"]:checked`);
+		pageConfig[`${side}DisplayBooleanRender`] = displayRenderInput ? displayRenderInput.value : 'text';
+		pageConfig[`${side}OnText`] = document.getElementById(`popup${side}${page}DisplayOnText`).value || '';
+		pageConfig[`${side}OffText`] = document.getElementById(`popup${side}${page}DisplayOffText`).value || '';
+		pageConfig[`${side}OnSVG`] = document.getElementById(`popup${side}${page}DisplayOnSVG`).value || '';
+		pageConfig[`${side}OffSVG`] = document.getElementById(`popup${side}${page}DisplayOffSVG`).value || '';
 
-			if (fieldSuffix === 'Device' || fieldSuffix === 'Capability')
-			{
-				return {
-					title: `${sideLabel} - ${Homey.__('settings.text')}`,
-					fields: textAndSvgFields,
-					labels,
-					tooltipKeys,
-				};
-			}
+		// Keep hidden main controls in sync so draft snapshot/save paths do not overwrite popup edits.
+		syncMainControlValue('OnText', pageConfig[`${side}OnText`]);
+		syncMainControlValue('OffText', pageConfig[`${side}OffText`]);
+		syncMainControlValue('OnSVG', pageConfig[`${side}OnSVG`]);
+		syncMainControlValue('OffSVG', pageConfig[`${side}OffSVG`]);
 
-			if (fieldSuffix === 'OnText' || fieldSuffix === 'OffText')
-			{
-				return {
-					title: `${sideLabel} - ${Homey.__('settings.text')}`,
-					fields: textAndSvgFields,
-					labels,
-					tooltipKeys,
-				};
-			}
+		for (const eventName of ['Click', 'Double', 'Long'])
+		{
+			const eventCapabilityElement = document.getElementById(`popup${side}${page}${eventName}Capability`);
+			const selectedEventOption = (eventCapabilityElement && eventCapabilityElement.selectedOptions) ? eventCapabilityElement.selectedOptions[0] : null;
+			const selectedEventType = selectedEventOption ? (selectedEventOption.dataset.type || '') : '';
+			const selectedEventValue = eventCapabilityElement ? (eventCapabilityElement.value || '') : '';
+			const isToggleDirection = selectedEventValue === '__toggleDirection__';
+			const isNumericCapability = selectedEventType === 'number' || selectedEventValue === 'dim';
+			pageConfig[`${side}${eventName}Device`] = document.getElementById(`popup${side}${page}${eventName}Device`).value || 'none';
+			pageConfig[`${side}${eventName}Capability`] = isToggleDirection ? '' : selectedEventValue;
+			pageConfig[`${side}${eventName}NumericAction`] = isToggleDirection ? 'toggleDirection' : (isNumericCapability ? 'change' : 'none');
+			pageConfig[`${side}${eventName}ValueStep`] = document.getElementById(`popup${side}${page}${eventName}ValueStep`).value || '+10';
+		}
+	}
+	else
+	{
+		const ledDeviceElement = document.getElementById(`popup${side}${page}LedDevice`);
+		const ledCapabilityElement = document.getElementById(`popup${side}${page}LedCapability`);
+		if (ledDeviceElement && ledCapabilityElement)
+		{
+			pageConfig[`${side}LedDevice`] = ledDeviceElement.value || 'none';
+			pageConfig[`${side}LedCapability`] = ledCapabilityElement.value || '';
+			const ledOnOffCapabilityElement = document.getElementById(`popup${side}${page}LedOnOffCapability`);
+			pageConfig[`${side}LedOnOffCapability`] = (ledCapabilityElement.value === 'onoff')
+				? 'none'
+				: (ledOnOffCapabilityElement ? (ledOnOffCapabilityElement.value || 'none') : 'none');
+		}
+		const frontLEDOnColorElement = document.getElementById(`popup${side}${page}FrontLEDOnColor`);
+		const frontLEDOffColorElement = document.getElementById(`popup${side}${page}FrontLEDOffColor`);
+		const wallLEDOnColorElement = document.getElementById(`popup${side}${page}WallLEDOnColor`);
+		const wallLEDOffColorElement = document.getElementById(`popup${side}${page}WallLEDOffColor`);
+		if (frontLEDOnColorElement) pageConfig[`${side}FrontLEDOnColor`] = frontLEDOnColorElement.value || '#ff0000';
+		if (frontLEDOffColorElement) pageConfig[`${side}FrontLEDOffColor`] = frontLEDOffColorElement.value || '#000000';
+		if (wallLEDOnColorElement) pageConfig[`${side}WallLEDOnColor`] = wallLEDOnColorElement.value || '#ff0000';
+		if (wallLEDOffColorElement) pageConfig[`${side}WallLEDOffColor`] = wallLEDOffColorElement.value || '#000000';
 
-			if (fieldSuffix === 'OnSVG' || fieldSuffix === 'OffSVG')
-			{
-				return {
-					title: `${sideLabel} - ${Homey.__('settings.text')}`,
-					fields: textAndSvgFields,
-					labels,
-					tooltipKeys,
-				};
-			}
+		// Keep hidden main controls in sync so draft snapshot/save paths do not overwrite popup edits.
+		if (frontLEDOnColorElement) syncMainControlValue('FrontLEDOnColor', pageConfig[`${side}FrontLEDOnColor`]);
+		if (frontLEDOffColorElement) syncMainControlValue('FrontLEDOffColor', pageConfig[`${side}FrontLEDOffColor`]);
+		if (wallLEDOnColorElement) syncMainControlValue('WallLEDOnColor', pageConfig[`${side}WallLEDOnColor`]);
+		if (wallLEDOffColorElement) syncMainControlValue('WallLEDOffColor', pageConfig[`${side}WallLEDOffColor`]);
+	}
 
-			if (fieldSuffix === 'DimChange')
-			{
-				if (isAdvancedMode)
-				{
-					return null;
-				}
+	configDraftDirtySinceLoad = true;
+	flushConfigurationDraftPersist();
+	renderInlineButtonPagePreview(page);
+	if (buttonPagePopupOverlayElement && buttonPagePopupOverlayElement.classList.contains('visible'))
+	{
+		renderButtonPagePopup();
+	}
 
-				return {
-					title: `${sideLabel} - ${Homey.__('settings.text')}`,
-					fields: textAndSvgFields,
-					labels,
-					tooltipKeys,
-				};
-			}
+	return true;
+}
 
-			if (fieldSuffix.endsWith('Color'))
-			{
-				return {
-					title: `${sideLabel} - ${Homey.__("settings.ledsPopupTitle")}`,
-					fields: ['FrontLEDOnColor', 'WallLEDOnColor', 'FrontLEDOffColor', 'WallLEDOffColor'],
-					labels,
-					tooltipKeys,
-				};
-			}
+function getButtonFieldPopupSpec(side, page, fieldSuffix)
+{
+	const sideLabel = Homey.__(`settings.${side}Panel`);
+	const config = localButtonConfigurations[currentButtonConfigurationNo];
+	const pageConfig = Array.isArray(config) ? config[page] : null;
+	const isAdvancedMode = pageConfig ? isButtonSideAdvanced(pageConfig, side) : false;
+	const labels = {
+		Device: Homey.__('settings.device'),
+		Capability: Homey.__('settings.capability'),
+		TopText: Homey.__('settings.topLabel'),
+		OnText: Homey.__('settings.labelOn'),
+		OffText: Homey.__('settings.labelOff'),
+		OnSVG: 'On SVG Data',
+		OffSVG: 'Off SVG Data',
+		DimChange: 'Value increment / decrement',
+		FrontLEDOnColor: Homey.__('settings.frontLEDOnColor'),
+		WallLEDOnColor: Homey.__('settings.wallLEDOnColor'),
+		FrontLEDOffColor: Homey.__('settings.frontLEDOffColor'),
+		WallLEDOffColor: Homey.__('settings.wallLEDOffColor'),
+	};
+	const tooltipKeys = {
+		Device: 'settings.deviceExplanation',
+		Capability: 'settings.capabilityExplanation',
+		TopText: 'settings.topLabelExplanation',
+		OnText: 'settings.labelOnExplanation',
+		OffText: 'settings.labelOffExplanation',
+		OnSVG: 'settings.textExplanation',
+		OffSVG: 'settings.textExplanation',
+		DimChange: 'settings.dimChangeExplanation',
+		FrontLEDOnColor: 'settings.frontLEDOnColorExplanation',
+		WallLEDOnColor: 'settings.wallLEDOnColorExplanation',
+		FrontLEDOffColor: 'settings.frontLEDOffColorExplanation',
+		WallLEDOffColor: 'settings.wallLEDOffColorExplanation',
+	};
+	const textAndSvgFields = isAdvancedMode
+		? ['Device', 'Capability', 'OnText', 'OffText', 'OnSVG', 'OffSVG']
+		: ['Device', 'Capability', 'OnText', 'OffText', 'OnSVG', 'OffSVG', 'DimChange'];
 
+	if (fieldSuffix === 'TopText')
+	{
+		return {
+			title: `${sideLabel} - ${labels.TopText}`,
+			fields: ['TopText'],
+			labels,
+			tooltipKeys,
+		};
+	}
+
+	if (fieldSuffix === 'Device' || fieldSuffix === 'Capability')
+	{
+		return {
+			title: `${sideLabel} - ${Homey.__('settings.text')}`,
+			fields: textAndSvgFields,
+			labels,
+			tooltipKeys,
+		};
+	}
+
+	if (fieldSuffix === 'OnText' || fieldSuffix === 'OffText')
+	{
+		return {
+			title: `${sideLabel} - ${Homey.__('settings.text')}`,
+			fields: textAndSvgFields,
+			labels,
+			tooltipKeys,
+		};
+	}
+
+	if (fieldSuffix === 'OnSVG' || fieldSuffix === 'OffSVG')
+	{
+		return {
+			title: `${sideLabel} - ${Homey.__('settings.text')}`,
+			fields: textAndSvgFields,
+			labels,
+			tooltipKeys,
+		};
+	}
+
+	if (fieldSuffix === 'DimChange')
+	{
+		if (isAdvancedMode)
+		{
 			return null;
 		}
 
-		function closeButtonFieldPopup()
-		{
-			if (!buttonFieldPopupOverlayElement)
-			{
-				return;
-			}
+		return {
+			title: `${sideLabel} - ${Homey.__('settings.text')}`,
+			fields: textAndSvgFields,
+			labels,
+			tooltipKeys,
+		};
+	}
 
-			restoreButtonFieldPopupCustomMQTTSection();
-			buttonFieldPopupOverlayElement.classList.remove('visible');
-			buttonFieldPopupOverlayElement.setAttribute('aria-hidden', 'true');
-			buttonFieldPopupBindings = [];
-			buttonFieldPopupContext = null;
-			if (buttonFieldPopupBodyElement)
-			{
-				buttonFieldPopupBodyElement.innerHTML = '';
-			}
+	if (fieldSuffix.endsWith('Color'))
+	{
+		return {
+			title: `${sideLabel} - ${Homey.__("settings.ledsPopupTitle")}`,
+			fields: ['FrontLEDOnColor', 'WallLEDOnColor', 'FrontLEDOffColor', 'WallLEDOffColor'],
+			labels,
+			tooltipKeys,
+		};
+	}
+
+	return null;
+}
+
+function closeButtonFieldPopup()
+{
+	if (!buttonFieldPopupOverlayElement)
+	{
+		return;
+	}
+
+	restoreButtonFieldPopupCustomMQTTSection();
+	buttonFieldPopupOverlayElement.classList.remove('visible');
+	buttonFieldPopupOverlayElement.setAttribute('aria-hidden', 'true');
+	buttonFieldPopupBindings = [];
+	buttonFieldPopupContext = null;
+	if (buttonFieldPopupBodyElement)
+	{
+		buttonFieldPopupBodyElement.innerHTML = '';
+	}
+}
+
+function syncButtonFieldPopupCapabilityOptions(side, page, popupCapabilityElement, selectedCapability = '')
+{
+	if (!popupCapabilityElement)
+	{
+		return;
+	}
+
+	const sourceCapabilityElement = document.getElementById(`${side}${page}Capability`);
+	if (!sourceCapabilityElement)
+	{
+		return;
+	}
+
+	popupCapabilityElement.innerHTML = sourceCapabilityElement.innerHTML;
+	const wantedValue = selectedCapability || sourceCapabilityElement.value;
+	if (wantedValue)
+	{
+		popupCapabilityElement.value = wantedValue;
+	}
+}
+
+function updateButtonFieldPopupCapabilityState(popupElementsBySuffix)
+{
+	if (!popupElementsBySuffix || !popupElementsBySuffix.Device || !popupElementsBySuffix.Capability)
+	{
+		return;
+	}
+
+	const deviceValue = popupElementsBySuffix.Device.value;
+	const capabilityElement = popupElementsBySuffix.Capability;
+	const capabilityRowElement = capabilityElement.closest('.button-field-popup-field');
+	const capabilityLabelElement = capabilityRowElement ? capabilityRowElement.querySelector('.button-field-popup-label') : null;
+
+	const hideCapability = (deviceValue === 'none' || deviceValue === 'customMQTT');
+	if (capabilityRowElement)
+	{
+		capabilityRowElement.style.display = hideCapability ? 'none' : '';
+	}
+
+	if (capabilityLabelElement)
+	{
+		const capabilityLabelText = (deviceValue === '_variable_')
+			? Homey.__('settings.variable')
+			: Homey.__('settings.capability');
+		const capabilityTooltipText = getLocalizedTooltipText('settings.capabilityExplanation');
+		capabilityLabelElement.innerHTML = '';
+		appendPopupLabelContent(capabilityLabelElement, capabilityLabelText, capabilityTooltipText);
+	}
+
+	// Dim buttons show their level and direction on the display instead, so the On/Off text and icon fields don't apply
+	const isDimCapability = (capabilityElement.value === 'dim');
+	const selectedVariable = (deviceValue === '_variable_') ? variablesArray.find((variable) => variable.id === capabilityElement.value) : null;
+	const isNonBooleanVariable = !!selectedVariable && (selectedVariable.type !== 'boolean');
+	const selectedCapabilityOption = capabilityElement.selectedOptions ? capabilityElement.selectedOptions[0] : null;
+	const selectedCapabilityType = selectedCapabilityOption ? selectedCapabilityOption.dataset.type : '';
+	const isNonBooleanDeviceCapability = (deviceValue !== '_variable_') && !isDimCapability && (capabilityElement.value !== 'windowcoverings_state') && (selectedCapabilityType !== '') && (selectedCapabilityType !== 'boolean');
+	const hideOnOffFields = isDimCapability || isNonBooleanVariable || isNonBooleanDeviceCapability;
+	const booleanRenderMode = popupElementsBySuffix.__booleanRenderMode || 'text';
+	const showSvgFields = booleanRenderMode === 'svg';
+	const booleanRenderRow = popupElementsBySuffix.__booleanRenderRow || null;
+
+	for (const suffix of ['OnText', 'OffText'])
+	{
+		const fieldElement = popupElementsBySuffix[suffix];
+		const fieldRowElement = fieldElement ? fieldElement.closest('.button-field-popup-field') : null;
+		if (fieldRowElement)
+		{
+			fieldRowElement.style.display = hideOnOffFields ? 'none' : (showSvgFields ? 'none' : '');
 		}
+	}
 
-		function syncButtonFieldPopupCapabilityOptions(side, page, popupCapabilityElement, selectedCapability = '')
+	for (const suffix of ['OnSVG', 'OffSVG'])
+	{
+		const fieldElement = popupElementsBySuffix[suffix];
+		const fieldRowElement = fieldElement ? fieldElement.closest('.button-field-popup-field') : null;
+		if (fieldRowElement)
 		{
-			if (!popupCapabilityElement)
-			{
-				return;
-			}
-
-			const sourceCapabilityElement = document.getElementById(`${side}${page}Capability`);
-			if (!sourceCapabilityElement)
-			{
-				return;
-			}
-
-			popupCapabilityElement.innerHTML = sourceCapabilityElement.innerHTML;
-			const wantedValue = selectedCapability || sourceCapabilityElement.value;
-			if (wantedValue)
-			{
-				popupCapabilityElement.value = wantedValue;
-			}
+			fieldRowElement.style.display = hideOnOffFields ? 'none' : (showSvgFields ? '' : 'none');
 		}
+	}
 
-		function updateButtonFieldPopupCapabilityState(popupElementsBySuffix)
-		{
-			if (!popupElementsBySuffix || !popupElementsBySuffix.Device || !popupElementsBySuffix.Capability)
-			{
-				return;
-			}
+	if (booleanRenderRow)
+	{
+		booleanRenderRow.style.display = hideOnOffFields ? 'none' : 'flex';
+	}
 
-			const deviceValue = popupElementsBySuffix.Device.value;
-			const capabilityElement = popupElementsBySuffix.Capability;
-			const capabilityRowElement = capabilityElement.closest('.button-field-popup-field');
-			const capabilityLabelElement = capabilityRowElement ? capabilityRowElement.querySelector('.button-field-popup-label') : null;
+	const dimChangeRowElement = popupElementsBySuffix.DimChange ? popupElementsBySuffix.DimChange.closest('.button-field-popup-field') : null;
+	if (dimChangeRowElement)
+	{
+		dimChangeRowElement.style.display = isDimCapability ? '' : 'none';
+	}
+}
 
-			const hideCapability = (deviceValue === 'none' || deviceValue === 'customMQTT');
-			if (capabilityRowElement)
-			{
-				capabilityRowElement.style.display = hideCapability ? 'none' : '';
-			}
+function restoreButtonFieldPopupCustomMQTTSection()
+{
+	if (!buttonFieldPopupContext || !buttonFieldPopupContext.customMQTTSectionElement || !buttonFieldPopupContext.customMQTTSectionPlaceholder)
+	{
+		return;
+	}
 
-			if (capabilityLabelElement)
-			{
-				const capabilityLabelText = (deviceValue === '_variable_')
-					? Homey.__('settings.variable')
-					: Homey.__('settings.capability');
-				const capabilityTooltipText = getLocalizedTooltipText('settings.capabilityExplanation');
-				capabilityLabelElement.innerHTML = '';
-				appendPopupLabelContent(capabilityLabelElement, capabilityLabelText, capabilityTooltipText);
-			}
+	buttonFieldPopupContext.customMQTTSectionPlaceholder.replaceWith(buttonFieldPopupContext.customMQTTSectionElement);
+	buttonFieldPopupContext.customMQTTSectionElement = null;
+	buttonFieldPopupContext.customMQTTSectionPlaceholder = null;
+}
 
-			// Dim buttons show their level and direction on the display instead, so the On/Off text and icon fields don't apply
-			const isDimCapability = (capabilityElement.value === 'dim');
-			const selectedVariable = (deviceValue === '_variable_') ? variablesArray.find((variable) => variable.id === capabilityElement.value) : null;
-			const isNonBooleanVariable = !!selectedVariable && (selectedVariable.type !== 'boolean');
-			const selectedCapabilityOption = capabilityElement.selectedOptions ? capabilityElement.selectedOptions[0] : null;
-			const selectedCapabilityType = selectedCapabilityOption ? selectedCapabilityOption.dataset.type : '';
-			const isNonBooleanDeviceCapability = (deviceValue !== '_variable_') && !isDimCapability && (capabilityElement.value !== 'windowcoverings_state') && (selectedCapabilityType !== '') && (selectedCapabilityType !== 'boolean');
-			const hideOnOffFields = isDimCapability || isNonBooleanVariable || isNonBooleanDeviceCapability;
-			const booleanRenderMode = popupElementsBySuffix.__booleanRenderMode || 'text';
-			const showSvgFields = booleanRenderMode === 'svg';
-			const booleanRenderRow = popupElementsBySuffix.__booleanRenderRow || null;
+function appendButtonFieldPopupCustomMQTTSection(side, page)
+{
+	if (!buttonFieldPopupBodyElement || !buttonFieldPopupContext)
+	{
+		return;
+	}
 
-			for (const suffix of ['OnText', 'OffText'])
-			{
-				const fieldElement = popupElementsBySuffix[suffix];
-				const fieldRowElement = fieldElement ? fieldElement.closest('.button-field-popup-field') : null;
-				if (fieldRowElement)
-				{
-					fieldRowElement.style.display = hideOnOffFields ? 'none' : (showSvgFields ? 'none' : '');
-				}
-			}
+	const sourceSectionElement = document.getElementById(`${side}${page}CustomMQTTDiv`);
+	if (!sourceSectionElement || sourceSectionElement.parentNode === buttonFieldPopupBodyElement)
+	{
+		return;
+	}
 
-			for (const suffix of ['OnSVG', 'OffSVG'])
-			{
-				const fieldElement = popupElementsBySuffix[suffix];
-				const fieldRowElement = fieldElement ? fieldElement.closest('.button-field-popup-field') : null;
-				if (fieldRowElement)
-				{
-					fieldRowElement.style.display = hideOnOffFields ? 'none' : (showSvgFields ? '' : 'none');
-				}
-			}
+	const placeholderElement = document.createComment(`${side}${page}CustomMQTTDiv`);
+	sourceSectionElement.parentNode.insertBefore(placeholderElement, sourceSectionElement);
+	buttonFieldPopupBodyElement.appendChild(sourceSectionElement);
+	buttonFieldPopupContext.customMQTTSectionElement = sourceSectionElement;
+	buttonFieldPopupContext.customMQTTSectionPlaceholder = placeholderElement;
+}
 
-			if (booleanRenderRow)
-			{
-				booleanRenderRow.style.display = hideOnOffFields ? 'none' : 'flex';
-			}
+function appendButtonFieldPopupBooleanRenderControls(side, page, popupElementsBySuffix)
+{
+	if (!buttonFieldPopupBodyElement || !popupElementsBySuffix || !popupElementsBySuffix.OnText || !popupElementsBySuffix.OnSVG)
+	{
+		return;
+	}
 
-			const dimChangeRowElement = popupElementsBySuffix.DimChange ? popupElementsBySuffix.DimChange.closest('.button-field-popup-field') : null;
-			if (dimChangeRowElement)
-			{
-				dimChangeRowElement.style.display = isDimCapability ? '' : 'none';
-			}
-		}
+	const existingRow = buttonFieldPopupBodyElement.querySelector('.button-popup-radio-row[data-render-mode="basic-button"]');
+	if (existingRow)
+	{
+		existingRow.remove();
+	}
 
-		function restoreButtonFieldPopupCustomMQTTSection()
-		{
-			if (!buttonFieldPopupContext || !buttonFieldPopupContext.customMQTTSectionElement || !buttonFieldPopupContext.customMQTTSectionPlaceholder)
-			{
-				return;
-			}
+	const config = localButtonConfigurations[currentButtonConfigurationNo];
+	const pageConfig = Array.isArray(config) ? config[page] : null;
+	if (pageConfig)
+	{
+		ensureButtonSideAdvancedDefaults(pageConfig, side);
+	}
 
-			buttonFieldPopupContext.customMQTTSectionPlaceholder.replaceWith(buttonFieldPopupContext.customMQTTSectionElement);
-			buttonFieldPopupContext.customMQTTSectionElement = null;
-			buttonFieldPopupContext.customMQTTSectionPlaceholder = null;
-		}
+	const selectedMode = (pageConfig && pageConfig[`${side}BasicBooleanRender`]) ? pageConfig[`${side}BasicBooleanRender`] : 'text';
+	popupElementsBySuffix.__booleanRenderMode = selectedMode === 'svg' ? 'svg' : 'text';
 
-		function appendButtonFieldPopupCustomMQTTSection(side, page)
-		{
-			if (!buttonFieldPopupBodyElement || !buttonFieldPopupContext)
-			{
-				return;
-			}
+	const renderRow = document.createElement('div');
+	renderRow.className = 'button-field-popup-field button-popup-radio-row';
+	renderRow.dataset.renderMode = 'basic-button';
 
-			const sourceSectionElement = document.getElementById(`${side}${page}CustomMQTTDiv`);
-			if (!sourceSectionElement || sourceSectionElement.parentNode === buttonFieldPopupBodyElement)
-			{
-				return;
-			}
-
-			const placeholderElement = document.createComment(`${side}${page}CustomMQTTDiv`);
-			sourceSectionElement.parentNode.insertBefore(placeholderElement, sourceSectionElement);
-			buttonFieldPopupBodyElement.appendChild(sourceSectionElement);
-			buttonFieldPopupContext.customMQTTSectionElement = sourceSectionElement;
-			buttonFieldPopupContext.customMQTTSectionPlaceholder = placeholderElement;
-		}
-
-		function appendButtonFieldPopupBooleanRenderControls(side, page, popupElementsBySuffix)
-		{
-			if (!buttonFieldPopupBodyElement || !popupElementsBySuffix || !popupElementsBySuffix.OnText || !popupElementsBySuffix.OnSVG)
-			{
-				return;
-			}
-
-			const existingRow = buttonFieldPopupBodyElement.querySelector('.button-popup-radio-row[data-render-mode="basic-button"]');
-			if (existingRow)
-			{
-				existingRow.remove();
-			}
-
-			const config = localButtonConfigurations[currentButtonConfigurationNo];
-			const pageConfig = Array.isArray(config) ? config[page] : null;
-			if (pageConfig)
-			{
-				ensureButtonSideAdvancedDefaults(pageConfig, side);
-			}
-
-			const selectedMode = (pageConfig && pageConfig[`${side}BasicBooleanRender`]) ? pageConfig[`${side}BasicBooleanRender`] : 'text';
-			popupElementsBySuffix.__booleanRenderMode = selectedMode === 'svg' ? 'svg' : 'text';
-
-			const renderRow = document.createElement('div');
-			renderRow.className = 'button-field-popup-field button-popup-radio-row';
-			renderRow.dataset.renderMode = 'basic-button';
-
-			const radioName = `buttonPopup${side}${page}BasicBooleanRender`;
-			renderRow.innerHTML = `
+	const radioName = `buttonPopup${side}${page}BasicBooleanRender`;
+	renderRow.innerHTML = `
 				<label class="button-popup-radio-option"><input type="radio" name="${radioName}" value="text"> ${Homey.__("settings.textLabel")}</label>
 				<label class="button-popup-radio-option"><input type="radio" name="${radioName}" value="svg"> ${Homey.__("settings.svgLabel")}</label>`;
 
-			const checkedInput = renderRow.querySelector(`input[name="${radioName}"][value="${popupElementsBySuffix.__booleanRenderMode}"]`);
-			if (checkedInput)
+	const checkedInput = renderRow.querySelector(`input[name="${radioName}"][value="${popupElementsBySuffix.__booleanRenderMode}"]`);
+	if (checkedInput)
+	{
+		checkedInput.checked = true;
+	}
+
+	renderRow.addEventListener('change', function ()
+	{
+		const selectedInput = renderRow.querySelector(`input[name="${radioName}"]:checked`);
+		popupElementsBySuffix.__booleanRenderMode = selectedInput ? selectedInput.value : 'text';
+		updateButtonFieldPopupCapabilityState(popupElementsBySuffix);
+	});
+
+	popupElementsBySuffix.__booleanRenderRow = renderRow;
+	buttonFieldPopupBodyElement.appendChild(renderRow);
+}
+
+function normalizeTooltipHtml(value)
+{
+	if (value === null || value === undefined)
+	{
+		return '';
+	}
+
+	return String(value)
+		.replace(/&lt;br\s*\/?&gt;/gi, '<br>')
+		.replace(/&lt;\/br\s*&gt;/gi, '<br>')
+		.replace(/<br\s*\/?>/gi, '<br>');
+}
+
+function getPopupFieldTooltipText(sourceLabelElement)
+{
+	if (!sourceLabelElement)
+	{
+		return '';
+	}
+
+	const tooltipTextElement = sourceLabelElement.querySelector('.tooltiptext');
+	if (!tooltipTextElement)
+	{
+		return '';
+	}
+
+	const tooltipHtml = tooltipTextElement.innerHTML || tooltipTextElement.textContent || '';
+	return normalizeTooltipHtml(tooltipHtml).trim();
+}
+
+function getLocalizedTooltipText(localizationKey)
+{
+	if (!localizationKey || typeof Homey === 'undefined' || !Homey || typeof Homey.__ !== 'function')
+	{
+		return '';
+	}
+
+	const localizedText = Homey.__(localizationKey);
+	if (!localizedText || localizedText === localizationKey)
+	{
+		return '';
+	}
+
+	return String(localizedText).trim();
+}
+
+function resolvePopupFieldTooltipText(sourceLabelElement, fallbackLocalizationKey)
+{
+	const sourceTooltipText = getPopupFieldTooltipText(sourceLabelElement);
+	if (sourceTooltipText)
+	{
+		return sourceTooltipText;
+	}
+
+	return getLocalizedTooltipText(fallbackLocalizationKey);
+}
+
+function appendPopupLabelContent(labelElement, labelText, tooltipText)
+{
+	if (!labelElement)
+	{
+		return;
+	}
+
+	const textElement = document.createElement('span');
+	textElement.textContent = labelText || '';
+	labelElement.appendChild(textElement);
+
+	if (!tooltipText)
+	{
+		return;
+	}
+
+	const tooltipElement = document.createElement('div');
+	tooltipElement.className = 'tooltip';
+
+	const iconElement = document.createElement('i');
+	iconElement.className = 'fi fi-rr-info';
+	iconElement.setAttribute('aria-hidden', 'true');
+	tooltipElement.appendChild(iconElement);
+
+	const tooltipTextElement = document.createElement('span');
+	tooltipTextElement.className = 'tooltiptext';
+	// Tooltip strings use <br> for line breaks (like every other tooltip in this app), so render as HTML
+	tooltipTextElement.innerHTML = normalizeTooltipHtml(tooltipText);
+	tooltipElement.appendChild(tooltipTextElement);
+
+	labelElement.appendChild(tooltipElement);
+}
+
+function saveButtonFieldPopup()
+{
+	if (saveAdvancedButtonPopup())
+	{
+		closeButtonFieldPopup();
+		return;
+	}
+
+	if (!buttonFieldPopupBindings || buttonFieldPopupBindings.length === 0)
+	{
+		closeButtonFieldPopup();
+		return;
+	}
+
+	if (buttonFieldPopupContext && buttonFieldPopupContext.popupElementsBySuffix && buttonFieldPopupContext.popupElementsBySuffix.Device && buttonFieldPopupContext.popupElementsBySuffix.Capability)
+	{
+		const side = buttonFieldPopupContext.side;
+		const page = buttonFieldPopupContext.page;
+		const config = localButtonConfigurations[currentButtonConfigurationNo];
+		const pageConfig = Array.isArray(config) ? config[page] : null;
+		if (pageConfig)
+		{
+			ensureButtonSideAdvancedDefaults(pageConfig, side);
+			pageConfig[`${side}BasicBooleanRender`] = buttonFieldPopupContext.popupElementsBySuffix.__booleanRenderMode || 'text';
+		}
+		const deviceValue = buttonFieldPopupContext.popupElementsBySuffix.Device.value;
+		const capabilityValue = buttonFieldPopupContext.popupElementsBySuffix.Capability.value;
+		const shouldApplyCapability = (deviceValue !== 'none' && deviceValue !== 'customMQTT');
+
+		const sourceDeviceElement = document.getElementById(`${side}${page}Device`);
+		const sourceCapabilityElement = document.getElementById(`${side}${page}Capability`);
+
+		if (sourceDeviceElement)
+		{
+			sourceDeviceElement.value = deviceValue;
+			buttonDeviceChanged(side, page);
+			sourceDeviceElement.dispatchEvent(new Event('change', { bubbles: true }));
+		}
+
+		if (sourceCapabilityElement && shouldApplyCapability)
+		{
+			const applyCapabilityValue = function (attempt = 0)
 			{
-				checkedInput.checked = true;
+				const hasOption = Array.from(sourceCapabilityElement.options || []).some((option) => option.value === capabilityValue);
+				if (hasOption)
+				{
+					sourceCapabilityElement.value = capabilityValue;
+					sourceCapabilityElement.dispatchEvent(new Event('change', { bubbles: true }));
+					return;
+				}
+
+				if (attempt < 8)
+				{
+					setTimeout(() => applyCapabilityValue(attempt + 1), 120);
+				}
+			};
+
+			applyCapabilityValue(0);
+		}
+	}
+
+	for (const binding of buttonFieldPopupBindings)
+	{
+		if (!binding || !binding.sourceElement || !binding.popupElement)
+		{
+			continue;
+		}
+
+		if (binding.suffix === 'Device' || binding.suffix === 'Capability')
+		{
+			continue;
+		}
+
+		if (binding.sourceElement.type === 'checkbox')
+		{
+			binding.sourceElement.checked = binding.popupElement.checked;
+			binding.sourceElement.dispatchEvent(new Event('change', { bubbles: true }));
+		}
+		else
+		{
+			binding.sourceElement.value = binding.popupElement.value;
+			binding.sourceElement.dispatchEvent(new Event('input', { bubbles: true }));
+			binding.sourceElement.dispatchEvent(new Event('change', { bubbles: true }));
+		}
+	}
+
+	if (buttonFieldPopupContext)
+	{
+		const buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+		if (Array.isArray(buttonPanelConfiguration) && buttonPanelConfiguration[buttonFieldPopupContext.page])
+		{
+			storeCustomMQTTItems(buttonFieldPopupContext.side, buttonFieldPopupContext.page, buttonPanelConfiguration[buttonFieldPopupContext.page]);
+		}
+
+		renderInlineButtonPagePreview(buttonFieldPopupContext.page);
+		if (buttonPagePopupOverlayElement && buttonPagePopupOverlayElement.classList.contains('visible'))
+		{
+			renderButtonPagePopup();
+		}
+	}
+
+	// Popup save dispatches synthetic events; persist explicitly so draft always captures edits.
+	configDraftDirtySinceLoad = true;
+	flushConfigurationDraftPersist();
+
+	closeButtonFieldPopup();
+}
+
+function openButtonFieldPopup(side, page, fieldSuffix, retryCount = 0)
+{
+	if (!buttonFieldPopupOverlayElement || !buttonFieldPopupBodyElement || !buttonFieldPopupTitleElement)
+	{
+		focusButtonControlFromPopup(side, page, fieldSuffix, false);
+		return;
+	}
+
+	const popupSpec = getButtonFieldPopupSpec(side, page, fieldSuffix);
+	if (!popupSpec)
+	{
+		focusButtonControlFromPopup(side, page, fieldSuffix, false);
+		return;
+	}
+
+	buttonFieldPopupBindings = [];
+	const popupElementsBySuffix = {};
+	let popupDeviceIndicatorElement = null;
+	let popupCapabilityIndicatorElement = null;
+	buttonFieldPopupContext = { side, page, fieldSuffix, popupElementsBySuffix };
+	buttonFieldPopupBodyElement.innerHTML = '';
+	buttonFieldPopupTitleElement.textContent = popupSpec.title;
+	const missingSuffixes = [];
+
+	for (const suffix of popupSpec.fields)
+	{
+		const sourceId = `${side}${page}${suffix}`;
+		const sourceElement = document.getElementById(sourceId);
+		if (!sourceElement)
+		{
+			missingSuffixes.push(suffix);
+			continue;
+		}
+
+		const wrapper = document.createElement('div');
+		wrapper.className = 'button-field-popup-field';
+
+		const label = document.createElement('label');
+		label.className = 'button-field-popup-label';
+		const sourceLabel = document.querySelector(`label[for="${sourceId}"]`);
+		const popupLabelText = popupSpec.labels[suffix] || suffix;
+		const popupTooltipText = resolvePopupFieldTooltipText(sourceLabel, popupSpec.tooltipKeys ? popupSpec.tooltipKeys[suffix] : '');
+		appendPopupLabelContent(label, popupLabelText, popupTooltipText);
+		wrapper.appendChild(label);
+
+		const popupId = `buttonFieldPopup_${sourceId}`;
+		let popupElement = null;
+
+		if (sourceElement.tagName === 'SELECT')
+		{
+			popupElement = document.createElement('select');
+			popupElement.className = 'homey-form-select';
+			popupElement.id = popupId;
+			popupElement.innerHTML = sourceElement.innerHTML;
+			popupElement.value = sourceElement.value;
+		}
+		else if (sourceElement.tagName === 'TEXTAREA')
+		{
+			popupElement = document.createElement('textarea');
+			popupElement.className = 'homey-form-textarea';
+			popupElement.id = popupId;
+			popupElement.value = sourceElement.value;
+			popupElement.style.minHeight = '100px';
+		}
+		else if (sourceElement.type === 'color')
+		{
+			popupElement = document.createElement('input');
+			popupElement.className = 'homey-form-input';
+			popupElement.type = 'color';
+			popupElement.id = popupId;
+			popupElement.value = sourceElement.value;
+		}
+		else
+		{
+			popupElement = document.createElement('input');
+			popupElement.className = 'homey-form-input';
+			popupElement.type = 'text';
+			popupElement.id = popupId;
+			popupElement.value = sourceElement.value;
+			if (sourceElement.maxLength && sourceElement.maxLength > 0)
+			{
+				popupElement.maxLength = sourceElement.maxLength;
+			}
+		}
+
+		if (suffix === 'Device')
+		{
+			const popupDeviceRow = document.createElement('div');
+			popupDeviceRow.className = 'button-field-popup-device-row';
+
+			popupDeviceIndicatorElement = document.createElement('div');
+			popupDeviceIndicatorElement.className = 'button-field-popup-device-icon';
+			popupDeviceIndicatorElement.setAttribute('aria-hidden', 'true');
+
+			popupDeviceRow.appendChild(popupDeviceIndicatorElement);
+			popupDeviceRow.appendChild(popupElement);
+			wrapper.appendChild(popupDeviceRow);
+		}
+		else if (suffix === 'Capability')
+		{
+			const popupCapabilityRow = document.createElement('div');
+			popupCapabilityRow.className = 'button-field-popup-capability-row';
+
+			popupCapabilityIndicatorElement = document.createElement('div');
+			popupCapabilityIndicatorElement.className = 'button-field-popup-capability-icon';
+			popupCapabilityIndicatorElement.setAttribute('aria-hidden', 'true');
+
+			popupCapabilityRow.appendChild(popupCapabilityIndicatorElement);
+			popupCapabilityRow.appendChild(popupElement);
+			wrapper.appendChild(popupCapabilityRow);
+		}
+		else
+		{
+			wrapper.appendChild(popupElement);
+		}
+		buttonFieldPopupBodyElement.appendChild(wrapper);
+		popupElementsBySuffix[suffix] = popupElement;
+		buttonFieldPopupBindings.push({ sourceElement, popupElement, suffix });
+	}
+
+	if (missingSuffixes.length > 0 && retryCount < 6)
+	{
+		setTimeout(() => openButtonFieldPopup(side, page, fieldSuffix, retryCount + 1), 80);
+		return;
+	}
+
+	if (buttonFieldPopupBindings.length === 0)
+	{
+		focusButtonControlFromPopup(side, page, fieldSuffix, false);
+		return;
+	}
+
+	if (popupElementsBySuffix.Device && popupElementsBySuffix.Capability)
+	{
+		appendButtonFieldPopupBooleanRenderControls(side, page, popupElementsBySuffix);
+		appendButtonFieldPopupCustomMQTTSection(side, page);
+
+		if (popupDeviceIndicatorElement)
+		{
+			updatePopupDeviceIndicator(popupElementsBySuffix.Device, popupDeviceIndicatorElement);
+		}
+		if (popupCapabilityIndicatorElement)
+		{
+			updatePopupCapabilityIndicator(popupElementsBySuffix.Capability, popupCapabilityIndicatorElement);
+		}
+		updateButtonFieldPopupCapabilityState(popupElementsBySuffix);
+
+		popupElementsBySuffix.Device.addEventListener('change', function ()
+		{
+			const sourceDeviceElement = document.getElementById(`${side}${page}Device`);
+			if (sourceDeviceElement)
+			{
+				sourceDeviceElement.value = popupElementsBySuffix.Device.value;
+				buttonDeviceChanged(side, page);
 			}
 
-			renderRow.addEventListener('change', function ()
+			if (popupDeviceIndicatorElement)
 			{
-				const selectedInput = renderRow.querySelector(`input[name="${radioName}"]:checked`);
-				popupElementsBySuffix.__booleanRenderMode = selectedInput ? selectedInput.value : 'text';
+				updatePopupDeviceIndicator(popupElementsBySuffix.Device, popupDeviceIndicatorElement);
+			}
+
+			syncButtonFieldPopupCapabilityOptions(side, page, popupElementsBySuffix.Capability);
+			updateButtonFieldPopupCapabilityState(popupElementsBySuffix);
+			if (popupCapabilityIndicatorElement)
+			{
+				updatePopupCapabilityIndicator(popupElementsBySuffix.Capability, popupCapabilityIndicatorElement);
+			}
+
+			setTimeout(() =>
+			{
+				syncButtonFieldPopupCapabilityOptions(side, page, popupElementsBySuffix.Capability);
 				updateButtonFieldPopupCapabilityState(popupElementsBySuffix);
-			});
-
-			popupElementsBySuffix.__booleanRenderRow = renderRow;
-			buttonFieldPopupBodyElement.appendChild(renderRow);
-		}
-
-		function normalizeTooltipHtml(value)
-		{
-			if (value === null || value === undefined)
-			{
-				return '';
-			}
-
-			return String(value)
-				.replace(/&lt;br\s*\/?&gt;/gi, '<br>')
-				.replace(/&lt;\/br\s*&gt;/gi, '<br>')
-				.replace(/<br\s*\/?>/gi, '<br>');
-		}
-
-		function getPopupFieldTooltipText(sourceLabelElement)
-		{
-			if (!sourceLabelElement)
-			{
-				return '';
-			}
-
-			const tooltipTextElement = sourceLabelElement.querySelector('.tooltiptext');
-			if (!tooltipTextElement)
-			{
-				return '';
-			}
-
-			const tooltipHtml = tooltipTextElement.innerHTML || tooltipTextElement.textContent || '';
-			return normalizeTooltipHtml(tooltipHtml).trim();
-		}
-
-		function getLocalizedTooltipText(localizationKey)
-		{
-			if (!localizationKey || typeof Homey === 'undefined' || !Homey || typeof Homey.__ !== 'function')
-			{
-				return '';
-			}
-
-			const localizedText = Homey.__(localizationKey);
-			if (!localizedText || localizedText === localizationKey)
-			{
-				return '';
-			}
-
-			return String(localizedText).trim();
-		}
-
-		function resolvePopupFieldTooltipText(sourceLabelElement, fallbackLocalizationKey)
-		{
-			const sourceTooltipText = getPopupFieldTooltipText(sourceLabelElement);
-			if (sourceTooltipText)
-			{
-				return sourceTooltipText;
-			}
-
-			return getLocalizedTooltipText(fallbackLocalizationKey);
-		}
-
-		function appendPopupLabelContent(labelElement, labelText, tooltipText)
-		{
-			if (!labelElement)
-			{
-				return;
-			}
-
-			const textElement = document.createElement('span');
-			textElement.textContent = labelText || '';
-			labelElement.appendChild(textElement);
-
-			if (!tooltipText)
-			{
-				return;
-			}
-
-			const tooltipElement = document.createElement('div');
-			tooltipElement.className = 'tooltip';
-
-			const iconElement = document.createElement('i');
-			iconElement.className = 'fi fi-rr-info';
-			iconElement.setAttribute('aria-hidden', 'true');
-			tooltipElement.appendChild(iconElement);
-
-			const tooltipTextElement = document.createElement('span');
-			tooltipTextElement.className = 'tooltiptext';
-			// Tooltip strings use <br> for line breaks (like every other tooltip in this app), so render as HTML
-			tooltipTextElement.innerHTML = normalizeTooltipHtml(tooltipText);
-			tooltipElement.appendChild(tooltipTextElement);
-
-			labelElement.appendChild(tooltipElement);
-		}
-
-		function saveButtonFieldPopup()
-		{
-			if (saveAdvancedButtonPopup())
-			{
-				closeButtonFieldPopup();
-				return;
-			}
-
-			if (!buttonFieldPopupBindings || buttonFieldPopupBindings.length === 0)
-			{
-				closeButtonFieldPopup();
-				return;
-			}
-
-			if (buttonFieldPopupContext && buttonFieldPopupContext.popupElementsBySuffix && buttonFieldPopupContext.popupElementsBySuffix.Device && buttonFieldPopupContext.popupElementsBySuffix.Capability)
-			{
-				const side = buttonFieldPopupContext.side;
-				const page = buttonFieldPopupContext.page;
-				const config = localButtonConfigurations[currentButtonConfigurationNo];
-				const pageConfig = Array.isArray(config) ? config[page] : null;
-				if (pageConfig)
-				{
-					ensureButtonSideAdvancedDefaults(pageConfig, side);
-					pageConfig[`${side}BasicBooleanRender`] = buttonFieldPopupContext.popupElementsBySuffix.__booleanRenderMode || 'text';
-				}
-				const deviceValue = buttonFieldPopupContext.popupElementsBySuffix.Device.value;
-				const capabilityValue = buttonFieldPopupContext.popupElementsBySuffix.Capability.value;
-				const shouldApplyCapability = (deviceValue !== 'none' && deviceValue !== 'customMQTT');
-
-				const sourceDeviceElement = document.getElementById(`${side}${page}Device`);
-				const sourceCapabilityElement = document.getElementById(`${side}${page}Capability`);
-
-				if (sourceDeviceElement)
-				{
-					sourceDeviceElement.value = deviceValue;
-					buttonDeviceChanged(side, page);
-					sourceDeviceElement.dispatchEvent(new Event('change', { bubbles: true }));
-				}
-
-				if (sourceCapabilityElement && shouldApplyCapability)
-				{
-					const applyCapabilityValue = function (attempt = 0)
-					{
-						const hasOption = Array.from(sourceCapabilityElement.options || []).some((option) => option.value === capabilityValue);
-						if (hasOption)
-						{
-							sourceCapabilityElement.value = capabilityValue;
-							sourceCapabilityElement.dispatchEvent(new Event('change', { bubbles: true }));
-							return;
-						}
-
-						if (attempt < 8)
-						{
-							setTimeout(() => applyCapabilityValue(attempt + 1), 120);
-						}
-					};
-
-					applyCapabilityValue(0);
-				}
-			}
-
-			for (const binding of buttonFieldPopupBindings)
-			{
-				if (!binding || !binding.sourceElement || !binding.popupElement)
-				{
-					continue;
-				}
-
-				if (binding.suffix === 'Device' || binding.suffix === 'Capability')
-				{
-					continue;
-				}
-
-				if (binding.sourceElement.type === 'checkbox')
-				{
-					binding.sourceElement.checked = binding.popupElement.checked;
-					binding.sourceElement.dispatchEvent(new Event('change', { bubbles: true }));
-				}
-				else
-				{
-					binding.sourceElement.value = binding.popupElement.value;
-					binding.sourceElement.dispatchEvent(new Event('input', { bubbles: true }));
-					binding.sourceElement.dispatchEvent(new Event('change', { bubbles: true }));
-				}
-			}
-
-			if (buttonFieldPopupContext)
-			{
-				const buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-				if (Array.isArray(buttonPanelConfiguration) && buttonPanelConfiguration[buttonFieldPopupContext.page])
-				{
-					storeCustomMQTTItems(buttonFieldPopupContext.side, buttonFieldPopupContext.page, buttonPanelConfiguration[buttonFieldPopupContext.page]);
-				}
-
-				renderInlineButtonPagePreview(buttonFieldPopupContext.page);
-				if (buttonPagePopupOverlayElement && buttonPagePopupOverlayElement.classList.contains('visible'))
-				{
-					renderButtonPagePopup();
-				}
-			}
-
-			// Popup save dispatches synthetic events; persist explicitly so draft always captures edits.
-			configDraftDirtySinceLoad = true;
-			flushConfigurationDraftPersist();
-
-			closeButtonFieldPopup();
-		}
-
-		function openButtonFieldPopup(side, page, fieldSuffix, retryCount = 0)
-		{
-			if (!buttonFieldPopupOverlayElement || !buttonFieldPopupBodyElement || !buttonFieldPopupTitleElement)
-			{
-				focusButtonControlFromPopup(side, page, fieldSuffix, false);
-				return;
-			}
-
-			const popupSpec = getButtonFieldPopupSpec(side, page, fieldSuffix);
-			if (!popupSpec)
-			{
-				focusButtonControlFromPopup(side, page, fieldSuffix, false);
-				return;
-			}
-
-			buttonFieldPopupBindings = [];
-			const popupElementsBySuffix = {};
-			let popupDeviceIndicatorElement = null;
-			let popupCapabilityIndicatorElement = null;
-			buttonFieldPopupContext = { side, page, fieldSuffix, popupElementsBySuffix };
-			buttonFieldPopupBodyElement.innerHTML = '';
-			buttonFieldPopupTitleElement.textContent = popupSpec.title;
-			const missingSuffixes = [];
-
-			for (const suffix of popupSpec.fields)
-			{
-				const sourceId = `${side}${page}${suffix}`;
-				const sourceElement = document.getElementById(sourceId);
-				if (!sourceElement)
-				{
-					missingSuffixes.push(suffix);
-					continue;
-				}
-
-				const wrapper = document.createElement('div');
-				wrapper.className = 'button-field-popup-field';
-
-				const label = document.createElement('label');
-				label.className = 'button-field-popup-label';
-				const sourceLabel = document.querySelector(`label[for="${sourceId}"]`);
-				const popupLabelText = popupSpec.labels[suffix] || suffix;
-				const popupTooltipText = resolvePopupFieldTooltipText(sourceLabel, popupSpec.tooltipKeys ? popupSpec.tooltipKeys[suffix] : '');
-				appendPopupLabelContent(label, popupLabelText, popupTooltipText);
-				wrapper.appendChild(label);
-
-				const popupId = `buttonFieldPopup_${sourceId}`;
-				let popupElement = null;
-
-				if (sourceElement.tagName === 'SELECT')
-				{
-					popupElement = document.createElement('select');
-					popupElement.className = 'homey-form-select';
-					popupElement.id = popupId;
-					popupElement.innerHTML = sourceElement.innerHTML;
-					popupElement.value = sourceElement.value;
-				}
-				else if (sourceElement.tagName === 'TEXTAREA')
-				{
-					popupElement = document.createElement('textarea');
-					popupElement.className = 'homey-form-textarea';
-					popupElement.id = popupId;
-					popupElement.value = sourceElement.value;
-					popupElement.style.minHeight = '100px';
-				}
-				else if (sourceElement.type === 'color')
-				{
-					popupElement = document.createElement('input');
-					popupElement.className = 'homey-form-input';
-					popupElement.type = 'color';
-					popupElement.id = popupId;
-					popupElement.value = sourceElement.value;
-				}
-				else
-				{
-					popupElement = document.createElement('input');
-					popupElement.className = 'homey-form-input';
-					popupElement.type = 'text';
-					popupElement.id = popupId;
-					popupElement.value = sourceElement.value;
-					if (sourceElement.maxLength && sourceElement.maxLength > 0)
-					{
-						popupElement.maxLength = sourceElement.maxLength;
-					}
-				}
-
-				if (suffix === 'Device')
-				{
-					const popupDeviceRow = document.createElement('div');
-					popupDeviceRow.className = 'button-field-popup-device-row';
-
-					popupDeviceIndicatorElement = document.createElement('div');
-					popupDeviceIndicatorElement.className = 'button-field-popup-device-icon';
-					popupDeviceIndicatorElement.setAttribute('aria-hidden', 'true');
-
-					popupDeviceRow.appendChild(popupDeviceIndicatorElement);
-					popupDeviceRow.appendChild(popupElement);
-					wrapper.appendChild(popupDeviceRow);
-				}
-				else if (suffix === 'Capability')
-				{
-					const popupCapabilityRow = document.createElement('div');
-					popupCapabilityRow.className = 'button-field-popup-capability-row';
-
-					popupCapabilityIndicatorElement = document.createElement('div');
-					popupCapabilityIndicatorElement.className = 'button-field-popup-capability-icon';
-					popupCapabilityIndicatorElement.setAttribute('aria-hidden', 'true');
-
-					popupCapabilityRow.appendChild(popupCapabilityIndicatorElement);
-					popupCapabilityRow.appendChild(popupElement);
-					wrapper.appendChild(popupCapabilityRow);
-				}
-				else
-				{
-					wrapper.appendChild(popupElement);
-				}
-				buttonFieldPopupBodyElement.appendChild(wrapper);
-				popupElementsBySuffix[suffix] = popupElement;
-				buttonFieldPopupBindings.push({ sourceElement, popupElement, suffix });
-			}
-
-			if (missingSuffixes.length > 0 && retryCount < 6)
-			{
-				setTimeout(() => openButtonFieldPopup(side, page, fieldSuffix, retryCount + 1), 80);
-				return;
-			}
-
-			if (buttonFieldPopupBindings.length === 0)
-			{
-				focusButtonControlFromPopup(side, page, fieldSuffix, false);
-				return;
-			}
-
-			if (popupElementsBySuffix.Device && popupElementsBySuffix.Capability)
-			{
-				appendButtonFieldPopupBooleanRenderControls(side, page, popupElementsBySuffix);
-				appendButtonFieldPopupCustomMQTTSection(side, page);
-
-				if (popupDeviceIndicatorElement)
-				{
-					updatePopupDeviceIndicator(popupElementsBySuffix.Device, popupDeviceIndicatorElement);
-				}
 				if (popupCapabilityIndicatorElement)
 				{
 					updatePopupCapabilityIndicator(popupElementsBySuffix.Capability, popupCapabilityIndicatorElement);
 				}
+			}, 120);
+			setTimeout(() =>
+			{
+				syncButtonFieldPopupCapabilityOptions(side, page, popupElementsBySuffix.Capability);
 				updateButtonFieldPopupCapabilityState(popupElementsBySuffix);
-
-				popupElementsBySuffix.Device.addEventListener('change', function ()
-				{
-					const sourceDeviceElement = document.getElementById(`${side}${page}Device`);
-					if (sourceDeviceElement)
-					{
-						sourceDeviceElement.value = popupElementsBySuffix.Device.value;
-						buttonDeviceChanged(side, page);
-					}
-
-					if (popupDeviceIndicatorElement)
-					{
-						updatePopupDeviceIndicator(popupElementsBySuffix.Device, popupDeviceIndicatorElement);
-					}
-
-					syncButtonFieldPopupCapabilityOptions(side, page, popupElementsBySuffix.Capability);
-					updateButtonFieldPopupCapabilityState(popupElementsBySuffix);
-					if (popupCapabilityIndicatorElement)
-					{
-						updatePopupCapabilityIndicator(popupElementsBySuffix.Capability, popupCapabilityIndicatorElement);
-					}
-
-					setTimeout(() =>
-					{
-						syncButtonFieldPopupCapabilityOptions(side, page, popupElementsBySuffix.Capability);
-						updateButtonFieldPopupCapabilityState(popupElementsBySuffix);
-						if (popupCapabilityIndicatorElement)
-						{
-							updatePopupCapabilityIndicator(popupElementsBySuffix.Capability, popupCapabilityIndicatorElement);
-						}
-					}, 120);
-					setTimeout(() =>
-					{
-						syncButtonFieldPopupCapabilityOptions(side, page, popupElementsBySuffix.Capability);
-						updateButtonFieldPopupCapabilityState(popupElementsBySuffix);
-						if (popupCapabilityIndicatorElement)
-						{
-							updatePopupCapabilityIndicator(popupElementsBySuffix.Capability, popupCapabilityIndicatorElement);
-						}
-					}, 320);
-				});
-
-				popupElementsBySuffix.Capability.addEventListener('change', function ()
-				{
-					if (popupCapabilityIndicatorElement)
-					{
-						updatePopupCapabilityIndicator(popupElementsBySuffix.Capability, popupCapabilityIndicatorElement);
-					}
-					updateButtonFieldPopupCapabilityState(popupElementsBySuffix);
-				});
-
-				syncButtonFieldPopupCapabilityOptions(side, page, popupElementsBySuffix.Capability, popupElementsBySuffix.Capability.value);
 				if (popupCapabilityIndicatorElement)
 				{
 					updatePopupCapabilityIndicator(popupElementsBySuffix.Capability, popupCapabilityIndicatorElement);
 				}
-				updateButtonFieldPopupCapabilityState(popupElementsBySuffix);
-			}
+			}, 320);
+		});
 
-			buttonFieldPopupOverlayElement.classList.add('visible');
-			buttonFieldPopupOverlayElement.setAttribute('aria-hidden', 'false');
-
-			const firstField = buttonFieldPopupBindings[0].popupElement;
-			if (firstField && typeof firstField.focus === 'function')
+		popupElementsBySuffix.Capability.addEventListener('change', function ()
+		{
+			if (popupCapabilityIndicatorElement)
 			{
-				setTimeout(() => firstField.focus(), 0);
+				updatePopupCapabilityIndicator(popupElementsBySuffix.Capability, popupCapabilityIndicatorElement);
 			}
+			updateButtonFieldPopupCapabilityState(popupElementsBySuffix);
+		});
+
+		syncButtonFieldPopupCapabilityOptions(side, page, popupElementsBySuffix.Capability, popupElementsBySuffix.Capability.value);
+		if (popupCapabilityIndicatorElement)
+		{
+			updatePopupCapabilityIndicator(popupElementsBySuffix.Capability, popupCapabilityIndicatorElement);
+		}
+		updateButtonFieldPopupCapabilityState(popupElementsBySuffix);
+	}
+
+	buttonFieldPopupOverlayElement.classList.add('visible');
+	buttonFieldPopupOverlayElement.setAttribute('aria-hidden', 'false');
+
+	const firstField = buttonFieldPopupBindings[0].popupElement;
+	if (firstField && typeof firstField.focus === 'function')
+	{
+		setTimeout(() => firstField.focus(), 0);
+	}
+}
+
+function focusButtonControlFromPopup(side, page, fieldSuffix, openPopup = true)
+{
+	if (openPopup)
+	{
+		const popupSpec = getButtonFieldPopupSpec(side, page, fieldSuffix);
+		if (popupSpec)
+		{
+			openButtonFieldPopup(side, page, fieldSuffix);
+			return;
+		}
+	}
+
+	const detailElement = document.getElementById(`${side}${page}Details`);
+	if (detailElement)
+	{
+		detailElement.open = true;
+	}
+
+	const sectionElement = document.getElementById(`${side}${page}PanelSection`) || detailElement;
+	if (sectionElement)
+	{
+		scrollToTop(sectionElement);
+	}
+
+	const focusElement = document.getElementById(`${side}${page}${fieldSuffix}`)
+		|| document.getElementById(`${side}${page}TopText`)
+		|| document.getElementById(`${side}${page}Device`);
+	if (focusElement)
+	{
+		setTimeout(() =>
+		{
+			focusElement.focus();
+		}, 260);
+	}
+}
+
+function getDisplayFieldPopupSpec(fieldSuffix)
+{
+	const labels = {
+		page: Homey.__('settings.page'),
+		Device: Homey.__('settings.device'),
+		Capability: Homey.__('settings.capability'),
+		Label: Homey.__('settings.topLabel'),
+		Text: Homey.__('settings.text'),
+		Unit: Homey.__('settings.unit'),
+		X: Homey.__('settings.xPos'),
+		Y: Homey.__('settings.yPos'),
+		Width: Homey.__('settings.width'),
+		Rounding: Homey.__('settings.rounding'),
+		FontSize: Homey.__('settings.fontSize'),
+		BoxType: Homey.__('settings.boxType'),
+		BrokerId: Homey.__('settings.brokerId'),
+		SVG: 'SVG',
+	};
+	const tooltipKeys = {
+		page: 'settings.pageExplanation',
+		Device: 'settings.deviceDExplanation',
+		Capability: 'settings.capabilityDExplanation',
+		Label: 'settings.toplabelDisplayExplanation',
+		Text: 'settings.textExplanation',
+		Unit: 'settings.unitExplanation',
+		SVG: 'settings.textExplanation',
+		X: 'settings.xPosExplanation',
+		Y: 'settings.yPosExplanation',
+		Width: 'settings.widthExplanation',
+		Rounding: 'settings.roundingExplanation',
+		FontSize: 'settings.fontSizeExplanation',
+		BoxType: 'settings.boxTypeExplanation',
+		BrokerId: 'settings.brokerIdExplanation',
+	};
+
+	// Display item editing now uses one complete popup regardless of click target.
+	return {
+		title: 'Properties',
+		fields: ['page', 'Device', 'Capability', 'Label', 'Text', 'Unit', 'SVG', 'X', 'Y', 'Width', 'Rounding', 'FontSize', 'BoxType', 'BrokerId'],
+		labels,
+		tooltipKeys,
+	};
+}
+
+function closeDisplayFieldPopup()
+{
+	if (!displayFieldPopupOverlayElement)
+	{
+		return;
+	}
+
+	if (displayFieldPopupOverlayElement.contains(document.activeElement) && typeof document.activeElement?.blur === 'function')
+	{
+		document.activeElement.blur();
+	}
+
+	restoreDisplayFieldPopupCustomMQTTSection();
+	displayFieldPopupOverlayElement.classList.remove('visible');
+	displayFieldPopupOverlayElement.setAttribute('aria-hidden', 'true');
+	displayFieldPopupBindings = [];
+	displayFieldPopupContext = null;
+	if (displayFieldPopupBodyElement)
+	{
+		displayFieldPopupBodyElement.innerHTML = '';
+	}
+}
+
+function syncDisplayFieldPopupCapabilityOptions(itemNo, popupCapabilityElement, selectedCapability = '')
+{
+	if (!popupCapabilityElement)
+	{
+		return;
+	}
+
+	const sourceCapabilityElement = document.getElementById(`display${itemNo}Capability`);
+	if (!sourceCapabilityElement)
+	{
+		return;
+	}
+
+	popupCapabilityElement.innerHTML = sourceCapabilityElement.innerHTML;
+	const wantedValue = selectedCapability || sourceCapabilityElement.value;
+	if (wantedValue)
+	{
+		popupCapabilityElement.value = wantedValue;
+	}
+}
+
+function updateDisplayFieldPopupCapabilityState(popupElementsBySuffix)
+{
+	if (!popupElementsBySuffix || !popupElementsBySuffix.Device || !popupElementsBySuffix.Capability)
+	{
+		return;
+	}
+
+	const deviceValue = popupElementsBySuffix.Device.value;
+	const capabilityElement = popupElementsBySuffix.Capability;
+	const capabilityRowElement = capabilityElement.closest('.button-field-popup-field');
+	const capabilityLabelElement = capabilityRowElement ? capabilityRowElement.querySelector('.button-field-popup-label') : null;
+
+	const hideCapability = (deviceValue === 'none' || deviceValue === 'customMQTT');
+	if (capabilityRowElement)
+	{
+		capabilityRowElement.style.display = hideCapability ? 'none' : '';
+	}
+
+	if (capabilityLabelElement)
+	{
+		const capabilityLabelText = (deviceValue === '_variable_')
+			? Homey.__('settings.variable')
+			: Homey.__('settings.capability');
+		const capabilityTooltipText = getLocalizedTooltipText('settings.capabilityDExplanation');
+		capabilityLabelElement.innerHTML = '';
+		appendPopupLabelContent(capabilityLabelElement, capabilityLabelText, capabilityTooltipText);
+	}
+}
+
+function restoreDisplayFieldPopupCustomMQTTSection()
+{
+	if (!displayFieldPopupContext || !displayFieldPopupContext.customMQTTSectionElement || !displayFieldPopupContext.customMQTTSectionPlaceholder)
+	{
+		return;
+	}
+
+	displayFieldPopupContext.customMQTTSectionPlaceholder.replaceWith(displayFieldPopupContext.customMQTTSectionElement);
+	displayFieldPopupContext.customMQTTSectionElement = null;
+	displayFieldPopupContext.customMQTTSectionPlaceholder = null;
+}
+
+function appendDisplayFieldPopupCustomMQTTSection(itemNo)
+{
+	if (!displayFieldPopupBodyElement || !displayFieldPopupContext)
+	{
+		return;
+	}
+
+	const sourceSectionElement = document.getElementById(`display${itemNo}CustomMQTTTopicDiv`);
+	if (!sourceSectionElement || sourceSectionElement.parentNode === displayFieldPopupBodyElement)
+	{
+		return;
+	}
+
+	const placeholderElement = document.createComment(`display${itemNo}CustomMQTTTopicDiv`);
+	sourceSectionElement.parentNode.insertBefore(placeholderElement, sourceSectionElement);
+	displayFieldPopupBodyElement.appendChild(sourceSectionElement);
+	displayFieldPopupContext.customMQTTSectionElement = sourceSectionElement;
+	displayFieldPopupContext.customMQTTSectionPlaceholder = placeholderElement;
+}
+
+function saveDisplayFieldPopup()
+{
+	if (!displayFieldPopupBindings || displayFieldPopupBindings.length === 0)
+	{
+		closeDisplayFieldPopup();
+		return;
+	}
+
+	if (displayFieldPopupContext && displayFieldPopupContext.popupElementsBySuffix && displayFieldPopupContext.popupElementsBySuffix.Device && displayFieldPopupContext.popupElementsBySuffix.Capability)
+	{
+		const itemNo = displayFieldPopupContext.itemNo;
+		const deviceValue = displayFieldPopupContext.popupElementsBySuffix.Device.value;
+		const capabilityValue = displayFieldPopupContext.popupElementsBySuffix.Capability.value;
+		const shouldApplyCapability = (deviceValue !== 'none' && deviceValue !== 'customMQTT');
+
+		const sourceDeviceElement = document.getElementById(`display${itemNo}Device`);
+		const sourceCapabilityElement = document.getElementById(`display${itemNo}Capability`);
+
+		if (sourceDeviceElement)
+		{
+			sourceDeviceElement.value = deviceValue;
+			sourceDeviceElement.dispatchEvent(new Event('change', { bubbles: true }));
 		}
 
-		function focusButtonControlFromPopup(side, page, fieldSuffix, openPopup = true)
+		if (sourceCapabilityElement && shouldApplyCapability)
 		{
-			if (openPopup)
+			const applyCapabilityValue = function (attempt = 0)
 			{
-				const popupSpec = getButtonFieldPopupSpec(side, page, fieldSuffix);
-				if (popupSpec)
+				const hasOption = Array.from(sourceCapabilityElement.options || []).some((option) => option.value === capabilityValue);
+				if (hasOption)
 				{
-					openButtonFieldPopup(side, page, fieldSuffix);
-					return;
-				}
-			}
-
-			const detailElement = document.getElementById(`${side}${page}Details`);
-			if (detailElement)
-			{
-				detailElement.open = true;
-			}
-
-			const sectionElement = document.getElementById(`${side}${page}PanelSection`) || detailElement;
-			if (sectionElement)
-			{
-				scrollToTop(sectionElement);
-			}
-
-			const focusElement = document.getElementById(`${side}${page}${fieldSuffix}`)
-				|| document.getElementById(`${side}${page}TopText`)
-				|| document.getElementById(`${side}${page}Device`);
-			if (focusElement)
-			{
-				setTimeout(() =>
-				{
-					focusElement.focus();
-				}, 260);
-			}
-		}
-
-		function getDisplayFieldPopupSpec(fieldSuffix)
-		{
-			const labels = {
-				page: Homey.__('settings.page'),
-				Device: Homey.__('settings.device'),
-				Capability: Homey.__('settings.capability'),
-				Label: Homey.__('settings.topLabel'),
-				Text: Homey.__('settings.text'),
-				Unit: Homey.__('settings.unit'),
-				X: Homey.__('settings.xPos'),
-				Y: Homey.__('settings.yPos'),
-				Width: Homey.__('settings.width'),
-				Rounding: Homey.__('settings.rounding'),
-				FontSize: Homey.__('settings.fontSize'),
-				BoxType: Homey.__('settings.boxType'),
-				BrokerId: Homey.__('settings.brokerId'),
-				SVG: 'SVG',
-			};
-			const tooltipKeys = {
-				page: 'settings.pageExplanation',
-				Device: 'settings.deviceDExplanation',
-				Capability: 'settings.capabilityDExplanation',
-				Label: 'settings.toplabelDisplayExplanation',
-				Text: 'settings.textExplanation',
-				Unit: 'settings.unitExplanation',
-				SVG: 'settings.textExplanation',
-				X: 'settings.xPosExplanation',
-				Y: 'settings.yPosExplanation',
-				Width: 'settings.widthExplanation',
-				Rounding: 'settings.roundingExplanation',
-				FontSize: 'settings.fontSizeExplanation',
-				BoxType: 'settings.boxTypeExplanation',
-				BrokerId: 'settings.brokerIdExplanation',
-			};
-
-			// Display item editing now uses one complete popup regardless of click target.
-			return {
-				title: 'Properties',
-				fields: ['page', 'Device', 'Capability', 'Label', 'Text', 'Unit', 'SVG', 'X', 'Y', 'Width', 'Rounding', 'FontSize', 'BoxType', 'BrokerId'],
-				labels,
-				tooltipKeys,
-			};
-		}
-
-		function closeDisplayFieldPopup()
-		{
-			if (!displayFieldPopupOverlayElement)
-			{
-				return;
-			}
-
-			if (displayFieldPopupOverlayElement.contains(document.activeElement) && typeof document.activeElement?.blur === 'function')
-			{
-				document.activeElement.blur();
-			}
-
-			restoreDisplayFieldPopupCustomMQTTSection();
-			displayFieldPopupOverlayElement.classList.remove('visible');
-			displayFieldPopupOverlayElement.setAttribute('aria-hidden', 'true');
-			displayFieldPopupBindings = [];
-			displayFieldPopupContext = null;
-			if (displayFieldPopupBodyElement)
-			{
-				displayFieldPopupBodyElement.innerHTML = '';
-			}
-		}
-
-		function syncDisplayFieldPopupCapabilityOptions(itemNo, popupCapabilityElement, selectedCapability = '')
-		{
-			if (!popupCapabilityElement)
-			{
-				return;
-			}
-
-			const sourceCapabilityElement = document.getElementById(`display${itemNo}Capability`);
-			if (!sourceCapabilityElement)
-			{
-				return;
-			}
-
-			popupCapabilityElement.innerHTML = sourceCapabilityElement.innerHTML;
-			const wantedValue = selectedCapability || sourceCapabilityElement.value;
-			if (wantedValue)
-			{
-				popupCapabilityElement.value = wantedValue;
-			}
-		}
-
-		function updateDisplayFieldPopupCapabilityState(popupElementsBySuffix)
-		{
-			if (!popupElementsBySuffix || !popupElementsBySuffix.Device || !popupElementsBySuffix.Capability)
-			{
-				return;
-			}
-
-			const deviceValue = popupElementsBySuffix.Device.value;
-			const capabilityElement = popupElementsBySuffix.Capability;
-			const capabilityRowElement = capabilityElement.closest('.button-field-popup-field');
-			const capabilityLabelElement = capabilityRowElement ? capabilityRowElement.querySelector('.button-field-popup-label') : null;
-
-			const hideCapability = (deviceValue === 'none' || deviceValue === 'customMQTT');
-			if (capabilityRowElement)
-			{
-				capabilityRowElement.style.display = hideCapability ? 'none' : '';
-			}
-
-			if (capabilityLabelElement)
-			{
-				const capabilityLabelText = (deviceValue === '_variable_')
-					? Homey.__('settings.variable')
-					: Homey.__('settings.capability');
-				const capabilityTooltipText = getLocalizedTooltipText('settings.capabilityDExplanation');
-				capabilityLabelElement.innerHTML = '';
-				appendPopupLabelContent(capabilityLabelElement, capabilityLabelText, capabilityTooltipText);
-			}
-		}
-
-		function restoreDisplayFieldPopupCustomMQTTSection()
-		{
-			if (!displayFieldPopupContext || !displayFieldPopupContext.customMQTTSectionElement || !displayFieldPopupContext.customMQTTSectionPlaceholder)
-			{
-				return;
-			}
-
-			displayFieldPopupContext.customMQTTSectionPlaceholder.replaceWith(displayFieldPopupContext.customMQTTSectionElement);
-			displayFieldPopupContext.customMQTTSectionElement = null;
-			displayFieldPopupContext.customMQTTSectionPlaceholder = null;
-		}
-
-		function appendDisplayFieldPopupCustomMQTTSection(itemNo)
-		{
-			if (!displayFieldPopupBodyElement || !displayFieldPopupContext)
-			{
-				return;
-			}
-
-			const sourceSectionElement = document.getElementById(`display${itemNo}CustomMQTTTopicDiv`);
-			if (!sourceSectionElement || sourceSectionElement.parentNode === displayFieldPopupBodyElement)
-			{
-				return;
-			}
-
-			const placeholderElement = document.createComment(`display${itemNo}CustomMQTTTopicDiv`);
-			sourceSectionElement.parentNode.insertBefore(placeholderElement, sourceSectionElement);
-			displayFieldPopupBodyElement.appendChild(sourceSectionElement);
-			displayFieldPopupContext.customMQTTSectionElement = sourceSectionElement;
-			displayFieldPopupContext.customMQTTSectionPlaceholder = placeholderElement;
-		}
-
-		function saveDisplayFieldPopup()
-		{
-			if (!displayFieldPopupBindings || displayFieldPopupBindings.length === 0)
-			{
-				closeDisplayFieldPopup();
-				return;
-			}
-
-			if (displayFieldPopupContext && displayFieldPopupContext.popupElementsBySuffix && displayFieldPopupContext.popupElementsBySuffix.Device && displayFieldPopupContext.popupElementsBySuffix.Capability)
-			{
-				const itemNo = displayFieldPopupContext.itemNo;
-				const deviceValue = displayFieldPopupContext.popupElementsBySuffix.Device.value;
-				const capabilityValue = displayFieldPopupContext.popupElementsBySuffix.Capability.value;
-				const shouldApplyCapability = (deviceValue !== 'none' && deviceValue !== 'customMQTT');
-
-				const sourceDeviceElement = document.getElementById(`display${itemNo}Device`);
-				const sourceCapabilityElement = document.getElementById(`display${itemNo}Capability`);
-
-				if (sourceDeviceElement)
-				{
-					sourceDeviceElement.value = deviceValue;
-					sourceDeviceElement.dispatchEvent(new Event('change', { bubbles: true }));
-				}
-
-				if (sourceCapabilityElement && shouldApplyCapability)
-				{
-					const applyCapabilityValue = function (attempt = 0)
-					{
-						const hasOption = Array.from(sourceCapabilityElement.options || []).some((option) => option.value === capabilityValue);
-						if (hasOption)
-						{
-							sourceCapabilityElement.value = capabilityValue;
-							sourceCapabilityElement.dispatchEvent(new Event('change', { bubbles: true }));
-							return;
-						}
-
-						if (attempt < 8)
-						{
-							setTimeout(() => applyCapabilityValue(attempt + 1), 120);
-						}
-					};
-
-					applyCapabilityValue(0);
-				}
-			}
-
-			const pendingEventDispatches = [];
-			for (const binding of displayFieldPopupBindings)
-			{
-				if (!binding || !binding.sourceElement || !binding.popupElement)
-				{
-					continue;
-				}
-
-				if (binding.suffix === 'Device' || binding.suffix === 'Capability')
-				{
-					continue;
-				}
-
-				if (binding.sourceElement.type === 'checkbox')
-				{
-					binding.sourceElement.checked = binding.popupElement.checked;
-					pendingEventDispatches.push({ sourceElement: binding.sourceElement, checkbox: true });
-				}
-				else
-				{
-					binding.sourceElement.value = binding.popupElement.value;
-					pendingEventDispatches.push({ sourceElement: binding.sourceElement, checkbox: false });
-				}
-			}
-
-			for (const pendingDispatch of pendingEventDispatches)
-			{
-				if (!pendingDispatch || !pendingDispatch.sourceElement)
-				{
-					continue;
-				}
-
-				if (!pendingDispatch.checkbox)
-				{
-					pendingDispatch.sourceElement.dispatchEvent(new Event('input', { bubbles: true }));
-				}
-				pendingDispatch.sourceElement.dispatchEvent(new Event('change', { bubbles: true }));
-			}
-
-			if (displayFieldPopupContext && Number.isInteger(displayFieldPopupContext.itemNo))
-			{
-				const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
-				const displayItem = displayConfiguration && Array.isArray(displayConfiguration.items) ? displayConfiguration.items[displayFieldPopupContext.itemNo] : null;
-				if (displayItem)
-				{
-					storeDisplayCustomMQTTItems(displayFieldPopupContext.itemNo, displayItem.customMQTTTopics);
-				}
-			}
-
-			renderDisplayInlineSimulator();
-			if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
-			{
-				renderDisplayPagePopup();
-			}
-			refreshDisplayPopupLiveValues();
-
-			// Popup save dispatches synthetic events; persist explicitly so draft always captures edits.
-			configDraftDirtySinceLoad = true;
-			flushConfigurationDraftPersist();
-
-			closeDisplayFieldPopup();
-		}
-
-		function openDisplayFieldPopup(itemNo, fieldSuffix, retryCount = 0)
-		{
-			displayInlineSelectedItemNo = itemNo;
-			if (!displayFieldPopupOverlayElement || !displayFieldPopupBodyElement || !displayFieldPopupTitleElement)
-			{
-				focusDisplayControlFromPopup(itemNo, fieldSuffix);
-				return;
-			}
-
-			const popupSpec = getDisplayFieldPopupSpec(fieldSuffix);
-			if (!popupSpec)
-			{
-				focusDisplayControlFromPopup(itemNo, fieldSuffix);
-				return;
-			}
-
-			displayFieldPopupBindings = [];
-			const popupElementsBySuffix = {};
-			displayFieldPopupBodyElement.innerHTML = '';
-			displayFieldPopupTitleElement.textContent = `${Homey.__('settings.displayItemlegend', { itemNo: itemNo + 1 })} - ${popupSpec.title}`;
-
-			const missingSourceFields = [];
-			for (const suffix of popupSpec.fields)
-			{
-				const sourceElement = document.getElementById(`display${itemNo}${suffix}`);
-				if (!sourceElement)
-				{
-					missingSourceFields.push(suffix);
-					continue;
-				}
-
-				const rowElement = document.createElement('div');
-				rowElement.className = 'button-field-popup-field';
-
-				const labelElement = document.createElement('label');
-				labelElement.className = 'button-field-popup-label';
-				const sourceLabel = document.querySelector(`label[for="display${itemNo}${suffix}"]`);
-				const labelText = popupSpec.labels[suffix] || suffix;
-				const tooltipText = resolvePopupFieldTooltipText(sourceLabel, popupSpec.tooltipKeys ? popupSpec.tooltipKeys[suffix] : '');
-				appendPopupLabelContent(labelElement, labelText, tooltipText);
-				rowElement.appendChild(labelElement);
-
-				let popupElement;
-				if (sourceElement.tagName === 'SELECT')
-				{
-					popupElement = document.createElement('select');
-					popupElement.className = 'homey-form-select';
-					popupElement.innerHTML = sourceElement.innerHTML;
-					popupElement.value = sourceElement.value;
-				}
-				else if (sourceElement.tagName === 'TEXTAREA')
-				{
-					popupElement = document.createElement('textarea');
-					popupElement.className = 'homey-form-textarea';
-					popupElement.value = sourceElement.value;
-					if (suffix === 'SVG')
-					{
-						popupElement.style.minHeight = '180px';
-					}
-				}
-				else if (sourceElement.type === 'checkbox')
-				{
-					popupElement = document.createElement('input');
-					popupElement.type = 'checkbox';
-					popupElement.className = 'homey-form-checkbox-input';
-					popupElement.checked = sourceElement.checked;
-				}
-				else
-				{
-					popupElement = document.createElement('input');
-					popupElement.type = sourceElement.type || 'text';
-					popupElement.className = 'homey-form-input';
-					popupElement.value = sourceElement.value;
-				}
-
-				popupElement.id = `displayFieldPopup${itemNo}${suffix}`;
-				rowElement.appendChild(popupElement);
-				displayFieldPopupBodyElement.appendChild(rowElement);
-
-				displayFieldPopupBindings.push({ suffix, sourceElement, popupElement });
-				popupElementsBySuffix[suffix] = popupElement;
-			}
-
-			if (missingSourceFields.length > 0)
-			{
-				if (retryCount < 6)
-				{
-					setTimeout(() => openDisplayFieldPopup(itemNo, fieldSuffix, retryCount + 1), 80);
+					sourceCapabilityElement.value = capabilityValue;
+					sourceCapabilityElement.dispatchEvent(new Event('change', { bubbles: true }));
 					return;
 				}
 
-				focusDisplayControlFromPopup(itemNo, fieldSuffix);
-				return;
-			}
-
-			displayFieldPopupContext = { itemNo, popupElementsBySuffix };
-			if (popupElementsBySuffix.Device && popupElementsBySuffix.Capability)
-			{
-				appendDisplayFieldPopupCustomMQTTSection(itemNo);
-
-				popupElementsBySuffix.Device.addEventListener('change', function ()
+				if (attempt < 8)
 				{
-					const sourceDeviceElement = document.getElementById(`display${itemNo}Device`);
-					if (sourceDeviceElement)
-					{
-						sourceDeviceElement.value = popupElementsBySuffix.Device.value;
-						sourceDeviceElement.dispatchEvent(new Event('change', { bubbles: true }));
-					}
-					updateDisplayFieldPopupCapabilityState(popupElementsBySuffix);
-					syncDisplayFieldPopupCapabilityOptions(itemNo, popupElementsBySuffix.Capability);
-					setTimeout(() =>
-					{
-						syncDisplayFieldPopupCapabilityOptions(itemNo, popupElementsBySuffix.Capability);
-						updateDisplayFieldPopupCapabilityState(popupElementsBySuffix);
-					}, 140);
-				});
+					setTimeout(() => applyCapabilityValue(attempt + 1), 120);
+				}
+			};
 
-				syncDisplayFieldPopupCapabilityOptions(itemNo, popupElementsBySuffix.Capability, popupElementsBySuffix.Capability.value);
+			applyCapabilityValue(0);
+		}
+	}
+
+	const pendingEventDispatches = [];
+	for (const binding of displayFieldPopupBindings)
+	{
+		if (!binding || !binding.sourceElement || !binding.popupElement)
+		{
+			continue;
+		}
+
+		if (binding.suffix === 'Device' || binding.suffix === 'Capability')
+		{
+			continue;
+		}
+
+		if (binding.sourceElement.type === 'checkbox')
+		{
+			binding.sourceElement.checked = binding.popupElement.checked;
+			pendingEventDispatches.push({ sourceElement: binding.sourceElement, checkbox: true });
+		}
+		else
+		{
+			binding.sourceElement.value = binding.popupElement.value;
+			pendingEventDispatches.push({ sourceElement: binding.sourceElement, checkbox: false });
+		}
+	}
+
+	for (const pendingDispatch of pendingEventDispatches)
+	{
+		if (!pendingDispatch || !pendingDispatch.sourceElement)
+		{
+			continue;
+		}
+
+		if (!pendingDispatch.checkbox)
+		{
+			pendingDispatch.sourceElement.dispatchEvent(new Event('input', { bubbles: true }));
+		}
+		pendingDispatch.sourceElement.dispatchEvent(new Event('change', { bubbles: true }));
+	}
+
+	if (displayFieldPopupContext && Number.isInteger(displayFieldPopupContext.itemNo))
+	{
+		const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+		const displayItem = displayConfiguration && Array.isArray(displayConfiguration.items) ? displayConfiguration.items[displayFieldPopupContext.itemNo] : null;
+		if (displayItem)
+		{
+			storeDisplayCustomMQTTItems(displayFieldPopupContext.itemNo, displayItem.customMQTTTopics);
+		}
+	}
+
+	renderDisplayInlineSimulator();
+	if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
+	{
+		renderDisplayPagePopup();
+	}
+	refreshDisplayPopupLiveValues();
+
+	// Popup save dispatches synthetic events; persist explicitly so draft always captures edits.
+	configDraftDirtySinceLoad = true;
+	flushConfigurationDraftPersist();
+
+	closeDisplayFieldPopup();
+}
+
+function openDisplayFieldPopup(itemNo, fieldSuffix, retryCount = 0)
+{
+	displayInlineSelectedItemNo = itemNo;
+	if (!displayFieldPopupOverlayElement || !displayFieldPopupBodyElement || !displayFieldPopupTitleElement)
+	{
+		focusDisplayControlFromPopup(itemNo, fieldSuffix);
+		return;
+	}
+
+	const popupSpec = getDisplayFieldPopupSpec(fieldSuffix);
+	if (!popupSpec)
+	{
+		focusDisplayControlFromPopup(itemNo, fieldSuffix);
+		return;
+	}
+
+	displayFieldPopupBindings = [];
+	const popupElementsBySuffix = {};
+	displayFieldPopupBodyElement.innerHTML = '';
+	displayFieldPopupTitleElement.textContent = `${Homey.__('settings.displayItemlegend', { itemNo: itemNo + 1 })} - ${popupSpec.title}`;
+
+	const missingSourceFields = [];
+	for (const suffix of popupSpec.fields)
+	{
+		const sourceElement = document.getElementById(`display${itemNo}${suffix}`);
+		if (!sourceElement)
+		{
+			missingSourceFields.push(suffix);
+			continue;
+		}
+
+		const rowElement = document.createElement('div');
+		rowElement.className = 'button-field-popup-field';
+
+		const labelElement = document.createElement('label');
+		labelElement.className = 'button-field-popup-label';
+		const sourceLabel = document.querySelector(`label[for="display${itemNo}${suffix}"]`);
+		const labelText = popupSpec.labels[suffix] || suffix;
+		const tooltipText = resolvePopupFieldTooltipText(sourceLabel, popupSpec.tooltipKeys ? popupSpec.tooltipKeys[suffix] : '');
+		appendPopupLabelContent(labelElement, labelText, tooltipText);
+		rowElement.appendChild(labelElement);
+
+		let popupElement;
+		if (sourceElement.tagName === 'SELECT')
+		{
+			popupElement = document.createElement('select');
+			popupElement.className = 'homey-form-select';
+			popupElement.innerHTML = sourceElement.innerHTML;
+			popupElement.value = sourceElement.value;
+		}
+		else if (sourceElement.tagName === 'TEXTAREA')
+		{
+			popupElement = document.createElement('textarea');
+			popupElement.className = 'homey-form-textarea';
+			popupElement.value = sourceElement.value;
+			if (suffix === 'SVG')
+			{
+				popupElement.style.minHeight = '180px';
+			}
+		}
+		else if (sourceElement.type === 'checkbox')
+		{
+			popupElement = document.createElement('input');
+			popupElement.type = 'checkbox';
+			popupElement.className = 'homey-form-checkbox-input';
+			popupElement.checked = sourceElement.checked;
+		}
+		else
+		{
+			popupElement = document.createElement('input');
+			popupElement.type = sourceElement.type || 'text';
+			popupElement.className = 'homey-form-input';
+			popupElement.value = sourceElement.value;
+		}
+
+		popupElement.id = `displayFieldPopup${itemNo}${suffix}`;
+		rowElement.appendChild(popupElement);
+		displayFieldPopupBodyElement.appendChild(rowElement);
+
+		displayFieldPopupBindings.push({ suffix, sourceElement, popupElement });
+		popupElementsBySuffix[suffix] = popupElement;
+	}
+
+	if (missingSourceFields.length > 0)
+	{
+		if (retryCount < 6)
+		{
+			setTimeout(() => openDisplayFieldPopup(itemNo, fieldSuffix, retryCount + 1), 80);
+			return;
+		}
+
+		focusDisplayControlFromPopup(itemNo, fieldSuffix);
+		return;
+	}
+
+	displayFieldPopupContext = { itemNo, popupElementsBySuffix };
+	if (popupElementsBySuffix.Device && popupElementsBySuffix.Capability)
+	{
+		appendDisplayFieldPopupCustomMQTTSection(itemNo);
+
+		popupElementsBySuffix.Device.addEventListener('change', function ()
+		{
+			const sourceDeviceElement = document.getElementById(`display${itemNo}Device`);
+			if (sourceDeviceElement)
+			{
+				sourceDeviceElement.value = popupElementsBySuffix.Device.value;
+				sourceDeviceElement.dispatchEvent(new Event('change', { bubbles: true }));
+			}
+			updateDisplayFieldPopupCapabilityState(popupElementsBySuffix);
+			syncDisplayFieldPopupCapabilityOptions(itemNo, popupElementsBySuffix.Capability);
+			setTimeout(() =>
+			{
+				syncDisplayFieldPopupCapabilityOptions(itemNo, popupElementsBySuffix.Capability);
 				updateDisplayFieldPopupCapabilityState(popupElementsBySuffix);
-			}
+			}, 140);
+		});
 
-			displayFieldPopupOverlayElement.classList.add('visible');
-			displayFieldPopupOverlayElement.setAttribute('aria-hidden', 'false');
+		syncDisplayFieldPopupCapabilityOptions(itemNo, popupElementsBySuffix.Capability, popupElementsBySuffix.Capability.value);
+		updateDisplayFieldPopupCapabilityState(popupElementsBySuffix);
+	}
 
-			const firstField = displayFieldPopupBindings[0].popupElement;
-			if (firstField && typeof firstField.focus === 'function')
-			{
-				setTimeout(() => firstField.focus(), 0);
-			}
+	displayFieldPopupOverlayElement.classList.add('visible');
+	displayFieldPopupOverlayElement.setAttribute('aria-hidden', 'false');
+
+	const firstField = displayFieldPopupBindings[0].popupElement;
+	if (firstField && typeof firstField.focus === 'function')
+	{
+		setTimeout(() => firstField.focus(), 0);
+	}
+}
+
+function openDisplayFieldPopupFromInline(itemNo, fieldSuffix)
+{
+	displayInlineSelectedItemNo = itemNo;
+	renderDisplayInlineSimulator();
+	openDisplayFieldPopup(itemNo, fieldSuffix);
+}
+
+function handleDisplayInlineSimulatorClick(itemNo, fieldSuffix)
+{
+	if (displayInlineSelectedItemNo !== itemNo)
+	{
+		displayInlineSelectedItemNo = itemNo;
+		renderDisplayInlineSimulator();
+		return;
+	}
+
+	openDisplayFieldPopupFromInline(itemNo, fieldSuffix);
+}
+
+function handleDisplayOverlaySimulatorClick(itemNo, fieldSuffix)
+{
+	if (displayInlineSelectedItemNo !== itemNo)
+	{
+		displayInlineSelectedItemNo = itemNo;
+		renderDisplayPagePopup();
+		renderDisplayInlineSimulator();
+		return;
+	}
+
+	openDisplayFieldPopup(itemNo, fieldSuffix);
+}
+function handleDisplaySurfaceBackgroundClick(event)
+{
+	if (!event || !event.target)
+	{
+		return;
+	}
+
+	if (event.target.closest('.display-sim-item'))
+	{
+		return;
+	}
+
+	if (event.target.closest('.display-sim-status-bar'))
+	{
+		return;
+	}
+
+	if (displayInlineSelectedItemNo < 0)
+	{
+		return;
+	}
+
+	displayInlineSelectedItemNo = -1;
+	renderDisplayInlineSimulator();
+	if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
+	{
+		renderDisplayPagePopup();
+	}
+}
+
+function closeDisplayPagePopup()
+{
+	if (!displayPagePopupOverlayElement)
+	{
+		return;
+	}
+
+	if (displayPagePopupLiveRefreshTimer)
+	{
+		clearInterval(displayPagePopupLiveRefreshTimer);
+		displayPagePopupLiveRefreshTimer = null;
+	}
+
+	displayPagePopupOverlayElement.classList.remove('visible');
+	displayPagePopupOverlayElement.setAttribute('aria-hidden', 'true');
+	if (configTypeElement && configTypeElement.value === 'displayConfig')
+	{
+		startDisplayInlineLiveRefresh();
+	}
+	if (!buttonPagePopupOverlayElement || !buttonPagePopupOverlayElement.classList.contains('visible'))
+	{
+		document.body.classList.remove('sim-panel-open');
+		document.documentElement.style.setProperty('--button-sim-scroll-offset', '0px');
+	}
+}
+
+function updateDisplayPagePopupScrollOffset()
+{
+	if (!displayPagePopupOverlayElement || !displayPagePopupOverlayElement.classList.contains('visible'))
+	{
+		if (!buttonPagePopupOverlayElement || !buttonPagePopupOverlayElement.classList.contains('visible'))
+		{
+			document.body.classList.remove('sim-panel-open');
+			document.documentElement.style.setProperty('--button-sim-scroll-offset', '0px');
+		}
+		return;
+	}
+
+	const fixedTopElement = document.querySelector('.fixedTop');
+	const fixedTopHeight = fixedTopElement ? fixedTopElement.offsetHeight : 0;
+	const simDialogElement = document.querySelector('.display-sim-overlay.visible .display-sim-dialog');
+	const simBottom = simDialogElement ? Math.max(0, simDialogElement.getBoundingClientRect().bottom) : 0;
+	const requiredOffset = Math.max(0, Math.round(simBottom - fixedTopHeight + 8));
+	document.documentElement.style.setProperty('--button-sim-scroll-offset', `${requiredOffset}px`);
+	document.body.classList.add('sim-panel-open');
+}
+
+function normalizeDisplayConfigurationPages(displayConfiguration)
+{
+	if (!displayConfiguration || typeof displayConfiguration !== 'object')
+	{
+		return;
+	}
+
+	if (!Array.isArray(displayConfiguration.items))
+	{
+		displayConfiguration.items = [];
+	}
+
+	let highestItemPage = 0;
+	for (const item of displayConfiguration.items)
+	{
+		if (!item || typeof item !== 'object')
+		{
+			continue;
 		}
 
-		function openDisplayFieldPopupFromInline(itemNo, fieldSuffix)
+		const parsedPage = parseInt(item.page, 10);
+		const normalizedPage = Number.isNaN(parsedPage) ? 0 : Math.max(0, parsedPage);
+		item.page = normalizedPage;
+		highestItemPage = Math.max(highestItemPage, normalizedPage);
+	}
+
+	const configuredPageCount = parseInt(displayConfiguration.pageCount, 10);
+	const normalizedPageCount = Number.isNaN(configuredPageCount) ? 0 : Math.max(0, configuredPageCount);
+	displayConfiguration.pageCount = Math.max(1, normalizedPageCount, highestItemPage + 1);
+}
+
+function normalizeDisplayConfigurationsPages(displayConfigurations)
+{
+	if (!Array.isArray(displayConfigurations))
+	{
+		return;
+	}
+
+	for (const displayConfiguration of displayConfigurations)
+	{
+		normalizeDisplayConfigurationPages(displayConfiguration);
+	}
+}
+
+function getDisplayPopupPages(displayConfiguration)
+{
+	const pages = new Set();
+	pages.add(0);
+	if (!displayConfiguration)
+	{
+		return [0];
+	}
+
+	const configuredPageCount = parseInt(displayConfiguration.pageCount, 10);
+	if (!Number.isNaN(configuredPageCount) && configuredPageCount > 0)
+	{
+		for (let pageNo = 0; pageNo < configuredPageCount; pageNo++)
 		{
-			displayInlineSelectedItemNo = itemNo;
-			renderDisplayInlineSimulator();
-			openDisplayFieldPopup(itemNo, fieldSuffix);
+			pages.add(pageNo);
 		}
+	}
 
-		function handleDisplayInlineSimulatorClick(itemNo, fieldSuffix)
+	if (Array.isArray(displayConfiguration.items))
+	{
+		for (const item of displayConfiguration.items)
 		{
-			if (displayInlineSelectedItemNo !== itemNo)
+			const pageValue = parseInt(item.page, 10);
+			if (!Number.isNaN(pageValue) && pageValue >= 0)
 			{
-				displayInlineSelectedItemNo = itemNo;
-				renderDisplayInlineSimulator();
-				return;
-			}
-
-			openDisplayFieldPopupFromInline(itemNo, fieldSuffix);
-		}
-
-		function handleDisplayOverlaySimulatorClick(itemNo, fieldSuffix)
-		{
-			if (displayInlineSelectedItemNo !== itemNo)
-			{
-				displayInlineSelectedItemNo = itemNo;
-				renderDisplayPagePopup();
-				renderDisplayInlineSimulator();
-				return;
-			}
-
-			openDisplayFieldPopup(itemNo, fieldSuffix);
-		}
-		function handleDisplaySurfaceBackgroundClick(event)
-		{
-			if (!event || !event.target)
-			{
-				return;
-			}
-
-			if (event.target.closest('.display-sim-item'))
-			{
-				return;
-			}
-
-			if (event.target.closest('.display-sim-status-bar'))
-			{
-				return;
-			}
-
-			if (displayInlineSelectedItemNo < 0)
-			{
-				return;
-			}
-
-			displayInlineSelectedItemNo = -1;
-			renderDisplayInlineSimulator();
-			if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
-			{
-				renderDisplayPagePopup();
+				pages.add(pageValue);
 			}
 		}
+	}
 
-		function closeDisplayPagePopup()
+	if (!pages.size)
+	{
+		return [0];
+	}
+
+	return Array.from(pages).sort((a, b) => a - b);
+}
+
+function getFirstNonEmptyDisplayPage(displayConfiguration)
+{
+	if (!displayConfiguration || !Array.isArray(displayConfiguration.items) || displayConfiguration.items.length === 0)
+	{
+		return 0;
+	}
+
+	let firstPage = null;
+	for (const item of displayConfiguration.items)
+	{
+		const pageValue = parseInt(item && item.page, 10);
+		const normalizedPage = Number.isNaN(pageValue) ? 0 : Math.max(0, pageValue);
+		if (firstPage === null || normalizedPage < firstPage)
 		{
-			if (!displayPagePopupOverlayElement)
-			{
-				return;
-			}
+			firstPage = normalizedPage;
+		}
+	}
 
-			if (displayPagePopupLiveRefreshTimer)
-			{
-				clearInterval(displayPagePopupLiveRefreshTimer);
-				displayPagePopupLiveRefreshTimer = null;
-			}
+	return (firstPage === null) ? 0 : firstPage;
+}
 
-			displayPagePopupOverlayElement.classList.remove('visible');
-			displayPagePopupOverlayElement.setAttribute('aria-hidden', 'true');
-			if (configTypeElement && configTypeElement.value === 'displayConfig')
-			{
-				startDisplayInlineLiveRefresh();
-			}
-			if (!buttonPagePopupOverlayElement || !buttonPagePopupOverlayElement.classList.contains('visible'))
-			{
-				document.body.classList.remove('sim-panel-open');
-				document.documentElement.style.setProperty('--button-sim-scroll-offset', '0px');
-			}
+function applyInitialDisplaySimulatorPageSelection(displayConfiguration)
+{
+	const configKey = String(currentDisplayConfigurationNo ?? '');
+	if (displaySimInitialPageSelectionConfigKey === configKey)
+	{
+		return;
+	}
+
+	const pages = getDisplayPopupPages(displayConfiguration);
+	const firstNonEmptyPage = getFirstNonEmptyDisplayPage(displayConfiguration);
+	displayPagePopupCurrentPage = pages.includes(firstNonEmptyPage) ? firstNonEmptyPage : pages[0];
+	displaySimInitialPageSelectionConfigKey = configKey;
+}
+
+function getDisplayPageSelectOptionsMarkup(displayConfiguration, selectedPage)
+{
+	const pages = getDisplayPopupPages(displayConfiguration);
+	const maxPage = pages.length ? Math.max(...pages) : 0;
+	const normalizedSelected = Math.max(0, Math.min(parseInt(selectedPage, 10) || 0, maxPage));
+	let options = '';
+
+	for (let page = 0; page <= maxPage; page++)
+	{
+		const selectedAttr = (page === normalizedSelected) ? ' selected' : '';
+		options += `<option value="${page}"${selectedAttr}>${formatDisplayPageLabel(page)}</option>`;
+	}
+
+	return options;
+}
+
+function getDisplayPopupFieldValue(item, itemNo, suffix, fallback = '')
+{
+	const allowEmptyFieldValue = (suffix === 'Label' || suffix === 'Text' || suffix === 'Unit' || suffix === 'SVG');
+	const activeView = configTypeElement ? configTypeElement.value : '';
+	const fieldElement = activeView === 'displayConfig' ? document.getElementById(`display${itemNo}${suffix}`) : null;
+	if (fieldElement && typeof fieldElement.value === 'string')
+	{
+		const rawValue = fieldElement.value;
+		if (rawValue === '')
+		{
+			return allowEmptyFieldValue ? '' : fallback;
 		}
 
-		function updateDisplayPagePopupScrollOffset()
+		if (rawValue === 'undefined' || rawValue === 'null')
 		{
-			if (!displayPagePopupOverlayElement || !displayPagePopupOverlayElement.classList.contains('visible'))
-			{
-				if (!buttonPagePopupOverlayElement || !buttonPagePopupOverlayElement.classList.contains('visible'))
-				{
-					document.body.classList.remove('sim-panel-open');
-					document.documentElement.style.setProperty('--button-sim-scroll-offset', '0px');
-				}
-				return;
-			}
-
-			const fixedTopElement = document.querySelector('.fixedTop');
-			const fixedTopHeight = fixedTopElement ? fixedTopElement.offsetHeight : 0;
-			const simDialogElement = document.querySelector('.display-sim-overlay.visible .display-sim-dialog');
-			const simBottom = simDialogElement ? Math.max(0, simDialogElement.getBoundingClientRect().bottom) : 0;
-			const requiredOffset = Math.max(0, Math.round(simBottom - fixedTopHeight + 8));
-			document.documentElement.style.setProperty('--button-sim-scroll-offset', `${requiredOffset}px`);
-			document.body.classList.add('sim-panel-open');
-		}
-
-		function normalizeDisplayConfigurationPages(displayConfiguration)
-		{
-			if (!displayConfiguration || typeof displayConfiguration !== 'object')
-			{
-				return;
-			}
-
-			if (!Array.isArray(displayConfiguration.items))
-			{
-				displayConfiguration.items = [];
-			}
-
-			let highestItemPage = 0;
-			for (const item of displayConfiguration.items)
-			{
-				if (!item || typeof item !== 'object')
-				{
-					continue;
-				}
-
-				const parsedPage = parseInt(item.page, 10);
-				const normalizedPage = Number.isNaN(parsedPage) ? 0 : Math.max(0, parsedPage);
-				item.page = normalizedPage;
-				highestItemPage = Math.max(highestItemPage, normalizedPage);
-			}
-
-			const configuredPageCount = parseInt(displayConfiguration.pageCount, 10);
-			const normalizedPageCount = Number.isNaN(configuredPageCount) ? 0 : Math.max(0, configuredPageCount);
-			displayConfiguration.pageCount = Math.max(1, normalizedPageCount, highestItemPage + 1);
-		}
-
-		function normalizeDisplayConfigurationsPages(displayConfigurations)
-		{
-			if (!Array.isArray(displayConfigurations))
-			{
-				return;
-			}
-
-			for (const displayConfiguration of displayConfigurations)
-			{
-				normalizeDisplayConfigurationPages(displayConfiguration);
-			}
-		}
-
-		function getDisplayPopupPages(displayConfiguration)
-		{
-			const pages = new Set();
-			pages.add(0);
-			if (!displayConfiguration)
-			{
-				return [0];
-			}
-
-			const configuredPageCount = parseInt(displayConfiguration.pageCount, 10);
-			if (!Number.isNaN(configuredPageCount) && configuredPageCount > 0)
-			{
-				for (let pageNo = 0; pageNo < configuredPageCount; pageNo++)
-				{
-					pages.add(pageNo);
-				}
-			}
-
-			if (Array.isArray(displayConfiguration.items))
-			{
-				for (const item of displayConfiguration.items)
-				{
-					const pageValue = parseInt(item.page, 10);
-					if (!Number.isNaN(pageValue) && pageValue >= 0)
-					{
-						pages.add(pageValue);
-					}
-				}
-			}
-
-			if (!pages.size)
-			{
-				return [0];
-			}
-
-			return Array.from(pages).sort((a, b) => a - b);
-		}
-
-		function getFirstNonEmptyDisplayPage(displayConfiguration)
-		{
-			if (!displayConfiguration || !Array.isArray(displayConfiguration.items) || displayConfiguration.items.length === 0)
-			{
-				return 0;
-			}
-
-			let firstPage = null;
-			for (const item of displayConfiguration.items)
-			{
-				const pageValue = parseInt(item && item.page, 10);
-				const normalizedPage = Number.isNaN(pageValue) ? 0 : Math.max(0, pageValue);
-				if (firstPage === null || normalizedPage < firstPage)
-				{
-					firstPage = normalizedPage;
-				}
-			}
-
-			return (firstPage === null) ? 0 : firstPage;
-		}
-
-		function applyInitialDisplaySimulatorPageSelection(displayConfiguration)
-		{
-			const configKey = String(currentDisplayConfigurationNo ?? '');
-			if (displaySimInitialPageSelectionConfigKey === configKey)
-			{
-				return;
-			}
-
-			const pages = getDisplayPopupPages(displayConfiguration);
-			const firstNonEmptyPage = getFirstNonEmptyDisplayPage(displayConfiguration);
-			displayPagePopupCurrentPage = pages.includes(firstNonEmptyPage) ? firstNonEmptyPage : pages[0];
-			displaySimInitialPageSelectionConfigKey = configKey;
-		}
-
-		function getDisplayPageSelectOptionsMarkup(displayConfiguration, selectedPage)
-		{
-			const pages = getDisplayPopupPages(displayConfiguration);
-			const maxPage = pages.length ? Math.max(...pages) : 0;
-			const normalizedSelected = Math.max(0, Math.min(parseInt(selectedPage, 10) || 0, maxPage));
-			let options = '';
-
-			for (let page = 0; page <= maxPage; page++)
-			{
-				const selectedAttr = (page === normalizedSelected) ? ' selected' : '';
-				options += `<option value="${page}"${selectedAttr}>${formatDisplayPageLabel(page)}</option>`;
-			}
-
-			return options;
-		}
-
-		function getDisplayPopupFieldValue(item, itemNo, suffix, fallback = '')
-		{
-			const allowEmptyFieldValue = (suffix === 'Label' || suffix === 'Text' || suffix === 'Unit' || suffix === 'SVG');
-			const fieldElement = document.getElementById(`display${itemNo}${suffix}`);
-			if (fieldElement && typeof fieldElement.value === 'string')
-			{
-				const rawValue = fieldElement.value;
-				if (rawValue === '')
-				{
-					return allowEmptyFieldValue ? '' : fallback;
-				}
-
-				if (rawValue === 'undefined' || rawValue === 'null')
-				{
-					return fallback;
-				}
-				return rawValue;
-			}
-
-			if (item && item[suffix.charAt(0).toLowerCase() + suffix.slice(1)] !== undefined)
-			{
-				const itemValue = item[suffix.charAt(0).toLowerCase() + suffix.slice(1)];
-				if (itemValue === '' || itemValue === 'undefined' || itemValue === 'null' || itemValue === undefined || itemValue === null)
-				{
-					return fallback;
-				}
-				return itemValue;
-			}
-
 			return fallback;
 		}
+		return rawValue;
+	}
 
-		function sanitizeDisplayString(value, fallback = '')
+	if (item && item[suffix.charAt(0).toLowerCase() + suffix.slice(1)] !== undefined)
+	{
+		const itemValue = item[suffix.charAt(0).toLowerCase() + suffix.slice(1)];
+		if (itemValue === '' || itemValue === 'undefined' || itemValue === 'null' || itemValue === undefined || itemValue === null)
 		{
-			if (value === undefined || value === null)
-			{
-				return fallback;
-			}
-
-			const trimmed = String(value).trim();
-			if (trimmed === '' || trimmed.toLowerCase() === 'undefined' || trimmed.toLowerCase() === 'null')
-			{
-				return fallback;
-			}
-
-			return String(value);
+			return fallback;
 		}
+		return itemValue;
+	}
 
-		function clampDisplayPercent(value, fallback)
+	return fallback;
+}
+
+function sanitizeDisplayString(value, fallback = '')
+{
+	if (value === undefined || value === null)
+	{
+		return fallback;
+	}
+
+	const trimmed = String(value).trim();
+	if (trimmed === '' || trimmed.toLowerCase() === 'undefined' || trimmed.toLowerCase() === 'null')
+	{
+		return fallback;
+	}
+
+	return String(value);
+}
+
+function clampDisplayPercent(value, fallback)
+{
+	const numeric = parseFloat(value);
+	if (Number.isNaN(numeric))
+	{
+		return fallback;
+	}
+	return Math.max(0, Math.min(100, numeric));
+}
+
+function getDisplayPopupFontPx(fontSize)
+{
+	const key = parseInt(fontSize, 10);
+	if (DISPLAY_FONT_SIZE_LOOKUP[key])
+	{
+		return DISPLAY_FONT_SIZE_LOOKUP[key];
+	}
+	return DISPLAY_FONT_SIZE_LOOKUP[1];
+}
+
+function isDisplayPopupFontBold(fontSize)
+{
+	const key = parseInt(fontSize, 10);
+	return DISPLAY_BOLD_FONT_SIZES.has(key);
+}
+
+function getDisplayPopupItemRuntime(item, itemNo)
+{
+	const deviceId = sanitizeDisplayString(getDisplayPopupFieldValue(item, itemNo, 'Device', item.device || ''), '');
+	const capabilityId = sanitizeDisplayString(getDisplayPopupFieldValue(item, itemNo, 'Capability', item.capability || ''), '');
+	const configuredUnit = sanitizeDisplayString(getDisplayPopupFieldValue(item, itemNo, 'Unit', item.unit || ''), '');
+	const roundingRaw = parseInt(getDisplayPopupFieldValue(item, itemNo, 'Rounding', item.rounding || -1), 10);
+	const rounding = Number.isNaN(roundingRaw) ? -1 : roundingRaw;
+	const valueKey = `${deviceId}_${capabilityId}`;
+
+	return {
+		deviceId,
+		capabilityId,
+		configuredUnit,
+		rounding,
+		valueKey,
+	};
+}
+
+function formatDisplayPopupValue(value, rounding)
+{
+	if (value === undefined || value === null)
+	{
+		return '';
+	}
+
+	if (typeof value === 'boolean')
+	{
+		return value ? 'On' : 'Off';
+	}
+
+	if (typeof value === 'number')
+	{
+		if (rounding >= 0)
 		{
-			const numeric = parseFloat(value);
-			if (Number.isNaN(numeric))
-			{
-				return fallback;
-			}
-			return Math.max(0, Math.min(100, numeric));
+			return value.toFixed(rounding);
 		}
+		return Number.isInteger(value) ? `${value}` : `${value}`;
+	}
 
-		function getDisplayPopupFontPx(fontSize)
+	return sanitizeDisplayString(value, '');
+}
+
+function refreshDisplayPopupLiveValues()
+{
+	if (displayItemMoveState || displayItemResizeState)
+	{
+		// Avoid interrupting drag/resize with async refresh re-renders.
+		return;
+	}
+
+	const activeView = configTypeElement ? configTypeElement.value : '';
+	const requests = [];
+	const variableIds = new Set();
+	const deviceCapPairs = new Set();
+
+	if (activeView === 'displayConfig')
+	{
+		const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+		if (displayConfiguration && Array.isArray(displayConfiguration.items))
 		{
-			const key = parseInt(fontSize, 10);
-			if (DISPLAY_FONT_SIZE_LOOKUP[key])
-			{
-				return DISPLAY_FONT_SIZE_LOOKUP[key];
-			}
-			return DISPLAY_FONT_SIZE_LOOKUP[1];
-		}
-
-		function isDisplayPopupFontBold(fontSize)
-		{
-			const key = parseInt(fontSize, 10);
-			return DISPLAY_BOLD_FONT_SIZES.has(key);
-		}
-
-		function getDisplayPopupItemRuntime(item, itemNo)
-		{
-			const deviceId = sanitizeDisplayString(getDisplayPopupFieldValue(item, itemNo, 'Device', item.device || ''), '');
-			const capabilityId = sanitizeDisplayString(getDisplayPopupFieldValue(item, itemNo, 'Capability', item.capability || ''), '');
-			const configuredUnit = sanitizeDisplayString(getDisplayPopupFieldValue(item, itemNo, 'Unit', item.unit || ''), '');
-			const roundingRaw = parseInt(getDisplayPopupFieldValue(item, itemNo, 'Rounding', item.rounding || -1), 10);
-			const rounding = Number.isNaN(roundingRaw) ? -1 : roundingRaw;
-			const valueKey = `${deviceId}|${capabilityId}`;
-
-			return {
-				deviceId,
-				capabilityId,
-				configuredUnit,
-				rounding,
-				valueKey,
-			};
-		}
-
-		function formatDisplayPopupValue(value, rounding)
-		{
-			if (value === undefined || value === null)
-			{
-				return '';
-			}
-
-			if (typeof value === 'boolean')
-			{
-				return value ? 'On' : 'Off';
-			}
-
-			if (typeof value === 'number')
-			{
-				if (rounding >= 0)
-				{
-					return value.toFixed(rounding);
-				}
-				return Number.isInteger(value) ? `${value}` : `${value}`;
-			}
-
-			return sanitizeDisplayString(value, '');
-		}
-
-		function refreshDisplayPopupLiveValues()
-		{
-			if (displayItemMoveState || displayItemResizeState)
-			{
-				// Avoid interrupting drag/resize with async refresh re-renders.
-				return;
-			}
-
-			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
-			if (!displayConfiguration || !Array.isArray(displayConfiguration.items))
-			{
-				return;
-			}
-
-			const pages = getDisplayPopupPages(displayConfiguration);
-			if (!pages.includes(displayPagePopupCurrentPage))
-			{
-				displayPagePopupCurrentPage = pages[0];
-			}
-
-			const requests = [];
-			const variableIds = new Set();
 			for (let itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
 			{
 				const item = displayConfiguration.items[itemNo];
 				const itemPage = parseInt(getDisplayPopupFieldValue(item, itemNo, 'page', item.page || 0), 10) || 0;
-				if (itemPage !== displayPagePopupCurrentPage)
+				if (itemPage !== displayPagePopupCurrentPage && itemPage !== 0)
 				{
 					continue;
 				}
@@ -6976,1247 +7083,1264 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				if (runtime.deviceId === '_variable_' && runtime.capabilityId)
 				{
 					variableIds.add(runtime.capabilityId);
-					continue;
-				}
-
-				if (!runtime.deviceId || !runtime.capabilityId || runtime.deviceId === 'none' || runtime.deviceId === 'customMQTT')
-				{
-					continue;
-				}
-
-				requests.push(new Promise((resolve) =>
-				{
-					Homey.api('POST', '/device_capability_value/',
-						{
-							deviceId: runtime.deviceId,
-							capabilityId: runtime.capabilityId,
-						},
-						function (err, result)
-						{
-							if (!err && result && result.success)
-							{
-								displayPagePopupLiveValueCache.set(runtime.valueKey,
-									{
-										value: result.value,
-										unit: sanitizeDisplayString(result.unit, ''),
-										fetchedAt: Date.now(),
-									});
-							}
-							resolve();
-						});
-				}));
-			}
-
-			if (variableIds.size > 0)
-			{
-				requests.push(new Promise((resolve) =>
-				{
-					Homey.api('POST', '/get_variables/', {}, function (err, variables)
-					{
-						if (!err && variables)
-						{
-							displayPagePopupVariableValueCache.clear();
-							for (const variable of Object.values(variables))
-							{
-								if (variable && variable.id)
-								{
-									displayPagePopupVariableValueCache.set(variable.id, variable.value);
-								}
-							}
-							displayPagePopupVariableValueFetchedAt = Date.now();
-						}
-						resolve();
-					});
-				}));
-			}
-
-			if (requests.length === 0)
-			{
-				renderDisplayInlineSimulator();
-				if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
-				{
-					renderDisplayPagePopup();
-				}
-				return;
-			}
-
-			Promise.all(requests).then(() =>
-			{
-				if (displayItemMoveState || displayItemResizeState)
-				{
-					return;
-				}
-
-				renderDisplayInlineSimulator();
-				if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
-				{
-					renderDisplayPagePopup();
-				}
-			});
-		}
-
-		function focusDisplayControlFromPopup(itemNo, fieldSuffix)
-		{
-			if (configTypeElement && configTypeElement.value !== 'displayConfig')
-			{
-				configTypeElement.value = 'displayConfig';
-				configTypeChanged('displayConfig');
-			}
-
-			const alignDisplaySectionBelowSim = function (attempt = 0)
-			{
-				const focusCandidatesBySuffix = {
-					Label: ['Label'],
-					Device: ['Device'],
-					Text: ['Text', 'Capability', 'Device', 'Label'],
-					Unit: ['Unit', 'Capability', 'Text', 'Label'],
-					SVG: ['SVG', 'Text', 'Capability', 'Device', 'Label'],
-					Capability: ['Capability', 'Device', 'Label'],
-				};
-				const suffixCandidates = focusCandidatesBySuffix[fieldSuffix] || [fieldSuffix, 'Label'];
-
-				const resolveFocusElement = function (preferVisible = false, allowLabelFallback = true)
-				{
-					for (const suffix of suffixCandidates)
-					{
-						const candidateElement = document.getElementById(`display${itemNo}${suffix}`);
-						if (!candidateElement)
-						{
-							continue;
-						}
-
-						if (!preferVisible)
-						{
-							return candidateElement;
-						}
-
-						if (candidateElement.offsetParent !== null)
-						{
-							return candidateElement;
-						}
-					}
-
-					return allowLabelFallback ? document.getElementById(`display${itemNo}Label`) : null;
-				};
-
-				const initialFocusElement = resolveFocusElement(false, fieldSuffix !== 'Device');
-				if (!initialFocusElement)
-				{
-					if (attempt < 6)
-					{
-						setTimeout(() => alignDisplaySectionBelowSim(attempt + 1), 60);
-					}
-					return;
-				}
-
-				const detailsElement = initialFocusElement.closest('details');
-				if (detailsElement)
-				{
-					const wasOpen = detailsElement.open;
-					detailsElement.open = true;
-					if (!wasOpen && attempt < 6)
-					{
-						setTimeout(() => alignDisplaySectionBelowSim(attempt + 1), 60);
-						return;
-					}
-				}
-
-				const currentFocusElement = resolveFocusElement(true, fieldSuffix !== 'Device') || initialFocusElement;
-
-				updateDisplayPagePopupScrollOffset();
-
-				const sectionElement = currentFocusElement.closest('.horizontalgroup');
-				if (!sectionElement)
-				{
-					if (attempt < 6)
-					{
-						setTimeout(() => alignDisplaySectionBelowSim(attempt + 1), 60);
-					}
-					return;
-				}
-
-				const fixedTopElement = document.querySelector('.fixedTop');
-				const fixedTopHeight = fixedTopElement ? fixedTopElement.offsetHeight : 0;
-				const simDialogElement = document.querySelector('.display-sim-overlay.visible .display-sim-dialog');
-				const simBottom = simDialogElement ? Math.max(0, simDialogElement.getBoundingClientRect().bottom) : 0;
-				const targetViewportTop = Math.max(fixedTopHeight + 8, simBottom + 8);
-				const fieldLabelElement = currentFocusElement.id
-					? document.querySelector(`label[for="${currentFocusElement.id}"]`)
-					: null;
-				const focusAnchorElement = fieldLabelElement || currentFocusElement;
-				const targetTop = Math.max(0, focusAnchorElement.getBoundingClientRect().top + window.scrollY - targetViewportTop);
-				window.scrollTo({ top: targetTop, behavior: 'auto' });
-
-				if (attempt === 0)
-				{
-					sectionElement.classList.add('display-item-highlight');
-					setTimeout(() =>
-					{
-						sectionElement.classList.remove('display-item-highlight');
-					}, 1400);
-				}
-
-				setTimeout(() =>
-				{
-					if (typeof currentFocusElement.focus === 'function')
-					{
-						currentFocusElement.focus();
-					}
-				}, 80);
-
-				if (attempt < 1)
-				{
-					setTimeout(() => alignDisplaySectionBelowSim(attempt + 1), 80);
-				}
-			};
-
-			requestAnimationFrame(() =>
-			{
-				alignDisplaySectionBelowSim(0);
-			});
-		}
-
-		function renderDisplaySimulatorSurface(surfaceElement, titleElement, prevElement, nextElement, statusPositionElement, clickHandlerName, updateScrollOffset = false)
-		{
-			if (!surfaceElement)
-			{
-				return;
-			}
-
-			const setDisplayInlineDeleteButtonState = function (buttonElement, canDelete)
-			{
-				if (!buttonElement)
-				{
-					return;
-				}
-
-				buttonElement.disabled = !canDelete;
-				buttonElement.classList.toggle('display-inline-sim-action-hidden', !canDelete);
-			};
-
-			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
-			const displayMoveHandleTitle = escapeHtml(Homey.__("settings.displaySimMoveHandleTitle"));
-			const displayMoveHandleAria = escapeHtml(Homey.__("settings.displaySimMoveHandleAria"));
-			const displayResizeHandleTitle = escapeHtml(Homey.__("settings.displaySimResizeHandleTitle"));
-			const displayResizeHandleAria = escapeHtml(Homey.__("settings.displaySimResizeHandleAria"));
-			const displayTooltipX = escapeHtml(Homey.__("settings.displaySimTooltipX"));
-			const displayTooltipY = escapeHtml(Homey.__("settings.displaySimTooltipY"));
-			const displayTooltipW = escapeHtml(Homey.__("settings.displaySimTooltipW"));
-			const displayLoadingPlaceholder = escapeHtml(Homey.__("settings.displaySimLoading"));
-			const displayEmptyMessage = escapeHtml(Homey.__("settings.displaySimEmptyMessage"));
-			const displayStatusLeftPlaceholder = escapeHtml(Homey.__("settings.displaySimStatusLeftPlaceholder"));
-			const displayStatusRightPlaceholder = escapeHtml(Homey.__("settings.displaySimStatusRightPlaceholder"));
-			if (!displayConfiguration || !Array.isArray(displayConfiguration.items))
-			{
-				surfaceElement.innerHTML = '';
-				setDisplayInlineDeleteButtonState(displayInlineSimDeleteItemElement, false);
-				setDisplayInlineDeleteButtonState(displayInlineSimDeletePageElement, false);
-				if (titleElement)
-				{
-					renderDisplayPageHeaderTitle(titleElement, 0, 1);
-				}
-				return;
-			}
-
-			const pages = getDisplayPopupPages(displayConfiguration);
-			if (!pages.includes(displayPagePopupCurrentPage))
-			{
-				displayPagePopupCurrentPage = pages[0];
-			}
-			const highestPageNumber = pages.length ? Math.max(...pages) : 0;
-			const totalPages = Math.max(1, highestPageNumber + 1);
-			const showPageZeroEverywhere = !!(displayInlineSimShowPageZeroElement && displayInlineSimShowPageZeroElement.checked && displayPagePopupCurrentPage !== 0);
-
-			const pageItems = [];
-			for (let itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
-			{
-				const item = displayConfiguration.items[itemNo];
-				const itemPage = parseInt(getDisplayPopupFieldValue(item, itemNo, 'page', item.page || 0), 10) || 0;
-				const isPageZeroOverlay = (showPageZeroEverywhere && itemPage === 0);
-				if (itemPage === displayPagePopupCurrentPage || isPageZeroOverlay)
-				{
-					pageItems.push({ item, itemNo, isPageZeroOverlay });
-				}
-			}
-
-			let statusBarPosition = 0;
-			for (const { item, itemNo, isPageZeroOverlay } of pageItems)
-			{
-				if (isPageZeroOverlay)
-				{
-					continue;
-				}
-				const statusBarRaw = parseInt(getDisplayPopupFieldValue(item, itemNo, 'StatusBarPosition', item.statusBarPosition || 0), 10);
-				const statusBarValue = Number.isNaN(statusBarRaw) ? 0 : Math.max(0, Math.min(statusBarRaw, 2));
-				if (statusBarValue > 0)
-				{
-					statusBarPosition = statusBarValue;
-					break;
-				}
-			}
-
-			if (displayPagePopupStatusBarPosition === null)
-			{
-				displayPagePopupStatusBarPosition = statusBarPosition;
-			}
-			else
-			{
-				statusBarPosition = displayPagePopupStatusBarPosition;
-			}
-
-			if (statusPositionElement)
-			{
-				statusPositionElement.value = `${statusBarPosition}`;
-			}
-
-			const statusBarMarkup = statusBarPosition === 0
-				? ''
-				: `<div class="display-sim-status-bar ${statusBarPosition === 1 ? 'display-sim-status-bar-top' : 'display-sim-status-bar-bottom'}"><span class="display-sim-status-left">${displayStatusLeftPlaceholder}</span><span class="display-sim-status-right">${displayStatusRightPlaceholder}</span></div>`;
-
-			const markup = pageItems.map(({ item, itemNo, isPageZeroOverlay }) =>
-			{
-				const runtime = getDisplayPopupItemRuntime(item, itemNo);
-				const xPercent = clampDisplayPercent(getDisplayPopupFieldValue(item, itemNo, 'X', item.xPos || 0), 0);
-				const yPercent = clampDisplayPercent(getDisplayPopupFieldValue(item, itemNo, 'Y', item.yPos || 0), 0);
-				const widthPercent = Math.max(2, clampDisplayPercent(getDisplayPopupFieldValue(item, itemNo, 'Width', item.width || 100), 100));
-				const explicitTopLabel = sanitizeDisplayString(getDisplayPopupFieldValue(item, itemNo, 'Label', item.label || ''), '');
-				const hasExplicitLabel = !!explicitTopLabel;
-				const renderedLabel = escapeHtml(explicitTopLabel);
-				const staticTextFallback = sanitizeDisplayString(item.text, '');
-				let displayValueRaw = '';
-				let liveUnit = runtime.configuredUnit;
-
-				if (runtime.deviceId === 'none' || runtime.deviceId === 'customMQTT' || !runtime.deviceId || !runtime.capabilityId)
-				{
-					displayValueRaw = getDisplayPopupFieldValue(item, itemNo, 'Text', staticTextFallback);
-				}
-
-				if (runtime.deviceId === '_variable_' && runtime.capabilityId)
-				{
-					const variableValue = displayPagePopupVariableValueCache.get(runtime.capabilityId);
-					displayValueRaw = (variableValue !== undefined) ? variableValue : staticTextFallback;
 				}
 				else if (runtime.deviceId && runtime.capabilityId && runtime.deviceId !== 'none' && runtime.deviceId !== 'customMQTT')
 				{
-					const cacheEntry = displayPagePopupLiveValueCache.get(runtime.valueKey);
-					if (cacheEntry)
+					deviceCapPairs.add(`${runtime.deviceId}::${runtime.capabilityId}`);
+				}
+			}
+		}
+	}
+	else if (activeView === 'groupConfig')
+	{
+		const group = localGroupConfigurations[currentGroupIndex];
+		if (group)
+		{
+			if (group.displayConfigNo !== null && group.displayConfigNo !== undefined && localDisplayConfigurations[group.displayConfigNo])
+			{
+				const displayConfiguration = localDisplayConfigurations[group.displayConfigNo];
+				if (displayConfiguration && Array.isArray(displayConfiguration.items))
+				{
+					displayConfiguration.items.forEach((item, itemNo) =>
 					{
-						displayValueRaw = (cacheEntry.value !== undefined && cacheEntry.value !== null) ? cacheEntry.value : '';
-						if (!liveUnit)
+						const itemPage = parseInt(item.page || 0, 10) || 0;
+						if (itemPage === 0 || itemPage === groupSimCurrentPage)
 						{
-							liveUnit = cacheEntry.unit || '';
+							const runtime = getDisplayPopupItemRuntime(item, itemNo);
+							if (runtime.deviceId === '_variable_' && runtime.capabilityId)
+							{
+								variableIds.add(runtime.capabilityId);
+							}
+							else if (runtime.deviceId && runtime.capabilityId && runtime.deviceId !== 'none' && runtime.deviceId !== 'customMQTT')
+							{
+								deviceCapPairs.add(`${runtime.deviceId}::${runtime.capabilityId}`);
+							}
+						}
+					});
+				}
+			}
+
+			if (Array.isArray(group.connectorConfigNos))
+			{
+				group.connectorConfigNos.forEach((btnConfigNo) =>
+				{
+					if (btnConfigNo === null || btnConfigNo === undefined || !localButtonConfigurations[btnConfigNo]) return;
+					const pages = Array.isArray(localButtonConfigurations[btnConfigNo]) ? localButtonConfigurations[btnConfigNo] : [localButtonConfigurations[btnConfigNo]];
+					const pageIdx = Math.min(groupSimCurrentPage, pages.length - 1);
+					const pConfig = pages[pageIdx] || pages[0] || {};
+					['left', 'right'].forEach((side) =>
+					{
+						const devId = pConfig[`${side}Device`];
+						const capId = pConfig[`${side}Capability`];
+						if (devId === '_variable_' && capId)
+						{
+							variableIds.add(capId);
+						}
+						else if (devId && devId !== 'none' && devId !== 'customMQTT')
+						{
+							deviceCapPairs.add(`${devId}::onoff`);
+							if (capId)
+							{
+								deviceCapPairs.add(`${devId}::${capId}`);
+							}
+						}
+					});
+				});
+			}
+		}
+	}
+
+	for (const pair of deviceCapPairs)
+	{
+		const parts = pair.split('::');
+		const deviceId = parts[0];
+		const capabilityId = parts[1];
+		requests.push(new Promise((resolve) =>
+		{
+			Homey.api('POST', '/device_capability_value/',
+				{ deviceId, capabilityId },
+				function (err, result)
+				{
+					if (!err && result && result.success)
+					{
+						displayPagePopupLiveValueCache.set(`${deviceId}_${capabilityId}`,
+							{
+								value: result.value,
+								unit: sanitizeDisplayString(result.unit, ''),
+								fetchedAt: Date.now(),
+							});
+					}
+					resolve();
+				});
+		}));
+	}
+
+	if (variableIds.size > 0)
+	{
+		requests.push(new Promise((resolve) =>
+		{
+			Homey.api('POST', '/get_variables/', {}, function (err, variables)
+			{
+				if (!err && variables)
+				{
+					displayPagePopupVariableValueCache.clear();
+					for (const variable of Object.values(variables))
+					{
+						if (variable && variable.id)
+						{
+							displayPagePopupVariableValueCache.set(variable.id, variable.value);
 						}
 					}
-					else
-					{
-						displayValueRaw = '';
-					}
+					displayPagePopupVariableValueFetchedAt = Date.now();
+				}
+				resolve();
+			});
+		}));
+	}
+
+	if (requests.length === 0)
+	{
+		if (activeView === 'groupConfig')
+		{
+			renderGroupSimulator();
+		}
+		else
+		{
+			renderDisplayInlineSimulator();
+		}
+		if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
+		{
+			renderDisplayPagePopup();
+		}
+		return;
+	}
+
+	Promise.all(requests).then(() =>
+	{
+		if (displayItemMoveState || displayItemResizeState)
+		{
+			return;
+		}
+
+		if (activeView === 'groupConfig')
+		{
+			renderGroupSimulator();
+		}
+		else
+		{
+			renderDisplayInlineSimulator();
+		}
+		if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
+		{
+			renderDisplayPagePopup();
+		}
+	});
+}
+
+function focusDisplayControlFromPopup(itemNo, fieldSuffix)
+{
+	if (configTypeElement && configTypeElement.value !== 'displayConfig')
+	{
+		configTypeElement.value = 'displayConfig';
+		configTypeChanged('displayConfig');
+	}
+
+	const alignDisplaySectionBelowSim = function (attempt = 0)
+	{
+		const focusCandidatesBySuffix = {
+			Label: ['Label'],
+			Device: ['Device'],
+			Text: ['Text', 'Capability', 'Device', 'Label'],
+			Unit: ['Unit', 'Capability', 'Text', 'Label'],
+			SVG: ['SVG', 'Text', 'Capability', 'Device', 'Label'],
+			Capability: ['Capability', 'Device', 'Label'],
+		};
+		const suffixCandidates = focusCandidatesBySuffix[fieldSuffix] || [fieldSuffix, 'Label'];
+
+		const resolveFocusElement = function (preferVisible = false, allowLabelFallback = true)
+		{
+			for (const suffix of suffixCandidates)
+			{
+				const candidateElement = document.getElementById(`display${itemNo}${suffix}`);
+				if (!candidateElement)
+				{
+					continue;
 				}
 
-				const svgRaw = getDisplayPopupFieldValue(item, itemNo, 'SVG', item.svg || '');
-				const valueSvgMarkup = getSvgPreviewMarkup((typeof displayValueRaw === 'string') ? displayValueRaw : '');
-				const fieldSvgMarkup = getSvgPreviewMarkup(svgRaw || '');
-				const effectiveSvgMarkup = valueSvgMarkup || fieldSvgMarkup;
-				const text = escapeHtml(formatDisplayPopupValue(displayValueRaw, runtime.rounding));
-				const unitText = escapeHtml(sanitizeDisplayString(liveUnit, ''));
-				const configuredFontSize = getDisplayPopupFieldValue(item, itemNo, 'FontSize', item.fontSize || 1);
-				const fontPx = getDisplayPopupFontPx(configuredFontSize);
-				const fontWeight = isDisplayPopupFontBold(configuredFontSize) ? 700 : 400;
-				const boxType = parseInt(getDisplayPopupFieldValue(item, itemNo, 'BoxType', item.boxType || 0), 10) || 0;
-				const underlinedClass = (boxType === 0) ? 'display-sim-item-underlined' : '';
+				if (!preferVisible)
+				{
+					return candidateElement;
+				}
 
-				const showValueSvg = !!effectiveSvgMarkup;
-				const hasTextValue = !!sanitizeDisplayString(text, '');
-				const isDynamicValueSource = (runtime.deviceId === '_variable_')
-					|| (runtime.deviceId && runtime.deviceId !== 'none' && runtime.deviceId !== 'customMQTT' && runtime.capabilityId);
-				const svgFocusSuffix = (valueSvgMarkup && isDynamicValueSource) ? 'Device' : 'SVG';
-				const valueFocusSuffix = (runtime.deviceId === 'none') ? 'Text' : 'Device';
-				const needsLivePlaceholder = isDynamicValueSource && !hasTextValue && !showValueSvg;
-				const renderedText = needsLivePlaceholder ? displayLoadingPlaceholder : (text || '&nbsp;');
-				const hasUnitValue = !(needsLivePlaceholder || showValueSvg) && !!unitText;
-				const valueClass = needsLivePlaceholder ? 'display-sim-text display-sim-text-loading' : 'display-sim-text';
-				const valueRowClass = hasUnitValue ? 'display-sim-value-row' : 'display-sim-value-row display-sim-value-row-no-unit';
-				const valueTextPaddingTop = hasExplicitLabel ? 10 : 30;
+				if (candidateElement.offsetParent !== null)
+				{
+					return candidateElement;
+				}
+			}
 
-				const isSelected = !isPageZeroOverlay && (itemNo === displayInlineSelectedItemNo);
-				const selectedClass = isSelected ? ' display-sim-item-selected' : '';
-				const overlayClass = isPageZeroOverlay ? ' display-sim-item-page-zero-overlay' : '';
-				const labelClick = isPageZeroOverlay ? '' : ` onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, 'Label')"`;
-				const itemClick = isPageZeroOverlay ? '' : ` onclick="${clickHandlerName}(${itemNo}, 'Label')"`;
-				const svgClick = isPageZeroOverlay ? '' : ` onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, '${svgFocusSuffix}')"`;
-				const valueRowClick = isPageZeroOverlay ? '' : ` onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, '${valueFocusSuffix}')"`;
-				const unitClick = isPageZeroOverlay ? '' : ` onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, 'Unit')"`;
-				return `<div class="display-sim-item ${underlinedClass}${selectedClass}${overlayClass}" style="left:${xPercent}%; top:${yPercent}%; width:${widthPercent}%;" data-item-no="${itemNo}" data-left-percent="${xPercent}" data-top-percent="${yPercent}" data-width-percent="${widthPercent}"${itemClick}>
+			return allowLabelFallback ? document.getElementById(`display${itemNo}Label`) : null;
+		};
+
+		const initialFocusElement = resolveFocusElement(false, fieldSuffix !== 'Device');
+		if (!initialFocusElement)
+		{
+			if (attempt < 6)
+			{
+				setTimeout(() => alignDisplaySectionBelowSim(attempt + 1), 60);
+			}
+			return;
+		}
+
+		const detailsElement = initialFocusElement.closest('details');
+		if (detailsElement)
+		{
+			const wasOpen = detailsElement.open;
+			detailsElement.open = true;
+			if (!wasOpen && attempt < 6)
+			{
+				setTimeout(() => alignDisplaySectionBelowSim(attempt + 1), 60);
+				return;
+			}
+		}
+
+		const currentFocusElement = resolveFocusElement(true, fieldSuffix !== 'Device') || initialFocusElement;
+
+		updateDisplayPagePopupScrollOffset();
+
+		const sectionElement = currentFocusElement.closest('.horizontalgroup');
+		if (!sectionElement)
+		{
+			if (attempt < 6)
+			{
+				setTimeout(() => alignDisplaySectionBelowSim(attempt + 1), 60);
+			}
+			return;
+		}
+
+		const fixedTopElement = document.querySelector('.fixedTop');
+		const fixedTopHeight = fixedTopElement ? fixedTopElement.offsetHeight : 0;
+		const simDialogElement = document.querySelector('.display-sim-overlay.visible .display-sim-dialog');
+		const simBottom = simDialogElement ? Math.max(0, simDialogElement.getBoundingClientRect().bottom) : 0;
+		const targetViewportTop = Math.max(fixedTopHeight + 8, simBottom + 8);
+		const fieldLabelElement = currentFocusElement.id
+			? document.querySelector(`label[for="${currentFocusElement.id}"]`)
+			: null;
+		const focusAnchorElement = fieldLabelElement || currentFocusElement;
+		const targetTop = Math.max(0, focusAnchorElement.getBoundingClientRect().top + window.scrollY - targetViewportTop);
+		window.scrollTo({ top: targetTop, behavior: 'auto' });
+
+		if (attempt === 0)
+		{
+			sectionElement.classList.add('display-item-highlight');
+			setTimeout(() =>
+			{
+				sectionElement.classList.remove('display-item-highlight');
+			}, 1400);
+		}
+
+		setTimeout(() =>
+		{
+			if (typeof currentFocusElement.focus === 'function')
+			{
+				currentFocusElement.focus();
+			}
+		}, 80);
+
+		if (attempt < 1)
+		{
+			setTimeout(() => alignDisplaySectionBelowSim(attempt + 1), 80);
+		}
+	};
+
+	requestAnimationFrame(() =>
+	{
+		alignDisplaySectionBelowSim(0);
+	});
+}
+
+function renderDisplaySimulatorSurface(surfaceElement, titleElement, prevElement, nextElement, statusPositionElement, clickHandlerName, updateScrollOffset = false)
+{
+	if (!surfaceElement)
+	{
+		return;
+	}
+
+	const setDisplayInlineDeleteButtonState = function (buttonElement, canDelete)
+	{
+		if (!buttonElement)
+		{
+			return;
+		}
+
+		buttonElement.disabled = !canDelete;
+		buttonElement.classList.toggle('display-inline-sim-action-hidden', !canDelete);
+	};
+
+	const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+	const displayMoveHandleTitle = escapeHtml(Homey.__("settings.displaySimMoveHandleTitle"));
+	const displayMoveHandleAria = escapeHtml(Homey.__("settings.displaySimMoveHandleAria"));
+	const displayResizeHandleTitle = escapeHtml(Homey.__("settings.displaySimResizeHandleTitle"));
+	const displayResizeHandleAria = escapeHtml(Homey.__("settings.displaySimResizeHandleAria"));
+	const displayTooltipX = escapeHtml(Homey.__("settings.displaySimTooltipX"));
+	const displayTooltipY = escapeHtml(Homey.__("settings.displaySimTooltipY"));
+	const displayTooltipW = escapeHtml(Homey.__("settings.displaySimTooltipW"));
+	const displayLoadingPlaceholder = escapeHtml(Homey.__("settings.displaySimLoading"));
+	const displayEmptyMessage = escapeHtml(Homey.__("settings.displaySimEmptyMessage"));
+	const displayStatusLeftPlaceholder = escapeHtml(Homey.__("settings.displaySimStatusLeftPlaceholder"));
+	const displayStatusRightPlaceholder = escapeHtml(Homey.__("settings.displaySimStatusRightPlaceholder"));
+	if (!displayConfiguration || !Array.isArray(displayConfiguration.items))
+	{
+		surfaceElement.innerHTML = '';
+		setDisplayInlineDeleteButtonState(displayInlineSimDeleteItemElement, false);
+		setDisplayInlineDeleteButtonState(displayInlineSimDeletePageElement, false);
+		if (titleElement)
+		{
+			renderDisplayPageHeaderTitle(titleElement, 0, 1);
+		}
+		return;
+	}
+
+	const pages = getDisplayPopupPages(displayConfiguration);
+	if (!pages.includes(displayPagePopupCurrentPage))
+	{
+		displayPagePopupCurrentPage = pages[0];
+	}
+	const highestPageNumber = pages.length ? Math.max(...pages) : 0;
+	const totalPages = Math.max(1, highestPageNumber + 1);
+	const showPageZeroEverywhere = !!(displayInlineSimShowPageZeroElement && displayInlineSimShowPageZeroElement.checked && displayPagePopupCurrentPage !== 0);
+
+	const pageItems = [];
+	for (let itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
+	{
+		const item = displayConfiguration.items[itemNo];
+		const itemPage = parseInt(getDisplayPopupFieldValue(item, itemNo, 'page', item.page || 0), 10) || 0;
+		const isPageZeroOverlay = (showPageZeroEverywhere && itemPage === 0);
+		if (itemPage === displayPagePopupCurrentPage || isPageZeroOverlay)
+		{
+			pageItems.push({ item, itemNo, isPageZeroOverlay });
+		}
+	}
+
+	let statusBarPosition = 0;
+	for (const { item, itemNo, isPageZeroOverlay } of pageItems)
+	{
+		if (isPageZeroOverlay)
+		{
+			continue;
+		}
+		const statusBarRaw = parseInt(getDisplayPopupFieldValue(item, itemNo, 'StatusBarPosition', item.statusBarPosition || 0), 10);
+		const statusBarValue = Number.isNaN(statusBarRaw) ? 0 : Math.max(0, Math.min(statusBarRaw, 2));
+		if (statusBarValue > 0)
+		{
+			statusBarPosition = statusBarValue;
+			break;
+		}
+	}
+
+	if (displayPagePopupStatusBarPosition === null)
+	{
+		displayPagePopupStatusBarPosition = statusBarPosition;
+	}
+	else
+	{
+		statusBarPosition = displayPagePopupStatusBarPosition;
+	}
+
+	if (statusPositionElement)
+	{
+		statusPositionElement.value = `${statusBarPosition}`;
+	}
+
+	const statusBarMarkup = statusBarPosition === 0
+		? ''
+		: `<div class="display-sim-status-bar ${statusBarPosition === 1 ? 'display-sim-status-bar-top' : 'display-sim-status-bar-bottom'}"><span class="display-sim-status-left">${displayStatusLeftPlaceholder}</span><span class="display-sim-status-right">${displayStatusRightPlaceholder}</span></div>`;
+
+	const markup = pageItems.map(({ item, itemNo, isPageZeroOverlay }) =>
+	{
+		const runtime = getDisplayPopupItemRuntime(item, itemNo);
+		const xPercent = clampDisplayPercent(getDisplayPopupFieldValue(item, itemNo, 'X', item.xPos || 0), 0);
+		const yPercent = clampDisplayPercent(getDisplayPopupFieldValue(item, itemNo, 'Y', item.yPos || 0), 0);
+		const widthPercent = Math.max(2, clampDisplayPercent(getDisplayPopupFieldValue(item, itemNo, 'Width', item.width || 100), 100));
+		const explicitTopLabel = sanitizeDisplayString(getDisplayPopupFieldValue(item, itemNo, 'Label', item.label || ''), '');
+		const hasExplicitLabel = !!explicitTopLabel;
+		const renderedLabel = escapeHtml(explicitTopLabel);
+		const staticTextFallback = sanitizeDisplayString(item.text, '');
+		let displayValueRaw = '';
+		let liveUnit = runtime.configuredUnit;
+
+		if (runtime.deviceId === 'none' || runtime.deviceId === 'customMQTT' || !runtime.deviceId || !runtime.capabilityId)
+		{
+			displayValueRaw = getDisplayPopupFieldValue(item, itemNo, 'Text', staticTextFallback);
+		}
+
+		if (runtime.deviceId === '_variable_' && runtime.capabilityId)
+		{
+			const variableValue = displayPagePopupVariableValueCache.get(runtime.capabilityId);
+			displayValueRaw = (variableValue !== undefined) ? variableValue : staticTextFallback;
+		}
+		else if (runtime.deviceId && runtime.capabilityId && runtime.deviceId !== 'none' && runtime.deviceId !== 'customMQTT')
+		{
+			const cacheEntry = displayPagePopupLiveValueCache.get(runtime.valueKey);
+			if (cacheEntry)
+			{
+				displayValueRaw = (cacheEntry.value !== undefined && cacheEntry.value !== null) ? cacheEntry.value : '';
+				if (!liveUnit)
+				{
+					liveUnit = cacheEntry.unit || '';
+				}
+			}
+			else
+			{
+				displayValueRaw = '';
+			}
+		}
+
+		const svgRaw = getDisplayPopupFieldValue(item, itemNo, 'SVG', item.svg || '');
+		const valueSvgMarkup = getSvgPreviewMarkup((typeof displayValueRaw === 'string') ? displayValueRaw : '');
+		const fieldSvgMarkup = getSvgPreviewMarkup(svgRaw || '');
+		const effectiveSvgMarkup = valueSvgMarkup || fieldSvgMarkup;
+		const text = escapeHtml(formatDisplayPopupValue(displayValueRaw, runtime.rounding));
+		const unitText = escapeHtml(sanitizeDisplayString(liveUnit, ''));
+		const configuredFontSize = getDisplayPopupFieldValue(item, itemNo, 'FontSize', item.fontSize || 1);
+		const fontPx = getDisplayPopupFontPx(configuredFontSize);
+		const fontWeight = isDisplayPopupFontBold(configuredFontSize) ? 700 : 400;
+		const boxType = parseInt(getDisplayPopupFieldValue(item, itemNo, 'BoxType', item.boxType || 0), 10) || 0;
+		const underlinedClass = (boxType === 0) ? 'display-sim-item-underlined' : '';
+
+		const showValueSvg = !!effectiveSvgMarkup;
+		const hasTextValue = !!sanitizeDisplayString(text, '');
+		const isDynamicValueSource = (runtime.deviceId === '_variable_')
+			|| (runtime.deviceId && runtime.deviceId !== 'none' && runtime.deviceId !== 'customMQTT' && runtime.capabilityId);
+		const svgFocusSuffix = (valueSvgMarkup && isDynamicValueSource) ? 'Device' : 'SVG';
+		const valueFocusSuffix = (runtime.deviceId === 'none') ? 'Text' : 'Device';
+		const needsLivePlaceholder = isDynamicValueSource && !hasTextValue && !showValueSvg;
+		const renderedText = needsLivePlaceholder ? displayLoadingPlaceholder : (text || '&nbsp;');
+		const hasUnitValue = !(needsLivePlaceholder || showValueSvg) && !!unitText;
+		const valueClass = needsLivePlaceholder ? 'display-sim-text display-sim-text-loading' : 'display-sim-text';
+		const valueRowClass = hasUnitValue ? 'display-sim-value-row' : 'display-sim-value-row display-sim-value-row-no-unit';
+		const valueTextPaddingTop = hasExplicitLabel ? 10 : 30;
+
+		const isSelected = !isPageZeroOverlay && (itemNo === displayInlineSelectedItemNo);
+		const selectedClass = isSelected ? ' display-sim-item-selected' : '';
+		const overlayClass = isPageZeroOverlay ? ' display-sim-item-page-zero-overlay' : '';
+		const labelClick = isPageZeroOverlay ? '' : ` onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, 'Label')"`;
+		const itemClick = isPageZeroOverlay ? '' : ` onclick="${clickHandlerName}(${itemNo}, 'Label')"`;
+		const svgClick = isPageZeroOverlay ? '' : ` onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, '${svgFocusSuffix}')"`;
+		const valueRowClick = isPageZeroOverlay ? '' : ` onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, '${valueFocusSuffix}')"`;
+		const unitClick = isPageZeroOverlay ? '' : ` onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, 'Unit')"`;
+		return `<div class="display-sim-item ${underlinedClass}${selectedClass}${overlayClass}" style="left:${xPercent}%; top:${yPercent}%; width:${widthPercent}%;" data-item-no="${itemNo}" data-left-percent="${xPercent}" data-top-percent="${yPercent}" data-width-percent="${widthPercent}"${itemClick}>
 					${hasExplicitLabel ? `<div class="display-sim-top-label"${labelClick}>${renderedLabel}</div>` : ''}
 					${showValueSvg
-						? `<div class="display-sim-svg"${svgClick}>${effectiveSvgMarkup}</div>`
-						: `<div class="${valueRowClass}"${valueRowClick}>
+				? `<div class="display-sim-svg"${svgClick}>${effectiveSvgMarkup}</div>`
+				: `<div class="${valueRowClass}"${valueRowClick}>
 							<div class="${valueClass}" style="font-size:${fontPx}px;font-weight:${fontWeight};padding-top:${valueTextPaddingTop}px;">${renderedText}</div>
 								${hasUnitValue ? `<div class="display-sim-unit"${unitClick} style="font-size:${Math.max(15, Math.floor(fontPx * 0.52))}px;font-weight:${fontWeight};">${unitText}</div>` : ''}
 						</div>`}
 					${isSelected ? `<button type="button" class="display-sim-move-handle" title="${displayMoveHandleTitle}" onpointerdown="startDisplayItemMoveDrag(event, ${itemNo})" onclick="event.stopPropagation();" aria-label="${displayMoveHandleAria}"><span aria-hidden="true">↑↓←→</span></button><button type="button" class="display-sim-resize-handle" title="${displayResizeHandleTitle}" onpointerdown="startDisplayItemWidthDrag(event, ${itemNo})" onclick="event.stopPropagation();" aria-label="${displayResizeHandleAria}"><span aria-hidden="true">↔</span></button><div class="display-sim-resize-tooltip display-sim-move-tooltip" aria-hidden="true">${displayTooltipX}: ${Math.round(xPercent)}% ${displayTooltipY}: ${Math.round(yPercent)}%</div><div class="display-sim-resize-tooltip display-sim-size-tooltip" aria-hidden="true">${displayTooltipW}: ${Math.round(widthPercent * 10) / 10}%</div>` : ''}
 				</div>`;
-			}).join('');
+	}).join('');
 
-			const emptyStateMarkup = (pageItems.length === 0)
-				? `<div class="display-sim-empty-message">${displayEmptyMessage}</div>`
-				: '';
+	const emptyStateMarkup = (pageItems.length === 0)
+		? `<div class="display-sim-empty-message">${displayEmptyMessage}</div>`
+		: '';
 
-			surfaceElement.innerHTML = statusBarMarkup + emptyStateMarkup + markup;
+	surfaceElement.innerHTML = statusBarMarkup + emptyStateMarkup + markup;
 
-			renderDisplayPageHeaderTitle(titleElement, displayPagePopupCurrentPage, totalPages);
+	renderDisplayPageHeaderTitle(titleElement, displayPagePopupCurrentPage, totalPages);
 
-			if (prevElement)
-			{
-				prevElement.disabled = (pages.indexOf(displayPagePopupCurrentPage) <= 0);
-			}
+	if (prevElement)
+	{
+		prevElement.disabled = (pages.indexOf(displayPagePopupCurrentPage) <= 0);
+	}
 
-			if (nextElement)
-			{
-				nextElement.disabled = (pages.indexOf(displayPagePopupCurrentPage) >= pages.length - 1);
-			}
+	if (nextElement)
+	{
+		nextElement.disabled = (pages.indexOf(displayPagePopupCurrentPage) >= pages.length - 1);
+	}
 
-			const hasSelection = pageItems.some((entry) => !entry.isPageZeroOverlay && entry.itemNo === displayInlineSelectedItemNo);
-			setDisplayInlineDeleteButtonState(displayInlineSimDeleteItemElement, hasSelection);
+	const hasSelection = pageItems.some((entry) => !entry.isPageZeroOverlay && entry.itemNo === displayInlineSelectedItemNo);
+	setDisplayInlineDeleteButtonState(displayInlineSimDeleteItemElement, hasSelection);
 
-			const canDeleteCurrentPage = (displayPagePopupCurrentPage > 0);
-			setDisplayInlineDeleteButtonState(displayInlineSimDeletePageElement, canDeleteCurrentPage);
+	const canDeleteCurrentPage = (displayPagePopupCurrentPage > 0);
+	setDisplayInlineDeleteButtonState(displayInlineSimDeletePageElement, canDeleteCurrentPage);
 
-			if (updateScrollOffset)
-			{
-				updateDisplayPagePopupScrollOffset();
-			}
-		}
+	if (updateScrollOffset)
+	{
+		updateDisplayPagePopupScrollOffset();
+	}
+}
 
-		function renderDisplayPagePopup()
+function renderDisplayPagePopup()
+{
+	renderDisplaySimulatorSurface(
+		displayPagePopupSurfaceElement,
+		displayPagePopupTitleElement,
+		displayPagePopupPrevElement,
+		displayPagePopupNextElement,
+		displayPagePopupStatusBarPositionElement,
+		'handleDisplayOverlaySimulatorClick',
+		true,
+	);
+}
+
+function renderDisplayInlineSimulator()
+{
+	renderDisplaySimulatorSurface(
+		displayInlineSimSurfaceElement,
+		displayInlineSimTitleElement,
+		displayInlineSimPrevElement,
+		displayInlineSimNextElement,
+		displayInlineSimStatusBarPositionElement,
+		'handleDisplayInlineSimulatorClick',
+		false,
+	);
+}
+
+function openDisplayPagePopup(page)
+{
+	if (!displayPagePopupOverlayElement)
+	{
+		return;
+	}
+
+	const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+	if (!displayConfiguration || !Array.isArray(displayConfiguration.items))
+	{
+		return;
+	}
+
+	const pages = getDisplayPopupPages(displayConfiguration);
+	displayPagePopupCurrentPage = pages.includes(page) ? page : pages[0];
+	if (displayPagePopupStatusBarPositionElement)
+	{
+		displayPagePopupStatusBarPositionElement.onchange = function ()
 		{
-			renderDisplaySimulatorSurface(
-				displayPagePopupSurfaceElement,
-				displayPagePopupTitleElement,
-				displayPagePopupPrevElement,
-				displayPagePopupNextElement,
-				displayPagePopupStatusBarPositionElement,
-				'handleDisplayOverlaySimulatorClick',
-				true,
-			);
-		}
-
-		function renderDisplayInlineSimulator()
-		{
-			renderDisplaySimulatorSurface(
-				displayInlineSimSurfaceElement,
-				displayInlineSimTitleElement,
-				displayInlineSimPrevElement,
-				displayInlineSimNextElement,
-				displayInlineSimStatusBarPositionElement,
-				'handleDisplayInlineSimulatorClick',
-				false,
-			);
-		}
-
-		function openDisplayPagePopup(page)
-		{
-			if (!displayPagePopupOverlayElement)
+			const selectedStatusBarPosition = parseInt(this.value, 10) || 0;
+			displayPagePopupStatusBarPosition = selectedStatusBarPosition;
+			Homey.set('displayPagePopupStatusBarPosition', selectedStatusBarPosition);
+			for (const item of displayConfiguration.items)
 			{
-				return;
-			}
-
-			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
-			if (!displayConfiguration || !Array.isArray(displayConfiguration.items))
-			{
-				return;
-			}
-
-			const pages = getDisplayPopupPages(displayConfiguration);
-			displayPagePopupCurrentPage = pages.includes(page) ? page : pages[0];
-			if (displayPagePopupStatusBarPositionElement)
-			{
-				displayPagePopupStatusBarPositionElement.onchange = function ()
+				const itemPage = parseInt(item.page, 10) || 0;
+				if (itemPage === displayPagePopupCurrentPage)
 				{
-					const selectedStatusBarPosition = parseInt(this.value, 10) || 0;
-					displayPagePopupStatusBarPosition = selectedStatusBarPosition;
-					Homey.set('displayPagePopupStatusBarPosition', selectedStatusBarPosition);
-					for (const item of displayConfiguration.items)
-					{
-						const itemPage = parseInt(item.page, 10) || 0;
-						if (itemPage === displayPagePopupCurrentPage)
-						{
-							item.statusBarPosition = selectedStatusBarPosition;
-						}
-					}
-					renderDisplayPagePopup();
-				};
+					item.statusBarPosition = selectedStatusBarPosition;
+				}
 			}
-			displayPagePopupOverlayElement.classList.add('visible');
-			displayPagePopupOverlayElement.setAttribute('aria-hidden', 'false');
-			stopDisplayInlineLiveRefresh();
-			if (displayPagePopupLiveRefreshTimer)
-			{
-				clearInterval(displayPagePopupLiveRefreshTimer);
-			}
-			displayPagePopupLiveRefreshTimer = setInterval(refreshDisplayPopupLiveValues, DISPLAY_SIM_LIVE_REFRESH_MS);
 			renderDisplayPagePopup();
-			refreshDisplayPopupLiveValues();
-		}
+		};
+	}
+	displayPagePopupOverlayElement.classList.add('visible');
+	displayPagePopupOverlayElement.setAttribute('aria-hidden', 'false');
+	stopDisplayInlineLiveRefresh();
+	if (displayPagePopupLiveRefreshTimer)
+	{
+		clearInterval(displayPagePopupLiveRefreshTimer);
+	}
+	displayPagePopupLiveRefreshTimer = setInterval(refreshDisplayPopupLiveValues, DISPLAY_SIM_LIVE_REFRESH_MS);
+	renderDisplayPagePopup();
+	refreshDisplayPopupLiveValues();
+}
 
-		function stepDisplayPagePopup(delta)
+function stepDisplayPagePopup(delta)
+{
+	const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+	if (!displayConfiguration || !Array.isArray(displayConfiguration.items))
+	{
+		return;
+	}
+
+	const pages = getDisplayPopupPages(displayConfiguration);
+	const pageIndex = pages.indexOf(displayPagePopupCurrentPage);
+	if (pageIndex < 0)
+	{
+		displayPagePopupCurrentPage = pages[0];
+	}
+	else
+	{
+		const nextIndex = Math.max(0, Math.min(pageIndex + delta, pages.length - 1));
+		displayPagePopupCurrentPage = pages[nextIndex];
+	}
+
+	renderDisplayPagePopup();
+	refreshDisplayPopupLiveValues();
+}
+
+function sortDevices(devicesArray)
+{
+	return devicesArray.sort((a, b) =>
+	{
+		const zoneA = a.zone.name ?? a.zoneName;
+		const zoneB = b.zone.name ?? b.zoneName;
+
+		if (zoneA < zoneB)
 		{
-			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
-			if (!displayConfiguration || !Array.isArray(displayConfiguration.items))
-			{
-				return;
-			}
-
-			const pages = getDisplayPopupPages(displayConfiguration);
-			const pageIndex = pages.indexOf(displayPagePopupCurrentPage);
-			if (pageIndex < 0)
-			{
-				displayPagePopupCurrentPage = pages[0];
-			}
-			else
-			{
-				const nextIndex = Math.max(0, Math.min(pageIndex + delta, pages.length - 1));
-				displayPagePopupCurrentPage = pages[nextIndex];
-			}
-
-			renderDisplayPagePopup();
-			refreshDisplayPopupLiveValues();
+			return -1;
 		}
-
-		function sortDevices(devicesArray)
+		if (zoneA > zoneB)
 		{
-			return devicesArray.sort((a, b) =>
-			{
-				const zoneA = a.zone.name ?? a.zoneName;
-				const zoneB = b.zone.name ?? b.zoneName;
+			return 1;
+		}
+		return 0;
+	});
+}
 
-				if (zoneA < zoneB)
-				{
-					return -1;
-				}
-				if (zoneA > zoneB)
-				{
-					return 1;
-				}
-				return 0;
+function filterButtonDevices(devices)
+{
+	return devices.filter((device) =>
+	{
+		// Check if at least one capability has type "boolean"
+		if (device.capabilitiesObj)
+		{
+			return Object.values(device.capabilitiesObj).some((capability) =>
+			{
+				return ((capability.type === "boolean") || (capability.id === "dim") || (capability.id === "windowcoverings_state"));
 			});
 		}
+	});
+}
 
-		function filterButtonDevices(devices)
+// Fetch the devices and then update the displays
+function getDevices()
+{
+	Homey.api('POST', '/Devices/', {}, function (err, devices)
+	{
+		if (err) return Homey.alert(err);
+
+		devices = Object.values(devices);
+
+		displayDevicesArray = sortDevices(devices);
+		displayDevicesFetched = true;
+		fillDisplayDevices();
+
+		buttonDevicesArray = sortDevices(filterButtonDevices(devices));
+		buttonDevicesFetched = true;
+
+		// Get the current configuration
+		var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+
+		writeButtonsections(buttonPanelConfiguration.length);
+		updateButtonPanelControls();
+	});
+}
+
+function fillButtonDevices()
+{
+	// fill the device lists with devices
+	if (buttonDevicesFetched)
+	{
+		// Get the number of pages in the current configuration
+		var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+
+		// Make sure buttonPanelConfiguration is an array
+		if (!Array.isArray(buttonPanelConfiguration))
 		{
-			return devices.filter((device) =>
-			{
-				// Check if at least one capability has type "boolean"
-				if (device.capabilitiesObj)
-				{
-					return Object.values(device.capabilitiesObj).some((capability) =>
-					{
-						return ((capability.type === "boolean") || (capability.id === "dim") || (capability.id === "windowcoverings_state"));
-					});
-				}
-			});
+			buttonPanelConfiguration = [buttonPanelConfiguration];
+			localButtonConfigurations[currentButtonConfigurationNo] = buttonPanelConfiguration;
 		}
+		var numPages = buttonPanelConfiguration.length;
 
-		// Fetch the devices and then update the displays
-		function getDevices()
+		for (let i = 0; i < numPages; i++)
 		{
-			Homey.api('POST', '/Devices/', {}, function (err, devices)
+			const leftElement = document.getElementById(`left${i}Device`);
+			fillDevicesElement(leftElement, buttonDevicesArray);
+
+			// Select the current device
+			const leftDevice = buttonPanelConfiguration[i].leftDevice;
+			if (leftDevice)
 			{
-				if (err) return Homey.alert(err);
-
-				devices = Object.values(devices);
-
-				displayDevicesArray = sortDevices(devices);
-				displayDevicesFetched = true;
-				fillDisplayDevices();
-
-				buttonDevicesArray = sortDevices(filterButtonDevices(devices));
-				buttonDevicesFetched = true;
-
-				// Get the current configuration
-				var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-
-				writeButtonsections(buttonPanelConfiguration.length);
-				updateButtonPanelControls();
-			});
-		}
-
-		function fillButtonDevices()
-		{
-			// fill the device lists with devices
-			if (buttonDevicesFetched)
-			{
-				// Get the number of pages in the current configuration
-				var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-
-				// Make sure buttonPanelConfiguration is an array
-				if (!Array.isArray(buttonPanelConfiguration))
+				// If the device is not in the element options list then add it
+				if (!Array.from(leftElement.options).some(option => option.value === leftDevice))
 				{
-					buttonPanelConfiguration = [buttonPanelConfiguration];
-					localButtonConfigurations[currentButtonConfigurationNo] = buttonPanelConfiguration;
-				}
-				var numPages = buttonPanelConfiguration.length;
-
-				for (let i = 0; i < numPages; i++)
-				{
-					const leftElement = document.getElementById(`left${i}Device`);
-					fillDevicesElement(leftElement, buttonDevicesArray);
-
-					// Select the current device
-					const leftDevice = buttonPanelConfiguration[i].leftDevice;
-					if (leftDevice)
-					{
-						// If the device is not in the element options list then add it
-						if (!Array.from(leftElement.options).some(option => option.value === leftDevice))
-						{
-							var option = document.createElement("option");
-							option.text = buttonPanelConfiguration[i].leftDeviceName + " (Missing)";
-							option.value = leftDevice;
-							leftElement.add(option);
-
-							leftElement.value = leftDevice;
-
-							// As the device is missing the capability is also missing so add it to the list
-							var option = document.createElement("option");
-							option.text = buttonPanelConfiguration[i].leftCapabilityName + " (Missing)";
-							option.value = buttonPanelConfiguration[i].leftCapability;
-							document.getElementById(`left${i}Capability`).add(option);
-
-							// Now select it
-							document.getElementById(`left${i}Capability`).value = buttonPanelConfiguration[i].leftCapability;
-
-							// Show the capability section
-							document.getElementById(`left${i}Capability`).style.display = itemDisplyType;
-
-						}
-						else
-						{
-							leftElement.value = leftDevice;
-							getCapabilities('left', i, document.getElementById(`left${i}Device`).value, buttonPanelConfiguration[i].leftCapability, buttonPanelConfiguration[i].leftCapabilityName);
-						}
-					}
-
-					updateButtonDeviceIndicator('left', i);
-
-					const rightElement = document.getElementById(`right${i}Device`);
-					fillDevicesElement(rightElement, buttonDevicesArray);
-
-					// Select the current device
-					const rightDevice = buttonPanelConfiguration[i].rightDevice;
-					if (rightDevice)
-					{
-						// If the device is not in the element options list then add it
-						if (!Array.from(rightElement.options).some(option => option.value === rightDevice))
-						{
-							var option = document.createElement("option");
-							option.text = buttonPanelConfiguration[i].rightDeviceName + " (Missing)";
-							option.value = rightDevice;
-							rightElement.add(option);
-
-							rightElement.value = rightDevice;
-
-							// As the device is missing the capability is also missing so add it to the list
-							var option = document.createElement("option");
-							option.text = buttonPanelConfiguration[i].rightCapabilityName + " (Missing)";
-							option.value = buttonPanelConfiguration[i].rightCapability;
-							document.getElementById(`right${i}Capability`).add(option);
-
-							// Now select it
-							document.getElementById(`right${i}Capability`).value = buttonPanelConfiguration[i].rightCapability;
-
-							// Show the capability section
-							document.getElementById(`right${i}Capability`).style.display = itemDisplyType;
-						}
-						else
-						{
-							rightElement.value = rightDevice;
-							getCapabilities('right', i, document.getElementById(`right${i}Device`).value, buttonPanelConfiguration[i].rightCapability, buttonPanelConfiguration[i].rightCapabilityName);
-						}
-					}
-
-					updateButtonDeviceIndicator('right', i);
-				}
-			};
-		}
-
-		function getButtonDeviceClassIcon(deviceClass)
-		{
-			switch ((deviceClass || '').toLowerCase())
-			{
-				case 'light': return '💡';
-				case 'socket': return '🔌';
-				case 'sensor': return '📟';
-				case 'thermostat': return '🌡️';
-				case 'speaker': return '🔊';
-				case 'camera': return '📷';
-				case 'lock': return '🔒';
-				case 'windowcoverings': return '🪟';
-				case 'none': return '•';
-				case 'variable': return '𝑥';
-				case 'custommqtt': return 'MQ';
-				default: return '•';
-			}
-		}
-
-		function getButtonCapabilityIcon(capabilityId)
-		{
-			const id = (capabilityId || '').toLowerCase();
-			if (!id)
-			{
-				return '•';
-			}
-
-			if (id === 'dim' || id.includes('dim'))
-			{
-				return '◐';
-			}
-
-			if (id === 'windowcoverings_state' || id.includes('windowcoverings'))
-			{
-				return '🪟';
-			}
-
-			if (id === 'onoff' || id.includes('onoff'))
-			{
-				return '⏻';
-			}
-
-			if (id.includes('temperature'))
-			{
-				return '🌡️';
-			}
-
-			if (id.includes('humidity'))
-			{
-				return '💧';
-			}
-
-			if (id.includes('battery'))
-			{
-				return '🔋';
-			}
-
-			if (id.includes('lock'))
-			{
-				return '🔒';
-			}
-
-			return '•';
-		}
-
-		function getCapabilityIconUrl(capability)
-		{
-			if (!capability || typeof capability !== 'object')
-			{
-				return '';
-			}
-
-			const capabilityId = String(capability.id || '').trim();
-			const iconObj = capability.iconObj || capability.icon_object || {};
-			const rawIcon = capability.iconUrl
-				|| capability.icon_url
-				|| capability.icon
-				|| iconObj.url
-				|| iconObj.small
-				|| iconObj.medium
-				|| iconObj.large
-				|| '';
-
-			if (rawIcon)
-			{
-				const icon = String(rawIcon).trim();
-				if (/^https?:\/\//i.test(icon) || icon.startsWith('data:') || icon.startsWith('blob:'))
-				{
-					return icon;
-				}
-
-				// Keep relative/local icon paths from Homey as-is so they resolve against current app origin.
-				if (icon.startsWith('/') || icon.startsWith('./') || icon.startsWith('../'))
-				{
-					return icon;
-				}
-
-				// If Homey returned a bare filename-like token, prefer the standard reference icon location.
-				if (/\.svg(\?.*)?$/i.test(icon) || /^[a-z0-9_.-]+$/i.test(icon))
-				{
-					return `https://athombv.github.io/athom-cloud-driver-reference/icons/${icon.replace(/^\/+/, '')}`;
-				}
-
-				return icon;
-			}
-
-			if (capabilityId)
-			{
-				return `https://athombv.github.io/athom-cloud-driver-reference/icons/${encodeURIComponent(capabilityId)}.svg`;
-			}
-
-			return '';
-		}
-
-		function updateButtonDeviceIndicator(side, page)
-		{
-			const indicatorElement = document.getElementById(`${side}${page}DeviceActiveIcon`);
-			const deviceElement = document.getElementById(`${side}${page}Device`);
-			if (!indicatorElement || !deviceElement)
-			{
-				return;
-			}
-
-			let iconUrl = '';
-			let deviceClass = '';
-			let selectedText = '';
-
-			if (deviceElement.selectedIndex >= 0 && deviceElement.options[deviceElement.selectedIndex])
-			{
-				const option = deviceElement.options[deviceElement.selectedIndex];
-				iconUrl = option.dataset.iconUrl || '';
-				deviceClass = option.dataset.deviceClass || '';
-				selectedText = option.text || '';
-			}
-
-			if (!iconUrl && !deviceClass)
-			{
-				if (deviceElement.value === 'none')
-				{
-					deviceClass = 'none';
-				}
-				else if (deviceElement.value === '_variable_')
-				{
-					deviceClass = 'variable';
-				}
-				else if (deviceElement.value === 'customMQTT')
-				{
-					deviceClass = 'custommqtt';
-				}
-				else
-				{
-					const selectedDevice = buttonDevicesArray.find((device) => device.id === deviceElement.value);
-					if (selectedDevice)
-					{
-						const iconObj = selectedDevice.iconObj || {};
-						iconUrl = iconObj.url || iconObj.small || iconObj.medium || iconObj.large || selectedDevice.icon || '';
-						deviceClass = selectedDevice.class || '';
-					}
-				}
-			}
-
-			indicatorElement.innerHTML = '';
-			indicatorElement.title = selectedText || '';
-
-			if (iconUrl)
-			{
-				const iconImage = document.createElement('img');
-				iconImage.className = 'button-device-active-icon-image';
-				iconImage.src = iconUrl;
-				iconImage.alt = '';
-				iconImage.loading = 'lazy';
-				iconImage.decoding = 'async';
-				iconImage.addEventListener('error', function ()
-				{
-					const iconFallback = document.createElement('span');
-					iconFallback.className = 'button-device-active-icon-fallback';
-					iconFallback.textContent = getButtonDeviceClassIcon(deviceClass);
-					if (iconImage.parentNode)
-					{
-						iconImage.parentNode.replaceChild(iconFallback, iconImage);
-					}
-				});
-				indicatorElement.appendChild(iconImage);
-			}
-			else
-			{
-				const iconFallback = document.createElement('span');
-				iconFallback.className = 'button-device-active-icon-fallback';
-				iconFallback.textContent = getButtonDeviceClassIcon(deviceClass);
-				indicatorElement.appendChild(iconFallback);
-			}
-		}
-
-		function updateButtonCapabilityIndicator(side, page)
-		{
-			const indicatorElement = document.getElementById(`${side}${page}CapabilityActiveIcon`);
-			const capabilityElement = document.getElementById(`${side}${page}Capability`);
-			if (!indicatorElement || !capabilityElement)
-			{
-				return;
-			}
-
-			let selectedText = '';
-			let iconUrl = '';
-			if (capabilityElement.selectedIndex >= 0 && capabilityElement.options[capabilityElement.selectedIndex])
-			{
-				const option = capabilityElement.options[capabilityElement.selectedIndex];
-				selectedText = option.text || '';
-				iconUrl = option.dataset.iconUrl || '';
-			}
-
-			indicatorElement.innerHTML = '';
-			if (iconUrl)
-			{
-				const iconImage = document.createElement('img');
-				iconImage.className = 'button-capability-active-icon-image';
-				iconImage.src = iconUrl;
-				iconImage.alt = '';
-				iconImage.loading = 'lazy';
-				iconImage.decoding = 'async';
-				iconImage.addEventListener('error', function ()
-				{
-					const iconFallback = document.createElement('span');
-					iconFallback.className = 'button-capability-active-icon-fallback';
-					iconFallback.textContent = getButtonCapabilityIcon(capabilityElement.value);
-					if (iconImage.parentNode)
-					{
-						iconImage.parentNode.replaceChild(iconFallback, iconImage);
-					}
-				});
-				indicatorElement.appendChild(iconImage);
-			}
-			else
-			{
-				const iconFallback = document.createElement('span');
-				iconFallback.className = 'button-capability-active-icon-fallback';
-				iconFallback.textContent = getButtonCapabilityIcon(capabilityElement.value);
-				indicatorElement.appendChild(iconFallback);
-			}
-
-			indicatorElement.title = selectedText || '';
-		}
-
-		function updatePopupDeviceIndicator(deviceElement, indicatorElement)
-		{
-			if (!indicatorElement || !deviceElement)
-			{
-				return;
-			}
-
-			let iconUrl = '';
-			let deviceClass = '';
-			let selectedText = '';
-
-			if (deviceElement.selectedIndex >= 0 && deviceElement.options[deviceElement.selectedIndex])
-			{
-				const option = deviceElement.options[deviceElement.selectedIndex];
-				iconUrl = option.dataset.iconUrl || '';
-				deviceClass = option.dataset.deviceClass || '';
-				selectedText = option.text || '';
-			}
-
-			if (!iconUrl && !deviceClass)
-			{
-				if (deviceElement.value === 'none')
-				{
-					deviceClass = 'none';
-				}
-				else if (deviceElement.value === '_variable_')
-				{
-					deviceClass = 'variable';
-				}
-				else if (deviceElement.value === 'customMQTT')
-				{
-					deviceClass = 'custommqtt';
-				}
-				else
-				{
-					const selectedDevice = buttonDevicesArray.find((device) => device.id === deviceElement.value);
-					if (selectedDevice)
-					{
-						const iconObj = selectedDevice.iconObj || {};
-						iconUrl = iconObj.url || iconObj.small || iconObj.medium || iconObj.large || selectedDevice.icon || '';
-						deviceClass = selectedDevice.class || '';
-					}
-				}
-			}
-
-			indicatorElement.innerHTML = '';
-			indicatorElement.title = selectedText || '';
-
-			if (iconUrl)
-			{
-				const iconImage = document.createElement('img');
-				iconImage.className = 'button-field-popup-device-icon-image';
-				iconImage.src = iconUrl;
-				iconImage.alt = '';
-				iconImage.loading = 'lazy';
-				iconImage.decoding = 'async';
-				iconImage.addEventListener('error', function ()
-				{
-					const iconFallback = document.createElement('span');
-					iconFallback.className = 'button-field-popup-device-icon-fallback';
-					iconFallback.textContent = getButtonDeviceClassIcon(deviceClass);
-					if (iconImage.parentNode)
-					{
-						iconImage.parentNode.replaceChild(iconFallback, iconImage);
-					}
-				});
-				indicatorElement.appendChild(iconImage);
-			}
-			else
-			{
-				const iconFallback = document.createElement('span');
-				iconFallback.className = 'button-field-popup-device-icon-fallback';
-				iconFallback.textContent = getButtonDeviceClassIcon(deviceClass);
-				indicatorElement.appendChild(iconFallback);
-			}
-		}
-
-		function updatePopupCapabilityIndicator(capabilityElement, indicatorElement)
-		{
-			if (!indicatorElement || !capabilityElement)
-			{
-				return;
-			}
-
-			let selectedText = '';
-			let iconUrl = '';
-			if (capabilityElement.selectedIndex >= 0 && capabilityElement.options[capabilityElement.selectedIndex])
-			{
-				const option = capabilityElement.options[capabilityElement.selectedIndex];
-				selectedText = option.text || '';
-				iconUrl = option.dataset.iconUrl || '';
-			}
-
-			indicatorElement.innerHTML = '';
-			if (iconUrl)
-			{
-				const iconImage = document.createElement('img');
-				iconImage.className = 'button-field-popup-capability-icon-image';
-				iconImage.src = iconUrl;
-				iconImage.alt = '';
-				iconImage.loading = 'lazy';
-				iconImage.decoding = 'async';
-				iconImage.addEventListener('error', function ()
-				{
-					const iconFallback = document.createElement('span');
-					iconFallback.className = 'button-field-popup-capability-icon-fallback';
-					iconFallback.textContent = getButtonCapabilityIcon(capabilityElement.value);
-					if (iconImage.parentNode)
-					{
-						iconImage.parentNode.replaceChild(iconFallback, iconImage);
-					}
-				});
-				indicatorElement.appendChild(iconImage);
-			}
-			else
-			{
-				const iconFallback = document.createElement('span');
-				iconFallback.className = 'button-field-popup-capability-icon-fallback';
-				iconFallback.textContent = getButtonCapabilityIcon(capabilityElement.value);
-				indicatorElement.appendChild(iconFallback);
-			}
-
-			indicatorElement.title = selectedText || '';
-		}
-
-		function fillDevicesElement(Element, DevicesArray)
-		{
-			if (Element && (DevicesArray.length > 0))
-			{
-				//fill the device lists with devices
-				Element.innerHTML = "";
-
-				var option = document.createElement("option");
-				option.text = Homey.__("settings.none");
-				option.value = "none";
-				option.dataset.deviceClass = 'none';
-				Element.add(option);
-
-				var option = document.createElement("option");
-				option.text = Homey.__("settings.variable");
-				option.value = "_variable_";
-				option.dataset.deviceClass = 'variable';
-				Element.add(option);
-
-				var option = document.createElement("option");
-				option.text = Homey.__("settings.customMQTT");
-				option.value = "customMQTT";
-				option.dataset.deviceClass = 'custommqtt';
-				Element.add(option);
-
-				let deviceGroup;
-				for (const device of DevicesArray)
-				{
-					const zoneName = device.zone.name ?? device.zoneName;
-					if (deviceGroup != zoneName)
-					{
-						var option = document.createElement("option");
-						deviceGroup = zoneName;
-						option.text = deviceGroup;
-						option.value = deviceGroup;
-						option.disabled = true;
-						Element.add(option);
-					}
-
 					var option = document.createElement("option");
-					option.text = "\xA0\xA0" + device.name;
-					option.value = device.id;
-					const iconObj = device.iconObj || {};
-					const iconUrl = iconObj.url || iconObj.small || iconObj.medium || iconObj.large || device.icon || '';
-					if (iconUrl)
-					{
-						option.dataset.iconUrl = iconUrl;
-					}
-					if (device.class)
-					{
-						option.dataset.deviceClass = String(device.class);
-					}
-					Element.add(option);
-				}
-			}
-		}
+					option.text = buttonPanelConfiguration[i].leftDeviceName + " (Missing)";
+					option.value = leftDevice;
+					leftElement.add(option);
 
-		function fillButtonVariablesElement(side, page, capabilityElement, selectedCapability, selectedCapabilityName)
-		{
-			// Remove the ' (Missing)' from the selectedCapabilityName
-			selectedCapabilityName = selectedCapabilityName.replace(/ \(Missing\)/g, "");
+					leftElement.value = leftDevice;
 
-			for (const variable of variablesArray)
-			{
-				var option = document.createElement("option");
-				option.text = (variable.type === "boolean") ? variable.name : `${variable.name} (${variable.type})`;
-				option.value = variable.id;
-				capabilityElement.add(option);
-			}
+					// As the device is missing the capability is also missing so add it to the list
+					var option = document.createElement("option");
+					option.text = buttonPanelConfiguration[i].leftCapabilityName + " (Missing)";
+					option.value = buttonPanelConfiguration[i].leftCapability;
+					document.getElementById(`left${i}Capability`).add(option);
 
-			// Restore the previous variable selection
-			capabilityElement.value = selectedCapability;
-			if (capabilityElement.value !== selectedCapability)
-			{
-				// The variable must be missing, so add it to the list
-				var option = document.createElement("option");
-				option.text = selectedCapabilityName + " (Missing)";
-				option.value = selectedCapability;
-				capabilityElement.add(option);
+					// Now select it
+					document.getElementById(`left${i}Capability`).value = buttonPanelConfiguration[i].leftCapability;
 
-				capabilityElement.value = selectedCapability;
-			}
+					// Show the capability section
+					document.getElementById(`left${i}Capability`).style.display = itemDisplyType;
 
-			capabilityChanged(side, page, selectedCapability);
-			updateButtonCapabilityIndicator(side, page);
-		}
-
-		function getCapabilities(side, page, deviceId, selectedCapability, selectedCapabilityName)
-		{
-			const requestKey = `${side}:${page}`;
-			const requestToken = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-			capabilityRequestTokens.set(requestKey, requestToken);
-
-			const isLatestCapabilityRequest = () => capabilityRequestTokens.get(requestKey) === requestToken;
-
-			const matchesCurrentDeviceSelection = () =>
-			{
-				const currentDeviceElement = document.getElementById(`${side}${page}Device`);
-				return !!currentDeviceElement && currentDeviceElement.value === deviceId;
-			};
-
-			// Remove any ' (Missing)' text from the selectedCapabilityName
-			selectedCapabilityName = selectedCapabilityName ? selectedCapabilityName.replace(/ \(Missing\)/g, "") : selectedCapabilityName;
-
-			// Clear the list options
-			let capabilityElement = document.getElementById(`${side}${page}Capability`);
-			capabilityElement.innerHTML = "";
-
-			let capabilityDivElement = document.getElementById(`${side}${page}CapabilityDiv`);
-
-			if ((deviceId === "none") || (deviceId === ""))
-			{
-				// Hide the capability element items using the div
-				capabilityDivElement.style.display = "none";
-
-				// We don't want to show Dim Change value
-				document.getElementById(`${side}${page}DimChangeDiv`).style.display = "none";
-				document.getElementById(`${side}${page}BrokerIdDiv`).style.display = itemDisplyType;
-				document.getElementById(`${side}${page}CustomMQTTDiv`).style.display = "none";
-				hidePopupManagedFieldsForSection(side, page);
-				updateButtonCapabilityIndicator(side, page);
-				return;
-			}
-
-			if (deviceId === "customMQTT")
-			{
-				// Hide the capability element items using the div
-				capabilityDivElement.style.display = "none";
-
-				// We don't want to show Dim Change value
-				document.getElementById(`${side}${page}DimChangeDiv`).style.display = "none";
-				document.getElementById(`${side}${page}BrokerIdDiv`).style.display = "none";
-
-				// Show the custom MQTT section
-				document.getElementById(`${side}${page}CustomMQTTDiv`).style.display = itemDisplyType;
-				drawCustomMQTTTopics(side, page, localButtonConfigurations[currentButtonConfigurationNo][page]);
-				hidePopupManagedFieldsForSection(side, page);
-				updateButtonCapabilityIndicator(side, page);
-				return;
-			}
-
-			if (deviceId === '_variable_')
-			{
-				if (variablesFetched)
-				{
-					// Add each of the variables to the item drop list
-					fillButtonVariablesElement(side, page, capabilityElement, selectedCapability, selectedCapabilityName);
 				}
 				else
 				{
-					// Resquest the list of variables
-					Homey.api('POST', '/get_variables/', {}, function (err, variables)
-					{
-						if (!isLatestCapabilityRequest() || !matchesCurrentDeviceSelection())
-						{
-							return;
-						}
-
-						if (err) return Homey.alert(err);
-
-						if (variables)
-						{
-							// Add each of the variables to the item drop list
-							variablesArray = Object.values(variables);
-							variablesFetched = true;
-							fillButtonVariablesElement(side, page, capabilityElement, selectedCapability, selectedCapabilityName);
-						}
-					});
+					leftElement.value = leftDevice;
+					getCapabilities('left', i, document.getElementById(`left${i}Device`).value, buttonPanelConfiguration[i].leftCapability, buttonPanelConfiguration[i].leftCapabilityName);
 				}
-
-				// Show the capability section
-				capabilityDivElement.style.display = itemDisplyType;
-				document.getElementById(`${side}${page}BrokerIdDiv`).style.display = itemDisplyType;
-				document.getElementById(`${side}${page}CustomMQTTDiv`).style.display = "none";
-				hidePopupManagedFieldsForSection(side, page);
-				updateButtonCapabilityIndicator(side, page);
-				return;
 			}
 
-			const devIdx = buttonDevicesArray.findIndex((device) => device.id === deviceId)
-			if (devIdx >= 0)
+			updateButtonDeviceIndicator('left', i);
+
+			const rightElement = document.getElementById(`right${i}Device`);
+			fillDevicesElement(rightElement, buttonDevicesArray);
+
+			// Select the current device
+			const rightDevice = buttonPanelConfiguration[i].rightDevice;
+			if (rightDevice)
 			{
-				const device = buttonDevicesArray[devIdx];
-				const zoneName = device.zone.name ?? device.zoneName;
-				if (zoneName === "Missing Devices")
+				// If the device is not in the element options list then add it
+				if (!Array.from(rightElement.options).some(option => option.value === rightDevice))
 				{
-					// Remove ' (Missing Devices)' from the selectedCapabilityName
-					selectedCapabilityName = selectedCapabilityName.replace(/ \(Missing Devices\)/g, "");
-
-					// There won't be any capabilities defined for this device, so add the capability for the missing device from the ButtonPanelConfiguration.'side'Capability setting
 					var option = document.createElement("option");
-					option.text = selectedCapabilityName;
-					option.value = selectedCapability;
-					capabilityElement.add(option);
+					option.text = buttonPanelConfiguration[i].rightDeviceName + " (Missing)";
+					option.value = rightDevice;
+					rightElement.add(option);
 
-					capabilityDivElement.style.display = itemDisplyType;
-					document.getElementById(`${side}${page}BrokerIdDiv`).style.display = itemDisplyType;
-					document.getElementById(`${side}${page}CustomMQTTDiv`).style.display = "none";
+					rightElement.value = rightDevice;
 
-					// Restore the previous capability selection
-					capabilityElement.value = selectedCapability;
-					capabilityChanged(side, page, capabilityElement.value);
-					updateButtonCapabilityIndicator(side, page);
-					hidePopupManagedFieldsForSection(side, page);
-					return;
+					// As the device is missing the capability is also missing so add it to the list
+					var option = document.createElement("option");
+					option.text = buttonPanelConfiguration[i].rightCapabilityName + " (Missing)";
+					option.value = buttonPanelConfiguration[i].rightCapability;
+					document.getElementById(`right${i}Capability`).add(option);
+
+					// Now select it
+					document.getElementById(`right${i}Capability`).value = buttonPanelConfiguration[i].rightCapability;
+
+					// Show the capability section
+					document.getElementById(`right${i}Capability`).style.display = itemDisplyType;
+				}
+				else
+				{
+					rightElement.value = rightDevice;
+					getCapabilities('right', i, document.getElementById(`right${i}Device`).value, buttonPanelConfiguration[i].rightCapability, buttonPanelConfiguration[i].rightCapabilityName);
 				}
 			}
 
-			// Request the capabilities for the selected device
-			Homey.api('POST', '/device_capabilities/', { deviceId }, function (err, capabilities)
+			updateButtonDeviceIndicator('right', i);
+		}
+	};
+}
+
+function getButtonDeviceClassIcon(deviceClass)
+{
+	switch ((deviceClass || '').toLowerCase())
+	{
+		case 'light': return '💡';
+		case 'socket': return '🔌';
+		case 'sensor': return '📟';
+		case 'thermostat': return '🌡️';
+		case 'speaker': return '🔊';
+		case 'camera': return '📷';
+		case 'lock': return '🔒';
+		case 'windowcoverings': return '🪟';
+		case 'none': return '•';
+		case 'variable': return '𝑥';
+		case 'custommqtt': return 'MQ';
+		default: return '•';
+	}
+}
+
+function getButtonCapabilityIcon(capabilityId)
+{
+	const id = (capabilityId || '').toLowerCase();
+	if (!id)
+	{
+		return '•';
+	}
+
+	if (id === 'dim' || id.includes('dim'))
+	{
+		return '◐';
+	}
+
+	if (id === 'windowcoverings_state' || id.includes('windowcoverings'))
+	{
+		return '🪟';
+	}
+
+	if (id === 'onoff' || id.includes('onoff'))
+	{
+		return '⏻';
+	}
+
+	if (id.includes('temperature'))
+	{
+		return '🌡️';
+	}
+
+	if (id.includes('humidity'))
+	{
+		return '💧';
+	}
+
+	if (id.includes('battery'))
+	{
+		return '🔋';
+	}
+
+	if (id.includes('lock'))
+	{
+		return '🔒';
+	}
+
+	return '•';
+}
+
+function getCapabilityIconUrl(capability)
+{
+	if (!capability || typeof capability !== 'object')
+	{
+		return '';
+	}
+
+	const capabilityId = String(capability.id || '').trim();
+	const iconObj = capability.iconObj || capability.icon_object || {};
+	const rawIcon = capability.iconUrl
+		|| capability.icon_url
+		|| capability.icon
+		|| iconObj.url
+		|| iconObj.small
+		|| iconObj.medium
+		|| iconObj.large
+		|| '';
+
+	if (rawIcon)
+	{
+		const icon = String(rawIcon).trim();
+		if (/^https?:\/\//i.test(icon) || icon.startsWith('data:') || icon.startsWith('blob:'))
+		{
+			return icon;
+		}
+
+		// Keep relative/local icon paths from Homey as-is so they resolve against current app origin.
+		if (icon.startsWith('/') || icon.startsWith('./') || icon.startsWith('../'))
+		{
+			return icon;
+		}
+
+		// If Homey returned a bare filename-like token, prefer the standard reference icon location.
+		if (/\.svg(\?.*)?$/i.test(icon) || /^[a-z0-9_.-]+$/i.test(icon))
+		{
+			return `https://athombv.github.io/athom-cloud-driver-reference/icons/${icon.replace(/^\/+/, '')}`;
+		}
+
+		return icon;
+	}
+
+	if (capabilityId)
+	{
+		return `https://athombv.github.io/athom-cloud-driver-reference/icons/${encodeURIComponent(capabilityId)}.svg`;
+	}
+
+	return '';
+}
+
+function updateButtonDeviceIndicator(side, page)
+{
+	const indicatorElement = document.getElementById(`${side}${page}DeviceActiveIcon`);
+	const deviceElement = document.getElementById(`${side}${page}Device`);
+	if (!indicatorElement || !deviceElement)
+	{
+		return;
+	}
+
+	let iconUrl = '';
+	let deviceClass = '';
+	let selectedText = '';
+
+	if (deviceElement.selectedIndex >= 0 && deviceElement.options[deviceElement.selectedIndex])
+	{
+		const option = deviceElement.options[deviceElement.selectedIndex];
+		iconUrl = option.dataset.iconUrl || '';
+		deviceClass = option.dataset.deviceClass || '';
+		selectedText = option.text || '';
+	}
+
+	if (!iconUrl && !deviceClass)
+	{
+		if (deviceElement.value === 'none')
+		{
+			deviceClass = 'none';
+		}
+		else if (deviceElement.value === '_variable_')
+		{
+			deviceClass = 'variable';
+		}
+		else if (deviceElement.value === 'customMQTT')
+		{
+			deviceClass = 'custommqtt';
+		}
+		else
+		{
+			const selectedDevice = buttonDevicesArray.find((device) => device.id === deviceElement.value);
+			if (selectedDevice)
+			{
+				const iconObj = selectedDevice.iconObj || {};
+				iconUrl = iconObj.url || iconObj.small || iconObj.medium || iconObj.large || selectedDevice.icon || '';
+				deviceClass = selectedDevice.class || '';
+			}
+		}
+	}
+
+	indicatorElement.innerHTML = '';
+	indicatorElement.title = selectedText || '';
+
+	if (iconUrl)
+	{
+		const iconImage = document.createElement('img');
+		iconImage.className = 'button-device-active-icon-image';
+		iconImage.src = iconUrl;
+		iconImage.alt = '';
+		iconImage.loading = 'lazy';
+		iconImage.decoding = 'async';
+		iconImage.addEventListener('error', function ()
+		{
+			const iconFallback = document.createElement('span');
+			iconFallback.className = 'button-device-active-icon-fallback';
+			iconFallback.textContent = getButtonDeviceClassIcon(deviceClass);
+			if (iconImage.parentNode)
+			{
+				iconImage.parentNode.replaceChild(iconFallback, iconImage);
+			}
+		});
+		indicatorElement.appendChild(iconImage);
+	}
+	else
+	{
+		const iconFallback = document.createElement('span');
+		iconFallback.className = 'button-device-active-icon-fallback';
+		iconFallback.textContent = getButtonDeviceClassIcon(deviceClass);
+		indicatorElement.appendChild(iconFallback);
+	}
+}
+
+function updateButtonCapabilityIndicator(side, page)
+{
+	const indicatorElement = document.getElementById(`${side}${page}CapabilityActiveIcon`);
+	const capabilityElement = document.getElementById(`${side}${page}Capability`);
+	if (!indicatorElement || !capabilityElement)
+	{
+		return;
+	}
+
+	let selectedText = '';
+	let iconUrl = '';
+	if (capabilityElement.selectedIndex >= 0 && capabilityElement.options[capabilityElement.selectedIndex])
+	{
+		const option = capabilityElement.options[capabilityElement.selectedIndex];
+		selectedText = option.text || '';
+		iconUrl = option.dataset.iconUrl || '';
+	}
+
+	indicatorElement.innerHTML = '';
+	if (iconUrl)
+	{
+		const iconImage = document.createElement('img');
+		iconImage.className = 'button-capability-active-icon-image';
+		iconImage.src = iconUrl;
+		iconImage.alt = '';
+		iconImage.loading = 'lazy';
+		iconImage.decoding = 'async';
+		iconImage.addEventListener('error', function ()
+		{
+			const iconFallback = document.createElement('span');
+			iconFallback.className = 'button-capability-active-icon-fallback';
+			iconFallback.textContent = getButtonCapabilityIcon(capabilityElement.value);
+			if (iconImage.parentNode)
+			{
+				iconImage.parentNode.replaceChild(iconFallback, iconImage);
+			}
+		});
+		indicatorElement.appendChild(iconImage);
+	}
+	else
+	{
+		const iconFallback = document.createElement('span');
+		iconFallback.className = 'button-capability-active-icon-fallback';
+		iconFallback.textContent = getButtonCapabilityIcon(capabilityElement.value);
+		indicatorElement.appendChild(iconFallback);
+	}
+
+	indicatorElement.title = selectedText || '';
+}
+
+function updatePopupDeviceIndicator(deviceElement, indicatorElement)
+{
+	if (!indicatorElement || !deviceElement)
+	{
+		return;
+	}
+
+	let iconUrl = '';
+	let deviceClass = '';
+	let selectedText = '';
+
+	if (deviceElement.selectedIndex >= 0 && deviceElement.options[deviceElement.selectedIndex])
+	{
+		const option = deviceElement.options[deviceElement.selectedIndex];
+		iconUrl = option.dataset.iconUrl || '';
+		deviceClass = option.dataset.deviceClass || '';
+		selectedText = option.text || '';
+	}
+
+	if (!iconUrl && !deviceClass)
+	{
+		if (deviceElement.value === 'none')
+		{
+			deviceClass = 'none';
+		}
+		else if (deviceElement.value === '_variable_')
+		{
+			deviceClass = 'variable';
+		}
+		else if (deviceElement.value === 'customMQTT')
+		{
+			deviceClass = 'custommqtt';
+		}
+		else
+		{
+			const selectedDevice = buttonDevicesArray.find((device) => device.id === deviceElement.value);
+			if (selectedDevice)
+			{
+				const iconObj = selectedDevice.iconObj || {};
+				iconUrl = iconObj.url || iconObj.small || iconObj.medium || iconObj.large || selectedDevice.icon || '';
+				deviceClass = selectedDevice.class || '';
+			}
+		}
+	}
+
+	indicatorElement.innerHTML = '';
+	indicatorElement.title = selectedText || '';
+
+	if (iconUrl)
+	{
+		const iconImage = document.createElement('img');
+		iconImage.className = 'button-field-popup-device-icon-image';
+		iconImage.src = iconUrl;
+		iconImage.alt = '';
+		iconImage.loading = 'lazy';
+		iconImage.decoding = 'async';
+		iconImage.addEventListener('error', function ()
+		{
+			const iconFallback = document.createElement('span');
+			iconFallback.className = 'button-field-popup-device-icon-fallback';
+			iconFallback.textContent = getButtonDeviceClassIcon(deviceClass);
+			if (iconImage.parentNode)
+			{
+				iconImage.parentNode.replaceChild(iconFallback, iconImage);
+			}
+		});
+		indicatorElement.appendChild(iconImage);
+	}
+	else
+	{
+		const iconFallback = document.createElement('span');
+		iconFallback.className = 'button-field-popup-device-icon-fallback';
+		iconFallback.textContent = getButtonDeviceClassIcon(deviceClass);
+		indicatorElement.appendChild(iconFallback);
+	}
+}
+
+function updatePopupCapabilityIndicator(capabilityElement, indicatorElement)
+{
+	if (!indicatorElement || !capabilityElement)
+	{
+		return;
+	}
+
+	let selectedText = '';
+	let iconUrl = '';
+	if (capabilityElement.selectedIndex >= 0 && capabilityElement.options[capabilityElement.selectedIndex])
+	{
+		const option = capabilityElement.options[capabilityElement.selectedIndex];
+		selectedText = option.text || '';
+		iconUrl = option.dataset.iconUrl || '';
+	}
+
+	indicatorElement.innerHTML = '';
+	if (iconUrl)
+	{
+		const iconImage = document.createElement('img');
+		iconImage.className = 'button-field-popup-capability-icon-image';
+		iconImage.src = iconUrl;
+		iconImage.alt = '';
+		iconImage.loading = 'lazy';
+		iconImage.decoding = 'async';
+		iconImage.addEventListener('error', function ()
+		{
+			const iconFallback = document.createElement('span');
+			iconFallback.className = 'button-field-popup-capability-icon-fallback';
+			iconFallback.textContent = getButtonCapabilityIcon(capabilityElement.value);
+			if (iconImage.parentNode)
+			{
+				iconImage.parentNode.replaceChild(iconFallback, iconImage);
+			}
+		});
+		indicatorElement.appendChild(iconImage);
+	}
+	else
+	{
+		const iconFallback = document.createElement('span');
+		iconFallback.className = 'button-field-popup-capability-icon-fallback';
+		iconFallback.textContent = getButtonCapabilityIcon(capabilityElement.value);
+		indicatorElement.appendChild(iconFallback);
+	}
+
+	indicatorElement.title = selectedText || '';
+}
+
+function fillDevicesElement(Element, DevicesArray)
+{
+	if (Element && (DevicesArray.length > 0))
+	{
+		//fill the device lists with devices
+		Element.innerHTML = "";
+
+		var option = document.createElement("option");
+		option.text = Homey.__("settings.none");
+		option.value = "none";
+		option.dataset.deviceClass = 'none';
+		Element.add(option);
+
+		var option = document.createElement("option");
+		option.text = Homey.__("settings.variable");
+		option.value = "_variable_";
+		option.dataset.deviceClass = 'variable';
+		Element.add(option);
+
+		var option = document.createElement("option");
+		option.text = Homey.__("settings.customMQTT");
+		option.value = "customMQTT";
+		option.dataset.deviceClass = 'custommqtt';
+		Element.add(option);
+
+		let deviceGroup;
+		for (const device of DevicesArray)
+		{
+			const zoneName = device.zone.name ?? device.zoneName;
+			if (deviceGroup != zoneName)
+			{
+				var option = document.createElement("option");
+				deviceGroup = zoneName;
+				option.text = deviceGroup;
+				option.value = deviceGroup;
+				option.disabled = true;
+				Element.add(option);
+			}
+
+			var option = document.createElement("option");
+			option.text = "\xA0\xA0" + device.name;
+			option.value = device.id;
+			const iconObj = device.iconObj || {};
+			const iconUrl = iconObj.url || iconObj.small || iconObj.medium || iconObj.large || device.icon || '';
+			if (iconUrl)
+			{
+				option.dataset.iconUrl = iconUrl;
+			}
+			if (device.class)
+			{
+				option.dataset.deviceClass = String(device.class);
+			}
+			Element.add(option);
+		}
+	}
+}
+
+function fillButtonVariablesElement(side, page, capabilityElement, selectedCapability, selectedCapabilityName)
+{
+	// Remove the ' (Missing)' from the selectedCapabilityName
+	selectedCapabilityName = selectedCapabilityName.replace(/ \(Missing\)/g, "");
+
+	for (const variable of variablesArray)
+	{
+		var option = document.createElement("option");
+		option.text = (variable.type === "boolean") ? variable.name : `${variable.name} (${variable.type})`;
+		option.value = variable.id;
+		capabilityElement.add(option);
+	}
+
+	// Restore the previous variable selection
+	capabilityElement.value = selectedCapability;
+	if (capabilityElement.value !== selectedCapability)
+	{
+		// The variable must be missing, so add it to the list
+		var option = document.createElement("option");
+		option.text = selectedCapabilityName + " (Missing)";
+		option.value = selectedCapability;
+		capabilityElement.add(option);
+
+		capabilityElement.value = selectedCapability;
+	}
+
+	capabilityChanged(side, page, selectedCapability);
+	updateButtonCapabilityIndicator(side, page);
+}
+
+function getCapabilities(side, page, deviceId, selectedCapability, selectedCapabilityName)
+{
+	const requestKey = `${side}:${page}`;
+	const requestToken = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+	capabilityRequestTokens.set(requestKey, requestToken);
+
+	const isLatestCapabilityRequest = () => capabilityRequestTokens.get(requestKey) === requestToken;
+
+	const matchesCurrentDeviceSelection = () =>
+	{
+		const currentDeviceElement = document.getElementById(`${side}${page}Device`);
+		return !!currentDeviceElement && currentDeviceElement.value === deviceId;
+	};
+
+	// Remove any ' (Missing)' text from the selectedCapabilityName
+	selectedCapabilityName = selectedCapabilityName ? selectedCapabilityName.replace(/ \(Missing\)/g, "") : selectedCapabilityName;
+
+	// Clear the list options
+	let capabilityElement = document.getElementById(`${side}${page}Capability`);
+	capabilityElement.innerHTML = "";
+
+	let capabilityDivElement = document.getElementById(`${side}${page}CapabilityDiv`);
+
+	if ((deviceId === "none") || (deviceId === ""))
+	{
+		// Hide the capability element items using the div
+		capabilityDivElement.style.display = "none";
+
+		// We don't want to show Dim Change value
+		document.getElementById(`${side}${page}DimChangeDiv`).style.display = "none";
+		document.getElementById(`${side}${page}BrokerIdDiv`).style.display = itemDisplyType;
+		document.getElementById(`${side}${page}CustomMQTTDiv`).style.display = "none";
+		hidePopupManagedFieldsForSection(side, page);
+		updateButtonCapabilityIndicator(side, page);
+		return;
+	}
+
+	if (deviceId === "customMQTT")
+	{
+		// Hide the capability element items using the div
+		capabilityDivElement.style.display = "none";
+
+		// We don't want to show Dim Change value
+		document.getElementById(`${side}${page}DimChangeDiv`).style.display = "none";
+		document.getElementById(`${side}${page}BrokerIdDiv`).style.display = "none";
+
+		// Show the custom MQTT section
+		document.getElementById(`${side}${page}CustomMQTTDiv`).style.display = itemDisplyType;
+		drawCustomMQTTTopics(side, page, localButtonConfigurations[currentButtonConfigurationNo][page]);
+		hidePopupManagedFieldsForSection(side, page);
+		updateButtonCapabilityIndicator(side, page);
+		return;
+	}
+
+	if (deviceId === '_variable_')
+	{
+		if (variablesFetched)
+		{
+			// Add each of the variables to the item drop list
+			fillButtonVariablesElement(side, page, capabilityElement, selectedCapability, selectedCapabilityName);
+		}
+		else
+		{
+			// Resquest the list of variables
+			Homey.api('POST', '/get_variables/', {}, function (err, variables)
 			{
 				if (!isLatestCapabilityRequest() || !matchesCurrentDeviceSelection())
 				{
@@ -8225,642 +8349,1359 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 
 				if (err) return Homey.alert(err);
 
-				if (capabilities)
+				if (variables)
 				{
-					const isPanelButtonCapability = (capabilityId) => /^(left|right)_button\.connector\d+$/.test(capabilityId || "");
-					const blockedButtonPlusCapabilities = new Set([
-						'previous_page_button',
-						'next_page_button',
-						'button.update_firmware',
-						'button.apply_config',
-						'button.app_config',
-					]);
-
-					// Add each of the capabilities to the item drop list
-					const capabilitiesArray = Object.values(capabilities);
-					const isButtonPlusDevice = capabilitiesArray.some((capability) =>
-					{
-						const capabilityId = String(capability && capability.id ? capability.id : "");
-						return blockedButtonPlusCapabilities.has(capabilityId)
-							|| isPanelButtonCapability(capabilityId)
-							|| /^configuration_button\.connector\d+$/.test(capabilityId)
-							|| capabilityId === 'configuration_display';
-					});
-
-					const addedCapabilityIds = new Set();
-					for (const capability of capabilitiesArray)
-					{
-						const capabilityId = String(capability.id || "");
-						const isBlockedButtonPlusCapability = isPanelButtonCapability(capabilityId) || blockedButtonPlusCapabilities.has(capabilityId);
-						const isAllowedForButtonPlus = !isButtonPlusDevice || capabilityId === 'dim';
-
-						if (isAllowedForButtonPlus && !isBlockedButtonPlusCapability && !addedCapabilityIds.has(capabilityId))
-						{
-							var option = document.createElement("option");
-							option.text = `${capability.title} (${capabilityId})`;
-							option.value = capabilityId;
-							option.dataset.type = capability.type || '';
-							if (typeof capability.units === 'string')
-							{
-								option.dataset.unit = capability.units;
-							}
-							else if (capability.units && typeof capability.units === 'object')
-							{
-								option.dataset.unit = String(capability.units.en || Object.values(capability.units)[0] || '');
-							}
-							const capabilityIconUrl = getCapabilityIconUrl(capability);
-							if (capabilityIconUrl)
-							{
-								option.dataset.iconUrl = capabilityIconUrl;
-							}
-							if (capabilityId === 'dim' && (typeof capability.value === 'number'))
-							{
-								// Let the button simulator preview the current dim level
-								option.dataset.value = String(capability.value);
-							}
-							else if ((capability.type === 'enum') && Array.isArray(capability.values))
-							{
-								// Let the button simulator preview the picker's current option and cycle order
-								option.dataset.values = JSON.stringify(capability.values);
-								option.dataset.value = (capability.value === undefined || capability.value === null) ? '' : String(capability.value);
-							}
-							else if ((capability.type !== 'boolean') && (capabilityId !== 'windowcoverings_state'))
-							{
-								// Let the button simulator preview a text/number capability's current content
-								option.dataset.value = (capability.value === undefined || capability.value === null) ? '' : String(capability.value);
-							}
-							capabilityElement.add(option);
-							addedCapabilityIds.add(capabilityId);
-						}
-					}
-
-					// Show the capability section
-					capabilityDivElement.style.display = itemDisplyType;
-					document.getElementById(`${side}${page}BrokerIdDiv`).style.display = itemDisplyType;
-					document.getElementById(`${side}${page}CustomMQTTDiv`).style.display = "none";
-
-					// Restore the previous capability selection where valid, otherwise fall back to the first allowed option.
-					if (Array.from(capabilityElement.options).some((option) => option.value === selectedCapability))
-					{
-						capabilityElement.value = selectedCapability;
-					}
-					else if (capabilityElement.options.length > 0)
-					{
-						capabilityElement.value = capabilityElement.options[0].value;
-					}
-					capabilityChanged(side, page, capabilityElement.value);
-					updateButtonCapabilityIndicator(side, page);
-					hidePopupManagedFieldsForSection(side, page);
+					// Add each of the variables to the item drop list
+					variablesArray = Object.values(variables);
+					variablesFetched = true;
+					fillButtonVariablesElement(side, page, capabilityElement, selectedCapability, selectedCapabilityName);
 				}
 			});
 		}
 
-		function capabilityChanged(side, page, value)
+		// Show the capability section
+		capabilityDivElement.style.display = itemDisplyType;
+		document.getElementById(`${side}${page}BrokerIdDiv`).style.display = itemDisplyType;
+		document.getElementById(`${side}${page}CustomMQTTDiv`).style.display = "none";
+		hidePopupManagedFieldsForSection(side, page);
+		updateButtonCapabilityIndicator(side, page);
+		return;
+	}
+
+	const devIdx = buttonDevicesArray.findIndex((device) => device.id === deviceId)
+	if (devIdx >= 0)
+	{
+		const device = buttonDevicesArray[devIdx];
+		const zoneName = device.zone.name ?? device.zoneName;
+		if (zoneName === "Missing Devices")
 		{
-			const deviceElement = document.getElementById(`${side}${page}Device`);
-			const isVariableDevice = !!deviceElement && (deviceElement.value === '_variable_');
-			const selectedVariable = isVariableDevice ? variablesArray.find((variable) => variable.id === value) : null;
-			const isNonBooleanVariable = !!selectedVariable && (selectedVariable.type !== 'boolean');
-			const capabilityElement = document.getElementById(`${side}${page}Capability`);
-			const selectedOption = capabilityElement && capabilityElement.selectedOptions ? capabilityElement.selectedOptions[0] : null;
-			const selectedCapabilityType = selectedOption ? selectedOption.dataset.type : '';
-			const isNonBooleanDeviceCapability = !isVariableDevice && (value !== 'dim') && (value !== 'windowcoverings_state') && (selectedCapabilityType !== '') && (selectedCapabilityType !== 'boolean');
-			const hideOnOffFields = (value === "dim") || isNonBooleanVariable || isNonBooleanDeviceCapability;
+			// Remove ' (Missing Devices)' from the selectedCapabilityName
+			selectedCapabilityName = selectedCapabilityName.replace(/ \(Missing Devices\)/g, "");
 
-			// Only dim capabilities show the dim change value
-			document.getElementById(`${side}${page}DimChangeDiv`).style.display = (value === "dim") ? itemDisplyType : "none";
+			// There won't be any capabilities defined for this device, so add the capability for the missing device from the ButtonPanelConfiguration.'side'Capability setting
+			var option = document.createElement("option");
+			option.text = selectedCapabilityName;
+			option.value = selectedCapability;
+			capabilityElement.add(option);
 
-			// Dim capabilities, non-boolean variables and text/picker device capabilities have no on/off state, so hide the On/Off text
-			document.getElementById(`${side}${page}OnTextDiv`).style.display = hideOnOffFields ? "none" : itemDisplyType;
-			document.getElementById(`${side}${page}OffText`).style.display = hideOnOffFields ? "none" : itemDisplyType;
-			document.getElementById(`${side}${page}OffTextLabel`).style.display = hideOnOffFields ? "none" : itemDisplyType;
-			//document.getElementById(`${side}TopText`).value = document.getElementById(`${side}TopText`).value ? document.getElementById(`${side}TopText`).value : value;
+			capabilityDivElement.style.display = itemDisplyType;
+			document.getElementById(`${side}${page}BrokerIdDiv`).style.display = itemDisplyType;
+			document.getElementById(`${side}${page}CustomMQTTDiv`).style.display = "none";
+
+			// Restore the previous capability selection
+			capabilityElement.value = selectedCapability;
+			capabilityChanged(side, page, capabilityElement.value);
+			updateButtonCapabilityIndicator(side, page);
 			hidePopupManagedFieldsForSection(side, page);
+			return;
+		}
+	}
 
-			renderInlineButtonPagePreview(page);
-			if (buttonPagePopupOverlayElement && buttonPagePopupOverlayElement.classList.contains('visible'))
-			{
-				renderButtonPagePopup();
-			}
+	// Request the capabilities for the selected device
+	Homey.api('POST', '/device_capabilities/', { deviceId }, function (err, capabilities)
+	{
+		if (!isLatestCapabilityRequest() || !matchesCurrentDeviceSelection())
+		{
+			return;
 		}
 
-		// If the config and devices have been fetched, update all the control values
-		function updateButtonPanelControls()
+		if (err) return Homey.alert(err);
+
+		if (capabilities)
 		{
-			if ((buttonConfigurationsFetched == false) || (buttonDevicesFetched == false)) return;
+			const isPanelButtonCapability = (capabilityId) => /^(left|right)_button\.connector\d+$/.test(capabilityId || "");
+			const blockedButtonPlusCapabilities = new Set([
+				'previous_page_button',
+				'next_page_button',
+				'button.update_firmware',
+				'button.apply_config',
+				'button.app_config',
+			]);
 
-			if (currentButtonConfigurationNo < 0 || currentButtonConfigurationNo >= localButtonConfigurations.length)
+			// Add each of the capabilities to the item drop list
+			const capabilitiesArray = Object.values(capabilities);
+			const isButtonPlusDevice = capabilitiesArray.some((capability) =>
 			{
-				currentButtonConfigurationNo = 0;
-				buttonConfigurationNoElement.value = currentButtonConfigurationNo;
-			}
-
-			let config = localButtonConfigurations[currentButtonConfigurationNo];
-
-			// Makes sure the config is an array
-			if (!Array.isArray(config))
-			{
-				config = [config];
-				localButtonConfigurations[currentButtonConfigurationNo] = config;
-			}
-
-			if (config.length === 0)
-			{
-				config.push({ PageNum: 0 });
-				localButtonConfigurations[currentButtonConfigurationNo] = config;
-			}
-
-			// let ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			configNameElement.value = config[0].name ? config[0].name : "";
-
-			for (let page = 0; page < config.length; page++)
-			{
-				updateButtonPanelControlsSection("left", page, config[page]);
-				updateButtonPanelControlsSection("right", page, config[page]);
-				hidePopupManagedFieldsForPage(page);
-				updateButtonAdvancedToggleState('left', page);
-				updateButtonAdvancedToggleState('right', page);
-			}
-
-			renderInlineButtonPagePreviews();
-
-			fillButtonDevices();
-			setupButtonBrokerItems();
-			setupSvgPreviews(document);
-
-			if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
-			{
-				renderDisplayPagePopup();
-				refreshDisplayPopupLiveValues();
-			}
-
-			updateButtonMainDiagnostics('updateButtonPanelControls');
-		}
-
-		// Update the controls for the specified side and page
-		function updateButtonPanelControlsSection(side, page, ButtonPanelConfiguration)
-		{
-			ensureButtonSideAdvancedDefaults(ButtonPanelConfiguration, side);
-
-			if (buttonConfigurationNoElement.value == "")
-			{
-				// fillButtonConfigListElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
-
-				configNameElement.value = "";
-				document.getElementById(`${side}${page}TopText`).value = "";
-				document.getElementById(`${side}${page}OnText`).value = "";
-				document.getElementById(`${side}${page}OffText`).value = "";
-				document.getElementById(`${side}${page}Device`).value = "";
-				document.getElementById(`${side}${page}Capability`).value = "";
-				setBrokerSelectValue(document.getElementById(`${side}${page}BrokerId`), 'Default');
-				document.getElementById(`${side}${page}DimChange`).value = "+10";
-				document.getElementById(`${side}${page}FrontLEDOnColor`).value = "#ff0000";
-				document.getElementById(`${side}${page}WallLEDOnColor`).value = "#ff0000";
-				document.getElementById(`${side}${page}FrontLEDOffColor`).value = "#000000";
-				document.getElementById(`${side}${page}WallLEDOffColor`).value = "#000000";
-				document.getElementById(`${side}${page}DisableLongRepeat`).checked = true;
-				document.getElementById(`${side}${page}LongDelayMs`).value = "750";
-				document.getElementById(`${side}${page}LongRepeatMs`).value = "500";
-				document.getElementById(`${side}${page}OnSVG`).value = "";
-				document.getElementById(`${side}${page}OffSVG`).value = "";
-				const advancedToggle = document.getElementById(`${side}${page}AdvancedMode`);
-				if (advancedToggle)
-				{
-					advancedToggle.checked = false;
-				}
-			}
-			else
-			{
-				currentButtonConfigurationNo = buttonConfigurationNoElement.value;
-
-				// fillButtonConfigListElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
-
-				buttonConfigurationNoElement.value = currentButtonConfigurationNo;
-
-				// Fill button panel
-				const panelText = Homey.__(`settings.${side}Panel`);
-				document.getElementById(`${side}${page}TopText`).value = ButtonPanelConfiguration[`${side}TopText`];
-				document.getElementById(`button${side}${page}Legend`).innerHTML = `<b><em>${panelText}</em></b> - ${document.getElementById(`${side}${page}TopText`).value}`;
-				document.getElementById(`${side}${page}OnText`).value = ButtonPanelConfiguration[`${side}OnText`];
-				document.getElementById(`${side}${page}OffText`).value = ButtonPanelConfiguration[`${side}OffText`];
-				document.getElementById(`${side}${page}Device`).value = ButtonPanelConfiguration[`${side}Device`];
-				// If the element is not in the list, add it
-				if (document.getElementById(`${side}${page}Device`).value != ButtonPanelConfiguration[`${side}Device`])
-				{
-					if (buttonDevicesArray.findIndex((device) => device.id === ButtonPanelConfiguration[`${side}Device`]) < 0)
-					{
-						var name = ButtonPanelConfiguration[`${side}DeviceName`] ? ButtonPanelConfiguration[`${side}DeviceName`] : ButtonPanelConfiguration[`${side}Device`];
-
-						// Remove any leading spaces from the device name
-						name = name.trim();
-
-						// Remove all occurrences of ' (Missing Devices)' from the name
-						name = name.replace(/ \(Missing Devices\)/g, "");
-
-						buttonDevicesArray.push({ id: ButtonPanelConfiguration[`${side}Device`], name, zone: { name: "Missing Devices" } });
-						buttonDevicesArray = sortDevices(buttonDevicesArray);
-						fillButtonDevices();
-						// document.getElementById(`${side}${page}Device`).value = ButtonPanelConfiguration[`${side}Device`];
-					}
-				}
-
-				setBrokerSelectValue(document.getElementById(`${side}${page}BrokerId`), ButtonPanelConfiguration[`${side}BrokerId`]);
-				document.getElementById(`${side}${page}DimChange`).value = ButtonPanelConfiguration[`${side}DimChange`];
-				document.getElementById(`${side}${page}FrontLEDOnColor`).value = ButtonPanelConfiguration[`${side}FrontLEDOnColor`];
-				document.getElementById(`${side}${page}WallLEDOnColor`).value = ButtonPanelConfiguration[`${side}WallLEDOnColor`];
-				document.getElementById(`${side}${page}FrontLEDOffColor`).value = ButtonPanelConfiguration[`${side}FrontLEDOffColor`];
-				document.getElementById(`${side}${page}WallLEDOffColor`).value = ButtonPanelConfiguration[`${side}WallLEDOffColor`];
-				document.getElementById(`${side}${page}DisableLongRepeat`).checked = !ButtonPanelConfiguration[`${side}DisableLongRepeat`];
-				document.getElementById(`${side}${page}LongDelayMs`).value = ButtonPanelConfiguration[`${side}LongDelayMs`] ?? "750";
-				document.getElementById(`${side}${page}LongRepeatMs`).value = ButtonPanelConfiguration[`${side}LongRepeatMs`] ?? "500";
-				document.getElementById(`${side}${page}OnSVG`).value = ButtonPanelConfiguration[`${side}OnSVG`] || '';
-				document.getElementById(`${side}${page}OffSVG`).value = ButtonPanelConfiguration[`${side}OffSVG`] || '';
-				const advancedToggle = document.getElementById(`${side}${page}AdvancedMode`);
-				if (advancedToggle)
-				{
-					advancedToggle.checked = isButtonSideAdvanced(ButtonPanelConfiguration, side);
-				}
-			}
-		}
-
-		function configTypeChanged(configSelected)
-		{
-			var i, tabcontent, tablinks;
-
-			if (configTypeTabsElement)
-			{
-				configTypeTabsElement.querySelectorAll('.view-tab').forEach(function (tab)
-				{
-					const isActive = tab.dataset.view === configSelected;
-					tab.classList.toggle('view-tab-active', isActive);
-					tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
-				});
-			}
-
-			if (configSelected !== 'displayConfig')
-			{
-				stopDisplayInlineLiveRefresh();
-			}
-
-			// Get all elements with class="tabcontent" and hide them
-			tabcontent = document.getElementsByClassName("tabcontent");
-			for (i = configSelected ? 0 : 1; i < tabcontent.length; i++)
-			{
-				tabcontent[i].style.display = "none";
-			}
-			if (configSelected !== "")
-			{
-				// Hide the save button for the settings and diagnostics pages
-				if ((configSelected === "settings") || (configSelected === "diagnosticLog") || (configSelected === "lastSentLog"))
-				{
-					saveBlock.style.display = "none";
-				}
-				else
-				{
-					saveBlock.style.display = "block";
-				}
-				document.getElementById(configSelected).style.display = "block";
-
-				if (configSelected === 'panelConfig')
-				{
-					setTimeout(function ()
-					{
-						const panelConfigElement = document.getElementById('panelConfig');
-						collapseAllDetails(panelConfigElement);
-					}, 0);
-				}
-
-				if (configSelected === "diagnosticLog")
-				{
-					// Refresh the log data
-					Homey.get('logEnabled', function (err, logLevel)
-					{
-						if (err) return Homey.alert(err);
-						enableLog.checked = logLevel;
-					});
-
-					Homey.api('GET', '/getLog/',
-						{
-							notify: true
-						}, function (err, result)
-					{
-						if (err)
-						{
-							return Homey.alert(err);
-						}
-
-						diagLogElement.value = result;
-					});
-
-					// Make the log text area fill the page
-					diagLogElement.style.width = '100%';
-					diagLogElement.style.height = (window.innerHeight - diagLogElement.offsetTop - 35) + 'px';
-				}
-				else if (configSelected === "importExport")
-				{
-					// Make the log text area fill the page
-					copyTextElement.style.height = (window.innerHeight - copyTextElement.offsetTop - 120) + 'px';
-				}
-				else if (configSelected === "lastSentLog")
-				{
-					// Make the log text area fill the page
-					sentLogElement.style.width = '100%';
-					sentLogElement.style.height = (window.innerHeight - sentLogElement.offsetTop - 35) + 'px';
-				}
-				else if (configSelected === 'displayConfig')
-				{
-					refreshDisplayPopupLiveValues();
-					startDisplayInlineLiveRefresh();
-				}
-			}
-		}
-
-		// Store the current display settings and then apply the new ones
-		function redisplayDisplyConfig(activeItemNo = -1)
-		{
-			// Store the current configuration
-			storeDisplaySettings();
-
-			// Fetch the new configuration
-			updateDisplayConfiguration(activeItemNo);
-		}
-
-		// If the config has been fetched, update all the control values
-		function updateDisplayConfiguration(expandItem = -1)
-		{
-			if (displayConfigurationsFetched)
-			{
-				currentDisplayConfigurationNo = displayConfigurationNoElement.value;
-
-				var displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
-
-				let expandItemId = -1;
-				if (displayConfiguration == null)
-				{
-					displayConfiguration = {};
-					displayConfiguration.items = [];
-				}
-				else
-				{
-					if (expandItem >= 0)
-					{
-						expandItemId = displayConfiguration.items[expandItem].itemId;
-					}
-				}
-
-				drawDisplayConfiguration(displayConfiguration, expandItemId);
-			}
-		}
-
-		// Create all the display items for the specified display configuration
-		function drawDisplayConfiguration(displayConfiguration, expandItemId = -1)
-		{
-			if (!Array.isArray(displayConfiguration.items))
-			{
-				displayConfiguration.items = [];
-			}
-
-			if (displayInlineSelectedItemNo >= displayConfiguration.items.length)
-			{
-				displayInlineSelectedItemNo = displayConfiguration.items.length - 1;
-			}
-
-			// Sort the display items by page number, then by Y position and finally by X position
-			displayConfiguration.items.sort((a, b) =>
-			{
-				if (a.page < b.page)
-				{
-					return -1;
-				}
-				if (a.page > b.page)
-				{
-					return 1;
-				}
-				if (a.yPos < b.yPos)
-				{
-					return -1;
-				}
-				if (a.yPos > b.yPos)
-				{
-					return 1;
-				}
-				if (a.xPos < b.xPos)
-				{
-					return -1;
-				}
-				if (a.xPos > b.xPos)
-				{
-					return 1;
-				}
-				return 0;
+				const capabilityId = String(capability && capability.id ? capability.id : "");
+				return blockedButtonPlusCapabilities.has(capabilityId)
+					|| isPanelButtonCapability(capabilityId)
+					|| /^configuration_button\.connector\d+$/.test(capabilityId)
+					|| capabilityId === 'configuration_display';
 			});
 
-			let page = -1;
-			// document.getElementById('displayItemsSection').innerHTML = "";
-			displayConfigNameElement.value = displayConfiguration.name
-			let htmlText = "";
-			for (var itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
+			const addedCapabilityIds = new Set();
+			for (const capability of capabilitiesArray)
 			{
-				const item = displayConfiguration.items[itemNo];
-				// const capabilities = {}
-				// displayCapabilityItems.push(capabilities);
+				const capabilityId = String(capability.id || "");
+				const isBlockedButtonPlusCapability = isPanelButtonCapability(capabilityId) || blockedButtonPlusCapabilities.has(capabilityId);
+				const isAllowedForButtonPlus = !isButtonPlusDevice || capabilityId === 'dim';
 
-				if (page != item.page)
+				if (isAllowedForButtonPlus && !isBlockedButtonPlusCapability && !addedCapabilityIds.has(capabilityId))
 				{
-					// Insert a page number heading
-					if (page >= 0)
+					var option = document.createElement("option");
+					option.text = `${capability.title} (${capabilityId})`;
+					option.value = capabilityId;
+					option.dataset.type = capability.type || '';
+					if (typeof capability.units === 'string')
 					{
-						htmlText += `</div></div>`;
+						option.dataset.unit = capability.units;
 					}
-
-					page = item.page;
-					htmlText += `<div class="horizontalcontainer"><div class="horizontalgroup"><h2>${Homey.__("settings.page")} ${item.page === 0 ? Homey.__("settings.all") : item.page} <div class="tooltip"><i class="fi fi-rr-info"></i><span class="tooltiptext">${normalizeTooltipHtml(Homey.__("settings.pageExplanation"))}</span></div></h2>`;
+					else if (capability.units && typeof capability.units === 'object')
+					{
+						option.dataset.unit = String(capability.units.en || Object.values(capability.units)[0] || '');
+					}
+					const capabilityIconUrl = getCapabilityIconUrl(capability);
+					if (capabilityIconUrl)
+					{
+						option.dataset.iconUrl = capabilityIconUrl;
+					}
+					if (capabilityId === 'dim' && (typeof capability.value === 'number'))
+					{
+						// Let the button simulator preview the current dim level
+						option.dataset.value = String(capability.value);
+					}
+					else if ((capability.type === 'enum') && Array.isArray(capability.values))
+					{
+						// Let the button simulator preview the picker's current option and cycle order
+						option.dataset.values = JSON.stringify(capability.values);
+						option.dataset.value = (capability.value === undefined || capability.value === null) ? '' : String(capability.value);
+					}
+					else if ((capability.type !== 'boolean') && (capabilityId !== 'windowcoverings_state'))
+					{
+						// Let the button simulator preview a text/number capability's current content
+						option.dataset.value = (capability.value === undefined || capability.value === null) ? '' : String(capability.value);
+					}
+					capabilityElement.add(option);
+					addedCapabilityIds.add(capabilityId);
 				}
-
-				htmlText += insertDisplayItemSection(item, itemNo, (item.itemId === expandItemId));
 			}
-			htmlText += `</div></div>`;
-			const displayItemsSectionElement = document.getElementById('displayItemsSection');
-			displayItemsSectionElement.innerHTML = htmlText;
-			displayItemsSectionElement.classList.add('display-items-backing-store');
 
-			if (expandItemId >= 0)
+			// Show the capability section
+			capabilityDivElement.style.display = itemDisplyType;
+			document.getElementById(`${side}${page}BrokerIdDiv`).style.display = itemDisplyType;
+			document.getElementById(`${side}${page}CustomMQTTDiv`).style.display = "none";
+
+			// Restore the previous capability selection where valid, otherwise fall back to the first allowed option.
+			if (Array.from(capabilityElement.options).some((option) => option.value === selectedCapability))
 			{
-				requestAnimationFrame(() =>
-				{
-					const expandedElement = document.getElementById(`displayItem${expandItemId}Section`);
-					if (expandedElement)
-					{
-						scrollToTop(expandedElement);
-						expandedElement.classList.add('display-item-highlight');
-						setTimeout(() =>
-						{
-							expandedElement.classList.remove('display-item-highlight');
-						}, 1600);
-					}
-				});
+				capabilityElement.value = selectedCapability;
 			}
-
-			for (var itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
+			else if (capabilityElement.options.length > 0)
 			{
-				// Add a 'Default' broker entry to the lists
-				var defaultText = Homey.__("settings.default");
-
-				var option = document.createElement("option");
-				option.value = 'Default';
-				option.text = defaultText;
-				document.getElementById(`display${itemNo}BrokerId`).add(option);
-
-				// add the brokers to the display config broker lists
-				for (let i = 0; i < localBrokerItems.length; i++)
-				{
-					const brokerItem = localBrokerItems[i];
-					if (brokerItem.enabled)
-					{
-						var option = document.createElement("option");
-						option.value = brokerItem.brokerid;
-						option.text = brokerItem.brokerid;
-						document.getElementById(`display${itemNo}BrokerId`).add(option);
-					}
-				}
-
-				const item = displayConfiguration.items[itemNo];
-				setBrokerSelectValue(document.getElementById(`display${itemNo}BrokerId`), item.brokerId);
-
-				document.getElementById(`display${itemNo}FontSize`).value = item.fontSize;
-				setBrokerSelectValue(document.getElementById(`display${itemNo}BrokerId`), item.brokerId);
-				document.getElementById(`display${itemNo}BoxType`).value = item.boxType || 0;
-				//				document.getElementById(`display${itemNo}CustomMQTTTopic`).value = item.customMQTTTopic || "";
+				capabilityElement.value = capabilityElement.options[0].value;
 			}
+			capabilityChanged(side, page, capabilityElement.value);
+			updateButtonCapabilityIndicator(side, page);
+			hidePopupManagedFieldsForSection(side, page);
+		}
+	});
+}
 
-			fillDisplayDevices();
+function capabilityChanged(side, page, value)
+{
+	const deviceElement = document.getElementById(`${side}${page}Device`);
+	const isVariableDevice = !!deviceElement && (deviceElement.value === '_variable_');
+	const selectedVariable = isVariableDevice ? variablesArray.find((variable) => variable.id === value) : null;
+	const isNonBooleanVariable = !!selectedVariable && (selectedVariable.type !== 'boolean');
+	const capabilityElement = document.getElementById(`${side}${page}Capability`);
+	const selectedOption = capabilityElement && capabilityElement.selectedOptions ? capabilityElement.selectedOptions[0] : null;
+	const selectedCapabilityType = selectedOption ? selectedOption.dataset.type : '';
+	const isNonBooleanDeviceCapability = !isVariableDevice && (value !== 'dim') && (value !== 'windowcoverings_state') && (selectedCapabilityType !== '') && (selectedCapabilityType !== 'boolean');
+	const hideOnOffFields = (value === "dim") || isNonBooleanVariable || isNonBooleanDeviceCapability;
 
-			for (var itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
+	// Only dim capabilities show the dim change value
+	document.getElementById(`${side}${page}DimChangeDiv`).style.display = (value === "dim") ? itemDisplyType : "none";
+
+	// Dim capabilities, non-boolean variables and text/picker device capabilities have no on/off state, so hide the On/Off text
+	document.getElementById(`${side}${page}OnTextDiv`).style.display = hideOnOffFields ? "none" : itemDisplyType;
+	document.getElementById(`${side}${page}OffText`).style.display = hideOnOffFields ? "none" : itemDisplyType;
+	document.getElementById(`${side}${page}OffTextLabel`).style.display = hideOnOffFields ? "none" : itemDisplyType;
+	//document.getElementById(`${side}TopText`).value = document.getElementById(`${side}TopText`).value ? document.getElementById(`${side}TopText`).value : value;
+	hidePopupManagedFieldsForSection(side, page);
+
+	renderInlineButtonPagePreview(page);
+	if (buttonPagePopupOverlayElement && buttonPagePopupOverlayElement.classList.contains('visible'))
+	{
+		renderButtonPagePopup();
+	}
+}
+
+// If the config and devices have been fetched, update all the control values
+function updateButtonPanelControls()
+{
+	if ((buttonConfigurationsFetched == false) || (buttonDevicesFetched == false)) return;
+
+	if (currentButtonConfigurationNo < 0 || currentButtonConfigurationNo >= localButtonConfigurations.length)
+	{
+		currentButtonConfigurationNo = 0;
+		buttonConfigurationNoElement.value = currentButtonConfigurationNo;
+	}
+
+	let config = localButtonConfigurations[currentButtonConfigurationNo];
+
+	// Makes sure the config is an array
+	if (!Array.isArray(config))
+	{
+		config = [config];
+		localButtonConfigurations[currentButtonConfigurationNo] = config;
+	}
+
+	if (config.length === 0)
+	{
+		config.push({ PageNum: 0 });
+		localButtonConfigurations[currentButtonConfigurationNo] = config;
+	}
+
+	// let ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+	configNameElement.value = config[0].name ? config[0].name : "";
+
+	for (let page = 0; page < config.length; page++)
+	{
+		updateButtonPanelControlsSection("left", page, config[page]);
+		updateButtonPanelControlsSection("right", page, config[page]);
+		hidePopupManagedFieldsForPage(page);
+		updateButtonAdvancedToggleState('left', page);
+		updateButtonAdvancedToggleState('right', page);
+	}
+
+	renderInlineButtonPagePreviews();
+
+	fillButtonDevices();
+	setupButtonBrokerItems();
+	setupSvgPreviews(document);
+
+	if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
+	{
+		renderDisplayPagePopup();
+		refreshDisplayPopupLiveValues();
+	}
+
+	updateButtonMainDiagnostics('updateButtonPanelControls');
+}
+
+// Update the controls for the specified side and page
+function updateButtonPanelControlsSection(side, page, ButtonPanelConfiguration)
+{
+	ensureButtonSideAdvancedDefaults(ButtonPanelConfiguration, side);
+
+	if (buttonConfigurationNoElement.value == "")
+	{
+		// fillButtonConfigListElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
+
+		configNameElement.value = "";
+		document.getElementById(`${side}${page}TopText`).value = "";
+		document.getElementById(`${side}${page}OnText`).value = "";
+		document.getElementById(`${side}${page}OffText`).value = "";
+		document.getElementById(`${side}${page}Device`).value = "";
+		document.getElementById(`${side}${page}Capability`).value = "";
+		setBrokerSelectValue(document.getElementById(`${side}${page}BrokerId`), 'Default');
+		document.getElementById(`${side}${page}DimChange`).value = "+10";
+		document.getElementById(`${side}${page}FrontLEDOnColor`).value = "#ff0000";
+		document.getElementById(`${side}${page}WallLEDOnColor`).value = "#ff0000";
+		document.getElementById(`${side}${page}FrontLEDOffColor`).value = "#000000";
+		document.getElementById(`${side}${page}WallLEDOffColor`).value = "#000000";
+		document.getElementById(`${side}${page}DisableLongRepeat`).checked = true;
+		document.getElementById(`${side}${page}LongDelayMs`).value = "750";
+		document.getElementById(`${side}${page}LongRepeatMs`).value = "500";
+		document.getElementById(`${side}${page}OnSVG`).value = "";
+		document.getElementById(`${side}${page}OffSVG`).value = "";
+		const advancedToggle = document.getElementById(`${side}${page}AdvancedMode`);
+		if (advancedToggle)
+		{
+			advancedToggle.checked = false;
+		}
+	}
+	else
+	{
+		currentButtonConfigurationNo = buttonConfigurationNoElement.value;
+
+		// fillButtonConfigListElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
+
+		buttonConfigurationNoElement.value = currentButtonConfigurationNo;
+
+		// Fill button panel
+		const panelText = Homey.__(`settings.${side}Panel`);
+		document.getElementById(`${side}${page}TopText`).value = ButtonPanelConfiguration[`${side}TopText`];
+		document.getElementById(`button${side}${page}Legend`).innerHTML = `<b><em>${panelText}</em></b> - ${document.getElementById(`${side}${page}TopText`).value}`;
+		document.getElementById(`${side}${page}OnText`).value = ButtonPanelConfiguration[`${side}OnText`];
+		document.getElementById(`${side}${page}OffText`).value = ButtonPanelConfiguration[`${side}OffText`];
+		document.getElementById(`${side}${page}Device`).value = ButtonPanelConfiguration[`${side}Device`];
+		// If the element is not in the list, add it
+		if (document.getElementById(`${side}${page}Device`).value != ButtonPanelConfiguration[`${side}Device`])
+		{
+			if (buttonDevicesArray.findIndex((device) => device.id === ButtonPanelConfiguration[`${side}Device`]) < 0)
 			{
-				const item = displayConfiguration.items[itemNo];
+				var name = ButtonPanelConfiguration[`${side}DeviceName`] ? ButtonPanelConfiguration[`${side}DeviceName`] : ButtonPanelConfiguration[`${side}Device`];
 
-				drawDisplayCustomMQTTTopics(itemNo, item.customMQTTTopics);
+				// Remove any leading spaces from the device name
+				name = name.trim();
+
+				// Remove all occurrences of ' (Missing Devices)' from the name
+				name = name.replace(/ \(Missing Devices\)/g, "");
+
+				buttonDevicesArray.push({ id: ButtonPanelConfiguration[`${side}Device`], name, zone: { name: "Missing Devices" } });
+				buttonDevicesArray = sortDevices(buttonDevicesArray);
+				fillButtonDevices();
+				// document.getElementById(`${side}${page}Device`).value = ButtonPanelConfiguration[`${side}Device`];
 			}
-
-			setupSvgPreviews(document);
-			applyInitialDisplaySimulatorPageSelection(displayConfiguration);
-			renderDisplayInlineSimulator();
-			refreshDisplayPopupLiveValues();
 		}
 
-
-		function newDisplayMQTTTopic(Item)
+		setBrokerSelectValue(document.getElementById(`${side}${page}BrokerId`), ButtonPanelConfiguration[`${side}BrokerId`]);
+		document.getElementById(`${side}${page}DimChange`).value = ButtonPanelConfiguration[`${side}DimChange`];
+		document.getElementById(`${side}${page}FrontLEDOnColor`).value = ButtonPanelConfiguration[`${side}FrontLEDOnColor`];
+		document.getElementById(`${side}${page}WallLEDOnColor`).value = ButtonPanelConfiguration[`${side}WallLEDOnColor`];
+		document.getElementById(`${side}${page}FrontLEDOffColor`).value = ButtonPanelConfiguration[`${side}FrontLEDOffColor`];
+		document.getElementById(`${side}${page}WallLEDOffColor`).value = ButtonPanelConfiguration[`${side}WallLEDOffColor`];
+		document.getElementById(`${side}${page}DisableLongRepeat`).checked = !ButtonPanelConfiguration[`${side}DisableLongRepeat`];
+		document.getElementById(`${side}${page}LongDelayMs`).value = ButtonPanelConfiguration[`${side}LongDelayMs`] ?? "750";
+		document.getElementById(`${side}${page}LongRepeatMs`).value = ButtonPanelConfiguration[`${side}LongRepeatMs`] ?? "500";
+		document.getElementById(`${side}${page}OnSVG`).value = ButtonPanelConfiguration[`${side}OnSVG`] || '';
+		document.getElementById(`${side}${page}OffSVG`).value = ButtonPanelConfiguration[`${side}OffSVG`] || '';
+		const advancedToggle = document.getElementById(`${side}${page}AdvancedMode`);
+		if (advancedToggle)
 		{
-			var displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
-			if (displayConfiguration)
+			advancedToggle.checked = isButtonSideAdvanced(ButtonPanelConfiguration, side);
+		}
+	}
+}
+
+function setupGroupUI()
+{
+	if (!groupSelectElement) return;
+
+	groupSelectElement.addEventListener('change', function ()
+	{
+		storeCurrentGroupFromForm();
+		currentGroupIndex = parseInt(groupSelectElement.value, 10) || 0;
+		loadGroupIntoForm(currentGroupIndex);
+	});
+
+	if (toggleGroupNameVisibilityElement)
+	{
+		toggleGroupNameVisibilityElement.addEventListener('click', function ()
+		{
+			groupNameCollapsed = !groupNameCollapsed;
+			if (groupNameRowElement)
 			{
-				// Save the current settings
-				storeDisplayCustomMQTTItems(Item, displayConfiguration.items[Item].customMQTTTopics);
+				groupNameRowElement.style.display = groupNameCollapsed ? 'none' : 'block';
+			}
+			toggleGroupNameVisibilityElement.classList.toggle('is-open', !groupNameCollapsed);
+			toggleGroupNameVisibilityElement.title = groupNameCollapsed ? (Homey.__("settings.showGroupName") || 'Show group name') : (Homey.__("settings.hideGroupName") || 'Hide group name');
+			toggleGroupNameVisibilityElement.setAttribute('aria-label', toggleGroupNameVisibilityElement.title);
+		});
 
-				var customMQTTItem = {
-					id: '',
-					type: 0,
-					topic: "",
-					payload: "",
-					brokerId: 'Default',
-					enabled: true,
-				};
+		toggleGroupNameVisibilityElement.classList.toggle('is-open', !groupNameCollapsed);
+		toggleGroupNameVisibilityElement.title = groupNameCollapsed ? (Homey.__("settings.showGroupName") || 'Show group name') : (Homey.__("settings.hideGroupName") || 'Hide group name');
+		toggleGroupNameVisibilityElement.setAttribute('aria-label', toggleGroupNameVisibilityElement.title);
+		if (groupNameRowElement)
+		{
+			groupNameRowElement.style.display = groupNameCollapsed ? 'none' : 'block';
+		}
+	}
 
-				// make sure the customMQTTTopics is an array
-				if (!displayConfiguration.items[Item].customMQTTTopics || (Array.isArray(displayConfiguration.items[Item].customMQTTTopics) === false))
+	if (groupNameInputElement)
+	{
+		groupNameInputElement.addEventListener('input', function ()
+		{
+			if (localGroupConfigurations[currentGroupIndex])
+			{
+				localGroupConfigurations[currentGroupIndex].name = groupNameInputElement.value;
+				updateGroupListDropdown();
+				renderGroupSimulator();
+			}
+		});
+	}
+
+	if (addGroupBtnElement)
+	{
+		addGroupBtnElement.title = Homey.__("settings.addGroup") || "New Group";
+		addGroupBtnElement.setAttribute("aria-label", Homey.__("settings.addGroup") || "New Group");
+		addGroupBtnElement.addEventListener('click', function ()
+		{
+			storeCurrentGroupFromForm();
+			const newGroup = {
+				id: 'group_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+				name: 'New Group ' + (localGroupConfigurations.length + 1),
+				displayConfigNo: 0,
+				connectorConfigNos: [0]
+			};
+			localGroupConfigurations.push(newGroup);
+			currentGroupIndex = localGroupConfigurations.length - 1;
+			updateGroupListDropdown();
+			loadGroupIntoForm(currentGroupIndex);
+		});
+	}
+
+	if (deleteGroupBtnElement)
+	{
+		deleteGroupBtnElement.title = Homey.__("settings.deleteGroup") || "Delete Group";
+		deleteGroupBtnElement.setAttribute("aria-label", Homey.__("settings.deleteGroup") || "Delete Group");
+		deleteGroupBtnElement.addEventListener('click', function ()
+		{
+			const currentGroup = localGroupConfigurations[currentGroupIndex];
+			const groupName = (currentGroup && currentGroup.name) ? currentGroup.name : `Group ${currentGroupIndex + 1}`;
+			const confirmMessage = Homey.__("settings.deleteGroupConfirm", { groupName });
+
+			Homey.confirm(confirmMessage, null, function (err, ok)
+			{
+				if (err || !ok) return;
+
+				if (localGroupConfigurations.length <= 1)
 				{
-					displayConfiguration.items[Item].customMQTTTopics = [];
+					localGroupConfigurations[0] = {
+						id: 'group_0',
+						name: 'Group 1',
+						displayConfigNo: 0,
+						connectorConfigNos: [0]
+					};
+				} else
+				{
+					localGroupConfigurations.splice(currentGroupIndex, 1);
+					if (currentGroupIndex >= localGroupConfigurations.length)
+					{
+						currentGroupIndex = localGroupConfigurations.length - 1;
+					}
+				}
+				updateGroupListDropdown();
+				loadGroupIntoForm(currentGroupIndex);
+			});
+		});
+	}
+
+	if (copyGroupBtnElement)
+	{
+		copyGroupBtnElement.title = Homey.__("settings.copyGroup") || "Duplicate Group";
+		copyGroupBtnElement.setAttribute("aria-label", Homey.__("settings.copyGroup") || "Duplicate Group");
+		copyGroupBtnElement.addEventListener('click', function ()
+		{
+			storeCurrentGroupFromForm();
+			const current = localGroupConfigurations[currentGroupIndex];
+			if (current)
+			{
+				const copiedGroup = JSON.parse(JSON.stringify(current));
+				copiedGroup.id = 'group_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+				copiedGroup.name = (current.name || 'Group') + ' (Copy)';
+				localGroupConfigurations.push(copiedGroup);
+				currentGroupIndex = localGroupConfigurations.length - 1;
+				updateGroupListDropdown();
+				loadGroupIntoForm(currentGroupIndex);
+			}
+		});
+	}
+
+	if (groupSimStateToggleElement)
+	{
+		groupSimStateToggleElement.addEventListener('click', function ()
+		{
+			let anyOn = false;
+			for (const key in groupSimStates)
+			{
+				if (groupSimStates[key] === 'on')
+				{
+					anyOn = true;
+					break;
+				}
+			}
+			const nextState = anyOn ? 'off' : 'on';
+			for (const key in groupSimStates)
+			{
+				groupSimStates[key] = nextState;
+			}
+			renderGroupSimulator();
+		});
+	}
+}
+
+function fetchAndInitGroupConfigurations()
+{
+	Homey.get('groupConfigurations', function (err, groupConfigurations)
+	{
+		if (!err && Array.isArray(groupConfigurations) && groupConfigurations.length > 0)
+		{
+			localGroupConfigurations = groupConfigurations;
+		} else
+		{
+			localGroupConfigurations = [{
+				id: 'group_0',
+				name: 'Group 1 (Main Panel)',
+				displayConfigNo: 0,
+				connectorConfigNos: [0]
+			}];
+		}
+		groupConfigurationsFetched = true;
+		updateGroupListDropdown();
+		loadGroupIntoForm(currentGroupIndex);
+	});
+}
+
+function updateGroupListDropdown()
+{
+	if (!groupSelectElement) return;
+	groupSelectElement.innerHTML = '';
+	localGroupConfigurations.forEach((group, idx) =>
+	{
+		const option = document.createElement('option');
+		option.value = idx;
+		option.textContent = `Group ${idx + 1}: ${group.name || 'Unnamed Group'}`;
+		if (idx === currentGroupIndex) option.selected = true;
+		groupSelectElement.appendChild(option);
+	});
+}
+
+function loadGroupIntoForm(index)
+{
+	if (!localGroupConfigurations[index])
+	{
+		if (localGroupConfigurations.length === 0)
+		{
+			localGroupConfigurations.push({
+				id: 'group_0',
+				name: 'Group 1',
+				displayConfigNo: 0,
+				connectorConfigNos: [0]
+			});
+		}
+		index = 0;
+		currentGroupIndex = 0;
+	}
+
+	const group = localGroupConfigurations[index];
+	if (groupSelectElement) groupSelectElement.value = index;
+	if (groupNameInputElement) groupNameInputElement.value = group.name || '';
+
+	groupSimCurrentPage = 0;
+	renderGroupSimulator();
+}
+
+function storeCurrentGroupFromForm()
+{
+	if (!localGroupConfigurations[currentGroupIndex]) return;
+	const group = localGroupConfigurations[currentGroupIndex];
+	if (groupNameInputElement) group.name = groupNameInputElement.value;
+}
+
+function getGroupDisplayOptionsHtml(selectedNo)
+{
+	let html = `<option value="none"${selectedNo === null || selectedNo === undefined ? ' selected' : ''}>-- ${Homey.__("noDisplayAssigned") || 'No Display'} --</option>`;
+	for (let i = 0; i < MAX_DISPLAY_CONFIGURATIONS; i++)
+	{
+		const config = localDisplayConfigurations[i];
+		const name = config && config.name ? config.name : '';
+		const isSel = (selectedNo !== null && selectedNo !== undefined && Number(selectedNo) === i) ? ' selected' : '';
+		html += `<option value="${i}"${isSel}>${Homey.__("displayConfig")} ${i + 1}${name ? ': ' + escapeHtml(name) : ''}</option>`;
+	}
+	return html;
+}
+
+function getGroupButtonOptionsHtml(selectedNo)
+{
+	let html = '';
+	for (let i = 0; i < MAX_BUTTON_CONFIGURATIONS; i++)
+	{
+		const pages = Array.isArray(localButtonConfigurations[i]) ? localButtonConfigurations[i] : [localButtonConfigurations[i]];
+		const p0 = pages[0] || {};
+		const name = p0.name || '';
+		const isSel = (selectedNo !== null && selectedNo !== undefined && Number(selectedNo) === i) ? ' selected' : '';
+		html += `<option value="${i}"${isSel}>${Homey.__("buttonConfig")} ${i + 1}${name ? ': ' + escapeHtml(name) : ''}</option>`;
+	}
+	return html;
+}
+
+function setGroupDisplayConfig(val)
+{
+	const group = localGroupConfigurations[currentGroupIndex];
+	if (!group) return;
+	group.displayConfigNo = (val === 'none' || val === '' || val === null || val === undefined) ? null : parseInt(val, 10);
+	configDraftDirtySinceLoad = true;
+	flushConfigurationDraftPersist();
+	renderGroupSimulator();
+}
+
+function setGroupButtonConfig(barIdx, val)
+{
+	const group = localGroupConfigurations[currentGroupIndex];
+	if (!group || !Array.isArray(group.connectorConfigNos)) return;
+	group.connectorConfigNos[barIdx] = (val === 'none' || val === '' || val === null || val === undefined) ? null : parseInt(val, 10);
+	configDraftDirtySinceLoad = true;
+	flushConfigurationDraftPersist();
+	renderGroupSimulator();
+}
+
+function addGroupButtonBar()
+{
+	const group = localGroupConfigurations[currentGroupIndex];
+	if (!group) return;
+	if (!Array.isArray(group.connectorConfigNos))
+	{
+		group.connectorConfigNos = [];
+	}
+	if (group.connectorConfigNos.length >= 8) return;
+	const cleanNos = group.connectorConfigNos.filter(val => val !== null && val !== undefined);
+	cleanNos.push(0);
+	group.connectorConfigNos = cleanNos;
+	configDraftDirtySinceLoad = true;
+	flushConfigurationDraftPersist();
+	renderGroupSimulator();
+}
+
+function deleteGroupButtonBar(barIdx)
+{
+	const group = localGroupConfigurations[currentGroupIndex];
+	if (!group || !Array.isArray(group.connectorConfigNos)) return;
+	const cleanNos = group.connectorConfigNos.filter(val => val !== null && val !== undefined);
+	if (barIdx >= 0 && barIdx < cleanNos.length)
+	{
+		cleanNos.splice(barIdx, 1);
+		group.connectorConfigNos = cleanNos;
+		configDraftDirtySinceLoad = true;
+		flushConfigurationDraftPersist();
+		renderGroupSimulator();
+	}
+}
+
+function moveGroupButtonBar(barIdx, delta)
+{
+	const group = localGroupConfigurations[currentGroupIndex];
+	if (!group || !Array.isArray(group.connectorConfigNos)) return;
+	const cleanNos = group.connectorConfigNos.filter(val => val !== null && val !== undefined);
+	const targetIdx = barIdx + delta;
+	if (barIdx >= 0 && barIdx < cleanNos.length && targetIdx >= 0 && targetIdx < cleanNos.length)
+	{
+		const temp = cleanNos[barIdx];
+		cleanNos[barIdx] = cleanNos[targetIdx];
+		cleanNos[targetIdx] = temp;
+		group.connectorConfigNos = cleanNos;
+		configDraftDirtySinceLoad = true;
+		flushConfigurationDraftPersist();
+		renderGroupSimulator();
+	}
+}
+
+function toggleGroupSimButtonState(groupId, barIdx, side)
+{
+	const key = `group_${groupId}_bar_${barIdx}_${side}`;
+	groupSimStates[key] = (groupSimStates[key] === 'on') ? 'off' : 'on';
+	renderGroupSimulator();
+}
+
+function editGroupDisplayConfiguration(configNo)
+{
+	const normalizedConfigNo = Number(configNo);
+	if (!Number.isInteger(normalizedConfigNo) || !localDisplayConfigurations[normalizedConfigNo]) return;
+
+	configTypeElement.value = 'displayConfig';
+	configTypeChanged('displayConfig');
+	displayConfigurationNoElement.value = `${normalizedConfigNo}`;
+	displayConfigurationNoElement.dispatchEvent(new Event('change', { bubbles: true }));
+}
+
+function editGroupButtonConfiguration(configNo)
+{
+	const normalizedConfigNo = Number(configNo);
+	if (!Number.isInteger(normalizedConfigNo) || !localButtonConfigurations[normalizedConfigNo]) return;
+
+	configTypeElement.value = 'panelConfig';
+	configTypeChanged('panelConfig');
+	changeDisplayedButtonConfiguration(0, normalizedConfigNo);
+}
+
+function stepGroupSimPage(delta)
+{
+	const group = localGroupConfigurations[currentGroupIndex];
+	if (!group) return;
+
+	let totalPages = 1;
+	const displayConfigNo = (group.displayConfigNo !== null && group.displayConfigNo !== undefined) ? Number(group.displayConfigNo) : null;
+	if (displayConfigNo !== null && localDisplayConfigurations[displayConfigNo])
+	{
+		const displayConfig = localDisplayConfigurations[displayConfigNo];
+		if (Array.isArray(displayConfig.items))
+		{
+			const pages = getDisplayPopupPages(displayConfig);
+			const highestPage = pages.length ? Math.max(...pages) : 0;
+			totalPages = Math.max(totalPages, highestPage + 1);
+		}
+	}
+
+	const cleanConnectorConfigNos = Array.isArray(group.connectorConfigNos)
+		? group.connectorConfigNos.filter(val => val !== null && val !== undefined)
+		: [];
+
+	cleanConnectorConfigNos.forEach((btnConfigNo) =>
+	{
+		const btnConfigIdx = Number(btnConfigNo);
+		const configObj = localButtonConfigurations[btnConfigIdx];
+		const pages = Array.isArray(configObj) ? configObj : [configObj];
+		totalPages = Math.max(totalPages, pages.length);
+	});
+
+	groupSimCurrentPage = Math.max(0, Math.min(groupSimCurrentPage + delta, totalPages - 1));
+	renderGroupSimulator();
+}
+
+function getGroupDisplayPreviewHtml(displayConfigNo, pageIndex = groupSimCurrentPage)
+{
+	if (displayConfigNo === null || displayConfigNo === undefined || !localDisplayConfigurations[displayConfigNo])
+	{
+		return '';
+	}
+
+	const displayConfiguration = localDisplayConfigurations[displayConfigNo];
+	if (!displayConfiguration || !Array.isArray(displayConfiguration.items))
+	{
+		return `<div class="display-sim-surface"><div class="display-sim-empty-message">${escapeHtml(Homey.__("settings.displaySimEmptyMessage"))}</div></div>`;
+	}
+
+	const pageItems = [];
+	for (let itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
+	{
+		const item = displayConfiguration.items[itemNo];
+		const itemPage = parseInt(item.page || 0, 10) || 0;
+		if (itemPage === 0 || itemPage === pageIndex)
+		{
+			pageItems.push({ item, itemNo });
+		}
+	}
+
+	let statusBarPosition = 0;
+	for (const { item, itemNo } of pageItems)
+	{
+		const statusBarRaw = parseInt(item.statusBarPosition || 0, 10);
+		const statusBarValue = Number.isNaN(statusBarRaw) ? 0 : Math.max(0, Math.min(statusBarRaw, 2));
+		if (statusBarValue > 0)
+		{
+			statusBarPosition = statusBarValue;
+			break;
+		}
+	}
+
+	const displayStatusLeftPlaceholder = escapeHtml(Homey.__("settings.displaySimStatusLeftPlaceholder") || '###.###.##.###');
+	const displayStatusRightPlaceholder = escapeHtml(Homey.__("settings.displaySimStatusRightPlaceholder") || '-## dB Free ##/##/#### kB');
+	const displayLoadingPlaceholder = escapeHtml(Homey.__("settings.displaySimLoading") || '--');
+
+	const statusBarMarkup = statusBarPosition === 0
+		? ''
+		: `<div class="display-sim-status-bar ${statusBarPosition === 1 ? 'display-sim-status-bar-top' : 'display-sim-status-bar-bottom'}"><span class="display-sim-status-left">${displayStatusLeftPlaceholder}</span><span class="display-sim-status-right">${displayStatusRightPlaceholder}</span></div>`;
+
+	const markup = pageItems.map(({ item, itemNo }) =>
+	{
+		const runtime = getDisplayPopupItemRuntime(item, itemNo);
+		const xPercent = clampDisplayPercent(item.xPos || 0, 0);
+		const yPercent = clampDisplayPercent(item.yPos || 0, 0);
+		const widthPercent = Math.max(2, clampDisplayPercent(item.width || 100, 100));
+		const explicitTopLabel = sanitizeDisplayString(item.label || '', '');
+		const hasExplicitLabel = !!explicitTopLabel;
+		const renderedLabel = escapeHtml(explicitTopLabel);
+		const staticTextFallback = sanitizeDisplayString(item.text, '');
+		let displayValueRaw = '';
+		let liveUnit = runtime.configuredUnit;
+
+		if (runtime.deviceId === 'none' || runtime.deviceId === 'customMQTT' || !runtime.deviceId || !runtime.capabilityId)
+		{
+			displayValueRaw = getDisplayPopupFieldValue(item, itemNo, 'Text', staticTextFallback);
+		}
+
+		if (runtime.deviceId === '_variable_' && runtime.capabilityId)
+		{
+			const variableValue = displayPagePopupVariableValueCache.get(runtime.capabilityId);
+			displayValueRaw = (variableValue !== undefined) ? variableValue : staticTextFallback;
+		}
+		else if (runtime.deviceId && runtime.capabilityId && runtime.deviceId !== 'none' && runtime.deviceId !== 'customMQTT')
+		{
+			const cacheEntry = displayPagePopupLiveValueCache.get(runtime.valueKey);
+			if (cacheEntry)
+			{
+				displayValueRaw = (cacheEntry.value !== undefined && cacheEntry.value !== null) ? cacheEntry.value : '';
+				if (!liveUnit)
+				{
+					liveUnit = cacheEntry.unit || '';
+				}
+			}
+		}
+
+		const svgRaw = item.svg || '';
+		const valueSvgMarkup = getSvgPreviewMarkup((typeof displayValueRaw === 'string') ? displayValueRaw : '');
+		const fieldSvgMarkup = getSvgPreviewMarkup(svgRaw || '');
+		const effectiveSvgMarkup = valueSvgMarkup || fieldSvgMarkup;
+		const text = escapeHtml(formatDisplayPopupValue(displayValueRaw, runtime.rounding));
+		const unitText = escapeHtml(sanitizeDisplayString(liveUnit, ''));
+		const configuredFontSize = item.fontSize || 1;
+		const fontPx = getDisplayPopupFontPx(configuredFontSize);
+		const fontWeight = isDisplayPopupFontBold(configuredFontSize) ? 700 : 400;
+		const boxType = parseInt(item.boxType || 0, 10) || 0;
+		const underlinedClass = (boxType === 0) ? 'display-sim-item-underlined' : '';
+
+		const showValueSvg = !!effectiveSvgMarkup;
+		const hasTextValue = !!sanitizeDisplayString(text, '');
+		const isDynamicValueSource = (runtime.deviceId === '_variable_')
+			|| (runtime.deviceId && runtime.deviceId !== 'none' && runtime.deviceId !== 'customMQTT' && runtime.capabilityId);
+		const needsLivePlaceholder = isDynamicValueSource && !hasTextValue && !showValueSvg;
+		const renderedText = needsLivePlaceholder ? displayLoadingPlaceholder : (text || '&nbsp;');
+		const hasUnitValue = !(needsLivePlaceholder || showValueSvg) && !!unitText;
+		const valueClass = needsLivePlaceholder ? 'display-sim-text display-sim-text-loading' : 'display-sim-text';
+		const valueRowClass = hasUnitValue ? 'display-sim-value-row' : 'display-sim-value-row display-sim-value-row-no-unit';
+		const valueTextPaddingTop = hasExplicitLabel ? 10 : 30;
+
+		return `<div class="display-sim-item ${underlinedClass}" style="left:${xPercent}%; top:${yPercent}%; width:${widthPercent}%;">
+					${hasExplicitLabel ? `<div class="display-sim-top-label">${renderedLabel}</div>` : ''}
+					${showValueSvg
+				? `<div class="display-sim-svg">${effectiveSvgMarkup}</div>`
+				: `<div class="${valueRowClass}">
+							<div class="${valueClass}" style="font-size:${fontPx}px;font-weight:${fontWeight};padding-top:${valueTextPaddingTop}px;">${renderedText}</div>
+							${hasUnitValue ? `<div class="display-sim-unit" style="font-size:${Math.max(15, Math.floor(fontPx * 0.52))}px;font-weight:${fontWeight};">${unitText}</div>` : ''}
+						</div>`}
+				</div>`;
+	}).join('');
+
+	const emptyStateMarkup = (pageItems.length === 0)
+		? `<div class="display-sim-empty-message">${escapeHtml(Homey.__("settings.displaySimEmptyMessage"))}</div>`
+		: '';
+
+	return `<div class="display-sim-surface">${statusBarMarkup}${emptyStateMarkup}${markup}</div>`;
+}
+
+function renderGroupSimulator()
+{
+	if (!groupSimulatorSurfaceElement) return;
+	groupSimulatorSurfaceElement.innerHTML = '';
+
+	const group = localGroupConfigurations[currentGroupIndex];
+	if (!group) return;
+
+	if (!Array.isArray(group.connectorConfigNos))
+	{
+		group.connectorConfigNos = [];
+	}
+	const cleanConnectorConfigNos = group.connectorConfigNos.filter(val => val !== null && val !== undefined);
+	group.connectorConfigNos = cleanConnectorConfigNos;
+
+	// Calculate maximum pages across all modules in this Group
+	let maxPages = 1;
+
+	const displayConfigNo = (group.displayConfigNo !== null && group.displayConfigNo !== undefined) ? Number(group.displayConfigNo) : null;
+	if (displayConfigNo !== null && localDisplayConfigurations[displayConfigNo])
+	{
+		const displayConfig = localDisplayConfigurations[displayConfigNo];
+		if (Array.isArray(displayConfig.items))
+		{
+			const pages = getDisplayPopupPages(displayConfig);
+			const highestPage = pages.length ? Math.max(...pages) : 0;
+			maxPages = Math.max(maxPages, highestPage + 1);
+		}
+	}
+
+	cleanConnectorConfigNos.forEach((btnConfigNo) =>
+	{
+		const btnConfigIdx = Number(btnConfigNo);
+		const configObj = localButtonConfigurations[btnConfigIdx];
+		const pages = Array.isArray(configObj) ? configObj : [configObj];
+		maxPages = Math.max(maxPages, pages.length);
+	});
+
+	if (groupSimCurrentPage < 0) groupSimCurrentPage = 0;
+	if (groupSimCurrentPage >= maxPages) groupSimCurrentPage = maxPages - 1;
+
+	// Update page title & prev/next buttons
+	if (groupSimPageTitleElement)
+	{
+		const displayPageLabel = formatDisplayPageLabel(groupSimCurrentPage);
+		groupSimPageTitleElement.innerHTML = `${Homey.__("settings.page")} ${displayPageLabel} / ${maxPages - 1}`;
+	}
+	if (groupSimPrevPageElement)
+	{
+		groupSimPrevPageElement.disabled = (groupSimCurrentPage <= 0);
+	}
+	if (groupSimNextPageElement)
+	{
+		groupSimNextPageElement.disabled = (groupSimCurrentPage >= maxPages - 1);
+	}
+
+	// 1. Render Display Module Card
+	const displayCard = document.createElement('div');
+	displayCard.className = 'group-sim-module-card';
+	const displayConfigObj = displayConfigNo !== null ? localDisplayConfigurations[displayConfigNo] : null;
+	const displayName = (displayConfigObj && displayConfigObj.name) ? displayConfigObj.name : '';
+
+	displayCard.innerHTML = `
+		<div class="group-sim-module-header">
+			<div class="group-sim-config-picker" title="Click number to change Display Configuration">
+				<span class="group-sim-config-number">${displayConfigNo !== null ? displayConfigNo + 1 : '-'}</span>
+				<select class="group-sim-config-select" aria-label="Select Display Configuration" onchange="setGroupDisplayConfig(this.value)">
+					${getGroupDisplayOptionsHtml(displayConfigNo)}
+				</select>
+				${displayName ? `<span class="group-sim-config-name">(${escapeHtml(displayName)})</span>` : ''}
+			</div>
+			${displayConfigNo !== null ? `
+				<div class="group-sim-module-actions">
+					<button class="homey-button-secondary-shadow group-module-edit-btn" type="button" onclick="editGroupDisplayConfiguration(${displayConfigNo})" title="Edit Display Configuration" aria-label="Edit Display Configuration"><i class="fi fi-rr-edit" aria-hidden="true"></i></button>
+					<button class="homey-button-secondary-shadow group-module-remove-btn" type="button" onclick="setGroupDisplayConfig('none')" title="Remove Display Module" aria-label="Remove Display Module"><i class="fi fi-rr-trash" aria-hidden="true"></i></button>
+				</div>
+			` : ''}
+		</div>
+		<div class="group-sim-module-body">
+			${displayConfigNo !== null ? getGroupDisplayPreviewHtml(displayConfigNo, groupSimCurrentPage) : `
+				<div class="group-sim-empty-module">
+					<span>No Display Module assigned to this Group.</span>
+					<button class="homey-button-secondary-shadow" type="button" onclick="setGroupDisplayConfig(0)">+ Add Display Module</button>
+				</div>
+			`}
+		</div>
+	`;
+	groupSimulatorSurfaceElement.appendChild(displayCard);
+
+	// 2. Render Button Bar Module Cards
+	cleanConnectorConfigNos.forEach((btnConfigNo, barIdx) =>
+	{
+		const btnConfigIdx = Number(btnConfigNo);
+		const configObj = localButtonConfigurations[btnConfigIdx];
+		const pages = Array.isArray(configObj) ? configObj : [configObj];
+		const pageIdx = Math.min(groupSimCurrentPage, pages.length - 1);
+		const pageConfig = pages[pageIdx] || pages[0] || {};
+		const barName = (pages[0] && pages[0].name) ? pages[0].name : '';
+
+		const leftKey = `group_${group.id}_bar_${barIdx}_left`;
+		const rightKey = `group_${group.id}_bar_${barIdx}_right`;
+		if (!groupSimStates[leftKey]) groupSimStates[leftKey] = 'off';
+		if (!groupSimStates[rightKey]) groupSimStates[rightKey] = 'off';
+
+		const oldPopupLedState = buttonPagePopupLedState;
+		const oldPopupCurrentPage = buttonPagePopupCurrentPage;
+		buttonPagePopupCurrentPage = pageIdx;
+
+		buttonPagePopupLedState = groupSimStates[leftKey];
+		const leftPreview = getButtonPanelPreviewMarkup(pageConfig, 'left', pageIdx, btnConfigIdx, true);
+
+		buttonPagePopupLedState = groupSimStates[rightKey];
+		const rightPreview = getButtonPanelPreviewMarkup(pageConfig, 'right', pageIdx, btnConfigIdx, true);
+
+		buttonPagePopupLedState = oldPopupLedState;
+		buttonPagePopupCurrentPage = oldPopupCurrentPage;
+
+		const barCard = document.createElement('div');
+		barCard.className = 'group-sim-module-card';
+		barCard.innerHTML = `
+			<div class="group-sim-module-header">
+				<div class="group-sim-config-picker" title="Click number to change Button Configuration">
+					<span class="group-sim-config-number">${btnConfigIdx + 1}</span>
+					<select class="group-sim-config-select" aria-label="Select Button Configuration" onchange="setGroupButtonConfig(${barIdx}, this.value)">
+						${getGroupButtonOptionsHtml(btnConfigIdx)}
+					</select>
+					${barName ? `<span class="group-sim-config-name">(${escapeHtml(barName)})</span>` : ''}
+				</div>
+				<div class="group-sim-module-actions">
+					${barIdx > 0 ? `<button class="homey-button-secondary-shadow group-module-move-btn" type="button" onclick="moveGroupButtonBar(${barIdx}, -1)" title="Move Up" aria-label="Move Up">&uarr;</button>` : ''}
+					${barIdx < cleanConnectorConfigNos.length - 1 ? `<button class="homey-button-secondary-shadow group-module-move-btn" type="button" onclick="moveGroupButtonBar(${barIdx}, 1)" title="Move Down" aria-label="Move Down">&darr;</button>` : ''}
+					<button class="homey-button-secondary-shadow group-module-edit-btn" type="button" onclick="editGroupButtonConfiguration(${btnConfigIdx})" title="Edit Button Configuration" aria-label="Edit Button Configuration"><i class="fi fi-rr-edit" aria-hidden="true"></i></button>
+					<button class="homey-button-secondary-shadow group-module-remove-btn" type="button" onclick="deleteGroupButtonBar(${barIdx})" title="Remove Button Bar" aria-label="Remove Button Bar"><i class="fi fi-rr-trash" aria-hidden="true"></i></button>
+				</div>
+			</div>
+			<div class="group-sim-module-body">
+				<div class="button-sim-bar button-inline-sim-grid">
+					<div class="button-sim-item" onclick="toggleGroupSimButtonState('${group.id}', ${barIdx}, 'left')">
+						${leftPreview}
+					</div>
+					<div class="button-sim-item" onclick="toggleGroupSimButtonState('${group.id}', ${barIdx}, 'right')">
+						${rightPreview}
+					</div>
+				</div>
+			</div>
+		`;
+		groupSimulatorSurfaceElement.appendChild(barCard);
+	});
+
+	// 3. Add Button Bar Button at bottom
+	if (cleanConnectorConfigNos.length < 8)
+	{
+		const addRow = document.createElement('div');
+		addRow.className = 'group-sim-add-bar-row';
+		addRow.innerHTML = `<button class="homey-button-secondary-shadow" type="button" onclick="addGroupButtonBar()">+ Add Button Bar Module</button>`;
+		groupSimulatorSurfaceElement.appendChild(addRow);
+	}
+}
+
+function configTypeChanged(configSelected)
+{
+	var i, tabcontent, tablinks;
+
+	if (configTypeTabsElement)
+	{
+		configTypeTabsElement.querySelectorAll('.view-tab').forEach(function (tab)
+		{
+			const isActive = tab.dataset.view === configSelected;
+			tab.classList.toggle('view-tab-active', isActive);
+			tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+		});
+	}
+
+	if (configSelected !== 'displayConfig' && configSelected !== 'groupConfig')
+	{
+		stopDisplayInlineLiveRefresh();
+	}
+	else
+	{
+		startDisplayInlineLiveRefresh();
+		refreshDisplayPopupLiveValues();
+	}
+
+	// Get all elements with class="tabcontent" and hide them
+	tabcontent = document.getElementsByClassName("tabcontent");
+	for (i = configSelected ? 0 : 1; i < tabcontent.length; i++)
+	{
+		tabcontent[i].style.display = "none";
+	}
+	if (configSelected !== "")
+	{
+		// Hide the save button for the settings and diagnostics pages
+		if ((configSelected === "settings") || (configSelected === "diagnosticLog") || (configSelected === "lastSentLog"))
+		{
+			saveBlock.style.display = "none";
+		}
+		else
+		{
+			saveBlock.style.display = "block";
+		}
+		document.getElementById(configSelected).style.display = "block";
+
+		if (configSelected === 'panelConfig')
+		{
+			setTimeout(function ()
+			{
+				const panelConfigElement = document.getElementById('panelConfig');
+				collapseAllDetails(panelConfigElement);
+			}, 0);
+		}
+
+		if (configSelected === "diagnosticLog")
+		{
+			// Refresh the log data
+			Homey.get('logEnabled', function (err, logLevel)
+			{
+				if (err) return Homey.alert(err);
+				enableLog.checked = logLevel;
+			});
+
+			Homey.api('GET', '/getLog/',
+				{
+					notify: true
+				}, function (err, result)
+			{
+				if (err)
+				{
+					return Homey.alert(err);
 				}
 
+				diagLogElement.value = result;
+			});
 
-				displayConfiguration.items[Item].customMQTTTopics.push(customMQTTItem);
-				drawDisplayCustomMQTTTopics(Item, displayConfiguration.items[Item].customMQTTTopics);
+			// Make the log text area fill the page
+			diagLogElement.style.width = '100%';
+			diagLogElement.style.height = (window.innerHeight - diagLogElement.offsetTop - 35) + 'px';
+		}
+		else if (configSelected === "importExport")
+		{
+			// Make the log text area fill the page
+			copyTextElement.style.height = (window.innerHeight - copyTextElement.offsetTop - 120) + 'px';
+		}
+		else if (configSelected === "lastSentLog")
+		{
+			// Make the log text area fill the page
+			sentLogElement.style.width = '100%';
+			sentLogElement.style.height = (window.innerHeight - sentLogElement.offsetTop - 35) + 'px';
+		}
+		else if (configSelected === 'displayConfig')
+		{
+			refreshDisplayPopupLiveValues();
+			startDisplayInlineLiveRefresh();
+		}
+	}
+}
+
+// Store the current display settings and then apply the new ones
+function redisplayDisplyConfig(activeItemNo = -1)
+{
+	// Store the current configuration
+	storeDisplaySettings();
+
+	// Fetch the new configuration
+	updateDisplayConfiguration(activeItemNo);
+}
+
+// If the config has been fetched, update all the control values
+function updateDisplayConfiguration(expandItem = -1)
+{
+	if (displayConfigurationsFetched)
+	{
+		currentDisplayConfigurationNo = displayConfigurationNoElement.value;
+
+		var displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+
+		let expandItemId = -1;
+		if (displayConfiguration == null)
+		{
+			displayConfiguration = {};
+			displayConfiguration.items = [];
+		}
+		else
+		{
+			if (expandItem >= 0)
+			{
+				expandItemId = displayConfiguration.items[expandItem].itemId;
 			}
+		}
+
+		drawDisplayConfiguration(displayConfiguration, expandItemId);
+	}
+}
+
+// Create all the display items for the specified display configuration
+function drawDisplayConfiguration(displayConfiguration, expandItemId = -1)
+{
+	if (!Array.isArray(displayConfiguration.items))
+	{
+		displayConfiguration.items = [];
+	}
+
+	if (displayInlineSelectedItemNo >= displayConfiguration.items.length)
+	{
+		displayInlineSelectedItemNo = displayConfiguration.items.length - 1;
+	}
+
+	// Sort the display items by page number, then by Y position and finally by X position
+	displayConfiguration.items.sort((a, b) =>
+	{
+		if (a.page < b.page)
+		{
+			return -1;
+		}
+		if (a.page > b.page)
+		{
+			return 1;
+		}
+		if (a.yPos < b.yPos)
+		{
+			return -1;
+		}
+		if (a.yPos > b.yPos)
+		{
+			return 1;
+		}
+		if (a.xPos < b.xPos)
+		{
+			return -1;
+		}
+		if (a.xPos > b.xPos)
+		{
+			return 1;
+		}
+		return 0;
+	});
+
+	let page = -1;
+	// document.getElementById('displayItemsSection').innerHTML = "";
+	displayConfigNameElement.value = displayConfiguration.name
+	let htmlText = "";
+	for (var itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
+	{
+		const item = displayConfiguration.items[itemNo];
+		// const capabilities = {}
+		// displayCapabilityItems.push(capabilities);
+
+		if (page != item.page)
+		{
+			// Insert a page number heading
+			if (page >= 0)
+			{
+				htmlText += `</div></div>`;
+			}
+
+			page = item.page;
+			htmlText += `<div class="horizontalcontainer"><div class="horizontalgroup"><h2>${Homey.__("settings.page")} ${item.page === 0 ? Homey.__("settings.all") : item.page} <div class="tooltip"><i class="fi fi-rr-info"></i><span class="tooltiptext">${normalizeTooltipHtml(Homey.__("settings.pageExplanation"))}</span></div></h2>`;
+		}
+
+		htmlText += insertDisplayItemSection(item, itemNo, (item.itemId === expandItemId));
+	}
+	htmlText += `</div></div>`;
+	const displayItemsSectionElement = document.getElementById('displayItemsSection');
+	displayItemsSectionElement.innerHTML = htmlText;
+	displayItemsSectionElement.classList.add('display-items-backing-store');
+
+	if (expandItemId >= 0)
+	{
+		requestAnimationFrame(() =>
+		{
+			const expandedElement = document.getElementById(`displayItem${expandItemId}Section`);
+			if (expandedElement)
+			{
+				scrollToTop(expandedElement);
+				expandedElement.classList.add('display-item-highlight');
+				setTimeout(() =>
+				{
+					expandedElement.classList.remove('display-item-highlight');
+				}, 1600);
+			}
+		});
+	}
+
+	for (var itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
+	{
+		// Add a 'Default' broker entry to the lists
+		var defaultText = Homey.__("settings.default");
+
+		var option = document.createElement("option");
+		option.value = 'Default';
+		option.text = defaultText;
+		document.getElementById(`display${itemNo}BrokerId`).add(option);
+
+		// add the brokers to the display config broker lists
+		for (let i = 0; i < localBrokerItems.length; i++)
+		{
+			const brokerItem = localBrokerItems[i];
+			if (brokerItem.enabled)
+			{
+				var option = document.createElement("option");
+				option.value = brokerItem.brokerid;
+				option.text = brokerItem.brokerid;
+				document.getElementById(`display${itemNo}BrokerId`).add(option);
+			}
+		}
+
+		const item = displayConfiguration.items[itemNo];
+		setBrokerSelectValue(document.getElementById(`display${itemNo}BrokerId`), item.brokerId);
+
+		document.getElementById(`display${itemNo}FontSize`).value = item.fontSize;
+		setBrokerSelectValue(document.getElementById(`display${itemNo}BrokerId`), item.brokerId);
+		document.getElementById(`display${itemNo}BoxType`).value = item.boxType || 0;
+		//				document.getElementById(`display${itemNo}CustomMQTTTopic`).value = item.customMQTTTopic || "";
+	}
+
+	fillDisplayDevices();
+
+	for (var itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
+	{
+		const item = displayConfiguration.items[itemNo];
+
+		drawDisplayCustomMQTTTopics(itemNo, item.customMQTTTopics);
+	}
+
+	setupSvgPreviews(document);
+	applyInitialDisplaySimulatorPageSelection(displayConfiguration);
+	renderDisplayInlineSimulator();
+	refreshDisplayPopupLiveValues();
+}
+
+
+function newDisplayMQTTTopic(Item)
+{
+	var displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+	if (displayConfiguration)
+	{
+		// Save the current settings
+		storeDisplayCustomMQTTItems(Item, displayConfiguration.items[Item].customMQTTTopics);
+
+		var customMQTTItem = {
+			id: '',
+			type: 0,
+			topic: "",
+			payload: "",
+			brokerId: 'Default',
+			enabled: true,
 		};
 
-		function newMQTTTopic(side, page)
+		// make sure the customMQTTTopics is an array
+		if (!displayConfiguration.items[Item].customMQTTTopics || (Array.isArray(displayConfiguration.items[Item].customMQTTTopics) === false))
 		{
-			var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			if (!Array.isArray(buttonPanelConfiguration) || !buttonPanelConfiguration[page])
-			{
-				return;
-			}
-
-			const pageConfiguration = buttonPanelConfiguration[page];
-			const topicsKey = `${side}CustomMQTTTopics`;
-			if (!Array.isArray(pageConfiguration[topicsKey]))
-			{
-				pageConfiguration[topicsKey] = [];
-			}
-
-			storeCustomMQTTItems(side, page, pageConfiguration);
-
-			pageConfiguration[topicsKey].push({
-				id: '',
-				type: 0,
-				topic: '',
-				payload: '',
-				brokerId: 'Default',
-				enabled: true,
-			});
-
-			drawCustomMQTTTopics(side, page, pageConfiguration);
+			displayConfiguration.items[Item].customMQTTTopics = [];
 		}
 
-		/// Custom MQTT code
-		function drawDisplayCustomMQTTTopics(Item, Topics)
-		{
-			if (!Array.isArray(Topics)) return;
 
-			document.getElementById(`display${Item}CustomMQTTTopicsSection`).innerHTML = "";
-			customDisplayMQTTItemsElements = [];
-			if (Topics.length === 0) return;
+		displayConfiguration.items[Item].customMQTTTopics.push(customMQTTItem);
+		drawDisplayCustomMQTTTopics(Item, displayConfiguration.items[Item].customMQTTTopics);
+	}
+};
 
-			for (var itemNo = 0; itemNo < Topics.length; itemNo++)
-			{
-				const topic = Topics[itemNo];
-				insertDisplayCustomMQTTTopicSection(topic, itemNo, Item);
-			}
+function newMQTTTopic(side, page)
+{
+	var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+	if (!Array.isArray(buttonPanelConfiguration) || !buttonPanelConfiguration[page])
+	{
+		return;
+	}
 
-			// Set the value for the brokerID in each custom MQTT topics section
-			for (var itemNo = 0; itemNo < Topics.length; itemNo++)
-			{
-				const topic = Topics[itemNo];
-				setBrokerSelectValue(document.getElementById(`display${Item}CustomMQTT${itemNo}BrokerId`), topic.brokerId);
-			}
+	const pageConfiguration = buttonPanelConfiguration[page];
+	const topicsKey = `${side}CustomMQTTTopics`;
+	if (!Array.isArray(pageConfiguration[topicsKey]))
+	{
+		pageConfiguration[topicsKey] = [];
+	}
 
-			var tooltips = document.querySelectorAll(".tooltip");
-			tooltips.forEach(function (tooltip, index)
-			{
-				// Set a mouse over function for each tooltop element
-				tooltip.addEventListener("mouseover", position_tooltip); // On hover, launch the function below
-			})
-		}
+	storeCustomMQTTItems(side, page, pageConfiguration);
 
-		function insertDisplayCustomMQTTTopicSection(Topic, ItemNo, Item)
-		{
-			const ctrlLabels = {
-				brokerId: Homey.__("settings.brokerId"),
-				brokerIdExplanation: Homey.__("settings.brokerIdExplanation"),
-				id: Homey.__("settings.MQTTId"),
-				idExplanation: Homey.__("settings.MQTTIdExplanation"),
-				type: Homey.__("settings.type"),
-				typeExplanation: Homey.__("settings.displayTypeExplanation"),
-				topic: Homey.__("settings.topic"),
-				topicExplanation: Homey.__("settings.topicExplanation"),
-				payload: Homey.__("settings.payload"),
-				payloadExplanation: Homey.__("settings.payloadExplanation"),
-				enabled: Homey.__("settings.enabled"),
-				value: Homey.__("settings.value"),
-				label: Homey.__("settings.label"),
-				unit: Homey.__("settings.unit"),
-			};
-			const itemLegend = Homey.__("settings.customMQTTItemlegend", { itemNo: ItemNo + 1 });
-			const enableOption = Topic.enabled ? "checked" : "";
+	pageConfiguration[topicsKey].push({
+		id: '',
+		type: 0,
+		topic: '',
+		payload: '',
+		brokerId: 'Default',
+		enabled: true,
+	});
 
-			var section = document.getElementById(`display${Item}CustomMQTTTopicsSection`).innerHTML;
-			section = section +
-				`<div class="horizontalcontainer">
+	drawCustomMQTTTopics(side, page, pageConfiguration);
+}
+
+/// Custom MQTT code
+function drawDisplayCustomMQTTTopics(Item, Topics)
+{
+	if (!Array.isArray(Topics)) return;
+
+	document.getElementById(`display${Item}CustomMQTTTopicsSection`).innerHTML = "";
+	customDisplayMQTTItemsElements = [];
+	if (Topics.length === 0) return;
+
+	for (var itemNo = 0; itemNo < Topics.length; itemNo++)
+	{
+		const topic = Topics[itemNo];
+		insertDisplayCustomMQTTTopicSection(topic, itemNo, Item);
+	}
+
+	// Set the value for the brokerID in each custom MQTT topics section
+	for (var itemNo = 0; itemNo < Topics.length; itemNo++)
+	{
+		const topic = Topics[itemNo];
+		setBrokerSelectValue(document.getElementById(`display${Item}CustomMQTT${itemNo}BrokerId`), topic.brokerId);
+	}
+
+	var tooltips = document.querySelectorAll(".tooltip");
+	tooltips.forEach(function (tooltip, index)
+	{
+		// Set a mouse over function for each tooltop element
+		tooltip.addEventListener("mouseover", position_tooltip); // On hover, launch the function below
+	})
+}
+
+function insertDisplayCustomMQTTTopicSection(Topic, ItemNo, Item)
+{
+	const ctrlLabels = {
+		brokerId: Homey.__("settings.brokerId"),
+		brokerIdExplanation: Homey.__("settings.brokerIdExplanation"),
+		id: Homey.__("settings.MQTTId"),
+		idExplanation: Homey.__("settings.MQTTIdExplanation"),
+		type: Homey.__("settings.type"),
+		typeExplanation: Homey.__("settings.displayTypeExplanation"),
+		topic: Homey.__("settings.topic"),
+		topicExplanation: Homey.__("settings.topicExplanation"),
+		payload: Homey.__("settings.payload"),
+		payloadExplanation: Homey.__("settings.payloadExplanation"),
+		enabled: Homey.__("settings.enabled"),
+		value: Homey.__("settings.value"),
+		label: Homey.__("settings.label"),
+		unit: Homey.__("settings.unit"),
+	};
+	const itemLegend = Homey.__("settings.customMQTTItemlegend", { itemNo: ItemNo + 1 });
+	const enableOption = Topic.enabled ? "checked" : "";
+
+	var section = document.getElementById(`display${Item}CustomMQTTTopicsSection`).innerHTML;
+	section = section +
+		`<div class="horizontalcontainer">
 					<div class="horizontalgroup">
 						<legend class="homey-subtitle">${itemLegend}</legend>
 
@@ -8914,132 +9755,132 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 					</div>
 				</div>`;
 
-			document.getElementById(`display${Item}CustomMQTTTopicsSection`).innerHTML = section;
-			const idx = customDisplayMQTTItemsElements.push(document.getElementById(`display${Item}CustomMQTT${ItemNo}BrokerId`)) - 1;
+	document.getElementById(`display${Item}CustomMQTTTopicsSection`).innerHTML = section;
+	const idx = customDisplayMQTTItemsElements.push(document.getElementById(`display${Item}CustomMQTT${ItemNo}BrokerId`)) - 1;
 
-			// Add the brokers to the broker list
-			var option = document.createElement("option");
-			option.text = 'Default';
-			option.value = 'Default';
-			customDisplayMQTTItemsElements[idx].add(option);
+	// Add the brokers to the broker list
+	var option = document.createElement("option");
+	option.text = 'Default';
+	option.value = 'Default';
+	customDisplayMQTTItemsElements[idx].add(option);
 
-			for (var brokerNo = 0; brokerNo < localBrokerItems.length; brokerNo++)
-			{
-				const brokerItem = localBrokerItems[brokerNo];
-				option = document.createElement("option");
-				option.text = brokerItem.brokerid;
-				option.value = brokerItem.brokerid;
-				customDisplayMQTTItemsElements[idx].add(option);
-			}
-		}
-
-
-		// Delete the specified custom item from the display panel configuration and redraw the list
-		function deleteDisplayCustomMQTTItem(ItemNo, Item)
-		{
-			var displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
-			const customMQTTTopics = displayConfiguration.items[Item].customMQTTTopics;
-
-			customMQTTTopics.splice(ItemNo, 1);
-			drawDisplayCustomMQTTTopics(Item, customMQTTTopics);
-		}
-
-		//  Copy the contents of the specified custom item controls to the display panel configuration
-		function storeDisplayCustomMQTTItem(Item, Topics, itemNo)
-		{
-			if (!Topics)
-			{
-				Topics = [];
-			}
-
-			// Fetch the item from the array or create a new one
-			let item = Topics[itemNo];
-			if (!item)
-			{
-				item = {};
-				Topics.push(item);
-			}
-
-			// Update the item
-			item.id = document.getElementById(`display${Item}CustomMQTT${itemNo}Id`).value;
-			item.type = document.getElementById(`display${Item}CustomMQTT${itemNo}Type`).value;
-			item.topic = document.getElementById(`display${Item}CustomMQTT${itemNo}topic`).value;
-			item.payload = document.getElementById(`display${Item}CustomMQTT${itemNo}payload`).value;
-			item.brokerId = getBrokerSelectValue(document.getElementById(`display${Item}CustomMQTT${itemNo}BrokerId`), item.brokerId);
-			item.enabled = document.getElementById(`display${Item}CustomMQTT${itemNo}Enabled`).checked;
-		}
-
-		// Copy the contents of the all the custom items controls to the button panel configuration
-		function storeDisplayCustomMQTTItems(Item, Topics)
-		{
-			if (!Topics || Topics.length === 0) return;
-
-			for (var itemNo = 0; itemNo < Topics.length; itemNo++)
-			{
-				storeDisplayCustomMQTTItem(Item, Topics, itemNo);
-			}
-		}
+	for (var brokerNo = 0; brokerNo < localBrokerItems.length; brokerNo++)
+	{
+		const brokerItem = localBrokerItems[brokerNo];
+		option = document.createElement("option");
+		option.text = brokerItem.brokerid;
+		option.value = brokerItem.brokerid;
+		customDisplayMQTTItemsElements[idx].add(option);
+	}
+}
 
 
-		// Add the HTML for the specified display item
-		function insertDisplayItemSection(item, itemNo, expanded = false)
-		{
-			var section = ""; // document.getElementById('displayItemsSection').innerHTML;
-			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo] || { items: [] };
-			const ctrlLabels = {
-				device: Homey.__("settings.device"),
-				capability: Homey.__("settings.capability"),
-				label: Homey.__("settings.topLabel"),
-				text: Homey.__("settings.text"),
-				unit: Homey.__("settings.unit"),
-				xPos: Homey.__("settings.xPos"),
-				yPos: Homey.__("settings.yPos"),
-				width: Homey.__("settings.width"),
-				rounding: Homey.__("settings.rounding"),
-				fontSize: Homey.__("settings.fontSize"),
-				deleteItem: Homey.__("settings.deleteItem"),
-				brokerId: Homey.__("settings.brokerId"),
-				page: Homey.__("settings.page"),
-				boxType: Homey.__("settings.boxType"),
-				customMQTTTopic: Homey.__("settings.customMQTTTopic"),
-				newCustomMQTTItem: Homey.__("settings.newCustomMQTTItem"),
-			}
-			const ctrlExplanations = {
-				device: Homey.__("settings.deviceDExplanation"),
-				capability: Homey.__("settings.capabilityDExplanation"),
-				label: Homey.__("settings.toplabelDisplayExplanation"),
-				text: Homey.__("settings.textExplanation"),
-				unit: Homey.__("settings.unitExplanation"),
-				xPos: Homey.__("settings.xPosExplanation"),
-				yPos: Homey.__("settings.yPosExplanation"),
-				width: Homey.__("settings.widthExplanation"),
-				rounding: Homey.__("settings.roundingExplanation"),
-				fontSize: Homey.__("settings.fontSizeExplanation"),
-				deleteItem: Homey.__("settings.deleteItemExplanation"),
-				brokerId: Homey.__("settings.brokerIdExplanation"),
-				page: Homey.__("settings.pageExplanation"),
-				boxType: Homey.__("settings.boxTypeExplanation"),
-				customMQTTTopic: Homey.__("settings.customMQTTTopicExplanation"),
-			}
-			const itemLegend = Homey.__("settings.displayItemlegend", { itemNo: itemNo + 1 });
-			const sanitizedLabel = sanitizeDisplayString(item.label, '');
-			const sanitizedText = sanitizeDisplayString(item.text, '');
-			const sanitizedCapabilityName = sanitizeDisplayString(item.capabilityName, '');
-			const sanitizedUnit = sanitizeDisplayString(item.unit, '');
-			const itemLegendName = sanitizedLabel ? sanitizedLabel : (item.device === 'none' ? sanitizedText : sanitizedCapabilityName);
-			const itemLegendPageLabel = formatDisplayPageLabel(parseInt(item.page, 10) || 0);
-			const underlined = Homey.__("settings.boxTypeUnderlined");
-			const notUnderlined = Homey.__("settings.boxTypeNotUnderlined");
+// Delete the specified custom item from the display panel configuration and redraw the list
+function deleteDisplayCustomMQTTItem(ItemNo, Item)
+{
+	var displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+	const customMQTTTopics = displayConfiguration.items[Item].customMQTTTopics;
 
-			if (typeof item.page === 'undefined')
-			{
-				item.page = 0;
-			}
+	customMQTTTopics.splice(ItemNo, 1);
+	drawDisplayCustomMQTTTopics(Item, customMQTTTopics);
+}
 
-			const pageSelectOptions = getDisplayPageSelectOptionsMarkup(displayConfiguration, item.page);
+//  Copy the contents of the specified custom item controls to the display panel configuration
+function storeDisplayCustomMQTTItem(Item, Topics, itemNo)
+{
+	if (!Topics)
+	{
+		Topics = [];
+	}
 
-			section = section +
-				`<div class="horizontalcontainer">
+	// Fetch the item from the array or create a new one
+	let item = Topics[itemNo];
+	if (!item)
+	{
+		item = {};
+		Topics.push(item);
+	}
+
+	// Update the item
+	item.id = document.getElementById(`display${Item}CustomMQTT${itemNo}Id`).value;
+	item.type = document.getElementById(`display${Item}CustomMQTT${itemNo}Type`).value;
+	item.topic = document.getElementById(`display${Item}CustomMQTT${itemNo}topic`).value;
+	item.payload = document.getElementById(`display${Item}CustomMQTT${itemNo}payload`).value;
+	item.brokerId = getBrokerSelectValue(document.getElementById(`display${Item}CustomMQTT${itemNo}BrokerId`), item.brokerId);
+	item.enabled = document.getElementById(`display${Item}CustomMQTT${itemNo}Enabled`).checked;
+}
+
+// Copy the contents of the all the custom items controls to the button panel configuration
+function storeDisplayCustomMQTTItems(Item, Topics)
+{
+	if (!Topics || Topics.length === 0) return;
+
+	for (var itemNo = 0; itemNo < Topics.length; itemNo++)
+	{
+		storeDisplayCustomMQTTItem(Item, Topics, itemNo);
+	}
+}
+
+
+// Add the HTML for the specified display item
+function insertDisplayItemSection(item, itemNo, expanded = false)
+{
+	var section = ""; // document.getElementById('displayItemsSection').innerHTML;
+	const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo] || { items: [] };
+	const ctrlLabels = {
+		device: Homey.__("settings.device"),
+		capability: Homey.__("settings.capability"),
+		label: Homey.__("settings.topLabel"),
+		text: Homey.__("settings.text"),
+		unit: Homey.__("settings.unit"),
+		xPos: Homey.__("settings.xPos"),
+		yPos: Homey.__("settings.yPos"),
+		width: Homey.__("settings.width"),
+		rounding: Homey.__("settings.rounding"),
+		fontSize: Homey.__("settings.fontSize"),
+		deleteItem: Homey.__("settings.deleteItem"),
+		brokerId: Homey.__("settings.brokerId"),
+		page: Homey.__("settings.page"),
+		boxType: Homey.__("settings.boxType"),
+		customMQTTTopic: Homey.__("settings.customMQTTTopic"),
+		newCustomMQTTItem: Homey.__("settings.newCustomMQTTItem"),
+	}
+	const ctrlExplanations = {
+		device: Homey.__("settings.deviceDExplanation"),
+		capability: Homey.__("settings.capabilityDExplanation"),
+		label: Homey.__("settings.toplabelDisplayExplanation"),
+		text: Homey.__("settings.textExplanation"),
+		unit: Homey.__("settings.unitExplanation"),
+		xPos: Homey.__("settings.xPosExplanation"),
+		yPos: Homey.__("settings.yPosExplanation"),
+		width: Homey.__("settings.widthExplanation"),
+		rounding: Homey.__("settings.roundingExplanation"),
+		fontSize: Homey.__("settings.fontSizeExplanation"),
+		deleteItem: Homey.__("settings.deleteItemExplanation"),
+		brokerId: Homey.__("settings.brokerIdExplanation"),
+		page: Homey.__("settings.pageExplanation"),
+		boxType: Homey.__("settings.boxTypeExplanation"),
+		customMQTTTopic: Homey.__("settings.customMQTTTopicExplanation"),
+	}
+	const itemLegend = Homey.__("settings.displayItemlegend", { itemNo: itemNo + 1 });
+	const sanitizedLabel = sanitizeDisplayString(item.label, '');
+	const sanitizedText = sanitizeDisplayString(item.text, '');
+	const sanitizedCapabilityName = sanitizeDisplayString(item.capabilityName, '');
+	const sanitizedUnit = sanitizeDisplayString(item.unit, '');
+	const itemLegendName = sanitizedLabel ? sanitizedLabel : (item.device === 'none' ? sanitizedText : sanitizedCapabilityName);
+	const itemLegendPageLabel = formatDisplayPageLabel(parseInt(item.page, 10) || 0);
+	const underlined = Homey.__("settings.boxTypeUnderlined");
+	const notUnderlined = Homey.__("settings.boxTypeNotUnderlined");
+
+	if (typeof item.page === 'undefined')
+	{
+		item.page = 0;
+	}
+
+	const pageSelectOptions = getDisplayPageSelectOptionsMarkup(displayConfiguration, item.page);
+
+	section = section +
+		`<div class="horizontalcontainer">
 					<div class="horizontalgroup" id="displayItem${item.itemId}Section">
 						<details ${expanded ? 'open' : ''}>
 							<summary class="summary">
@@ -9167,693 +10008,693 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 					</div>
 				</div>`;
 
-			// document.getElementById('displayItemsSection').innerHTML = section;
-			return section;
+	// document.getElementById('displayItemsSection').innerHTML = section;
+	return section;
+}
+
+function scrollToTop(element)
+{
+	if (!element)
+	{
+		return;
+	}
+
+	const fixedTopElement = document.querySelector('.fixedTop');
+	const fixedTopHeight = fixedTopElement ? fixedTopElement.offsetHeight : 0;
+	let targetViewportTop = fixedTopHeight + 8;
+
+	if (document.body.classList.contains('sim-panel-open'))
+	{
+		const rawOffset = getComputedStyle(document.documentElement).getPropertyValue('--button-sim-scroll-offset') || '0';
+		const parsedOffset = parseFloat(rawOffset);
+		const simPanelOffset = Number.isNaN(parsedOffset) ? 0 : parsedOffset;
+		targetViewportTop = Math.max(targetViewportTop, fixedTopHeight + simPanelOffset + 8);
+
+		const displaySimDialog = document.querySelector('.display-sim-overlay.visible .display-sim-dialog');
+		const buttonSimDialog = document.querySelector('.button-sim-overlay.visible .button-sim-dialog');
+		const activeSimDialog = displaySimDialog || buttonSimDialog;
+		if (activeSimDialog)
+		{
+			const simBottom = Math.max(0, activeSimDialog.getBoundingClientRect().bottom);
+			targetViewportTop = Math.max(targetViewportTop, simBottom + 6);
+		}
+	}
+
+	const top = Math.max(0, element.getBoundingClientRect().top + window.scrollY - targetViewportTop);
+	window.scrollTo({ top, behavior: 'smooth' });
+}
+
+// Ensure that the display item's legend is always up-to-date with the latest label, position, and size values.
+function onDisplayLabelChange(element, itemNo)
+{
+	let newLabel = element.value;
+	if (element.id === `display${itemNo}Text`)
+	{
+		// Only use the text if the label is empty
+		const label = document.getElementById(`display${itemNo}Label`).value;
+		const device = document.getElementById(`display${itemNo}Device`).value;
+
+		// Only use this if the label is empty
+		if ((label !== '') || (device !== 'none'))
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (element.id !== `display${itemNo}Label`)
+		{
+			newLabel = document.getElementById(`display${itemNo}Label`).value;
 		}
 
-		function scrollToTop(element)
+		if (newLabel === '')
 		{
-			if (!element)
+			// As the label is now empty, set the text to the text or capability name
+			const device = document.getElementById(`display${itemNo}Device`).value;
+			if (device === 'none')
 			{
-				return;
-			}
-
-			const fixedTopElement = document.querySelector('.fixedTop');
-			const fixedTopHeight = fixedTopElement ? fixedTopElement.offsetHeight : 0;
-			let targetViewportTop = fixedTopHeight + 8;
-
-			if (document.body.classList.contains('sim-panel-open'))
-			{
-				const rawOffset = getComputedStyle(document.documentElement).getPropertyValue('--button-sim-scroll-offset') || '0';
-				const parsedOffset = parseFloat(rawOffset);
-				const simPanelOffset = Number.isNaN(parsedOffset) ? 0 : parsedOffset;
-				targetViewportTop = Math.max(targetViewportTop, fixedTopHeight + simPanelOffset + 8);
-
-				const displaySimDialog = document.querySelector('.display-sim-overlay.visible .display-sim-dialog');
-				const buttonSimDialog = document.querySelector('.button-sim-overlay.visible .button-sim-dialog');
-				const activeSimDialog = displaySimDialog || buttonSimDialog;
-				if (activeSimDialog)
-				{
-					const simBottom = Math.max(0, activeSimDialog.getBoundingClientRect().bottom);
-					targetViewportTop = Math.max(targetViewportTop, simBottom + 6);
-				}
-			}
-
-			const top = Math.max(0, element.getBoundingClientRect().top + window.scrollY - targetViewportTop);
-			window.scrollTo({ top, behavior: 'smooth' });
-		}
-
-		// Ensure that the display item's legend is always up-to-date with the latest label, position, and size values.
-		function onDisplayLabelChange(element, itemNo)
-		{
-			let newLabel = element.value;
-			if (element.id === `display${itemNo}Text`)
-			{
-				// Only use the text if the label is empty
-				const label = document.getElementById(`display${itemNo}Label`).value;
-				const device = document.getElementById(`display${itemNo}Device`).value;
-
-				// Only use this if the label is empty
-				if ((label !== '') || (device !== 'none'))
-				{
-					return;
-				}
+				newLabel = document.getElementById(`display${itemNo}Text`).value;
 			}
 			else
 			{
-				if (element.id !== `display${itemNo}Label`)
-				{
-					newLabel = document.getElementById(`display${itemNo}Label`).value;
-				}
-
-				if (newLabel === '')
-				{
-					// As the label is now empty, set the text to the text or capability name
-					const device = document.getElementById(`display${itemNo}Device`).value;
-					if (device === 'none')
-					{
-						newLabel = document.getElementById(`display${itemNo}Text`).value;
-					}
-					else
-					{
-						const capability = document.getElementById(`display${itemNo}Capability`).value;
-						const capabilityElement = document.getElementById(`display${itemNo}Capability`);
-						newLabel = capabilityElement.options && capabilityElement.options.length > 0 ? capabilityElement.options[capabilityElement.selectedIndex].text : device;
-					}
-				}
+				const capability = document.getElementById(`display${itemNo}Capability`).value;
+				const capabilityElement = document.getElementById(`display${itemNo}Capability`);
+				newLabel = capabilityElement.options && capabilityElement.options.length > 0 ? capabilityElement.options[capabilityElement.selectedIndex].text : device;
 			}
-
-			const x = document.getElementById(`display${itemNo}X`).value;
-			const y = document.getElementById(`display${itemNo}Y`).value;
-			const width = document.getElementById(`display${itemNo}Width`).value;
-			const pageRaw = document.getElementById(`display${itemNo}page`).value;
-			const pageLabel = formatDisplayPageLabel(parseInt(pageRaw, 10) || 0);
-
-			document.getElementById(`display${itemNo}Legend`).innerHTML = `<b><em>${Homey.__("settings.displayItemlegend", { itemNo: itemNo + 1 })}</em></b> - ${newLabel}: P:${pageLabel}, X:${x}, Y:${y}, W:${width}`;
 		}
+	}
 
-		function makeSummarySticky()
+	const x = document.getElementById(`display${itemNo}X`).value;
+	const y = document.getElementById(`display${itemNo}Y`).value;
+	const width = document.getElementById(`display${itemNo}Width`).value;
+	const pageRaw = document.getElementById(`display${itemNo}page`).value;
+	const pageLabel = formatDisplayPageLabel(parseInt(pageRaw, 10) || 0);
+
+	document.getElementById(`display${itemNo}Legend`).innerHTML = `<b><em>${Homey.__("settings.displayItemlegend", { itemNo: itemNo + 1 })}</em></b> - ${newLabel}: P:${pageLabel}, X:${x}, Y:${y}, W:${width}`;
+}
+
+function makeSummarySticky()
+{
+	var summaries = document.querySelectorAll('.summary');
+	var lastStickySummary = null;
+	var lastSummary = null;
+	var fixedTopHeight = document.querySelector('.fixedTop').offsetHeight; // Get the height of the fixedTop div
+	var lastTop = 0;
+
+	summaries.forEach(function (summary)
+	{
+		var rect = summary.getBoundingClientRect();
+		if (rect.height !== 0)
 		{
-			var summaries = document.querySelectorAll('.summary');
-			var lastStickySummary = null;
-			var lastSummary = null;
-			var fixedTopHeight = document.querySelector('.fixedTop').offsetHeight; // Get the height of the fixedTop div
-			var lastTop = 0;
-
-			summaries.forEach(function (summary)
-			{
-				var rect = summary.getBoundingClientRect();
-				if (rect.height !== 0)
-				{
-					if (lastTop <= fixedTopHeight && rect.top > fixedTopHeight)
-					{
-						lastStickySummary = lastSummary;
-					}
-
-					lastSummary = summary;
-					lastTop = rect.top;
-				}
-			});
-
-			if (lastStickySummary == null)
+			if (lastTop <= fixedTopHeight && rect.top > fixedTopHeight)
 			{
 				lastStickySummary = lastSummary;
 			}
 
-			summaries.forEach(function (summary)
+			lastSummary = summary;
+			lastTop = rect.top;
+		}
+	});
+
+	if (lastStickySummary == null)
+	{
+		lastStickySummary = lastSummary;
+	}
+
+	summaries.forEach(function (summary)
+	{
+		if (summary === lastStickySummary)
+		{
+			summary.classList.add('summary-sticky');
+			summary.style.top = fixedTopHeight + 'px'; // Set the top of the summary div to the height of the fixedTop div
+		}
+		else
+		{
+			summary.classList.remove('summary-sticky');
+		}
+	});
+}
+
+window.addEventListener("scroll", makeSummarySticky);
+
+// if the display configuration has been fetched, update the display controls
+function fillDisplayDevices()
+{
+	if (displayDevicesFetched)
+	{
+		// Get the current display configuration
+		var displayConfig = localDisplayConfigurations[displayConfigurationNoElement.value];
+
+		if (displayConfig)
+		{
+			for (var itemNo = 0; itemNo < displayConfig.items.length; itemNo++)
 			{
-				if (summary === lastStickySummary)
+				fillDevicesElement(document.getElementById(`display${itemNo}Device`), displayDevicesArray);
+
+				// If the current device is not in the list, add it
+				if (displayConfig.items[itemNo].device !== 'none' && displayConfig.items[itemNo].device !== '_variable_' && displayConfig.items[itemNo].device !== 'customMQTT' && displayConfig.items[itemNo].device !== '' && !displayDevicesArray.includes(displayConfig.items[itemNo].device))
 				{
-					summary.classList.add('summary-sticky');
-					summary.style.top = fixedTopHeight + 'px'; // Set the top of the summary div to the height of the fixedTop div
+					var option = document.createElement("option");
+					option.text = displayConfig.items[itemNo].deviceName + " (Missing)";
+					option.value = displayConfig.items[itemNo].device;
+					document.getElementById(`display${itemNo}Device`).add(option);
+
+					// Select the current device
+					document.getElementById(`display${itemNo}Device`).value = displayConfig.items[itemNo].device;
+
+					// // Add the stored capability for the device as we can't fetch the list of capabilities if the device is missing
+					// var option = document.createElement("option");
+					// option.text = displayConfig.items[itemNo].capabilityName + " (Missing)";
+					// option.value = displayConfig.items[itemNo].capability;
+					// document.getElementById(`display${itemNo}Capability`).add(option);
+
+					// // Select the current capability
+					// document.getElementById(`display${itemNo}Capability`).value = displayConfig.items[itemNo].capability;
 				}
 				else
 				{
-					summary.classList.remove('summary-sticky');
+					// Select the current device
+					document.getElementById(`display${itemNo}Device`).value = displayConfig.items[itemNo].device;
 				}
-			});
+
+				getDisplayCapabilities(itemNo);
+			}
+		}
+	}
+}
+
+function fillDisplayVariablesElement(item, capabilityElement, selectedVariable, selectedVariableName)
+{
+	for (const variable of variablesArray)
+	{
+		var option = document.createElement("option");
+		option.text = variable.name;
+		option.value = variable.id;
+		capabilityElement.add(option);
+	}
+
+	// Restore the previous variable selection
+	capabilityElement.value = selectedVariable;
+	if (capabilityElement.value !== selectedVariable)
+	{
+		// The variable must be missing, so add it to the list
+		var option = document.createElement("option");
+		option.text = selectedVariableName + " (Missing)";
+		option.value = selectedVariable;
+		capabilityElement.add(option);
+
+		capabilityElement.value = selectedVariable;
+	}
+}
+
+function getDisplayCapabilities(itemNo)
+{
+	const deviceElement = document.getElementById(`display${itemNo}Device`);
+	var deviceId = deviceElement.value;
+	var capabilitiesElement = document.getElementById(`display${itemNo}Capability`);
+	const previousDeviceId = capabilitiesElement.dataset.deviceId || '';
+	const currentDisplayConfig = localDisplayConfigurations[displayConfigurationNoElement.value];
+	const configuredItem = currentDisplayConfig && currentDisplayConfig.items ? currentDisplayConfig.items[itemNo] : null;
+	const selectedCapability = previousDeviceId === deviceId
+		? capabilitiesElement.value
+		: (configuredItem && configuredItem.device === deviceId ? configuredItem.capability : '');
+	const requestToken = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+	displayCapabilityRequestTokens.set(itemNo, requestToken);
+	const isCurrentRequest = () => displayCapabilityRequestTokens.get(itemNo) === requestToken
+		&& document.getElementById(`display${itemNo}Device`) === deviceElement
+		&& deviceElement.value === deviceId;
+
+	capabilitiesElement.innerHTML = "";
+	capabilitiesElement.dataset.deviceId = deviceId;
+
+	if (deviceId === 'customMQTT')
+	{
+		document.getElementById(`display${itemNo}CustomMQTTTopicDiv`).style.display = itemDisplyType;
+	}
+	else
+	{
+		document.getElementById(`display${itemNo}CustomMQTTTopicDiv`).style.display = "none";
+	}
+
+	if (deviceId === 'customMQTT' || deviceId === 'none')
+	{
+		document.getElementById(`display${itemNo}CapabilityDiv`).style.display = "none";
+		document.getElementById(`display${itemNo}UnitDiv`).style.display = "none";
+		document.getElementById(`display${itemNo}TextDiv`).style.display = itemDisplyType;
+		onDisplayLabelChange({ id: `display${itemNo}Device`, value: '' }, itemNo);
+		return;
+	}
+
+	if (deviceId === '_variable_')
+	{
+		document.getElementById(`display${itemNo}CapabilityDiv`).style.display = itemDisplyType;
+		document.getElementById(`display${itemNo}UnitDiv`).style.display = itemDisplyType;
+		document.getElementById(`display${itemNo}TextDiv`).style.display = "none";
+
+		var selectedVariable = '';
+		var selectedVariableName = '';
+		if (configuredItem && configuredItem.device === deviceId)
+		{
+			selectedVariable = configuredItem.capability;
+			selectedVariableName = configuredItem.capabilityName;
 		}
 
-		window.addEventListener("scroll", makeSummarySticky);
-
-		// if the display configuration has been fetched, update the display controls
-		function fillDisplayDevices()
+		if (variablesFetched && variablesArray.length > 0)
 		{
-			if (displayDevicesFetched)
-			{
-				// Get the current display configuration
-				var displayConfig = localDisplayConfigurations[displayConfigurationNoElement.value];
+			// Add each of the variables to the item drop list
+			fillDisplayVariablesElement(itemNo, capabilitiesElement, selectedVariable, selectedVariableName);
+		}
+		else
+		{
+			const loadingOption = document.createElement("option");
+			loadingOption.text = Homey.__("settings.loadingVariables");
+			loadingOption.value = "";
+			loadingOption.disabled = true;
+			loadingOption.selected = true;
+			capabilitiesElement.add(loadingOption);
 
-				if (displayConfig)
+			if (displayFieldPopupContext && displayFieldPopupContext.itemNo === itemNo && displayFieldPopupContext.popupElementsBySuffix)
+			{
+				const popupDeviceElement = displayFieldPopupContext.popupElementsBySuffix.Device;
+				const popupCapabilityElement = displayFieldPopupContext.popupElementsBySuffix.Capability;
+				if (popupDeviceElement && popupCapabilityElement && popupDeviceElement.value === '_variable_')
 				{
-					for (var itemNo = 0; itemNo < displayConfig.items.length; itemNo++)
-					{
-						fillDevicesElement(document.getElementById(`display${itemNo}Device`), displayDevicesArray);
-
-						// If the current device is not in the list, add it
-						if (displayConfig.items[itemNo].device !== 'none' && displayConfig.items[itemNo].device !== '_variable_' && displayConfig.items[itemNo].device !== 'customMQTT' && displayConfig.items[itemNo].device !== '' && !displayDevicesArray.includes(displayConfig.items[itemNo].device))
-						{
-							var option = document.createElement("option");
-							option.text = displayConfig.items[itemNo].deviceName + " (Missing)";
-							option.value = displayConfig.items[itemNo].device;
-							document.getElementById(`display${itemNo}Device`).add(option);
-
-							// Select the current device
-							document.getElementById(`display${itemNo}Device`).value = displayConfig.items[itemNo].device;
-
-							// // Add the stored capability for the device as we can't fetch the list of capabilities if the device is missing
-							// var option = document.createElement("option");
-							// option.text = displayConfig.items[itemNo].capabilityName + " (Missing)";
-							// option.value = displayConfig.items[itemNo].capability;
-							// document.getElementById(`display${itemNo}Capability`).add(option);
-
-							// // Select the current capability
-							// document.getElementById(`display${itemNo}Capability`).value = displayConfig.items[itemNo].capability;
-						}
-						else
-						{
-							// Select the current device
-							document.getElementById(`display${itemNo}Device`).value = displayConfig.items[itemNo].device;
-						}
-
-						getDisplayCapabilities(itemNo);
-					}
+					syncDisplayFieldPopupCapabilityOptions(itemNo, popupCapabilityElement, '');
+					updateDisplayFieldPopupCapabilityState(displayFieldPopupContext.popupElementsBySuffix);
 				}
 			}
-		}
 
-		function fillDisplayVariablesElement(item, capabilityElement, selectedVariable, selectedVariableName)
-		{
-			for (const variable of variablesArray)
+			// Resquest the list of variables
+			Homey.api('POST', '/get_variables/', {}, function (err, variables)
 			{
-				var option = document.createElement("option");
-				option.text = variable.name;
-				option.value = variable.id;
-				capabilityElement.add(option);
-			}
+				if (!isCurrentRequest()) return;
+				if (err) return Homey.alert(err);
 
-			// Restore the previous variable selection
-			capabilityElement.value = selectedVariable;
-			if (capabilityElement.value !== selectedVariable)
-			{
-				// The variable must be missing, so add it to the list
-				var option = document.createElement("option");
-				option.text = selectedVariableName + " (Missing)";
-				option.value = selectedVariable;
-				capabilityElement.add(option);
-
-				capabilityElement.value = selectedVariable;
-			}
-		}
-
-		function getDisplayCapabilities(itemNo)
-		{
-			const deviceElement = document.getElementById(`display${itemNo}Device`);
-			var deviceId = deviceElement.value;
-			var capabilitiesElement = document.getElementById(`display${itemNo}Capability`);
-			const previousDeviceId = capabilitiesElement.dataset.deviceId || '';
-			const currentDisplayConfig = localDisplayConfigurations[displayConfigurationNoElement.value];
-			const configuredItem = currentDisplayConfig && currentDisplayConfig.items ? currentDisplayConfig.items[itemNo] : null;
-			const selectedCapability = previousDeviceId === deviceId
-				? capabilitiesElement.value
-				: (configuredItem && configuredItem.device === deviceId ? configuredItem.capability : '');
-			const requestToken = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-			displayCapabilityRequestTokens.set(itemNo, requestToken);
-			const isCurrentRequest = () => displayCapabilityRequestTokens.get(itemNo) === requestToken
-				&& document.getElementById(`display${itemNo}Device`) === deviceElement
-				&& deviceElement.value === deviceId;
-
-			capabilitiesElement.innerHTML = "";
-			capabilitiesElement.dataset.deviceId = deviceId;
-
-			if (deviceId === 'customMQTT')
-			{
-				document.getElementById(`display${itemNo}CustomMQTTTopicDiv`).style.display = itemDisplyType;
-			}
-			else
-			{
-				document.getElementById(`display${itemNo}CustomMQTTTopicDiv`).style.display = "none";
-			}
-
-			if (deviceId === 'customMQTT' || deviceId === 'none')
-			{
-				document.getElementById(`display${itemNo}CapabilityDiv`).style.display = "none";
-				document.getElementById(`display${itemNo}UnitDiv`).style.display = "none";
-				document.getElementById(`display${itemNo}TextDiv`).style.display = itemDisplyType;
-				onDisplayLabelChange({ id: `display${itemNo}Device`, value: '' }, itemNo);
-				return;
-			}
-
-			if (deviceId === '_variable_')
-			{
-				document.getElementById(`display${itemNo}CapabilityDiv`).style.display = itemDisplyType;
-				document.getElementById(`display${itemNo}UnitDiv`).style.display = itemDisplyType;
-				document.getElementById(`display${itemNo}TextDiv`).style.display = "none";
-
-				var selectedVariable = '';
-				var selectedVariableName = '';
-				if (configuredItem && configuredItem.device === deviceId)
-				{
-					selectedVariable = configuredItem.capability;
-					selectedVariableName = configuredItem.capabilityName;
-				}
-
-				if (variablesFetched && variablesArray.length > 0)
+				if (variables)
 				{
 					// Add each of the variables to the item drop list
+					variablesArray = Object.values(variables);
+					variablesFetched = true;
 					fillDisplayVariablesElement(itemNo, capabilitiesElement, selectedVariable, selectedVariableName);
-				}
-				else
-				{
-					const loadingOption = document.createElement("option");
-					loadingOption.text = Homey.__("settings.loadingVariables");
-					loadingOption.value = "";
-					loadingOption.disabled = true;
-					loadingOption.selected = true;
-					capabilitiesElement.add(loadingOption);
 
+					// If the display popup is open for this item, refresh the popup capability list
+					// now that variable options are finally available.
 					if (displayFieldPopupContext && displayFieldPopupContext.itemNo === itemNo && displayFieldPopupContext.popupElementsBySuffix)
 					{
 						const popupDeviceElement = displayFieldPopupContext.popupElementsBySuffix.Device;
 						const popupCapabilityElement = displayFieldPopupContext.popupElementsBySuffix.Capability;
 						if (popupDeviceElement && popupCapabilityElement && popupDeviceElement.value === '_variable_')
 						{
-							syncDisplayFieldPopupCapabilityOptions(itemNo, popupCapabilityElement, '');
+							syncDisplayFieldPopupCapabilityOptions(itemNo, popupCapabilityElement, popupCapabilityElement.value || selectedVariable);
 							updateDisplayFieldPopupCapabilityState(displayFieldPopupContext.popupElementsBySuffix);
 						}
 					}
-
-					// Resquest the list of variables
-					Homey.api('POST', '/get_variables/', {}, function (err, variables)
-					{
-						if (!isCurrentRequest()) return;
-						if (err) return Homey.alert(err);
-
-						if (variables)
-						{
-							// Add each of the variables to the item drop list
-							variablesArray = Object.values(variables);
-							variablesFetched = true;
-							fillDisplayVariablesElement(itemNo, capabilitiesElement, selectedVariable, selectedVariableName);
-
-							// If the display popup is open for this item, refresh the popup capability list
-							// now that variable options are finally available.
-							if (displayFieldPopupContext && displayFieldPopupContext.itemNo === itemNo && displayFieldPopupContext.popupElementsBySuffix)
-							{
-								const popupDeviceElement = displayFieldPopupContext.popupElementsBySuffix.Device;
-								const popupCapabilityElement = displayFieldPopupContext.popupElementsBySuffix.Capability;
-								if (popupDeviceElement && popupCapabilityElement && popupDeviceElement.value === '_variable_')
-								{
-									syncDisplayFieldPopupCapabilityOptions(itemNo, popupCapabilityElement, popupCapabilityElement.value || selectedVariable);
-									updateDisplayFieldPopupCapabilityState(displayFieldPopupContext.popupElementsBySuffix);
-								}
-							}
-						}
-					});
 				}
+			});
+		}
 
-				return;
-			}
+		return;
+	}
 
-			const capabilities = displayCapabilityItems.get(deviceId);
+	const capabilities = displayCapabilityItems.get(deviceId);
+	if (capabilities)
+	{
+		fillDisplayCapabilitiesElement(itemNo, capabilitiesElement, capabilities, selectedCapability);
+	}
+	else
+	{
+		// Resquest the list of capabilities
+		Homey.api('POST', '/device_capabilities/', { deviceId }, function (err, capabilities)
+		{
+			if (!isCurrentRequest()) return;
+			if (err) return Homey.alert(err);
+
 			if (capabilities)
 			{
+				displayCapabilityItems.set(deviceId, capabilities);
 				fillDisplayCapabilitiesElement(itemNo, capabilitiesElement, capabilities, selectedCapability);
 			}
-			else
-			{
-				// Resquest the list of capabilities
-				Homey.api('POST', '/device_capabilities/', { deviceId }, function (err, capabilities)
-				{
-					if (!isCurrentRequest()) return;
-					if (err) return Homey.alert(err);
+		});
+	}
+}
 
-					if (capabilities)
-					{
-						displayCapabilityItems.set(deviceId, capabilities);
-						fillDisplayCapabilitiesElement(itemNo, capabilitiesElement, capabilities, selectedCapability);
-					}
-				});
+function fillDisplayCapabilitiesElement(itemNo, capabilitiesElement, capabilities, selectedCapability = null)
+{
+	const capabilitiesArray = Object.values(capabilities);
+	for (const capability of capabilitiesArray)
+	{
+		var option = document.createElement("option");
+		option.text = `${capability.title} (${capability.id})`;
+		option.value = capability.id;
+		const capabilityIconUrl = getCapabilityIconUrl(capability);
+		if (capabilityIconUrl)
+		{
+			option.dataset.iconUrl = capabilityIconUrl;
+		}
+		capabilitiesElement.add(option);
+	}
+
+	document.getElementById(`display${itemNo}CapabilityDiv`).style.display = itemDisplyType;
+	document.getElementById(`display${itemNo}UnitDiv`).style.display = itemDisplyType;
+	document.getElementById(`display${itemNo}TextDiv`).style.display = "none";
+
+	var displayConfig = localDisplayConfigurations[displayConfigurationNoElement.value];
+	if (displayConfig)
+	{
+		const capabilityID = selectedCapability !== null ? selectedCapability : displayConfig.items[itemNo].capability;
+		if (capabilities[capabilityID])
+		{
+			if (document.getElementById(`display${itemNo}Unit`).value === '')
+			{
+				document.getElementById(`display${itemNo}Unit`).value = capabilities[capabilityID].unit ? capabilities[capabilityID].unit : "";
 			}
 		}
-
-		function fillDisplayCapabilitiesElement(itemNo, capabilitiesElement, capabilities, selectedCapability = null)
+		else if (capabilityID)
 		{
-			const capabilitiesArray = Object.values(capabilities);
-			for (const capability of capabilitiesArray)
-			{
-				var option = document.createElement("option");
-				option.text = `${capability.title} (${capability.id})`;
-				option.value = capability.id;
-				const capabilityIconUrl = getCapabilityIconUrl(capability);
-				if (capabilityIconUrl)
-				{
-					option.dataset.iconUrl = capabilityIconUrl;
-				}
-				capabilitiesElement.add(option);
-			}
-
-			document.getElementById(`display${itemNo}CapabilityDiv`).style.display = itemDisplyType;
-			document.getElementById(`display${itemNo}UnitDiv`).style.display = itemDisplyType;
-			document.getElementById(`display${itemNo}TextDiv`).style.display = "none";
-
-			var displayConfig = localDisplayConfigurations[displayConfigurationNoElement.value];
-			if (displayConfig)
-			{
-				const capabilityID = selectedCapability !== null ? selectedCapability : displayConfig.items[itemNo].capability;
-				if (capabilities[capabilityID])
-				{
-					if (document.getElementById(`display${itemNo}Unit`).value === '')
-					{
-						document.getElementById(`display${itemNo}Unit`).value = capabilities[capabilityID].unit ? capabilities[capabilityID].unit : "";
-					}
-				}
-				else if (capabilityID)
-				{
-					// The capability must be missing, so add it to the list
-					var option = document.createElement("option");
-					option.text = capabilityID + " (Missing)";
-					option.value = capabilityID;
-					capabilitiesElement.add(option);
-				}
-
-				if (capabilityID)
-				{
-					capabilitiesElement.value = capabilityID;
-				}
-				else if (capabilitiesElement.options.length > 0)
-				{
-					capabilitiesElement.selectedIndex = 0;
-				}
-			}
+			// The capability must be missing, so add it to the list
+			var option = document.createElement("option");
+			option.text = capabilityID + " (Missing)";
+			option.value = capabilityID;
+			capabilitiesElement.add(option);
 		}
 
-		function selectDisplayCapability(Element, itemNo)
+		if (capabilityID)
 		{
-			// var capabilities = null;
-			// if (displayCapabilityItems[itemNo].capabilities)
-			// {
-			// 	capabilities = displayCapabilityItems[itemNo].capabilities
-			// }
-			// else
-			// {
-			// 	capabilities = variablesArray
-			// }
-
-			// var capabilityID = Element.value;
-			// if (capabilityID != "" && capabilities[capabilityID])
-			// {
-			// 	document.getElementById(`display${itemNo}Unit`).value = capabilities[capabilityID].units ? capabilities[capabilityID].units : "";
-			// }
-
-			onDisplayLabelChange({ id: Element.id, value: '' }, itemNo);
+			capabilitiesElement.value = capabilityID;
 		}
-
-		function deleteItem(itemNo)
+		else if (capabilitiesElement.options.length > 0)
 		{
-			// Save all the settings so they don't get lost when the controls are redawn
-			storeDisplaySettings();
-
-			var displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
-
-			if (displayConfiguration != null)
-			{
-				displayConfiguration.items.splice(itemNo, 1);
-				drawDisplayConfiguration(displayConfiguration);
-			}
+			capabilitiesElement.selectedIndex = 0;
 		}
+	}
+}
 
-		function deleteSelectedInlineDisplayItem()
+function selectDisplayCapability(Element, itemNo)
+{
+	// var capabilities = null;
+	// if (displayCapabilityItems[itemNo].capabilities)
+	// {
+	// 	capabilities = displayCapabilityItems[itemNo].capabilities
+	// }
+	// else
+	// {
+	// 	capabilities = variablesArray
+	// }
+
+	// var capabilityID = Element.value;
+	// if (capabilityID != "" && capabilities[capabilityID])
+	// {
+	// 	document.getElementById(`display${itemNo}Unit`).value = capabilities[capabilityID].units ? capabilities[capabilityID].units : "";
+	// }
+
+	onDisplayLabelChange({ id: Element.id, value: '' }, itemNo);
+}
+
+function deleteItem(itemNo)
+{
+	// Save all the settings so they don't get lost when the controls are redawn
+	storeDisplaySettings();
+
+	var displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+
+	if (displayConfiguration != null)
+	{
+		displayConfiguration.items.splice(itemNo, 1);
+		drawDisplayConfiguration(displayConfiguration);
+	}
+}
+
+function deleteSelectedInlineDisplayItem()
+{
+	const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+	if (!displayConfiguration || !Array.isArray(displayConfiguration.items) || displayConfiguration.items.length === 0)
+	{
+		displayInlineSelectedItemNo = -1;
+		renderDisplayInlineSimulator();
+		return;
+	}
+
+	if (displayInlineSelectedItemNo < 0 || displayInlineSelectedItemNo >= displayConfiguration.items.length)
+	{
+		displayInlineSelectedItemNo = displayConfiguration.items.length - 1;
+		renderDisplayInlineSimulator();
+		return;
+	}
+
+	const deleteIndex = displayInlineSelectedItemNo;
+	displayInlineSelectedItemNo = (displayConfiguration.items.length <= 1)
+		? -1
+		: Math.min(deleteIndex, displayConfiguration.items.length - 2);
+	deleteItem(deleteIndex);
+	configDraftDirtySinceLoad = true;
+	flushConfigurationDraftPersist();
+}
+
+function storeDisplaySettings()
+{
+	var displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+
+	if (displayConfiguration != null)
+	{
+		displayConfiguration.version = 2;
+		displayConfiguration.name = displayConfigNameElement.value;
+
+		for (var itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
 		{
-			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
-			if (!displayConfiguration || !Array.isArray(displayConfiguration.items) || displayConfiguration.items.length === 0)
+			const deviceElement = document.getElementById(`display${itemNo}Device`);
+
+			displayConfiguration.items[itemNo].device = deviceElement.value;
+			if (deviceElement.selectedIndex >= 0)
 			{
-				displayInlineSelectedItemNo = -1;
-				renderDisplayInlineSimulator();
-				return;
-			}
+				displayConfiguration.items[itemNo].deviceName = deviceElement.options[deviceElement.selectedIndex].text;
 
-			if (displayInlineSelectedItemNo < 0 || displayInlineSelectedItemNo >= displayConfiguration.items.length)
-			{
-				displayInlineSelectedItemNo = displayConfiguration.items.length - 1;
-				renderDisplayInlineSimulator();
-				return;
-			}
-
-			const deleteIndex = displayInlineSelectedItemNo;
-			displayInlineSelectedItemNo = (displayConfiguration.items.length <= 1)
-				? -1
-				: Math.min(deleteIndex, displayConfiguration.items.length - 2);
-			deleteItem(deleteIndex);
-			configDraftDirtySinceLoad = true;
-			flushConfigurationDraftPersist();
-		}
-
-		function storeDisplaySettings()
-		{
-			var displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
-
-			if (displayConfiguration != null)
-			{
-				displayConfiguration.version = 2;
-				displayConfiguration.name = displayConfigNameElement.value;
-
-				for (var itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
-				{
-					const deviceElement = document.getElementById(`display${itemNo}Device`);
-
-					displayConfiguration.items[itemNo].device = deviceElement.value;
-					if (deviceElement.selectedIndex >= 0)
-					{
-						displayConfiguration.items[itemNo].deviceName = deviceElement.options[deviceElement.selectedIndex].text;
-
-						// Remove ' (Missing Devices)' from the device name
-						displayConfiguration.items[itemNo].deviceName = displayConfiguration.items[itemNo].deviceName.replace(/ \(Missing Devices\)/g, '');
-					}
-					else
-					{
-						displayConfiguration.items[itemNo].deviceName = "";
-					}
-
-					displayConfiguration.items[itemNo].capability = document.getElementById(`display${itemNo}Capability`).value;
-					if (document.getElementById(`display${itemNo}Capability`).selectedIndex >= 0)
-					{
-						displayConfiguration.items[itemNo].capabilityName = document.getElementById(`display${itemNo}Capability`).options[document.getElementById(`display${itemNo}Capability`).selectedIndex].text;
-
-						// Remove ' (Missing)' from the capability name
-						displayConfiguration.items[itemNo].capabilityName = displayConfiguration.items[itemNo].capabilityName.replace(/ \(Missing\)/g, '');
-					}
-					else
-					{
-						displayConfiguration.items[itemNo].capabilityName = "";
-					}
-					displayConfiguration.items[itemNo].label = sanitizeDisplayString(document.getElementById(`display${itemNo}Label`).value, '');
-					displayConfiguration.items[itemNo].unit = sanitizeDisplayString(document.getElementById(`display${itemNo}Unit`).value, '');
-					displayConfiguration.items[itemNo].text = sanitizeDisplayString(document.getElementById(`display${itemNo}Text`).value, '');
-					displayConfiguration.items[itemNo].xPos = document.getElementById(`display${itemNo}X`).value;
-					displayConfiguration.items[itemNo].yPos = document.getElementById(`display${itemNo}Y`).value;
-					displayConfiguration.items[itemNo].width = document.getElementById(`display${itemNo}Width`).value;
-					displayConfiguration.items[itemNo].rounding = document.getElementById(`display${itemNo}Rounding`).value;
-					displayConfiguration.items[itemNo].fontSize = document.getElementById(`display${itemNo}FontSize`).value;
-					displayConfiguration.items[itemNo].brokerId = getBrokerSelectValue(document.getElementById(`display${itemNo}BrokerId`), displayConfiguration.items[itemNo].brokerId);
-					displayConfiguration.items[itemNo].page = document.getElementById(`display${itemNo}page`).value;
-					displayConfiguration.items[itemNo].boxType = document.getElementById(`display${itemNo}BoxType`).value;
-					displayConfiguration.items[itemNo].svg = clampSVGField(document.getElementById(`display${itemNo}SVG`)?.value || '');
-
-					storeDisplayCustomMQTTItems(itemNo, displayConfiguration.items[itemNo].customMQTTTopics);
-				}
-			}
-		}
-
-		function addDisplayItem()
-		{
-			if (!displayConfigurationsFetched)
-			{
-				return;
-			}
-
-			storeDisplaySettings();
-
-			displayConfigurationNo = displayConfigurationNoElement.value;
-			var displayConfiguration = localDisplayConfigurations[displayConfigurationNo];
-			if (displayConfiguration)
-			{
-				let itemId = displayConfiguration.items.length;
-				const targetPage = Number.isInteger(displayPagePopupCurrentPage) ? displayPagePopupCurrentPage : 0;
-
-				var displayItem = {
-					itemId,
-					device: "none",
-					deviceName: "none",
-					capability: "",
-					capabilityName: "",
-					label: "New Item",
-					unit: "",
-					numberRounding: -1,
-					xPos: 0,
-					yPos: 0,
-					width: 100,
-					fontSize: 1,
-					brokerId: 'Default',
-					page: targetPage,
-					customMQTTTopics: [],
-					svg: '',
-				};
-
-				displayConfiguration.items.push(displayItem) - 1;
-				displayConfiguration.pageCount = Math.max(parseInt(displayConfiguration.pageCount, 10) || 1, targetPage + 1);
-				localDisplayConfigurations[displayConfigurationNo] = displayConfiguration;
-				displayInlineSelectedItemNo = displayConfiguration.items.length - 1;
-
-				drawDisplayConfiguration(displayConfiguration, itemId);
-				configDraftDirtySinceLoad = true;
-				flushConfigurationDraftPersist();
-			}
-		}
-
-		function addDisplayPage()
-		{
-			if (!displayConfigurationsFetched)
-			{
-				return;
-			}
-
-			storeDisplaySettings();
-			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
-			if (!displayConfiguration)
-			{
-				return;
-			}
-
-			const currentPage = Number.isInteger(displayPagePopupCurrentPage) ? displayPagePopupCurrentPage : 0;
-			const insertedPage = Math.max(0, currentPage + 1);
-
-			if (Array.isArray(displayConfiguration.items))
-			{
-				for (const item of displayConfiguration.items)
-				{
-					const itemPage = parseInt(item.page, 10) || 0;
-					if (itemPage >= insertedPage)
-					{
-						item.page = itemPage + 1;
-					}
-				}
-			}
-
-			const currentPageCount = Math.max(parseInt(displayConfiguration.pageCount, 10) || getDisplayPopupPages(displayConfiguration).length, 1);
-			displayConfiguration.pageCount = currentPageCount + 1;
-			displayPagePopupCurrentPage = insertedPage;
-			displayInlineSelectedItemNo = -1;
-			drawDisplayConfiguration(displayConfiguration);
-			configDraftDirtySinceLoad = true;
-			flushConfigurationDraftPersist();
-		}
-
-		function deleteCurrentDisplayPage()
-		{
-			if (!displayConfigurationsFetched)
-			{
-				return;
-			}
-
-			if (!Number.isInteger(displayPagePopupCurrentPage) || displayPagePopupCurrentPage <= 0)
-			{
-				return;
-			}
-
-			storeDisplaySettings();
-			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
-			if (!displayConfiguration || !Array.isArray(displayConfiguration.items))
-			{
-				return;
-			}
-
-			displayConfiguration.items = displayConfiguration.items.filter((item) =>
-			{
-				const itemPage = parseInt(item.page, 10) || 0;
-				return itemPage !== displayPagePopupCurrentPage;
-			});
-
-			for (const item of displayConfiguration.items)
-			{
-				const itemPage = parseInt(item.page, 10) || 0;
-				if (itemPage > displayPagePopupCurrentPage)
-				{
-					item.page = itemPage - 1;
-				}
-			}
-
-			const currentPageCount = Math.max(parseInt(displayConfiguration.pageCount, 10) || getDisplayPopupPages(displayConfiguration).length, 1);
-			displayConfiguration.pageCount = Math.max(1, currentPageCount - 1);
-
-			const remainingPages = getDisplayPopupPages(displayConfiguration);
-			displayPagePopupCurrentPage = remainingPages.includes(displayPagePopupCurrentPage - 1)
-				? (displayPagePopupCurrentPage - 1)
-				: remainingPages[remainingPages.length - 1] || 0;
-			displayInlineSelectedItemNo = -1;
-
-			drawDisplayConfiguration(displayConfiguration);
-			configDraftDirtySinceLoad = true;
-			flushConfigurationDraftPersist();
-		}
-
-		/// Broker Config code
-		function drawBrokerItems()
-		{
-			document.getElementById('brokerItemsSection').innerHTML = "";
-			for (var itemNo = 0; itemNo < localBrokerItems.length; itemNo++)
-			{
-				const item = localBrokerItems[itemNo];
-				insertBrokerItemSection(item, itemNo);
-			}
-		}
-
-		function insertBrokerItemSection(item, itemNo, expanded = false)
-		{
-			const ctrlLabels = {
-				id: Homey.__("settings.id"),
-				address: Homey.__("settings.address"),
-				port: Homey.__("settings.port"),
-				wsPort: Homey.__("settings.wsPort"),
-				enabled: Homey.__("settings.enabled"),
-				username: Homey.__("settings.username"),
-				password: Homey.__("settings.password"),
-				idExplanation: Homey.__("settings.idExplanation"),
-				addressExplanation: Homey.__("settings.addressExplanation"),
-				portExplanation: Homey.__("settings.portExplanation"),
-				wsPortExplanation: Homey.__("settings.wsPortExplanation"),
-				enabledExplanation: Homey.__("settings.enabledExplanation"),
-				usernameExplanation: Homey.__("settings.usernameExplanation"),
-				passwordExplanation: Homey.__("settings.passwordExplanation"),
-			};
-			const itemLegend = Homey.__("settings.brokerItemlegend", { itemNo: itemNo + 1 });
-			const protected = item.protected ? "disabled" : "";
-			const enableOption = item.enabled ? "checked" : "";
-			let deleteButton = "";
-			if (!item.protected)
-			{
-				deleteButton = `<p><button class="homey-button-secondary-shadow" id="deleteBrokerItem${itemNo}" onClick="deleteBrokerItem(${itemNo})" style="font-size: 30px;"><i class="fi fi-rr-trash"></i> </button></p>`;
-			}
-
-			let brokerDescription = "";
-			if (item.brokerid === "homey")
-			{
-				brokerDescription = Homey.__("settings.brokerHomey");
-				ctrlLabels.passwordExplanation = Homey.__("settings.homeyPasswordExplanation");
-				ctrlLabels.usernameExplanation = Homey.__("settings.homeyUsernameExplanation");
-			}
-			else if (item.brokerid === "buttonplus")
-			{
-				brokerDescription = Homey.__("settings.brokerButtonPlus");
+				// Remove ' (Missing Devices)' from the device name
+				displayConfiguration.items[itemNo].deviceName = displayConfiguration.items[itemNo].deviceName.replace(/ \(Missing Devices\)/g, '');
 			}
 			else
 			{
-				brokerDescription = Homey.__("settings.brokerUser");
+				displayConfiguration.items[itemNo].deviceName = "";
 			}
 
-			var section = document.getElementById('brokerItemsSection').innerHTML;
-			section = section +
-				`<div class="horizontalcontainer">
+			displayConfiguration.items[itemNo].capability = document.getElementById(`display${itemNo}Capability`).value;
+			if (document.getElementById(`display${itemNo}Capability`).selectedIndex >= 0)
+			{
+				displayConfiguration.items[itemNo].capabilityName = document.getElementById(`display${itemNo}Capability`).options[document.getElementById(`display${itemNo}Capability`).selectedIndex].text;
+
+				// Remove ' (Missing)' from the capability name
+				displayConfiguration.items[itemNo].capabilityName = displayConfiguration.items[itemNo].capabilityName.replace(/ \(Missing\)/g, '');
+			}
+			else
+			{
+				displayConfiguration.items[itemNo].capabilityName = "";
+			}
+			displayConfiguration.items[itemNo].label = sanitizeDisplayString(document.getElementById(`display${itemNo}Label`).value, '');
+			displayConfiguration.items[itemNo].unit = sanitizeDisplayString(document.getElementById(`display${itemNo}Unit`).value, '');
+			displayConfiguration.items[itemNo].text = sanitizeDisplayString(document.getElementById(`display${itemNo}Text`).value, '');
+			displayConfiguration.items[itemNo].xPos = document.getElementById(`display${itemNo}X`).value;
+			displayConfiguration.items[itemNo].yPos = document.getElementById(`display${itemNo}Y`).value;
+			displayConfiguration.items[itemNo].width = document.getElementById(`display${itemNo}Width`).value;
+			displayConfiguration.items[itemNo].rounding = document.getElementById(`display${itemNo}Rounding`).value;
+			displayConfiguration.items[itemNo].fontSize = document.getElementById(`display${itemNo}FontSize`).value;
+			displayConfiguration.items[itemNo].brokerId = getBrokerSelectValue(document.getElementById(`display${itemNo}BrokerId`), displayConfiguration.items[itemNo].brokerId);
+			displayConfiguration.items[itemNo].page = document.getElementById(`display${itemNo}page`).value;
+			displayConfiguration.items[itemNo].boxType = document.getElementById(`display${itemNo}BoxType`).value;
+			displayConfiguration.items[itemNo].svg = clampSVGField(document.getElementById(`display${itemNo}SVG`)?.value || '');
+
+			storeDisplayCustomMQTTItems(itemNo, displayConfiguration.items[itemNo].customMQTTTopics);
+		}
+	}
+}
+
+function addDisplayItem()
+{
+	if (!displayConfigurationsFetched)
+	{
+		return;
+	}
+
+	storeDisplaySettings();
+
+	displayConfigurationNo = displayConfigurationNoElement.value;
+	var displayConfiguration = localDisplayConfigurations[displayConfigurationNo];
+	if (displayConfiguration)
+	{
+		let itemId = displayConfiguration.items.length;
+		const targetPage = Number.isInteger(displayPagePopupCurrentPage) ? displayPagePopupCurrentPage : 0;
+
+		var displayItem = {
+			itemId,
+			device: "none",
+			deviceName: "none",
+			capability: "",
+			capabilityName: "",
+			label: "New Item",
+			unit: "",
+			numberRounding: -1,
+			xPos: 0,
+			yPos: 0,
+			width: 100,
+			fontSize: 1,
+			brokerId: 'Default',
+			page: targetPage,
+			customMQTTTopics: [],
+			svg: '',
+		};
+
+		displayConfiguration.items.push(displayItem) - 1;
+		displayConfiguration.pageCount = Math.max(parseInt(displayConfiguration.pageCount, 10) || 1, targetPage + 1);
+		localDisplayConfigurations[displayConfigurationNo] = displayConfiguration;
+		displayInlineSelectedItemNo = displayConfiguration.items.length - 1;
+
+		drawDisplayConfiguration(displayConfiguration, itemId);
+		configDraftDirtySinceLoad = true;
+		flushConfigurationDraftPersist();
+	}
+}
+
+function addDisplayPage()
+{
+	if (!displayConfigurationsFetched)
+	{
+		return;
+	}
+
+	storeDisplaySettings();
+	const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+	if (!displayConfiguration)
+	{
+		return;
+	}
+
+	const currentPage = Number.isInteger(displayPagePopupCurrentPage) ? displayPagePopupCurrentPage : 0;
+	const insertedPage = Math.max(0, currentPage + 1);
+
+	if (Array.isArray(displayConfiguration.items))
+	{
+		for (const item of displayConfiguration.items)
+		{
+			const itemPage = parseInt(item.page, 10) || 0;
+			if (itemPage >= insertedPage)
+			{
+				item.page = itemPage + 1;
+			}
+		}
+	}
+
+	const currentPageCount = Math.max(parseInt(displayConfiguration.pageCount, 10) || getDisplayPopupPages(displayConfiguration).length, 1);
+	displayConfiguration.pageCount = currentPageCount + 1;
+	displayPagePopupCurrentPage = insertedPage;
+	displayInlineSelectedItemNo = -1;
+	drawDisplayConfiguration(displayConfiguration);
+	configDraftDirtySinceLoad = true;
+	flushConfigurationDraftPersist();
+}
+
+function deleteCurrentDisplayPage()
+{
+	if (!displayConfigurationsFetched)
+	{
+		return;
+	}
+
+	if (!Number.isInteger(displayPagePopupCurrentPage) || displayPagePopupCurrentPage <= 0)
+	{
+		return;
+	}
+
+	storeDisplaySettings();
+	const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+	if (!displayConfiguration || !Array.isArray(displayConfiguration.items))
+	{
+		return;
+	}
+
+	displayConfiguration.items = displayConfiguration.items.filter((item) =>
+	{
+		const itemPage = parseInt(item.page, 10) || 0;
+		return itemPage !== displayPagePopupCurrentPage;
+	});
+
+	for (const item of displayConfiguration.items)
+	{
+		const itemPage = parseInt(item.page, 10) || 0;
+		if (itemPage > displayPagePopupCurrentPage)
+		{
+			item.page = itemPage - 1;
+		}
+	}
+
+	const currentPageCount = Math.max(parseInt(displayConfiguration.pageCount, 10) || getDisplayPopupPages(displayConfiguration).length, 1);
+	displayConfiguration.pageCount = Math.max(1, currentPageCount - 1);
+
+	const remainingPages = getDisplayPopupPages(displayConfiguration);
+	displayPagePopupCurrentPage = remainingPages.includes(displayPagePopupCurrentPage - 1)
+		? (displayPagePopupCurrentPage - 1)
+		: remainingPages[remainingPages.length - 1] || 0;
+	displayInlineSelectedItemNo = -1;
+
+	drawDisplayConfiguration(displayConfiguration);
+	configDraftDirtySinceLoad = true;
+	flushConfigurationDraftPersist();
+}
+
+/// Broker Config code
+function drawBrokerItems()
+{
+	document.getElementById('brokerItemsSection').innerHTML = "";
+	for (var itemNo = 0; itemNo < localBrokerItems.length; itemNo++)
+	{
+		const item = localBrokerItems[itemNo];
+		insertBrokerItemSection(item, itemNo);
+	}
+}
+
+function insertBrokerItemSection(item, itemNo, expanded = false)
+{
+	const ctrlLabels = {
+		id: Homey.__("settings.id"),
+		address: Homey.__("settings.address"),
+		port: Homey.__("settings.port"),
+		wsPort: Homey.__("settings.wsPort"),
+		enabled: Homey.__("settings.enabled"),
+		username: Homey.__("settings.username"),
+		password: Homey.__("settings.password"),
+		idExplanation: Homey.__("settings.idExplanation"),
+		addressExplanation: Homey.__("settings.addressExplanation"),
+		portExplanation: Homey.__("settings.portExplanation"),
+		wsPortExplanation: Homey.__("settings.wsPortExplanation"),
+		enabledExplanation: Homey.__("settings.enabledExplanation"),
+		usernameExplanation: Homey.__("settings.usernameExplanation"),
+		passwordExplanation: Homey.__("settings.passwordExplanation"),
+	};
+	const itemLegend = Homey.__("settings.brokerItemlegend", { itemNo: itemNo + 1 });
+	const protected = item.protected ? "disabled" : "";
+	const enableOption = item.enabled ? "checked" : "";
+	let deleteButton = "";
+	if (!item.protected)
+	{
+		deleteButton = `<p><button class="homey-button-secondary-shadow" id="deleteBrokerItem${itemNo}" onClick="deleteBrokerItem(${itemNo})" style="font-size: 30px;"><i class="fi fi-rr-trash"></i> </button></p>`;
+	}
+
+	let brokerDescription = "";
+	if (item.brokerid === "homey")
+	{
+		brokerDescription = Homey.__("settings.brokerHomey");
+		ctrlLabels.passwordExplanation = Homey.__("settings.homeyPasswordExplanation");
+		ctrlLabels.usernameExplanation = Homey.__("settings.homeyUsernameExplanation");
+	}
+	else if (item.brokerid === "buttonplus")
+	{
+		brokerDescription = Homey.__("settings.brokerButtonPlus");
+	}
+	else
+	{
+		brokerDescription = Homey.__("settings.brokerUser");
+	}
+
+	var section = document.getElementById('brokerItemsSection').innerHTML;
+	section = section +
+		`<div class="horizontalcontainer">
 					<div class="horizontalgroup">
 						<details ${expanded ? 'open' : ''}>
 							<summary class="summary">
@@ -9919,385 +10760,385 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 					</div>
 				</div>`;
 
-			document.getElementById('brokerItemsSection').innerHTML = section;
-		}
+	document.getElementById('brokerItemsSection').innerHTML = section;
+}
 
-		function onBrokerLabelChange(element, itemNo)
+function onBrokerLabelChange(element, itemNo)
+{
+	document.getElementById(`broker${itemNo}Legend`).innerHTML = `<b><em>${Homey.__("settings.brokerItemlegend", { itemNo: itemNo + 1 })}</em></b> - ${element.value}`;
+}
+
+function updateBrokerLists(itemNo)
+{
+	// Get the current button configuration
+	const buttonConfig = localButtonConfigurations[currentButtonConfigurationNo];
+
+	// if buttonConfig is and array then the number of pages is the length of the array else it is 1
+	const numberOfPages = Array.isArray(buttonConfig) ? buttonConfig.length : 1;
+	for (let page = 0; page < numberOfPages; page++)
+	{
+		updateBrokerListSection(itemNo, 'left', page);
+		updateBrokerListSection(itemNo, 'right', page);
+	}
+
+	// Update the default broker list
+	defaultBrokerElement.options[itemNo].text = document.getElementById(`broker${itemNo}Id`).value;
+
+	// Update the broker in the all the custom MQTT topics in the panel config
+	for (let k = 0; k < customMQTTItemsElements.length; k++)
+	{
+		customMQTTItemsElements[k].options[itemNo].text = document.getElementById(`broker${itemNo}Id`).value;
+	}
+
+	// Update the broker in the all the custom disply MQTT topics in the panel config
+	for (let k = 0; k < customDisplayMQTTItemsElements.length; k++)
+	{
+		customDisplayMQTTItemsElements[k].options[itemNo].text = document.getElementById(`broker${itemNo}Id`).value;
+	}
+
+	// Update the broker lists in the display config
+	const displayConfig = localDisplayConfigurations[currentDisplayConfigurationNo];
+	for (var displayItemNo = 0; displayItemNo < displayConfig.items.length; displayItemNo++)
+	{
+		const brokerIdElement = document.getElementById(`display${displayItemNo}BrokerId`);
+		brokerIdElement.options[itemNo].text = document.getElementById(`broker${itemNo}Id`).value;
+	}
+}
+
+function updateBrokerListSection(itemNo, side, page)
+{
+	// Update the broker in the left and right broker list in the panel config
+	const brokerIdElement = document.getElementById(`${side}${page}BrokerId`);
+	brokerIdElement.options[itemNo].text = document.getElementById(`broker${itemNo}Id`).value;
+}
+
+function deleteBrokerItem(itemNo)
+{
+	if (localBrokerItems.length > 2 && !localBrokerItems[itemNo].protected)
+	{
+		localBrokerItems.splice(itemNo, 1);
+		drawBrokerItems();
+
+		// Remove from the default broker list
+		defaultBrokerElement.remove(itemNo);
+
+		// Remove the broker from the broker list in the panel and display config
+		removeBrokerFromConfig(itemNo);
+	}
+	else
+	{
+		Homey.alert(Homey.__("settings.deleteBrokerItemError"));
+	}
+}
+
+function rebuildBrokerLists(itemNo)
+{
+	const enabled = document.getElementById(`broker${itemNo}Enabled`).checked;
+	localBrokerItems[itemNo].enabled = enabled;
+
+	// Fetch current settings so we can restore them after the rebuild
+	// Get the current configuration
+	const buttonConfig = localButtonConfigurations[currentButtonConfigurationNo];
+
+	// if buttonConfig is and array then the number of pages is the length of the array else it is 1
+	const numberOfPages = buttonConfig.length;
+	for (let page = 0; page < numberOfPages; page++)
+	{
+		// get the broker element
+		const leftBrokerIdElement = document.getElementById(`left${page}BrokerId`);
+		const rightBrokerIdElement = document.getElementById(`right${page}BrokerId`);
+
+		buttonConfig[page].leftBrokerId = getBrokerSelectValue(leftBrokerIdElement, buttonConfig[page].leftBrokerId);
+		buttonConfig[page].rightBrokerId = getBrokerSelectValue(rightBrokerIdElement, buttonConfig[page].rightBrokerId);
+
+		// reset the broker lists in all the config items
+		leftBrokerIdElement.length = 0;
+		rightBrokerIdElement.length = 0;
+	}
+
+	for (let k = 0; k < customMQTTItemsElements.length; k++)
+	{
+		customMQTTItemsElements[k].length = 0;
+	}
+
+	for (let k = 0; k < customDisplayMQTTItemsElements.length; k++)
+	{
+		customDisplayMQTTItemsElements[k].length = 0;
+	}
+
+	// Reset the default broker list
+	const defaultBrokerItem = defaultBrokerElement.value;
+	defaultBrokerElement.length = 0;
+
+	const displayConfig = localDisplayConfigurations[currentDisplayConfigurationNo];
+	for (let displayItemNo = 0; displayItemNo < displayConfig.items.length; displayItemNo++)
+	{
+		const displayItem = displayConfig.items[displayItemNo];
+		const brokerIdElement = document.getElementById(`display${displayItemNo}BrokerId`);
+		displayItem.brokerId = getBrokerSelectValue(brokerIdElement, displayItem.brokerId);
+
+		brokerIdElement.length = 0;
+	}
+
+	// Add a 'Default' broker entry to the lists
+	var defaultText = Homey.__("settings.default");
+
+	for (let page = 0; page < numberOfPages; page++)
+	{
+		// get the broker element
+		const leftBrokerIdElement = document.getElementById(`left${page}BrokerId`);
+		const rightBrokerIdElement = document.getElementById(`right${page}BrokerId`);
+
+		var option = document.createElement("option");
+		option.value = 'Default';
+		option.text = defaultText;
+		leftBrokerIdElement.add(option);
+
+		var option = document.createElement("option");
+		option.value = 'Default';
+		option.text = defaultText;
+		rightBrokerIdElement.add(option);
+	}
+
+	// Add the brokers to the broker list in the panel and display config
+	for (var itemNo = 0; itemNo < localBrokerItems.length; itemNo++)
+	{
+		// Add the broker to the broker list in the panel and display config
+		var brokerItem = localBrokerItems[itemNo];
+		if (brokerItem.enabled)
 		{
-			document.getElementById(`broker${itemNo}Legend`).innerHTML = `<b><em>${Homey.__("settings.brokerItemlegend", { itemNo: itemNo + 1 })}</em></b> - ${element.value}`;
+			addBrokerToConfig(brokerItem);
 		}
+	}
 
-		function updateBrokerLists(itemNo)
+	for (let page = 0; page < numberOfPages; page++)
+	{
+		// get the broker element
+		const leftBrokerIdElement = document.getElementById(`left${page}BrokerId`);
+		const rightBrokerIdElement = document.getElementById(`right${page}BrokerId`);
+
+		// select the broker in the broker list in the panel and display config
+		setBrokerSelectValue(leftBrokerIdElement, buttonConfig[page].leftBrokerId);
+		setBrokerSelectValue(rightBrokerIdElement, buttonConfig[page].rightBrokerId);
+	}
+
+	for (let displayItemNo = 0; displayItemNo < displayConfig.items.length; displayItemNo++)
+	{
+		var optionDisplay = document.createElement("option");
+		optionDisplay.value = 'Default';
+		optionDisplay.text = defaultText;
+		document.getElementById(`display${displayItemNo}BrokerId`).add(optionDisplay);
+		const displayItem = displayConfig.items[displayItemNo];
+		const brokerIdElement = document.getElementById(`display${displayItemNo}BrokerId`);
+		setBrokerSelectValue(brokerIdElement, displayItem.brokerId);
+	}
+}
+
+function addBrokerToConfig(brokerItem, numberOfPages)
+{
+	// Add the new broker to the default broker list
+	var option = document.createElement("option");
+	option.value = brokerItem.brokerid;
+	option.text = brokerItem.brokerid;
+	defaultBrokerElement.add(option);
+
+	for (let page = 0; page < numberOfPages; page++)
+	{
+		// get the broker element
+		const leftBrokerIdElement = document.getElementById(`left${page}BrokerId`);
+		const rightBrokerIdElement = document.getElementById(`right${page}BrokerId`);
+
+		// Add the new broker to the panel config broker lists
+		var optionLeft = document.createElement("option");
+		optionLeft.value = brokerItem.brokerid;
+		optionLeft.text = brokerItem.brokerid;
+		leftBrokerIdElement.add(optionLeft);
+
+		var optionRight = document.createElement("option");
+		optionRight.value = brokerItem.brokerid;
+		optionRight.text = brokerItem.brokerid;
+		rightBrokerIdElement.add(optionRight);
+	}
+
+	// Add the new broker to the custom MQTT topic broker lists
+	for (let k = 0; k < customMQTTItemsElements.length; k++)
+	{
+		var option = document.createElement("option");
+		option.value = brokerItem.brokerid;
+		option.text = brokerItem.brokerid;
+		customMQTTItemsElements[k].add(option);
+	}
+
+	// Add the new broker to the custom display MQTT topic broker lists
+	for (let k = 0; k < customDisplayMQTTItemsElements.length; k++)
+	{
+		var option = document.createElement("option");
+		option.value = brokerItem.brokerid;
+		option.text = brokerItem.brokerid;
+		customDisplayMQTTItemsElements[k].add(option);
+	}
+
+	// Add the new broker to the display config broker lists
+	const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+	for (let j = 0; j < displayConfiguration.items.length; j++)
+	{
+		const displayItem = displayConfiguration.items[j];
+		var option = document.createElement("option");
+		option.value = brokerItem.brokerid;
+		option.text = brokerItem.brokerid;
+		let brokerIdElement = document.getElementById(`display${j}BrokerId`);
+		brokerIdElement.add(option);
+	}
+}
+
+function removeBrokerFromConfig(itemNo)
+{
+	// Get the current configuration
+	var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+
+	// if localButtonConfigurations is an array, then set numPage to the length of the array otherwise set numPage to 1
+	var numPages = Array.isArray(buttonPanelConfiguration) ? buttonPanelConfiguration.length : 1;
+
+	for (page = 0; page < numPages; page++)
+	{
+		// Remove the broker from the left and right broker list in the panel config
+		const leftBrokerIdElement = document.getElementById(`left${page}BrokerId`);
+		leftBrokerIdElement.remove(itemNo);
+
+		const rightBrokerIdElement = document.getElementById(`right${page}BrokerId`);
+		rightBrokerIdElement.remove(itemNo);
+	}
+
+	// Remove the broker from the all the custom MQTT topics in the panel config
+	for (let k = 0; k < customMQTTItemsElements.length; k++)
+	{
+		customMQTTItemsElements[k].remove(itemNo);
+	}
+
+	// Remove the broker from the all the custom display MQTT topics in the panel config
+	for (let k = 0; k < customDisplayMQTTItemsElements.length; k++)
+	{
+		customDisplayMQTTItemsElements[k].remove(itemNo);
+	}
+
+	// Remove the broker from all the lists in the display config items
+	const displayConfig = localDisplayConfigurations[currentDisplayConfigurationNo];
+	for (var displayItemNo = 0; displayItemNo < displayConfig.items.length; displayItemNo++)
+	{
+		const item = displayConfig.items[displayItemNo];
+		const brokerIdElement = document.getElementById(`display${displayItemNo}BrokerId`);
+		brokerIdElement.remove(itemNo);
+	}
+
+	defaultBrokerElement.remove(itemNo);
+}
+
+function storeBrokerSettings()
+{
+	let oneEnabled = false;
+	for (var itemNo = 0; itemNo < localBrokerItems.length; itemNo++)
+	{
+		// Make sure there isn't already a broker with this id
+		newBrokerid = document.getElementById(`broker${itemNo}Id`).value;
+
+		for (var itemNo2 = 0; itemNo2 < itemNo; itemNo2++)
 		{
-			// Get the current button configuration
-			const buttonConfig = localButtonConfigurations[currentButtonConfigurationNo];
-
-			// if buttonConfig is and array then the number of pages is the length of the array else it is 1
-			const numberOfPages = Array.isArray(buttonConfig) ? buttonConfig.length : 1;
-			for (let page = 0; page < numberOfPages; page++)
+			if (newBrokerid.toUpperCase() === localBrokerItems[itemNo2].brokerid.toUpperCase())
 			{
-				updateBrokerListSection(itemNo, 'left', page);
-				updateBrokerListSection(itemNo, 'right', page);
-			}
-
-			// Update the default broker list
-			defaultBrokerElement.options[itemNo].text = document.getElementById(`broker${itemNo}Id`).value;
-
-			// Update the broker in the all the custom MQTT topics in the panel config
-			for (let k = 0; k < customMQTTItemsElements.length; k++)
-			{
-				customMQTTItemsElements[k].options[itemNo].text = document.getElementById(`broker${itemNo}Id`).value;
-			}
-
-			// Update the broker in the all the custom disply MQTT topics in the panel config
-			for (let k = 0; k < customDisplayMQTTItemsElements.length; k++)
-			{
-				customDisplayMQTTItemsElements[k].options[itemNo].text = document.getElementById(`broker${itemNo}Id`).value;
-			}
-
-			// Update the broker lists in the display config
-			const displayConfig = localDisplayConfigurations[currentDisplayConfigurationNo];
-			for (var displayItemNo = 0; displayItemNo < displayConfig.items.length; displayItemNo++)
-			{
-				const brokerIdElement = document.getElementById(`display${displayItemNo}BrokerId`);
-				brokerIdElement.options[itemNo].text = document.getElementById(`broker${itemNo}Id`).value;
-			}
-		}
-
-		function updateBrokerListSection(itemNo, side, page)
-		{
-			// Update the broker in the left and right broker list in the panel config
-			const brokerIdElement = document.getElementById(`${side}${page}BrokerId`);
-			brokerIdElement.options[itemNo].text = document.getElementById(`broker${itemNo}Id`).value;
-		}
-
-		function deleteBrokerItem(itemNo)
-		{
-			if (localBrokerItems.length > 2 && !localBrokerItems[itemNo].protected)
-			{
-				localBrokerItems.splice(itemNo, 1);
-				drawBrokerItems();
-
-				// Remove from the default broker list
-				defaultBrokerElement.remove(itemNo);
-
-				// Remove the broker from the broker list in the panel and display config
-				removeBrokerFromConfig(itemNo);
-			}
-			else
-			{
-				Homey.alert(Homey.__("settings.deleteBrokerItemError"));
-			}
-		}
-
-		function rebuildBrokerLists(itemNo)
-		{
-			const enabled = document.getElementById(`broker${itemNo}Enabled`).checked;
-			localBrokerItems[itemNo].enabled = enabled;
-
-			// Fetch current settings so we can restore them after the rebuild
-			// Get the current configuration
-			const buttonConfig = localButtonConfigurations[currentButtonConfigurationNo];
-
-			// if buttonConfig is and array then the number of pages is the length of the array else it is 1
-			const numberOfPages = buttonConfig.length;
-			for (let page = 0; page < numberOfPages; page++)
-			{
-				// get the broker element
-				const leftBrokerIdElement = document.getElementById(`left${page}BrokerId`);
-				const rightBrokerIdElement = document.getElementById(`right${page}BrokerId`);
-
-				buttonConfig[page].leftBrokerId = getBrokerSelectValue(leftBrokerIdElement, buttonConfig[page].leftBrokerId);
-				buttonConfig[page].rightBrokerId = getBrokerSelectValue(rightBrokerIdElement, buttonConfig[page].rightBrokerId);
-
-				// reset the broker lists in all the config items
-				leftBrokerIdElement.length = 0;
-				rightBrokerIdElement.length = 0;
-			}
-
-			for (let k = 0; k < customMQTTItemsElements.length; k++)
-			{
-				customMQTTItemsElements[k].length = 0;
-			}
-
-			for (let k = 0; k < customDisplayMQTTItemsElements.length; k++)
-			{
-				customDisplayMQTTItemsElements[k].length = 0;
-			}
-
-			// Reset the default broker list
-			const defaultBrokerItem = defaultBrokerElement.value;
-			defaultBrokerElement.length = 0;
-
-			const displayConfig = localDisplayConfigurations[currentDisplayConfigurationNo];
-			for (let displayItemNo = 0; displayItemNo < displayConfig.items.length; displayItemNo++)
-			{
-				const displayItem = displayConfig.items[displayItemNo];
-				const brokerIdElement = document.getElementById(`display${displayItemNo}BrokerId`);
-				displayItem.brokerId = getBrokerSelectValue(brokerIdElement, displayItem.brokerId);
-
-				brokerIdElement.length = 0;
-			}
-
-			// Add a 'Default' broker entry to the lists
-			var defaultText = Homey.__("settings.default");
-
-			for (let page = 0; page < numberOfPages; page++)
-			{
-				// get the broker element
-				const leftBrokerIdElement = document.getElementById(`left${page}BrokerId`);
-				const rightBrokerIdElement = document.getElementById(`right${page}BrokerId`);
-
-				var option = document.createElement("option");
-				option.value = 'Default';
-				option.text = defaultText;
-				leftBrokerIdElement.add(option);
-
-				var option = document.createElement("option");
-				option.value = 'Default';
-				option.text = defaultText;
-				rightBrokerIdElement.add(option);
-			}
-
-			// Add the brokers to the broker list in the panel and display config
-			for (var itemNo = 0; itemNo < localBrokerItems.length; itemNo++)
-			{
-				// Add the broker to the broker list in the panel and display config
-				var brokerItem = localBrokerItems[itemNo];
-				if (brokerItem.enabled)
-				{
-					addBrokerToConfig(brokerItem);
-				}
-			}
-
-			for (let page = 0; page < numberOfPages; page++)
-			{
-				// get the broker element
-				const leftBrokerIdElement = document.getElementById(`left${page}BrokerId`);
-				const rightBrokerIdElement = document.getElementById(`right${page}BrokerId`);
-
-				// select the broker in the broker list in the panel and display config
-				setBrokerSelectValue(leftBrokerIdElement, buttonConfig[page].leftBrokerId);
-				setBrokerSelectValue(rightBrokerIdElement, buttonConfig[page].rightBrokerId);
-			}
-
-			for (let displayItemNo = 0; displayItemNo < displayConfig.items.length; displayItemNo++)
-			{
-				var optionDisplay = document.createElement("option");
-				optionDisplay.value = 'Default';
-				optionDisplay.text = defaultText;
-				document.getElementById(`display${displayItemNo}BrokerId`).add(optionDisplay);
-				const displayItem = displayConfig.items[displayItemNo];
-				const brokerIdElement = document.getElementById(`display${displayItemNo}BrokerId`);
-				setBrokerSelectValue(brokerIdElement, displayItem.brokerId);
-			}
-		}
-
-		function addBrokerToConfig(brokerItem, numberOfPages)
-		{
-			// Add the new broker to the default broker list
-			var option = document.createElement("option");
-			option.value = brokerItem.brokerid;
-			option.text = brokerItem.brokerid;
-			defaultBrokerElement.add(option);
-
-			for (let page = 0; page < numberOfPages; page++)
-			{
-				// get the broker element
-				const leftBrokerIdElement = document.getElementById(`left${page}BrokerId`);
-				const rightBrokerIdElement = document.getElementById(`right${page}BrokerId`);
-
-				// Add the new broker to the panel config broker lists
-				var optionLeft = document.createElement("option");
-				optionLeft.value = brokerItem.brokerid;
-				optionLeft.text = brokerItem.brokerid;
-				leftBrokerIdElement.add(optionLeft);
-
-				var optionRight = document.createElement("option");
-				optionRight.value = brokerItem.brokerid;
-				optionRight.text = brokerItem.brokerid;
-				rightBrokerIdElement.add(optionRight);
-			}
-
-			// Add the new broker to the custom MQTT topic broker lists
-			for (let k = 0; k < customMQTTItemsElements.length; k++)
-			{
-				var option = document.createElement("option");
-				option.value = brokerItem.brokerid;
-				option.text = brokerItem.brokerid;
-				customMQTTItemsElements[k].add(option);
-			}
-
-			// Add the new broker to the custom display MQTT topic broker lists
-			for (let k = 0; k < customDisplayMQTTItemsElements.length; k++)
-			{
-				var option = document.createElement("option");
-				option.value = brokerItem.brokerid;
-				option.text = brokerItem.brokerid;
-				customDisplayMQTTItemsElements[k].add(option);
-			}
-
-			// Add the new broker to the display config broker lists
-			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
-			for (let j = 0; j < displayConfiguration.items.length; j++)
-			{
-				const displayItem = displayConfiguration.items[j];
-				var option = document.createElement("option");
-				option.value = brokerItem.brokerid;
-				option.text = brokerItem.brokerid;
-				let brokerIdElement = document.getElementById(`display${j}BrokerId`);
-				brokerIdElement.add(option);
-			}
-		}
-
-		function removeBrokerFromConfig(itemNo)
-		{
-			// Get the current configuration
-			var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-
-			// if localButtonConfigurations is an array, then set numPage to the length of the array otherwise set numPage to 1
-			var numPages = Array.isArray(buttonPanelConfiguration) ? buttonPanelConfiguration.length : 1;
-
-			for (page = 0; page < numPages; page++)
-			{
-				// Remove the broker from the left and right broker list in the panel config
-				const leftBrokerIdElement = document.getElementById(`left${page}BrokerId`);
-				leftBrokerIdElement.remove(itemNo);
-
-				const rightBrokerIdElement = document.getElementById(`right${page}BrokerId`);
-				rightBrokerIdElement.remove(itemNo);
-			}
-
-			// Remove the broker from the all the custom MQTT topics in the panel config
-			for (let k = 0; k < customMQTTItemsElements.length; k++)
-			{
-				customMQTTItemsElements[k].remove(itemNo);
-			}
-
-			// Remove the broker from the all the custom display MQTT topics in the panel config
-			for (let k = 0; k < customDisplayMQTTItemsElements.length; k++)
-			{
-				customDisplayMQTTItemsElements[k].remove(itemNo);
-			}
-
-			// Remove the broker from all the lists in the display config items
-			const displayConfig = localDisplayConfigurations[currentDisplayConfigurationNo];
-			for (var displayItemNo = 0; displayItemNo < displayConfig.items.length; displayItemNo++)
-			{
-				const item = displayConfig.items[displayItemNo];
-				const brokerIdElement = document.getElementById(`display${displayItemNo}BrokerId`);
-				brokerIdElement.remove(itemNo);
-			}
-
-			defaultBrokerElement.remove(itemNo);
-		}
-
-		function storeBrokerSettings()
-		{
-			let oneEnabled = false;
-			for (var itemNo = 0; itemNo < localBrokerItems.length; itemNo++)
-			{
-				// Make sure there isn't already a broker with this id
-				newBrokerid = document.getElementById(`broker${itemNo}Id`).value;
-
-				for (var itemNo2 = 0; itemNo2 < itemNo; itemNo2++)
-				{
-					if (newBrokerid.toUpperCase() === localBrokerItems[itemNo2].brokerid.toUpperCase())
-					{
-						Homey.alert(Homey.__("settings.duplicateBrokerIdError", { brokerId: newBrokerid }));
-						return false;
-					}
-				}
-
-				const enabled = document.getElementById(`broker${itemNo}Enabled`).checked;
-				if (enabled)
-				{
-					oneEnabled = true;
-				}
-				localBrokerItems[itemNo].enabled = enabled;
-				localBrokerItems[itemNo].brokerid = newBrokerid;
-				localBrokerItems[itemNo].url = document.getElementById(`broker${itemNo}Address`).value;
-				localBrokerItems[itemNo].port = document.getElementById(`broker${itemNo}Port`).value;
-				localBrokerItems[itemNo].wsport = document.getElementById(`broker${itemNo}WSPort`).value;
-
-				const username = document.getElementById(`broker${itemNo}Username`).value;
-				const password = document.getElementById(`broker${itemNo}Password`).value;
-				if (!username && password)
-				{
-					Homey.alert(Homey.__("settings.passwordError1"));
-					return false;
-				}
-				localBrokerItems[itemNo].username = username;
-				localBrokerItems[itemNo].password = password;
-			}
-
-			if (!oneEnabled)
-			{
-				Homey.alert(Homey.__("settings.noEnabledBrokerError"));
+				Homey.alert(Homey.__("settings.duplicateBrokerIdError", { brokerId: newBrokerid }));
 				return false;
 			}
-			return oneEnabled;
 		}
 
-		/// Custom MQTT code
-		function drawCustomMQTTTopics(side, page, buttonPanelConfiguration)
+		const enabled = document.getElementById(`broker${itemNo}Enabled`).checked;
+		if (enabled)
 		{
-			const customMQTTTopicsSectionElement = document.getElementById(`${side}${page}CustomMQTTTopicsSection`);
-			if (!customMQTTTopicsSectionElement || !buttonPanelConfiguration)
-			{
-				return;
-			}
-
-			customMQTTTopicsSectionElement.innerHTML = "";
-			customMQTTItemsElements = [];
-
-			const customMQTTTopics = Array.isArray(buttonPanelConfiguration[`${side}CustomMQTTTopics`]) ? buttonPanelConfiguration[`${side}CustomMQTTTopics`] : [];
-
-			for (var itemNo = 0; itemNo < customMQTTTopics.length; itemNo++)
-			{
-				const topic = customMQTTTopics[itemNo];
-				insertCustomMQTTTopicSection(topic, itemNo, side, page);
-			}
-
-			// Set the value for the brokerID in each custom MQTT topics section
-			for (var itemNo = 0; itemNo < customMQTTTopics.length; itemNo++)
-			{
-				const topic = customMQTTTopics[itemNo];
-				setBrokerSelectValue(document.getElementById(`${side}${page}CustomMQTT${itemNo}BrokerId`), topic.brokerId);
-			}
-
-			var tooltips = document.querySelectorAll(".tooltip");
-			tooltips.forEach(function (tooltip, index)
-			{
-				// Set a mouse over function for each tooltop element
-				tooltip.addEventListener("mouseover", position_tooltip); // On hover, launch the function below
-			})
+			oneEnabled = true;
 		}
+		localBrokerItems[itemNo].enabled = enabled;
+		localBrokerItems[itemNo].brokerid = newBrokerid;
+		localBrokerItems[itemNo].url = document.getElementById(`broker${itemNo}Address`).value;
+		localBrokerItems[itemNo].port = document.getElementById(`broker${itemNo}Port`).value;
+		localBrokerItems[itemNo].wsport = document.getElementById(`broker${itemNo}WSPort`).value;
 
-		function insertCustomMQTTTopicSection(Topic, ItemNo, Side, Page)
+		const username = document.getElementById(`broker${itemNo}Username`).value;
+		const password = document.getElementById(`broker${itemNo}Password`).value;
+		if (!username && password)
 		{
-			const ctrlLabels = {
-				brokerId: Homey.__("settings.brokerId"),
-				brokerIdExplanation: Homey.__("settings.brokerIdExplanation"),
-				id: Homey.__("settings.MQTTId"),
-				idExplanation: Homey.__("settings.MQTTIdExplanation"),
-				type: Homey.__("settings.type"),
-				typeExplanation: Homey.__("settings.typeExplanation"),
-				topic: Homey.__("settings.topic"),
-				topicExplanation: Homey.__("settings.topicExplanation"),
-				payload: Homey.__("settings.payload"),
-				payloadExplanation: Homey.__("settings.payloadExplanation"),
-				enabled: Homey.__("settings.enabled"),
-				click: Homey.__("settings.click"),
-				longPress: Homey.__("settings.longPress"),
-				led: Homey.__("settings.led"),
-			};
-			const itemLegend = Homey.__("settings.customMQTTItemlegend", { itemNo: ItemNo + 1 });
-			const enableOption = Topic.enabled ? "checked" : "";
+			Homey.alert(Homey.__("settings.passwordError1"));
+			return false;
+		}
+		localBrokerItems[itemNo].username = username;
+		localBrokerItems[itemNo].password = password;
+	}
 
-			var section = document.getElementById(`${Side}${Page}CustomMQTTTopicsSection`).innerHTML;
-			section = section +
-				`<div class="horizontalcontainer">
+	if (!oneEnabled)
+	{
+		Homey.alert(Homey.__("settings.noEnabledBrokerError"));
+		return false;
+	}
+	return oneEnabled;
+}
+
+/// Custom MQTT code
+function drawCustomMQTTTopics(side, page, buttonPanelConfiguration)
+{
+	const customMQTTTopicsSectionElement = document.getElementById(`${side}${page}CustomMQTTTopicsSection`);
+	if (!customMQTTTopicsSectionElement || !buttonPanelConfiguration)
+	{
+		return;
+	}
+
+	customMQTTTopicsSectionElement.innerHTML = "";
+	customMQTTItemsElements = [];
+
+	const customMQTTTopics = Array.isArray(buttonPanelConfiguration[`${side}CustomMQTTTopics`]) ? buttonPanelConfiguration[`${side}CustomMQTTTopics`] : [];
+
+	for (var itemNo = 0; itemNo < customMQTTTopics.length; itemNo++)
+	{
+		const topic = customMQTTTopics[itemNo];
+		insertCustomMQTTTopicSection(topic, itemNo, side, page);
+	}
+
+	// Set the value for the brokerID in each custom MQTT topics section
+	for (var itemNo = 0; itemNo < customMQTTTopics.length; itemNo++)
+	{
+		const topic = customMQTTTopics[itemNo];
+		setBrokerSelectValue(document.getElementById(`${side}${page}CustomMQTT${itemNo}BrokerId`), topic.brokerId);
+	}
+
+	var tooltips = document.querySelectorAll(".tooltip");
+	tooltips.forEach(function (tooltip, index)
+	{
+		// Set a mouse over function for each tooltop element
+		tooltip.addEventListener("mouseover", position_tooltip); // On hover, launch the function below
+	})
+}
+
+function insertCustomMQTTTopicSection(Topic, ItemNo, Side, Page)
+{
+	const ctrlLabels = {
+		brokerId: Homey.__("settings.brokerId"),
+		brokerIdExplanation: Homey.__("settings.brokerIdExplanation"),
+		id: Homey.__("settings.MQTTId"),
+		idExplanation: Homey.__("settings.MQTTIdExplanation"),
+		type: Homey.__("settings.type"),
+		typeExplanation: Homey.__("settings.typeExplanation"),
+		topic: Homey.__("settings.topic"),
+		topicExplanation: Homey.__("settings.topicExplanation"),
+		payload: Homey.__("settings.payload"),
+		payloadExplanation: Homey.__("settings.payloadExplanation"),
+		enabled: Homey.__("settings.enabled"),
+		click: Homey.__("settings.click"),
+		longPress: Homey.__("settings.longPress"),
+		led: Homey.__("settings.led"),
+	};
+	const itemLegend = Homey.__("settings.customMQTTItemlegend", { itemNo: ItemNo + 1 });
+	const enableOption = Topic.enabled ? "checked" : "";
+
+	var section = document.getElementById(`${Side}${Page}CustomMQTTTopicsSection`).innerHTML;
+	section = section +
+		`<div class="horizontalcontainer">
 					<div class="horizontalgroup">
 						<legend class="homey-subtitle">${itemLegend}</legend>
 
@@ -10351,871 +11192,871 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 					</div>
 				</div>`;
 
-			document.getElementById(`${Side}${Page}CustomMQTTTopicsSection`).innerHTML = section;
-			const idx = customMQTTItemsElements.push(document.getElementById(`${Side}${Page}CustomMQTT${ItemNo}BrokerId`)) - 1;
+	document.getElementById(`${Side}${Page}CustomMQTTTopicsSection`).innerHTML = section;
+	const idx = customMQTTItemsElements.push(document.getElementById(`${Side}${Page}CustomMQTT${ItemNo}BrokerId`)) - 1;
 
-			// Add the brokers to the broker list
+	// Add the brokers to the broker list
+	var option = document.createElement("option");
+	option.text = 'Default';
+	option.value = 'Default';
+	customMQTTItemsElements[idx].add(option);
+	for (var brokerNo = 0; brokerNo < localBrokerItems.length; brokerNo++)
+	{
+		const brokerItem = localBrokerItems[brokerNo];
+		var option = document.createElement("option");
+		option.text = brokerItem.brokerid;
+		option.value = brokerItem.brokerid;
+		customMQTTItemsElements[idx].add(option);
+		setBrokerSelectValue(customMQTTItemsElements[idx], Topic.brokerId);
+	}
+}
+
+// Delete the specified custom item from the button panel configuration and redraw the list
+function deleteCustomMQTTItem(itemNo, side, page)
+{
+	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+	if (!Array.isArray(ButtonPanelConfiguration) || !ButtonPanelConfiguration[page])
+	{
+		return;
+	}
+
+	const customMQTTTopics = ButtonPanelConfiguration[page][`${side}CustomMQTTTopics`];
+	if (!Array.isArray(customMQTTTopics))
+	{
+		return;
+	}
+
+	customMQTTTopics.splice(itemNo, 1);
+	drawCustomMQTTTopics(side, page, ButtonPanelConfiguration[page]);
+}
+
+//  Copy the contents of the specified custom item controls to the button panel configuration
+function storeCustomMQTTItem(side, page, buttonPanelConfiguration, itemNo)
+{
+	// Get the custom MQTT topics array
+	const customMQTTTopics = buttonPanelConfiguration[`${side}CustomMQTTTopics`];
+
+	// Check if customMQTTTopics is defined and length is not 0
+	if (!customMQTTTopics || customMQTTTopics.length === 0) return;
+
+	// Fetch the item from the array or create a new one
+	let item = customMQTTTopics[itemNo];
+	if (!item)
+	{
+		item = {};
+		customMQTTTopics.push(item);
+	}
+
+	// Update the item
+	item.id = document.getElementById(`${side}${page}CustomMQTT${itemNo}Id`).value;
+	item.type = document.getElementById(`${side}${page}CustomMQTT${itemNo}Type`).value;
+	item.topic = document.getElementById(`${side}${page}CustomMQTT${itemNo}topic`).value;
+	item.payload = document.getElementById(`${side}${page}CustomMQTT${itemNo}payload`).value;
+	item.brokerId = getBrokerSelectValue(document.getElementById(`${side}${page}CustomMQTT${itemNo}BrokerId`), item.brokerId);
+	item.enabled = document.getElementById(`${side}${page}CustomMQTT${itemNo}Enabled`).checked;
+}
+
+// Copy the contents of the all the custom items controls to the button panel configuration
+function storeCustomMQTTItems(side, page, buttonPanelConfiguration)
+{
+	const topicsSectionElement = document.getElementById(`${side}${page}CustomMQTTTopicsSection`);
+	if (!topicsSectionElement)
+	{
+		return;
+	}
+
+	const topicBrokerElements = topicsSectionElement.querySelectorAll(`select[id^="${side}${page}CustomMQTT"][id$="BrokerId"]`);
+	for (var itemNo = 0; itemNo < topicBrokerElements.length; itemNo++)
+	{
+		storeCustomMQTTItem(side, page, buttonPanelConfiguration, itemNo);
+	}
+}
+
+function getButtonList()
+{
+	Homey.api('POST', '/buttondevices/', {}, function (err, devices)
+	{
+		if (err) return Homey.alert(err);
+
+		fillButtonListElement(webViewIpElement, devices);
+		fillButtonListElement(lastSentIpElement, devices);
+	});
+}
+
+function fillButtonListElement(Element, DevicesArray)
+{
+	if (Element && (DevicesArray.length > 0))
+	{
+		//fill the device lists with devices
+		Element.innerHTML = "";
+
+		for (const device of DevicesArray)
+		{
 			var option = document.createElement("option");
-			option.text = 'Default';
-			option.value = 'Default';
-			customMQTTItemsElements[idx].add(option);
-			for (var brokerNo = 0; brokerNo < localBrokerItems.length; brokerNo++)
-			{
-				const brokerItem = localBrokerItems[brokerNo];
-				var option = document.createElement("option");
-				option.text = brokerItem.brokerid;
-				option.value = brokerItem.brokerid;
-				customMQTTItemsElements[idx].add(option);
-				setBrokerSelectValue(customMQTTItemsElements[idx], Topic.brokerId);
-			}
+			option.text = device.name;
+			option.value = device.ip;
+			Element.add(option);
 		}
+	}
+}
 
-		// Delete the specified custom item from the button panel configuration and redraw the list
-		function deleteCustomMQTTItem(itemNo, side, page)
+function setupButtonBrokerItems()
+{
+	if (!brokerItemsFetched)
+	{
+		setTimeout(setupButtonBrokerItems, 1000);
+		return;
+	}
+
+	// Add a 'Default' broker entry to the lists
+	var defaultText = Homey.__("settings.default");
+
+
+	// Make sure currentButtonConfigurationNo is set and within range
+	if (!currentButtonConfigurationNo || (currentButtonConfigurationNo >= localButtonConfigurations.length))
+	{
+		currentButtonConfigurationNo = 0;
+	}
+
+	// Get the current configuration
+	var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+
+	// if localButtonConfigurations is an array, then set numPage to the length of the array otherwise set numPage to 1
+	var numPages = buttonPanelConfiguration.length;
+
+	// Reset broker lists before repopulating to avoid duplicates after draft restore.
+	for (let page = 0; page < numPages; page++)
+	{
+		const leftBrokerIdElement = document.getElementById(`left${page}BrokerId`);
+		const rightBrokerIdElement = document.getElementById(`right${page}BrokerId`);
+
+		if (leftBrokerIdElement)
 		{
-			var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			if (!Array.isArray(ButtonPanelConfiguration) || !ButtonPanelConfiguration[page])
-			{
-				return;
-			}
-
-			const customMQTTTopics = ButtonPanelConfiguration[page][`${side}CustomMQTTTopics`];
-			if (!Array.isArray(customMQTTTopics))
-			{
-				return;
-			}
-
-			customMQTTTopics.splice(itemNo, 1);
-			drawCustomMQTTTopics(side, page, ButtonPanelConfiguration[page]);
+			leftBrokerIdElement.length = 0;
 		}
-
-		//  Copy the contents of the specified custom item controls to the button panel configuration
-		function storeCustomMQTTItem(side, page, buttonPanelConfiguration, itemNo)
+		if (rightBrokerIdElement)
 		{
-			// Get the custom MQTT topics array
-			const customMQTTTopics = buttonPanelConfiguration[`${side}CustomMQTTTopics`];
-
-			// Check if customMQTTTopics is defined and length is not 0
-			if (!customMQTTTopics || customMQTTTopics.length === 0) return;
-
-			// Fetch the item from the array or create a new one
-			let item = customMQTTTopics[itemNo];
-			if (!item)
-			{
-				item = {};
-				customMQTTTopics.push(item);
-			}
-
-			// Update the item
-			item.id = document.getElementById(`${side}${page}CustomMQTT${itemNo}Id`).value;
-			item.type = document.getElementById(`${side}${page}CustomMQTT${itemNo}Type`).value;
-			item.topic = document.getElementById(`${side}${page}CustomMQTT${itemNo}topic`).value;
-			item.payload = document.getElementById(`${side}${page}CustomMQTT${itemNo}payload`).value;
-			item.brokerId = getBrokerSelectValue(document.getElementById(`${side}${page}CustomMQTT${itemNo}BrokerId`), item.brokerId);
-			item.enabled = document.getElementById(`${side}${page}CustomMQTT${itemNo}Enabled`).checked;
+			rightBrokerIdElement.length = 0;
 		}
+	}
 
-		// Copy the contents of the all the custom items controls to the button panel configuration
-		function storeCustomMQTTItems(side, page, buttonPanelConfiguration)
+	for (let k = 0; k < customMQTTItemsElements.length; k++)
+	{
+		if (customMQTTItemsElements[k])
 		{
-			const topicsSectionElement = document.getElementById(`${side}${page}CustomMQTTTopicsSection`);
-			if (!topicsSectionElement)
-			{
-				return;
-			}
-
-			const topicBrokerElements = topicsSectionElement.querySelectorAll(`select[id^="${side}${page}CustomMQTT"][id$="BrokerId"]`);
-			for (var itemNo = 0; itemNo < topicBrokerElements.length; itemNo++)
-			{
-				storeCustomMQTTItem(side, page, buttonPanelConfiguration, itemNo);
-			}
+			customMQTTItemsElements[k].length = 0;
 		}
+	}
 
-		function getButtonList()
+	for (let k = 0; k < customDisplayMQTTItemsElements.length; k++)
+	{
+		if (customDisplayMQTTItemsElements[k])
 		{
-			Homey.api('POST', '/buttondevices/', {}, function (err, devices)
-			{
-				if (err) return Homey.alert(err);
-
-				fillButtonListElement(webViewIpElement, devices);
-				fillButtonListElement(lastSentIpElement, devices);
-			});
+			customDisplayMQTTItemsElements[k].length = 0;
 		}
+	}
 
-		function fillButtonListElement(Element, DevicesArray)
+	if (displayConfigurationsFetched)
+	{
+		const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+		if (displayConfiguration && Array.isArray(displayConfiguration.items))
 		{
-			if (Element && (DevicesArray.length > 0))
+			for (let j = 0; j < displayConfiguration.items.length; j++)
 			{
-				//fill the device lists with devices
-				Element.innerHTML = "";
-
-				for (const device of DevicesArray)
+				const brokerIdElement = document.getElementById(`display${j}BrokerId`);
+				if (brokerIdElement)
 				{
-					var option = document.createElement("option");
-					option.text = device.name;
-					option.value = device.ip;
-					Element.add(option);
+					brokerIdElement.length = 0;
 				}
 			}
 		}
+	}
 
-		function setupButtonBrokerItems()
+	for (let page = 0; page < numPages; page++)
+	{
+		const leftBrokerIdElement = document.getElementById(`left${page}BrokerId`);
+		const rightBrokerIdElement = document.getElementById(`right${page}BrokerId`);
+
+		// Add the deafult option to the broker lists
+		var option = document.createElement("option");
+		option.value = 'Default';
+		option.text = defaultText;
+		leftBrokerIdElement.add(option);
+
+		var option = document.createElement("option");
+		option.value = 'Default';
+		option.text = defaultText;
+		rightBrokerIdElement.add(option);
+	}
+
+	if (displayConfigurationsFetched)
+	{
+		// Add the deafult option to the display config broker lists
+		const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+		for (let j = 0; j < displayConfiguration.items.length; j++)
 		{
-			if (!brokerItemsFetched)
-			{
-				setTimeout(setupButtonBrokerItems, 1000);
-				return;
-			}
+			const displayItem = displayConfiguration.items[j];
+			var optionDisplay = document.createElement("option");
+			optionDisplay.value = 'Default';
+			optionDisplay.text = defaultText;
+			document.getElementById(`display${j}BrokerId`).add(optionDisplay);
+			setBrokerSelectValue(document.getElementById(`display${j}BrokerId`), displayItem.brokerId);
+		}
+	}
 
-			// Add a 'Default' broker entry to the lists
-			var defaultText = Homey.__("settings.default");
-
-
-			// Make sure currentButtonConfigurationNo is set and within range
-			if (!currentButtonConfigurationNo || (currentButtonConfigurationNo >= localButtonConfigurations.length))
-			{
-				currentButtonConfigurationNo = 0;
-			}
-
-			// Get the current configuration
-			var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-
-			// if localButtonConfigurations is an array, then set numPage to the length of the array otherwise set numPage to 1
-			var numPages = buttonPanelConfiguration.length;
-
-			// Reset broker lists before repopulating to avoid duplicates after draft restore.
+	// Setup the list items for enabled brokers in the panel config
+	for (let i = 0; i < localBrokerItems.length; i++)
+	{
+		const brokerItem = localBrokerItems[i];
+		if (brokerItem.enabled)
+		{
 			for (let page = 0; page < numPages; page++)
 			{
 				const leftBrokerIdElement = document.getElementById(`left${page}BrokerId`);
 				const rightBrokerIdElement = document.getElementById(`right${page}BrokerId`);
 
-				if (leftBrokerIdElement)
+				var option = document.createElement("option");
+				option.value = brokerItem.brokerid;
+				option.text = brokerItem.brokerid;
+				leftBrokerIdElement.add(option);
+				if (buttonConfigurationsFetched)
 				{
-					leftBrokerIdElement.length = 0;
+					setBrokerSelectValue(leftBrokerIdElement, buttonPanelConfiguration[page].leftBrokerId);
 				}
-				if (rightBrokerIdElement)
+
+				var option = document.createElement("option");
+				option.value = brokerItem.brokerid;
+				option.text = brokerItem.brokerid;
+				rightBrokerIdElement.add(option);
+				if (buttonConfigurationsFetched)
 				{
-					rightBrokerIdElement.length = 0;
+					setBrokerSelectValue(rightBrokerIdElement, buttonPanelConfiguration[page].rightBrokerId);
 				}
 			}
 
+			// Add the broker to the custom MQTT topic broker lists
 			for (let k = 0; k < customMQTTItemsElements.length; k++)
 			{
-				if (customMQTTItemsElements[k])
-				{
-					customMQTTItemsElements[k].length = 0;
-				}
+				var option = document.createElement("option");
+				option.value = brokerItem.brokerid;
+				option.text = brokerItem.brokerid;
+				customMQTTItemsElements[k].add(option);
 			}
 
+			// Add the broker to the custom display MQTT topic broker lists
 			for (let k = 0; k < customDisplayMQTTItemsElements.length; k++)
 			{
-				if (customDisplayMQTTItemsElements[k])
-				{
-					customDisplayMQTTItemsElements[k].length = 0;
-				}
+				var option = document.createElement("option");
+				option.value = brokerItem.brokerid;
+				option.text = brokerItem.brokerid;
+				customDisplayMQTTItemsElements[k].add(option);
 			}
 
 			if (displayConfigurationsFetched)
 			{
-				const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
-				if (displayConfiguration && Array.isArray(displayConfiguration.items))
-				{
-					for (let j = 0; j < displayConfiguration.items.length; j++)
-					{
-						const brokerIdElement = document.getElementById(`display${j}BrokerId`);
-						if (brokerIdElement)
-						{
-							brokerIdElement.length = 0;
-						}
-					}
-				}
-			}
-
-			for (let page = 0; page < numPages; page++)
-			{
-				const leftBrokerIdElement = document.getElementById(`left${page}BrokerId`);
-				const rightBrokerIdElement = document.getElementById(`right${page}BrokerId`);
-
-				// Add the deafult option to the broker lists
-				var option = document.createElement("option");
-				option.value = 'Default';
-				option.text = defaultText;
-				leftBrokerIdElement.add(option);
-
-				var option = document.createElement("option");
-				option.value = 'Default';
-				option.text = defaultText;
-				rightBrokerIdElement.add(option);
-			}
-
-			if (displayConfigurationsFetched)
-			{
-				// Add the deafult option to the display config broker lists
+				// Add the broker to the display config broker lists
 				const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
 				for (let j = 0; j < displayConfiguration.items.length; j++)
 				{
 					const displayItem = displayConfiguration.items[j];
 					var optionDisplay = document.createElement("option");
-					optionDisplay.value = 'Default';
-					optionDisplay.text = defaultText;
+					optionDisplay.value = brokerItem.brokerid;
+					optionDisplay.text = brokerItem.brokerid;
 					document.getElementById(`display${j}BrokerId`).add(optionDisplay);
 					setBrokerSelectValue(document.getElementById(`display${j}BrokerId`), displayItem.brokerId);
 				}
 			}
+		}
+	}
 
-			// Setup the list items for enabled brokers in the panel config
-			for (let i = 0; i < localBrokerItems.length; i++)
-			{
-				const brokerItem = localBrokerItems[i];
-				if (brokerItem.enabled)
-				{
-					for (let page = 0; page < numPages; page++)
-					{
-						const leftBrokerIdElement = document.getElementById(`left${page}BrokerId`);
-						const rightBrokerIdElement = document.getElementById(`right${page}BrokerId`);
+	drawBrokerItems();
 
-						var option = document.createElement("option");
-						option.value = brokerItem.brokerid;
-						option.text = brokerItem.brokerid;
-						leftBrokerIdElement.add(option);
-						if (buttonConfigurationsFetched)
-						{
-							setBrokerSelectValue(leftBrokerIdElement, buttonPanelConfiguration[page].leftBrokerId);
-						}
+	// Fill the default broker list
+	fillDefaultBrokerList();
+	Homey.get('defaultBroker', function (err, defaultBroker)
+	{
+		if (err)
+		{
+			defaultBrokerFetched = true;
+			maybeHandleLoadedConfigurationDraft();
+			return Homey.alert(err);
+		}
 
-						var option = document.createElement("option");
-						option.value = brokerItem.brokerid;
-						option.text = brokerItem.brokerid;
-						rightBrokerIdElement.add(option);
-						if (buttonConfigurationsFetched)
-						{
-							setBrokerSelectValue(rightBrokerIdElement, buttonPanelConfiguration[page].rightBrokerId);
-						}
-					}
+		const defaultBrokerToApply = (restoredDraftDefaultBroker !== null && restoredDraftDefaultBroker !== undefined)
+			? restoredDraftDefaultBroker
+			: defaultBroker;
 
-					// Add the broker to the custom MQTT topic broker lists
-					for (let k = 0; k < customMQTTItemsElements.length; k++)
-					{
-						var option = document.createElement("option");
-						option.value = brokerItem.brokerid;
-						option.text = brokerItem.brokerid;
-						customMQTTItemsElements[k].add(option);
-					}
+		if (defaultBrokerToApply === "")
+		{
+			defaultBrokerElement.value = 'homey';
+		}
+		else
+		{
+			defaultBrokerElement.value = defaultBrokerToApply;
+		}
 
-					// Add the broker to the custom display MQTT topic broker lists
-					for (let k = 0; k < customDisplayMQTTItemsElements.length; k++)
-					{
-						var option = document.createElement("option");
-						option.value = brokerItem.brokerid;
-						option.text = brokerItem.brokerid;
-						customDisplayMQTTItemsElements[k].add(option);
-					}
+		defaultBrokerFetched = true;
+		maybeHandleLoadedConfigurationDraft();
+	});
+}
 
-					if (displayConfigurationsFetched)
-					{
-						// Add the broker to the display config broker lists
-						const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
-						for (let j = 0; j < displayConfiguration.items.length; j++)
-						{
-							const displayItem = displayConfiguration.items[j];
-							var optionDisplay = document.createElement("option");
-							optionDisplay.value = brokerItem.brokerid;
-							optionDisplay.text = brokerItem.brokerid;
-							document.getElementById(`display${j}BrokerId`).add(optionDisplay);
-							setBrokerSelectValue(document.getElementById(`display${j}BrokerId`), displayItem.brokerId);
-						}
-					}
-				}
-			}
+function buttonDeviceChanged(side, page)
+{
+	// Get the current button configuration
+	var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
 
-			drawBrokerItems();
+	// Get the device element
+	var deviceElement = document.getElementById(`${side}${page}Device`);
 
-			// Fill the default broker list
-			fillDefaultBrokerList();
-			Homey.get('defaultBroker', function (err, defaultBroker)
-			{
-				if (err)
-				{
-					defaultBrokerFetched = true;
-					maybeHandleLoadedConfigurationDraft();
-					return Homey.alert(err);
-				}
+	// Get the config page
+	var config = buttonPanelConfiguration[page];
 
-				const defaultBrokerToApply = (restoredDraftDefaultBroker !== null && restoredDraftDefaultBroker !== undefined)
-					? restoredDraftDefaultBroker
-					: defaultBroker;
+	// Update the device in the local configuration
+	config[`${side}Device`] = deviceElement.value;
+	if (deviceElement.selectedIndex >= 0)
+	{
+		config[`${side}DeviceName`] = deviceElement.options[deviceElement.selectedIndex].text;
+	}
+	else
+	{
+		config[`${side}DeviceName`] = deviceElement.value;
+	}
 
-				if (defaultBrokerToApply === "")
-				{
-					defaultBrokerElement.value = 'homey';
-				}
-				else
-				{
-					defaultBrokerElement.value = defaultBrokerToApply;
-				}
+	// Remove all occurrences of ' (Missing Devices)' from the device name
+	config[`${side}DeviceName`] = config[`${side}DeviceName`].replace(/ \(Missing Devices\)/g, '');
 
-				defaultBrokerFetched = true;
-				maybeHandleLoadedConfigurationDraft();
+	// Remove any leading spaces from the device name
+	config[`${side}Device`] = config[`${side}Device`].trim();
+
+	updateButtonDeviceIndicator(side, page);
+
+	// Update the capabilities
+	getCapabilities(side, page, deviceElement.value, config[`${side}Capability`], config[`${side}CapabilityName`]);
+}
+
+function buttonCapabilityChanged(side, page)
+{
+	const capabilityElement = document.getElementById(`${side}${page}Capability`);
+	if (!capabilityElement)
+	{
+		return;
+	}
+
+	capabilityChanged(side, page, capabilityElement.value);
+	updateButtonCapabilityIndicator(side, page);
+}
+
+function deleteButtonPage(page)
+{
+	const pageLabel = formatButtonPageLabel(page);
+	Homey.confirm(Homey.__("settings.deletePageConfirm", { pageLabel }), null, function (err, ok)
+	{
+		if (err || !ok)
+		{
+			return;
+		}
+
+		// Delete the page from the current button configuration
+		var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+		buttonPanelConfiguration.splice(page, 1);
+
+		// Renumber the pages
+		for (let i = 0; i < buttonPanelConfiguration.length; i++)
+		{
+			buttonPanelConfiguration[i].PageNum = i;
+		}
+
+		// Create and display the new page
+		writeButtonsections(buttonPanelConfiguration.length);
+		updateButtonPanelControls();
+		configDraftDirtySinceLoad = true;
+		flushConfigurationDraftPersist();
+		updateButtonMainDiagnostics('deleteButtonPage', { page });
+	});
+}
+
+function deleteDisplayedButtonPage(configNo, page)
+{
+	configNo = Number(configNo);
+	page = Number(page);
+	const config = localButtonConfigurations[configNo];
+	if (!Array.isArray(config) || page <= 0 || page >= config.length)
+	{
+		return;
+	}
+
+	const pageLabel = formatButtonPageLabel(page);
+	Homey.confirm(Homey.__("settings.deletePageConfirm", { pageLabel }), null, function (err, ok)
+	{
+		if (err || !ok)
+		{
+			return;
+		}
+
+		if (Number(currentButtonConfigurationNo) === configNo && typeof configDraftStoreButtonSettingsFn === 'function')
+		{
+			configDraftStoreButtonSettingsFn(config);
+		}
+
+		config.splice(page, 1);
+		config.forEach((pageConfig, pageIndex) =>
+		{
+			pageConfig.PageNum = pageIndex;
+		});
+
+		configDraftDirtySinceLoad = true;
+		flushConfigurationDraftPersist();
+		writeButtonsections(getDisplayedButtonPageCount());
+		updateButtonPanelControls();
+		updateButtonMainDiagnostics('deleteDisplayedButtonPage', { configNo, page });
+	});
+}
+
+function addButtonPage()
+{
+	try
+	{
+		let buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+
+		// Ensure the current config is always an array before we store/clone.
+		if (!Array.isArray(buttonPanelConfiguration))
+		{
+			buttonPanelConfiguration = buttonPanelConfiguration ? [buttonPanelConfiguration] : [];
+			localButtonConfigurations[currentButtonConfigurationNo] = buttonPanelConfiguration;
+		}
+
+		if (buttonPanelConfiguration.length === 0)
+		{
+			buttonPanelConfiguration.push({
+				PageNum: 0,
+				name: configNameElement ? configNameElement.value : '',
 			});
 		}
 
-		function buttonDeviceChanged(side, page)
+		const beforeLength = buttonPanelConfiguration.length;
+
+		// save the controls into the local configuration
+		try
 		{
-			// Get the current button configuration
-			var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-
-			// Get the device element
-			var deviceElement = document.getElementById(`${side}${page}Device`);
-
-			// Get the config page
-			var config = buttonPanelConfiguration[page];
-
-			// Update the device in the local configuration
-			config[`${side}Device`] = deviceElement.value;
-			if (deviceElement.selectedIndex >= 0)
-			{
-				config[`${side}DeviceName`] = deviceElement.options[deviceElement.selectedIndex].text;
-			}
-			else
-			{
-				config[`${side}DeviceName`] = deviceElement.value;
-			}
-
-			// Remove all occurrences of ' (Missing Devices)' from the device name
-			config[`${side}DeviceName`] = config[`${side}DeviceName`].replace(/ \(Missing Devices\)/g, '');
-
-			// Remove any leading spaces from the device name
-			config[`${side}Device`] = config[`${side}Device`].trim();
-
-			updateButtonDeviceIndicator(side, page);
-
-			// Update the capabilities
-			getCapabilities(side, page, deviceElement.value, config[`${side}Capability`], config[`${side}CapabilityName`]);
+			storeButtonSettings(buttonPanelConfiguration);
+		}
+		catch (error)
+		{
+			console.error('[addButtonPage] storeButtonSettings failed', error);
 		}
 
-		function buttonCapabilityChanged(side, page)
-		{
-			const capabilityElement = document.getElementById(`${side}${page}Capability`);
-			if (!capabilityElement)
-			{
-				return;
-			}
+		const sourcePageIndex = (buttonMainCurrentPage >= 0 && buttonMainCurrentPage < buttonPanelConfiguration.length)
+			? buttonMainCurrentPage
+			: 0;
 
-			capabilityChanged(side, page, capabilityElement.value);
-			updateButtonCapabilityIndicator(side, page);
+		// Add a new page to the current button configuration
+		let newPage = {};
+		try
+		{
+			newPage = JSON.parse(JSON.stringify(buttonPanelConfiguration[sourcePageIndex] || buttonPanelConfiguration[0] || {}));
+		}
+		catch (cloneError)
+		{
+			console.error('[addButtonPage] clone failed', cloneError);
+			newPage = {};
 		}
 
-		function deleteButtonPage(page)
+		newPage.PageNum = buttonPanelConfiguration.length;
+		buttonPanelConfiguration.push(newPage);
+
+		if (buttonPanelConfiguration.length <= beforeLength)
 		{
-			const pageLabel = formatButtonPageLabel(page);
-			Homey.confirm(Homey.__("settings.deletePageConfirm", { pageLabel }), null, function (err, ok)
-			{
-				if (err || !ok)
-				{
-					return;
-				}
-
-				// Delete the page from the current button configuration
-				var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-				buttonPanelConfiguration.splice(page, 1);
-
-				// Renumber the pages
-				for (let i = 0; i < buttonPanelConfiguration.length; i++)
-				{
-					buttonPanelConfiguration[i].PageNum = i;
-				}
-
-				// Create and display the new page
-				writeButtonsections(buttonPanelConfiguration.length);
-				updateButtonPanelControls();
-				configDraftDirtySinceLoad = true;
-				flushConfigurationDraftPersist();
-				updateButtonMainDiagnostics('deleteButtonPage', { page });
-			});
+			Homey.alert(Homey.__("settings.unableToAddPage"));
+			return;
 		}
 
-		function deleteDisplayedButtonPage(configNo, page)
+		buttonMainCurrentPage = buttonPanelConfiguration.length - 1;
+
+		// Create and display the new page
+		writeButtonsections(buttonPanelConfiguration.length);
+		updateButtonPanelControls();
+		configDraftDirtySinceLoad = true;
+		flushConfigurationDraftPersist();
+		updateButtonMainDiagnostics('addButtonPage:click');
+		const newPageIndex = buttonPanelConfiguration.length - 1;
+
+		requestAnimationFrame(() =>
 		{
-			configNo = Number(configNo);
-			page = Number(page);
-			const config = localButtonConfigurations[configNo];
-			if (!Array.isArray(config) || page <= 0 || page >= config.length)
+			const newPageElement = document.getElementById(`${newPageIndex}ButtonPageSection`);
+			if (newPageElement)
 			{
-				return;
+				scrollToTop(newPageElement);
+				newPageElement.classList.add('button-page-highlight');
+				setTimeout(() =>
+				{
+					newPageElement.classList.remove('button-page-highlight');
+				}, 1600);
 			}
+		});
+	}
+	catch (error)
+	{
+		console.error('[addButtonPage] failed', error);
+		Homey.alert(Homey.__("settings.unableToAddPageError", { error: error && error.message ? error.message : `${error}` }));
+	}
+}
 
-			const pageLabel = formatButtonPageLabel(page);
-			Homey.confirm(Homey.__("settings.deletePageConfirm", { pageLabel }), null, function (err, ok)
-			{
-				if (err || !ok)
-				{
-					return;
-				}
+window.deleteButtonPage = deleteButtonPage;
+window.addButtonPage = addButtonPage;
+window.activateDisplayedButtonConfiguration = activateDisplayedButtonConfiguration;
+window.toggleDisplayedButtonMode = toggleDisplayedButtonMode;
+window.handleDisplayedButtonCardClick = handleDisplayedButtonCardClick;
+window.changeDisplayedButtonConfiguration = changeDisplayedButtonConfiguration;
+window.setButtonVisibleConfigurationCount = setButtonVisibleConfigurationCount;
+window.toggleDisplayedButtonConfigName = toggleDisplayedButtonConfigName;
+window.renameDisplayedButtonConfiguration = renameDisplayedButtonConfiguration;
+window.updateDisplayedButtonSetting = updateDisplayedButtonSetting;
+window.addDisplayedButtonPage = addDisplayedButtonPage;
+window.deleteDisplayedButtonPage = deleteDisplayedButtonPage;
+window.toggleButtonPanelControls = toggleButtonPanelControls;
 
-				if (Number(currentButtonConfigurationNo) === configNo && typeof configDraftStoreButtonSettingsFn === 'function')
-				{
-					configDraftStoreButtonSettingsFn(config);
-				}
-
-				config.splice(page, 1);
-				config.forEach((pageConfig, pageIndex) =>
-				{
-					pageConfig.PageNum = pageIndex;
-				});
-
-				configDraftDirtySinceLoad = true;
-				flushConfigurationDraftPersist();
-				writeButtonsections(getDisplayedButtonPageCount());
-				updateButtonPanelControls();
-				updateButtonMainDiagnostics('deleteDisplayedButtonPage', { configNo, page });
-			});
+function bindButtonPageHeaderActions()
+{
+	const addButtons = document.querySelectorAll('.button-page-add-btn[data-action="add-page"]');
+	addButtons.forEach((button) =>
+	{
+		if (button.dataset.boundClick === 'true')
+		{
+			return;
 		}
 
-		function addButtonPage()
+		button.addEventListener('click', function (event)
 		{
-			try
-			{
-				let buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+			event.preventDefault();
+			event.stopPropagation();
+			addButtonPage();
+		});
 
-				// Ensure the current config is always an array before we store/clone.
-				if (!Array.isArray(buttonPanelConfiguration))
-				{
-					buttonPanelConfiguration = buttonPanelConfiguration ? [buttonPanelConfiguration] : [];
-					localButtonConfigurations[currentButtonConfigurationNo] = buttonPanelConfiguration;
-				}
+		button.dataset.boundClick = 'true';
+	});
 
-				if (buttonPanelConfiguration.length === 0)
-				{
-					buttonPanelConfiguration.push({
-						PageNum: 0,
-						name: configNameElement ? configNameElement.value : '',
-					});
-				}
-
-				const beforeLength = buttonPanelConfiguration.length;
-
-				// save the controls into the local configuration
-				try
-				{
-					storeButtonSettings(buttonPanelConfiguration);
-				}
-				catch (error)
-				{
-					console.error('[addButtonPage] storeButtonSettings failed', error);
-				}
-
-				const sourcePageIndex = (buttonMainCurrentPage >= 0 && buttonMainCurrentPage < buttonPanelConfiguration.length)
-					? buttonMainCurrentPage
-					: 0;
-
-				// Add a new page to the current button configuration
-				let newPage = {};
-				try
-				{
-					newPage = JSON.parse(JSON.stringify(buttonPanelConfiguration[sourcePageIndex] || buttonPanelConfiguration[0] || {}));
-				}
-				catch (cloneError)
-				{
-					console.error('[addButtonPage] clone failed', cloneError);
-					newPage = {};
-				}
-
-				newPage.PageNum = buttonPanelConfiguration.length;
-				buttonPanelConfiguration.push(newPage);
-
-				if (buttonPanelConfiguration.length <= beforeLength)
-				{
-					Homey.alert(Homey.__("settings.unableToAddPage"));
-					return;
-				}
-
-				buttonMainCurrentPage = buttonPanelConfiguration.length - 1;
-
-				// Create and display the new page
-				writeButtonsections(buttonPanelConfiguration.length);
-				updateButtonPanelControls();
-				configDraftDirtySinceLoad = true;
-				flushConfigurationDraftPersist();
-				updateButtonMainDiagnostics('addButtonPage:click');
-				const newPageIndex = buttonPanelConfiguration.length - 1;
-
-				requestAnimationFrame(() =>
-				{
-					const newPageElement = document.getElementById(`${newPageIndex}ButtonPageSection`);
-					if (newPageElement)
-					{
-						scrollToTop(newPageElement);
-						newPageElement.classList.add('button-page-highlight');
-						setTimeout(() =>
-						{
-							newPageElement.classList.remove('button-page-highlight');
-						}, 1600);
-					}
-				});
-			}
-			catch (error)
-			{
-				console.error('[addButtonPage] failed', error);
-				Homey.alert(Homey.__("settings.unableToAddPageError", { error: error && error.message ? error.message : `${error}` }));
-			}
+	const deleteButtons = document.querySelectorAll('.button-page-delete-btn[data-action="delete-page"]');
+	deleteButtons.forEach((button) =>
+	{
+		if (button.dataset.boundClick === 'true')
+		{
+			return;
 		}
 
-		window.deleteButtonPage = deleteButtonPage;
-		window.addButtonPage = addButtonPage;
-		window.activateDisplayedButtonConfiguration = activateDisplayedButtonConfiguration;
-		window.toggleDisplayedButtonMode = toggleDisplayedButtonMode;
-		window.handleDisplayedButtonCardClick = handleDisplayedButtonCardClick;
-		window.changeDisplayedButtonConfiguration = changeDisplayedButtonConfiguration;
-		window.setButtonVisibleConfigurationCount = setButtonVisibleConfigurationCount;
-		window.toggleDisplayedButtonConfigName = toggleDisplayedButtonConfigName;
-		window.renameDisplayedButtonConfiguration = renameDisplayedButtonConfiguration;
-		window.updateDisplayedButtonSetting = updateDisplayedButtonSetting;
-		window.addDisplayedButtonPage = addDisplayedButtonPage;
-		window.deleteDisplayedButtonPage = deleteDisplayedButtonPage;
-		window.toggleButtonPanelControls = toggleButtonPanelControls;
-
-		function bindButtonPageHeaderActions()
+		button.addEventListener('click', function (event)
 		{
-			const addButtons = document.querySelectorAll('.button-page-add-btn[data-action="add-page"]');
-			addButtons.forEach((button) =>
+			event.preventDefault();
+			event.stopPropagation();
+			const page = Number(button.getAttribute('data-page'));
+			if (!Number.isNaN(page))
 			{
-				if (button.dataset.boundClick === 'true')
-				{
-					return;
-				}
+				deleteButtonPage(page);
+			}
+		});
 
-				button.addEventListener('click', function (event)
-				{
-					event.preventDefault();
-					event.stopPropagation();
-					addButtonPage();
-				});
+		button.dataset.boundClick = 'true';
+	});
+}
 
-				button.dataset.boundClick = 'true';
-			});
+function onButtonPageChange(Element, page)
+{
+	if (Element.value === "")
+	{
+		return;
+	}
 
-			const deleteButtons = document.querySelectorAll('.button-page-delete-btn[data-action="delete-page"]');
-			deleteButtons.forEach((button) =>
-			{
-				if (button.dataset.boundClick === 'true')
-				{
-					return;
-				}
+	let newPage = parseInt(Element.value);
 
-				button.addEventListener('click', function (event)
-				{
-					event.preventDefault();
-					event.stopPropagation();
-					const page = Number(button.getAttribute('data-page'));
-					if (!Number.isNaN(page))
-					{
-						deleteButtonPage(page);
-					}
-				});
+	// make sure the new number is > 0 and less than the number of pages
+	if (newPage < 0 || newPage >= localButtonConfigurations[currentButtonConfigurationNo].length)
+	{
+		alert(Homey.__("settings.pageError"));
+		Element.value = page;
+		return;
+	}
 
-				button.dataset.boundClick = 'true';
-			});
+	// Now we need to move the page to the new position in the array
+	var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+	var oldPage = page;
+
+	// If the new page is less than the old page, then we need to move the old page to the new page and move all the pages between the new and old page up one
+	if (newPage < oldPage)
+	{
+		// Move the old page to the new page
+		var tempPage = buttonPanelConfiguration[oldPage];
+		buttonPanelConfiguration.splice(oldPage, 1);
+		buttonPanelConfiguration.splice(newPage, 0, tempPage);
+
+		// Renumber the pages
+		for (let i = 0; i < buttonPanelConfiguration.length; i++)
+		{
+			buttonPanelConfiguration[i].PageNum = i;
+		}
+	}
+	else if (newPage > oldPage)
+	{
+		// Move the old page to the new page
+		var tempPage = buttonPanelConfiguration[oldPage];
+		buttonPanelConfiguration.splice(oldPage, 1);
+		buttonPanelConfiguration.splice(newPage, 0, tempPage);
+
+		// Renumber the pages
+		for (let i = 0; i < buttonPanelConfiguration.length; i++)
+		{
+			buttonPanelConfiguration[i].PageNum = i;
+		}
+	}
+
+	// Redisplay the pages
+	writeButtonsections(buttonPanelConfiguration.length);
+	updateButtonPanelControls();
+	configDraftDirtySinceLoad = true;
+	flushConfigurationDraftPersist();
+	updateButtonMainDiagnostics('onButtonPageChange', { page, newPage });
+}
+
+function getDisplayedButtonConfigurationNos()
+{
+	while (buttonVisibleConfigurationNos.length < buttonVisibleConfigurationCount)
+	{
+		buttonVisibleConfigurationNos.push(buttonVisibleConfigurationNos.length % MAX_BUTTON_CONFIGURATIONS);
+	}
+
+	return buttonVisibleConfigurationNos.slice(0, buttonVisibleConfigurationCount).map((configNo) =>
+	{
+		const normalized = Number(configNo);
+		return Number.isNaN(normalized) ? 0 : Math.max(0, Math.min(normalized, MAX_BUTTON_CONFIGURATIONS - 1));
+	});
+}
+
+function getDisplayedButtonPageCount()
+{
+	return Math.max(1, ...getDisplayedButtonConfigurationNos().map((configNo) =>
+	{
+		const config = localButtonConfigurations[configNo];
+		return Array.isArray(config) ? config.length : 1;
+	}));
+}
+
+function getButtonConfigurationOptionsHtml(selectedConfigNo)
+{
+	const label = Homey.__("settings.buttonConfig");
+	let options = '';
+	for (let configNo = 0; configNo < MAX_BUTTON_CONFIGURATIONS; configNo++)
+	{
+		const config = localButtonConfigurations[configNo];
+		const configName = Array.isArray(config) && config[0] && config[0].name ? config[0].name : '';
+		options += `<option value="${configNo}"${configNo === selectedConfigNo ? ' selected' : ''}>${escapeHtml(`${label} ${configNo + 1} - ${configName}`)}</option>`;
+	}
+	return options;
+}
+
+function activateDisplayedButtonConfiguration(configNo)
+{
+	configNo = Number(configNo);
+	if (Number.isNaN(configNo) || configNo < 0 || configNo >= MAX_BUTTON_CONFIGURATIONS)
+	{
+		return false;
+	}
+
+	if (Number(currentButtonConfigurationNo) === configNo)
+	{
+		return true;
+	}
+
+	let nextConfig = localButtonConfigurations[configNo];
+	if (!Array.isArray(nextConfig))
+	{
+		nextConfig = nextConfig ? [nextConfig] : [{ PageNum: 0 }];
+		localButtonConfigurations[configNo] = nextConfig;
+	}
+
+	buttonConfigurationNoElement.value = `${configNo}`;
+	buttonConfigurationNoElement.dispatchEvent(new Event('change', { bubbles: true }));
+	return Number(currentButtonConfigurationNo) === configNo;
+}
+
+function handleDisplayedButtonCardClick(event, configNo)
+{
+	if (!event || Number(currentButtonConfigurationNo) === Number(configNo))
+	{
+		return;
+	}
+
+	const target = event.target;
+	if (target && target.closest && target.closest('button, input, select, textarea, label, summary, a, [role="button"], .button-sim-bar'))
+	{
+		return;
+	}
+
+	activateDisplayedButtonConfiguration(configNo);
+}
+
+function changeDisplayedButtonConfiguration(slot, configNo)
+{
+	slot = Number(slot);
+	configNo = Number(configNo);
+	if (Number.isNaN(slot) || Number.isNaN(configNo))
+	{
+		return;
+	}
+
+	buttonVisibleConfigurationNos[slot] = configNo;
+	activateDisplayedButtonConfiguration(configNo);
+	writeButtonsections(getDisplayedButtonPageCount());
+	updateButtonPanelControls();
+}
+
+function setButtonVisibleConfigurationCount(value)
+{
+	const nextCount = Math.max(1, Math.min(4, Number(value) || 1));
+	if (nextCount === buttonVisibleConfigurationCount)
+	{
+		return;
+	}
+
+	buttonVisibleConfigurationCount = nextCount;
+	Homey.set(BUTTON_VISIBLE_CONFIGURATION_COUNT_KEY, buttonVisibleConfigurationCount);
+	getDisplayedButtonConfigurationNos();
+	writeButtonsections(getDisplayedButtonPageCount());
+	updateButtonPanelControls();
+}
+
+function updateButtonPanelControlsExpander()
+{
+	const section = document.getElementById('buttonItemsSection');
+	const button = document.getElementById('buttonPanelControlsExpander');
+	if (!section || !button)
+	{
+		return;
+	}
+
+	section.classList.toggle('button-preview-controls-collapsed', !buttonPanelControlsExpanded);
+	button.classList.toggle('is-open', buttonPanelControlsExpanded);
+	button.setAttribute('aria-expanded', buttonPanelControlsExpanded ? 'true' : 'false');
+	button.title = buttonPanelControlsExpanded
+		? Homey.__("settings.collapsePanelControls")
+		: Homey.__("settings.expandPanelControls");
+	button.setAttribute('aria-label', button.title);
+}
+
+function toggleButtonPanelControls()
+{
+	buttonPanelControlsExpanded = !buttonPanelControlsExpanded;
+	Homey.set(BUTTON_PANEL_CONTROLS_COLLAPSED_KEY, !buttonPanelControlsExpanded);
+	updateButtonPanelControlsExpander();
+}
+
+function toggleDisplayedButtonConfigName(button)
+{
+	const card = button && button.closest ? button.closest('.button-config-preview-card') : null;
+	const row = card ? card.querySelector('.button-displayed-config-name-row') : null;
+	if (row && button)
+	{
+		const isVisible = row.classList.toggle('visible');
+		button.classList.toggle('is-open', isVisible);
+		button.setAttribute('aria-expanded', isVisible ? 'true' : 'false');
+	}
+}
+
+function renameDisplayedButtonConfiguration(slot, value)
+{
+	const configNo = getDisplayedButtonConfigurationNos()[Number(slot)];
+	const config = localButtonConfigurations[configNo];
+	if (!Array.isArray(config) || !config[0])
+	{
+		return;
+	}
+
+	config[0].name = value;
+	if (Number(currentButtonConfigurationNo) === configNo)
+	{
+		configNameElement.value = value;
+	}
+	fillConfigListElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
+	buttonConfigurationNoElement.value = `${currentButtonConfigurationNo}`;
+	configDraftDirtySinceLoad = true;
+	flushConfigurationDraftPersist();
+	writeButtonsections(getDisplayedButtonPageCount());
+	updateButtonPanelControls();
+}
+
+function getDisplayedButtonBrokerOptionsHtml(selectedBrokerId)
+{
+	const selectedValue = selectedBrokerId || 'Default';
+	let options = `<option value="Default"${selectedValue === 'Default' ? ' selected' : ''}>${escapeHtml(Homey.__("settings.default"))}</option>`;
+	localBrokerItems.forEach((brokerItem) =>
+	{
+		if (!brokerItem || !brokerItem.enabled)
+		{
+			return;
 		}
 
-		function onButtonPageChange(Element, page)
+		const brokerId = brokerItem.brokerid || '';
+		options += `<option value="${escapeHtml(brokerId)}"${selectedValue === brokerId ? ' selected' : ''}>${escapeHtml(brokerId)}</option>`;
+	});
+	return options;
+}
+
+function updateDisplayedButtonSetting(configNo, page, side, field, value)
+{
+	configNo = Number(configNo);
+	page = Number(page);
+	const config = localButtonConfigurations[configNo];
+	if (!Array.isArray(config) || !config[page] || (side !== 'left' && side !== 'right'))
+	{
+		return;
+	}
+
+	let normalizedValue = value;
+	if (field === 'DisableLongRepeat')
+	{
+		normalizedValue = !value;
+	}
+	else if (field === 'LongDelayMs')
+	{
+		normalizedValue = normalizeLongPressTimingMs(value, 0, 750);
+	}
+	else if (field === 'LongRepeatMs')
+	{
+		normalizedValue = normalizeLongPressTimingMs(value, 50, 500);
+	}
+
+	config[page][`${side}${field}`] = normalizedValue;
+	const canonicalElement = Number(currentButtonConfigurationNo) === configNo
+		? document.getElementById(`${side}${page}${field}`)
+		: null;
+	if (canonicalElement)
+	{
+		if (field === 'DisableLongRepeat')
 		{
-			if (Element.value === "")
-			{
-				return;
-			}
-
-			let newPage = parseInt(Element.value);
-
-			// make sure the new number is > 0 and less than the number of pages
-			if (newPage < 0 || newPage >= localButtonConfigurations[currentButtonConfigurationNo].length)
-			{
-				alert(Homey.__("settings.pageError"));
-				Element.value = page;
-				return;
-			}
-
-			// Now we need to move the page to the new position in the array
-			var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			var oldPage = page;
-
-			// If the new page is less than the old page, then we need to move the old page to the new page and move all the pages between the new and old page up one
-			if (newPage < oldPage)
-			{
-				// Move the old page to the new page
-				var tempPage = buttonPanelConfiguration[oldPage];
-				buttonPanelConfiguration.splice(oldPage, 1);
-				buttonPanelConfiguration.splice(newPage, 0, tempPage);
-
-				// Renumber the pages
-				for (let i = 0; i < buttonPanelConfiguration.length; i++)
-				{
-					buttonPanelConfiguration[i].PageNum = i;
-				}
-			}
-			else if (newPage > oldPage)
-			{
-				// Move the old page to the new page
-				var tempPage = buttonPanelConfiguration[oldPage];
-				buttonPanelConfiguration.splice(oldPage, 1);
-				buttonPanelConfiguration.splice(newPage, 0, tempPage);
-
-				// Renumber the pages
-				for (let i = 0; i < buttonPanelConfiguration.length; i++)
-				{
-					buttonPanelConfiguration[i].PageNum = i;
-				}
-			}
-
-			// Redisplay the pages
-			writeButtonsections(buttonPanelConfiguration.length);
-			updateButtonPanelControls();
-			configDraftDirtySinceLoad = true;
-			flushConfigurationDraftPersist();
-			updateButtonMainDiagnostics('onButtonPageChange', { page, newPage });
+			canonicalElement.checked = value;
 		}
-
-		function getDisplayedButtonConfigurationNos()
+		else if (field === 'BrokerId')
 		{
-			while (buttonVisibleConfigurationNos.length < buttonVisibleConfigurationCount)
-			{
-				buttonVisibleConfigurationNos.push(buttonVisibleConfigurationNos.length % MAX_BUTTON_CONFIGURATIONS);
-			}
-
-			return buttonVisibleConfigurationNos.slice(0, buttonVisibleConfigurationCount).map((configNo) =>
-			{
-				const normalized = Number(configNo);
-				return Number.isNaN(normalized) ? 0 : Math.max(0, Math.min(normalized, MAX_BUTTON_CONFIGURATIONS - 1));
-			});
+			setBrokerSelectValue(canonicalElement, normalizedValue);
 		}
-
-		function getDisplayedButtonPageCount()
+		else
 		{
-			return Math.max(1, ...getDisplayedButtonConfigurationNos().map((configNo) =>
-			{
-				const config = localButtonConfigurations[configNo];
-				return Array.isArray(config) ? config.length : 1;
-			}));
+			canonicalElement.value = normalizedValue;
 		}
+	}
 
-		function getButtonConfigurationOptionsHtml(selectedConfigNo)
-		{
-			const label = Homey.__("settings.buttonConfig");
-			let options = '';
-			for (let configNo = 0; configNo < MAX_BUTTON_CONFIGURATIONS; configNo++)
-			{
-				const config = localButtonConfigurations[configNo];
-				const configName = Array.isArray(config) && config[0] && config[0].name ? config[0].name : '';
-				options += `<option value="${configNo}"${configNo === selectedConfigNo ? ' selected' : ''}>${escapeHtml(`${label} ${configNo + 1} - ${configName}`)}</option>`;
-			}
-			return options;
-		}
+	configDraftDirtySinceLoad = true;
+	flushConfigurationDraftPersist();
+}
 
-		function activateDisplayedButtonConfiguration(configNo)
-		{
-			configNo = Number(configNo);
-			if (Number.isNaN(configNo) || configNo < 0 || configNo >= MAX_BUTTON_CONFIGURATIONS)
-			{
-				return false;
-			}
+function getDisplayedButtonInlineMainControlHtml(side, page, configNo, slot)
+{
+	const pageConfig = localButtonConfigurations[configNo][page];
+	const idPrefix = `buttonCard${slot}Page${page}${side}`;
+	const panelLabel = side === 'left' ? Homey.__("settings.leftPanel") : Homey.__("settings.rightPanel");
+	const repeatEnabled = !pageConfig[`${side}DisableLongRepeat`];
+	const longDelayMs = normalizeLongPressTimingMs(pageConfig[`${side}LongDelayMs`], 0, 750);
+	const longRepeatMs = normalizeLongPressTimingMs(pageConfig[`${side}LongRepeatMs`], 50, 500);
+	const brokerId = pageConfig[`${side}BrokerId`] || 'Default';
 
-			if (Number(currentButtonConfigurationNo) === configNo)
-			{
-				return true;
-			}
-
-			let nextConfig = localButtonConfigurations[configNo];
-			if (!Array.isArray(nextConfig))
-			{
-				nextConfig = nextConfig ? [nextConfig] : [{ PageNum: 0 }];
-				localButtonConfigurations[configNo] = nextConfig;
-			}
-
-			buttonConfigurationNoElement.value = `${configNo}`;
-			buttonConfigurationNoElement.dispatchEvent(new Event('change', { bubbles: true }));
-			return Number(currentButtonConfigurationNo) === configNo;
-		}
-
-		function handleDisplayedButtonCardClick(event, configNo)
-		{
-			if (!event || Number(currentButtonConfigurationNo) === Number(configNo))
-			{
-				return;
-			}
-
-			const target = event.target;
-			if (target && target.closest && target.closest('button, input, select, textarea, label, summary, a, [role="button"], .button-sim-bar'))
-			{
-				return;
-			}
-
-			activateDisplayedButtonConfiguration(configNo);
-		}
-
-		function changeDisplayedButtonConfiguration(slot, configNo)
-		{
-			slot = Number(slot);
-			configNo = Number(configNo);
-			if (Number.isNaN(slot) || Number.isNaN(configNo))
-			{
-				return;
-			}
-
-			buttonVisibleConfigurationNos[slot] = configNo;
-			activateDisplayedButtonConfiguration(configNo);
-			writeButtonsections(getDisplayedButtonPageCount());
-			updateButtonPanelControls();
-		}
-
-		function setButtonVisibleConfigurationCount(value)
-		{
-			const nextCount = Math.max(1, Math.min(4, Number(value) || 1));
-			if (nextCount === buttonVisibleConfigurationCount)
-			{
-				return;
-			}
-
-			buttonVisibleConfigurationCount = nextCount;
-			Homey.set(BUTTON_VISIBLE_CONFIGURATION_COUNT_KEY, buttonVisibleConfigurationCount);
-			getDisplayedButtonConfigurationNos();
-			writeButtonsections(getDisplayedButtonPageCount());
-			updateButtonPanelControls();
-		}
-
-		function updateButtonPanelControlsExpander()
-		{
-			const section = document.getElementById('buttonItemsSection');
-			const button = document.getElementById('buttonPanelControlsExpander');
-			if (!section || !button)
-			{
-				return;
-			}
-
-			section.classList.toggle('button-preview-controls-collapsed', !buttonPanelControlsExpanded);
-			button.classList.toggle('is-open', buttonPanelControlsExpanded);
-			button.setAttribute('aria-expanded', buttonPanelControlsExpanded ? 'true' : 'false');
-			button.title = buttonPanelControlsExpanded
-				? Homey.__("settings.collapsePanelControls")
-				: Homey.__("settings.expandPanelControls");
-			button.setAttribute('aria-label', button.title);
-		}
-
-		function toggleButtonPanelControls()
-		{
-			buttonPanelControlsExpanded = !buttonPanelControlsExpanded;
-			Homey.set(BUTTON_PANEL_CONTROLS_COLLAPSED_KEY, !buttonPanelControlsExpanded);
-			updateButtonPanelControlsExpander();
-		}
-
-		function toggleDisplayedButtonConfigName(button)
-		{
-			const card = button && button.closest ? button.closest('.button-config-preview-card') : null;
-			const row = card ? card.querySelector('.button-displayed-config-name-row') : null;
-			if (row && button)
-			{
-				const isVisible = row.classList.toggle('visible');
-				button.classList.toggle('is-open', isVisible);
-				button.setAttribute('aria-expanded', isVisible ? 'true' : 'false');
-			}
-		}
-
-		function renameDisplayedButtonConfiguration(slot, value)
-		{
-			const configNo = getDisplayedButtonConfigurationNos()[Number(slot)];
-			const config = localButtonConfigurations[configNo];
-			if (!Array.isArray(config) || !config[0])
-			{
-				return;
-			}
-
-			config[0].name = value;
-			if (Number(currentButtonConfigurationNo) === configNo)
-			{
-				configNameElement.value = value;
-			}
-			fillConfigListElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
-			buttonConfigurationNoElement.value = `${currentButtonConfigurationNo}`;
-			configDraftDirtySinceLoad = true;
-			flushConfigurationDraftPersist();
-			writeButtonsections(getDisplayedButtonPageCount());
-			updateButtonPanelControls();
-		}
-
-		function getDisplayedButtonBrokerOptionsHtml(selectedBrokerId)
-		{
-			const selectedValue = selectedBrokerId || 'Default';
-			let options = `<option value="Default"${selectedValue === 'Default' ? ' selected' : ''}>${escapeHtml(Homey.__("settings.default"))}</option>`;
-			localBrokerItems.forEach((brokerItem) =>
-			{
-				if (!brokerItem || !brokerItem.enabled)
-				{
-					return;
-				}
-
-				const brokerId = brokerItem.brokerid || '';
-				options += `<option value="${escapeHtml(brokerId)}"${selectedValue === brokerId ? ' selected' : ''}>${escapeHtml(brokerId)}</option>`;
-			});
-			return options;
-		}
-
-		function updateDisplayedButtonSetting(configNo, page, side, field, value)
-		{
-			configNo = Number(configNo);
-			page = Number(page);
-			const config = localButtonConfigurations[configNo];
-			if (!Array.isArray(config) || !config[page] || (side !== 'left' && side !== 'right'))
-			{
-				return;
-			}
-
-			let normalizedValue = value;
-			if (field === 'DisableLongRepeat')
-			{
-				normalizedValue = !value;
-			}
-			else if (field === 'LongDelayMs')
-			{
-				normalizedValue = normalizeLongPressTimingMs(value, 0, 750);
-			}
-			else if (field === 'LongRepeatMs')
-			{
-				normalizedValue = normalizeLongPressTimingMs(value, 50, 500);
-			}
-
-			config[page][`${side}${field}`] = normalizedValue;
-			const canonicalElement = Number(currentButtonConfigurationNo) === configNo
-				? document.getElementById(`${side}${page}${field}`)
-				: null;
-			if (canonicalElement)
-			{
-				if (field === 'DisableLongRepeat')
-				{
-					canonicalElement.checked = value;
-				}
-				else if (field === 'BrokerId')
-				{
-					setBrokerSelectValue(canonicalElement, normalizedValue);
-				}
-				else
-				{
-					canonicalElement.value = normalizedValue;
-				}
-			}
-
-			configDraftDirtySinceLoad = true;
-			flushConfigurationDraftPersist();
-		}
-
-		function getDisplayedButtonInlineMainControlHtml(side, page, configNo, slot)
-		{
-			const pageConfig = localButtonConfigurations[configNo][page];
-			const idPrefix = `buttonCard${slot}Page${page}${side}`;
-			const panelLabel = side === 'left' ? Homey.__("settings.leftPanel") : Homey.__("settings.rightPanel");
-			const repeatEnabled = !pageConfig[`${side}DisableLongRepeat`];
-			const longDelayMs = normalizeLongPressTimingMs(pageConfig[`${side}LongDelayMs`], 0, 750);
-			const longRepeatMs = normalizeLongPressTimingMs(pageConfig[`${side}LongRepeatMs`], 50, 500);
-			const brokerId = pageConfig[`${side}BrokerId`] || 'Default';
-
-			return `<div class="button-inline-main-control-column">
+	return `<div class="button-inline-main-control-column">
 				<div class="button-inline-main-control-heading">${panelLabel}</div>
 				<div class="button-inline-main-controls">
 					<label class="homey-form-checkbox">
@@ -11231,62 +12072,62 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 					<select class="homey-form-select" id="${idPrefix}Broker" onchange="updateDisplayedButtonSetting(${configNo}, ${page}, '${side}', 'BrokerId', this.value)">${getDisplayedButtonBrokerOptionsHtml(brokerId)}</select>
 				</div>
 			</div>`;
+}
+
+function addDisplayedButtonPage(configNo, targetPage)
+{
+	configNo = Number(configNo);
+	targetPage = Number(targetPage);
+	if (Number.isNaN(configNo) || Number.isNaN(targetPage) || targetPage < 0)
+	{
+		return;
+	}
+
+	let config = localButtonConfigurations[configNo];
+	if (!Array.isArray(config))
+	{
+		config = config ? [config] : [];
+		localButtonConfigurations[configNo] = config;
+	}
+
+	if (config.length === 0)
+	{
+		config.push({ PageNum: 0 });
+	}
+
+	while (config.length <= targetPage)
+	{
+		const sourcePage = config[config.length - 1] || config[0] || {};
+		let newPage;
+		try
+		{
+			newPage = JSON.parse(JSON.stringify(sourcePage));
+		}
+		catch (error)
+		{
+			newPage = { ...sourcePage };
 		}
 
-		function addDisplayedButtonPage(configNo, targetPage)
-		{
-			configNo = Number(configNo);
-			targetPage = Number(targetPage);
-			if (Number.isNaN(configNo) || Number.isNaN(targetPage) || targetPage < 0)
-			{
-				return;
-			}
+		newPage.PageNum = config.length;
+		config.push(newPage);
+	}
 
-			let config = localButtonConfigurations[configNo];
-			if (!Array.isArray(config))
-			{
-				config = config ? [config] : [];
-				localButtonConfigurations[configNo] = config;
-			}
+	configDraftDirtySinceLoad = true;
+	flushConfigurationDraftPersist();
+	writeButtonsections(getDisplayedButtonPageCount());
+	updateButtonPanelControls();
+}
 
-			if (config.length === 0)
-			{
-				config.push({ PageNum: 0 });
-			}
-
-			while (config.length <= targetPage)
-			{
-				const sourcePage = config[config.length - 1] || config[0] || {};
-				let newPage;
-				try
-				{
-					newPage = JSON.parse(JSON.stringify(sourcePage));
-				}
-				catch (error)
-				{
-					newPage = { ...sourcePage };
-				}
-
-				newPage.PageNum = config.length;
-				config.push(newPage);
-			}
-
-			configDraftDirtySinceLoad = true;
-			flushConfigurationDraftPersist();
-			writeButtonsections(getDisplayedButtonPageCount());
-			updateButtonPanelControls();
-		}
-
-		function getDisplayedButtonCardsHtml(page)
-		{
-			return getDisplayedButtonConfigurationNos().map((configNo, slot) =>
-			{
-				const config = localButtonConfigurations[configNo];
-				const pageConfig = Array.isArray(config) ? config[page] : null;
-				const configName = Array.isArray(config) && config[0] && config[0].name ? config[0].name : '';
-				const activeClass = Number(currentButtonConfigurationNo) === configNo ? ' active' : '';
-				const content = pageConfig
-					? `<div class="button-sim-bar button-inline-sim-grid" data-button-preview-page="${page}" data-config-index="${configNo}"></div>
+function getDisplayedButtonCardsHtml(page)
+{
+	return getDisplayedButtonConfigurationNos().map((configNo, slot) =>
+	{
+		const config = localButtonConfigurations[configNo];
+		const pageConfig = Array.isArray(config) ? config[page] : null;
+		const configName = Array.isArray(config) && config[0] && config[0].name ? config[0].name : '';
+		const activeClass = Number(currentButtonConfigurationNo) === configNo ? ' active' : '';
+		const content = pageConfig
+			? `<div class="button-sim-bar button-inline-sim-grid" data-button-preview-page="${page}" data-config-index="${configNo}"></div>
 					<div class="button-card-footer">
 						<details class="button-card-settings-details">
 							<summary class="homey-button-secondary-shadow button-card-settings-summary"><span>${Homey.__("settings.autoRepeatBroker")}</span><span class="icon">&#8628;</span></summary>
@@ -11297,12 +12138,12 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 						</details>
 						${page > 0 ? `<div class="button-card-page-action"><span>${Homey.__("settings.page")}</span><button class="homey-button-secondary-shadow button-card-delete-page" type="button" onclick="deleteDisplayedButtonPage(${configNo}, ${page}); return false;" title="${Homey.__("settings.deletePage")}" aria-label="${Homey.__("settings.deletePage")}"><i class="fi fi-rr-trash" aria-hidden="true"></i></button></div>` : ''}
 					</div>`
-					: `<div class="button-config-page-empty">
+			: `<div class="button-config-page-empty">
 						<span>${Homey.__("settings.configurationHasNoPage")}</span>
 						<button class="homey-button-secondary-shadow button-config-add-page" type="button" onclick="addDisplayedButtonPage(${configNo}, ${page}); return false;" title="${Homey.__("settings.addPage")}" aria-label="${Homey.__("settings.addPage")}"><i class="fi fi-rr-plus" aria-hidden="true"></i></button>
 					</div>`;
 
-				return `<section class="button-config-preview-card${activeClass}" onclick="handleDisplayedButtonCardClick(event, ${configNo})">
+		return `<section class="button-config-preview-card${activeClass}" onclick="handleDisplayedButtonCardClick(event, ${configNo})">
 					<span class="button-sim-config-number" aria-hidden="true">${configNo + 1}</span>
 					<select class="button-sim-config-select" data-view-only="true" aria-label="${escapeHtml(`${Homey.__("settings.buttonConfig")} ${configNo + 1}`)}" onchange="changeDisplayedButtonConfiguration(${slot}, this.value)">${getButtonConfigurationOptionsHtml(configNo)}</select>
 					<div class="button-card-editor-controls">
@@ -11318,28 +12159,28 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 					</div>
 					${content}
 				</section>`;
-			}).join('');
-		}
+	}).join('');
+}
 
-		// Create the HTML for the button sections. Note this just creates the framework, the controls values are set using updateButtonPanelControls
-		function writeButtonsections(numPages)
-		{
-			numPages = Math.max(Number(numPages) || 0, getDisplayedButtonPageCount());
-			if (Number.isNaN(numPages) || numPages < 1)
-			{
-				numPages = 1;
-			}
+// Create the HTML for the button sections. Note this just creates the framework, the controls values are set using updateButtonPanelControls
+function writeButtonsections(numPages)
+{
+	numPages = Math.max(Number(numPages) || 0, getDisplayedButtonPageCount());
+	if (Number.isNaN(numPages) || numPages < 1)
+	{
+		numPages = 1;
+	}
 
-			if (buttonMainCurrentPage < 0)
-			{
-				buttonMainCurrentPage = 0;
-			}
-			if (buttonMainCurrentPage >= numPages)
-			{
-				buttonMainCurrentPage = Math.max(0, numPages - 1);
-			}
+	if (buttonMainCurrentPage < 0)
+	{
+		buttonMainCurrentPage = 0;
+	}
+	if (buttonMainCurrentPage >= numPages)
+	{
+		buttonMainCurrentPage = Math.max(0, numPages - 1);
+	}
 
-			var html = `<div class="button-global-controls">
+	var html = `<div class="button-global-controls">
 			<div class="button-main-canvas-header button-shared-sim-header">
 				<div class="button-shared-sim-actions">
 					<span class="homey-form-label button-main-canvas-title">${Homey.__("settings.simulate")}</span>
@@ -11363,9 +12204,9 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 				</label>
 			</div>
 			</div>`;
-			for (page = 0; page < numPages; page++)
-			{
-				html += `<div class="horizontalcontainer button-main-page${page === buttonMainCurrentPage ? ' active' : ''}">
+	for (page = 0; page < numPages; page++)
+	{
+		html += `<div class="horizontalcontainer button-main-page${page === buttonMainCurrentPage ? ' active' : ''}">
 					<div class="horizontalgroup" id="${page}ButtonPageSection">
                 		<div class="horizontalcontainer">
 							<div class="button-page-inner${Array.isArray(localButtonConfigurations[currentButtonConfigurationNo]) && localButtonConfigurations[currentButtonConfigurationNo][page] ? '' : ' button-page-active-config-missing'}">
@@ -11417,77 +12258,77 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 										</div>
 									</details>`
 
-				html += `<div class="button-side-columns">`;
-				html += getButtonHtml("left", page);
-				html += getButtonHtml("right", page);
-				html += `</div>`;
+		html += `<div class="button-side-columns">`;
+		html += getButtonHtml("left", page);
+		html += getButtonHtml("right", page);
+		html += `</div>`;
 
-				html += `</div>
+		html += `</div>
 					</div>
 				</div>
 			</div>`;
-			}
-			document.getElementById('buttonItemsSection').innerHTML = html;
-			bindButtonPageHeaderActions();
-			collapseAllDetails(document.getElementById('buttonItemsSection'));
-			for (let pageIndex = 0; pageIndex < numPages; pageIndex++)
-			{
-				updateButtonInlineSettingsToggleState(pageIndex);
-			}
-			renderButtonMainPage();
-			updateButtonPanelControlsExpander();
-			renderInlineButtonPagePreviews();
-			updateButtonMainDiagnostics('writeButtonsections', { numPages });
-		}
+	}
+	document.getElementById('buttonItemsSection').innerHTML = html;
+	bindButtonPageHeaderActions();
+	collapseAllDetails(document.getElementById('buttonItemsSection'));
+	for (let pageIndex = 0; pageIndex < numPages; pageIndex++)
+	{
+		updateButtonInlineSettingsToggleState(pageIndex);
+	}
+	renderButtonMainPage();
+	updateButtonPanelControlsExpander();
+	renderInlineButtonPagePreviews();
+	updateButtonMainDiagnostics('writeButtonsections', { numPages });
+}
 
-		// Create the HTML for the button page and side
-		function getButtonHtml(side, page)
-		{
-			const leftPanelText = Homey.__("settings.leftPanel");
-			const rightPanelText = Homey.__("settings.rightPanel");
+// Create the HTML for the button page and side
+function getButtonHtml(side, page)
+{
+	const leftPanelText = Homey.__("settings.leftPanel");
+	const rightPanelText = Homey.__("settings.rightPanel");
 
-			const ctrlLabels = {
-				device: Homey.__("settings.device"),
-				capability: Homey.__("settings.capability"),
-				label: Homey.__("settings.topLabel"),
-				text: Homey.__("settings.text"),
-				unit: Homey.__("settings.unit"),
-				topLabel: Homey.__("settings.topLabel"),
-				labelOn: Homey.__("settings.labelOn"),
-				labelOff: Homey.__("settings.labelOff"),
-				dimChange: 'Value increment / decrement',
-				frontLEDOnColor: Homey.__("settings.frontLEDOnColor"),
-				frontLEDOffColor: Homey.__("settings.frontLEDOffColor"),
-				wallLEDOffColor: Homey.__("settings.wallLEDOffColor"),
-				wallLEDOnColor: Homey.__("settings.wallLEDOnColor"),
-				longRepeat: 'Repeat',
-				brokerId: Homey.__("settings.brokerId"),
-				page: Homey.__("settings.page"),
-				customMQTTTopic: Homey.__("settings.customMQTTTopic"),
-				newCustomMQTTItem: Homey.__("settings.newCustomMQTTItem"),
-				panel: side === 'left' ? leftPanelText : rightPanelText,
-			}
-			const ctrlExplanations = {
-				device: Homey.__("settings.deviceDExplanation"),
-				capability: Homey.__("settings.capabilityDExplanation"),
-				label: Homey.__("settings.toplabelDisplayExplanation"),
-				text: Homey.__("settings.textExplanation"),
-				unit: Homey.__("settings.unitExplanation"),
-				topLabel: Homey.__("settings.topLabelExplanation"),
-				labelOn: Homey.__("settings.labelOnExplanation"),
-				labelOff: Homey.__("settings.labelOffExplanation"),
-				dimChange: Homey.__("settings.dimValueExplanation"),
-				frontLEDOnColor: Homey.__("settings.frontLEDOnColorExplanation"),
-				frontLEDOffColor: Homey.__("settings.frontLEDOffColorExplanation"),
-				wallLEDOffColor: Homey.__("settings.wallLEDOffColorExplanation"),
-				wallLEDOnColor: Homey.__("settings.wallLEDOnColorExplanation"),
-				longRepeat: Homey.__("settings.longRepeatExplanation"),
-				brokerId: Homey.__("settings.brokerIdExplanation"),
-				page: Homey.__("settings.buttonPageExplanation"),
-				customMQTTTopic: Homey.__("settings.customMQTTTopicExplanation"),
-			}
+	const ctrlLabels = {
+		device: Homey.__("settings.device"),
+		capability: Homey.__("settings.capability"),
+		label: Homey.__("settings.topLabel"),
+		text: Homey.__("settings.text"),
+		unit: Homey.__("settings.unit"),
+		topLabel: Homey.__("settings.topLabel"),
+		labelOn: Homey.__("settings.labelOn"),
+		labelOff: Homey.__("settings.labelOff"),
+		dimChange: 'Value increment / decrement',
+		frontLEDOnColor: Homey.__("settings.frontLEDOnColor"),
+		frontLEDOffColor: Homey.__("settings.frontLEDOffColor"),
+		wallLEDOffColor: Homey.__("settings.wallLEDOffColor"),
+		wallLEDOnColor: Homey.__("settings.wallLEDOnColor"),
+		longRepeat: 'Repeat',
+		brokerId: Homey.__("settings.brokerId"),
+		page: Homey.__("settings.page"),
+		customMQTTTopic: Homey.__("settings.customMQTTTopic"),
+		newCustomMQTTItem: Homey.__("settings.newCustomMQTTItem"),
+		panel: side === 'left' ? leftPanelText : rightPanelText,
+	}
+	const ctrlExplanations = {
+		device: Homey.__("settings.deviceDExplanation"),
+		capability: Homey.__("settings.capabilityDExplanation"),
+		label: Homey.__("settings.toplabelDisplayExplanation"),
+		text: Homey.__("settings.textExplanation"),
+		unit: Homey.__("settings.unitExplanation"),
+		topLabel: Homey.__("settings.topLabelExplanation"),
+		labelOn: Homey.__("settings.labelOnExplanation"),
+		labelOff: Homey.__("settings.labelOffExplanation"),
+		dimChange: Homey.__("settings.dimValueExplanation"),
+		frontLEDOnColor: Homey.__("settings.frontLEDOnColorExplanation"),
+		frontLEDOffColor: Homey.__("settings.frontLEDOffColorExplanation"),
+		wallLEDOffColor: Homey.__("settings.wallLEDOffColorExplanation"),
+		wallLEDOnColor: Homey.__("settings.wallLEDOnColorExplanation"),
+		longRepeat: Homey.__("settings.longRepeatExplanation"),
+		brokerId: Homey.__("settings.brokerIdExplanation"),
+		page: Homey.__("settings.buttonPageExplanation"),
+		customMQTTTopic: Homey.__("settings.customMQTTTopicExplanation"),
+	}
 
-			const html = `<div class="button-side-column">
+	const html = `<div class="button-side-column">
 						<div class="horizontalgroup">
 						<details id="${side}${page}Details" ontoggle="this.open && scrollToTop(this)">
 	                            <summary class="summary button-advanced-summary">
@@ -11619,8 +12460,8 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 						</details >
 					</div>
 				</div>`;
-			return html;
-		}
+	return html;
+}
 
 
 

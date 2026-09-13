@@ -64,5 +64,15 @@ module.exports = {
 		const obj = Object.fromEntries(listeners);
 		homey.app.updateLog(`getCapabilityListeners: ${JSON.stringify(obj)}`);
 		return obj;
-	}
+	},
+
+    // Get group configurations
+    async getGroupConfigurations({ homey }) {
+        return homey.app.getGroupConfigurations();
+    },
+
+    // Save group configurations
+    async saveGroupConfigurations({ homey, body }) {
+        return homey.app.setGroupConfigurations(body.groups);
+    }
 };

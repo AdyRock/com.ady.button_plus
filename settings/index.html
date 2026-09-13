@@ -16,32 +16,45 @@
 		<label class="homey-form-label no-margin-top visually-hidden" for="configType" title="View selection"><span
 				data-i18n="settings.view"></span></label>
 		<div class="view-tabs" id="configTypeTabs" role="tablist" aria-label="View selection">
-			<button type="button" class="view-tab" data-view="settings" role="tab" title="Settings" aria-label="Settings">
+			<button type="button" class="view-tab" data-view="settings" role="tab" title="Settings"
+				aria-label="Settings">
 				<img class="view-tab-icon" src="icons/settings.svg" alt="" />
 			</button>
-			<button type="button" class="view-tab" data-view="panelConfig" role="tab" title="Button Configurations" aria-label="Button Configurations">
+			<button type="button" class="view-tab" data-view="panelConfig" role="tab" title="Button Configurations"
+				aria-label="Button Configurations">
 				<img class="view-tab-icon" src="icons/panelConfig.svg" alt="" />
 			</button>
-			<button type="button" class="view-tab" data-view="displayConfig" role="tab" title="Display Configurations" aria-label="Display Configurations">
+			<button type="button" class="view-tab" data-view="displayConfig" role="tab" title="Display Configurations"
+				aria-label="Display Configurations">
 				<img class="view-tab-icon" src="icons/displayConfig.svg" alt="" />
 			</button>
-			<button type="button" class="view-tab" data-view="brokerConfig" role="tab" title="Broker Configurations" aria-label="Broker Configurations">
+			<button type="button" class="view-tab" data-view="groupConfig" role="tab" title="Group Configurations"
+				aria-label="Group Configurations">
+				<img class="view-tab-icon" src="icons/groupConfig.svg" alt="" />
+			</button>
+			<button type="button" class="view-tab" data-view="brokerConfig" role="tab" title="Broker Configurations"
+				aria-label="Broker Configurations">
 				<img class="view-tab-icon" src="icons/brokerConfig.svg" alt="" />
 			</button>
-			<button type="button" class="view-tab" data-view="diagnosticLog" role="tab" title="Diagnostics Log" aria-label="Diagnostics Log">
+			<button type="button" class="view-tab" data-view="diagnosticLog" role="tab" title="Diagnostics Log"
+				aria-label="Diagnostics Log">
 				<img class="view-tab-icon" src="icons/diagnosticLog.svg" alt="" />
 			</button>
-			<button type="button" class="view-tab" data-view="lastSentLog" role="tab" title="Sent Config Log" aria-label="Sent Config Log">
+			<button type="button" class="view-tab" data-view="lastSentLog" role="tab" title="Sent Config Log"
+				aria-label="Sent Config Log">
 				<img class="view-tab-icon" src="icons/lastSentLog.svg" alt="" />
 			</button>
-			<button type="button" class="view-tab" data-view="importExport" role="tab" title="Import and Export" aria-label="Import and Export">
+			<button type="button" class="view-tab" data-view="importExport" role="tab" title="Import and Export"
+				aria-label="Import and Export">
 				<img class="view-tab-icon" src="icons/importExport.svg" alt="" />
 			</button>
 		</div>
-		<select class="homey-form-select" id="configType" title="Select the view to display" aria-hidden="true" tabindex="-1">
+		<select class="homey-form-select" id="configType" title="Select the view to display" aria-hidden="true"
+			tabindex="-1">
 			<option value="settings" data-i18n="settings.Settings"></option>
 			<option value="panelConfig" data-i18n="settings.buttonConfigs"></option>
 			<option value="displayConfig" data-i18n="settings.displayConfigs"></option>
+			<option value="groupConfig" data-i18n="settings.groupConfigs"></option>
 			<option value="brokerConfig" data-i18n="settings.brokerConfigs"></option>
 			<option value="diagnosticLog" data-i18n="settings.diagnosticsLog"></option>
 			<option value="lastSentLog" data-i18n="settings.sentLog"></option>
@@ -132,29 +145,31 @@
 			<div class="homey-form-group settings-top-form-group">
 				<div class="bordered-box">
 					<div class="button-config-backing-editor" aria-hidden="true">
-					<label class="homey-form-label" for="ButtonPanelConfigurationNo"
-						title="Button panel configuration"><span data-i18n="settings.configtoedit"></span>
-						<div class="tooltip"><i class="fi fi-rr-info"></i>
-							<span class="tooltiptext" data-i18n="settings.buttonExplanation"></span>
-						</div>
-					</label>
-					<div class="panel-config-selector-row">
-						<select class="homey-form-select" id="ButtonPanelConfigurationNo"
-							title="Select button panel configuration">
-						</select>
-						<button class="homey-button-secondary-shadow panel-config-toggle-btn" id="toggleConfigNameVisibility" type="button" title="Hide configuration name" aria-label="Hide configuration name"><span class="icon">&#8628;</span></button>
-					</div>
-
-					<div id="configNameRow">
-						<label class="homey-form-label" for="configName" title="Configuration name"><span
-								data-i18n="settings.configName"></span>
+						<label class="homey-form-label" for="ButtonPanelConfigurationNo"
+							title="Button panel configuration"><span data-i18n="settings.configtoedit"></span>
 							<div class="tooltip"><i class="fi fi-rr-info"></i>
-								<span class="tooltiptext" data-i18n="settings.configNameExplanation"></span>
+								<span class="tooltiptext" data-i18n="settings.buttonExplanation"></span>
 							</div>
 						</label>
-						<input class="homey-form-input" id="configName" type="text" maxlength="20" placeholder="Config name"
-							title="Enter configuration name" />
-					</div>
+						<div class="panel-config-selector-row">
+							<select class="homey-form-select" id="ButtonPanelConfigurationNo"
+								title="Select button panel configuration">
+							</select>
+							<button class="homey-button-secondary-shadow panel-config-toggle-btn"
+								id="toggleConfigNameVisibility" type="button" title="Hide configuration name"
+								aria-label="Hide configuration name"><span class="icon">&#8628;</span></button>
+						</div>
+
+						<div id="configNameRow">
+							<label class="homey-form-label" for="configName" title="Configuration name"><span
+									data-i18n="settings.configName"></span>
+								<div class="tooltip"><i class="fi fi-rr-info"></i>
+									<span class="tooltiptext" data-i18n="settings.configNameExplanation"></span>
+								</div>
+							</label>
+							<input class="homey-form-input" id="configName" type="text" maxlength="20"
+								placeholder="Config name" title="Enter configuration name" />
+						</div>
 					</div>
 
 					<div id="buttonItemsSection"></div>
@@ -175,24 +190,29 @@
 				<div>
 					<div class="bordered-box">
 						<div class="display-page-header">
-							<label class="homey-form-label" for="displayConfigurationNo" title="Display configuration"><span
-									data-i18n="settings.configtoedit"></span>
+							<label class="homey-form-label" for="displayConfigurationNo"
+								title="Display configuration"><span data-i18n="settings.configtoedit"></span>
 								<div class="tooltip"><i class="fi fi-rr-info"></i>
 									<span class="tooltiptext" data-i18n="settings.displayExplanation"></span>
 								</div>
 							</label>
-							<button class="homey-button-secondary-shadow button-page-sim-btn display-page-popup-open-hidden" id="displayPageSimOpen" title="Open display simulator"><i class="fi fi-rr-apps"></i></button>
+							<button
+								class="homey-button-secondary-shadow button-page-sim-btn display-page-popup-open-hidden"
+								id="displayPageSimOpen" title="Open display simulator"><i
+									class="fi fi-rr-apps"></i></button>
 						</div>
 						<div class="panel-config-selector-row">
 							<select class="homey-form-select" id="displayConfigurationNo"
 								title="Select display configuration">
 							</select>
-							<button class="homey-button-secondary-shadow panel-config-toggle-btn" id="toggleDisplayConfigNameVisibility" type="button" title="Hide configuration name" aria-label="Hide configuration name"><span class="icon">&#8628;</span></button>
+							<button class="homey-button-secondary-shadow panel-config-toggle-btn"
+								id="toggleDisplayConfigNameVisibility" type="button" title="Hide configuration name"
+								aria-label="Hide configuration name"><span class="icon">&#8628;</span></button>
 						</div>
 
 						<div id="displayConfigNameRow">
-							<label class="homey-form-label" for="displayConfigName" title="Display configuration name"><span
-									data-i18n="settings.configName"></span>
+							<label class="homey-form-label" for="displayConfigName"
+								title="Display configuration name"><span data-i18n="settings.configName"></span>
 								<div class="tooltip"><i class="fi fi-rr-info"></i>
 									<span class="tooltiptext" data-i18n="settings.configNameExplanation"></span>
 								</div>
@@ -210,22 +230,34 @@
 								</div>
 								<div class="display-sim-header-controls-row">
 									<div class="display-sim-title-group">
-										<button class="homey-button-secondary-shadow display-sim-page-nav" id="displayInlineSimPrev" title="Previous display page" aria-label="Previous display page">&lt;</button>
-										<button class="homey-button-secondary-shadow display-sim-page-nav" id="displayInlineSimNext" title="Next display page" aria-label="Next display page">&gt;</button>
-										<button class="homey-button-secondary-shadow display-inline-sim-action-btn" id="displayInlineSimAddPage" title="Add display page" aria-label="Add display page"><i class="fi fi-rr-plus"></i></button>
+										<button class="homey-button-secondary-shadow display-sim-page-nav"
+											id="displayInlineSimPrev" title="Previous display page"
+											aria-label="Previous display page">&lt;</button>
+										<button class="homey-button-secondary-shadow display-sim-page-nav"
+											id="displayInlineSimNext" title="Next display page"
+											aria-label="Next display page">&gt;</button>
+										<button class="homey-button-secondary-shadow display-inline-sim-action-btn"
+											id="displayInlineSimAddPage" title="Add display page"
+											aria-label="Add display page"><i class="fi fi-rr-plus"></i></button>
 									</div>
 									<div class="display-inline-sim-actions">
-										<button class="homey-button-secondary-shadow display-inline-sim-action-btn display-inline-sim-action-hidden" id="displayInlineSimDeletePage" title="Delete current display page" aria-label="Delete current display page" disabled><i class="fi fi-rr-trash"></i></button>
+										<button
+											class="homey-button-secondary-shadow display-inline-sim-action-btn display-inline-sim-action-hidden"
+											id="displayInlineSimDeletePage" title="Delete current display page"
+											aria-label="Delete current display page" disabled><i
+												class="fi fi-rr-trash"></i></button>
 									</div>
 								</div>
 							</div>
 							<div class="display-sim-surface" id="displayInlineSimSurface"></div>
 							<div class="display-inline-sim-status-row">
-								<span class="display-sim-status-position-label" data-i18n="settings.displaySimStatusBar"></span>
+								<span class="display-sim-status-position-label"
+									data-i18n="settings.displaySimStatusBar"></span>
 								<div class="tooltip" title="Status bar information"><i class="fi fi-rr-info"></i>
 									<span class="tooltiptext" data-i18n="settings.displaySimStatusBarHint"></span>
 								</div>
-								<select class="display-sim-status-position-select" id="displayInlineSimStatusBarPosition" aria-label="Inline status bar position">
+								<select class="display-sim-status-position-select"
+									id="displayInlineSimStatusBarPosition" aria-label="Inline status bar position">
 									<option value="0" data-i18n="settings.displaySimOff"></option>
 									<option value="1" data-i18n="settings.displaySimTop"></option>
 									<option value="2" data-i18n="settings.displaySimBottom"></option>
@@ -234,21 +266,33 @@
 							<div class="display-inline-sim-footer">
 								<div class="display-inline-sim-footer-top">
 									<div class="display-inline-sim-footer-title-group">
-										<span class="display-inline-sim-footer-label" data-i18n="settings.displaySimItems"></span>
-										<button class="homey-button-secondary-shadow display-inline-sim-action-btn" id="displayInlineSimAddItem" title="Add display item" aria-label="Add display item"><i class="fi fi-rr-plus"></i></button>
+										<span class="display-inline-sim-footer-label"
+											data-i18n="settings.displaySimItems"></span>
+										<button class="homey-button-secondary-shadow display-inline-sim-action-btn"
+											id="displayInlineSimAddItem" title="Add display item"
+											aria-label="Add display item"><i class="fi fi-rr-plus"></i></button>
 									</div>
 									<div class="display-inline-sim-actions">
-										<button class="homey-button-secondary-shadow display-inline-sim-action-btn display-inline-sim-action-hidden" id="displayInlineSimDeleteItem" title="Delete selected display item" aria-label="Delete selected display item" disabled><i class="fi fi-rr-trash"></i></button>
+										<button
+											class="homey-button-secondary-shadow display-inline-sim-action-btn display-inline-sim-action-hidden"
+											id="displayInlineSimDeleteItem" title="Delete selected display item"
+											aria-label="Delete selected display item" disabled><i
+												class="fi fi-rr-trash"></i></button>
 									</div>
 								</div>
 								<div class="display-inline-sim-footer-bottom">
 									<div class="display-inline-sim-footer-options">
-										<label class="homey-form-checkbox display-inline-sim-checkbox" for="displayInlineSimShowPageZero">
-											<input class="homey-form-checkbox-input" id="displayInlineSimShowPageZero" type="checkbox" checked title="Always show page 0 items" aria-label="Always show page 0 items">
+										<label class="homey-form-checkbox display-inline-sim-checkbox"
+											for="displayInlineSimShowPageZero">
+											<input class="homey-form-checkbox-input" id="displayInlineSimShowPageZero"
+												type="checkbox" checked title="Always show page 0 items"
+												aria-label="Always show page 0 items">
 											<span class="homey-form-checkbox-checkmark"></span>
-											<span class="homey-form-checkbox-text" data-i18n="settings.displaySimShowDefaultItems"></span>
+											<span class="homey-form-checkbox-text"
+												data-i18n="settings.displaySimShowDefaultItems"></span>
 											<div class="tooltip"><i class="fi fi-rr-info"></i>
-												<span class="tooltiptext" data-i18n="settings.displaySimShowDefaultItemsHint"></span>
+												<span class="tooltiptext"
+													data-i18n="settings.displaySimShowDefaultItemsHint"></span>
 											</div>
 										</label>
 									</div>
@@ -263,6 +307,68 @@
 						<button class="homey-button-secondary-shadow" id="pasteDisplayConfig"
 							title="Paste display configuration"><span data-i18n="settings.paste"></span></button>
 					</p>
+				</div>
+			</div>
+		</div>
+
+		<!-- Group Configuration -->
+		<div id="groupConfig" class="tabcontent">
+			<div class="homey-form-group settings-top-form-group">
+				<div class="settings-main-note">
+					<strong data-i18n="settings.groupExplanationTitle">Panel Groups:</strong>
+					<span data-i18n="settings.groupExplanation">A Panel Group represents a complete physical Button+
+						panel.</span>
+				</div>
+				<div class="group-selector-sticky">
+					<label class="homey-form-label no-margin-top" for="groupSelect"><span
+							data-i18n="settings.selectGroup">Select Group</span></label>
+					<div class="panel-config-selector-row">
+						<select class="homey-form-select" id="groupSelect" title="Select group"></select>
+						<button class="homey-button-secondary-shadow panel-config-toggle-btn"
+							id="toggleGroupNameVisibility" type="button" title="Show group name"
+							aria-label="Show group name"><span class="icon">&#8628;</span></button>
+					</div>
+
+					<div id="groupNameRow">
+						<p></p>
+						<label class="homey-form-label" for="groupNameInput"><span
+								data-i18n="settings.groupName">Group Name</span></label>
+						<input type="text" class="homey-form-input" id="groupNameInput"
+							placeholder="Group Name (e.g. Living Room Panel)">
+					</div>
+
+					<div class="group-action-buttons">
+						<div class="group-action-left">
+							<button class="homey-button-secondary-shadow group-action-btn" id="addGroupBtn"
+								type="button" title="New Group" aria-label="New Group"><i class="fi fi-rr-plus"
+									aria-hidden="true"></i></button>
+							<button class="homey-button-secondary-shadow group-action-btn" id="deleteGroupBtn"
+								type="button" title="Delete Group" aria-label="Delete Group"><i
+									class="fi fi-rr-trash" aria-hidden="true"></i></button>
+							<button class="homey-button-secondary-shadow group-action-btn" id="copyGroupBtn"
+								type="button" title="Duplicate Group" aria-label="Duplicate Group"><i
+									class="fi fi-rr-copy" aria-hidden="true"></i></button>
+						</div>
+						<div class="display-sim-title-group group-sim-nav-group">
+							<span id="groupSimPageTitle" class="display-sim-title button-shared-page-title">Page 1 of 1</span>
+							<button class="homey-button-secondary-shadow display-sim-page-nav" id="groupSimPrevPage" type="button" onclick="stepGroupSimPage(-1); return false;" title="Previous page" aria-label="Previous page">&lt;</button>
+							<button class="homey-button-secondary-shadow display-sim-page-nav" id="groupSimNextPage" type="button" onclick="stepGroupSimPage(1); return false;" title="Next page" aria-label="Next page">&gt;</button>
+						</div>
+					</div>
+				</div>
+
+				<hr class="hr-separator" />
+
+				<div class="group-simulator-container">
+					<fieldset class="homey-form-fieldset group-simulator-fieldset">
+						<legend data-i18n="settings.groupSimulator">Group Panel Simulator</legend>
+						<div class="group-sim-toolbar">
+							<button type="button" class="homey-button-secondary-shadow" id="groupSimStateToggle">Toggle All Buttons On/Off</button>
+						</div>
+						<div id="groupSimulatorSurface" class="group-simulator-surface">
+							<!-- Rendered dynamically by JS -->
+						</div>
+					</fieldset>
 				</div>
 			</div>
 		</div>
@@ -329,9 +435,11 @@
 		<div class="button-sim-dialog" role="dialog" aria-modal="true" aria-labelledby="buttonPagePopupTitle">
 			<div class="button-sim-header">
 				<div class="button-sim-title-group">
-					<button class="homey-button-secondary-shadow button-sim-page-nav" id="buttonPagePopupPrev" title="Previous page" aria-label="Previous page">&lt;</button>
+					<button class="homey-button-secondary-shadow button-sim-page-nav" id="buttonPagePopupPrev"
+						title="Previous page" aria-label="Previous page">&lt;</button>
 					<div class="button-sim-title" id="buttonPagePopupTitle">Page 1</div>
-					<button class="homey-button-secondary-shadow button-sim-page-nav" id="buttonPagePopupNext" title="Next page" aria-label="Next page">&gt;</button>
+					<button class="homey-button-secondary-shadow button-sim-page-nav" id="buttonPagePopupNext"
+						title="Next page" aria-label="Next page">&gt;</button>
 				</div>
 				<div class="button-sim-header-actions">
 					<button class="homey-button-secondary-shadow" id="buttonPagePopupStateToggle"
@@ -352,22 +460,26 @@
 				</div>
 				<div class="display-sim-header-controls-row">
 					<div class="display-sim-title-group">
-						<button class="homey-button-secondary-shadow display-sim-page-nav" id="displayPagePopupPrev" title="Previous display page" aria-label="Previous display page">&lt;</button>
-						<button class="homey-button-secondary-shadow display-sim-page-nav" id="displayPagePopupNext" title="Next display page" aria-label="Next display page">&gt;</button>
+						<button class="homey-button-secondary-shadow display-sim-page-nav" id="displayPagePopupPrev"
+							title="Previous display page" aria-label="Previous display page">&lt;</button>
+						<button class="homey-button-secondary-shadow display-sim-page-nav" id="displayPagePopupNext"
+							title="Next display page" aria-label="Next display page">&gt;</button>
 					</div>
 					<div class="display-sim-header-middle">
 						<span class="display-sim-status-position-label" data-i18n="settings.displaySimStatusBar"></span>
 						<div class="tooltip" title="Status bar information"><i class="fi fi-rr-info"></i>
 							<span class="tooltiptext" data-i18n="settings.displaySimStatusBarHint"></span>
 						</div>
-						<select class="display-sim-status-position-select" id="displayPagePopupStatusBarPosition" aria-label="Status bar position">
+						<select class="display-sim-status-position-select" id="displayPagePopupStatusBarPosition"
+							aria-label="Status bar position">
 							<option value="0" data-i18n="settings.displaySimOff"></option>
 							<option value="1" data-i18n="settings.displaySimTop"></option>
 							<option value="2" data-i18n="settings.displaySimBottom"></option>
 						</select>
 					</div>
 					<div class="display-sim-header-actions">
-						<button class="homey-button-secondary-shadow button-sim-close" id="displayPagePopupClose" title="Close display simulator">&times;</button>
+						<button class="homey-button-secondary-shadow button-sim-close" id="displayPagePopupClose"
+							title="Close display simulator">&times;</button>
 					</div>
 				</div>
 			</div>
@@ -402,14 +514,17 @@
 	</div>
 
 	<div id="sendSupportPopupOverlay" class="button-field-popup-overlay send-support-popup-overlay" aria-hidden="true">
-		<div class="button-field-popup-dialog send-support-popup-dialog" role="dialog" aria-modal="true" aria-labelledby="sendSupportPopupTitle" aria-describedby="sendSupportPopupMessage">
+		<div class="button-field-popup-dialog send-support-popup-dialog" role="dialog" aria-modal="true"
+			aria-labelledby="sendSupportPopupTitle" aria-describedby="sendSupportPopupMessage">
 			<div class="button-field-popup-header">
 				<div class="button-field-popup-title" id="sendSupportPopupTitle">Send information to developer</div>
 			</div>
 			<div class="button-field-popup-body send-support-popup-body">
-				<p class="send-support-popup-message" id="sendSupportPopupMessage">If you continue, this information will be emailed to the developer.</p>
+				<p class="send-support-popup-message" id="sendSupportPopupMessage">If you continue, this information
+					will be emailed to the developer.</p>
 				<div class="button-field-popup-field">
-					<label class="button-field-popup-label" for="sendSupportEmail"><span data-i18n="settings.email"></span>
+					<label class="button-field-popup-label" for="sendSupportEmail"><span
+							data-i18n="settings.email"></span>
 						<div class="tooltip"><i class="fi fi-rr-info"></i>
 							<span class="tooltiptext" data-i18n="settings.emailExplanation"></span>
 						</div>
@@ -418,29 +533,35 @@
 						title="Enter email address for support" />
 				</div>
 				<div class="button-field-popup-field">
-					<label class="button-field-popup-label" for="sendSupportDescription"><span data-i18n="settings.description"></span>
+					<label class="button-field-popup-label" for="sendSupportDescription"><span
+							data-i18n="settings.description"></span>
 						<div class="tooltip"><i class="fi fi-rr-info"></i>
 							<span class="tooltiptext" data-i18n="settings.descriptionExplanation"></span>
 						</div>
 					</label>
-					<input class="homey-form-input" id="sendSupportDescription" type="text" placeholder="Problem description"
-						title="Enter problem description" />
+					<input class="homey-form-input" id="sendSupportDescription" type="text"
+						placeholder="Problem description" title="Enter problem description" />
 				</div>
 			</div>
 			<div class="button-field-popup-actions send-support-popup-actions">
-				<button class="homey-button-secondary-shadow" id="sendSupportPopupCancel"><span data-i18n="settings.cancel"></span></button>
-				<button class="homey-button-secondary-shadow" id="sendSupportPopupSend"><span data-i18n="settings.send"></span></button>
+				<button class="homey-button-secondary-shadow" id="sendSupportPopupCancel"><span
+						data-i18n="settings.cancel"></span></button>
+				<button class="homey-button-secondary-shadow" id="sendSupportPopupSend"><span
+						data-i18n="settings.send"></span></button>
 			</div>
 		</div>
 	</div>
 
-	<div id="configDraftRestoreOverlay" class="button-field-popup-overlay config-draft-popup-overlay" aria-hidden="true">
-		<div class="button-field-popup-dialog config-draft-popup-dialog" role="dialog" aria-modal="true" aria-labelledby="configDraftRestoreTitle" aria-describedby="configDraftRestoreMessage">
+	<div id="configDraftRestoreOverlay" class="button-field-popup-overlay config-draft-popup-overlay"
+		aria-hidden="true">
+		<div class="button-field-popup-dialog config-draft-popup-dialog" role="dialog" aria-modal="true"
+			aria-labelledby="configDraftRestoreTitle" aria-describedby="configDraftRestoreMessage">
 			<div class="button-field-popup-header">
 				<div class="button-field-popup-title" id="configDraftRestoreTitle">Unsaved settings detected</div>
 			</div>
 			<div class="button-field-popup-body config-draft-popup-body">
-				<p id="configDraftRestoreMessage">Unsaved settings have been detected, would you like to restore those now?</p>
+				<p id="configDraftRestoreMessage">Unsaved settings have been detected, would you like to restore those
+					now?</p>
 			</div>
 			<div class="button-field-popup-actions config-draft-popup-actions">
 				<button class="homey-button-secondary-shadow" id="configDraftRestoreDiscard">Discard</button>

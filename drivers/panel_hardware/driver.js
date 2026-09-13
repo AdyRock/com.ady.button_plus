@@ -90,40 +90,19 @@ class PanelDriver extends Driver
 			return [];
 		}
 
-		let connect0Type = 0;
-		let connect1Type = 0;
-		let connect2Type = 0;
-		let connect3Type = 0;
-		let connect4Type = 0;
+		const settings = {
+			address: deviceConfiguration.info.ipaddress,
+			mac: deviceConfiguration.info.mac,
+			configuration_mode: 'group',
+		};
 
-		let connectIdx = deviceConfiguration.info.connectors.findIndex((id) => id.id === 0);
-		if (connectIdx >= 0)
+		if (deviceConfiguration.info && Array.isArray(deviceConfiguration.info.connectors))
 		{
-			connect0Type = deviceConfiguration.info.connectors[connectIdx].type;
-		}
-
-		connectIdx = deviceConfiguration.info.connectors.findIndex((id) => id.id === 1);
-		if (connectIdx >= 0)
-		{
-			connect1Type = deviceConfiguration.info.connectors[connectIdx].type;
-		}
-
-		connectIdx = deviceConfiguration.info.connectors.findIndex((id) => id.id === 2);
-		if (connectIdx >= 0)
-		{
-			connect2Type = deviceConfiguration.info.connectors[connectIdx].type;
-		}
-
-		connectIdx = deviceConfiguration.info.connectors.findIndex((id) => id.id === 3);
-		if (connectIdx >= 0)
-		{
-			connect3Type = deviceConfiguration.info.connectors[connectIdx].type;
-		}
-
-		connectIdx = deviceConfiguration.info.connectors.findIndex((id) => id.id === 4);
-		if (connectIdx >= 0)
-		{
-			connect4Type = deviceConfiguration.info.connectors[connectIdx].type;
+			for (let i = 0; i < 8; i++)
+			{
+				const conn = deviceConfiguration.info.connectors.find((c) => c && c.id === i);
+				settings[`connect${i}Type`] = conn ? conn.type : (i === 0 ? 2 : 0);
+			}
 		}
 
         const device = {
@@ -133,16 +112,7 @@ class PanelDriver extends Driver
             {
                 id: deviceConfiguration.info.id,
             },
-            settings:
-            {
-                address: deviceConfiguration.info.ipaddress,
-                connect0Type,
-                connect1Type,
-                connect2Type,
-                connect3Type,
-                connect4Type,
-                mac: deviceConfiguration.info.mac,
-            },
+            settings,
         };
 
 		return device;

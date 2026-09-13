@@ -358,6 +358,8 @@ class MyApp extends Homey.App
 			this.createDisplayConfigurations();
 		}
 
+		this.groupConfigurations = this.homey.settings.get('groupConfigurations') || [];
+
 		this.settings = this.homey.settings.get('settings') || {};
 
 		try
@@ -442,6 +444,10 @@ class MyApp extends Homey.App
 			if ((setting === 'displayConfigurations') || (setting === 'defaultBroker'))
 			{
 				this.displayConfigurations = this.homey.settings.get('displayConfigurations');
+			}
+			if (setting === 'groupConfigurations')
+			{
+				this.groupConfigurations = this.homey.settings.get('groupConfigurations') || [];
 			}
 			if (setting === 'brokerConfigurationItems')
 			{
@@ -1261,6 +1267,112 @@ class MyApp extends Homey.App
 			this.displayConfigurations.push(displayConfiguration);
 		}
 		this.homey.settings.set('displayConfigurations', this.displayConfigurations);
+	}
+
+	getGroupConfigurations()
+	{
+		if (!this.groupConfigurations)
+		{
+			this.groupConfigurations = this.homey.settings.get('groupConfigurations') || [];
+		}
+		return this.groupConfigurations;
+	}
+
+	async setGroupConfigurations(groups)
+	{
+		if (!Array.isArray(groups))
+		{
+			groups = [];
+		}
+		this.groupConfigurations = groups;
+		this.homey.settings.set('groupConfigurations', groups);
+		await this.uploadConfigurations();
+		return { success: true, count: groups.length };
+	}
+
+	getGroupConfigurationById(id)
+	{
+		const groups = this.getGroupConfigurations();
+		return groups.find(g => String(g.id) === String(id)) || null;
+	}
+
+	async autoCreateGroupForDevice(device)
+	{
+		const deviceName = typeof device.getName === 'function' ? device.getName() : 'Panel Group';
+		const rawDisplayVal = device.hasCapability && device.hasCapability('configuration_display')
+			? device.getCapabilityValue('configuration_display')
+			: null;
+		const displayConfigNo = (rawDisplayVal !== null && rawDisplayVal !== undefined && rawDisplayVal !== '')
+			? Number(rawDisplayVal)
+			: 0;
+
+		const connectorConfigNos = [];
+		for (let i = 0; i < 8; i++)
+		{
+			if (device.hasCapability && device.hasCapability(`configuration_button.connector${i}`))
+			{
+				const val = device.getCapabilityValue(`configuration_button.connector${i}`);
+				connectorConfigNos.push((val !== null && val !== undefined && val !== '') ? Number(val) : null);
+			}
+			else
+			{
+				connectorConfigNos.push(null);
+			}
+		}
+
+		const groups = this.getGroupConfigurations();
+
+		// 1. Check for exact layout match with numeric comparison
+		let matchedGroup = groups.find(g => {
+			const gDisplay = (g.displayConfigNo !== null && g.displayConfigNo !== undefined && g.displayConfigNo !== '') ? Number(g.displayConfigNo) : null;
+			const devDisplay = (displayConfigNo !== null && displayConfigNo !== undefined) ? Number(displayConfigNo) : null;
+			if (gDisplay !== devDisplay) return false;
+			if (!Array.isArray(g.connectorConfigNos)) return false;
+			for (let i = 0; i < 8; i++)
+			{
+				const gConn = (g.connectorConfigNos[i] !== null && g.connectorConfigNos[i] !== undefined && g.connectorConfigNos[i] !== '') ? Number(g.connectorConfigNos[i]) : null;
+				const devConn = (connectorConfigNos[i] !== null && connectorConfigNos[i] !== undefined) ? Number(connectorConfigNos[i]) : null;
+				if (gConn !== devConn) return false;
+			}
+			return true;
+		});
+
+		// 2. If no layout match, check for name match (case-insensitive)
+		if (!matchedGroup && deviceName)
+		{
+			const targetName = deviceName.trim().toLowerCase();
+			matchedGroup = groups.find(g => g.name && String(g.name).trim().toLowerCase() === targetName);
+		}
+
+		// 3. If no layout or name match, check if there's only 1 initial default/placeholder group
+		if (!matchedGroup && groups.length === 1)
+		{
+			const singleName = (groups[0].name || '').trim().toLowerCase();
+			if (singleName === 'group 1' || singleName === 'group 1 (main panel)' || singleName === 'new group' || singleName === 'unnamed group')
+			{
+				matchedGroup = groups[0];
+				matchedGroup.name = deviceName;
+				matchedGroup.displayConfigNo = displayConfigNo !== null && displayConfigNo !== undefined ? displayConfigNo : 0;
+				matchedGroup.connectorConfigNos = connectorConfigNos;
+				await this.setGroupConfigurations(groups);
+				return matchedGroup;
+			}
+		}
+
+		// 4. Otherwise create a new group
+		if (!matchedGroup)
+		{
+			matchedGroup = {
+				id: `group_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+				name: deviceName || 'New Group',
+				displayConfigNo: displayConfigNo !== null && displayConfigNo !== undefined ? displayConfigNo : 0,
+				connectorConfigNos: connectorConfigNos
+			};
+			groups.push(matchedGroup);
+			await this.setGroupConfigurations(groups);
+		}
+
+		return matchedGroup;
 	}
 
 	isButtonPlusDriverId(driverId)

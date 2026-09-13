@@ -1,0 +1,19 @@
+{
+    "type": "enum",
+    "title": {
+        "en": "Panel Group",
+        "nl": "Paneel Groep"
+    },
+    "getable": true,
+    "setable": true,
+    "uiComponent": "picker",
+    "values": [
+        {
+            "id": "group_0",
+            "title": {
+                "en": "Group 1",
+                "nl": "Groep 1"
+            }
+        }
+    ]
+}

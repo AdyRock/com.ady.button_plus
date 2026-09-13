@@ -113,6 +113,16 @@
 			"method": "get",
 			"path": "/get_capability_listeners",
 			"public": false
+		},
+		"getGroupConfigurations": {
+			"method": "get",
+			"path": "/group_configurations",
+			"public": false
+		},
+		"saveGroupConfigurations": {
+			"method": "post",
+			"path": "/save_group_configurations",
+			"public": false
 		}
 	},
 	"tags": {

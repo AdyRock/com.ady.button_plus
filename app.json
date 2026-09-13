@@ -114,6 +114,16 @@
       "method": "get",
       "path": "/get_capability_listeners",
       "public": false
+    },
+    "getGroupConfigurations": {
+      "method": "get",
+      "path": "/group_configurations",
+      "public": false
+    },
+    "saveGroupConfigurations": {
+      "method": "post",
+      "path": "/save_group_configurations",
+      "public": false
     }
   },
   "tags": {
@@ -3125,6 +3135,7 @@
       ],
       "class": "button",
       "capabilities": [
+        "configuration_group",
         "configuration_display",
         "configuration_button.connector0",
         "configuration_button.connector1",
@@ -3259,6 +3270,35 @@
           "hint": {
             "en": "Firmware version of the device. This is read in when the devices is initialised.",
             "nl": "Firmware versie van het apparaat. Deze is uitgelezen toen het apparaat werd geïnitialiseerd"
+          }
+        },
+        {
+          "id": "configuration_mode",
+          "type": "dropdown",
+          "label": {
+            "en": "Configuration Mode",
+            "nl": "Configuratie Modus"
+          },
+          "value": "individual",
+          "values": [
+            {
+              "id": "individual",
+              "label": {
+                "en": "Individual Connectors Mode (Legacy)",
+                "nl": "Individuele Connectoren Modus (Klassiek)"
+              }
+            },
+            {
+              "id": "group",
+              "label": {
+                "en": "Group Mode (Panel Profile)",
+                "nl": "Groep Modus (Paneel Profiel)"
+              }
+            }
+          ],
+          "hint": {
+            "en": "Select Group Mode to assign a room/panel group, or Individual Mode for connector-by-connector dropdowns.",
+            "nl": "Selecteer Groep Modus om een kamer/paneel groep toe te wijzen, of Individuele Modus voor connector-voor-connector dropdowns."
           }
         },
         {
@@ -4341,6 +4381,25 @@
           "title": {
             "en": "Display Config. 20",
             "nl": "Display Config. 20"
+          }
+        }
+      ]
+    },
+    "configuration_group": {
+      "type": "enum",
+      "title": {
+        "en": "Panel Group",
+        "nl": "Paneel Groep"
+      },
+      "getable": true,
+      "setable": true,
+      "uiComponent": "picker",
+      "values": [
+        {
+          "id": "group_0",
+          "title": {
+            "en": "Group 1",
+            "nl": "Groep 1"
           }
         }
       ]

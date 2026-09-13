@@ -11,6 +11,7 @@
 	],
 	"class": "button",
 	"capabilities": [
+		"configuration_group",
 		"configuration_display",
 		"configuration_button.connector0",
 		"configuration_button.connector1",
@@ -145,6 +146,35 @@
 			"hint": {
 				"en": "Firmware version of the device. This is read in when the devices is initialised.",
 				"nl": "Firmware versie van het apparaat. Deze is uitgelezen toen het apparaat werd geïnitialiseerd"
+			}
+		},
+		{
+			"id": "configuration_mode",
+			"type": "dropdown",
+			"label": {
+				"en": "Configuration Mode",
+				"nl": "Configuratie Modus"
+			},
+			"value": "individual",
+			"values": [
+				{
+					"id": "individual",
+					"label": {
+						"en": "Individual Connectors Mode (Legacy)",
+						"nl": "Individuele Connectoren Modus (Klassiek)"
+					}
+				},
+				{
+					"id": "group",
+					"label": {
+						"en": "Group Mode (Panel Profile)",
+						"nl": "Groep Modus (Paneel Profiel)"
+					}
+				}
+			],
+			"hint": {
+				"en": "Select Group Mode to assign a room/panel group, or Individual Mode for connector-by-connector dropdowns.",
+				"nl": "Selecteer Groep Modus om een kamer/paneel groep toe te wijzen, of Individuele Modus voor connector-voor-connector dropdowns."
 			}
 		},
 		{
