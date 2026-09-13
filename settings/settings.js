@@ -11106,12 +11106,15 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 			updateButtonPanelControlsExpander();
 		}
 
-		function toggleDisplayedButtonConfigName(slot)
+		function toggleDisplayedButtonConfigName(button)
 		{
-			const row = document.getElementById(`buttonDisplayedConfigNameRow${slot}`);
-			if (row)
+			const card = button && button.closest ? button.closest('.button-config-preview-card') : null;
+			const row = card ? card.querySelector('.button-displayed-config-name-row') : null;
+			if (row && button)
 			{
-				row.classList.toggle('visible');
+				const isVisible = row.classList.toggle('visible');
+				button.classList.toggle('is-open', isVisible);
+				button.setAttribute('aria-expanded', isVisible ? 'true' : 'false');
 			}
 		}
 
@@ -11306,9 +11309,9 @@ displayPagePopupStatusBarPosition = Math.max(0, Math.min(parsedStatusBarPosition
 					<label class="homey-form-label">${Homey.__("settings.configtoedit")}</label>
 					<div class="panel-config-selector-row">
 						<select class="homey-form-select" data-view-only="true" onchange="changeDisplayedButtonConfiguration(${slot}, this.value)">${getButtonConfigurationOptionsHtml(configNo)}</select>
-						<button class="homey-button-secondary-shadow panel-config-toggle-btn" type="button" onclick="toggleDisplayedButtonConfigName(${slot}); return false;" title="${Homey.__("settings.configName")}" aria-label="${Homey.__("settings.configName")}"><span class="icon">&#8628;</span></button>
+						<button class="homey-button-secondary-shadow panel-config-toggle-btn" type="button" onclick="toggleDisplayedButtonConfigName(this); return false;" title="${Homey.__("settings.configName")}" aria-label="${Homey.__("settings.configName")}" aria-expanded="false"><span class="icon">&#8628;</span></button>
 					</div>
-					<div class="button-displayed-config-name-row" id="buttonDisplayedConfigNameRow${slot}">
+					<div class="button-displayed-config-name-row">
 						<label class="homey-form-label">${Homey.__("settings.configName")}</label>
 						<input class="homey-form-input" maxlength="20" value="${escapeHtml(configName)}" onchange="renameDisplayedButtonConfiguration(${slot}, this.value)">
 					</div>
