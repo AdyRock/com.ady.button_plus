@@ -258,7 +258,7 @@ class PanelDevice extends Device
 		this.registerCapabilityListener('button.apply_config', async () =>
 		{
 			// Maintenance action button was pressed
-			await this.uploadConfigurations();
+			await this.uploadConfigurations(true);
 		});
 
 		if (!this.hasCapability('page'))
@@ -1394,7 +1394,7 @@ class PanelDevice extends Device
 		this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/page/set`, pageCommand, false).catch(this.error);
 	}
 
-	async uploadPanelSensorConfiguration(deviceConfigurations)
+	async uploadPanelSensorConfiguration(deviceConfigurations, force = false)
 	{
 		if (!checkSEMVerGreaterOrEqual(this.firmwareVersion, '2.0.0'))
 		{
@@ -1423,7 +1423,7 @@ class PanelDevice extends Device
 					if (deviceConfigurations)
 					{
 						// Check if the configuration is the same
-						if (this.compareObjects(sectionConfiguration.sensors, deviceConfigurations.sensors))
+						if (!force && this.compareObjects(sectionConfiguration.sensors, deviceConfigurations.sensors))
 						{
 							delete deviceConfigurations.sensors;
 						}
@@ -1495,7 +1495,7 @@ class PanelDevice extends Device
 					if (deviceConfigurations)
 					{
 						// Check if the configuration is the same
-						if (this.compareObjects(sectionConfiguration.sensors, deviceConfigurations.sensors))
+						if (!force && this.compareObjects(sectionConfiguration.sensors, deviceConfigurations.sensors))
 						{
 							delete deviceConfigurations.sensors;
 						}
@@ -1520,7 +1520,7 @@ class PanelDevice extends Device
 		return null;
 	}
 
-	async uploadCoreConfiguration(deviceConfigurations)
+	async uploadCoreConfiguration(deviceConfigurations, force = false)
 	{
 		if (this.ip !== '')
 		{
@@ -1613,7 +1613,7 @@ class PanelDevice extends Device
 					}
 
 					// Compare the current settings with the new settings
-					if (this.compareObjects(sectionConfiguration.core, deviceConfigurations.core))
+					if (!force && this.compareObjects(sectionConfiguration.core, deviceConfigurations.core))
 					{
 						// They are the same so don't upload
 						if (!upload)
@@ -1652,7 +1652,7 @@ class PanelDevice extends Device
 	 * Reads device config, compares with desired state, writes differences, then sends MQTT messages.
 	 * Handles retries with exponential backoff if device is unreachable.
 	 */
-	async uploadConfigurations()
+	async uploadConfigurations(force = false)
 	{
 		try
 		{
@@ -1740,11 +1740,11 @@ class PanelDevice extends Device
 			let mqttQue = [];
 			this.numPages = 0;
 			await this.updateStatusBar(deviceConfigurations);
-			await this.uploadCoreConfiguration(deviceConfigurations);
-			({ mqttQue } = await this.uploadAllButtonConfigurations(deviceConfigurations) || { mqttQue: [] })
-			await this.uploadDisplayConfigurations(deviceConfigurations);
-			await this.uploadBrokerConfigurations(deviceConfigurations);
-			await this.uploadPanelSensorConfiguration(deviceConfigurations);
+			await this.uploadCoreConfiguration(deviceConfigurations, force);
+			({ mqttQue } = await this.uploadAllButtonConfigurations(deviceConfigurations, undefined, undefined, force) || { mqttQue: [] })
+			await this.uploadDisplayConfigurations(deviceConfigurations, force);
+			await this.uploadBrokerConfigurations(deviceConfigurations, force);
+			await this.uploadPanelSensorConfiguration(deviceConfigurations, force);
 			delete deviceConfigurations.info;
 
 			const writableSectionKeys = ['core', 'buttons', 'displayitems', 'brokers', 'sensors'];
@@ -1759,7 +1759,7 @@ class PanelDevice extends Device
 
 				const currentSection = deviceConfigurations[sectionKey];
 				const originalSection = originalDeviceConfigurations ? originalDeviceConfigurations[sectionKey] : undefined;
-				if (!this.compareObjects(currentSection, originalSection, false))
+				if (force || !this.compareObjects(currentSection, originalSection, false))
 				{
 					const mismatch = this.findFirstDifference(currentSection, originalSection);
 					if (mismatch)
@@ -5630,7 +5630,7 @@ class PanelDevice extends Device
 		});
 	}
 
-	async uploadAllButtonConfigurations(deviceConfigurations, Connector, ConfigNo)
+	async uploadAllButtonConfigurations(deviceConfigurations, Connector, ConfigNo, force = false)
 	{
 		let writeConfig = false;
 		let mqttQue = [];
@@ -5696,7 +5696,7 @@ class PanelDevice extends Device
 						// initialise buttonValues from the device's current state, even when the
 						// MQTT configuration has not changed and does not need to be republished.
 						const pageMqttMessages = await this.setupConnectorMQTTmessages(buttonPanelConfiguration, page, i);
-						const shouldPublishPage = !writeConfig || this.shouldPublishConnectorPageMQTT(deviceConfigurations, sectionConfiguration, i, page);
+						const shouldPublishPage = force || !writeConfig || this.shouldPublishConnectorPageMQTT(deviceConfigurations, sectionConfiguration, i, page);
 						if (shouldPublishPage)
 						{
 							mqttQue = mqttQue.concat(pageMqttMessages);
@@ -5709,7 +5709,7 @@ class PanelDevice extends Device
 				}
 			}
 
-			if (writeConfig && deviceConfigurations.buttons)
+			if (writeConfig && deviceConfigurations.buttons && !force)
 			{
 				for (let i = sectionConfiguration.buttons.length - 1; i >= 0; i--)
 				{
@@ -5795,7 +5795,7 @@ class PanelDevice extends Device
 		return null;
 	}
 
-	async uploadDisplayConfigurations(deviceConfigurations)
+	async uploadDisplayConfigurations(deviceConfigurations, force = false)
 	{
 		// apply the new display configuration to this unit
 		const configNo = this.getEffectiveConfigNo('display');
@@ -5816,7 +5816,7 @@ class PanelDevice extends Device
 					}
 
 					// Check if the display configuration has changed
-					if (this.compareObjects(sectionConfiguration.displayitems, deviceConfigurations.displayitems))
+					if (!force && this.compareObjects(sectionConfiguration.displayitems, deviceConfigurations.displayitems))
 					{
 						// No changes have been made to the configuration so remove it from the sectionConfiguration so is doesn't write
 						delete deviceConfigurations.displayitems;
@@ -5888,14 +5888,14 @@ class PanelDevice extends Device
 		return null;
 	}
 
-	async uploadBrokerConfigurations(deviceConfigurations)
+	async uploadBrokerConfigurations(deviceConfigurations, force = false)
 	{
 		const sectionConfiguration = await this.homey.app.applyBrokerConfiguration(this.ip);
 
 		if (deviceConfigurations)
 		{
 			// Check if the broker configuration has changed
-			if (this.compareObjects(sectionConfiguration.brokers, deviceConfigurations.brokers))
+			if (!force && this.compareObjects(sectionConfiguration.brokers, deviceConfigurations.brokers))
 			{
 				// No changes have been made to the configuration so remove it from the sectionConfiguration so is doesn't write
 				delete deviceConfigurations.brokers;

@@ -3392,7 +3392,7 @@
                 "en": "Dim luminance",
                 "nl": "Donkere lichtsterkte"
               },
-              "value": 10,
+              "value": 5,
               "units": "lux",
               "step": 1,
               "hint": {
@@ -3424,7 +3424,7 @@
                 "en": "Bright luminance",
                 "nl": "Heldere lichtsterkte"
               },
-              "value": 500,
+              "value": 50,
               "units": "lux",
               "step": 1,
               "hint": {
