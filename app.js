@@ -87,6 +87,8 @@ class MyApp extends Homey.App
 		this.diagLog = '';
 		this.logRealtimeTimer = null;
 
+		this.installUnhandledRejectionGuard();
+
 		const defaultbroker = this.homey.settings.get('defaultBroker');
 		if (!defaultbroker)
 		{
@@ -933,6 +935,39 @@ class MyApp extends Homey.App
 		{
 			this.syncTime();
 		}, msUntilNextMinute);
+	}
+
+	/**
+	 * homey-api rejects its own un-awaited (re)subscribe calls with
+	 * "Failed to subscribe to homey:device:... (Timeout after 10000ms)" when the Homey API
+	 * manager is busy or reconnecting. Those rejections cannot be caught at our call sites,
+	 * so handle them here instead of letting them take the app down; the listener health
+	 * check in syncTime() re-registers anything that really got lost.
+	 */
+	installUnhandledRejectionGuard()
+	{
+		if (this.unhandledRejectionGuardInstalled)
+		{
+			return;
+		}
+		this.unhandledRejectionGuardInstalled = true;
+
+		process.on('unhandledRejection', (reason) =>
+		{
+			const message = (reason && reason.message) ? reason.message : String(reason);
+
+			if (message.indexOf('Failed to subscribe to homey:') >= 0)
+			{
+				this.updateLog(`Ignored homey-api subscribe rejection: ${message}`, 1);
+				return;
+			}
+
+			this.updateLog(`unhandledRejection: ${message}`, 0);
+			if (reason && reason.stack)
+			{
+				this.updateLog(reason.stack, 1);
+			}
+		});
 	}
 
 	logCapabilityListenerHealth()
