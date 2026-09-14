@@ -30,6 +30,11 @@ module.exports = {
 
     // Settings changed
     async setSettingsChanged({ homey }) {
+        homey.app.buttonConfigurations = homey.settings.get('buttonConfigurations') || [];
+        homey.app.displayConfigurations = homey.settings.get('displayConfigurations') || [];
+        homey.app.groupConfigurations = homey.settings.get('groupConfigurations') || [];
+        homey.app.brokerItems = homey.settings.get('brokerConfigurationItems') || [];
+
         await homey.app.syncGroupCapabilities();
         return homey.app.uploadConfigurations();
     },

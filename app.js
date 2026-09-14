@@ -1066,6 +1066,11 @@ class MyApp extends Homey.App
 	 */
 	async uploadConfigurations()
 	{
+		this.buttonConfigurations = this.homey.settings.get('buttonConfigurations') || [];
+		this.displayConfigurations = this.homey.settings.get('displayConfigurations') || [];
+		this.groupConfigurations = this.homey.settings.get('groupConfigurations') || [];
+		this.brokerItems = this.homey.settings.get('brokerConfigurationItems') || [];
+
 		// Get devices to upload their configurations
 		const drivers = this.homey.drivers.getDrivers();
 		const uploadTasks = [];
@@ -1646,7 +1651,35 @@ class MyApp extends Homey.App
 				{
 					if (homeyDeviceObject.driverId === 'homey:app:com.ady.button_plus:panel_hardware')
 					{
-						homeyDeviceObject = await this.getHomeyDeviceById(ButtonDevice.__id);
+						if (ButtonDevice && ButtonDevice.__id)
+						{
+							homeyDeviceObject = await this.getHomeyDeviceById(ButtonDevice.__id);
+						}
+					}
+				}
+
+				let itemUnit = item.device === 'none' ? '' : (item.unit || '');
+				if (!itemUnit && item.device && item.device !== 'none' && item.device !== '_variable_' && item.device !== 'customMQTT' && homeyDeviceObject && item.capability)
+				{
+					try
+					{
+						const capObj = await this.getHomeyCapabilityByName(homeyDeviceObject, item.capability);
+						if (capObj)
+						{
+							const rawUnit = capObj.units || capObj.unit || '';
+							if (typeof rawUnit === 'string')
+							{
+								itemUnit = rawUnit.trim();
+							}
+							else if (rawUnit && typeof rawUnit === 'object')
+							{
+								itemUnit = String(rawUnit.en || Object.values(rawUnit)[0] || '').trim();
+							}
+						}
+					}
+					catch (err)
+					{
+						// Ignore unit lookup failure
 					}
 				}
 
@@ -1657,7 +1690,7 @@ class MyApp extends Homey.App
 					fontsize: parseInt(item.fontSize, 10) || 0,
 					width: parseInt(item.width, 10) || 0,
 					label: item.label,
-					unit: item.device === 'none' ? '' : item.unit,
+					unit: itemUnit,
 					round: parseInt(item.rounding, 10) || 0,
 					page,
 					boxtype: parseInt(item.boxType, 10) || 0,
@@ -1670,18 +1703,54 @@ class MyApp extends Homey.App
 						}],
 				};
 
+				const buttonId = (ButtonDevice && ButtonDevice.buttonId) ? ButtonDevice.buttonId : '';
 				if (item.device === '_variable_')
 				{
 					// Get the variable value
 					const variable = await this.homey.app.getVariable(item.capability);
 					if (variable)
 					{
-						const routedValue = this.routeSvgOrTextValue(variable.value, `_variable_/${item.capability}`);
-						svg = routedValue.svg;
+						let val = variable.value;
+						const onSvg = item.onSVG || item.onSvg || '';
+						const offSvg = item.offSVG || item.offSvg || '';
+						let chosenSvg = '';
+						if (onSvg || offSvg)
+						{
+							let isOn = true;
+							if (typeof val === 'boolean') isOn = val;
+							else if (typeof val === 'number') isOn = val > 0;
+							else if (typeof val === 'string')
+							{
+								const lowerStr = String(val).toLowerCase().trim();
+								if (lowerStr === 'false' || lowerStr === 'off' || lowerStr === '0') isOn = false;
+							}
+							chosenSvg = isOn ? (onSvg || item.svg || '') : (offSvg || item.svg || '');
+						}
+
+						let textVal = val;
+						let isBool = typeof val === 'boolean';
+						if (!isBool && typeof val === 'string')
+						{
+							const lowerStr = String(val).toLowerCase().trim();
+							if (lowerStr === 'true' || lowerStr === 'false')
+							{
+								isBool = true;
+								textVal = lowerStr === 'true';
+							}
+						}
+						if (isBool)
+						{
+							const onText = (item.onText || item.OnText || '').trim() || 'On';
+							const offText = (item.offText || item.OffText || '').trim() || 'Off';
+							textVal = textVal ? onText : offText;
+						}
+
+						const routedValue = this.routeSvgOrTextValue(textVal, `_variable_/${item.capability}`);
+						svg = isSvgTextContent(chosenSvg) ? chosenSvg : (item.svg ? item.svg : routedValue.svg);
 						mqttQueue.push({
 							brokerId,
 							message: `buttonplus/${item.device}/${item.capability}`,
-							value: routedValue.textValue,
+							value: isSvgTextContent(chosenSvg) ? '' : routedValue.textValue,
 						});
 					}
 				}
@@ -1701,9 +1770,9 @@ class MyApp extends Homey.App
 							if (capability)
 							{
 								let { value } = capability;
-								if (item.capability === 'dim')
+								if ((item.capability === 'dim' || item.capability === 'windowcoverings_set') && typeof value === 'number')
 								{
-									value = Math.round(value * 100);
+									value = value <= 1 ? Math.round(value * 100) : Math.round(value);
 								}
 								if (value === null || value === undefined)
 								{
@@ -1711,13 +1780,55 @@ class MyApp extends Homey.App
 								}
 
 								const valueTopic = `buttonplus/${homeyDeviceObject ? homeyDeviceObject.id : item.device}/${item.capability}`;
-								const routedValue = this.routeSvgOrTextValue(value, `${homeyDeviceObject ? homeyDeviceObject.id : item.device}/${item.capability}`);
-								svg = routedValue.svg;
+								const onSvg = item.onSVG || item.onSvg || '';
+								const offSvg = item.offSVG || item.offSvg || '';
+								let chosenSvg = '';
+								if (onSvg || offSvg)
+								{
+									let isOn = true;
+									if (typeof value === 'boolean') isOn = value;
+									else if (typeof value === 'number') isOn = value > 0;
+									else if (typeof value === 'string')
+									{
+										const lowerStr = String(value).toLowerCase().trim();
+										if (lowerStr === 'false' || lowerStr === 'off' || lowerStr === '0') isOn = false;
+									}
+									chosenSvg = isOn ? (onSvg || item.svg || '') : (offSvg || item.svg || '');
+								}
+
+								let textVal = value;
+								let isBool = typeof value === 'boolean';
+								if (!isBool && typeof value === 'string')
+								{
+									const lowerStr = String(value).toLowerCase().trim();
+									if (lowerStr === 'true' || lowerStr === 'false')
+									{
+										isBool = true;
+										textVal = lowerStr === 'true';
+									}
+								}
+								if (isBool)
+								{
+									const onText = (item.onText || item.OnText || '').trim() || 'On';
+									const offText = (item.offText || item.OffText || '').trim() || 'Off';
+									textVal = textVal ? onText : offText;
+								}
+								else if (capability.type === 'enum' && Array.isArray(capability.values))
+								{
+									const match = capability.values.find((entry) => entry.id === String(value));
+									if (match && (match.title || match.id))
+									{
+										textVal = match.title || match.id;
+									}
+								}
+
+								const routedValue = this.routeSvgOrTextValue(textVal, `${homeyDeviceObject ? homeyDeviceObject.id : item.device}/${item.capability}`);
+								svg = isSvgTextContent(chosenSvg) ? chosenSvg : (item.svg ? item.svg : routedValue.svg);
 								// Send the value to the device after a short delay to allow the device to connect to the broker
 								mqttQueue.push({
 									brokerId,
 									message: valueTopic,
-									value: routedValue.textValue,
+									value: isSvgTextContent(chosenSvg) ? '' : routedValue.textValue,
 								});
 							}
 						}
@@ -1731,7 +1842,7 @@ class MyApp extends Homey.App
 				{
 					// For deviceId type None, we need to send the Label vai MQTT so the item is displayed
 					// Send the value to the device after a short delay to allow the device to connect to the broker
-					const noneTopic = `buttonplus/${ButtonDevice.buttonId}/none/${item.page}/${item.xPos}/${item.yPos}`;
+					const noneTopic = `buttonplus/${buttonId}/none/${item.page}/${item.xPos}/${item.yPos}`;
 					capabilities.topics[0].topic = noneTopic;
 					const routedValue = this.routeSvgOrTextValue(item.text, `none/${item.page}/${item.xPos}/${item.yPos}`);
 					svg = routedValue.svg;
@@ -1746,20 +1857,23 @@ class MyApp extends Homey.App
 
 				mqttQueue.push({
 					brokerId,
-					message: `buttonplus/${ButtonDevice.buttonId}/displayitem/${itemNo}/svg/set`,
+					message: `buttonplus/${buttonId}/displayitem/${itemNo}/svg/set`,
 					value: svg,
+					force: true,
 				});
 			}
 		}
 
 		// Send the MQTT messages after a short delay to allow the device to connect to the broker
+		const delay = checkSEMVerGreaterOrEqual(firmwareVersion, '2.0.0') ? 10000 : 100;
 		setTimeout(async () =>
 		{
 			for (const mqttMsg of mqttQueue)
 			{
-				this.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value).catch((err) => this.error(err));
+				const ignoreSame = mqttMsg.force === true ? false : false;
+				this.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value, ignoreSame).catch((err) => this.error(err));
 			}
-		}, 10000);
+		}, delay);
 
 		return maxPages;
 	}

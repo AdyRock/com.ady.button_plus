@@ -1799,6 +1799,13 @@ class PanelDevice extends Device
 			{
 				this.homey.app.updateLog(`Configuration sections changed for ${this.ip}: ${changedSections.join(', ')}`);
 
+				if (!force)
+				{
+					// deviceConfigurations.info was already deleted above; use the pre-delete clone which still has it
+					const fullButtonQue = (await this.uploadAllButtonConfigurations(originalDeviceConfigurations, undefined, undefined, true)) || { mqttQue: [] };
+					mqttQue = fullButtonQue.mqttQue || [];
+				}
+
 				while (tries > 0)
 				{
 					error = await this.homey.app.writeDeviceConfiguration(this.ip, changedConfiguration, this.firmwareVersion)
@@ -5687,7 +5694,8 @@ class PanelDevice extends Device
 				buttons: [],
 			};
 
-			for (let i = 0; i < (deviceConfigurations.info.connectors.length); i++)
+			const connectors = deviceConfigurations.info && Array.isArray(deviceConfigurations.info.connectors) ? deviceConfigurations.info.connectors : [];
+			for (let i = 0; i < connectors.length; i++)
 			{
 				const connectorType = this.getSetting(`connect${i}Type`);
 
@@ -5863,7 +5871,7 @@ class PanelDevice extends Device
 				}
 				else
 				{
-					await this.homey.app.uploadDisplayConfiguration(this.ip, configNo, this.firmwareVersion);
+					await this.homey.app.uploadDisplayConfiguration(this.ip, configNo, this.firmwareVersion, this);
 				}
 			}
 			catch (error)
@@ -6216,7 +6224,9 @@ class PanelDevice extends Device
 				value = '';
 			}
 
-			const publishValue = (capability === 'dim') ? value * 100 : value;
+			const publishValue = ((capability === 'dim' || capability === 'windowcoverings_set') && typeof value === 'number')
+				? (value <= 1 ? Math.round(value * 100) : Math.round(value))
+				: value;
 			let matchedCount = 0;
 
 			if (deviceId === '_variable_')
@@ -6231,8 +6241,50 @@ class PanelDevice extends Device
 						const brokerId = displayItem.brokerId || displayItem.brokerid || 'Default';
 						matchedCount += 1;
 
-						// If the value starts with an SVG tag then publish to the svg topic instead of the variable topic
-						this.publishTextOrSvg(brokerId, `buttonplus/${this.buttonId}/displayitem/${itemNo}/svg/set`, `buttonplus/_variable_/${capability}`, publishValue);
+						const onSvg = displayItem.onSVG || displayItem.onSvg || '';
+						const offSvg = displayItem.offSVG || displayItem.offSvg || '';
+						let chosenSvg = '';
+						if (onSvg || offSvg)
+						{
+							let isOn = true;
+							if (typeof value === 'boolean') isOn = value;
+							else if (typeof value === 'number') isOn = value > 0;
+							else if (typeof value === 'string')
+							{
+								const lowerStr = String(value).toLowerCase().trim();
+								if (lowerStr === 'false' || lowerStr === 'off' || lowerStr === '0') isOn = false;
+							}
+							chosenSvg = isOn ? (onSvg || displayItem.svg || '') : (offSvg || displayItem.svg || '');
+						}
+
+						let displayPublishValue = publishValue;
+						let isBool = typeof publishValue === 'boolean';
+						if (!isBool && typeof publishValue === 'string')
+						{
+							const lowerStr = String(publishValue).toLowerCase().trim();
+							if (lowerStr === 'true' || lowerStr === 'false')
+							{
+								isBool = true;
+								displayPublishValue = lowerStr === 'true';
+							}
+						}
+						if (isBool)
+						{
+							const onText = (displayItem.onText || displayItem.OnText || '').trim() || 'On';
+							const offText = (displayItem.offText || displayItem.OffText || '').trim() || 'Off';
+							displayPublishValue = displayPublishValue ? onText : offText;
+						}
+
+						if (isSvgTextContent(chosenSvg))
+						{
+							this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/displayitem/${itemNo}/svg/set`, chosenSvg, false).catch((err) => this.error(err));
+							this.homey.app.publishMQTTMessage(brokerId, `buttonplus/_variable_/${capability}`, '', false).catch(this.error);
+						}
+						else
+						{
+							// If the value starts with an SVG tag then publish to the svg topic instead of the variable topic
+							this.publishTextOrSvg(brokerId, `buttonplus/${this.buttonId}/displayitem/${itemNo}/svg/set`, `buttonplus/_variable_/${capability}`, displayPublishValue, false);
+						}
 					}
 				}
 			}
@@ -6258,7 +6310,62 @@ class PanelDevice extends Device
 						// Publish to MQTT
 						const brokerId = displayItem.brokerId || displayItem.brokerid || 'Default';
 						matchedCount += 1;
-						this.publishTextOrSvg(brokerId, `buttonplus/${this.buttonId}/displayitem/${itemNo}/svg/set`, `buttonplus/${deviceId}/${capability}`, publishValue);
+
+						const onSvg = displayItem.onSVG || displayItem.onSvg || '';
+						const offSvg = displayItem.offSVG || displayItem.offSvg || '';
+						let chosenSvg = '';
+						if (onSvg || offSvg)
+						{
+							let isOn = true;
+							if (typeof value === 'boolean') isOn = value;
+							else if (typeof value === 'number') isOn = value > 0;
+							else if (typeof value === 'string')
+							{
+								const lowerStr = String(value).toLowerCase().trim();
+								if (lowerStr === 'false' || lowerStr === 'off' || lowerStr === '0') isOn = false;
+							}
+							chosenSvg = isOn ? (onSvg || displayItem.svg || '') : (offSvg || displayItem.svg || '');
+						}
+
+						let displayPublishValue = publishValue;
+						let isBool = typeof publishValue === 'boolean';
+						if (!isBool && typeof publishValue === 'string')
+						{
+							const lowerStr = String(publishValue).toLowerCase().trim();
+							if (lowerStr === 'true' || lowerStr === 'false')
+							{
+								isBool = true;
+								displayPublishValue = lowerStr === 'true';
+							}
+						}
+						if (isBool)
+						{
+							const onText = (displayItem.onText || displayItem.OnText || '').trim() || 'On';
+							const offText = (displayItem.offText || displayItem.OffText || '').trim() || 'Off';
+							displayPublishValue = displayPublishValue ? onText : offText;
+						}
+						else if (homeyDeviceObject)
+						{
+							const capObj = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObject, capability);
+							if (capObj && capObj.type === 'enum' && Array.isArray(capObj.values))
+							{
+								const match = capObj.values.find((entry) => entry.id === String(publishValue));
+								if (match && (match.title || match.id))
+								{
+									displayPublishValue = match.title || match.id;
+								}
+							}
+						}
+
+						if (isSvgTextContent(chosenSvg))
+						{
+							this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/displayitem/${itemNo}/svg/set`, chosenSvg, false).catch((err) => this.error(err));
+							this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${deviceId}/${capability}`, '', false).catch(this.error);
+						}
+						else
+						{
+							this.publishTextOrSvg(brokerId, `buttonplus/${this.buttonId}/displayitem/${itemNo}/svg/set`, `buttonplus/${deviceId}/${capability}`, displayPublishValue, false);
+						}
 					}
 				}
 			}
@@ -6270,17 +6377,17 @@ class PanelDevice extends Device
 		}
 	}
 
-	publishTextOrSvg(brokerId, svgTopic, textTopic, value)
+	publishTextOrSvg(brokerId, svgTopic, textTopic, value, force = false)
 	{
 		if (isSvgTextContent(value))
 		{
-			this.homey.app.publishMQTTMessage(brokerId, svgTopic, value).catch((err) => this.error(err));
-			this.homey.app.publishMQTTMessage(brokerId, textTopic, '').catch(this.error);
+			this.homey.app.publishMQTTMessage(brokerId, svgTopic, value, force).catch((err) => this.error(err));
+			this.homey.app.publishMQTTMessage(brokerId, textTopic, '', force).catch(this.error);
 		}
 		else
 		{
-			this.homey.app.publishMQTTMessage(brokerId, svgTopic, '').catch((err) => this.error(err));
-			this.homey.app.publishMQTTMessage(brokerId, textTopic, value).catch(this.error);
+			this.homey.app.publishMQTTMessage(brokerId, svgTopic, '', force).catch((err) => this.error(err));
+			this.homey.app.publishMQTTMessage(brokerId, textTopic, value, force).catch(this.error);
 		}
 	}
 

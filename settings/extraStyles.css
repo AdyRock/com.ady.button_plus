@@ -1138,7 +1138,7 @@ summary::-webkit-details-marker {
 .group-simulator-surface {
 	background-color: #1a1e29;
 	border-radius: 12px;
-	padding: 16px;
+	padding: 12px 0;
 	color: #fff;
 	min-height: 250px;
 	display: flex;
@@ -1151,7 +1151,7 @@ summary::-webkit-details-marker {
 	background: #111827;
 	border: 1px solid #374151;
 	border-radius: 10px;
-	padding: 12px;
+	padding: 10px 0;
 	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
@@ -1174,23 +1174,28 @@ summary::-webkit-details-marker {
 	display: none;
 }
 
-.group-panel-controls-collapsed .button-sim-shell {
+.group-sim-module-body .button-sim-shell {
 	column-gap: 5px;
+	--button-sim-led-gap: 1px;
+	--button-sim-top-label-offset: 0px;
+	--button-sim-display-height: calc(var(--button-sim-display-inner-height) + 6px);
 }
 
-.group-panel-controls-collapsed .button-sim-shell-left {
+.group-sim-module-body .button-sim-shell-left {
 	grid-template-columns: auto var(--button-sim-display-inner-width);
 	justify-content: start;
 }
 
-.group-panel-controls-collapsed .button-sim-shell-right {
+.group-sim-module-body .button-sim-shell-right {
 	grid-template-columns: var(--button-sim-display-inner-width) auto;
 	justify-content: end;
 }
 
-.group-panel-controls-collapsed .button-sim-content {
+.group-sim-module-body .button-sim-content {
 	width: var(--button-sim-display-inner-width);
 	box-sizing: border-box;
+	padding-top: 3px;
+	padding-bottom: 3px;
 }
 
 .group-sim-module-header {
@@ -1198,7 +1203,7 @@ summary::-webkit-details-marker {
 	align-items: center;
 	justify-content: space-between;
 	margin-bottom: 10px;
-	padding-bottom: 8px;
+	padding: 0 12px 8px 12px;
 	border-bottom: 1px solid #1f2937;
 }
 
@@ -1295,19 +1300,8 @@ summary::-webkit-details-marker {
 	margin-right: 0;
 }
 
-.group-sim-module-body .button-sim-shell {
-	--button-sim-led-gap: 1px;
-	--button-sim-top-label-offset: 0px;
-	--button-sim-display-height: calc(var(--button-sim-display-inner-height) + 6px);
-}
-
 .group-sim-module-body .button-sim-shell-empty .button-sim-leds {
 	width: calc(var(--button-sim-wall-led-width) + var(--button-sim-led-gap) + var(--button-sim-front-led-width));
-}
-
-.group-sim-module-body .button-sim-content {
-	padding-top: 3px;
-	padding-bottom: 3px;
 }
 
 .group-sim-module-body .button-sim-state-block {
