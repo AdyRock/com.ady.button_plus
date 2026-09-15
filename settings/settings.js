@@ -6733,7 +6733,7 @@ function openDisplayFieldPopup(itemNo, fieldSuffix, retryCount = 0)
 		popupElementsBySuffix[suffix] = popupElement;
 	}
 
-	if (missingSourceFields.length > 0)
+	if (missingSourceFields.length > 0 && displayFieldPopupBindings.length === 0)
 	{
 		if (retryCount < 6)
 		{
@@ -6799,6 +6799,10 @@ function handleDisplayInlineSimulatorClick(itemNo, fieldSuffix)
 	{
 		displayInlineSelectedItemNo = itemNo;
 		renderDisplayInlineSimulator();
+		if (fieldSuffix !== 'Label')
+		{
+			openDisplayFieldPopup(itemNo, fieldSuffix);
+		}
 		return;
 	}
 
@@ -6812,6 +6816,10 @@ function handleDisplayOverlaySimulatorClick(itemNo, fieldSuffix)
 		displayInlineSelectedItemNo = itemNo;
 		renderDisplayPagePopup();
 		renderDisplayInlineSimulator();
+		if (fieldSuffix !== 'Label')
+		{
+			openDisplayFieldPopup(itemNo, fieldSuffix);
+		}
 		return;
 	}
 
