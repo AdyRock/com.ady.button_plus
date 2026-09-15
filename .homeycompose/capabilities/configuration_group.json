@@ -2,7 +2,18 @@
     "type": "enum",
     "title": {
         "en": "Panel Group",
-        "nl": "Paneel Groep"
+        "nl": "Paneel Groep",
+        "de": "Panelgruppe",
+        "fr": "Groupe de panneaux",
+        "it": "Gruppo pannello",
+        "sv": "Panelgrupp",
+        "no": "Panelgruppe",
+        "es": "Grupo de paneles",
+        "da": "Panelgruppe",
+        "ru": "Группа панелей",
+        "pl": "Grupa paneli",
+        "ko": "패널 그룹",
+        "ar": "مجموعة اللوحات"
     },
     "getable": true,
     "setable": true,
@@ -12,7 +23,18 @@
             "id": "group_0",
             "title": {
                 "en": "Group 1",
-                "nl": "Groep 1"
+                "nl": "Groep 1",
+                "de": "Gruppe 1",
+                "fr": "Groupe 1",
+                "it": "Gruppo 1",
+                "sv": "Grupp 1",
+                "no": "Gruppe 1",
+                "es": "Grupo 1",
+                "da": "Gruppe 1",
+                "ru": "Группа 1",
+                "pl": "Grupa 1",
+                "ko": "그룹 1",
+                "ar": "المجموعة 1"
             }
         }
     ]

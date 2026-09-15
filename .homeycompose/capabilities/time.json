@@ -2,7 +2,18 @@
     "type": "string",
     "title": {
         "en": "Time",
-        "nl": "Tijd"
+        "nl": "Tijd",
+        "de": "Uhrzeit",
+        "fr": "Heure",
+        "it": "Ora",
+        "sv": "Tid",
+        "no": "Tid",
+        "es": "Hora",
+        "da": "Tid",
+        "ru": "Время",
+        "pl": "Czas",
+        "ko": "시간",
+        "ar": "الوقت"
     },
     "getable": true,
     "setable": false,

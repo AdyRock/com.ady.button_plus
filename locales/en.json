@@ -3,7 +3,7 @@
         "Settings": "Settings",
         "gatewayUpdateMode": "Gateway Update Mode",
         "assignmentNoteTitle": "Important:",
-        "assignmentNoteText": "After you finish setting up and saving configurations, you must assign them to your Button+ panel devices in each device settings.",
+        "assignmentNoteText": "After you finish setting up and saving configurations, you must assign them to your Button+ panel devices or to a Group and then assign the group to the devices.",
         "view": "Show Options For",
         "buttonConfigs": "Button Configurations",
         "buttonConfig": "Button Configuration",

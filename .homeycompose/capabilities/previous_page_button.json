@@ -5,7 +5,18 @@
     "uiComponent": "button",
     "title": {
         "en": "Previous Page",
-        "nl": "Vorige pagina"
+        "nl": "Vorige pagina",
+        "de": "Vorherige Seite",
+        "fr": "Page précédente",
+        "it": "Pagina precedente",
+        "sv": "Föregående sida",
+        "no": "Forrige side",
+        "es": "Página anterior",
+        "da": "Forrige side",
+        "ru": "Предыдущая страница",
+        "pl": "Poprzednia strona",
+        "ko": "이전 페이지",
+        "ar": "الصفحة السابقة"
     },
     "icon": "/assets/previous_page.svg"
 }

@@ -1,11 +1,33 @@
 {
     "title": {
         "en": "The page was changed",
-        "nl": "De pagina is veranderd"
+        "nl": "De pagina is veranderd",
+        "de": "Die Seite wurde geändert",
+        "fr": "La page a été changée",
+        "it": "La pagina è stata cambiata",
+        "sv": "Sidan ändrades",
+        "no": "Siden ble endret",
+        "es": "Se cambió la página",
+        "da": "Siden blev ændret",
+        "ru": "Страница была изменена",
+        "pl": "Strona została zmieniona",
+        "ko": "페이지가 변경됨",
+        "ar": "تم تغيير الصفحة"
     },
     "titleFormatted": {
         "en": "The page changed",
-        "nl": "De pagina is veranderd"
+        "nl": "De pagina is veranderd",
+        "de": "Die Seite hat sich geändert",
+        "fr": "La page a changé",
+        "it": "La pagina è cambiata",
+        "sv": "Sidan ändrades",
+        "no": "Siden endret seg",
+        "es": "La página cambió",
+        "da": "Siden skiftede",
+        "ru": "Страница изменилась",
+        "pl": "Strona się zmieniła",
+        "ko": "페이지가 변경됨",
+        "ar": "تغيرت الصفحة"
     },
 	"highlight": true,
 	"tokens": [		{
@@ -13,7 +35,18 @@
 			"type": "number",
 			"title": {
 				"en": "Page",
-				"nl": "Pagina"
+				"nl": "Pagina",
+				"de": "Seite",
+				"fr": "Page",
+				"it": "Pagina",
+				"sv": "Sida",
+				"no": "Side",
+				"es": "Página",
+				"da": "Side",
+				"ru": "Страница",
+				"pl": "Strona",
+				"ko": "페이지",
+				"ar": "الصفحة"
 			},
 			"example": "1"
 		}

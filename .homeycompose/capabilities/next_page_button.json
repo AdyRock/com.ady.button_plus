@@ -5,7 +5,18 @@
     "uiComponent": "button",
     "title": {
         "en": "Next Page",
-        "nl": "Volgende Pagina"
+        "nl": "Volgende Pagina",
+        "de": "Nächste Seite",
+        "fr": "Page suivante",
+        "it": "Pagina successiva",
+        "sv": "Nästa sida",
+        "no": "Neste side",
+        "es": "Página siguiente",
+        "da": "Næste side",
+        "ru": "Следующая страница",
+        "pl": "Następna strona",
+        "ko": "다음 페이지",
+        "ar": "الصفحة التالية"
     },
     "icon": "/assets/next_page.svg"
 }

@@ -1,11 +1,33 @@
 {
     "title": {
         "en": "A button was turned on or off",
-        "nl": "Een knop is AAN of UIT gezet"
+        "nl": "Een knop is AAN of UIT gezet",
+        "de": "Eine Taste wurde ein- oder ausgeschaltet",
+        "fr": "Un bouton a été allumé ou éteint",
+        "it": "Un pulsante è stato acceso o spento",
+        "sv": "En knapp slogs på eller stängdes av",
+        "no": "En knapp ble slått på eller av",
+        "es": "Se encendió o apagó un botón",
+        "da": "En knap blev tændt eller slukket",
+        "ru": "Кнопка была включена или выключена",
+        "pl": "Przycisk został włączony lub wyłączony",
+        "ko": "버튼이 켜지거나 꺼짐",
+        "ar": "تم تشغيل زر أو إيقافه"
     },
     "titleFormatted": {
         "en": "The [[left_right]] Button on connector [[connector]] for page [[page]] was turned On or off",
-        "nl": "De [[left_right]] knop op connector [[connector]] voor pagina [[page]] is AAN of UIT gezet"
+        "nl": "De [[left_right]] knop op connector [[connector]] voor pagina [[page]] is AAN of UIT gezet",
+        "de": "Die [[left_right]] Taste an Anschluss [[connector]] für Seite [[page]] wurde ein- oder ausgeschaltet",
+        "fr": "Le bouton [[left_right]] du connecteur [[connector]] pour la page [[page]] a été allumé ou éteint",
+        "it": "Il pulsante [[left_right]] sul connettore [[connector]] per la pagina [[page]] è stato acceso o spento",
+        "sv": "[[left_right]] knapp på anslutning [[connector]] för sida [[page]] slogs på eller stängdes av",
+        "no": "[[left_right]] knapp på tilkobling [[connector]] for side [[page]] ble slått på eller av",
+        "es": "El botón [[left_right]] del conector [[connector]] para la página [[page]] se encendió o apagó",
+        "da": "Knappen [[left_right]] på tilslutning [[connector]] for side [[page]] blev tændt eller slukket",
+        "ru": "Кнопка [[left_right]] на разъеме [[connector]] для страницы [[page]] была включена или выключена",
+        "pl": "Przycisk [[left_right]] na złączu [[connector]] dla strony [[page]] został włączony lub wyłączony",
+        "ko": "커넥터 [[connector]]의 [[page]]페이지에 있는 [[left_right]] 버튼이 켜지거나 꺼짐",
+        "ar": "تم تشغيل الزر [[left_right]] في الموصل [[connector]] للصفحة [[page]] أو إيقافه"
     },
 	"deprecated": true,
 	"tokens": [
@@ -14,7 +36,18 @@
             "type": "boolean",
             "title": {
                 "en": "Left",
-                "nl": "Links"
+                "nl": "Links",
+                "de": "Links",
+                "fr": "Gauche",
+                "it": "Sinistro",
+                "sv": "Vänster",
+                "no": "Venstre",
+                "es": "Izquierdo",
+                "da": "Venstre",
+                "ru": "Левая",
+                "pl": "Lewy",
+                "ko": "왼쪽",
+                "ar": "يسار"
             },
             "example": "true"
         },
@@ -23,7 +56,18 @@
             "type": "number",
             "title": {
                 "en": "Connector Number",
-                "nl": "Connector Number"
+                "nl": "Connector Number",
+                "de": "Anschlussnummer",
+                "fr": "Numéro de connecteur",
+                "it": "Numero connettore",
+                "sv": "Anslutningsnummer",
+                "no": "Tilkoblingsnummer",
+                "es": "Número de conector",
+                "da": "Tilslutningsnummer",
+                "ru": "Номер разъема",
+                "pl": "Numer złącza",
+                "ko": "커넥터 번호",
+                "ar": "رقم الموصل"
             },
             "example": "1"
         },
@@ -32,7 +76,18 @@
             "type": "boolean",
             "title": {
                 "en": "State",
-                "nl": "Status"
+                "nl": "Status",
+                "de": "Status",
+                "fr": "État",
+                "it": "Stato",
+                "sv": "Tillstånd",
+                "no": "Tilstand",
+                "es": "Estado",
+                "da": "Tilstand",
+                "ru": "Состояние",
+                "pl": "Stan",
+                "ko": "상태",
+                "ar": "الحالة"
             },
             "example": "true"
         },
@@ -41,7 +96,18 @@
 			"type": "number",
 			"title": {
 				"en": "Page",
-				"nl": "Pagina"
+				"nl": "Pagina",
+				"de": "Seite",
+				"fr": "Page",
+				"it": "Pagina",
+				"sv": "Sida",
+				"no": "Side",
+				"es": "Página",
+				"da": "Side",
+				"ru": "Страница",
+				"pl": "Strona",
+				"ko": "페이지",
+				"ar": "الصفحة"
 			},
 			"example": "1"
 		}
@@ -52,27 +118,60 @@
             "name": "left_right",
             "title": {
                 "en": "Left / Right",
-                "nl": "Links / Rechts"
+                "nl": "Links / Rechts",
+                "de": "Links / Rechts",
+                "fr": "Gauche / Droite",
+                "it": "Sinistro / Destro",
+                "sv": "Vänster / Höger",
+                "no": "Venstre / Høyre",
+                "es": "Izquierdo / Derecho",
+                "da": "Venstre / højre",
+                "ru": "Левая / Правая",
+                "pl": "Lewy / Prawy",
+                "ko": "왼쪽 / 오른쪽",
+                "ar": "يسار / يمين"
             },
             "placeholder": {
                 "en": "Left / Right",
-                "nl": "Links / Rechts"
+                "nl": "Links / Rechts",
+                "de": "Links / Rechts",
+                "fr": "Gauche / Droite",
+                "it": "Sinistro / Destro",
+                "sv": "Vänster / Höger",
+                "no": "Venstre / Høyre",
+                "es": "Izquierdo / Derecho",
+                "da": "Venstre / højre",
+                "ru": "Левая / Правая",
+                "pl": "Lewy / Prawy",
+                "ko": "왼쪽 / 오른쪽",
+                "ar": "يسار / يمين"
             },
             "values": [
 				{
 					"id": "any",
 					"title": {
 						"en": "Any",
-						"nl": "Elke"
+						"nl": "Elke",
+						"de": "Beliebig",
+						"fr": "Tout",
+						"it": "Qualsiasi",
+						"sv": "Valfri",
+						"no": "Vilkårlig",
+						"es": "Cualquiera",
+						"da": "Vilkårlig",
+						"ru": "Любое",
+						"pl": "Dowolny",
+						"ko": "모두",
+						"ar": "أي"
 					}
 				},
 				{
                     "id": "left",
-                    "title": {"en": "Left","nl": "Links"}
+                    "title": {"en": "Left","nl": "Links", "de": "Links", "fr": "Gauche", "it": "Sinistro", "sv": "Vänster", "no": "Venstre", "es": "Izquierdo", "da": "Venstre", "ru": "Левая", "pl": "Lewy", "ko": "왼쪽", "ar": "يسار"}
                 },
                 {
                     "id": "right",
-                    "title": {"en": "Right","nl": "Rechts"}
+                    "title": {"en": "Right","nl": "Rechts", "de": "Rechts", "fr": "Droite", "it": "Destro", "sv": "Höger", "no": "Høyre", "es": "Derecho", "da": "Højre", "ru": "Правая", "pl": "Prawy", "ko": "오른쪽", "ar": "يمين"}
                 }
             ]
         },
@@ -81,15 +180,48 @@
             "name": "connector",
             "title": {
                 "en": "Connectore Number",
-                "nl": "Connector nummer"
+                "nl": "Connector nummer",
+                "de": "Anschlussnummer",
+                "fr": "Numéro de connecteur",
+                "it": "Numero connettore",
+                "sv": "Anslutningsnummer",
+                "no": "Tilkoblingsnummer",
+                "es": "Número de conector",
+                "da": "Tilslutningsnummer",
+                "ru": "Номер разъема",
+                "pl": "Numer złącza",
+                "ko": "커넥터 번호",
+                "ar": "رقم الموصل"
             },
             "hint": {
 				"en": "The connector number (1-4). Use 0 for any connector.",
-				"nl": "Het connector nummer (1-4). Gebruik 0 voor elke connector."
+				"nl": "Het connector nummer (1-4). Gebruik 0 voor elke connector.",
+				"de": "Die Anschlussnummer (1-4). 0 für einen beliebigen Anschluss verwenden.",
+				"fr": "Le numéro du connecteur (1-4). Utilisez 0 pour n’importe quel connecteur.",
+				"it": "Il numero del connettore (1-4). Usa 0 per qualsiasi connettore.",
+				"sv": "Anslutningsnumret (1-4). Använd 0 för valfri anslutning.",
+				"no": "Tilkoblingsnummeret (1-4). Bruk 0 for en vilkårlig tilkobling.",
+				"es": "El número de conector (1-4). Use 0 para cualquier conector.",
+				"da": "Tilslutningsnummeret (1-4). Brug 0 for en vilkårlig tilslutning.",
+				"ru": "Номер разъема (1-4). Используйте 0 для любого разъема.",
+				"pl": "Numer złącza (1-4). Użyj 0 dla dowolnego złącza.",
+				"ko": "커넥터 번호(1-4). 모든 커넥터에 적용하려면 0을 사용하세요.",
+				"ar": "رقم الموصل (1-4). استخدم 0 لأي موصل."
 			},
 			"placeholder": {
 				"en": "Connector number",
-				"nl": "Connector nummer"
+				"nl": "Connector nummer",
+				"de": "Anschlussnummer",
+				"fr": "Numéro de connecteur",
+				"it": "Numero connettore",
+				"sv": "Anslutningsnummer",
+				"no": "Tilkoblingsnummer",
+				"es": "Número de conector",
+				"da": "Tilslutningsnummer",
+				"ru": "Номер разъема",
+				"pl": "Numer złącza",
+				"ko": "커넥터 번호",
+				"ar": "رقم الموصل"
 			},
 			"min": 0,
 			"max": 4,
@@ -101,15 +233,48 @@
 			"required": false,
 			"title": {
 				"en": "Page Number",
-				"nl": "Pagina Nummer"
+				"nl": "Pagina Nummer",
+				"de": "Seitennummer",
+				"fr": "Numéro de page",
+				"it": "Numero pagina",
+				"sv": "Sidnummer",
+				"no": "Sidenummer",
+				"es": "Número de página",
+				"da": "Sidenummer",
+				"ru": "Номер страницы",
+				"pl": "Numer strony",
+				"ko": "페이지 번호",
+				"ar": "رقم الصفحة"
 			},
 			"hint": {
 				"en": "The page number (0-10). Use -1 for any page.",
-				"nl": "Het pagina nummer (0-10). Gebruik -1 voor elke pagina."
+				"nl": "Het pagina nummer (0-10). Gebruik -1 voor elke pagina.",
+				"de": "Die Seitennummer (0-10). -1 für eine beliebige Seite verwenden.",
+				"fr": "Le numéro de page (0-10). Utilisez -1 pour n’importe quelle page.",
+				"it": "Il numero della pagina (0-10). Usa -1 per qualsiasi pagina.",
+				"sv": "Sidnumret (0-10). Använd -1 för valfri sida.",
+				"no": "Sidenummeret (0-10). Bruk -1 for en vilkårlig side.",
+				"es": "El número de página (0-10). Use -1 para cualquier página.",
+				"da": "Sidenummeret (0-10). Brug -1 for en vilkårlig side.",
+				"ru": "Номер страницы (0-10). Используйте -1 для любой страницы.",
+				"pl": "Numer strony (0-10). Użyj -1 dla dowolnej strony.",
+				"ko": "페이지 번호(0-10). 모든 페이지에 적용하려면 -1을 사용하세요.",
+				"ar": "رقم الصفحة (0-10). استخدم -1 لأي صفحة."
 			},
 			"placeholder": {
 				"en": "Page number",
-				"nl": "Pagina nummer"
+				"nl": "Pagina nummer",
+				"de": "Seitennummer",
+				"fr": "Numéro de page",
+				"it": "Numero pagina",
+				"sv": "Sidnummer",
+				"no": "Sidenummer",
+				"es": "Número de página",
+				"da": "Sidenummer",
+				"ru": "Номер страницы",
+				"pl": "Numer strony",
+				"ko": "페이지 번호",
+				"ar": "رقم الصفحة"
 			},
 			"min": -1,
 			"max": 10,

@@ -2,7 +2,18 @@
     "type": "number",
     "title": {
         "en": "Free memory",
-        "nl": "Vrij geheugen"
+        "nl": "Vrij geheugen",
+        "de": "Freier Speicher",
+        "fr": "Mémoire libre",
+        "it": "Memoria libera",
+        "sv": "Ledigt minne",
+        "no": "Ledig minne",
+        "es": "Memoria libre",
+        "da": "Ledig hukommelse",
+        "ru": "Свободная память",
+        "pl": "Wolna pamięć",
+        "ko": "사용 가능한 메모리",
+        "ar": "الذاكرة المتاحة"
     },
 	"units": "kB",
     "getable": true,

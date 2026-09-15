@@ -1174,6 +1174,10 @@ summary::-webkit-details-marker {
 	display: none;
 }
 
+.group-panel-controls-collapsed .group-sim-add-bar-row {
+	display: none;
+}
+
 .group-sim-module-body .button-sim-shell {
 	column-gap: 5px;
 	--button-sim-led-gap: 1px;
@@ -1298,6 +1302,20 @@ summary::-webkit-details-marker {
 .group-sim-module-body .button-inline-sim-grid {
 	margin-left: 0;
 	margin-right: 0;
+	grid-template-rows: 81px;
+}
+
+.group-sim-module-body .button-inline-sim-grid>.button-sim-item {
+	height: 81px;
+	min-height: 81px;
+	overflow: hidden;
+}
+
+.group-sim-module-body .button-inline-sim-grid .button-sim-shell,
+.group-sim-module-body .button-inline-sim-grid .button-sim-content {
+	height: 100%;
+	min-height: 0;
+	box-sizing: border-box;
 }
 
 .group-sim-module-body .button-sim-shell-empty .button-sim-leds {

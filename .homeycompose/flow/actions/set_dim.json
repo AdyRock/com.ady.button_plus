@@ -1,15 +1,48 @@
 {
     "title": {
         "en": "Set the panel brightness",
-        "nl": "Stel de helderheid van het paneel in"
+        "nl": "Stel de helderheid van het paneel in",
+        "de": "Panelhelligkeit festlegen",
+        "fr": "Définir la luminosité du panneau",
+        "it": "Imposta la luminosità del pannello",
+        "sv": "Ställ in panelens ljusstyrka",
+        "no": "Angi lysstyrken på panelet",
+        "es": "Establecer el brillo del panel",
+        "da": "Indstil panelets lysstyrke",
+        "ru": "Задать яркость панели",
+        "pl": "Ustaw jasność panelu",
+        "ko": "패널 밝기 설정",
+        "ar": "تعيين سطوع اللوحة"
     },
     "titleFormatted": {
         "en": "Set the large display brightness to [[large]] and the mini display brightness to [[mini]] and the led display brightness to [[led]]",
-        "nl": "Stel de helderheid van het grote display in op [[large]] en het kleine display op [[mini]] en het led display op [[led]]"
+        "nl": "Stel de helderheid van het grote display in op [[large]] en het kleine display op [[mini]] en het led display op [[led]]",
+        "de": "Helligkeit des großen Displays auf [[large]], des Mini-Displays auf [[mini]] und der LED-Anzeige auf [[led]] setzen",
+        "fr": "Définir la luminosité du grand écran sur [[large]], celle du mini-écran sur [[mini]] et celle de l’affichage LED sur [[led]]",
+        "it": "Imposta la luminosità del display grande su [[large]], quella del display mini su [[mini]] e quella del display LED su [[led]]",
+        "sv": "Ställ in den stora skärmens ljusstyrka på [[large]], miniskärmens ljusstyrka på [[mini]] och LED-skärmens ljusstyrka på [[led]]",
+        "no": "Angi lysstyrken på den store skjermen til [[large]], miniskjermen til [[mini]] og LED-skjermen til [[led]]",
+        "es": "Establecer el brillo de la pantalla grande en [[large]], el de la pantalla mini en [[mini]] y el de la pantalla LED en [[led]]",
+        "da": "Indstil lysstyrken på den store skærm til [[large]], miniskærmens lysstyrke til [[mini]] og LED-skærmens lysstyrke til [[led]]",
+        "ru": "Задать яркость большого дисплея [[large]], мини-дисплея [[mini]] и LED-дисплея [[led]]",
+        "pl": "Ustaw jasność dużego wyświetlacza na [[large]], miniwyświetlacza na [[mini]], a wyświetlacza LED na [[led]]",
+        "ko": "대형 디스플레이 밝기를 [[large]], 미니 디스플레이 밝기를 [[mini]], LED 디스플레이 밝기를 [[led]](으)로 설정",
+        "ar": "تعيين سطوع الشاشة الكبيرة إلى [[large]] وسطوع الشاشة المصغرة إلى [[mini]] وسطوع شاشة LED إلى [[led]]"
     },
     "hint": {
         "en": "Set the brightness of the displays",
-        "nl": "Stel de helderheid van de displays in"
+        "nl": "Stel de helderheid van de displays in",
+        "de": "Legt die Helligkeit der Displays fest",
+        "fr": "Définir la luminosité des écrans",
+        "it": "Imposta la luminosità dei display",
+        "sv": "Ställ in skärmarnas ljusstyrka",
+        "no": "Angi lysstyrken på skjermene",
+        "es": "Establecer el brillo de las pantallas",
+        "da": "Indstil skærmenes lysstyrke",
+        "ru": "Задать яркость дисплеев",
+        "pl": "Ustaw jasność wyświetlaczy",
+        "ko": "디스플레이 밝기를 설정합니다",
+        "ar": "تعيين سطوع الشاشات"
     },
     "args": [
         {
@@ -17,15 +50,48 @@
             "name": "large",
             "title": {
                 "en": "Large Level",
-                "nl": "Groot niveau"
+                "nl": "Groot niveau",
+                "de": "Stufe großes Display",
+                "fr": "Niveau du grand écran",
+                "it": "Livello display grande",
+                "sv": "Nivå för stor skärm",
+                "no": "Nivå for stor skjerm",
+                "es": "Nivel de la pantalla grande",
+                "da": "Niveau for stor skærm",
+                "ru": "Уровень большого дисплея",
+                "pl": "Poziom dużego wyświetlacza",
+                "ko": "대형 디스플레이 수준",
+                "ar": "مستوى الشاشة الكبيرة"
             },
             "hint": {
                 "en": "Level (0-100)",
-                "nl": "Niveau (0-100)"
+                "nl": "Niveau (0-100)",
+                "de": "Stufe (0-100)",
+                "fr": "Niveau (0-100)",
+                "it": "Livello (0-100)",
+                "sv": "Nivå (0-100)",
+                "no": "Nivå (0-100)",
+                "es": "Nivel (0-100)",
+                "da": "Niveau (0-100)",
+                "ru": "Уровень (0-100)",
+                "pl": "Poziom (0-100)",
+                "ko": "수준(0-100)",
+                "ar": "المستوى (0-100)"
             },
             "placeholder": {
                 "en": "Large display level (0-100)",
-                "nl": "Groot display niveau (0-100)"
+                "nl": "Groot display niveau (0-100)",
+                "de": "Stufe des großen Displays (0-100)",
+                "fr": "Niveau du grand écran (0-100)",
+                "it": "Livello display grande (0-100)",
+                "sv": "Nivå för stor skärm (0-100)",
+                "no": "Nivå for stor skjerm (0-100)",
+                "es": "Nivel de la pantalla grande (0-100)",
+                "da": "Niveau for stor skærm (0-100)",
+                "ru": "Уровень большого дисплея (0-100)",
+                "pl": "Poziom dużego wyświetlacza (0-100)",
+                "ko": "대형 디스플레이 수준(0-100)",
+                "ar": "مستوى الشاشة الكبيرة (0-100)"
             },
 			"required": false,
             "min": 0,
@@ -37,15 +103,48 @@
             "name": "mini",
             "title": {
                 "en": "Mini Level",
-                "nl": "Klein niveau"
+                "nl": "Klein niveau",
+                "de": "Stufe Mini-Display",
+                "fr": "Niveau du mini-écran",
+                "it": "Livello display mini",
+                "sv": "Nivå för miniskärm",
+                "no": "Nivå for miniskjerm",
+                "es": "Nivel de la pantalla mini",
+                "da": "Niveau for miniskærm",
+                "ru": "Уровень мини-дисплея",
+                "pl": "Poziom miniwyświetlacza",
+                "ko": "미니 디스플레이 수준",
+                "ar": "مستوى الشاشة المصغرة"
             },
             "hint": {
                 "en": "Level (0-100)",
-                "nl": "Niveau (0-100)"
+                "nl": "Niveau (0-100)",
+                "de": "Stufe (0-100)",
+                "fr": "Niveau (0-100)",
+                "it": "Livello (0-100)",
+                "sv": "Nivå (0-100)",
+                "no": "Nivå (0-100)",
+                "es": "Nivel (0-100)",
+                "da": "Niveau (0-100)",
+                "ru": "Уровень (0-100)",
+                "pl": "Poziom (0-100)",
+                "ko": "수준(0-100)",
+                "ar": "المستوى (0-100)"
             },
             "placeholder": {
                 "en": "Mini display level (0-100)",
-                "nl": "Klein display niveau (0-100)"
+                "nl": "Klein display niveau (0-100)",
+                "de": "Stufe des Mini-Displays (0-100)",
+                "fr": "Niveau du mini-écran (0-100)",
+                "it": "Livello display mini (0-100)",
+                "sv": "Nivå för miniskärm (0-100)",
+                "no": "Nivå for miniskjerm (0-100)",
+                "es": "Nivel de la pantalla mini (0-100)",
+                "da": "Niveau for miniskærm (0-100)",
+                "ru": "Уровень мини-дисплея (0-100)",
+                "pl": "Poziom miniwyświetlacza (0-100)",
+                "ko": "미니 디스플레이 수준(0-100)",
+                "ar": "مستوى الشاشة المصغرة (0-100)"
             },
 			"required": false,
             "min": 0,
@@ -57,15 +156,48 @@
             "name": "led",
             "title": {
                 "en": "LED Level",
-                "nl": "LED niveau"
+                "nl": "LED niveau",
+                "de": "LED-Stufe",
+                "fr": "Niveau LED",
+                "it": "Livello LED",
+                "sv": "LED-nivå",
+                "no": "LED-nivå",
+                "es": "Nivel del LED",
+                "da": "LED-niveau",
+                "ru": "Уровень LED",
+                "pl": "Poziom LED",
+                "ko": "LED 수준",
+                "ar": "مستوى LED"
             },
             "hint": {
                 "en": "Level (0-100)",
-                "nl": "Niveau (0-100)"
+                "nl": "Niveau (0-100)",
+                "de": "Stufe (0-100)",
+                "fr": "Niveau (0-100)",
+                "it": "Livello (0-100)",
+                "sv": "Nivå (0-100)",
+                "no": "Nivå (0-100)",
+                "es": "Nivel (0-100)",
+                "da": "Niveau (0-100)",
+                "ru": "Уровень (0-100)",
+                "pl": "Poziom (0-100)",
+                "ko": "수준(0-100)",
+                "ar": "المستوى (0-100)"
             },
             "placeholder": {
                 "en": "LED display level (0-100)",
-                "nl": "LED display niveau (0-100)"
+                "nl": "LED display niveau (0-100)",
+                "de": "Stufe der LED-Anzeige (0-100)",
+                "fr": "Niveau de l’affichage LED (0-100)",
+                "it": "Livello display LED (0-100)",
+                "sv": "Nivå för LED-skärm (0-100)",
+                "no": "Nivå for LED-skjerm (0-100)",
+                "es": "Nivel de la pantalla LED (0-100)",
+                "da": "Niveau for LED-skærm (0-100)",
+                "ru": "Уровень LED-дисплея (0-100)",
+                "pl": "Poziom wyświetlacza LED (0-100)",
+                "ko": "LED 디스플레이 수준(0-100)",
+                "ar": "مستوى شاشة LED ‏(0-100)"
             },
 			"required": false,
             "min": 0,

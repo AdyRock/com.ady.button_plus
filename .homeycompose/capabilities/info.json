@@ -2,7 +2,18 @@
     "type": "string",
     "title": {
         "en": "Information",
-        "nl": "Informatie"
+        "nl": "Informatie",
+        "de": "Information",
+        "fr": "Informations",
+        "it": "Informazioni",
+        "sv": "Information",
+        "no": "Informasjon",
+        "es": "Información",
+        "da": "Information",
+        "ru": "Информация",
+        "pl": "Informacje",
+        "ko": "정보",
+        "ar": "المعلومات"
     },
     "getable": true,
     "setable": false,

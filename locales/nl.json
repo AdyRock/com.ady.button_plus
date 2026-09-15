@@ -13,17 +13,16 @@
         "displayExplanation": "Display configuraties kunnen worden toegepast op één of meer grote Button+ Displays om te bepalen wat er wordt weergegeven.<br>Je kunt de X en Y positie definiëren vanaf de hoek linksboven van het item en zijn breedte als percentage van de Display breedte.<br>Je kunt meerdere items definiëren om weer te geven, maar wees zeker dat ze allemaal passen.",
         "brokerExplanation": "Je kunt meerdere brokers definiëren mee te verbinden. Elke broker kan meerdere apparaten hebben en elk apparaat kan meerdere mogelijkheden hebben.<br>Elke broker kan in- of uitgeschakeld worden. Indien uitgeschakeld zal deze niet gebruikt worden om mee te verbinden.",
         "panelSettings": "Button instellingen",
-        "LeftPanel": "Linker knop",
-        "RightPanel": "Rechter knop",
+        "leftPanel": "Linker knop",
+        "rightPanel": "Rechter knop",
         "topLabel": "Bovenste label",
         "topLabelExplanation": "Het bovenste label wordt weergegeven aan de bovenkant van het kleine display. Het kan worden gebruikt om de naam van het apparaat of de flow weer te geven die de knop bedient.",
         "toplabelDisplayExplanation": "The bovenste label is optional text to shown above the value on the display to identify it.",
         "label": "Label",
-        "labelExplanation": "Het label is optionele tekst die wordt weergegeven boven de waarde op het display om deze te identificeren.",
         "labelOn": "Label voor Aan status",
-        "labelOnExplantion": "De labels om weer te geven als de knop in Aan status is.",
+        "labelOnExplanation": "Het label dat wordt weergegeven wanneer de knop aan staat. Als dit leeg is, blijft de knop niet ingeschakeld en keert deze bij loslaten terug naar de uit-stand.",
         "labelOff": "Label voor Uit status",
-        "labelOffExplantion": "De labels om weer te geven als de knop in Uit status is.",
+        "labelOffExplanation": "Het label dat wordt weergegeven wanneer de knop uit staat.",
         "device": "Apparaat",
         "deviceExplanation": "Selecteer het apparaat om te bedienen als je op de Button+ knop drukt.<br>Alleen apparaten met Aan/Uit of Dim mogelijkheden worden weergegeven.<br>Als je niets selecteert zal niets direct worden bedient, maar je zal nog steeds de Knop Ingedrukt flow trigger krijgen",
         "deviceDExplanation": "Selecteer het benodigde device of de variabele optie en kies dan het item of de variabele in de keuzelijst om op het display weer te geven",
@@ -50,7 +49,7 @@
         "deleteItem": "Item verwijderen",
         "deleteItemExplanation": "Verwijder dit display item",
         "saveError1": "Fout bij opslaan",
-        "dimValue": "Dim waarde",
+        "dimChange": "Dimwijziging",
         "dimError": "Dim __leftRight__ Waarde moet tussen ±1 en ±100 liggen. Wijzig en probeer opnieuw.",
         "brokerId": "Broker ID",
         "brokerIdExplanation": "Selecteer de Broker ID waar je berichten mee wilt uitwisselen.",
@@ -149,9 +148,9 @@
         "imported": "Instellingen zijn geimporteerd.\n\nControleer de configuraties en druk dan op 'Alle configuraties opslaan' om deze op te slaan.",
         "exported": "Instellingen zijn gekopieerd naar het panel.\n\nJe kunt alle tekst in het panel selecteren, naar het klembord kopieren en daarna plakken in een tekstbestand of e-mail.",
         "copied": "Instellingen zijn gekopieerd.\n\nje kunt deze nu plakken in een andere Configuratie.",
-        "screenNo": "Scherm index",
+        "page": "Pagina",
         "all": "Alle",
-        "screenNoExplanation": "Slecteer het scherm index om het item op weer te geven. De standaard is scherm 1. Als er meer dan 1 scherm is, kun je schermen wisselen met de linker- en rechterknoppen op het display.",
+        "pageExplanation": "Selecteer op welke pagina het item moet verschijnen (firmware 1.09 of nieuwer vereist).<br>De standaard is pagina 0; vanaf firmware 2.0.0 wordt deze op alle pagina's getoond.<br>Bij meer dan 1 pagina kun je met de linker- en rechterknop van het display tussen pagina's wisselen.",
         "configName": "Configuratie naam",
         "configNameExplanation": "Geef een naam op voor de configuratie. Dit is optioneel maar het helpt je om de configuratie te indentificeren als je er meer dan een hebt.",
         "longRepeat": "Lange druk herhalen",
@@ -216,6 +215,8 @@
         ,"noMatches": "Geen overeenkomsten"
         ,"toggleDirection": "Richting wisselen"
         ,"textLabel": "Tekst"
+        ,"text": "Tekst"
+        ,"textExplanation": "De tekst die op het display wordt weergegeven"
         ,"svgLabel": "SVG"
         ,"displayOnText": "Aan-tekst weergeven"
         ,"displayOffText": "Uit-tekst weergeven"
@@ -261,6 +262,12 @@
         ,"advancedModeTooltip": "Schakel dit per zijde in wanneer je meer nodig hebt dan eenvoudig aan/uit-gedrag.<br>Koppel klik, dubbelklik en lang indrukken/herhalen aan verschillende apparaten of functies, inclusief numerieke stapacties.<br>Kies afzonderlijke bronnen voor de weergave-inhoud en LED-status zodat de visuals een andere functie kunnen volgen dan het actiedoel."
         ,"previousPage": "Vorige pagina"
         ,"nextPage": "Volgende pagina"
+        ,"buttonPageExplanation": "Selecteer op welke pagina het item moet verschijnen (firmware 2.0.0 of nieuwer vereist).<br>De standaard is pagina 0, die op alle pagina's wordt getoond.<br>Bij meer dan 1 pagina kun je met de linker- of rechterknop van het display tussen pagina's wisselen."
+        ,"pageError": "Het nieuwe paginanummer moet groter zijn dan 0 en kleiner dan het aantal pagina's."
+        ,"getListeners": "Listeners ophalen"
+        ,"sentLog": "Verzonden configuratielog"
+        ,"getLog": "Configuratielog ophalen"
+        ,"dimValueExplanation": "Geeft aan hoeveel de dimknop het helderheidsniveau bij elke herhaling van lang indrukken wijzigt"
 		,"configurationsShown": "Getoonde configuraties"
 		,"configurationHasNoPage": "Deze configuratie heeft hier geen pagina"
         ,"panelControls": "Paneelbediening"
@@ -299,6 +306,14 @@
             "correct": "Succesvol",
             "adding": "Appararaat/apparaten toevoegen"
         }
+    },
+    "repair": {
+        "connect": "Repareren",
+        "intro": "Gebruik deze optie wanneer je knoppen toevoegt of verwijdert, of wanneer het IP-adres is gewijzigd.<br><br>Als het IP-adres is gewijzigd, pas het dan hieronder aan.<br>Tik op Repareren om de connectorindeling bij te werken en de apparaatinstellingen op te slaan.",
+        "title": "Apparaatinstellingen repareren",
+        "ip_address": "IP-adres",
+        "checking": "Verbinding controleren",
+        "correct": "Geslaagd"
     },
     "connector": "Connector",
     "display": "Display",

@@ -1,11 +1,33 @@
 {
     "title": {
         "en": "The specified display configuration !{{is|isn't}} active",
-        "nl": "De opgegeven display configuratie !{{is|isn't}} actief"
+        "nl": "De opgegeven display configuratie !{{is|isn't}} actief",
+        "de": "Die angegebene Displaykonfiguration !{{is|isn't}} aktiv",
+        "fr": "La configuration d’affichage indiquée !{{is|isn't}} active",
+        "it": "La configurazione display specificata !{{is|isn't}} attiva",
+        "sv": "Den angivna skärmkonfigurationen !{{is|isn't}} aktiv",
+        "no": "Den valgte skjermkonfigurasjonen !{{is|isn't}} aktiv",
+        "es": "La configuración de pantalla especificada !{{is|isn't}} activa",
+        "da": "Den angivne skærmkonfiguration !{{is|isn't}} aktiv",
+        "ru": "Указанная конфигурация дисплея !{{is|isn't}} активна",
+        "pl": "Wskazana konfiguracja wyświetlacza !{{is|isn't}} aktywna",
+        "ko": "지정한 디스플레이 구성이 !{{is|isn't}} 활성 상태",
+        "ar": "تكوين الشاشة المحدد !{{is|isn't}} نشطًا"
     },
     "titleFormatted": {
         "en": "The display configuration [[config]] !{{is|isn't}} active",
-        "nl": "De display configuratie [[config]] !{{is|isn't}} actief"
+        "nl": "De display configuratie [[config]] !{{is|isn't}} actief",
+        "de": "Die Displaykonfiguration [[config]] !{{is|isn't}} aktiv",
+        "fr": "La configuration d’affichage [[config]] !{{is|isn't}} active",
+        "it": "La configurazione display [[config]] !{{is|isn't}} attiva",
+        "sv": "Skärmkonfigurationen [[config]] !{{is|isn't}} aktiv",
+        "no": "Skjermkonfigurasjonen [[config]] !{{is|isn't}} aktiv",
+        "es": "La configuración de pantalla [[config]] !{{is|isn't}} activa",
+        "da": "Skærmkonfigurationen [[config]] !{{is|isn't}} aktiv",
+        "ru": "Конфигурация дисплея [[config]] !{{is|isn't}} активна",
+        "pl": "Konfiguracja wyświetlacza [[config]] !{{is|isn't}} aktywna",
+        "ko": "디스플레이 구성 [[config]]이(가) !{{is|isn't}} 활성 상태",
+        "ar": "تكوين الشاشة [[config]] !{{is|isn't}} نشطًا"
     },
     "deprecated": true,
     "args": [
@@ -14,11 +36,33 @@
             "name": "config",
             "title": {
                 "en": "Config Number",
-                "nl": "Config Nummer"
+                "nl": "Config Nummer",
+                "de": "Konfigurationsnummer",
+                "fr": "Numéro de config.",
+                "it": "Numero config.",
+                "sv": "Konfigurationsnummer",
+                "no": "Konfigurasjonsnummer",
+                "es": "Número de config.",
+                "da": "Konfigurationsnummer",
+                "ru": "Номер конфигурации",
+                "pl": "Numer konfiguracji",
+                "ko": "구성 번호",
+                "ar": "رقم التكوين"
             },
             "placeholder": {
                 "en": "Config number (1-20)",
-                "nl": "Config nummer (1-20)"
+                "nl": "Config nummer (1-20)",
+                "de": "Konfigurationsnummer (1-20)",
+                "fr": "Numéro de config. (1-20)",
+                "it": "Numero config. (1-20)",
+                "sv": "Konfigurationsnummer (1-20)",
+                "no": "Konfigurasjonsnummer (1-20)",
+                "es": "Número de config. (1-20)",
+                "da": "Konfigurationsnummer (1-20)",
+                "ru": "Номер конфигурации (1-20)",
+                "pl": "Numer konfiguracji (1-20)",
+                "ko": "구성 번호(1-20)",
+                "ar": "رقم التكوين (1-20)"
             },
             "min": 1,
             "max": 20,

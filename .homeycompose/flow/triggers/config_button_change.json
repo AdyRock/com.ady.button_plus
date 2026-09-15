@@ -1,11 +1,33 @@
 {
     "title": {
         "en": "A configuration button changed state",
-		"nl": "Een configuratiebutton is van status veranderd"
+		"nl": "Een configuratiebutton is van status veranderd",
+		"de": "Eine Konfigurationstaste hat ihren Status geändert",
+		"fr": "Un bouton de configuration a changé d’état",
+		"it": "Un pulsante di configurazione ha cambiato stato",
+		"sv": "En konfigurationsknapp ändrade tillstånd",
+		"no": "En konfigurasjonsknapp endret tilstand",
+		"es": "Un botón de configuración cambió de estado",
+		"da": "En konfigurationsknap skiftede tilstand",
+		"ru": "Кнопка конфигурации изменила состояние",
+		"pl": "Przycisk konfiguracji zmienił stan",
+		"ko": "구성 버튼의 상태가 변경됨",
+		"ar": "تغيرت حالة زر تكوين"
     },
     "titleFormatted": {
                 "en": "The [[left_right]] Button on [[display_button]] configuration [[config]] for [[page]] was [[state]]",
-		"nl": "De [[left_right]] knop op [[display_button]] configuratie [[config]] voor [[page]] was [[state]]"
+		"nl": "De [[left_right]] knop op [[display_button]] configuratie [[config]] voor [[page]] was [[state]]",
+		"de": "Die [[left_right]] Taste der [[display_button]] Konfiguration [[config]] für [[page]] wurde [[state]]",
+		"fr": "Le bouton [[left_right]] de la configuration [[display_button]] [[config]] pour [[page]] a été [[state]]",
+		"it": "Il pulsante [[left_right]] nella configurazione [[display_button]] [[config]] per [[page]] è stato [[state]]",
+		"sv": "[[left_right]] knapp i [[display_button]]-konfiguration [[config]] för [[page]] blev [[state]]",
+		"no": "[[left_right]] knapp i [[display_button]]-konfigurasjon [[config]] for [[page]] ble [[state]]",
+		"es": "El botón [[left_right]] de la configuración [[display_button]] [[config]] para [[page]] fue [[state]]",
+		"da": "Knappen [[left_right]] i [[display_button]]-konfiguration [[config]] for [[page]] blev [[state]]",
+		"ru": "Кнопка [[left_right]] в конфигурации [[display_button]] [[config]] для [[page]] получила состояние [[state]]",
+		"pl": "Przycisk [[left_right]] w konfiguracji [[display_button]] [[config]] dla [[page]] został [[state]]",
+		"ko": "[[display_button]] 구성 [[config]]의 [[page]]에 있는 [[left_right]] 버튼 상태가 [[state]]",
+		"ar": "كانت حالة الزر [[left_right]] في تكوين [[display_button]] ‏[[config]] للصفحة [[page]] هي [[state]]"
     },
     "tokens": [
         {
@@ -13,7 +35,18 @@
             "type": "boolean",
             "title": {
                 "en": "State",
-                "nl": "Status"
+                "nl": "Status",
+                "de": "Status",
+                "fr": "État",
+                "it": "Stato",
+                "sv": "Tillstånd",
+                "no": "Tilstand",
+                "es": "Estado",
+                "da": "Tilstand",
+                "ru": "Состояние",
+                "pl": "Stan",
+                "ko": "상태",
+                "ar": "الحالة"
             },
             "example": "true"
         },
@@ -22,7 +55,18 @@
 			"type": "string",
 			"title": {
 				"en": "Value",
-				"nl": "Waarde"
+				"nl": "Waarde",
+				"de": "Wert",
+				"fr": "Valeur",
+				"it": "Valore",
+				"sv": "Värde",
+				"no": "Verdi",
+				"es": "Valor",
+				"da": "Værdi",
+				"ru": "Значение",
+				"pl": "Wartość",
+				"ko": "값",
+				"ar": "القيمة"
 			},
 			"example": "0.1"
 		},
@@ -31,7 +75,18 @@
 			"type": "number",
 			"title": {
 				"en": "Page",
-				"nl": "Pagina"
+				"nl": "Pagina",
+				"de": "Seite",
+				"fr": "Page",
+				"it": "Pagina",
+				"sv": "Sida",
+				"no": "Side",
+				"es": "Página",
+				"da": "Side",
+				"ru": "Страница",
+				"pl": "Strona",
+				"ko": "페이지",
+				"ar": "الصفحة"
 			},
 			"example": "1"
         },
@@ -40,7 +95,18 @@
             "type": "number",
             "title": {
                 "en": "Number of repeats",
-                "nl": "Aantal herhalingen"
+                "nl": "Aantal herhalingen",
+                "de": "Anzahl der Wiederholungen",
+                "fr": "Nombre de répétitions",
+                "it": "Numero di ripetizioni",
+                "sv": "Antal upprepningar",
+                "no": "Antall gjentakelser",
+                "es": "Número de repeticiones",
+                "da": "Antal gentagelser",
+                "ru": "Количество повторов",
+                "pl": "Liczba powtórzeń",
+                "ko": "반복 횟수",
+                "ar": "عدد مرات التكرار"
             },
             "example": "0 = first event, 1 = first repeat, etc."
 		}
@@ -52,20 +118,42 @@
             "name": "left_right",
             "title": {
                 "en": "Left / Right",
-                "nl": "Links / Rechts"
+                "nl": "Links / Rechts",
+                "de": "Links / Rechts",
+                "fr": "Gauche / Droite",
+                "it": "Sinistro / Destro",
+                "sv": "Vänster / Höger",
+                "no": "Venstre / Høyre",
+                "es": "Izquierdo / Derecho",
+                "da": "Venstre / højre",
+                "ru": "Левая / Правая",
+                "pl": "Lewy / Prawy",
+                "ko": "왼쪽 / 오른쪽",
+                "ar": "يسار / يمين"
             },
             "placeholder": {
                 "en": "Left / Right",
-                "nl": "Links / Rechts"
+                "nl": "Links / Rechts",
+                "de": "Links / Rechts",
+                "fr": "Gauche / Droite",
+                "it": "Sinistro / Destro",
+                "sv": "Vänster / Höger",
+                "no": "Venstre / Høyre",
+                "es": "Izquierdo / Derecho",
+                "da": "Venstre / højre",
+                "ru": "Левая / Правая",
+                "pl": "Lewy / Prawy",
+                "ko": "왼쪽 / 오른쪽",
+                "ar": "يسار / يمين"
             },
             "values": [
                 {
                     "id": "left",
-                    "title": {"en": "Left","nl": "Links"}
+                    "title": {"en": "Left","nl": "Links", "de": "Links", "fr": "Gauche", "it": "Sinistro", "sv": "Vänster", "no": "Venstre", "es": "Izquierdo", "da": "Venstre", "ru": "Левая", "pl": "Lewy", "ko": "왼쪽", "ar": "يسار"}
                 },
                 {
                     "id": "right",
-                    "title": {"en": "Right","nl": "Rechts"}
+                    "title": {"en": "Right","nl": "Rechts", "de": "Rechts", "fr": "Droite", "it": "Destro", "sv": "Höger", "no": "Høyre", "es": "Derecho", "da": "Højre", "ru": "Правая", "pl": "Prawy", "ko": "오른쪽", "ar": "يمين"}
                 }
             ]
         },
@@ -74,20 +162,42 @@
             "name": "display_button",
             "title": {
                 "en": "Display / Button",
-                "nl": "Display / knop"
+                "nl": "Display / knop",
+                "de": "Display / Taste",
+                "fr": "Affichage / Bouton",
+                "it": "Display / Pulsante",
+                "sv": "Skärm / Knapp",
+                "no": "Skjerm / Knapp",
+                "es": "Pantalla / Botón",
+                "da": "Skærm / knap",
+                "ru": "Дисплей / Кнопка",
+                "pl": "Wyświetlacz / Przycisk",
+                "ko": "디스플레이 / 버튼",
+                "ar": "شاشة / زر"
             },
             "placeholder": {
                 "en": "Display / Button",
-                "nl": "Display / knop"
+                "nl": "Display / knop",
+                "de": "Display / Taste",
+                "fr": "Affichage / Bouton",
+                "it": "Display / Pulsante",
+                "sv": "Skärm / Knapp",
+                "no": "Skjerm / Knapp",
+                "es": "Pantalla / Botón",
+                "da": "Skærm / knap",
+                "ru": "Дисплей / Кнопка",
+                "pl": "Wyświetlacz / Przycisk",
+                "ko": "디스플레이 / 버튼",
+                "ar": "شاشة / زر"
             },
             "values": [
                 {
                     "id": "display",
-                    "title": {"en": "Display","nl": "Display"}
+                    "title": {"en": "Display","nl": "Display", "de": "Display", "fr": "Affichage", "it": "Display", "sv": "Skärm", "no": "Skjerm", "es": "Pantalla", "da": "Skærm", "ru": "Дисплей", "pl": "Wyświetlacz", "ko": "디스플레이", "ar": "الشاشة"}
                 },
                 {
                     "id": "button",
-                    "title": {"en": "Button","nl": "knop"}
+                    "title": {"en": "Button","nl": "knop", "de": "Taste", "fr": "Bouton", "it": "Pulsante", "sv": "Knapp", "no": "Knapp", "es": "Botón", "da": "Knap", "ru": "Кнопка", "pl": "Przycisk", "ko": "버튼", "ar": "زر"}
                 }
             ]
         },
@@ -96,11 +206,33 @@
             "name": "config",
             "title": {
                 "en": "Config Number",
-                "nl": "Configuratie nummer"
+                "nl": "Configuratie nummer",
+                "de": "Konfigurationsnummer",
+                "fr": "Numéro de config.",
+                "it": "Numero config.",
+                "sv": "Konfigurationsnummer",
+                "no": "Konfigurasjonsnummer",
+                "es": "Número de config.",
+                "da": "Konfigurationsnummer",
+                "ru": "Номер конфигурации",
+                "pl": "Numer konfiguracji",
+                "ko": "구성 번호",
+                "ar": "رقم التكوين"
             },
             "placeholder": {
                 "en": "Config number (1-40)",
-                "nl": "Configuratie nummer (1-40)"
+                "nl": "Configuratie nummer (1-40)",
+                "de": "Konfigurationsnummer (1-40)",
+                "fr": "Numéro de config. (1-40)",
+                "it": "Numero config. (1-40)",
+                "sv": "Konfigurationsnummer (1-40)",
+                "no": "Konfigurasjonsnummer (1-40)",
+                "es": "Número de config. (1-40)",
+                "da": "Konfigurationsnummer (1-40)",
+                "ru": "Номер конфигурации (1-40)",
+                "pl": "Numer konfiguracji (1-40)",
+                "ko": "구성 번호(1-40)",
+                "ar": "رقم التكوين (1-40)"
             },
             "min": 1,
             "max": 40,
@@ -112,15 +244,48 @@
             "required": false,
             "title": {
                 "en": "Page",
-                "nl": "Pagina"
+                "nl": "Pagina",
+                "de": "Seite",
+                "fr": "Page",
+                "it": "Pagina",
+                "sv": "Sida",
+                "no": "Side",
+                "es": "Página",
+                "da": "Side",
+                "ru": "Страница",
+                "pl": "Strona",
+                "ko": "페이지",
+                "ar": "الصفحة"
             },
             "hint": {
                 "en": "Choose a page, or All for any page.",
-                "nl": "Kies een pagina, of Alle voor elke pagina."
+                "nl": "Kies een pagina, of Alle voor elke pagina.",
+                "de": "Eine Seite auswählen oder „Alle“ für eine beliebige Seite.",
+                "fr": "Choisissez une page, ou Toutes pour n’importe quelle page.",
+                "it": "Scegli una pagina oppure Tutte per qualsiasi pagina.",
+                "sv": "Välj en sida eller Alla för valfri sida.",
+                "no": "Velg en side, eller Alle for en vilkårlig side.",
+                "es": "Elija una página o Todas para cualquier página.",
+                "da": "Vælg en side eller Alle for en vilkårlig side.",
+                "ru": "Выберите страницу или «Все» для любой страницы.",
+                "pl": "Wybierz stronę albo Wszystkie dla dowolnej strony.",
+                "ko": "페이지를 선택하거나 모든 페이지에 적용하려면 모두를 선택하세요.",
+                "ar": "اختر صفحة، أو الكل لأي صفحة."
             },
             "placeholder": {
                 "en": "All",
-                "nl": "Alle"
+                "nl": "Alle",
+                "de": "Alle",
+                "fr": "Toutes",
+                "it": "Tutte",
+                "sv": "Alla",
+                "no": "Alle",
+                "es": "Todas",
+                "da": "Alle",
+                "ru": "Все",
+                "pl": "Wszystkie",
+                "ko": "모두",
+                "ar": "الكل"
             }
         },
         {
@@ -128,24 +293,46 @@
             "name": "state",
             "title": {
                 "en": "State",
-                "nl": "Status"
+                "nl": "Status",
+                "de": "Status",
+                "fr": "État",
+                "it": "Stato",
+                "sv": "Tillstånd",
+                "no": "Tilstand",
+                "es": "Estado",
+                "da": "Tilstand",
+                "ru": "Состояние",
+                "pl": "Stan",
+                "ko": "상태",
+                "ar": "الحالة"
             },
             "placeholder": {
                 "en": "Clicked / Released / Short Pressed / Long Pressed",
-                "nl": "Ingedrukt / Losgelaten / Kort ingedrukt / Lang ingedrukt"
+                "nl": "Ingedrukt / Losgelaten / Kort ingedrukt / Lang ingedrukt",
+                "de": "Angeklickt / Losgelassen / Kurz gedrückt / Lange gedrückt",
+                "fr": "Cliqué / Relâché / Appui court / Appui long",
+                "it": "Premuto / Rilasciato / Pressione breve / Pressione lunga",
+                "sv": "Klickad / Släppt / Korttryckt / Långtryckt",
+                "no": "Klikket / Slipp / Kort trykk / Langt trykk",
+                "es": "Pulsado / Soltado / Pulsación corta / Pulsación larga",
+                "da": "Trykket / sluppet / kort tryk / langt tryk",
+                "ru": "Нажата / Отпущена / Кратко нажата / Долго нажата",
+                "pl": "Kliknięty / Zwolniony / Naciśnięty krótko / Naciśnięty długo",
+                "ko": "클릭 / 놓음 / 짧게 누름 / 길게 누름",
+                "ar": "نُقر / أُفلت / ضُغط ضغطة قصيرة / ضُغط مطولًا"
             },
             "values": [
                 {
                     "id": "clicked",
-                    "title": {"en": "Clicked","nl": "ingedrukt"}
+                    "title": {"en": "Clicked","nl": "ingedrukt", "de": "Angeklickt", "fr": "Cliqué", "it": "Premuto", "sv": "Klickad", "no": "Klikket", "es": "Pulsado", "da": "Trykket", "ru": "Нажата", "pl": "Kliknięty", "ko": "클릭함", "ar": "نُقر"}
                 },
                 {
                     "id": "released",
-                    "title": {"en": "Released","nl": "Losgelaten"}
+                    "title": {"en": "Released","nl": "Losgelaten", "de": "Losgelassen", "fr": "Relâché", "it": "Rilasciato", "sv": "Släppt", "no": "Slipp", "es": "Soltado", "da": "Sluppet", "ru": "Отпущена", "pl": "Zwolniony", "ko": "놓음", "ar": "أُفلت"}
                 },
                 {
                     "id": "long",
-                    "title": {"en": "Long Pressed","nl": "Lang ingedrukt"}
+                    "title": {"en": "Long Pressed","nl": "Lang ingedrukt", "de": "Lange gedrückt", "fr": "Appui long", "it": "Premuto a lungo", "sv": "Långtryckt", "no": "Langt trykk", "es": "Pulsación larga", "da": "Langt tryk", "ru": "Долго нажата", "pl": "Naciśnięty długo", "ko": "길게 누름", "ar": "ضُغط مطولًا"}
                 }
             ]
         },

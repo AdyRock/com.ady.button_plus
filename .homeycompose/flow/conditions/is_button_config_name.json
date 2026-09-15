@@ -1,11 +1,33 @@
 {
     "title": {
         "en": "The specified button / display configuration !{{is|isn't}} active",
-        "nl": "De opgegeven knop / display configuratie !{{is|isn't}} actief"
+        "nl": "De opgegeven knop / display configuratie !{{is|isn't}} actief",
+        "de": "Die angegebene Tasten-/Displaykonfiguration !{{is|isn't}} aktiv",
+        "fr": "La configuration de bouton / d’affichage indiquée !{{is|isn't}} active",
+        "it": "La configurazione pulsante / display specificata !{{is|isn't}} attiva",
+        "sv": "Den angivna knapp-/skärmkonfigurationen !{{is|isn't}} aktiv",
+        "no": "Den valgte knappe-/skjermkonfigurasjonen !{{is|isn't}} aktiv",
+        "es": "La configuración de botón / pantalla especificada !{{is|isn't}} activa",
+        "da": "Den angivne knap-/skærmkonfiguration !{{is|isn't}} aktiv",
+        "ru": "Указанная конфигурация кнопки / дисплея !{{is|isn't}} активна",
+        "pl": "Wskazana konfiguracja przycisku / wyświetlacza !{{is|isn't}} aktywna",
+        "ko": "지정한 버튼 / 디스플레이 구성이 !{{is|isn't}} 활성 상태",
+        "ar": "تكوين الزر / الشاشة المحدد !{{is|isn't}} نشطًا"
     },
     "titleFormatted": {
         "en": "The button configuration [[config]] !{{is|isn't}} active on connector [[connector]]",
-        "nl": "De knop configuratie [[config]] !{{is|isn't}} actief op connector [[connector]]"
+        "nl": "De knop configuratie [[config]] !{{is|isn't}} actief op connector [[connector]]",
+        "de": "Die Tastenkonfiguration [[config]] !{{is|isn't}} an Anschluss [[connector]] aktiv",
+        "fr": "La configuration de bouton [[config]] !{{is|isn't}} active sur le connecteur [[connector]]",
+        "it": "La configurazione pulsante [[config]] !{{is|isn't}} attiva sul connettore [[connector]]",
+        "sv": "Knappkonfigurationen [[config]] !{{is|isn't}} aktiv på anslutning [[connector]]",
+        "no": "Knappekonfigurasjonen [[config]] !{{is|isn't}} aktiv på tilkobling [[connector]]",
+        "es": "La configuración de botón [[config]] !{{is|isn't}} activa en el conector [[connector]]",
+        "da": "Knapkonfigurationen [[config]] !{{is|isn't}} aktiv på tilslutning [[connector]]",
+        "ru": "Конфигурация кнопки [[config]] !{{is|isn't}} активна на разъеме [[connector]]",
+        "pl": "Konfiguracja przycisku [[config]] !{{is|isn't}} aktywna na złączu [[connector]]",
+        "ko": "커넥터 [[connector]]에서 버튼 구성 [[config]]이(가) !{{is|isn't}} 활성 상태",
+        "ar": "تكوين الزر [[config]] !{{is|isn't}} نشطًا على الموصل [[connector]]"
     },
     "args": [
         {
@@ -13,15 +35,48 @@
             "name": "config",
             "title": {
                 "en": "Configuration",
-                "nl": "Configuratie"
+                "nl": "Configuratie",
+                "de": "Konfiguration",
+                "fr": "Configuration",
+                "it": "Configurazione",
+                "sv": "Konfiguration",
+                "no": "Konfigurasjon",
+                "es": "Configuración",
+                "da": "Konfiguration",
+                "ru": "Конфигурация",
+                "pl": "Konfiguracja",
+                "ko": "구성",
+                "ar": "التكوين"
             },
             "hint": {
                 "en": "Find this Configuration on a button connector",
-                "nl": "Vind deze configuratie op een knop connector"
+                "nl": "Vind deze configuratie op een knop connector",
+                "de": "Diese Konfiguration an einem Tastenanschluss suchen",
+                "fr": "Trouver cette configuration sur un connecteur de bouton",
+                "it": "Trova questa configurazione su un connettore del pulsante",
+                "sv": "Hitta den här konfigurationen på en knappanslutning",
+                "no": "Finn denne konfigurasjonen på en knappetilkobling",
+                "es": "Buscar esta configuración en un conector de botón",
+                "da": "Find denne konfiguration på en knaptilslutning",
+                "ru": "Найти эту конфигурацию на разъеме кнопки",
+                "pl": "Znajdź tę konfigurację na złączu przycisku",
+                "ko": "버튼 커넥터에서 이 구성 찾기",
+                "ar": "البحث عن هذا التكوين في موصل زر"
             },
             "placeholder": {
                 "en": "Choose a configuration",
-                "nl": "Kies een configuratie"
+                "nl": "Kies een configuratie",
+                "de": "Konfiguration auswählen",
+                "fr": "Choisir une configuration",
+                "it": "Scegli una configurazione",
+                "sv": "Välj en konfiguration",
+                "no": "Velg en konfigurasjon",
+                "es": "Elegir una configuración",
+                "da": "Vælg en konfiguration",
+                "ru": "Выберите конфигурацию",
+                "pl": "Wybierz konfigurację",
+                "ko": "구성 선택",
+                "ar": "اختر تكوينًا"
             }
         },
         {
@@ -29,15 +84,48 @@
             "name": "connector",
             "title": {
                 "en": "Connector Number",
-                "nl": "Connector nummer"
+                "nl": "Connector nummer",
+                "de": "Anschlussnummer",
+                "fr": "Numéro de connecteur",
+                "it": "Numero connettore",
+                "sv": "Anslutningsnummer",
+                "no": "Tilkoblingsnummer",
+                "es": "Número de conector",
+                "da": "Tilslutningsnummer",
+                "ru": "Номер разъема",
+                "pl": "Numer złącza",
+                "ko": "커넥터 번호",
+                "ar": "رقم الموصل"
             },
             "hint": {
                 "en": "The connector number (1-4)",
-                "nl": "Het connector nummer (1-4)"
+                "nl": "Het connector nummer (1-4)",
+                "de": "Die Anschlussnummer (1-4)",
+                "fr": "Le numéro du connecteur (1-4)",
+                "it": "Il numero del connettore (1-4)",
+                "sv": "Anslutningsnumret (1-4)",
+                "no": "Tilkoblingsnummeret (1-4)",
+                "es": "El número de conector (1-4)",
+                "da": "Tilslutningsnummeret (1-4)",
+                "ru": "Номер разъема (1-4)",
+                "pl": "Numer złącza (1-4)",
+                "ko": "커넥터 번호(1-4)",
+                "ar": "رقم الموصل (1-4)"
             },
             "placeholder": {
                 "en": "Connector number (1-4)",
-                "nl": "Connector nummer (1-4)"
+                "nl": "Connector nummer (1-4)",
+                "de": "Anschlussnummer (1-4)",
+                "fr": "Numéro de connecteur (1-4)",
+                "it": "Numero connettore (1-4)",
+                "sv": "Anslutningsnummer (1-4)",
+                "no": "Tilkoblingsnummer (1-4)",
+                "es": "Número de conector (1-4)",
+                "da": "Tilslutningsnummer (1-4)",
+                "ru": "Номер разъема (1-4)",
+                "pl": "Numer złącza (1-4)",
+                "ko": "커넥터 번호(1-4)",
+                "ar": "رقم الموصل (1-4)"
             },
             "min": 1,
             "max": 4,

@@ -4226,7 +4226,7 @@ function normalizeLedColor(value, fallback)
 function getButtonPanelLedColor(pageConfig, side, ledType, pageIndex = buttonPagePopupCurrentPage, configIndex = currentButtonConfigurationNo)
 {
 	const suffix = (buttonPagePopupLedState === 'on') ? 'OnColor' : 'OffColor';
-	const fallback = (buttonPagePopupLedState === 'on') ? '#ffffff' : '#1f2937';
+	const fallback = (buttonPagePopupLedState === 'on') ? '#ffffff' : '#000000';
 	const colorInputId = `${side}${pageIndex}${ledType}${suffix}`;
 	const liveInputElement = Number(configIndex) === Number(currentButtonConfigurationNo) ? document.getElementById(colorInputId) : null;
 	const liveColor = liveInputElement ? liveInputElement.value : undefined;
@@ -4234,14 +4234,16 @@ function getButtonPanelLedColor(pageConfig, side, ledType, pageIndex = buttonPag
 	return normalizeLedColor(liveColor || configColor, fallback);
 }
 
-function getButtonPanelLedMarkup(pageConfig, side, pageIndex = buttonPagePopupCurrentPage, configIndex = currentButtonConfigurationNo)
+function getButtonPanelLedMarkup(pageConfig, side, pageIndex = buttonPagePopupCurrentPage, configIndex = currentButtonConfigurationNo, isReadonly = false)
 {
 	const wallColor = escapeHtml(getButtonPanelLedColor(pageConfig, side, 'WallLED', pageIndex, configIndex));
 	const frontColor = escapeHtml(getButtonPanelLedColor(pageConfig, side, 'FrontLED', pageIndex, configIndex));
 	const ledColorSuffix = (buttonPagePopupLedState === 'on') ? 'OnColor' : 'OffColor';
+	const wallInteraction = isReadonly ? '' : ` onclick="activateDisplayedButtonConfiguration(${configIndex}); return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'WallLED${ledColorSuffix}');"`;
+	const frontInteraction = isReadonly ? '' : ` onclick="activateDisplayedButtonConfiguration(${configIndex}); return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'FrontLED${ledColorSuffix}');"`;
 	return `
-				<div class="button-sim-led button-sim-led-wall" title="${side} wall LED (${buttonPagePopupLedState})" onclick="activateDisplayedButtonConfiguration(${configIndex}); return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'WallLED${ledColorSuffix}');" style="background-color:${wallColor}; border-color:${wallColor};"></div>
-				<div class="button-sim-led button-sim-led-front" title="${side} front LED (${buttonPagePopupLedState})" onclick="activateDisplayedButtonConfiguration(${configIndex}); return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'FrontLED${ledColorSuffix}');" style="border-color:${frontColor}; box-shadow: 0 0 6px ${frontColor};"></div>`;
+				<div class="button-sim-led button-sim-led-wall" title="${side} wall LED (${buttonPagePopupLedState})"${wallInteraction} style="background-color:${wallColor}; border-color:${wallColor};"></div>
+				<div class="button-sim-led button-sim-led-front" title="${side} front LED (${buttonPagePopupLedState})"${frontInteraction} style="border-color:${frontColor}; box-shadow: 0 0 6px ${frontColor};"></div>`;
 }
 
 function handleButtonSimFieldClick(event, side, page, fieldSuffix)
@@ -4527,7 +4529,7 @@ function getButtonPanelCapabilityPreviewText(side, pageIndex, deviceValue, capab
 	return selectedOption.dataset.value || '';
 }
 
-function getButtonPanelPreviewMarkup(pageConfig, side, pageIndex = buttonPagePopupCurrentPage, configIndex = currentButtonConfigurationNo, isReadonly = false)
+function getButtonPanelPreviewMarkup(pageConfig, side, pageIndex = buttonPagePopupCurrentPage, configIndex = currentButtonConfigurationNo, isReadonly = false, isContentBlank = false)
 {
 	ensureButtonSideAdvancedDefaults(pageConfig, side);
 	const isAdvancedMode = isButtonSideAdvanced(pageConfig, side);
@@ -4583,12 +4585,14 @@ function getButtonPanelPreviewMarkup(pageConfig, side, pageIndex = buttonPagePop
 		? customSvgText
 		: (isVariableSvg ? nonBooleanPreviewText : customSvgText);
 	const svgMarkup = getButtonPanelPreviewSvg(selectedSvgText || '');
-	const ledMarkup = `<div class="button-sim-leds ${side === 'right' ? 'button-sim-leds-right' : ''}">${getButtonPanelLedMarkup(pageConfig, side, pageIndex, configIndex)}</div>`;
+	const ledMarkup = `<div class="button-sim-leds ${side === 'right' ? 'button-sim-leds-right' : ''}">${getButtonPanelLedMarkup(pageConfig, side, pageIndex, configIndex, isReadonly)}</div>`;
 	const advancedBadge = (isAdvancedMode && !isReadonly)
 		? `<span class="button-sim-advanced-badge ${side === 'right' ? 'button-sim-advanced-badge-right' : 'button-sim-advanced-badge-left'}" role="button" tabindex="0" title="${Homey.__("settings.advancedMappingsEnabled")}" onclick="activateDisplayedButtonConfiguration(${configIndex}); openButtonAdvancedPopup('${side}', ${pageIndex}, 'event'); return false;"><span class="button-sim-advanced-badge-label">${Homey.__("settings.advancedBadgeLabel")}</span></span>`
 		: '';
 	const activateConfig = isReadonly ? '' : `activateDisplayedButtonConfiguration(${configIndex}); `;
-	const contentMarkup = isReadonly
+	const contentMarkup = isContentBlank
+		? '<div class="button-sim-content"></div>'
+		: isReadonly
 		? (svgMarkup
 			? `<div class="button-sim-content button-sim-content-svg">
 					<div class="button-sim-top">${topText}</div>
@@ -8982,6 +8986,10 @@ function updateGroupPanelControlsExpander()
 	{
 		groupConfigElement.classList.toggle('group-controls-hidden', !groupPanelControlsExpanded);
 	}
+	if (saveBlock && configTypeElement && configTypeElement.value === 'groupConfig')
+	{
+		saveBlock.style.display = groupPanelControlsExpanded ? "block" : "none";
+	}
 	groupSimulatorSurfaceElement.classList.toggle('group-panel-controls-collapsed', !groupPanelControlsExpanded);
 	groupPanelControlsExpanderElement.classList.toggle('is-open', groupPanelControlsExpanded);
 	groupPanelControlsExpanderElement.setAttribute('aria-expanded', groupPanelControlsExpanded ? 'true' : 'false');
@@ -9188,6 +9196,7 @@ function editGroupButtonConfiguration(configNo)
 
 	configTypeElement.value = 'panelConfig';
 	configTypeChanged('panelConfig');
+	setButtonVisibleConfigurationCount(1);
 	changeDisplayedButtonConfiguration(0, normalizedConfigNo);
 }
 
@@ -9488,8 +9497,8 @@ function renderGroupSimulator()
 		const oldPopupCurrentPage = buttonPagePopupCurrentPage;
 		buttonPagePopupCurrentPage = pageIdx;
 
-		let leftPreview = '<div class="button-sim-shell button-sim-shell-left button-sim-shell-empty"><div class="button-sim-leds"></div><div class="button-sim-content"></div></div>';
-		let rightPreview = '<div class="button-sim-shell button-sim-shell-right button-sim-shell-empty"><div class="button-sim-content"></div><div class="button-sim-leds button-sim-leds-right"></div></div>';
+		let leftPreview;
+		let rightPreview;
 		if (pageConfig)
 		{
 			buttonPagePopupLedState = groupSimStates[leftKey];
@@ -9497,6 +9506,14 @@ function renderGroupSimulator()
 
 			buttonPagePopupLedState = groupSimStates[rightKey];
 			rightPreview = getButtonPanelPreviewMarkup(pageConfig, 'right', pageIdx, btnConfigIdx, true);
+		}
+		else
+		{
+			buttonPagePopupLedState = groupSimStates[leftKey];
+			leftPreview = getButtonPanelPreviewMarkup({}, 'left', pageIdx, btnConfigIdx, true, true);
+
+			buttonPagePopupLedState = groupSimStates[rightKey];
+			rightPreview = getButtonPanelPreviewMarkup({}, 'right', pageIdx, btnConfigIdx, true, true);
 		}
 
 		buttonPagePopupLedState = oldPopupLedState;
@@ -9576,7 +9593,7 @@ function configTypeChanged(configSelected)
 	if (configSelected !== "")
 	{
 		// Hide the save button for the settings and diagnostics pages
-		if ((configSelected === "settings") || (configSelected === "diagnosticLog") || (configSelected === "lastSentLog"))
+		if ((configSelected === "settings") || (configSelected === "diagnosticLog") || (configSelected === "lastSentLog") || (configSelected === "groupConfig" && !groupPanelControlsExpanded))
 		{
 			saveBlock.style.display = "none";
 		}

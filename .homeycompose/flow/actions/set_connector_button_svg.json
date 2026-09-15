@@ -1,15 +1,48 @@
 {
 	"title": {
 		"en": "Set connector button SVG",
-		"nl": "Stel connector knop SVG in"
+		"nl": "Stel connector knop SVG in",
+		"de": "SVG der Anschlusstaste festlegen",
+		"fr": "Définir le SVG du bouton du connecteur",
+		"it": "Imposta l'SVG del pulsante del connettore",
+		"sv": "Ange SVG för anslutningsknapp",
+		"no": "Angi SVG for tilkoblingsknapp",
+		"es": "Establecer el SVG del botón del conector",
+		"da": "Indstil SVG for tilslutningsknap",
+		"ru": "Задать SVG кнопки разъема",
+		"pl": "Ustaw SVG przycisku złącza",
+		"ko": "커넥터 버튼 SVG 설정",
+		"ar": "تعيين SVG لزر الموصل"
 	},
 	"titleFormatted": {
 		"en": "Set the [[left_right]] button SVG of connector [[connector]] page [[page]] to [[svg]]",
-		"nl": "Stel de [[left_right]] knop SVG van connector [[connector]] pagina [[page]] in op [[svg]]"
+		"nl": "Stel de [[left_right]] knop SVG van connector [[connector]] pagina [[page]] in op [[svg]]",
+		"de": "SVG der [[left_right]] Taste an Anschluss [[connector]] auf Seite [[page]] auf [[svg]] setzen",
+		"fr": "Définir le SVG du bouton [[left_right]] du connecteur [[connector]], page [[page]], sur [[svg]]",
+		"it": "Imposta l'SVG del pulsante [[left_right]] del connettore [[connector]], pagina [[page]], su [[svg]]",
+		"sv": "Ställ in SVG för [[left_right]] knapp på anslutning [[connector]], sida [[page]], till [[svg]]",
+		"no": "Angi SVG-en for [[left_right]] knapp på tilkobling [[connector]], side [[page]], til [[svg]]",
+		"es": "Establecer el SVG del botón [[left_right]] del conector [[connector]], página [[page]], en [[svg]]",
+		"da": "Indstil SVG'en for knappen [[left_right]] på tilslutning [[connector]] på side [[page]] til [[svg]]",
+		"ru": "Задать для кнопки [[left_right]] разъема [[connector]] на странице [[page]] SVG [[svg]]",
+		"pl": "Ustaw SVG przycisku [[left_right]] złącza [[connector]] na stronie [[page]] na [[svg]]",
+		"ko": "커넥터 [[connector]]의 [[page]]페이지에 있는 [[left_right]] 버튼 SVG를 [[svg]](으)로 설정",
+		"ar": "تعيين SVG للزر [[left_right]] في الموصل [[connector]] والصفحة [[page]] إلى [[svg]]"
 	},
 	"hint": {
 		"en": "Sets the SVG of the specified button",
-		"nl": "Stelt de SVG van de gespecificeerde knop in"
+		"nl": "Stelt de SVG van de gespecificeerde knop in",
+		"de": "Legt das SVG der angegebenen Taste fest",
+		"fr": "Définit le SVG du bouton indiqué",
+		"it": "Imposta l'SVG del pulsante specificato",
+		"sv": "Ställer in SVG för den angivna knappen",
+		"no": "Angir SVG-en for den valgte knappen",
+		"es": "Establece el SVG del botón especificado",
+		"da": "Indstiller SVG'en for den angivne knap",
+		"ru": "Задает SVG указанной кнопки",
+		"pl": "Ustawia SVG wskazanego przycisku",
+		"ko": "지정한 버튼의 SVG를 설정합니다",
+		"ar": "يعيّن SVG للزر المحدد"
 	},
 	"args": [
 		{
@@ -17,25 +50,69 @@
 			"name": "left_right",
 			"title": {
 				"en": "Left /  Right",
-				"nl": "Links / Rechts "
+				"nl": "Links / Rechts ",
+				"de": "Links /  Rechts",
+				"fr": "Gauche /  Droite",
+				"it": "Sinistro /  Destro",
+				"sv": "Vänster /  Höger",
+				"no": "Venstre /  Høyre",
+				"es": "Izquierdo /  Derecho",
+				"da": "Venstre /  højre",
+				"ru": "Левая /  Правая",
+				"pl": "Lewy /  Prawy",
+				"ko": "왼쪽 /  오른쪽",
+				"ar": "يسار /  يمين"
 			},
 			"placeholder": {
 				"en": "Left / Right",
-				"nl": "Links / Rechts "
+				"nl": "Links / Rechts ",
+				"de": "Links / Rechts",
+				"fr": "Gauche / Droite",
+				"it": "Sinistro / Destro",
+				"sv": "Vänster / Höger",
+				"no": "Venstre / Høyre",
+				"es": "Izquierdo / Derecho",
+				"da": "Venstre / højre",
+				"ru": "Левая / Правая",
+				"pl": "Lewy / Prawy",
+				"ko": "왼쪽 / 오른쪽",
+				"ar": "يسار / يمين"
 			},
 			"values": [
 				{
 					"id": "left",
 					"title": {
 						"en": "Left",
-						"nl": "Links "
+						"nl": "Links ",
+						"de": "Links",
+						"fr": "Gauche",
+						"it": "Sinistro",
+						"sv": "Vänster",
+						"no": "Venstre",
+						"es": "Izquierdo",
+						"da": "Venstre",
+						"ru": "Левая",
+						"pl": "Lewy",
+						"ko": "왼쪽",
+						"ar": "يسار"
 					}
 				},
 				{
 					"id": "right",
 					"title": {
 						"en": "Right",
-						"nl": "Rechts "
+						"nl": "Rechts ",
+						"de": "Rechts",
+						"fr": "Droite",
+						"it": "Destro",
+						"sv": "Höger",
+						"no": "Høyre",
+						"es": "Derecho",
+						"da": "Højre",
+						"ru": "Правая",
+						"pl": "Prawy",
+						"ko": "오른쪽",
+						"ar": "يمين"
 					}
 				}
 			]
@@ -45,15 +122,48 @@
 			"name": "connector",
 			"title": {
 				"en": "Connector number",
-				"nl": "Connector nummer"
+				"nl": "Connector nummer",
+				"de": "Anschlussnummer",
+				"fr": "Numéro de connecteur",
+				"it": "Numero connettore",
+				"sv": "Anslutningsnummer",
+				"no": "Tilkoblingsnummer",
+				"es": "Número de conector",
+				"da": "Tilslutningsnummer",
+				"ru": "Номер разъема",
+				"pl": "Numer złącza",
+				"ko": "커넥터 번호",
+				"ar": "رقم الموصل"
 			},
 			"hint": {
 				"en": "Connector number (1-4)",
-				"nl": "Connector nummer (1-4)"
+				"nl": "Connector nummer (1-4)",
+				"de": "Anschlussnummer (1-4)",
+				"fr": "Numéro de connecteur (1-4)",
+				"it": "Numero connettore (1-4)",
+				"sv": "Anslutningsnummer (1-4)",
+				"no": "Tilkoblingsnummer (1-4)",
+				"es": "Número de conector (1-4)",
+				"da": "Tilslutningsnummer (1-4)",
+				"ru": "Номер разъема (1-4)",
+				"pl": "Numer złącza (1-4)",
+				"ko": "커넥터 번호(1-4)",
+				"ar": "رقم الموصل (1-4)"
 			},
 			"placeholder": {
 				"en": "Connector number (1-4)",
-				"nl": "Connector nummer (1-4)"
+				"nl": "Connector nummer (1-4)",
+				"de": "Anschlussnummer (1-4)",
+				"fr": "Numéro de connecteur (1-4)",
+				"it": "Numero connettore (1-4)",
+				"sv": "Anslutningsnummer (1-4)",
+				"no": "Tilkoblingsnummer (1-4)",
+				"es": "Número de conector (1-4)",
+				"da": "Tilslutningsnummer (1-4)",
+				"ru": "Номер разъема (1-4)",
+				"pl": "Numer złącza (1-4)",
+				"ko": "커넥터 번호(1-4)",
+				"ar": "رقم الموصل (1-4)"
 			},
 			"min": 1,
 			"max": 4,
@@ -64,15 +174,48 @@
 			"name": "page",
 			"title": {
 				"en": "Page number",
-				"nl": "Pagina nummer"
+				"nl": "Pagina nummer",
+				"de": "Seitennummer",
+				"fr": "Numéro de page",
+				"it": "Numero pagina",
+				"sv": "Sidnummer",
+				"no": "Sidenummer",
+				"es": "Número de página",
+				"da": "Sidenummer",
+				"ru": "Номер страницы",
+				"pl": "Numer strony",
+				"ko": "페이지 번호",
+				"ar": "رقم الصفحة"
 			},
 			"hint": {
 				"en": "Page number. Use 0 to change for all pages",
-				"nl": "Pagina nummer. Gebruik 0 om alle pagina's te wijzigen"
+				"nl": "Pagina nummer. Gebruik 0 om alle pagina's te wijzigen",
+				"de": "Seitennummer. 0 verwenden, um alle Seiten zu ändern",
+				"fr": "Numéro de page. Utilisez 0 pour modifier toutes les pages",
+				"it": "Numero pagina. Usa 0 per modificare tutte le pagine",
+				"sv": "Sidnummer. Använd 0 för att ändra på alla sidor",
+				"no": "Sidenummer. Bruk 0 for å endre alle sider",
+				"es": "Número de página. Use 0 para cambiar todas las páginas",
+				"da": "Sidenummer. Brug 0 for at ændre alle sider",
+				"ru": "Номер страницы. Используйте 0, чтобы изменить все страницы",
+				"pl": "Numer strony. Użyj 0, aby zmienić na wszystkich stronach",
+				"ko": "페이지 번호. 모든 페이지를 변경하려면 0을 사용하세요",
+				"ar": "رقم الصفحة. استخدم 0 للتغيير في جميع الصفحات"
 			},
 			"placeholder": {
 				"en": "Page number",
-				"nl": "Pagina nummer"
+				"nl": "Pagina nummer",
+				"de": "Seitennummer",
+				"fr": "Numéro de page",
+				"it": "Numero pagina",
+				"sv": "Sidnummer",
+				"no": "Sidenummer",
+				"es": "Número de página",
+				"da": "Sidenummer",
+				"ru": "Номер страницы",
+				"pl": "Numer strony",
+				"ko": "페이지 번호",
+				"ar": "رقم الصفحة"
 			},
 			"required": false,
 			"min": 0,
@@ -84,11 +227,33 @@
 			"name": "svg",
 			"title": {
 				"en": "SVG string",
-				"nl": "SVG string"
+				"nl": "SVG string",
+				"de": "SVG-Zeichenfolge",
+				"fr": "Chaîne SVG",
+				"it": "Stringa SVG",
+				"sv": "SVG-sträng",
+				"no": "SVG-streng",
+				"es": "Cadena SVG",
+				"da": "SVG-streng",
+				"ru": "Строка SVG",
+				"pl": "Ciąg SVG",
+				"ko": "SVG 문자열",
+				"ar": "سلسلة SVG"
 			},
 			"placeholder": {
 				"en": "SVG string",
-				"nl": "SVG string"
+				"nl": "SVG string",
+				"de": "SVG-Zeichenfolge",
+				"fr": "Chaîne SVG",
+				"it": "Stringa SVG",
+				"sv": "SVG-sträng",
+				"no": "SVG-streng",
+				"es": "Cadena SVG",
+				"da": "SVG-streng",
+				"ru": "Строка SVG",
+				"pl": "Ciąg SVG",
+				"ko": "SVG 문자열",
+				"ar": "سلسلة SVG"
 			}
 		},
 		{

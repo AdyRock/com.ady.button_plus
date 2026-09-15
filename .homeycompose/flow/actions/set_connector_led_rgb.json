@@ -1,15 +1,48 @@
 {
     "title": {
         "en": "Set connector LED colour",
-        "nl": "Stel connector LED kleur in"
+        "nl": "Stel connector LED kleur in",
+        "de": "LED-Farbe des Anschlusses festlegen",
+        "fr": "Définir la couleur de la LED du connecteur",
+        "it": "Imposta il colore del LED del connettore",
+        "sv": "Ange LED-färg för anslutning",
+        "no": "Angi LED-farge for tilkobling",
+        "es": "Establecer el color del LED del conector",
+        "da": "Indstil LED-farve for tilslutning",
+        "ru": "Задать цвет LED разъема",
+        "pl": "Ustaw kolor LED złącza",
+        "ko": "커넥터 LED 색상 설정",
+        "ar": "تعيين لون LED للموصل"
     },
     "titleFormatted": {
         "en": "Set the [[left_right]] [[front_wall]] LED colour on connector [[connector]] page [[page]] to [[rgb]]",
-		"nl": "Stel de [[left_right]] [[front_wall]] LED kleur in op connector [[connector]] pagina [[page]] op [[rgb]]"
+		"nl": "Stel de [[left_right]] [[front_wall]] LED kleur in op connector [[connector]] pagina [[page]] op [[rgb]]",
+		"de": "Farbe der [[left_right]] [[front_wall]] LED an Anschluss [[connector]] auf Seite [[page]] auf [[rgb]] setzen",
+		"fr": "Définir la couleur de la LED [[left_right]] [[front_wall]] du connecteur [[connector]], page [[page]], sur [[rgb]]",
+		"it": "Imposta il colore del LED [[left_right]] [[front_wall]] sul connettore [[connector]], pagina [[page]], su [[rgb]]",
+		"sv": "Ställ in färgen på [[left_right]] [[front_wall]] LED på anslutning [[connector]], sida [[page]], till [[rgb]]",
+		"no": "Angi fargen på [[left_right]] [[front_wall]] LED på tilkobling [[connector]], side [[page]], til [[rgb]]",
+		"es": "Establecer el color del LED [[left_right]] [[front_wall]] del conector [[connector]], página [[page]], en [[rgb]]",
+		"da": "Indstil LED-farven for [[left_right]] [[front_wall]] på tilslutning [[connector]] på side [[page]] til [[rgb]]",
+		"ru": "Задать цвет LED [[left_right]] [[front_wall]] на разъеме [[connector]] странице [[page]] равным [[rgb]]",
+		"pl": "Ustaw kolor LED [[left_right]] [[front_wall]] na złączu [[connector]], na stronie [[page]], na [[rgb]]",
+		"ko": "커넥터 [[connector]]의 [[page]]페이지에 있는 [[left_right]] [[front_wall]] LED 색상을 [[rgb]](으)로 설정",
+		"ar": "تعيين لون LED ‏[[left_right]] [[front_wall]] في الموصل [[connector]] والصفحة [[page]] إلى [[rgb]]"
     },
     "hint": {
         "en": "Sets the colour of the specified LED",
-        "nl": "Stelt de kleur van de opgegeven LED in"
+        "nl": "Stelt de kleur van de opgegeven LED in",
+        "de": "Legt die Farbe der angegebenen LED fest",
+        "fr": "Définit la couleur de la LED indiquée",
+        "it": "Imposta il colore del LED specificato",
+        "sv": "Ställer in färgen på angiven LED",
+        "no": "Angir fargen på den valgte LED-en",
+        "es": "Establece el color del LED especificado",
+        "da": "Indstiller farven på den angivne LED",
+        "ru": "Задает цвет указанного LED",
+        "pl": "Ustawia kolor wskazanej LED",
+        "ko": "지정한 LED의 색상을 설정합니다",
+        "ar": "يعيّن لون LED المحدد"
     },
     "args": [
         {
@@ -17,25 +50,69 @@
             "name": "left_right",
             "title": {
                 "en": "Left /  Right",
-                "nl": "Links / Rechts "
+                "nl": "Links / Rechts ",
+                "de": "Links /  Rechts",
+                "fr": "Gauche /  Droite",
+                "it": "Sinistro /  Destro",
+                "sv": "Vänster /  Höger",
+                "no": "Venstre /  Høyre",
+                "es": "Izquierdo /  Derecho",
+                "da": "Venstre /  højre",
+                "ru": "Левая /  Правая",
+                "pl": "Lewy /  Prawy",
+                "ko": "왼쪽 /  오른쪽",
+                "ar": "يسار /  يمين"
             },
             "placeholder": {
                 "en": "Left / Right",
-                "nl": "Links / Rechts "
+                "nl": "Links / Rechts ",
+                "de": "Links / Rechts",
+                "fr": "Gauche / Droite",
+                "it": "Sinistro / Destro",
+                "sv": "Vänster / Höger",
+                "no": "Venstre / Høyre",
+                "es": "Izquierdo / Derecho",
+                "da": "Venstre / højre",
+                "ru": "Левая / Правая",
+                "pl": "Lewy / Prawy",
+                "ko": "왼쪽 / 오른쪽",
+                "ar": "يسار / يمين"
             },
             "values": [
                 {
                     "id": "left",
                     "title": {
                         "en": "Left",
-                        "nl": "Links "
+                        "nl": "Links ",
+                        "de": "Links",
+                        "fr": "Gauche",
+                        "it": "Sinistro",
+                        "sv": "Vänster",
+                        "no": "Venstre",
+                        "es": "Izquierdo",
+                        "da": "Venstre",
+                        "ru": "Левая",
+                        "pl": "Lewy",
+                        "ko": "왼쪽",
+                        "ar": "يسار"
                     }
                 },
                 {
                     "id": "right",
                     "title": {
                         "en": "Right",
-                        "nl": "Rechts "
+                        "nl": "Rechts ",
+                        "de": "Rechts",
+                        "fr": "Droite",
+                        "it": "Destro",
+                        "sv": "Höger",
+                        "no": "Høyre",
+                        "es": "Derecho",
+                        "da": "Højre",
+                        "ru": "Правая",
+                        "pl": "Prawy",
+                        "ko": "오른쪽",
+                        "ar": "يمين"
                     }
                 }
             ]
@@ -45,15 +122,48 @@
             "name": "connector",
             "title": {
                 "en": "Connector number",
-                "nl": "Connector nummer "
+                "nl": "Connector nummer ",
+                "de": "Anschlussnummer",
+                "fr": "Numéro de connecteur",
+                "it": "Numero connettore",
+                "sv": "Anslutningsnummer",
+                "no": "Tilkoblingsnummer",
+                "es": "Número de conector",
+                "da": "Tilslutningsnummer",
+                "ru": "Номер разъема",
+                "pl": "Numer złącza",
+                "ko": "커넥터 번호",
+                "ar": "رقم الموصل"
             },
             "hint": {
                 "en": "Connector number (1-4)",
-                "nl": "Connector nummer (1-4)"
+                "nl": "Connector nummer (1-4)",
+                "de": "Anschlussnummer (1-4)",
+                "fr": "Numéro de connecteur (1-4)",
+                "it": "Numero connettore (1-4)",
+                "sv": "Anslutningsnummer (1-4)",
+                "no": "Tilkoblingsnummer (1-4)",
+                "es": "Número de conector (1-4)",
+                "da": "Tilslutningsnummer (1-4)",
+                "ru": "Номер разъема (1-4)",
+                "pl": "Numer złącza (1-4)",
+                "ko": "커넥터 번호(1-4)",
+                "ar": "رقم الموصل (1-4)"
             },
             "placeholder": {
                 "en": "Connector number (1-4)",
-                "nl": "Connector nummer (1-4)"
+                "nl": "Connector nummer (1-4)",
+                "de": "Anschlussnummer (1-4)",
+                "fr": "Numéro de connecteur (1-4)",
+                "it": "Numero connettore (1-4)",
+                "sv": "Anslutningsnummer (1-4)",
+                "no": "Tilkoblingsnummer (1-4)",
+                "es": "Número de conector (1-4)",
+                "da": "Tilslutningsnummer (1-4)",
+                "ru": "Номер разъема (1-4)",
+                "pl": "Numer złącza (1-4)",
+                "ko": "커넥터 번호(1-4)",
+                "ar": "رقم الموصل (1-4)"
             },
             "min": 1,
             "max": 4,
@@ -64,11 +174,33 @@
             "name": "rgb",
             "title": {
                 "en": "RGB colour",
-                "nl": "RGB kleur"
+                "nl": "RGB kleur",
+                "de": "RGB-Farbe",
+                "fr": "Couleur RGB",
+                "it": "Colore RGB",
+                "sv": "RGB-färg",
+                "no": "RGB-farge",
+                "es": "Color RGB",
+                "da": "RGB-farve",
+                "ru": "Цвет RGB",
+                "pl": "Kolor RGB",
+                "ko": "RGB 색상",
+                "ar": "لون RGB"
             },
             "placeholder": {
                 "en": "Text",
-                "nl": "Tekst"
+                "nl": "Tekst",
+                "de": "Text",
+                "fr": "Texte",
+                "it": "Testo",
+                "sv": "Text",
+                "no": "Tekst",
+                "es": "Texto",
+                "da": "Tekst",
+                "ru": "Текст",
+                "pl": "Tekst",
+                "ko": "텍스트",
+                "ar": "النص"
             }
         },
 		{
@@ -76,11 +208,33 @@
 			"name": "front_wall",
 			"title": {
 				"en": "Front / Wall",
-				"nl": "Voor / Muur"
+				"nl": "Voor / Muur",
+				"de": "Vorderseite / Wand",
+				"fr": "Avant / Mur",
+				"it": "Fronte / Parete",
+				"sv": "Framsida / Vägg",
+				"no": "Front / Vegg",
+				"es": "Frontal / Pared",
+				"da": "Forside / væg",
+				"ru": "Передняя панель / Стена",
+				"pl": "Przód / Ściana",
+				"ko": "전면 / 벽면",
+				"ar": "أمامي / جداري"
 			},
 			"placeholder": {
 				"en": "Front / Wall",
-				"nl": "Voor / Muur"
+				"nl": "Voor / Muur",
+				"de": "Vorderseite / Wand",
+				"fr": "Avant / Mur",
+				"it": "Fronte / Parete",
+				"sv": "Framsida / Vägg",
+				"no": "Front / Vegg",
+				"es": "Frontal / Pared",
+				"da": "Forside / væg",
+				"ru": "Передняя панель / Стена",
+				"pl": "Przód / Ściana",
+				"ko": "전면 / 벽면",
+				"ar": "أمامي / جداري"
 			},
 			"required": false,
 			"values": [
@@ -88,21 +242,54 @@
 					"id": "both",
 					"title": {
 						"en": "Both",
-						"nl": "Beide"
+						"nl": "Beide",
+						"de": "Beide",
+						"fr": "Les deux",
+						"it": "Entrambi",
+						"sv": "Båda",
+						"no": "Begge",
+						"es": "Ambos",
+						"da": "Begge",
+						"ru": "Оба",
+						"pl": "Obie",
+						"ko": "둘 다",
+						"ar": "كلاهما"
 					}
 				},
 				{
 					"id": "front",
 					"title": {
 						"en": "Front",
-						"nl": "Voor"
+						"nl": "Voor",
+						"de": "Vorderseite",
+						"fr": "Avant",
+						"it": "Fronte",
+						"sv": "Framsida",
+						"no": "Front",
+						"es": "Frontal",
+						"da": "Forside",
+						"ru": "Передняя панель",
+						"pl": "Przód",
+						"ko": "전면",
+						"ar": "أمامي"
 					}
 				},
 				{
 					"id": "wall",
 					"title": {
 						"en": "Wall",
-						"nl": "Muur"
+						"nl": "Muur",
+						"de": "Wand",
+						"fr": "Mur",
+						"it": "Parete",
+						"sv": "Vägg",
+						"no": "Vegg",
+						"es": "Pared",
+						"da": "Væg",
+						"ru": "Стена",
+						"pl": "Ściana",
+						"ko": "벽면",
+						"ar": "جداري"
 					}
 				}
 			]
@@ -112,15 +299,48 @@
 			"name": "page",
 			"title": {
 				"en": "Page number",
-				"nl": "Pagina nummer"
+				"nl": "Pagina nummer",
+				"de": "Seitennummer",
+				"fr": "Numéro de page",
+				"it": "Numero pagina",
+				"sv": "Sidnummer",
+				"no": "Sidenummer",
+				"es": "Número de página",
+				"da": "Sidenummer",
+				"ru": "Номер страницы",
+				"pl": "Numer strony",
+				"ko": "페이지 번호",
+				"ar": "رقم الصفحة"
 			},
 			"hint": {
 				"en": "Page number. Use 0 to change for all pages",
-				"nl": "Pagina nummer. Gebruik 0 om alle pagina's te wijzigen"
+				"nl": "Pagina nummer. Gebruik 0 om alle pagina's te wijzigen",
+				"de": "Seitennummer. 0 verwenden, um alle Seiten zu ändern",
+				"fr": "Numéro de page. Utilisez 0 pour modifier toutes les pages",
+				"it": "Numero pagina. Usa 0 per modificare tutte le pagine",
+				"sv": "Sidnummer. Använd 0 för att ändra på alla sidor",
+				"no": "Sidenummer. Bruk 0 for å endre alle sider",
+				"es": "Número de página. Use 0 para cambiar todas las páginas",
+				"da": "Sidenummer. Brug 0 for at ændre alle sider",
+				"ru": "Номер страницы. Используйте 0, чтобы изменить все страницы",
+				"pl": "Numer strony. Użyj 0, aby zmienić na wszystkich stronach",
+				"ko": "페이지 번호. 모든 페이지를 변경하려면 0을 사용하세요",
+				"ar": "رقم الصفحة. استخدم 0 للتغيير في جميع الصفحات"
 			},
 			"placeholder": {
 				"en": "Page number",
-				"nl": "Pagina nummer"
+				"nl": "Pagina nummer",
+				"de": "Seitennummer",
+				"fr": "Numéro de page",
+				"it": "Numero pagina",
+				"sv": "Sidnummer",
+				"no": "Sidenummer",
+				"es": "Número de página",
+				"da": "Sidenummer",
+				"ru": "Номер страницы",
+				"pl": "Numer strony",
+				"ko": "페이지 번호",
+				"ar": "رقم الصفحة"
 			},
 			"required": false,
 			"min": 0,

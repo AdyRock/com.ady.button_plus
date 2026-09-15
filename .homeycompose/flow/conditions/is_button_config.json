@@ -1,11 +1,33 @@
 {
     "title": {
         "en": "The specified button / display configuration !{{is|isn't}} active",
-        "nl": "De opgegeven knop / display configuratie !{{is|isn't}} actief"
+        "nl": "De opgegeven knop / display configuratie !{{is|isn't}} actief",
+        "de": "Die angegebene Tasten-/Displaykonfiguration !{{is|isn't}} aktiv",
+        "fr": "La configuration de bouton / d’affichage indiquée !{{is|isn't}} active",
+        "it": "La configurazione pulsante / display specificata !{{is|isn't}} attiva",
+        "sv": "Den angivna knapp-/skärmkonfigurationen !{{is|isn't}} aktiv",
+        "no": "Den valgte knappe-/skjermkonfigurasjonen !{{is|isn't}} aktiv",
+        "es": "La configuración de botón / pantalla especificada !{{is|isn't}} activa",
+        "da": "Den angivne knap-/skærmkonfiguration !{{is|isn't}} aktiv",
+        "ru": "Указанная конфигурация кнопки / дисплея !{{is|isn't}} активна",
+        "pl": "Wskazana konfiguracja przycisku / wyświetlacza !{{is|isn't}} aktywna",
+        "ko": "지정한 버튼 / 디스플레이 구성이 !{{is|isn't}} 활성 상태",
+        "ar": "تكوين الزر / الشاشة المحدد !{{is|isn't}} نشطًا"
     },
     "titleFormatted": {
         "en": "The button configuration [[config]] !{{is|isn't}} active on connector [[connector]]",
-        "nl": "De knop configuratie [[config]] !{{is|isn't}} actief op connector [[connector]]"
+        "nl": "De knop configuratie [[config]] !{{is|isn't}} actief op connector [[connector]]",
+        "de": "Die Tastenkonfiguration [[config]] !{{is|isn't}} an Anschluss [[connector]] aktiv",
+        "fr": "La configuration de bouton [[config]] !{{is|isn't}} active sur le connecteur [[connector]]",
+        "it": "La configurazione pulsante [[config]] !{{is|isn't}} attiva sul connettore [[connector]]",
+        "sv": "Knappkonfigurationen [[config]] !{{is|isn't}} aktiv på anslutning [[connector]]",
+        "no": "Knappekonfigurasjonen [[config]] !{{is|isn't}} aktiv på tilkobling [[connector]]",
+        "es": "La configuración de botón [[config]] !{{is|isn't}} activa en el conector [[connector]]",
+        "da": "Knapkonfigurationen [[config]] !{{is|isn't}} aktiv på tilslutning [[connector]]",
+        "ru": "Конфигурация кнопки [[config]] !{{is|isn't}} активна на разъеме [[connector]]",
+        "pl": "Konfiguracja przycisku [[config]] !{{is|isn't}} aktywna na złączu [[connector]]",
+        "ko": "커넥터 [[connector]]에서 버튼 구성 [[config]]이(가) !{{is|isn't}} 활성 상태",
+        "ar": "تكوين الزر [[config]] !{{is|isn't}} نشطًا على الموصل [[connector]]"
     },
     "deprecated": true,
     "args": [
@@ -14,11 +36,33 @@
             "name": "config",
             "title": {
                 "en": "Config Number",
-                "nl": "Config nummer"
+                "nl": "Config nummer",
+                "de": "Konfigurationsnummer",
+                "fr": "Numéro de config.",
+                "it": "Numero config.",
+                "sv": "Konfigurationsnummer",
+                "no": "Konfigurasjonsnummer",
+                "es": "Número de config.",
+                "da": "Konfigurationsnummer",
+                "ru": "Номер конфигурации",
+                "pl": "Numer konfiguracji",
+                "ko": "구성 번호",
+                "ar": "رقم التكوين"
             },
             "placeholder": {
                 "en": "Config number (1-40)",
-                "nl": "Config nummer (1-40)"
+                "nl": "Config nummer (1-40)",
+                "de": "Konfigurationsnummer (1-40)",
+                "fr": "Numéro de config. (1-40)",
+                "it": "Numero config. (1-40)",
+                "sv": "Konfigurationsnummer (1-40)",
+                "no": "Konfigurasjonsnummer (1-40)",
+                "es": "Número de config. (1-40)",
+                "da": "Konfigurationsnummer (1-40)",
+                "ru": "Номер конфигурации (1-40)",
+                "pl": "Numer konfiguracji (1-40)",
+                "ko": "구성 번호(1-40)",
+                "ar": "رقم التكوين (1-40)"
             },
             "min": 1,
             "max": 40,
@@ -29,15 +73,48 @@
             "name": "connector",
             "title": {
                 "en": "Connector Number",
-                "nl": "Connector nummer"
+                "nl": "Connector nummer",
+                "de": "Anschlussnummer",
+                "fr": "Numéro de connecteur",
+                "it": "Numero connettore",
+                "sv": "Anslutningsnummer",
+                "no": "Tilkoblingsnummer",
+                "es": "Número de conector",
+                "da": "Tilslutningsnummer",
+                "ru": "Номер разъема",
+                "pl": "Numer złącza",
+                "ko": "커넥터 번호",
+                "ar": "رقم الموصل"
             },
             "hint": {
                 "en": "The connector number (1-4)",
-                "nl": "Het connector nummer (1-4)"
+                "nl": "Het connector nummer (1-4)",
+                "de": "Die Anschlussnummer (1-4)",
+                "fr": "Le numéro du connecteur (1-4)",
+                "it": "Il numero del connettore (1-4)",
+                "sv": "Anslutningsnumret (1-4)",
+                "no": "Tilkoblingsnummeret (1-4)",
+                "es": "El número de conector (1-4)",
+                "da": "Tilslutningsnummeret (1-4)",
+                "ru": "Номер разъема (1-4)",
+                "pl": "Numer złącza (1-4)",
+                "ko": "커넥터 번호(1-4)",
+                "ar": "رقم الموصل (1-4)"
             },
             "placeholder": {
                 "en": "Connector number (1-4)",
-                "nl": "Connector nummer (1-4)"
+                "nl": "Connector nummer (1-4)",
+                "de": "Anschlussnummer (1-4)",
+                "fr": "Numéro de connecteur (1-4)",
+                "it": "Numero connettore (1-4)",
+                "sv": "Anslutningsnummer (1-4)",
+                "no": "Tilkoblingsnummer (1-4)",
+                "es": "Número de conector (1-4)",
+                "da": "Tilslutningsnummer (1-4)",
+                "ru": "Номер разъема (1-4)",
+                "pl": "Numer złącza (1-4)",
+                "ko": "커넥터 번호(1-4)",
+                "ar": "رقم الموصل (1-4)"
             },
             "min": 1,
             "max": 4,

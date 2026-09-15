@@ -5,7 +5,18 @@
     "uiComponent": "button",
     "title": {
         "en": "Left Button",
-        "nl": "Linker knop"
+        "nl": "Linker knop",
+        "de": "Linke Taste",
+        "fr": "Bouton gauche",
+        "it": "Pulsante sinistro",
+        "sv": "Vänster knapp",
+        "no": "Venstre knapp",
+        "es": "Botón izquierdo",
+        "da": "Venstre knap",
+        "ru": "Левая кнопка",
+        "pl": "Lewy przycisk",
+        "ko": "왼쪽 버튼",
+        "ar": "الزر الأيسر"
     },
     "icon": "/assets/left_arrow.svg"
 }

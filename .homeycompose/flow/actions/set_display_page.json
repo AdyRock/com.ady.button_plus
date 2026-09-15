@@ -1,15 +1,48 @@
 {
     "title": {
         "en": "Select the display page",
-        "nl": "Selecteer de display pagina"
+        "nl": "Selecteer de display pagina",
+        "de": "Displayseite auswählen",
+        "fr": "Sélectionner la page d’affichage",
+        "it": "Seleziona la pagina del display",
+        "sv": "Välj skärmsida",
+        "no": "Velg skjermside",
+        "es": "Seleccionar la página de la pantalla",
+        "da": "Vælg skærmsiden",
+        "ru": "Выбрать страницу дисплея",
+        "pl": "Wybierz stronę wyświetlacza",
+        "ko": "디스플레이 페이지 선택",
+        "ar": "تحديد صفحة الشاشة"
     },
     "titleFormatted": {
         "en": "Select the [[pageCommand]] [[index]] large display page",
-        "nl": "Selecteer de [[pageCommand]] [[index]] grote display pagina"
+        "nl": "Selecteer de [[pageCommand]] [[index]] grote display pagina",
+        "de": "Seite [[pageCommand]] [[index]] des großen Displays auswählen",
+        "fr": "Sélectionner la page [[pageCommand]] [[index]] du grand écran",
+        "it": "Seleziona la pagina [[pageCommand]] [[index]] del display grande",
+        "sv": "Välj [[pageCommand]] [[index]] sida på den stora skärmen",
+        "no": "Velg [[pageCommand]] [[index]] side på den store skjermen",
+        "es": "Seleccionar la página [[pageCommand]] [[index]] de la pantalla grande",
+        "da": "Vælg siden [[pageCommand]] [[index]] på den store skærm",
+        "ru": "Выбрать страницу большого дисплея [[pageCommand]] [[index]]",
+        "pl": "Wybierz stronę dużego wyświetlacza [[pageCommand]] [[index]]",
+        "ko": "대형 디스플레이의 [[pageCommand]] [[index]] 페이지 선택",
+        "ar": "تحديد صفحة الشاشة الكبيرة [[pageCommand]] [[index]]"
     },
     "hint": {
         "en": "Select the page of the displays",
-        "nl": "Selecteer de pagina van de displays"
+        "nl": "Selecteer de pagina van de displays",
+        "de": "Wählt die Seite der Displays aus",
+        "fr": "Sélectionner la page des écrans",
+        "it": "Seleziona la pagina dei display",
+        "sv": "Välj sida för skärmarna",
+        "no": "Velg siden for skjermene",
+        "es": "Seleccionar la página de las pantallas",
+        "da": "Vælg skærmenes side",
+        "ru": "Выбрать страницу дисплеев",
+        "pl": "Wybierz stronę wyświetlaczy",
+        "ko": "디스플레이 페이지를 선택합니다",
+        "ar": "تحديد صفحة الشاشات"
     },
     "args": [
         {
@@ -17,39 +50,105 @@
             "name": "pageCommand",
             "title": {
                 "en": "Page Command",
-                "nl": "Pagina Commando"
+                "nl": "Pagina Commando",
+                "de": "Seitenbefehl",
+                "fr": "Commande de page",
+                "it": "Comando pagina",
+                "sv": "Sidkommando",
+                "no": "Sidekommando",
+                "es": "Comando de página",
+                "da": "Sidekommando",
+                "ru": "Команда страницы",
+                "pl": "Polecenie strony",
+                "ko": "페이지 명령",
+                "ar": "أمر الصفحة"
             },
             "placeholder": {
                 "en": "Select the page command",
-                "nl": "Selecteer het pagina commando"
+                "nl": "Selecteer het pagina commando",
+                "de": "Seitenbefehl auswählen",
+                "fr": "Sélectionner la commande de page",
+                "it": "Seleziona il comando pagina",
+                "sv": "Välj sidkommando",
+                "no": "Velg sidekommando",
+                "es": "Seleccionar el comando de página",
+                "da": "Vælg sidekommandoen",
+                "ru": "Выберите команду страницы",
+                "pl": "Wybierz polecenie strony",
+                "ko": "페이지 명령 선택",
+                "ar": "حدد أمر الصفحة"
             },
             "values": [
                 {
                     "id": "index",
                     "title": {
                         "en": "page index",
-                        "nl": "pagina index"
+                        "nl": "pagina index",
+                        "de": "Seitenindex",
+                        "fr": "index de page",
+                        "it": "indice pagina",
+                        "sv": "sidindex",
+                        "no": "sideindeks",
+                        "es": "índice de página",
+                        "da": "sideindeks",
+                        "ru": "индекс страницы",
+                        "pl": "indeks strony",
+                        "ko": "페이지 인덱스",
+                        "ar": "فهرس الصفحة"
                     }
                 },
                 {
                     "id": "first",
                     "title": {
                         "en": "first page",
-                        "nl": "Eerste"
+                        "nl": "Eerste",
+                        "de": "erste Seite",
+                        "fr": "première page",
+                        "it": "prima pagina",
+                        "sv": "första sidan",
+                        "no": "første side",
+                        "es": "primera página",
+                        "da": "første side",
+                        "ru": "первая страница",
+                        "pl": "pierwsza strona",
+                        "ko": "첫 페이지",
+                        "ar": "الصفحة الأولى"
                     }
                 },
                 {
                     "id": "previous",
                     "title": {
                         "en": "previous page",
-                        "nl": "Vorige"
+                        "nl": "Vorige",
+                        "de": "vorherige Seite",
+                        "fr": "page précédente",
+                        "it": "pagina precedente",
+                        "sv": "föregående sida",
+                        "no": "forrige side",
+                        "es": "página anterior",
+                        "da": "forrige side",
+                        "ru": "предыдущая страница",
+                        "pl": "poprzednia strona",
+                        "ko": "이전 페이지",
+                        "ar": "الصفحة السابقة"
                     }
                 },
                 {
                     "id": "next",
                     "title": {
                         "en": "next page",
-                        "nl": "Volgende"
+                        "nl": "Volgende",
+                        "de": "nächste Seite",
+                        "fr": "page suivante",
+                        "it": "pagina successiva",
+                        "sv": "nästa sida",
+                        "no": "neste side",
+                        "es": "página siguiente",
+                        "da": "næste side",
+                        "ru": "следующая страница",
+                        "pl": "następna strona",
+                        "ko": "다음 페이지",
+                        "ar": "الصفحة التالية"
                     }
                 }
             ]
@@ -59,15 +158,48 @@
             "name": "index",
             "title": {
                 "en": "Page Index",
-                "nl": "Pagina Index"
+                "nl": "Pagina Index",
+                "de": "Seitenindex",
+                "fr": "Index de page",
+                "it": "Indice pagina",
+                "sv": "Sidindex",
+                "no": "Sideindeks",
+                "es": "Índice de página",
+                "da": "Sideindeks",
+                "ru": "Индекс страницы",
+                "pl": "Indeks strony",
+                "ko": "페이지 인덱스",
+                "ar": "فهرس الصفحة"
             },
             "hint": {
                 "en": "Page Index between 1 and 100",
-                "nl": "Pagina Index tussen 1 en 100"
+                "nl": "Pagina Index tussen 1 en 100",
+                "de": "Seitenindex zwischen 1 und 100",
+                "fr": "Index de page compris entre 1 et 100",
+                "it": "Indice pagina compreso tra 1 e 100",
+                "sv": "Sidindex mellan 1 och 100",
+                "no": "Sideindeks mellom 1 og 100",
+                "es": "Índice de página entre 1 y 100",
+                "da": "Sideindeks mellem 1 og 100",
+                "ru": "Индекс страницы от 1 до 100",
+                "pl": "Indeks strony od 1 do 100",
+                "ko": "1에서 100 사이의 페이지 인덱스",
+                "ar": "فهرس الصفحة بين 1 و100"
             },
             "placeholder": {
                 "en": "Large display page index (1-100)",
-                "nl": "Grote display pagina index (1-100)"
+                "nl": "Grote display pagina index (1-100)",
+                "de": "Seitenindex des großen Displays (1-100)",
+                "fr": "Index de page du grand écran (1-100)",
+                "it": "Indice pagina del display grande (1-100)",
+                "sv": "Sidindex för stor skärm (1-100)",
+                "no": "Sideindeks for stor skjerm (1-100)",
+                "es": "Índice de página de la pantalla grande (1-100)",
+                "da": "Sideindeks for stor skærm (1-100)",
+                "ru": "Индекс страницы большого дисплея (1-100)",
+                "pl": "Indeks strony dużego wyświetlacza (1-100)",
+                "ko": "대형 디스플레이 페이지 인덱스(1-100)",
+                "ar": "فهرس صفحة الشاشة الكبيرة (1-100)"
             },
             "required": false,
             "min": 1,

@@ -1,6 +1,6 @@
 {
 	"id": "com.ady.button_plus",
-	"version": "0.7.47",
+	"version": "1.0.0",
 	"compatibility": ">=5.0.0",
 	"sdk": 3,
 	"platforms": [
@@ -9,11 +9,33 @@
 	"brandColor": "#444444",
 	"name": {
 		"en": "Button +",
-		"nl": "Button+"
+		"nl": "Button+",
+		"de": "Button+",
+		"fr": "Button +",
+		"it": "Button +",
+		"sv": "Button +",
+		"no": "Button+",
+		"es": "Button +",
+		"da": "Button+",
+		"ru": "Button+",
+		"pl": "Button+",
+		"ko": "Button +",
+		"ar": "Button +"
 	},
 	"description": {
 		"en": "Control Button + panels",
-		"nl": "Button+ panels besturen"
+		"nl": "Button+ panels besturen",
+		"de": "Button+-Panels steuern",
+		"fr": "Contrôler les panneaux Button +",
+		"it": "Controlla i pannelli Button +",
+		"sv": "Styr Button+-paneler",
+		"no": "Styr Button+-paneler",
+		"es": "Controlar paneles Button +",
+		"da": "Betjen Button+-paneler",
+		"ru": "Управление панелями Button+",
+		"pl": "Steruj panelami Button+",
+		"ko": "Button + 패널 제어",
+		"ar": "التحكم في لوحات Button +"
 	},
 	"category": [
 		"appliances"
@@ -133,6 +155,17 @@
 		"nl": [
 			"Knop",
 			"Display"
-		]
+		],
+		"de": ["Taste","Display"],
+		"fr": ["Bouton","affichage"],
+		"it": ["Pulsante","display"],
+		"sv": ["Knapp","skärm"],
+		"no": ["Knapp","skjerm"],
+		"es": ["Botón","pantalla"],
+		"da": ["Knap","skærm"],
+		"ru": ["Кнопка","дисплей"],
+		"pl": ["Przycisk","wyświetlacz"],
+		"ko": ["버튼","디스플레이"],
+		"ar": ["زر","شاشة"]
 	}
 }

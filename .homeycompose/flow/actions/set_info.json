@@ -1,15 +1,48 @@
 {
     "title": {
         "en": "Set information text",
-        "nl": "Informatie tekst instellen"
+        "nl": "Informatie tekst instellen",
+        "de": "Informationstext festlegen",
+        "fr": "Définir le texte d’information",
+        "it": "Imposta il testo informativo",
+        "sv": "Ange informationstext",
+        "no": "Angi informasjonstekst",
+        "es": "Establecer el texto informativo",
+        "da": "Indstil informationstekst",
+        "ru": "Задать информационный текст",
+        "pl": "Ustaw tekst informacyjny",
+        "ko": "정보 텍스트 설정",
+        "ar": "تعيين نص المعلومات"
     },
     "titleFormatted": {
         "en": "Set the information text to [[info]]",
-        "nl": "Informatie tekst instellen naar [[info]]"
+        "nl": "Informatie tekst instellen naar [[info]]",
+        "de": "Informationstext auf [[info]] setzen",
+        "fr": "Définir le texte d’information sur [[info]]",
+        "it": "Imposta il testo informativo su [[info]]",
+        "sv": "Ställ in informationstexten till [[info]]",
+        "no": "Angi informasjonsteksten til [[info]]",
+        "es": "Establecer el texto informativo en [[info]]",
+        "da": "Indstil informationsteksten til [[info]]",
+        "ru": "Задать информационный текст [[info]]",
+        "pl": "Ustaw tekst informacyjny na [[info]]",
+        "ko": "정보 텍스트를 [[info]](으)로 설정",
+        "ar": "تعيين نص المعلومات إلى [[info]]"
     },
     "hint": {
         "en": "Sets the information text so it can be displayed on a panel",
-        "nl": "Stelt de informatie tekst in zodat het kan worden weergegeven op een panel "
+        "nl": "Stelt de informatie tekst in zodat het kan worden weergegeven op een panel ",
+        "de": "Legt den Informationstext zur Anzeige auf einem Panel fest",
+        "fr": "Définit le texte d’information afin qu’il puisse être affiché sur un panneau",
+        "it": "Imposta il testo informativo affinché possa essere visualizzato su un pannello",
+        "sv": "Ställer in informationstexten så att den kan visas på en panel",
+        "no": "Angir informasjonsteksten slik at den kan vises på et panel",
+        "es": "Establece el texto informativo para que pueda mostrarse en un panel",
+        "da": "Indstiller informationsteksten, så den kan vises på et panel",
+        "ru": "Задает информационный текст для отображения на панели",
+        "pl": "Ustawia tekst informacyjny, aby można go było wyświetlić na panelu",
+        "ko": "패널에 표시할 수 있도록 정보 텍스트를 설정합니다",
+        "ar": "يعيّن نص المعلومات ليتم عرضه على لوحة"
     },
     "args": [
         {
@@ -17,11 +50,33 @@
             "name": "info",
             "title": {
                 "en": "Information text",
-                "nl": "Informatie tekst"
+                "nl": "Informatie tekst",
+                "de": "Informationstext",
+                "fr": "Texte d’information",
+                "it": "Testo informativo",
+                "sv": "Informationstext",
+                "no": "Informasjonstekst",
+                "es": "Texto informativo",
+                "da": "Informationstekst",
+                "ru": "Информационный текст",
+                "pl": "Tekst informacyjny",
+                "ko": "정보 텍스트",
+                "ar": "نص المعلومات"
             },
             "placeholder": {
                 "en": "Information text",
-                "nl": "Informatie tekst"
+                "nl": "Informatie tekst",
+                "de": "Informationstext",
+                "fr": "Texte d’information",
+                "it": "Testo informativo",
+                "sv": "Informationstext",
+                "no": "Informasjonstekst",
+                "es": "Texto informativo",
+                "da": "Informationstekst",
+                "ru": "Информационный текст",
+                "pl": "Tekst informacyjny",
+                "ko": "정보 텍스트",
+                "ar": "نص المعلومات"
             }
         },
         {

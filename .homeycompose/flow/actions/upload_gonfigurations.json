@@ -1,15 +1,48 @@
 {
     "title": {
         "en": "Re-apply Configurations",
-        "nl":"Herstel Configuraties"
+        "nl":"Herstel Configuraties",
+        "de": "Konfigurationen erneut anwenden",
+        "fr": "Réappliquer les configurations",
+        "it": "Riapplica le configurazioni",
+        "sv": "Tillämpa konfigurationer igen",
+        "no": "Bruk konfigurasjoner på nytt",
+        "es": "Volver a aplicar las configuraciones",
+        "da": "Anvend konfigurationer igen",
+        "ru": "Повторно применить конфигурации",
+        "pl": "Zastosuj konfiguracje ponownie",
+        "ko": "구성 다시 적용",
+        "ar": "إعادة تطبيق التكوينات"
     },
     "titleFormatted": {
         "en": "Re-apply Configurations",
-        "nl":"Herstel Configuraties"
+        "nl":"Herstel Configuraties",
+        "de": "Konfigurationen erneut anwenden",
+        "fr": "Réappliquer les configurations",
+        "it": "Riapplica le configurazioni",
+        "sv": "Tillämpa konfigurationer igen",
+        "no": "Bruk konfigurasjoner på nytt",
+        "es": "Volver a aplicar las configuraciones",
+        "da": "Anvend konfigurationer igen",
+        "ru": "Повторно применить конфигурации",
+        "pl": "Zastosuj konfiguracje ponownie",
+        "ko": "구성 다시 적용",
+        "ar": "إعادة تطبيق التكوينات"
     },
     "hint": {
         "en": "Uploads the configurations to the device",
-		"nl": "Upload de configuraties naar het apparaat"
+		"nl": "Upload de configuraties naar het apparaat",
+		"de": "Lädt die Konfigurationen auf das Gerät hoch",
+		"fr": "Téléverse les configurations sur l’appareil",
+		"it": "Carica le configurazioni sul dispositivo",
+		"sv": "Överför konfigurationerna till enheten",
+		"no": "Laster opp konfigurasjonene til enheten",
+		"es": "Carga las configuraciones en el dispositivo",
+		"da": "Overfører konfigurationerne til enheden",
+		"ru": "Загружает конфигурации на устройство",
+		"pl": "Przesyła konfiguracje do urządzenia",
+		"ko": "구성을 장치에 업로드합니다",
+		"ar": "يرفع التكوينات إلى الجهاز"
     },
     "args": [
         {

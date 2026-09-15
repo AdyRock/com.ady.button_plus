@@ -2,7 +2,18 @@
     "type": "enum",
     "title": {
         "en": "Display",
-        "nl": "Display"
+        "nl": "Display",
+        "de": "Display",
+        "fr": "Affichage",
+        "it": "Display",
+        "sv": "Skärm",
+        "no": "Skjerm",
+        "es": "Pantalla",
+        "da": "Skærm",
+        "ru": "Дисплей",
+        "pl": "Wyświetlacz",
+        "ko": "디스플레이",
+        "ar": "الشاشة"
     },
     "getable": true,
     "setable": true,
@@ -12,140 +23,360 @@
             "id": "0",
             "title": {
                 "en": "Display Config. 1",
-                "nl": "Display Config. 1"
+                "nl": "Display Config. 1",
+                "de": "Displaykonfig. 1",
+                "fr": "Config. d’affichage 1",
+                "it": "Config. display 1",
+                "sv": "Skärmkonfig. 1",
+                "no": "Skjermkonfig. 1",
+                "es": "Config. de pantalla 1",
+                "da": "Skærmkonfig. 1",
+                "ru": "Конфигурация дисплея 1",
+                "pl": "Konfiguracja wyświetlacza 1",
+                "ko": "디스플레이 구성 1",
+                "ar": "تكوين الشاشة 1"
             }
         },
         {
             "id": "1",
             "title": {
                 "en": "Display Config. 2",
-                "nl": "Display Config. 2"
+                "nl": "Display Config. 2",
+                "de": "Displaykonfig. 2",
+                "fr": "Config. d’affichage 2",
+                "it": "Config. display 2",
+                "sv": "Skärmkonfig. 2",
+                "no": "Skjermkonfig. 2",
+                "es": "Config. de pantalla 2",
+                "da": "Skærmkonfig. 2",
+                "ru": "Конфигурация дисплея 2",
+                "pl": "Konfiguracja wyświetlacza 2",
+                "ko": "디스플레이 구성 2",
+                "ar": "تكوين الشاشة 2"
             }
         },
         {
             "id": "2",
             "title": {
                 "en": "Display Config. 3",
-                "nl": "Display Config. 3"
+                "nl": "Display Config. 3",
+                "de": "Displaykonfig. 3",
+                "fr": "Config. d’affichage 3",
+                "it": "Config. display 3",
+                "sv": "Skärmkonfig. 3",
+                "no": "Skjermkonfig. 3",
+                "es": "Config. de pantalla 3",
+                "da": "Skærmkonfig. 3",
+                "ru": "Конфигурация дисплея 3",
+                "pl": "Konfiguracja wyświetlacza 3",
+                "ko": "디스플레이 구성 3",
+                "ar": "تكوين الشاشة 3"
             }
         },
         {
             "id": "3",
             "title": {
                 "en": "Display Config. 4",
-                "nl": "Display Config. 4"
+                "nl": "Display Config. 4",
+                "de": "Displaykonfig. 4",
+                "fr": "Config. d’affichage 4",
+                "it": "Config. display 4",
+                "sv": "Skärmkonfig. 4",
+                "no": "Skjermkonfig. 4",
+                "es": "Config. de pantalla 4",
+                "da": "Skærmkonfig. 4",
+                "ru": "Конфигурация дисплея 4",
+                "pl": "Konfiguracja wyświetlacza 4",
+                "ko": "디스플레이 구성 4",
+                "ar": "تكوين الشاشة 4"
             }
         },
         {
             "id": "4",
             "title": {
                 "en": "Display Config. 5",
-                "nl": "Display Config. 5"
+                "nl": "Display Config. 5",
+                "de": "Displaykonfig. 5",
+                "fr": "Config. d’affichage 5",
+                "it": "Config. display 5",
+                "sv": "Skärmkonfig. 5",
+                "no": "Skjermkonfig. 5",
+                "es": "Config. de pantalla 5",
+                "da": "Skærmkonfig. 5",
+                "ru": "Конфигурация дисплея 5",
+                "pl": "Konfiguracja wyświetlacza 5",
+                "ko": "디스플레이 구성 5",
+                "ar": "تكوين الشاشة 5"
             }
         },
         {
             "id": "5",
             "title": {
                 "en": "Display Config. 6",
-                "nl": "Display Config. 6"
+                "nl": "Display Config. 6",
+                "de": "Displaykonfig. 6",
+                "fr": "Config. d’affichage 6",
+                "it": "Config. display 6",
+                "sv": "Skärmkonfig. 6",
+                "no": "Skjermkonfig. 6",
+                "es": "Config. de pantalla 6",
+                "da": "Skærmkonfig. 6",
+                "ru": "Конфигурация дисплея 6",
+                "pl": "Konfiguracja wyświetlacza 6",
+                "ko": "디스플레이 구성 6",
+                "ar": "تكوين الشاشة 6"
             }
         },
         {
             "id": "6",
             "title": {
                 "en": "Display Config. 7",
-                "nl": "Display Config. 7"
+                "nl": "Display Config. 7",
+                "de": "Displaykonfig. 7",
+                "fr": "Config. d’affichage 7",
+                "it": "Config. display 7",
+                "sv": "Skärmkonfig. 7",
+                "no": "Skjermkonfig. 7",
+                "es": "Config. de pantalla 7",
+                "da": "Skærmkonfig. 7",
+                "ru": "Конфигурация дисплея 7",
+                "pl": "Konfiguracja wyświetlacza 7",
+                "ko": "디스플레이 구성 7",
+                "ar": "تكوين الشاشة 7"
             }
         },
         {
             "id": "7",
             "title": {
                 "en": "Display Config. 8",
-                "nl": "Display Config. 8"
+                "nl": "Display Config. 8",
+                "de": "Displaykonfig. 8",
+                "fr": "Config. d’affichage 8",
+                "it": "Config. display 8",
+                "sv": "Skärmkonfig. 8",
+                "no": "Skjermkonfig. 8",
+                "es": "Config. de pantalla 8",
+                "da": "Skærmkonfig. 8",
+                "ru": "Конфигурация дисплея 8",
+                "pl": "Konfiguracja wyświetlacza 8",
+                "ko": "디스플레이 구성 8",
+                "ar": "تكوين الشاشة 8"
             }
         },
         {
             "id": "8",
             "title": {
                 "en": "Display Config. 9",
-                "nl": "Display Config. 9"
+                "nl": "Display Config. 9",
+                "de": "Displaykonfig. 9",
+                "fr": "Config. d’affichage 9",
+                "it": "Config. display 9",
+                "sv": "Skärmkonfig. 9",
+                "no": "Skjermkonfig. 9",
+                "es": "Config. de pantalla 9",
+                "da": "Skærmkonfig. 9",
+                "ru": "Конфигурация дисплея 9",
+                "pl": "Konfiguracja wyświetlacza 9",
+                "ko": "디스플레이 구성 9",
+                "ar": "تكوين الشاشة 9"
             }
         },
         {
             "id": "9",
             "title": {
                 "en": "Display Config. 10",
-                "nl": "Display Config. 10"
+                "nl": "Display Config. 10",
+                "de": "Displaykonfig. 10",
+                "fr": "Config. d’affichage 10",
+                "it": "Config. display 10",
+                "sv": "Skärmkonfig. 10",
+                "no": "Skjermkonfig. 10",
+                "es": "Config. de pantalla 10",
+                "da": "Skærmkonfig. 10",
+                "ru": "Конфигурация дисплея 10",
+                "pl": "Konfiguracja wyświetlacza 10",
+                "ko": "디스플레이 구성 10",
+                "ar": "تكوين الشاشة 10"
             }
         },
         {
             "id": "10",
             "title": {
                 "en": "Display Config. 11",
-                "nl": "Display Config. 11"
+                "nl": "Display Config. 11",
+                "de": "Displaykonfig. 11",
+                "fr": "Config. d’affichage 11",
+                "it": "Config. display 11",
+                "sv": "Skärmkonfig. 11",
+                "no": "Skjermkonfig. 11",
+                "es": "Config. de pantalla 11",
+                "da": "Skærmkonfig. 11",
+                "ru": "Конфигурация дисплея 11",
+                "pl": "Konfiguracja wyświetlacza 11",
+                "ko": "디스플레이 구성 11",
+                "ar": "تكوين الشاشة 11"
             }
         },
         {
             "id": "11",
             "title": {
                 "en": "Display Config. 12",
-                "nl": "Display Config. 12"
+                "nl": "Display Config. 12",
+                "de": "Displaykonfig. 12",
+                "fr": "Config. d’affichage 12",
+                "it": "Config. display 12",
+                "sv": "Skärmkonfig. 12",
+                "no": "Skjermkonfig. 12",
+                "es": "Config. de pantalla 12",
+                "da": "Skærmkonfig. 12",
+                "ru": "Конфигурация дисплея 12",
+                "pl": "Konfiguracja wyświetlacza 12",
+                "ko": "디스플레이 구성 12",
+                "ar": "تكوين الشاشة 12"
             }
         },
         {
             "id": "12",
             "title": {
                 "en": "Display Config. 13",
-                "nl": "Display Config. 13"
+                "nl": "Display Config. 13",
+                "de": "Displaykonfig. 13",
+                "fr": "Config. d’affichage 13",
+                "it": "Config. display 13",
+                "sv": "Skärmkonfig. 13",
+                "no": "Skjermkonfig. 13",
+                "es": "Config. de pantalla 13",
+                "da": "Skærmkonfig. 13",
+                "ru": "Конфигурация дисплея 13",
+                "pl": "Konfiguracja wyświetlacza 13",
+                "ko": "디스플레이 구성 13",
+                "ar": "تكوين الشاشة 13"
             }
         },
         {
             "id": "13",
             "title": {
                 "en": "Display Config. 14",
-                "nl": "Display Config. 14"
+                "nl": "Display Config. 14",
+                "de": "Displaykonfig. 14",
+                "fr": "Config. d’affichage 14",
+                "it": "Config. display 14",
+                "sv": "Skärmkonfig. 14",
+                "no": "Skjermkonfig. 14",
+                "es": "Config. de pantalla 14",
+                "da": "Skærmkonfig. 14",
+                "ru": "Конфигурация дисплея 14",
+                "pl": "Konfiguracja wyświetlacza 14",
+                "ko": "디스플레이 구성 14",
+                "ar": "تكوين الشاشة 14"
             }
         },
         {
             "id": "14",
             "title": {
                 "en": "Display Config. 15",
-                "nl": "Display Config. 15"
+                "nl": "Display Config. 15",
+                "de": "Displaykonfig. 15",
+                "fr": "Config. d’affichage 15",
+                "it": "Config. display 15",
+                "sv": "Skärmkonfig. 15",
+                "no": "Skjermkonfig. 15",
+                "es": "Config. de pantalla 15",
+                "da": "Skærmkonfig. 15",
+                "ru": "Конфигурация дисплея 15",
+                "pl": "Konfiguracja wyświetlacza 15",
+                "ko": "디스플레이 구성 15",
+                "ar": "تكوين الشاشة 15"
             }
         },
         {
             "id": "15",
             "title": {
                 "en": "Display Config. 16",
-                "nl": "Display Config. 16"
+                "nl": "Display Config. 16",
+                "de": "Displaykonfig. 16",
+                "fr": "Config. d’affichage 16",
+                "it": "Config. display 16",
+                "sv": "Skärmkonfig. 16",
+                "no": "Skjermkonfig. 16",
+                "es": "Config. de pantalla 16",
+                "da": "Skærmkonfig. 16",
+                "ru": "Конфигурация дисплея 16",
+                "pl": "Konfiguracja wyświetlacza 16",
+                "ko": "디스플레이 구성 16",
+                "ar": "تكوين الشاشة 16"
             }
         },
         {
             "id": "16",
             "title": {
                 "en": "Display Config. 17",
-                "nl": "Display Config. 17"
+                "nl": "Display Config. 17",
+                "de": "Displaykonfig. 17",
+                "fr": "Config. d’affichage 17",
+                "it": "Config. display 17",
+                "sv": "Skärmkonfig. 17",
+                "no": "Skjermkonfig. 17",
+                "es": "Config. de pantalla 17",
+                "da": "Skærmkonfig. 17",
+                "ru": "Конфигурация дисплея 17",
+                "pl": "Konfiguracja wyświetlacza 17",
+                "ko": "디스플레이 구성 17",
+                "ar": "تكوين الشاشة 17"
             }
         },
         {
             "id": "17",
             "title": {
                 "en": "Display Config. 18",
-                "nl": "Display Config. 18"
+                "nl": "Display Config. 18",
+                "de": "Displaykonfig. 18",
+                "fr": "Config. d’affichage 18",
+                "it": "Config. display 18",
+                "sv": "Skärmkonfig. 18",
+                "no": "Skjermkonfig. 18",
+                "es": "Config. de pantalla 18",
+                "da": "Skærmkonfig. 18",
+                "ru": "Конфигурация дисплея 18",
+                "pl": "Konfiguracja wyświetlacza 18",
+                "ko": "디스플레이 구성 18",
+                "ar": "تكوين الشاشة 18"
             }
         },
         {
             "id": "18",
             "title": {
                 "en": "Display Config. 19",
-                "nl": "Display Config. 19"
+                "nl": "Display Config. 19",
+                "de": "Displaykonfig. 19",
+                "fr": "Config. d’affichage 19",
+                "it": "Config. display 19",
+                "sv": "Skärmkonfig. 19",
+                "no": "Skjermkonfig. 19",
+                "es": "Config. de pantalla 19",
+                "da": "Skærmkonfig. 19",
+                "ru": "Конфигурация дисплея 19",
+                "pl": "Konfiguracja wyświetlacza 19",
+                "ko": "디스플레이 구성 19",
+                "ar": "تكوين الشاشة 19"
             }
         },
         {
             "id": "19",
             "title": {
                 "en": "Display Config. 20",
-                "nl": "Display Config. 20"
+                "nl": "Display Config. 20",
+                "de": "Displaykonfig. 20",
+                "fr": "Config. d’affichage 20",
+                "it": "Config. display 20",
+                "sv": "Skärmkonfig. 20",
+                "no": "Skjermkonfig. 20",
+                "es": "Config. de pantalla 20",
+                "da": "Skærmkonfig. 20",
+                "ru": "Конфигурация дисплея 20",
+                "pl": "Konfiguracja wyświetlacza 20",
+                "ko": "디스플레이 구성 20",
+                "ar": "تكوين الشاشة 20"
             }
         }
     ]

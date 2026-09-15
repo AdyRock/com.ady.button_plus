@@ -1,11 +1,33 @@
 {
     "title": {
         "en": "The specified button !{{is|isn't}} on",
-        "nl": "De gespecificeerde knop !{{is|isn't}} aan"
+        "nl": "De gespecificeerde knop !{{is|isn't}} aan",
+        "de": "Die angegebene Taste !{{is|isn't}} eingeschaltet",
+        "fr": "Le bouton indiqué !{{is|isn't}} allumé",
+        "it": "Il pulsante specificato !{{is|isn't}} acceso",
+        "sv": "Den angivna knappen !{{is|isn't}} på",
+        "no": "Den valgte knappen !{{is|isn't}} på",
+        "es": "El botón especificado !{{is|isn't}} encendido",
+        "da": "Den angivne knap !{{is|isn't}} tændt",
+        "ru": "Указанная кнопка !{{is|isn't}} включена",
+        "pl": "Wskazany przycisk !{{is|isn't}} włączony",
+        "ko": "지정한 버튼이 !{{is|isn't}} 켜짐 상태",
+        "ar": "الزر المحدد !{{is|isn't}} قيد التشغيل"
     },
     "titleFormatted": {
         "en": "The [[left_right]] Button on connector [[connector]] !{{is|isn't}} on",
-        "nl": "De [[left_right]] knop op connector [[connector]] !{{is|isn't}} aan"
+        "nl": "De [[left_right]] knop op connector [[connector]] !{{is|isn't}} aan",
+        "de": "Die [[left_right]] Taste an Anschluss [[connector]] !{{is|isn't}} eingeschaltet",
+        "fr": "Le bouton [[left_right]] du connecteur [[connector]] !{{is|isn't}} allumé",
+        "it": "Il pulsante [[left_right]] sul connettore [[connector]] !{{is|isn't}} acceso",
+        "sv": "[[left_right]] knapp på anslutning [[connector]] !{{is|isn't}} på",
+        "no": "[[left_right]] knapp på tilkobling [[connector]] !{{is|isn't}} på",
+        "es": "El botón [[left_right]] del conector [[connector]] !{{is|isn't}} encendido",
+        "da": "Knappen [[left_right]] på tilslutning [[connector]] !{{is|isn't}} tændt",
+        "ru": "Кнопка [[left_right]] на разъеме [[connector]] !{{is|isn't}} включена",
+        "pl": "Przycisk [[left_right]] na złączu [[connector]] !{{is|isn't}} włączony",
+        "ko": "커넥터 [[connector]]의 [[left_right]] 버튼이 !{{is|isn't}} 켜짐 상태",
+        "ar": "الزر [[left_right]] في الموصل [[connector]] !{{is|isn't}} قيد التشغيل"
     },
     "args": [
         {
@@ -13,20 +35,42 @@
             "name": "left_right",
             "title": {
                 "en": "Left / Right",
-                "nl": "Links / Rechts"
+                "nl": "Links / Rechts",
+                "de": "Links / Rechts",
+                "fr": "Gauche / Droite",
+                "it": "Sinistro / Destro",
+                "sv": "Vänster / Höger",
+                "no": "Venstre / Høyre",
+                "es": "Izquierdo / Derecho",
+                "da": "Venstre / højre",
+                "ru": "Левая / Правая",
+                "pl": "Lewy / Prawy",
+                "ko": "왼쪽 / 오른쪽",
+                "ar": "يسار / يمين"
             },
             "placeholder": {
                 "en": "Left / Right",
-                "nl": "Links / Rechts"
+                "nl": "Links / Rechts",
+                "de": "Links / Rechts",
+                "fr": "Gauche / Droite",
+                "it": "Sinistro / Destro",
+                "sv": "Vänster / Höger",
+                "no": "Venstre / Høyre",
+                "es": "Izquierdo / Derecho",
+                "da": "Venstre / højre",
+                "ru": "Левая / Правая",
+                "pl": "Lewy / Prawy",
+                "ko": "왼쪽 / 오른쪽",
+                "ar": "يسار / يمين"
             },
             "values": [
                 {
                     "id": "left",
-                    "title": {"en": "Left","nl": "Links"}
+                    "title": {"en": "Left","nl": "Links", "de": "Links", "fr": "Gauche", "it": "Sinistro", "sv": "Vänster", "no": "Venstre", "es": "Izquierdo", "da": "Venstre", "ru": "Левая", "pl": "Lewy", "ko": "왼쪽", "ar": "يسار"}
                 },
                 {
                     "id": "right",
-                    "title": {"en": "Right","nl": "Rechts"}
+                    "title": {"en": "Right","nl": "Rechts", "de": "Rechts", "fr": "Droite", "it": "Destro", "sv": "Höger", "no": "Høyre", "es": "Derecho", "da": "Højre", "ru": "Правая", "pl": "Prawy", "ko": "오른쪽", "ar": "يمين"}
                 }
             ]
         },
@@ -35,11 +79,33 @@
             "name": "connector",
             "title": {
                 "en": "Connector Number",
-                "nl": "Connector nummer"
+                "nl": "Connector nummer",
+                "de": "Anschlussnummer",
+                "fr": "Numéro de connecteur",
+                "it": "Numero connettore",
+                "sv": "Anslutningsnummer",
+                "no": "Tilkoblingsnummer",
+                "es": "Número de conector",
+                "da": "Tilslutningsnummer",
+                "ru": "Номер разъема",
+                "pl": "Numer złącza",
+                "ko": "커넥터 번호",
+                "ar": "رقم الموصل"
             },
             "placeholder": {
                 "en": "Connector number (1-4)",
-                "nl": "Connector nummer (1-4)"
+                "nl": "Connector nummer (1-4)",
+                "de": "Anschlussnummer (1-4)",
+                "fr": "Numéro de connecteur (1-4)",
+                "it": "Numero connettore (1-4)",
+                "sv": "Anslutningsnummer (1-4)",
+                "no": "Tilkoblingsnummer (1-4)",
+                "es": "Número de conector (1-4)",
+                "da": "Tilslutningsnummer (1-4)",
+                "ru": "Номер разъема (1-4)",
+                "pl": "Numer złącza (1-4)",
+                "ko": "커넥터 번호(1-4)",
+                "ar": "رقم الموصل (1-4)"
             },
             "min": 1,
             "max": 4,

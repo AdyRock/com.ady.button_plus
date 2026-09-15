@@ -1,15 +1,48 @@
 {
     "title": {
         "en": "Set connector button top label",
-        "nl": "Stel knop bovenste label in"
+        "nl": "Stel knop bovenste label in",
+        "de": "Obere Beschriftung der Anschlusstaste festlegen",
+        "fr": "Définir le libellé supérieur du bouton du connecteur",
+        "it": "Imposta l'etichetta superiore del pulsante del connettore",
+        "sv": "Ange övre etikett för anslutningsknapp",
+        "no": "Angi toppetikett for tilkoblingsknapp",
+        "es": "Establecer la etiqueta superior del botón del conector",
+        "da": "Indstil topetiket for tilslutningsknap",
+        "ru": "Задать верхнюю метку кнопки разъема",
+        "pl": "Ustaw górną etykietę przycisku złącza",
+        "ko": "커넥터 버튼 상단 레이블 설정",
+        "ar": "تعيين التسمية العلوية لزر الموصل"
     },
     "titleFormatted": {
         "en": "Set the [[left_right]] button top label on connector [[connector]] page [[page]] to [[label]]",
-        "nl": "Stel het [[left_right]] knop bovenste label op connector [[connector]] pagina [[page]] in op [[label]]"
+        "nl": "Stel het [[left_right]] knop bovenste label op connector [[connector]] pagina [[page]] in op [[label]]",
+        "de": "Obere Beschriftung der [[left_right]] Taste an Anschluss [[connector]] auf Seite [[page]] auf [[label]] setzen",
+        "fr": "Définir le libellé supérieur du bouton [[left_right]] du connecteur [[connector]], page [[page]], sur [[label]]",
+        "it": "Imposta l'etichetta superiore del pulsante [[left_right]] sul connettore [[connector]], pagina [[page]], su [[label]]",
+        "sv": "Ställ in den övre etiketten för [[left_right]] knapp på anslutning [[connector]], sida [[page]], till [[label]]",
+        "no": "Angi toppetiketten for [[left_right]] knapp på tilkobling [[connector]], side [[page]], til [[label]]",
+        "es": "Establecer la etiqueta superior del botón [[left_right]] del conector [[connector]], página [[page]], en [[label]]",
+        "da": "Indstil topetiketten for knappen [[left_right]] på tilslutning [[connector]] på side [[page]] til [[label]]",
+        "ru": "Задать для кнопки [[left_right]] на разъеме [[connector]] странице [[page]] верхнюю метку [[label]]",
+        "pl": "Ustaw górną etykietę przycisku [[left_right]] na złączu [[connector]], na stronie [[page]], na [[label]]",
+        "ko": "커넥터 [[connector]]의 [[page]]페이지에 있는 [[left_right]] 버튼 상단 레이블을 [[label]](으)로 설정",
+        "ar": "تعيين التسمية العلوية للزر [[left_right]] في الموصل [[connector]] والصفحة [[page]] إلى [[label]]"
     },
     "hint": {
         "en": "Sets the top label of the specified button",
-        "nl": "Stelt het bovenste label van de opgegeven knop in"
+        "nl": "Stelt het bovenste label van de opgegeven knop in",
+        "de": "Legt die obere Beschriftung der angegebenen Taste fest",
+        "fr": "Définit le libellé supérieur du bouton indiqué",
+        "it": "Imposta l'etichetta superiore del pulsante specificato",
+        "sv": "Ställer in den övre etiketten för den angivna knappen",
+        "no": "Angir toppetiketten for den valgte knappen",
+        "es": "Establece la etiqueta superior del botón especificado",
+        "da": "Indstiller topetiketten for den angivne knap",
+        "ru": "Задает верхнюю метку указанной кнопки",
+        "pl": "Ustawia górną etykietę wskazanego przycisku",
+        "ko": "지정한 버튼의 상단 레이블을 설정합니다",
+        "ar": "يعيّن التسمية العلوية للزر المحدد"
     },
     "args": [
         {
@@ -17,25 +50,69 @@
             "name": "left_right",
             "title": {
                 "en": "Left /  Right",
-                "nl": "Links / Rechts "
+                "nl": "Links / Rechts ",
+                "de": "Links /  Rechts",
+                "fr": "Gauche /  Droite",
+                "it": "Sinistro /  Destro",
+                "sv": "Vänster /  Höger",
+                "no": "Venstre /  Høyre",
+                "es": "Izquierdo /  Derecho",
+                "da": "Venstre /  højre",
+                "ru": "Левая /  Правая",
+                "pl": "Lewy /  Prawy",
+                "ko": "왼쪽 /  오른쪽",
+                "ar": "يسار /  يمين"
             },
             "placeholder": {
                 "en": "Left / Right",
-                "nl": "Links / Rechts "
+                "nl": "Links / Rechts ",
+                "de": "Links / Rechts",
+                "fr": "Gauche / Droite",
+                "it": "Sinistro / Destro",
+                "sv": "Vänster / Höger",
+                "no": "Venstre / Høyre",
+                "es": "Izquierdo / Derecho",
+                "da": "Venstre / højre",
+                "ru": "Левая / Правая",
+                "pl": "Lewy / Prawy",
+                "ko": "왼쪽 / 오른쪽",
+                "ar": "يسار / يمين"
             },
             "values": [
                 {
                     "id": "left",
                     "title": {
                         "en": "Left",
-                        "nl": "Links "
+                        "nl": "Links ",
+                        "de": "Links",
+                        "fr": "Gauche",
+                        "it": "Sinistro",
+                        "sv": "Vänster",
+                        "no": "Venstre",
+                        "es": "Izquierdo",
+                        "da": "Venstre",
+                        "ru": "Левая",
+                        "pl": "Lewy",
+                        "ko": "왼쪽",
+                        "ar": "يسار"
                     }
                 },
                 {
                     "id": "right",
                     "title": {
                         "en": "Right",
-                        "nl": "Rechts "
+                        "nl": "Rechts ",
+                        "de": "Rechts",
+                        "fr": "Droite",
+                        "it": "Destro",
+                        "sv": "Höger",
+                        "no": "Høyre",
+                        "es": "Derecho",
+                        "da": "Højre",
+                        "ru": "Правая",
+                        "pl": "Prawy",
+                        "ko": "오른쪽",
+                        "ar": "يمين"
                     }
                 }
             ]
@@ -45,15 +122,48 @@
             "name": "connector",
             "title": {
                 "en": "Connector number",
-                "nl": "Connector nummer "
+                "nl": "Connector nummer ",
+                "de": "Anschlussnummer",
+                "fr": "Numéro de connecteur",
+                "it": "Numero connettore",
+                "sv": "Anslutningsnummer",
+                "no": "Tilkoblingsnummer",
+                "es": "Número de conector",
+                "da": "Tilslutningsnummer",
+                "ru": "Номер разъема",
+                "pl": "Numer złącza",
+                "ko": "커넥터 번호",
+                "ar": "رقم الموصل"
             },
             "hint": {
                 "en": "Connector number (1-4)",
-                "nl": "Connector nummer (1-4)"
+                "nl": "Connector nummer (1-4)",
+                "de": "Anschlussnummer (1-4)",
+                "fr": "Numéro de connecteur (1-4)",
+                "it": "Numero connettore (1-4)",
+                "sv": "Anslutningsnummer (1-4)",
+                "no": "Tilkoblingsnummer (1-4)",
+                "es": "Número de conector (1-4)",
+                "da": "Tilslutningsnummer (1-4)",
+                "ru": "Номер разъема (1-4)",
+                "pl": "Numer złącza (1-4)",
+                "ko": "커넥터 번호(1-4)",
+                "ar": "رقم الموصل (1-4)"
             },
             "placeholder": {
                 "en": "Connector number (1-4)",
-                "nl": "Connector nummer (1-4)"
+                "nl": "Connector nummer (1-4)",
+                "de": "Anschlussnummer (1-4)",
+                "fr": "Numéro de connecteur (1-4)",
+                "it": "Numero connettore (1-4)",
+                "sv": "Anslutningsnummer (1-4)",
+                "no": "Tilkoblingsnummer (1-4)",
+                "es": "Número de conector (1-4)",
+                "da": "Tilslutningsnummer (1-4)",
+                "ru": "Номер разъема (1-4)",
+                "pl": "Numer złącza (1-4)",
+                "ko": "커넥터 번호(1-4)",
+                "ar": "رقم الموصل (1-4)"
             },
             "min": 1,
             "max": 4,
@@ -64,15 +174,48 @@
 			"name": "page",
 			"title": {
 				"en": "Page number",
-				"nl": "Pagina nummer"
+				"nl": "Pagina nummer",
+				"de": "Seitennummer",
+				"fr": "Numéro de page",
+				"it": "Numero pagina",
+				"sv": "Sidnummer",
+				"no": "Sidenummer",
+				"es": "Número de página",
+				"da": "Sidenummer",
+				"ru": "Номер страницы",
+				"pl": "Numer strony",
+				"ko": "페이지 번호",
+				"ar": "رقم الصفحة"
 			},
 			"hint": {
 				"en": "Page number. Use 0 to change for all pages",
-				"nl": "Pagina nummer. Gebruik 0 om alle pagina's te wijzigen"
+				"nl": "Pagina nummer. Gebruik 0 om alle pagina's te wijzigen",
+				"de": "Seitennummer. 0 verwenden, um alle Seiten zu ändern",
+				"fr": "Numéro de page. Utilisez 0 pour modifier toutes les pages",
+				"it": "Numero pagina. Usa 0 per modificare tutte le pagine",
+				"sv": "Sidnummer. Använd 0 för att ändra på alla sidor",
+				"no": "Sidenummer. Bruk 0 for å endre alle sider",
+				"es": "Número de página. Use 0 para cambiar todas las páginas",
+				"da": "Sidenummer. Brug 0 for at ændre alle sider",
+				"ru": "Номер страницы. Используйте 0, чтобы изменить все страницы",
+				"pl": "Numer strony. Użyj 0, aby zmienić na wszystkich stronach",
+				"ko": "페이지 번호. 모든 페이지를 변경하려면 0을 사용하세요",
+				"ar": "رقم الصفحة. استخدم 0 للتغيير في جميع الصفحات"
 			},
 			"placeholder": {
 				"en": "Page number",
-				"nl": "Pagina nummer"
+				"nl": "Pagina nummer",
+				"de": "Seitennummer",
+				"fr": "Numéro de page",
+				"it": "Numero pagina",
+				"sv": "Sidnummer",
+				"no": "Sidenummer",
+				"es": "Número de página",
+				"da": "Sidenummer",
+				"ru": "Номер страницы",
+				"pl": "Numer strony",
+				"ko": "페이지 번호",
+				"ar": "رقم الصفحة"
 			},
 			"required": false,
 			"min": 0,
@@ -84,11 +227,33 @@
             "name": "label",
             "title": {
                 "en": "Label",
-                "nl": "Label"
+                "nl": "Label",
+                "de": "Beschriftung",
+                "fr": "Libellé",
+                "it": "Etichetta",
+                "sv": "Etikett",
+                "no": "Etikett",
+                "es": "Etiqueta",
+                "da": "Etiket",
+                "ru": "Метка",
+                "pl": "Etykieta",
+                "ko": "레이블",
+                "ar": "التسمية"
             },
             "placeholder": {
                 "en": "Label",
-                "nl": "Label"
+                "nl": "Label",
+                "de": "Beschriftung",
+                "fr": "Libellé",
+                "it": "Etichetta",
+                "sv": "Etikett",
+                "no": "Etikett",
+                "es": "Etiqueta",
+                "da": "Etiket",
+                "ru": "Метка",
+                "pl": "Etykieta",
+                "ko": "레이블",
+                "ar": "التسمية"
             }
         },
         {

@@ -5,7 +5,18 @@
     "uiComponent": "button",
     "title": {
         "en": "Right Button",
-        "nl": "Rechter knop"
+        "nl": "Rechter knop",
+        "de": "Rechte Taste",
+        "fr": "Bouton droit",
+        "it": "Pulsante destro",
+        "sv": "Höger knapp",
+        "no": "Høyre knapp",
+        "es": "Botón derecho",
+        "da": "Højre knap",
+        "ru": "Правая кнопка",
+        "pl": "Prawy przycisk",
+        "ko": "오른쪽 버튼",
+        "ar": "الزر الأيمن"
     },
     "icon": "/assets/right_arrow.svg"
 }

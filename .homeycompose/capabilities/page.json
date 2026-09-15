@@ -2,7 +2,18 @@
     "type": "string",
     "title": {
         "en": "Page",
-        "nl": "Pagina"
+        "nl": "Pagina",
+        "de": "Seite",
+        "fr": "Page",
+        "it": "Pagina",
+        "sv": "Sida",
+        "no": "Side",
+        "es": "Página",
+        "da": "Side",
+        "ru": "Страница",
+        "pl": "Strona",
+        "ko": "페이지",
+        "ar": "الصفحة"
     },
     "getable": true,
     "setable": false,

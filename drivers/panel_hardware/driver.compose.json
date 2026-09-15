@@ -1,7 +1,18 @@
 {
 	"name": {
 		"en": "Button Panel",
-		"nl": "Button+ panel"
+		"nl": "Button+ panel",
+		"de": "Button+-Panel",
+		"fr": "Panneau Button+",
+		"it": "Pannello Button+",
+		"sv": "Knappanel",
+		"no": "Button+-panel",
+		"es": "Panel Button+",
+		"da": "Button+-panel",
+		"ru": "Панель Button+",
+		"pl": "Panel Button+",
+		"ko": "Button+ 패널",
+		"ar": "لوحة Button+"
 	},
 	"platforms": [
 		"local"
@@ -53,28 +64,83 @@
 			"maintenanceAction": true,
 			"title": {
 				"en": "Update firmware",
-				"nl": "Firmware bijwerken"
+				"nl": "Firmware bijwerken",
+				"de": "Firmware aktualisieren",
+				"fr": "Mettre à jour le firmware",
+				"it": "Aggiorna firmware",
+				"sv": "Uppdatera firmware",
+				"no": "Oppdater fastvare",
+				"es": "Actualizar el firmware",
+				"da": "Opdater firmware",
+				"ru": "Обновить прошивку",
+				"pl": "Aktualizuj firmware",
+				"ko": "펌웨어 업데이트",
+				"ar": "تحديث البرنامج الثابت"
 			},
 			"desc": {
 				"en": "Update the firmware of the device",
-				"nl": "Firmware van het apparaat bijwerken"
+				"nl": "Firmware van het apparaat bijwerken",
+				"de": "Aktualisiert die Firmware des Geräts",
+				"fr": "Mettre à jour le firmware de l’appareil",
+				"it": "Aggiorna il firmware del dispositivo",
+				"sv": "Uppdatera enhetens firmware",
+				"no": "Oppdater enhetens fastvare",
+				"es": "Actualizar el firmware del dispositivo",
+				"da": "Opdater enhedens firmware",
+				"ru": "Обновить прошивку устройства",
+				"pl": "Aktualizuj firmware urządzenia",
+				"ko": "장치의 펌웨어를 업데이트합니다",
+				"ar": "تحديث البرنامج الثابت للجهاز"
 			}
 		},
 		"page.max": {
 			"title": {
 				"en": "Pages",
-				"nl": "Pagina's"
+				"nl": "Pagina's",
+				"de": "Seiten",
+				"fr": "Pages",
+				"it": "Pagine",
+				"sv": "Sidor",
+				"no": "Sider",
+				"es": "Páginas",
+				"da": "Sider",
+				"ru": "Страницы",
+				"pl": "Strony",
+				"ko": "페이지",
+				"ar": "الصفحات"
 			}
 		},
 		"button.apply_config": {
 			"maintenanceAction": true,
 			"title": {
 				"en": "Re-apply configurations",
-				"nl": "Configuraties opnieuw toepassen"
+				"nl": "Configuraties opnieuw toepassen",
+				"de": "Konfigurationen erneut anwenden",
+				"fr": "Réappliquer les configurations",
+				"it": "Riapplica le configurazioni",
+				"sv": "Tillämpa konfigurationer igen",
+				"no": "Bruk konfigurasjoner på nytt",
+				"es": "Volver a aplicar las configuraciones",
+				"da": "Anvend konfigurationer igen",
+				"ru": "Повторно применить конфигурации",
+				"pl": "Zastosuj konfiguracje ponownie",
+				"ko": "구성 다시 적용",
+				"ar": "إعادة تطبيق التكوينات"
 			},
 			"desc": {
 				"en": "Send the configuration to the device again",
-				"nl": "Stuur de configuratie opnieuw naar het apparaat"
+				"nl": "Stuur de configuratie opnieuw naar het apparaat",
+				"de": "Konfiguration erneut an das Gerät senden",
+				"fr": "Renvoyer la configuration à l’appareil",
+				"it": "Invia nuovamente la configurazione al dispositivo",
+				"sv": "Skicka konfigurationen till enheten igen",
+				"no": "Send konfigurasjonen til enheten på nytt",
+				"es": "Volver a enviar la configuración al dispositivo",
+				"da": "Send konfigurationen til enheden igen",
+				"ru": "Повторно отправить конфигурацию на устройство",
+				"pl": "Wyślij konfigurację do urządzenia ponownie",
+				"ko": "구성을 장치로 다시 전송합니다",
+				"ar": "إرسال التكوين إلى الجهاز مرة أخرى"
 			}
 		}
 	},
@@ -101,12 +167,34 @@
 			"type": "checkbox",
 			"label": {
 				"en": "Disabled",
-				"nl": "Uitgeschakeld"
+				"nl": "Uitgeschakeld",
+				"de": "Deaktiviert",
+				"fr": "Désactivé",
+				"it": "Disabilitato",
+				"sv": "Inaktiverad",
+				"no": "Deaktivert",
+				"es": "Desactivado",
+				"da": "Deaktiveret",
+				"ru": "Отключено",
+				"pl": "Wyłączone",
+				"ko": "비활성화",
+				"ar": "معطّل"
 			},
 			"value": false,
 			"hint": {
 				"en": "Disable the device",
-				"nl": "Schakel het apparaat uit"
+				"nl": "Schakel het apparaat uit",
+				"de": "Gerät deaktivieren",
+				"fr": "Désactiver l’appareil",
+				"it": "Disabilita il dispositivo",
+				"sv": "Inaktivera enheten",
+				"no": "Deaktiver enheten",
+				"es": "Desactivar el dispositivo",
+				"da": "Deaktiver enheden",
+				"ru": "Отключить устройство",
+				"pl": "Wyłącz urządzenie",
+				"ko": "장치를 비활성화합니다",
+				"ar": "تعطيل الجهاز"
 			}
 		},
 		{
@@ -114,12 +202,34 @@
 			"type": "text",
 			"label": {
 				"en": "IP address",
-				"nl": "IP adres"
+				"nl": "IP adres",
+				"de": "IP-Adresse",
+				"fr": "Adresse IP",
+				"it": "Indirizzo IP",
+				"sv": "IP-adress",
+				"no": "IP-adresse",
+				"es": "Dirección IP",
+				"da": "IP-adresse",
+				"ru": "IP-адрес",
+				"pl": "Adres IP",
+				"ko": "IP 주소",
+				"ar": "عنوان IP"
 			},
 			"value": "",
 			"hint": {
 				"en": "IP address of the device",
-				"nl": "IP adres van het apparaat"
+				"nl": "IP adres van het apparaat",
+				"de": "IP-Adresse des Geräts",
+				"fr": "Adresse IP de l’appareil",
+				"it": "Indirizzo IP del dispositivo",
+				"sv": "Enhetens IP-adress",
+				"no": "Enhetens IP-adresse",
+				"es": "Dirección IP del dispositivo",
+				"da": "Enhedens IP-adresse",
+				"ru": "IP-адрес устройства",
+				"pl": "Adres IP urządzenia",
+				"ko": "장치의 IP 주소",
+				"ar": "عنوان IP للجهاز"
 			}
 		},
 		{
@@ -127,12 +237,34 @@
 			"type": "text",
 			"label": {
 				"en": "MAC address",
-				"nl": "MAC adres"
+				"nl": "MAC adres",
+				"de": "MAC-Adresse",
+				"fr": "Adresse MAC",
+				"it": "Indirizzo MAC",
+				"sv": "MAC-adress",
+				"no": "MAC-adresse",
+				"es": "Dirección MAC",
+				"da": "MAC-adresse",
+				"ru": "MAC-адрес",
+				"pl": "Adres MAC",
+				"ko": "MAC 주소",
+				"ar": "عنوان MAC"
 			},
 			"value": "",
 			"hint": {
 				"en": "MAC address of the device",
-				"nl": "MAC adres van het apparaat"
+				"nl": "MAC adres van het apparaat",
+				"de": "MAC-Adresse des Geräts",
+				"fr": "Adresse MAC de l’appareil",
+				"it": "Indirizzo MAC del dispositivo",
+				"sv": "Enhetens MAC-adress",
+				"no": "Enhetens MAC-adresse",
+				"es": "Dirección MAC del dispositivo",
+				"da": "Enhedens MAC-adresse",
+				"ru": "MAC-адрес устройства",
+				"pl": "Adres MAC urządzenia",
+				"ko": "장치의 MAC 주소",
+				"ar": "عنوان MAC للجهاز"
 			}
 		},
 		{
@@ -140,12 +272,34 @@
 			"type": "label",
 			"label": {
 				"en": "Firmware version",
-				"nl": "Firmware versie"
+				"nl": "Firmware versie",
+				"de": "Firmwareversion",
+				"fr": "Version du firmware",
+				"it": "Versione firmware",
+				"sv": "Firmwareversion",
+				"no": "Fastvareversjon",
+				"es": "Versión del firmware",
+				"da": "Firmwareversion",
+				"ru": "Версия прошивки",
+				"pl": "Wersja firmware",
+				"ko": "펌웨어 버전",
+				"ar": "إصدار البرنامج الثابت"
 			},
 			"value": "",
 			"hint": {
 				"en": "Firmware version of the device. This is read in when the devices is initialised.",
-				"nl": "Firmware versie van het apparaat. Deze is uitgelezen toen het apparaat werd geïnitialiseerd"
+				"nl": "Firmware versie van het apparaat. Deze is uitgelezen toen het apparaat werd geïnitialiseerd",
+				"de": "Firmwareversion des Geräts. Sie wird beim Initialisieren des Geräts eingelesen.",
+				"fr": "Version du firmware de l’appareil. Elle est lue lors de l’initialisation de l’appareil.",
+				"it": "Versione firmware del dispositivo. Viene letta durante l'inizializzazione del dispositivo.",
+				"sv": "Enhetens firmwareversion. Den läses in när enheten initieras.",
+				"no": "Enhetens fastvareversjon. Den leses inn når enheten initialiseres.",
+				"es": "Versión del firmware del dispositivo. Se lee al inicializar el dispositivo.",
+				"da": "Enhedens firmwareversion. Den aflæses, når enheden initialiseres.",
+				"ru": "Версия прошивки устройства. Считывается при инициализации устройства.",
+				"pl": "Wersja firmware urządzenia. Jest odczytywana podczas inicjalizacji urządzenia.",
+				"ko": "장치의 펌웨어 버전입니다. 장치가 초기화될 때 읽어 옵니다.",
+				"ar": "إصدار البرنامج الثابت للجهاز. تتم قراءته عند تهيئة الجهاز."
 			}
 		},
 		{
@@ -153,7 +307,18 @@
 			"type": "dropdown",
 			"label": {
 				"en": "Configuration Mode",
-				"nl": "Configuratie Modus"
+				"nl": "Configuratie Modus",
+				"de": "Konfigurationsmodus",
+				"fr": "Mode de configuration",
+				"it": "Modalità di configurazione",
+				"sv": "Konfigurationsläge",
+				"no": "Konfigurasjonsmodus",
+				"es": "Modo de configuración",
+				"da": "Konfigurationstilstand",
+				"ru": "Режим конфигурации",
+				"pl": "Tryb konfiguracji",
+				"ko": "구성 모드",
+				"ar": "وضع التكوين"
 			},
 			"value": "individual",
 			"values": [
@@ -161,20 +326,53 @@
 					"id": "individual",
 					"label": {
 						"en": "Individual Connectors Mode (Legacy)",
-						"nl": "Individuele Connectoren Modus (Klassiek)"
+						"nl": "Individuele Connectoren Modus (Klassiek)",
+						"de": "Modus für einzelne Anschlüsse (Legacy)",
+						"fr": "Mode connecteurs individuels (hérité)",
+						"it": "Modalità connettori singoli (legacy)",
+						"sv": "Läge för enskilda anslutningar (äldre)",
+						"no": "Modus for individuelle tilkoblinger (eldre)",
+						"es": "Modo de conectores individuales (heredado)",
+						"da": "Tilstand med individuelle tilslutninger (ældre)",
+						"ru": "Режим отдельных разъемов (устаревший)",
+						"pl": "Tryb pojedynczych złączy (starszy)",
+						"ko": "개별 커넥터 모드(레거시)",
+						"ar": "وضع الموصلات الفردية (قديم)"
 					}
 				},
 				{
 					"id": "group",
 					"label": {
 						"en": "Group Mode (Panel Profile)",
-						"nl": "Groep Modus (Paneel Profiel)"
+						"nl": "Groep Modus (Paneel Profiel)",
+						"de": "Gruppenmodus (Panelprofil)",
+						"fr": "Mode groupe (profil de panneau)",
+						"it": "Modalità gruppo (profilo pannello)",
+						"sv": "Gruppläge (panelprofil)",
+						"no": "Gruppemodus (panelprofil)",
+						"es": "Modo de grupo (perfil del panel)",
+						"da": "Gruppetilstand (panelprofil)",
+						"ru": "Групповой режим (профиль панели)",
+						"pl": "Tryb grupowy (profil panelu)",
+						"ko": "그룹 모드(패널 프로필)",
+						"ar": "وضع المجموعة (ملف تعريف اللوحة)"
 					}
 				}
 			],
 			"hint": {
 				"en": "Select Group Mode to assign a room/panel group, or Individual Mode for connector-by-connector dropdowns.",
-				"nl": "Selecteer Groep Modus om een kamer/paneel groep toe te wijzen, of Individuele Modus voor connector-voor-connector dropdowns."
+				"nl": "Selecteer Groep Modus om een kamer/paneel groep toe te wijzen, of Individuele Modus voor connector-voor-connector dropdowns.",
+				"de": "Gruppenmodus auswählen, um eine Raum-/Panelgruppe zuzuweisen, oder Einzelmodus für Auswahllisten je Anschluss.",
+				"fr": "Sélectionnez le mode groupe pour attribuer un groupe de pièce/panneau, ou le mode individuel pour utiliser des listes déroulantes connecteur par connecteur.",
+				"it": "Seleziona la modalità gruppo per assegnare un gruppo stanza/pannello oppure la modalità individuale per i menu a discesa di ciascun connettore.",
+				"sv": "Välj Gruppläge för att tilldela en rums-/panelgrupp eller Individuellt läge för rullgardinsmenyer per anslutning.",
+				"no": "Velg Gruppemodus for å tilordne en rom-/panelgruppe, eller Individuell modus for rullegardinlister for hver tilkobling.",
+				"es": "Seleccione el modo de grupo para asignar un grupo de habitación/panel, o el modo individual para usar listas desplegables con cada conector.",
+				"da": "Vælg gruppetilstand for at tildele en rum-/panelgruppe eller individuel tilstand for rullemenuer for hver enkelt tilslutning.",
+				"ru": "Выберите групповой режим, чтобы назначить группу комнаты/панели, или индивидуальный режим для отдельных раскрывающихся списков каждого разъема.",
+				"pl": "Wybierz tryb grupowy, aby przypisać grupę pomieszczenia/panelu, albo tryb indywidualny dla list rozwijanych poszczególnych złączy.",
+				"ko": "방/패널 그룹을 할당하려면 그룹 모드를 선택하고, 커넥터별 드롭다운을 사용하려면 개별 모드를 선택하세요.",
+				"ar": "حدد وضع المجموعة لتعيين مجموعة غرفة/لوحة، أو الوضع الفردي للقوائم المنسدلة الخاصة بكل موصل."
 			}
 		},
 		{
@@ -182,11 +380,33 @@
 			"type": "dropdown",
 			"label": {
 				"en": "Status bar",
-				"nl": "Status balk"
+				"nl": "Status balk",
+				"de": "Statusleiste",
+				"fr": "Barre d’état",
+				"it": "Barra di stato",
+				"sv": "Statusfält",
+				"no": "Statuslinje",
+				"es": "Barra de estado",
+				"da": "Statuslinje",
+				"ru": "Строка состояния",
+				"pl": "Pasek stanu",
+				"ko": "상태 표시줄",
+				"ar": "شريط الحالة"
 			},
 			"hint": {
 				"en": "The status bar shows the IP address",
-				"nl": "De status balk toont het IP adres"
+				"nl": "De status balk toont het IP adres",
+				"de": "Die Statusleiste zeigt die IP-Adresse an",
+				"fr": "La barre d’état affiche l’adresse IP",
+				"it": "La barra di stato mostra l'indirizzo IP",
+				"sv": "Statusfältet visar IP-adressen",
+				"no": "Statuslinjen viser IP-adressen",
+				"es": "La barra de estado muestra la dirección IP",
+				"da": "Statuslinjen viser IP-adressen",
+				"ru": "В строке состояния отображается IP-адрес",
+				"pl": "Pasek stanu pokazuje adres IP",
+				"ko": "상태 표시줄에 IP 주소가 표시됩니다",
+				"ar": "يعرض شريط الحالة عنوان IP"
 			},
 			"value": "2",
 			"values": [
@@ -194,21 +414,54 @@
 					"id": "0",
 					"label": {
 						"en": "Off",
-						"nl": "Uit"
+						"nl": "Uit",
+						"de": "Aus",
+						"fr": "Désactivé",
+						"it": "Disattivata",
+						"sv": "Av",
+						"no": "Av",
+						"es": "Desactivado",
+						"da": "Fra",
+						"ru": "Выкл.",
+						"pl": "Wył.",
+						"ko": "끄기",
+						"ar": "إيقاف"
 					}
 				},
 				{
 					"id": "1",
 					"label": {
 						"en": "Top",
-						"nl": "Boven"
+						"nl": "Boven",
+						"de": "Oben",
+						"fr": "Haut",
+						"it": "In alto",
+						"sv": "Överst",
+						"no": "Øverst",
+						"es": "Arriba",
+						"da": "Øverst",
+						"ru": "Сверху",
+						"pl": "Góra",
+						"ko": "위쪽",
+						"ar": "أعلى"
 					}
 				},
 				{
 					"id": "2",
 					"label": {
 						"en": "Bottom",
-						"nl": "Onder"
+						"nl": "Onder",
+						"de": "Unten",
+						"fr": "Bas",
+						"it": "In basso",
+						"sv": "Nederst",
+						"no": "Nederst",
+						"es": "Abajo",
+						"da": "Nederst",
+						"ru": "Снизу",
+						"pl": "Dół",
+						"ko": "아래쪽",
+						"ar": "أسفل"
 					}
 				}
 			]
@@ -218,11 +471,33 @@
 			"type": "checkbox",
 			"label": {
 				"en": "Trigger Flows for Display buttons",
-				"nl": "Flow-triggers voor displayknoppen"
+				"nl": "Flow-triggers voor displayknoppen",
+				"de": "Flows für Displaytasten auslösen",
+				"fr": "Déclencher des Flows pour les boutons d’affichage",
+				"it": "Attiva i Flow per i pulsanti del display",
+				"sv": "Utlös Flows för skärmknappar",
+				"no": "Utløs Flows for skjermknapper",
+				"es": "Activar Flows con los botones de pantalla",
+				"da": "Udløs Flows for skærmknapper",
+				"ru": "Запускать потоки кнопками дисплея",
+				"pl": "Wyzwalaj Flow przyciskami wyświetlacza",
+				"ko": "디스플레이 버튼으로 Flow 트리거",
+				"ar": "تشغيل Flows بواسطة أزرار الشاشة"
 			},
 			"hint": {
 				"en": "Send click, long press and release events for the two buttons next to the display so they can trigger Flows (configuration button cards). Note: on panels with multiple pages these buttons also navigate between pages.",
-				"nl": "Stuur klik-, lang indrukken- en loslaat-events voor de twee knoppen naast het display zodat ze Flows kunnen starten (configuratieknop-kaarten). Let op: bij meerdere pagina's bladeren deze knoppen ook door de pagina's."
+				"nl": "Stuur klik-, lang indrukken- en loslaat-events voor de twee knoppen naast het display zodat ze Flows kunnen starten (configuratieknop-kaarten). Let op: bij meerdere pagina's bladeren deze knoppen ook door de pagina's.",
+				"de": "Klick-, Langdruck- und Loslassereignisse für die beiden Tasten neben dem Display senden, damit sie Flows auslösen können (Karten für Konfigurationstasten). Hinweis: Bei Panels mit mehreren Seiten navigieren diese Tasten auch zwischen den Seiten.",
+				"fr": "Envoyer les événements de clic, d’appui long et de relâchement des deux boutons situés à côté de l’écran afin qu’ils puissent déclencher des Flows (cartes de bouton de configuration). Remarque : sur les panneaux comportant plusieurs pages, ces boutons permettent également de naviguer entre les pages.",
+				"it": "Invia gli eventi di pressione, pressione lunga e rilascio per i due pulsanti accanto al display, in modo che possano attivare i Flow (schede dei pulsanti di configurazione). Nota: sui pannelli con più pagine, questi pulsanti consentono anche di spostarsi tra le pagine.",
+				"sv": "Skicka klick-, långtrycks- och släpphändelser för de två knapparna bredvid skärmen så att de kan utlösa Flows (kort för konfigurationsknappar). Obs! På paneler med flera sidor används knapparna även för att navigera mellan sidor.",
+				"no": "Send klikk-, langt trykk- og slipphendelser for de to knappene ved siden av skjermen, slik at de kan utløse Flows (kort for konfigurasjonsknapper). Merk: På paneler med flere sider brukes disse knappene også til å navigere mellom sidene.",
+				"es": "Enviar eventos de pulsación, pulsación larga y liberación de los dos botones junto a la pantalla para que puedan activar Flows (tarjetas de botón de configuración). Nota: en paneles con varias páginas, estos botones también permiten navegar entre páginas.",
+				"da": "Send hændelser for tryk, langt tryk og slip for de to knapper ved siden af skærmen, så de kan udløse Flows (kort for konfigurationsknapper). Bemærk: På paneler med flere sider bruges disse knapper også til at navigere mellem siderne.",
+				"ru": "Отправлять события нажатия, долгого нажатия и отпускания для двух кнопок рядом с дисплеем, чтобы они могли запускать потоки (карточки кнопок конфигурации). Примечание: на панелях с несколькими страницами эти кнопки также служат для перехода между страницами.",
+				"pl": "Wysyłaj zdarzenia kliknięcia, długiego naciśnięcia i zwolnienia dla dwóch przycisków obok wyświetlacza, aby mogły wyzwalać Flow (karty przycisków konfiguracji). Uwaga: w panelach z wieloma stronami te przyciski służą również do przechodzenia między stronami.",
+				"ko": "디스플레이 옆의 두 버튼에서 클릭, 길게 누르기 및 놓기 이벤트를 전송하여 Flow(구성 버튼 카드)를 트리거할 수 있게 합니다. 참고: 페이지가 여러 개인 패널에서는 이 버튼으로 페이지 사이를 이동할 수도 있습니다.",
+				"ar": "إرسال أحداث النقر والضغط المطوّل والإفلات للزرين المجاورين للشاشة كي يتمكنا من تشغيل Flows (بطاقات زر التكوين). ملاحظة: في اللوحات متعددة الصفحات، تُستخدم هذه الأزرار أيضًا للتنقل بين الصفحات."
 			},
 			"value": false
 		},
@@ -231,21 +506,54 @@
 			"type": "number",
 			"label": {
 				"en": "Temperature calibration",
-				"nl": "Temperatuur kalibratie"
+				"nl": "Temperatuur kalibratie",
+				"de": "Temperaturkalibrierung",
+				"fr": "Étalonnage de la température",
+				"it": "Calibrazione della temperatura",
+				"sv": "Temperaturkalibrering",
+				"no": "Temperaturkalibrering",
+				"es": "Calibración de temperatura",
+				"da": "Temperaturkalibrering",
+				"ru": "Калибровка температуры",
+				"pl": "Kalibracja temperatury",
+				"ko": "온도 보정",
+				"ar": "معايرة درجة الحرارة"
 			},
 			"value": 0,
 			"units": "°C",
 			"step": 0.1,
 			"hint": {
 				"en": "A value to add to the temperature measurement to correct for internal heat",
-				"nl": "Een waarde die bij de temperatuur meting wordt opgeteld om te corrigeren voor interne warmte"
+				"nl": "Een waarde die bij de temperatuur meting wordt opgeteld om te corrigeren voor interne warmte",
+				"de": "Ein zur Temperaturmessung zu addierender Wert, um interne Wärme auszugleichen",
+				"fr": "Valeur à ajouter à la mesure de température pour compenser la chaleur interne",
+				"it": "Un valore da aggiungere alla misurazione della temperatura per compensare il calore interno",
+				"sv": "Ett värde som läggs till temperaturmätningen för att korrigera för intern värme",
+				"no": "En verdi som legges til temperaturmålingen for å korrigere for intern varme",
+				"es": "Valor que se suma a la medición de temperatura para corregir el calor interno",
+				"da": "En værdi, der lægges til temperaturmålingen for at korrigere for intern varme",
+				"ru": "Значение, добавляемое к измеренной температуре для компенсации внутреннего нагрева",
+				"pl": "Wartość dodawana do pomiaru temperatury w celu skorygowania wpływu ciepła wewnętrznego",
+				"ko": "내부 발열을 보정하기 위해 측정 온도에 더할 값",
+				"ar": "قيمة تُضاف إلى قياس درجة الحرارة لتصحيح تأثير الحرارة الداخلية"
 			}
 		},
 		{
 			"type": "group",
 			"label": {
 				"en": "Automatic brightness (Advanced)",
-				"nl": "Automatische helderheid (Geavanceerd)"
+				"nl": "Automatische helderheid (Geavanceerd)",
+				"de": "Automatische Helligkeit (Erweitert)",
+				"fr": "Luminosité automatique (avancé)",
+				"it": "Luminosità automatica (Avanzata)",
+				"sv": "Automatisk ljusstyrka (avancerat)",
+				"no": "Automatisk lysstyrke (avansert)",
+				"es": "Brillo automático (Avanzado)",
+				"da": "Automatisk lysstyrke (avanceret)",
+				"ru": "Автоматическая яркость (расширенные настройки)",
+				"pl": "Automatyczna jasność (zaawansowane)",
+				"ko": "자동 밝기(고급)",
+				"ar": "السطوع التلقائي (متقدم)"
 			},
 			"children": [
 				{
@@ -253,12 +561,34 @@
 					"type": "checkbox",
 					"label": {
 						"en": "Control brightness from luminance sensor",
-						"nl": "Helderheid regelen via de lichtsensor"
+						"nl": "Helderheid regelen via de lichtsensor",
+						"de": "Helligkeit über den Luminanzsensor steuern",
+						"fr": "Contrôler la luminosité à partir du capteur de luminosité",
+						"it": "Controlla la luminosità tramite il sensore di illuminamento",
+						"sv": "Styr ljusstyrkan med luminanssensorn",
+						"no": "Styr lysstyrken med luminanssensoren",
+						"es": "Controlar el brillo mediante el sensor de luminancia",
+						"da": "Styr lysstyrken med lyssensoren",
+						"ru": "Управлять яркостью по датчику освещенности",
+						"pl": "Steruj jasnością za pomocą czujnika natężenia światła",
+						"ko": "조도 센서로 밝기 제어",
+						"ar": "التحكم في السطوع بواسطة مستشعر الإضاءة"
 					},
 					"value": false,
 					"hint": {
 						"en": "When enabled, the panel's own brightness (dim capability) is automatically adjusted using the built-in luminance sensor, if fitted, instead of being set manually",
-						"nl": "Indien ingeschakeld wordt de helderheid van het paneel (dim capability) automatisch aangepast op basis van de ingebouwde lichtsensor (indien aanwezig), in plaats van handmatig ingesteld"
+						"nl": "Indien ingeschakeld wordt de helderheid van het paneel (dim capability) automatisch aangepast op basis van de ingebouwde lichtsensor (indien aanwezig), in plaats van handmatig ingesteld",
+						"de": "Wenn aktiviert, wird die eigene Helligkeit des Panels (Dimmen-Fähigkeit) automatisch über den eingebauten Luminanzsensor angepasst, sofern vorhanden, statt manuell eingestellt zu werden",
+						"fr": "Lorsque cette option est activée, la luminosité du panneau (capacité dim) est automatiquement réglée à l’aide du capteur de luminosité intégré, s’il est présent, au lieu d’être définie manuellement",
+						"it": "Quando è attiva, la luminosità del pannello (funzionalità dim) viene regolata automaticamente tramite il sensore di illuminamento integrato, se presente, anziché essere impostata manualmente",
+						"sv": "När detta är aktiverat justeras panelens egen ljusstyrka (dim-funktion) automatiskt med den inbyggda luminanssensorn, om en sådan finns, i stället för att ställas in manuellt",
+						"no": "Når dette er aktivert, justeres panelets egen lysstyrke (dimmefunksjon) automatisk med den innebygde luminanssensoren, hvis den finnes, i stedet for å angis manuelt",
+						"es": "Cuando está activado, el brillo del panel (capacidad dim) se ajusta automáticamente mediante el sensor de luminancia integrado, si está instalado, en lugar de configurarse manualmente",
+						"da": "Når funktionen er aktiveret, justeres panelets egen lysstyrke (dæmpningsfunktion) automatisk ved hjælp af den indbyggede lyssensor, hvis den er monteret, i stedet for at blive indstillet manuelt",
+						"ru": "Если включено, яркость панели (функция регулировки яркости) автоматически настраивается с помощью встроенного датчика освещенности, если он установлен, вместо ручной настройки",
+						"pl": "Po włączeniu jasność panelu (funkcja ściemniania) jest regulowana automatycznie za pomocą wbudowanego czujnika natężenia światła, jeśli jest zamontowany, zamiast ustawiania ręcznego",
+						"ko": "활성화하면 내장 조도 센서가 장착된 경우 패널 자체 밝기(dim 기능)가 수동 설정 대신 센서를 사용하여 자동으로 조정됩니다",
+						"ar": "عند التمكين، يُضبط سطوع اللوحة (إمكانية التعتيم) تلقائيًا باستخدام مستشعر الإضاءة المدمج، إن كان مركبًا، بدلًا من ضبطه يدويًا"
 					}
 				},
 				{
@@ -266,14 +596,36 @@
 					"type": "number",
 					"label": {
 						"en": "Dim luminance",
-						"nl": "Donkere lichtsterkte"
+						"nl": "Donkere lichtsterkte",
+						"de": "Dunkle Luminanz",
+						"fr": "Faible luminosité",
+						"it": "Illuminamento basso",
+						"sv": "Låg luminans",
+						"no": "Lav luminans",
+						"es": "Luminancia tenue",
+						"da": "Lav lysstyrke",
+						"ru": "Низкая освещенность",
+						"pl": "Niskie natężenie światła",
+						"ko": "어두운 환경의 조도",
+						"ar": "الإضاءة الخافتة"
 					},
 					"value": 5,
 					"units": "lux",
 					"step": 1,
 					"hint": {
 						"en": "The luminance sensor reading that is considered dark surroundings",
-						"nl": "De sensorwaarde die als donkere omgeving wordt beschouwd"
+						"nl": "De sensorwaarde die als donkere omgeving wordt beschouwd",
+						"de": "Messwert des Luminanzsensors, der als dunkle Umgebung gilt",
+						"fr": "Valeur du capteur de luminosité considérée comme un environnement sombre",
+						"it": "La lettura del sensore di illuminamento considerata come ambiente buio",
+						"sv": "Luminanssensorns värde som betraktas som mörk omgivning",
+						"no": "Luminanssensorens verdi som regnes som mørke omgivelser",
+						"es": "Lectura del sensor de luminancia que se considera un entorno oscuro",
+						"da": "Den måling fra lyssensoren, der betragtes som mørke omgivelser",
+						"ru": "Показание датчика освещенности, соответствующее темному окружению",
+						"pl": "Odczyt czujnika natężenia światła uznawany za ciemne otoczenie",
+						"ko": "주변이 어둡다고 판단할 조도 센서 측정값",
+						"ar": "قراءة مستشعر الإضاءة التي تُعد محيطًا مظلمًا"
 					}
 				},
 				{
@@ -281,7 +633,18 @@
 					"type": "number",
 					"label": {
 						"en": "Brightness at dim luminance",
-						"nl": "Helderheid bij donkere lichtsterkte"
+						"nl": "Helderheid bij donkere lichtsterkte",
+						"de": "Helligkeit bei dunkler Luminanz",
+						"fr": "Luminosité en cas de faible éclairage",
+						"it": "Luminosità con illuminamento basso",
+						"sv": "Ljusstyrka vid låg luminans",
+						"no": "Lysstyrke ved lav luminans",
+						"es": "Brillo con luminancia tenue",
+						"da": "Lysstyrke ved lavt lysniveau",
+						"ru": "Яркость при низкой освещенности",
+						"pl": "Jasność przy niskim natężeniu światła",
+						"ko": "어두운 조도에서의 밝기",
+						"ar": "السطوع عند الإضاءة الخافتة"
 					},
 					"value": 20,
 					"units": "%",
@@ -290,7 +653,18 @@
 					"step": 1,
 					"hint": {
 						"en": "The panel brightness percentage to use when the luminance sensor reads the dim luminance value or lower",
-						"nl": "Het helderheidspercentage van het paneel bij de donkere lichtsterkte of lager"
+						"nl": "Het helderheidspercentage van het paneel bij de donkere lichtsterkte of lager",
+						"de": "Prozentuale Panelhelligkeit, wenn der Luminanzsensor den Wert für dunkle Luminanz oder weniger misst",
+						"fr": "Pourcentage de luminosité du panneau à utiliser lorsque le capteur mesure la valeur de faible éclairage ou une valeur inférieure",
+						"it": "La percentuale di luminosità del pannello da usare quando il sensore rileva il valore di illuminamento basso o inferiore",
+						"sv": "Panelens ljusstyrka i procent när luminanssensorn visar värdet för låg luminans eller lägre",
+						"no": "Panelets lysstyrke i prosent når luminanssensoren viser verdien for lav luminans eller lavere",
+						"es": "Porcentaje de brillo del panel que se usará cuando el sensor lea el valor de luminancia tenue o uno inferior",
+						"da": "Den procentvise panellysstyrke, der bruges, når lyssensoren måler værdien for lavt lysniveau eller derunder",
+						"ru": "Процент яркости панели, используемый, когда показание датчика равно значению низкой освещенности или меньше него",
+						"pl": "Procent jasności panelu używany, gdy odczyt czujnika jest równy wartości niskiego natężenia światła lub od niej niższy",
+						"ko": "조도 센서 측정값이 어두운 조도 값 이하일 때 사용할 패널 밝기 백분율",
+						"ar": "نسبة سطوع اللوحة المستخدمة عندما يقرأ مستشعر الإضاءة قيمة الإضاءة الخافتة أو أقل"
 					}
 				},
 				{
@@ -298,14 +672,36 @@
 					"type": "number",
 					"label": {
 						"en": "Bright luminance",
-						"nl": "Heldere lichtsterkte"
+						"nl": "Heldere lichtsterkte",
+						"de": "Helle Luminanz",
+						"fr": "Forte luminosité",
+						"it": "Illuminamento elevato",
+						"sv": "Hög luminans",
+						"no": "Høy luminans",
+						"es": "Luminancia intensa",
+						"da": "Højt lysniveau",
+						"ru": "Высокая освещенность",
+						"pl": "Wysokie natężenie światła",
+						"ko": "밝은 환경의 조도",
+						"ar": "الإضاءة الساطعة"
 					},
 					"value": 50,
 					"units": "lux",
 					"step": 1,
 					"hint": {
 						"en": "The luminance sensor reading that is considered bright surroundings",
-						"nl": "De sensorwaarde die als heldere omgeving wordt beschouwd"
+						"nl": "De sensorwaarde die als heldere omgeving wordt beschouwd",
+						"de": "Messwert des Luminanzsensors, der als helle Umgebung gilt",
+						"fr": "Valeur du capteur de luminosité considérée comme un environnement lumineux",
+						"it": "La lettura del sensore di illuminamento considerata come ambiente luminoso",
+						"sv": "Luminanssensorns värde som betraktas som ljus omgivning",
+						"no": "Luminanssensorens verdi som regnes som lyse omgivelser",
+						"es": "Lectura del sensor de luminancia que se considera un entorno luminoso",
+						"da": "Den måling fra lyssensoren, der betragtes som lyse omgivelser",
+						"ru": "Показание датчика освещенности, соответствующее яркому окружению",
+						"pl": "Odczyt czujnika natężenia światła uznawany za jasne otoczenie",
+						"ko": "주변이 밝다고 판단할 조도 센서 측정값",
+						"ar": "قراءة مستشعر الإضاءة التي تُعد محيطًا ساطعًا"
 					}
 				},
 				{
@@ -313,7 +709,18 @@
 					"type": "number",
 					"label": {
 						"en": "Brightness at bright luminance",
-						"nl": "Helderheid bij heldere lichtsterkte"
+						"nl": "Helderheid bij heldere lichtsterkte",
+						"de": "Helligkeit bei heller Luminanz",
+						"fr": "Luminosité en cas de fort éclairage",
+						"it": "Luminosità con illuminamento elevato",
+						"sv": "Ljusstyrka vid hög luminans",
+						"no": "Lysstyrke ved høy luminans",
+						"es": "Brillo con luminancia intensa",
+						"da": "Lysstyrke ved højt lysniveau",
+						"ru": "Яркость при высокой освещенности",
+						"pl": "Jasność przy wysokim natężeniu światła",
+						"ko": "밝은 조도에서의 밝기",
+						"ar": "السطوع عند الإضاءة الساطعة"
 					},
 					"value": 100,
 					"units": "%",
@@ -322,7 +729,18 @@
 					"step": 1,
 					"hint": {
 						"en": "The panel brightness percentage to use when the luminance sensor reads the bright luminance value or higher",
-						"nl": "Het helderheidspercentage van het paneel bij de heldere lichtsterkte of hoger"
+						"nl": "Het helderheidspercentage van het paneel bij de heldere lichtsterkte of hoger",
+						"de": "Prozentuale Panelhelligkeit, wenn der Luminanzsensor den Wert für helle Luminanz oder mehr misst",
+						"fr": "Pourcentage de luminosité du panneau à utiliser lorsque le capteur mesure la valeur de fort éclairage ou une valeur supérieure",
+						"it": "La percentuale di luminosità del pannello da usare quando il sensore rileva il valore di illuminamento elevato o superiore",
+						"sv": "Panelens ljusstyrka i procent när luminanssensorn visar värdet för hög luminans eller högre",
+						"no": "Panelets lysstyrke i prosent når luminanssensoren viser verdien for høy luminans eller høyere",
+						"es": "Porcentaje de brillo del panel que se usará cuando el sensor lea el valor de luminancia intensa o uno superior",
+						"da": "Den procentvise panellysstyrke, der bruges, når lyssensoren måler værdien for højt lysniveau eller derover",
+						"ru": "Процент яркости панели, используемый, когда показание датчика равно значению высокой освещенности или больше него",
+						"pl": "Procent jasności panelu używany, gdy odczyt czujnika jest równy wartości wysokiego natężenia światła lub od niej wyższy",
+						"ko": "조도 센서 측정값이 밝은 조도 값 이상일 때 사용할 패널 밝기 백분율",
+						"ar": "نسبة سطوع اللوحة المستخدمة عندما يقرأ مستشعر الإضاءة قيمة الإضاءة الساطعة أو أعلى"
 					}
 				}
 			]
@@ -331,7 +749,18 @@
 			"type": "group",
 			"label": {
 				"en": "Date and Time Format",
-				"nl": "Datum en Tijd Formaat"
+				"nl": "Datum en Tijd Formaat",
+				"de": "Datums- und Zeitformat",
+				"fr": "Format de la date et de l’heure",
+				"it": "Formato di data e ora",
+				"sv": "Datum- och tidsformat",
+				"no": "Dato- og tidsformat",
+				"es": "Formato de fecha y hora",
+				"da": "Dato- og tidsformat",
+				"ru": "Формат даты и времени",
+				"pl": "Format daty i czasu",
+				"ko": "날짜 및 시간 형식",
+				"ar": "تنسيق التاريخ والوقت"
 			},
 			"children": [
 				{
@@ -339,11 +768,33 @@
 					"type": "dropdown",
 					"label": {
 						"en": "Date format",
-						"nl": "Datum formaat"
+						"nl": "Datum formaat",
+						"de": "Datumsformat",
+						"fr": "Format de la date",
+						"it": "Formato data",
+						"sv": "Datumformat",
+						"no": "Datoformat",
+						"es": "Formato de fecha",
+						"da": "Datoformat",
+						"ru": "Формат даты",
+						"pl": "Format daty",
+						"ko": "날짜 형식",
+						"ar": "تنسيق التاريخ"
 					},
 					"hint": {
 						"en": "This is the format for the day of the month",
-						"nl": "Dit is het formaat voor de dag van de maand"
+						"nl": "Dit is het formaat voor de dag van de maand",
+						"de": "Format für den Tag des Monats",
+						"fr": "Format du jour du mois",
+						"it": "Questo è il formato del giorno del mese",
+						"sv": "Detta är formatet för dagen i månaden",
+						"no": "Dette er formatet for dagen i måneden",
+						"es": "Este es el formato del día del mes",
+						"da": "Dette er formatet for dagen i måneden",
+						"ru": "Формат дня месяца",
+						"pl": "To jest format dnia miesiąca",
+						"ko": "월의 날짜 표시 형식입니다",
+						"ar": "هذا هو تنسيق يوم الشهر"
 					},
 					"value": "2-digit",
 					"values": [
@@ -351,14 +802,36 @@
 							"id": "2-digit",
 							"label": {
 								"en": "2 digit (01)",
-								"nl": "2 cijfers (01)"
+								"nl": "2 cijfers (01)",
+								"de": "2-stellig (01)",
+								"fr": "2 chiffres (01)",
+								"it": "2 cifre (01)",
+								"sv": "2 siffror (01)",
+								"no": "2 sifre (01)",
+								"es": "2 dígitos (01)",
+								"da": "2 cifre (01)",
+								"ru": "2 цифры (01)",
+								"pl": "2 cyfry (01)",
+								"ko": "2자리(01)",
+								"ar": "2 من الأرقام (01)"
 							}
 						},
 						{
 							"id": "numeric",
 							"label": {
 								"en": "1 or 2 digit (1 or 11)",
-								"nl": "1 of 2 cijfers (1 of 11)"
+								"nl": "1 of 2 cijfers (1 of 11)",
+								"de": "1- oder 2-stellig (1 oder 11)",
+								"fr": "1 ou 2 chiffres (1 ou 11)",
+								"it": "1 o 2 cifre (1 o 11)",
+								"sv": "1 eller 2 siffror (1 eller 11)",
+								"no": "1 eller 2 sifre (1 eller 11)",
+								"es": "1 o 2 dígitos (1 o 11)",
+								"da": "1 eller 2 cifre (1 eller 11)",
+								"ru": "1 или 2 цифры (1 или 11)",
+								"pl": "1 lub 2 cyfry (1 lub 11)",
+								"ko": "1자리 또는 2자리(1 또는 11)",
+								"ar": "1 أو 2 من الأرقام (1 أو 11)"
 							}
 						}
 					]
@@ -368,11 +841,33 @@
 					"type": "dropdown",
 					"label": {
 						"en": "Month format",
-						"nl": "Maand formaat"
+						"nl": "Maand formaat",
+						"de": "Monatsformat",
+						"fr": "Format du mois",
+						"it": "Formato mese",
+						"sv": "Månadsformat",
+						"no": "Månedsformat",
+						"es": "Formato del mes",
+						"da": "Månedsformat",
+						"ru": "Формат месяца",
+						"pl": "Format miesiąca",
+						"ko": "월 형식",
+						"ar": "تنسيق الشهر"
 					},
 					"hint": {
 						"en": "This is the format for the month",
-						"nl": "Dit is het formaat voor de maand"
+						"nl": "Dit is het formaat voor de maand",
+						"de": "Format für den Monat",
+						"fr": "Format du mois",
+						"it": "Questo è il formato del mese",
+						"sv": "Detta är formatet för månaden",
+						"no": "Dette er formatet for måneden",
+						"es": "Este es el formato del mes",
+						"da": "Dette er formatet for måneden",
+						"ru": "Формат месяца",
+						"pl": "To jest format miesiąca",
+						"ko": "월 표시 형식입니다",
+						"ar": "هذا هو تنسيق الشهر"
 					},
 					"value": "short",
 					"values": [
@@ -380,28 +875,72 @@
 							"id": "short",
 							"label": {
 								"en": "short (Jan)",
-								"nl": "kort (jan)"
+								"nl": "kort (jan)",
+								"de": "kurz (Jan)",
+								"fr": "court (janv.)",
+								"it": "breve (gen)",
+								"sv": "kort (jan)",
+								"no": "kort (jan)",
+								"es": "corto (ene)",
+								"da": "kort (jan.)",
+								"ru": "краткий (янв.)",
+								"pl": "krótki (sty)",
+								"ko": "짧게(Jan)",
+								"ar": "قصير (يناير)"
 							}
 						},
 						{
 							"id": "long",
 							"label": {
 								"en": "long (January)",
-								"nl": "lang (januari)"
+								"nl": "lang (januari)",
+								"de": "lang (Januar)",
+								"fr": "long (janvier)",
+								"it": "esteso (gennaio)",
+								"sv": "långt (januari)",
+								"no": "langt (januar)",
+								"es": "largo (enero)",
+								"da": "langt (januar)",
+								"ru": "полный (январь)",
+								"pl": "długi (styczeń)",
+								"ko": "길게(January)",
+								"ar": "طويل (يناير)"
 							}
 						},
 						{
 							"id": "2-digit",
 							"label": {
 								"en": "2 digit (01)",
-								"nl": "2 cijfers (01)"
+								"nl": "2 cijfers (01)",
+								"de": "2-stellig (01)",
+								"fr": "2 chiffres (01)",
+								"it": "2 cifre (01)",
+								"sv": "2 siffror (01)",
+								"no": "2 sifre (01)",
+								"es": "2 dígitos (01)",
+								"da": "2 cifre (01)",
+								"ru": "2 цифры (01)",
+								"pl": "2 cyfry (01)",
+								"ko": "2자리(01)",
+								"ar": "2 من الأرقام (01)"
 							}
 						},
 						{
 							"id": "numeric",
 							"label": {
 								"en": "1 or 2 digit (1 or 11)",
-								"nl": "1 of 2 cijfers (1 of 11)"
+								"nl": "1 of 2 cijfers (1 of 11)",
+								"de": "1- oder 2-stellig (1 oder 11)",
+								"fr": "1 ou 2 chiffres (1 ou 11)",
+								"it": "1 o 2 cifre (1 o 11)",
+								"sv": "1 eller 2 siffror (1 eller 11)",
+								"no": "1 eller 2 sifre (1 eller 11)",
+								"es": "1 o 2 dígitos (1 o 11)",
+								"da": "1 eller 2 cifre (1 eller 11)",
+								"ru": "1 или 2 цифры (1 или 11)",
+								"pl": "1 lub 2 cyfry (1 lub 11)",
+								"ko": "1자리 또는 2자리(1 또는 11)",
+								"ar": "1 أو 2 من الأرقام (1 أو 11)"
 							}
 						}
 					]
@@ -411,11 +950,33 @@
 					"type": "dropdown",
 					"label": {
 						"en": "Year format",
-						"nl": "Jaar formaat"
+						"nl": "Jaar formaat",
+						"de": "Jahresformat",
+						"fr": "Format de l’année",
+						"it": "Formato anno",
+						"sv": "Årsformat",
+						"no": "Årsformat",
+						"es": "Formato del año",
+						"da": "Årsformat",
+						"ru": "Формат года",
+						"pl": "Format roku",
+						"ko": "연도 형식",
+						"ar": "تنسيق السنة"
 					},
 					"hint": {
 						"en": "This is the format for the year",
-						"nl": "Dit is het formaat voor het jaar"
+						"nl": "Dit is het formaat voor het jaar",
+						"de": "Format für das Jahr",
+						"fr": "Format de l’année",
+						"it": "Questo è il formato dell'anno",
+						"sv": "Detta är formatet för året",
+						"no": "Dette er formatet for året",
+						"es": "Este es el formato del año",
+						"da": "Dette er formatet for året",
+						"ru": "Формат года",
+						"pl": "To jest format roku",
+						"ko": "연도 표시 형식입니다",
+						"ar": "هذا هو تنسيق السنة"
 					},
 					"value": "numeric",
 					"values": [
@@ -423,14 +984,36 @@
 							"id": "2-digit",
 							"label": {
 								"en": "2 digit",
-								"nl": "2 cijfers"
+								"nl": "2 cijfers",
+								"de": "2-stellig",
+								"fr": "2 chiffres",
+								"it": "2 cifre",
+								"sv": "2 siffror",
+								"no": "2 sifre",
+								"es": "2 dígitos",
+								"da": "2 cifre",
+								"ru": "2 цифры",
+								"pl": "2 cyfry",
+								"ko": "2자리",
+								"ar": "2 من الأرقام"
 							}
 						},
 						{
 							"id": "numeric",
 							"label": {
 								"en": "4 digit",
-								"nl": "4 cijfers"
+								"nl": "4 cijfers",
+								"de": "4-stellig",
+								"fr": "4 chiffres",
+								"it": "4 cifre",
+								"sv": "4 siffror",
+								"no": "4 sifre",
+								"es": "4 dígitos",
+								"da": "4 cifre",
+								"ru": "4 цифры",
+								"pl": "4 cyfry",
+								"ko": "4자리",
+								"ar": "4 أرقام"
 							}
 						}
 					]
@@ -440,11 +1023,33 @@
 					"type": "dropdown",
 					"label": {
 						"en": "Time format",
-						"nl": "Tijd formaat"
+						"nl": "Tijd formaat",
+						"de": "Zeitformat",
+						"fr": "Format de l’heure",
+						"it": "Formato ora",
+						"sv": "Tidsformat",
+						"no": "Tidsformat",
+						"es": "Formato de hora",
+						"da": "Tidsformat",
+						"ru": "Формат времени",
+						"pl": "Format czasu",
+						"ko": "시간 형식",
+						"ar": "تنسيق الوقت"
 					},
 					"hint": {
 						"en": "This is the format for the time",
-						"nl": "Dit is het formaat voor de tijd"
+						"nl": "Dit is het formaat voor de tijd",
+						"de": "Format für die Uhrzeit",
+						"fr": "Format de l’heure",
+						"it": "Questo è il formato dell'ora",
+						"sv": "Detta är formatet för tiden",
+						"no": "Dette er formatet for tiden",
+						"es": "Este es el formato de la hora",
+						"da": "Dette er formatet for klokkeslættet",
+						"ru": "Формат времени",
+						"pl": "To jest format czasu",
+						"ko": "시간 표시 형식입니다",
+						"ar": "هذا هو تنسيق الوقت"
 					},
 					"value": "T24",
 					"values": [
@@ -452,14 +1057,36 @@
 							"id": "T24",
 							"label": {
 								"en": "24h",
-								"nl": "24u"
+								"nl": "24u",
+								"de": "24 Std.",
+								"fr": "24 h",
+								"it": "24h",
+								"sv": "24 h",
+								"no": "24 t",
+								"es": "24 h",
+								"da": "24 t",
+								"ru": "24 ч",
+								"pl": "24 godz.",
+								"ko": "24시간",
+								"ar": "24 ساعة"
 							}
 						},
 						{
 							"id": "T12",
 							"label": {
 								"en": "12h",
-								"nl": "12u"
+								"nl": "12u",
+								"de": "12 Std.",
+								"fr": "12 h",
+								"it": "12h",
+								"sv": "12 h",
+								"no": "12 t",
+								"es": "12 h",
+								"da": "12 t",
+								"ru": "12 ч",
+								"pl": "12 godz.",
+								"ko": "12시간",
+								"ar": "12 ساعة"
 							}
 						}
 					]
@@ -469,11 +1096,33 @@
 					"type": "dropdown",
 					"label": {
 						"en": "Week day format",
-						"nl": "Week dag formaat"
+						"nl": "Week dag formaat",
+						"de": "Wochentagsformat",
+						"fr": "Format du jour de la semaine",
+						"it": "Formato giorno della settimana",
+						"sv": "Veckodagsformat",
+						"no": "Ukedagsformat",
+						"es": "Formato del día de la semana",
+						"da": "Ugedagsformat",
+						"ru": "Формат дня недели",
+						"pl": "Format dnia tygodnia",
+						"ko": "요일 형식",
+						"ar": "تنسيق يوم الأسبوع"
 					},
 					"hint": {
 						"en": "This is the format for the day of the week",
-						"nl": "Dit is het formaat voor de dag van de week"
+						"nl": "Dit is het formaat voor de dag van de week",
+						"de": "Format für den Wochentag",
+						"fr": "Format du jour de la semaine",
+						"it": "Questo è il formato del giorno della settimana",
+						"sv": "Detta är formatet för veckodagen",
+						"no": "Dette er formatet for ukedagen",
+						"es": "Este es el formato del día de la semana",
+						"da": "Dette er formatet for ugedagen",
+						"ru": "Формат дня недели",
+						"pl": "To jest format dnia tygodnia",
+						"ko": "요일 표시 형식입니다",
+						"ar": "هذا هو تنسيق يوم الأسبوع"
 					},
 					"value": "long",
 					"values": [
@@ -481,21 +1130,54 @@
 							"id": "none",
 							"label": {
 								"en": "Not displayed",
-								"nl": "Niet weergegeven"
+								"nl": "Niet weergegeven",
+								"de": "Nicht angezeigt",
+								"fr": "Non affiché",
+								"it": "Non visualizzato",
+								"sv": "Visas inte",
+								"no": "Vises ikke",
+								"es": "No se muestra",
+								"da": "Vises ikke",
+								"ru": "Не отображается",
+								"pl": "Niewyświetlany",
+								"ko": "표시 안 함",
+								"ar": "غير معروض"
 							}
 						},
 						{
 							"id": "long",
 							"label": {
 								"en": "Long (Monday)",
-								"nl": "Lang (maandag)"
+								"nl": "Lang (maandag)",
+								"de": "Lang (Montag)",
+								"fr": "Long (lundi)",
+								"it": "Esteso (lunedì)",
+								"sv": "Långt (måndag)",
+								"no": "Langt (mandag)",
+								"es": "Largo (lunes)",
+								"da": "Langt (mandag)",
+								"ru": "Полный (понедельник)",
+								"pl": "Długi (poniedziałek)",
+								"ko": "길게(월요일)",
+								"ar": "طويل (الاثنين)"
 							}
 						},
 						{
 							"id": "short",
 							"label": {
 								"en": "Short (Mon)",
-								"nl": "Kort (ma)"
+								"nl": "Kort (ma)",
+								"de": "Kurz (Mo)",
+								"fr": "Court (lun.)",
+								"it": "Breve (lun)",
+								"sv": "Kort (mån)",
+								"no": "Kort (man)",
+								"es": "Corto (lun)",
+								"da": "Kort (man.)",
+								"ru": "Краткий (пн)",
+								"pl": "Krótki (pon.)",
+								"ko": "짧게(월)",
+								"ar": "قصير (اثن)"
 							}
 						}
 					]
@@ -505,11 +1187,33 @@
 					"type": "text",
 					"label": {
 						"en": "Language code",
-						"nl": "Taal code"
+						"nl": "Taal code",
+						"de": "Sprachcode",
+						"fr": "Code de langue",
+						"it": "Codice lingua",
+						"sv": "Språkkod",
+						"no": "Språkkode",
+						"es": "Código de idioma",
+						"da": "Sprogkode",
+						"ru": "Код языка",
+						"pl": "Kod języka",
+						"ko": "언어 코드",
+						"ar": "رمز اللغة"
 					},
 					"hint": {
 						"en": "This is the 2 digit language code of the language you want to use for the date format (e.g. en, nl, de, fr, ...)",
-						"nl": "Dit is de 2 letter taalcode van de taal die je wil gebruiken voor het datum formaat (bijv. en, nl, de, fr, ...)"
+						"nl": "Dit is de 2 letter taalcode van de taal die je wil gebruiken voor het datum formaat (bijv. en, nl, de, fr, ...)",
+						"de": "Dies ist der 2-stellige Sprachcode der Sprache, die für das Datumsformat verwendet werden soll (z. B. en, nl, de, fr, ...)",
+						"fr": "Code de langue à 2 lettres de la langue à utiliser pour le format de date (p. ex. en, nl, de, fr, ...)",
+						"it": "Questo è il codice lingua di 2 caratteri della lingua da usare per il formato della data (ad es. en, nl, de, fr, ...)",
+						"sv": "Detta är den tvåställiga språkkoden för språket som ska användas för datumformatet (t.ex. en, nl, de, fr, ...)",
+						"no": "Dette er den 2-sifrede språkkoden for språket du vil bruke til datoformatet (f.eks. en, nl, de, fr, ...)",
+						"es": "Este es el código de idioma de 2 letras que desea usar para el formato de fecha (p. ej., en, nl, de, fr, ...)",
+						"da": "Dette er sprogkoden på 2 bogstaver for det sprog, du vil bruge til datoformatet (f.eks. en, nl, de, fr, ...)",
+						"ru": "2-буквенный код языка, который следует использовать для формата даты (например, en, nl, de, fr, ...)",
+						"pl": "To jest 2-literowy kod języka, którego chcesz używać w formacie daty (np. en, nl, de, fr, ...)",
+						"ko": "날짜 형식에 사용할 언어의 2자리 언어 코드입니다(예: en, nl, de, fr, ...)",
+						"ar": "هذا هو رمز اللغة المكون من 2 من الأحرف للغة التي تريد استخدامها في تنسيق التاريخ (مثل en وnl وde وfr و...)"
 					},
 					"value": "en"
 				}

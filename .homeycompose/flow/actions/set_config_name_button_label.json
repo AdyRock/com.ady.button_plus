@@ -1,15 +1,48 @@
 {
     "title": {
         "en": "Set configuration button Label",
-        "nl": "Stel configuratie knop Label in"
+        "nl": "Stel configuratie knop Label in",
+        "de": "Beschriftung der Konfigurationstaste festlegen",
+        "fr": "Définir le libellé du bouton de configuration",
+        "it": "Imposta l'etichetta del pulsante di configurazione",
+        "sv": "Ange etikett för konfigurationsknapp",
+        "no": "Angi etikett for konfigurasjonsknapp",
+        "es": "Establecer la etiqueta del botón de configuración",
+        "da": "Indstil etiket for konfigurationsknap",
+        "ru": "Задать метку кнопки конфигурации",
+        "pl": "Ustaw etykietę przycisku konfiguracji",
+        "ko": "구성 버튼 레이블 설정",
+        "ar": "تعيين تسمية زر التكوين"
     },
     "titleFormatted": {
         "en": "Set the [[left_right]] button Label of [[config]] page [[page]] to [[label]]",
-        "nl": "Stel de [[left_right]] knop Label van [[config]] pagina [[page]] in op [[label]]"
+        "nl": "Stel de [[left_right]] knop Label van [[config]] pagina [[page]] in op [[label]]",
+        "de": "Beschriftung der [[left_right]] Taste von [[config]] auf Seite [[page]] auf [[label]] setzen",
+        "fr": "Définir le libellé du bouton [[left_right]] de [[config]], page [[page]], sur [[label]]",
+        "it": "Imposta l'etichetta del pulsante [[left_right]] di [[config]], pagina [[page]], su [[label]]",
+        "sv": "Ställ in etiketten för [[left_right]] knapp i [[config]] på sida [[page]] till [[label]]",
+        "no": "Angi etiketten for [[left_right]] knapp i [[config]] på side [[page]] til [[label]]",
+        "es": "Establecer la etiqueta del botón [[left_right]] de [[config]], página [[page]], en [[label]]",
+        "da": "Indstil etiketten for knappen [[left_right]] i [[config]] på side [[page]] til [[label]]",
+        "ru": "Задать для кнопки [[left_right]] в [[config]] на странице [[page]] метку [[label]]",
+        "pl": "Ustaw etykietę przycisku [[left_right]] w [[config]] na stronie [[page]] na [[label]]",
+        "ko": "[[config]]의 [[page]]페이지에 있는 [[left_right]] 버튼 레이블을 [[label]](으)로 설정",
+        "ar": "تعيين تسمية الزر [[left_right]] في [[config]] والصفحة [[page]] إلى [[label]]"
     },
     "hint": {
         "en": "Sets the Label of the specified button",
-        "nl": "Stelt de Label van de gespecificeerde knop in"
+        "nl": "Stelt de Label van de gespecificeerde knop in",
+        "de": "Legt die Beschriftung der angegebenen Taste fest",
+        "fr": "Définit le libellé du bouton indiqué",
+        "it": "Imposta l'etichetta del pulsante specificato",
+        "sv": "Ställer in etiketten för den angivna knappen",
+        "no": "Angir etiketten for den valgte knappen",
+        "es": "Establece la etiqueta del botón especificado",
+        "da": "Indstiller etiketten for den angivne knap",
+        "ru": "Задает метку указанной кнопки",
+        "pl": "Ustawia etykietę wskazanego przycisku",
+        "ko": "지정한 버튼의 레이블을 설정합니다",
+        "ar": "يعيّن تسمية الزر المحدد"
     },
     "args": [
         {
@@ -17,25 +50,69 @@
             "name": "left_right",
             "title": {
                 "en": "Left /  Right",
-                "nl": "Links / Rechts "
+                "nl": "Links / Rechts ",
+                "de": "Links /  Rechts",
+                "fr": "Gauche /  Droite",
+                "it": "Sinistro /  Destro",
+                "sv": "Vänster /  Höger",
+                "no": "Venstre /  Høyre",
+                "es": "Izquierdo /  Derecho",
+                "da": "Venstre /  højre",
+                "ru": "Левая /  Правая",
+                "pl": "Lewy /  Prawy",
+                "ko": "왼쪽 /  오른쪽",
+                "ar": "يسار /  يمين"
             },
             "placeholder": {
                 "en": "Left / Right",
-                "nl": "Links / Rechts "
+                "nl": "Links / Rechts ",
+                "de": "Links / Rechts",
+                "fr": "Gauche / Droite",
+                "it": "Sinistro / Destro",
+                "sv": "Vänster / Höger",
+                "no": "Venstre / Høyre",
+                "es": "Izquierdo / Derecho",
+                "da": "Venstre / højre",
+                "ru": "Левая / Правая",
+                "pl": "Lewy / Prawy",
+                "ko": "왼쪽 / 오른쪽",
+                "ar": "يسار / يمين"
             },
             "values": [
                 {
                     "id": "left",
                     "title": {
                         "en": "Left",
-                        "nl": "Links "
+                        "nl": "Links ",
+                        "de": "Links",
+                        "fr": "Gauche",
+                        "it": "Sinistro",
+                        "sv": "Vänster",
+                        "no": "Venstre",
+                        "es": "Izquierdo",
+                        "da": "Venstre",
+                        "ru": "Левая",
+                        "pl": "Lewy",
+                        "ko": "왼쪽",
+                        "ar": "يسار"
                     }
                 },
                 {
                     "id": "right",
                     "title": {
                         "en": "Right",
-                        "nl": "Rechts "
+                        "nl": "Rechts ",
+                        "de": "Rechts",
+                        "fr": "Droite",
+                        "it": "Destro",
+                        "sv": "Höger",
+                        "no": "Høyre",
+                        "es": "Derecho",
+                        "da": "Højre",
+                        "ru": "Правая",
+                        "pl": "Prawy",
+                        "ko": "오른쪽",
+                        "ar": "يمين"
                     }
                 }
             ]
@@ -45,15 +122,48 @@
             "name": "config",
             "title": {
                 "en": "Configuration",
-                "nl": "Configuratie"
+                "nl": "Configuratie",
+                "de": "Konfiguration",
+                "fr": "Configuration",
+                "it": "Configurazione",
+                "sv": "Konfiguration",
+                "no": "Konfigurasjon",
+                "es": "Configuración",
+                "da": "Konfiguration",
+                "ru": "Конфигурация",
+                "pl": "Konfiguracja",
+                "ko": "구성",
+                "ar": "التكوين"
             },
             "hint": {
                 "en": "Find this Configuration on a button connector",
-                "nl": "Vind deze configuratie op een knop connector"
+                "nl": "Vind deze configuratie op een knop connector",
+                "de": "Diese Konfiguration an einem Tastenanschluss suchen",
+                "fr": "Trouver cette configuration sur un connecteur de bouton",
+                "it": "Trova questa configurazione su un connettore del pulsante",
+                "sv": "Hitta den här konfigurationen på en knappanslutning",
+                "no": "Finn denne konfigurasjonen på en knappetilkobling",
+                "es": "Buscar esta configuración en un conector de botón",
+                "da": "Find denne konfiguration på en knaptilslutning",
+                "ru": "Найти эту конфигурацию на разъеме кнопки",
+                "pl": "Znajdź tę konfigurację na złączu przycisku",
+                "ko": "버튼 커넥터에서 이 구성 찾기",
+                "ar": "البحث عن هذا التكوين في موصل زر"
             },
             "placeholder": {
                 "en": "Choose a configuration",
-                "nl": "Kies een configuratie"
+                "nl": "Kies een configuratie",
+                "de": "Konfiguration auswählen",
+                "fr": "Choisir une configuration",
+                "it": "Scegli una configurazione",
+                "sv": "Välj en konfiguration",
+                "no": "Velg en konfigurasjon",
+                "es": "Elegir una configuración",
+                "da": "Vælg en konfiguration",
+                "ru": "Выберите конфигурацию",
+                "pl": "Wybierz konfigurację",
+                "ko": "구성 선택",
+                "ar": "اختر تكوينًا"
             }
         },
 		{
@@ -61,15 +171,48 @@
 			"name": "page",
 			"title": {
 				"en": "Page number",
-				"nl": "Pagina nummer"
+				"nl": "Pagina nummer",
+				"de": "Seitennummer",
+				"fr": "Numéro de page",
+				"it": "Numero pagina",
+				"sv": "Sidnummer",
+				"no": "Sidenummer",
+				"es": "Número de página",
+				"da": "Sidenummer",
+				"ru": "Номер страницы",
+				"pl": "Numer strony",
+				"ko": "페이지 번호",
+				"ar": "رقم الصفحة"
 			},
 			"hint": {
 				"en": "Page number. Use 0 to change for all pages",
-				"nl": "Pagina nummer. Gebruik 0 om alle pagina's te wijzigen"
+				"nl": "Pagina nummer. Gebruik 0 om alle pagina's te wijzigen",
+				"de": "Seitennummer. 0 verwenden, um alle Seiten zu ändern",
+				"fr": "Numéro de page. Utilisez 0 pour modifier toutes les pages",
+				"it": "Numero pagina. Usa 0 per modificare tutte le pagine",
+				"sv": "Sidnummer. Använd 0 för att ändra på alla sidor",
+				"no": "Sidenummer. Bruk 0 for å endre alle sider",
+				"es": "Número de página. Use 0 para cambiar todas las páginas",
+				"da": "Sidenummer. Brug 0 for at ændre alle sider",
+				"ru": "Номер страницы. Используйте 0, чтобы изменить все страницы",
+				"pl": "Numer strony. Użyj 0, aby zmienić na wszystkich stronach",
+				"ko": "페이지 번호. 모든 페이지를 변경하려면 0을 사용하세요",
+				"ar": "رقم الصفحة. استخدم 0 للتغيير في جميع الصفحات"
 			},
 			"placeholder": {
 				"en": "Page number",
-				"nl": "Pagina nummer"
+				"nl": "Pagina nummer",
+				"de": "Seitennummer",
+				"fr": "Numéro de page",
+				"it": "Numero pagina",
+				"sv": "Sidnummer",
+				"no": "Sidenummer",
+				"es": "Número de página",
+				"da": "Sidenummer",
+				"ru": "Номер страницы",
+				"pl": "Numer strony",
+				"ko": "페이지 번호",
+				"ar": "رقم الصفحة"
 			},
 			"required": false,
 			"min": 0,
@@ -81,11 +224,33 @@
             "name": "label",
             "title": {
                 "en": "Label",
-                "nl": "Label"
+                "nl": "Label",
+                "de": "Beschriftung",
+                "fr": "Libellé",
+                "it": "Etichetta",
+                "sv": "Etikett",
+                "no": "Etikett",
+                "es": "Etiqueta",
+                "da": "Etiket",
+                "ru": "Метка",
+                "pl": "Etykieta",
+                "ko": "레이블",
+                "ar": "التسمية"
             },
             "placeholder": {
                 "en": "Label",
-                "nl": "Label"
+                "nl": "Label",
+                "de": "Beschriftung",
+                "fr": "Libellé",
+                "it": "Etichetta",
+                "sv": "Etikett",
+                "no": "Etikett",
+                "es": "Etiqueta",
+                "da": "Etiket",
+                "ru": "Метка",
+                "pl": "Etykieta",
+                "ko": "레이블",
+                "ar": "التسمية"
             }
         },
         {

@@ -1,15 +1,48 @@
 {
     "title": {
         "en": "Switch button configuration",
-        "nl": "Knop configuratie wisselen"
+        "nl": "Knop configuratie wisselen",
+        "de": "Tastenkonfiguration wechseln",
+        "fr": "Changer de configuration de bouton",
+        "it": "Cambia configurazione del pulsante",
+        "sv": "Byt knappkonfiguration",
+        "no": "Bytt knappekonfigurasjon",
+        "es": "Cambiar la configuración del botón",
+        "da": "Skift knapkonfiguration",
+        "ru": "Переключить конфигурацию кнопки",
+        "pl": "Przełącz konfigurację przycisku",
+        "ko": "버튼 구성 전환",
+        "ar": "تبديل تكوين الزر"
     },
     "titleFormatted": {
         "en": "Switch connector [[connector]] to button configuration [[config]]",
-        "nl": "Wissel connector [[connector]] naar knop configuratie [[config]]"
+        "nl": "Wissel connector [[connector]] naar knop configuratie [[config]]",
+        "de": "Anschluss [[connector]] auf Tastenkonfiguration [[config]] umschalten",
+        "fr": "Basculer le connecteur [[connector]] vers la configuration de bouton [[config]]",
+        "it": "Passa il connettore [[connector]] alla configurazione pulsante [[config]]",
+        "sv": "Byt anslutning [[connector]] till knappkonfiguration [[config]]",
+        "no": "Bytt tilkobling [[connector]] til knappekonfigurasjon [[config]]",
+        "es": "Cambiar el conector [[connector]] a la configuración de botón [[config]]",
+        "da": "Skift tilslutning [[connector]] til knapkonfiguration [[config]]",
+        "ru": "Переключить разъем [[connector]] на конфигурацию кнопки [[config]]",
+        "pl": "Przełącz złącze [[connector]] na konfigurację przycisku [[config]]",
+        "ko": "커넥터 [[connector]]을(를) 버튼 구성 [[config]](으)로 전환",
+        "ar": "تبديل الموصل [[connector]] إلى تكوين الزر [[config]]"
     },
     "hint": {
         "en": "Send the select configuration to the display device for the selected connector",
-        "nl": "Stuur de geselecteerde configuratie naar het display voor de geselecteerde connector"
+        "nl": "Stuur de geselecteerde configuratie naar het display voor de geselecteerde connector",
+        "de": "Sendet die ausgewählte Konfiguration für den gewählten Anschluss an das Displaygerät",
+        "fr": "Envoyer la configuration sélectionnée à l’appareil d’affichage pour le connecteur choisi",
+        "it": "Invia la configurazione selezionata al dispositivo di visualizzazione per il connettore selezionato",
+        "sv": "Skicka den valda konfigurationen till skärmenheten för den valda anslutningen",
+        "no": "Send den valgte konfigurasjonen til skjermenheten for den valgte tilkoblingen",
+        "es": "Enviar la configuración seleccionada al dispositivo de visualización para el conector seleccionado",
+        "da": "Send den valgte konfiguration til skærmenheden for den valgte tilslutning",
+        "ru": "Отправить выбранную конфигурацию на устройство отображения для выбранного разъема",
+        "pl": "Wyślij wybraną konfigurację do urządzenia wyświetlającego dla wybranego złącza",
+        "ko": "선택한 커넥터의 디스플레이 장치로 선택한 구성을 전송합니다",
+        "ar": "إرسال التكوين المحدد إلى جهاز العرض للموصل المحدد"
     },
     "args": [
         {
@@ -17,15 +50,48 @@
             "name": "connector",
             "title": {
                 "en": "Connector number",
-                "nl": "Connector nummer"
+                "nl": "Connector nummer",
+                "de": "Anschlussnummer",
+                "fr": "Numéro de connecteur",
+                "it": "Numero connettore",
+                "sv": "Anslutningsnummer",
+                "no": "Tilkoblingsnummer",
+                "es": "Número de conector",
+                "da": "Tilslutningsnummer",
+                "ru": "Номер разъема",
+                "pl": "Numer złącza",
+                "ko": "커넥터 번호",
+                "ar": "رقم الموصل"
             },
             "hint": {
                 "en": "Connector number to switch (top connector is 0, bottom connector is 3)",
-                "nl": "Connector nummer om te wisselen (bovenste connector is 0, onderste connector is 3)"
+                "nl": "Connector nummer om te wisselen (bovenste connector is 0, onderste connector is 3)",
+                "de": "Zu wechselnde Anschlussnummer (oberster Anschluss ist 0, unterster Anschluss ist 3)",
+                "fr": "Numéro du connecteur à basculer (le connecteur supérieur est 0, le connecteur inférieur est 3)",
+                "it": "Numero del connettore da cambiare (il connettore superiore è 0, quello inferiore è 3)",
+                "sv": "Anslutningsnummer att byta (den översta anslutningen är 0, den nedersta är 3)",
+                "no": "Tilkoblingsnummer som skal byttes (øverste tilkobling er 0, nederste tilkobling er 3)",
+                "es": "Número de conector que cambiar (el conector superior es 0 y el inferior es 3)",
+                "da": "Tilslutningsnummer, der skal skiftes (øverste tilslutning er 0, nederste tilslutning er 3)",
+                "ru": "Номер переключаемого разъема (верхний разъем — 0, нижний — 3)",
+                "pl": "Numer złącza do przełączenia (górne złącze to 0, dolne to 3)",
+                "ko": "전환할 커넥터 번호(상단 커넥터는 0, 하단 커넥터는 3)",
+                "ar": "رقم الموصل المراد تبديله (الموصل العلوي هو 0 والسفلي هو 3)"
             },
             "placeholder": {
                 "en": "Connector number (1 to 4)",
-                "nl": "Connector nummer (1 tot 4)"
+                "nl": "Connector nummer (1 tot 4)",
+                "de": "Anschlussnummer (1 bis 4)",
+                "fr": "Numéro de connecteur (1 à 4)",
+                "it": "Numero connettore (da 1 a 4)",
+                "sv": "Anslutningsnummer (1 till 4)",
+                "no": "Tilkoblingsnummer (1 til 4)",
+                "es": "Número de conector (1 a 4)",
+                "da": "Tilslutningsnummer (1 til 4)",
+                "ru": "Номер разъема (от 1 до 4)",
+                "pl": "Numer złącza (od 1 do 4)",
+                "ko": "커넥터 번호(1~4)",
+                "ar": "رقم الموصل (1 إلى 4)"
             },
             "min": 1,
             "max": 4,
@@ -36,15 +102,48 @@
             "name": "config",
             "title": {
                 "en": "Configuration",
-                "nl": "Configuratie"
+                "nl": "Configuratie",
+                "de": "Konfiguration",
+                "fr": "Configuration",
+                "it": "Configurazione",
+                "sv": "Konfiguration",
+                "no": "Konfigurasjon",
+                "es": "Configuración",
+                "da": "Konfiguration",
+                "ru": "Конфигурация",
+                "pl": "Konfiguracja",
+                "ko": "구성",
+                "ar": "التكوين"
             },
             "hint": {
                 "en": "Find this Configuration on a button connector",
-                "nl": "Vind deze configuratie op een knop connector"
+                "nl": "Vind deze configuratie op een knop connector",
+                "de": "Diese Konfiguration an einem Tastenanschluss suchen",
+                "fr": "Trouver cette configuration sur un connecteur de bouton",
+                "it": "Trova questa configurazione su un connettore del pulsante",
+                "sv": "Hitta den här konfigurationen på en knappanslutning",
+                "no": "Finn denne konfigurasjonen på en knappetilkobling",
+                "es": "Buscar esta configuración en un conector de botón",
+                "da": "Find denne konfiguration på en knaptilslutning",
+                "ru": "Найти эту конфигурацию на разъеме кнопки",
+                "pl": "Znajdź tę konfigurację na złączu przycisku",
+                "ko": "버튼 커넥터에서 이 구성 찾기",
+                "ar": "البحث عن هذا التكوين في موصل زر"
             },
             "placeholder": {
                 "en": "Choose a configuration",
-                "nl": "Kies een configuratie"
+                "nl": "Kies een configuratie",
+                "de": "Konfiguration auswählen",
+                "fr": "Choisir une configuration",
+                "it": "Scegli una configurazione",
+                "sv": "Välj en konfiguration",
+                "no": "Velg en konfigurasjon",
+                "es": "Elegir una configuración",
+                "da": "Vælg en konfiguration",
+                "ru": "Выберите конфигурацию",
+                "pl": "Wybierz konfigurację",
+                "ko": "구성 선택",
+                "ar": "اختر تكوينًا"
             }
         },
         {

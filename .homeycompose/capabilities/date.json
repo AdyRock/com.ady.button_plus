@@ -2,7 +2,18 @@
     "type": "string",
     "title": {
         "en": "Date",
-        "nl": "Datum"
+        "nl": "Datum",
+        "de": "Datum",
+        "fr": "Date",
+        "it": "Data",
+        "sv": "Datum",
+        "no": "Dato",
+        "es": "Fecha",
+        "da": "Dato",
+        "ru": "Дата",
+        "pl": "Data",
+        "ko": "날짜",
+        "ar": "التاريخ"
     },
     "getable": true,
     "setable": false,

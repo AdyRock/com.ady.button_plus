@@ -2,7 +2,18 @@
     "type": "enum",
     "title": {
         "en": "Configuration",
-        "nl": "Configuratie"
+        "nl": "Configuratie",
+        "de": "Konfiguration",
+        "fr": "Configuration",
+        "it": "Configurazione",
+        "sv": "Konfiguration",
+        "no": "Konfigurasjon",
+        "es": "Configuración",
+        "da": "Konfiguration",
+        "ru": "Конфигурация",
+        "pl": "Konfiguracja",
+        "ko": "구성",
+        "ar": "التكوين"
     },
     "getable": true,
     "setable": true,
@@ -12,280 +23,720 @@
             "id": "0",
             "title": {
                 "en": "Button Config. 1",
-                "nl": "Configuratie 1"
+                "nl": "Configuratie 1",
+                "de": "Tastenkonfig. 1",
+                "fr": "Config. de bouton 1",
+                "it": "Config. pulsante 1",
+                "sv": "Knappkonfig. 1",
+                "no": "Knappekonfig. 1",
+                "es": "Config. de botón 1",
+                "da": "Knapkonfig. 1",
+                "ru": "Конфигурация кнопки 1",
+                "pl": "Konfiguracja przycisku 1",
+                "ko": "버튼 구성 1",
+                "ar": "تكوين الزر 1"
             }
         },
         {
             "id": "1",
             "title": {
                 "en": "Button Config. 2",
-                "nl": "Configuratie 2"
+                "nl": "Configuratie 2",
+                "de": "Tastenkonfig. 2",
+                "fr": "Config. de bouton 2",
+                "it": "Config. pulsante 2",
+                "sv": "Knappkonfig. 2",
+                "no": "Knappekonfig. 2",
+                "es": "Config. de botón 2",
+                "da": "Knapkonfig. 2",
+                "ru": "Конфигурация кнопки 2",
+                "pl": "Konfiguracja przycisku 2",
+                "ko": "버튼 구성 2",
+                "ar": "تكوين الزر 2"
             }
         },
         {
             "id": "2",
             "title": {
                 "en": "Button Config. 3",
-                "nl": "Configuratie 3"
+                "nl": "Configuratie 3",
+                "de": "Tastenkonfig. 3",
+                "fr": "Config. de bouton 3",
+                "it": "Config. pulsante 3",
+                "sv": "Knappkonfig. 3",
+                "no": "Knappekonfig. 3",
+                "es": "Config. de botón 3",
+                "da": "Knapkonfig. 3",
+                "ru": "Конфигурация кнопки 3",
+                "pl": "Konfiguracja przycisku 3",
+                "ko": "버튼 구성 3",
+                "ar": "تكوين الزر 3"
             }
         },
         {
             "id": "3",
             "title": {
                 "en": "Button Config. 4",
-                "nl": "Configuratie 4"
+                "nl": "Configuratie 4",
+                "de": "Tastenkonfig. 4",
+                "fr": "Config. de bouton 4",
+                "it": "Config. pulsante 4",
+                "sv": "Knappkonfig. 4",
+                "no": "Knappekonfig. 4",
+                "es": "Config. de botón 4",
+                "da": "Knapkonfig. 4",
+                "ru": "Конфигурация кнопки 4",
+                "pl": "Konfiguracja przycisku 4",
+                "ko": "버튼 구성 4",
+                "ar": "تكوين الزر 4"
             }
         },
         {
             "id": "4",
             "title": {
                 "en": "Button Config. 5",
-                "nl": "Configuratie 5"
+                "nl": "Configuratie 5",
+                "de": "Tastenkonfig. 5",
+                "fr": "Config. de bouton 5",
+                "it": "Config. pulsante 5",
+                "sv": "Knappkonfig. 5",
+                "no": "Knappekonfig. 5",
+                "es": "Config. de botón 5",
+                "da": "Knapkonfig. 5",
+                "ru": "Конфигурация кнопки 5",
+                "pl": "Konfiguracja przycisku 5",
+                "ko": "버튼 구성 5",
+                "ar": "تكوين الزر 5"
             }
         },
         {
             "id": "5",
             "title": {
                 "en": "Button Config. 6",
-                "nl": "Configuratie 6"
+                "nl": "Configuratie 6",
+                "de": "Tastenkonfig. 6",
+                "fr": "Config. de bouton 6",
+                "it": "Config. pulsante 6",
+                "sv": "Knappkonfig. 6",
+                "no": "Knappekonfig. 6",
+                "es": "Config. de botón 6",
+                "da": "Knapkonfig. 6",
+                "ru": "Конфигурация кнопки 6",
+                "pl": "Konfiguracja przycisku 6",
+                "ko": "버튼 구성 6",
+                "ar": "تكوين الزر 6"
             }
         },
         {
             "id": "6",
             "title": {
                 "en": "Button Config. 7",
-                "nl": "Configuratie 7"
+                "nl": "Configuratie 7",
+                "de": "Tastenkonfig. 7",
+                "fr": "Config. de bouton 7",
+                "it": "Config. pulsante 7",
+                "sv": "Knappkonfig. 7",
+                "no": "Knappekonfig. 7",
+                "es": "Config. de botón 7",
+                "da": "Knapkonfig. 7",
+                "ru": "Конфигурация кнопки 7",
+                "pl": "Konfiguracja przycisku 7",
+                "ko": "버튼 구성 7",
+                "ar": "تكوين الزر 7"
             }
         },
         {
             "id": "7",
             "title": {
                 "en": "Button Config. 8",
-                "nl": "Configuratie 8"
+                "nl": "Configuratie 8",
+                "de": "Tastenkonfig. 8",
+                "fr": "Config. de bouton 8",
+                "it": "Config. pulsante 8",
+                "sv": "Knappkonfig. 8",
+                "no": "Knappekonfig. 8",
+                "es": "Config. de botón 8",
+                "da": "Knapkonfig. 8",
+                "ru": "Конфигурация кнопки 8",
+                "pl": "Konfiguracja przycisku 8",
+                "ko": "버튼 구성 8",
+                "ar": "تكوين الزر 8"
             }
         },
         {
             "id": "8",
             "title": {
                 "en": "Button Config. 9",
-                "nl": "Configuratie 9"
+                "nl": "Configuratie 9",
+                "de": "Tastenkonfig. 9",
+                "fr": "Config. de bouton 9",
+                "it": "Config. pulsante 9",
+                "sv": "Knappkonfig. 9",
+                "no": "Knappekonfig. 9",
+                "es": "Config. de botón 9",
+                "da": "Knapkonfig. 9",
+                "ru": "Конфигурация кнопки 9",
+                "pl": "Konfiguracja przycisku 9",
+                "ko": "버튼 구성 9",
+                "ar": "تكوين الزر 9"
             }
         },
         {
             "id": "9",
             "title": {
                 "en": "Button Config. 10",
-                "nl": "Configuratie 10"
+                "nl": "Configuratie 10",
+                "de": "Tastenkonfig. 10",
+                "fr": "Config. de bouton 10",
+                "it": "Config. pulsante 10",
+                "sv": "Knappkonfig. 10",
+                "no": "Knappekonfig. 10",
+                "es": "Config. de botón 10",
+                "da": "Knapkonfig. 10",
+                "ru": "Конфигурация кнопки 10",
+                "pl": "Konfiguracja przycisku 10",
+                "ko": "버튼 구성 10",
+                "ar": "تكوين الزر 10"
             }
         },
         {
             "id": "10",
             "title": {
                 "en": "Button Config. 11",
-                "nl": "Configuratie 11"
+                "nl": "Configuratie 11",
+                "de": "Tastenkonfig. 11",
+                "fr": "Config. de bouton 11",
+                "it": "Config. pulsante 11",
+                "sv": "Knappkonfig. 11",
+                "no": "Knappekonfig. 11",
+                "es": "Config. de botón 11",
+                "da": "Knapkonfig. 11",
+                "ru": "Конфигурация кнопки 11",
+                "pl": "Konfiguracja przycisku 11",
+                "ko": "버튼 구성 11",
+                "ar": "تكوين الزر 11"
             }
         },
         {
             "id": "11",
             "title": {
                 "en": "Button Config. 12",
-                "nl": "Configuratie 12"
+                "nl": "Configuratie 12",
+                "de": "Tastenkonfig. 12",
+                "fr": "Config. de bouton 12",
+                "it": "Config. pulsante 12",
+                "sv": "Knappkonfig. 12",
+                "no": "Knappekonfig. 12",
+                "es": "Config. de botón 12",
+                "da": "Knapkonfig. 12",
+                "ru": "Конфигурация кнопки 12",
+                "pl": "Konfiguracja przycisku 12",
+                "ko": "버튼 구성 12",
+                "ar": "تكوين الزر 12"
             }
         },
         {
             "id": "12",
             "title": {
                 "en": "Button Config. 13",
-                "nl": "Configuratie 13"
+                "nl": "Configuratie 13",
+                "de": "Tastenkonfig. 13",
+                "fr": "Config. de bouton 13",
+                "it": "Config. pulsante 13",
+                "sv": "Knappkonfig. 13",
+                "no": "Knappekonfig. 13",
+                "es": "Config. de botón 13",
+                "da": "Knapkonfig. 13",
+                "ru": "Конфигурация кнопки 13",
+                "pl": "Konfiguracja przycisku 13",
+                "ko": "버튼 구성 13",
+                "ar": "تكوين الزر 13"
             }
         },
         {
             "id": "13",
             "title": {
                 "en": "Button Config. 14",
-                "nl": "Configuratie 14"
+                "nl": "Configuratie 14",
+                "de": "Tastenkonfig. 14",
+                "fr": "Config. de bouton 14",
+                "it": "Config. pulsante 14",
+                "sv": "Knappkonfig. 14",
+                "no": "Knappekonfig. 14",
+                "es": "Config. de botón 14",
+                "da": "Knapkonfig. 14",
+                "ru": "Конфигурация кнопки 14",
+                "pl": "Konfiguracja przycisku 14",
+                "ko": "버튼 구성 14",
+                "ar": "تكوين الزر 14"
             }
         },
         {
             "id": "14",
             "title": {
                 "en": "Button Config. 15",
-                "nl": "Configuratie 15"
+                "nl": "Configuratie 15",
+                "de": "Tastenkonfig. 15",
+                "fr": "Config. de bouton 15",
+                "it": "Config. pulsante 15",
+                "sv": "Knappkonfig. 15",
+                "no": "Knappekonfig. 15",
+                "es": "Config. de botón 15",
+                "da": "Knapkonfig. 15",
+                "ru": "Конфигурация кнопки 15",
+                "pl": "Konfiguracja przycisku 15",
+                "ko": "버튼 구성 15",
+                "ar": "تكوين الزر 15"
             }
         },
         {
             "id": "15",
             "title": {
                 "en": "Button Config. 16",
-                "nl": "Configuratie 16"
+                "nl": "Configuratie 16",
+                "de": "Tastenkonfig. 16",
+                "fr": "Config. de bouton 16",
+                "it": "Config. pulsante 16",
+                "sv": "Knappkonfig. 16",
+                "no": "Knappekonfig. 16",
+                "es": "Config. de botón 16",
+                "da": "Knapkonfig. 16",
+                "ru": "Конфигурация кнопки 16",
+                "pl": "Konfiguracja przycisku 16",
+                "ko": "버튼 구성 16",
+                "ar": "تكوين الزر 16"
             }
         },
         {
             "id": "16",
             "title": {
                 "en": "Button Config. 17",
-                "nl": "Configuratie 17"
+                "nl": "Configuratie 17",
+                "de": "Tastenkonfig. 17",
+                "fr": "Config. de bouton 17",
+                "it": "Config. pulsante 17",
+                "sv": "Knappkonfig. 17",
+                "no": "Knappekonfig. 17",
+                "es": "Config. de botón 17",
+                "da": "Knapkonfig. 17",
+                "ru": "Конфигурация кнопки 17",
+                "pl": "Konfiguracja przycisku 17",
+                "ko": "버튼 구성 17",
+                "ar": "تكوين الزر 17"
             }
         },
         {
             "id": "17",
             "title": {
                 "en": "Button Config. 18",
-                "nl": "Configuratie 18"
+                "nl": "Configuratie 18",
+                "de": "Tastenkonfig. 18",
+                "fr": "Config. de bouton 18",
+                "it": "Config. pulsante 18",
+                "sv": "Knappkonfig. 18",
+                "no": "Knappekonfig. 18",
+                "es": "Config. de botón 18",
+                "da": "Knapkonfig. 18",
+                "ru": "Конфигурация кнопки 18",
+                "pl": "Konfiguracja przycisku 18",
+                "ko": "버튼 구성 18",
+                "ar": "تكوين الزر 18"
             }
         },
         {
             "id": "18",
             "title": {
                 "en": "Button Config. 19",
-                "nl": "Configuratie 19"
+                "nl": "Configuratie 19",
+                "de": "Tastenkonfig. 19",
+                "fr": "Config. de bouton 19",
+                "it": "Config. pulsante 19",
+                "sv": "Knappkonfig. 19",
+                "no": "Knappekonfig. 19",
+                "es": "Config. de botón 19",
+                "da": "Knapkonfig. 19",
+                "ru": "Конфигурация кнопки 19",
+                "pl": "Konfiguracja przycisku 19",
+                "ko": "버튼 구성 19",
+                "ar": "تكوين الزر 19"
             }
         },
         {
             "id": "19",
             "title": {
                 "en": "Button Config. 20",
-                "nl": "Configuratie 20"
+                "nl": "Configuratie 20",
+                "de": "Tastenkonfig. 20",
+                "fr": "Config. de bouton 20",
+                "it": "Config. pulsante 20",
+                "sv": "Knappkonfig. 20",
+                "no": "Knappekonfig. 20",
+                "es": "Config. de botón 20",
+                "da": "Knapkonfig. 20",
+                "ru": "Конфигурация кнопки 20",
+                "pl": "Konfiguracja przycisku 20",
+                "ko": "버튼 구성 20",
+                "ar": "تكوين الزر 20"
             }
         },
 		{
 			"id": "20",
 			"title": {
 				"en": "Button Config. 21",
-				"nl": "Configuratie 21"
+				"nl": "Configuratie 21",
+				"de": "Tastenkonfig. 21",
+				"fr": "Config. de bouton 21",
+				"it": "Config. pulsante 21",
+				"sv": "Knappkonfig. 21",
+				"no": "Knappekonfig. 21",
+				"es": "Config. de botón 21",
+				"da": "Knapkonfig. 21",
+				"ru": "Конфигурация кнопки 21",
+				"pl": "Konfiguracja przycisku 21",
+				"ko": "버튼 구성 21",
+				"ar": "تكوين الزر 21"
 			}
 		},
 		{
 			"id": "21",
 			"title": {
 				"en": "Button Config. 22",
-				"nl": "Configuratie 22"
+				"nl": "Configuratie 22",
+				"de": "Tastenkonfig. 22",
+				"fr": "Config. de bouton 22",
+				"it": "Config. pulsante 22",
+				"sv": "Knappkonfig. 22",
+				"no": "Knappekonfig. 22",
+				"es": "Config. de botón 22",
+				"da": "Knapkonfig. 22",
+				"ru": "Конфигурация кнопки 22",
+				"pl": "Konfiguracja przycisku 22",
+				"ko": "버튼 구성 22",
+				"ar": "تكوين الزر 22"
 			}
 		},
 		{
 			"id": "22",
 			"title": {
 				"en": "Button Config. 23",
-				"nl": "Configuratie 23"
+				"nl": "Configuratie 23",
+				"de": "Tastenkonfig. 23",
+				"fr": "Config. de bouton 23",
+				"it": "Config. pulsante 23",
+				"sv": "Knappkonfig. 23",
+				"no": "Knappekonfig. 23",
+				"es": "Config. de botón 23",
+				"da": "Knapkonfig. 23",
+				"ru": "Конфигурация кнопки 23",
+				"pl": "Konfiguracja przycisku 23",
+				"ko": "버튼 구성 23",
+				"ar": "تكوين الزر 23"
 			}
 		},
 		{
 			"id": "23",
 			"title": {
 				"en": "Button Config. 24",
-				"nl": "Configuratie 24"
+				"nl": "Configuratie 24",
+				"de": "Tastenkonfig. 24",
+				"fr": "Config. de bouton 24",
+				"it": "Config. pulsante 24",
+				"sv": "Knappkonfig. 24",
+				"no": "Knappekonfig. 24",
+				"es": "Config. de botón 24",
+				"da": "Knapkonfig. 24",
+				"ru": "Конфигурация кнопки 24",
+				"pl": "Konfiguracja przycisku 24",
+				"ko": "버튼 구성 24",
+				"ar": "تكوين الزر 24"
 			}
 		},
 		{
 			"id": "24",
 			"title": {
 				"en": "Button Config. 25",
-				"nl": "Configuratie 25"
+				"nl": "Configuratie 25",
+				"de": "Tastenkonfig. 25",
+				"fr": "Config. de bouton 25",
+				"it": "Config. pulsante 25",
+				"sv": "Knappkonfig. 25",
+				"no": "Knappekonfig. 25",
+				"es": "Config. de botón 25",
+				"da": "Knapkonfig. 25",
+				"ru": "Конфигурация кнопки 25",
+				"pl": "Konfiguracja przycisku 25",
+				"ko": "버튼 구성 25",
+				"ar": "تكوين الزر 25"
 			}
 		},
 		{
 			"id": "25",
 			"title": {
 				"en": "Button Config. 26",
-				"nl": "Configuratie 26"
+				"nl": "Configuratie 26",
+				"de": "Tastenkonfig. 26",
+				"fr": "Config. de bouton 26",
+				"it": "Config. pulsante 26",
+				"sv": "Knappkonfig. 26",
+				"no": "Knappekonfig. 26",
+				"es": "Config. de botón 26",
+				"da": "Knapkonfig. 26",
+				"ru": "Конфигурация кнопки 26",
+				"pl": "Konfiguracja przycisku 26",
+				"ko": "버튼 구성 26",
+				"ar": "تكوين الزر 26"
 			}
 		},
 		{
 			"id": "26",
 			"title": {
 				"en": "Button Config. 27",
-				"nl": "Configuratie 27"
+				"nl": "Configuratie 27",
+				"de": "Tastenkonfig. 27",
+				"fr": "Config. de bouton 27",
+				"it": "Config. pulsante 27",
+				"sv": "Knappkonfig. 27",
+				"no": "Knappekonfig. 27",
+				"es": "Config. de botón 27",
+				"da": "Knapkonfig. 27",
+				"ru": "Конфигурация кнопки 27",
+				"pl": "Konfiguracja przycisku 27",
+				"ko": "버튼 구성 27",
+				"ar": "تكوين الزر 27"
 			}
 		},
 		{
 			"id": "27",
 			"title": {
 				"en": "Button Config. 28",
-				"nl": "Configuratie 28"
+				"nl": "Configuratie 28",
+				"de": "Tastenkonfig. 28",
+				"fr": "Config. de bouton 28",
+				"it": "Config. pulsante 28",
+				"sv": "Knappkonfig. 28",
+				"no": "Knappekonfig. 28",
+				"es": "Config. de botón 28",
+				"da": "Knapkonfig. 28",
+				"ru": "Конфигурация кнопки 28",
+				"pl": "Konfiguracja przycisku 28",
+				"ko": "버튼 구성 28",
+				"ar": "تكوين الزر 28"
 			}
 		},
 		{
 			"id": "28",
 			"title": {
 				"en": "Button Config. 29",
-				"nl": "Configuratie 29"
+				"nl": "Configuratie 29",
+				"de": "Tastenkonfig. 29",
+				"fr": "Config. de bouton 29",
+				"it": "Config. pulsante 29",
+				"sv": "Knappkonfig. 29",
+				"no": "Knappekonfig. 29",
+				"es": "Config. de botón 29",
+				"da": "Knapkonfig. 29",
+				"ru": "Конфигурация кнопки 29",
+				"pl": "Konfiguracja przycisku 29",
+				"ko": "버튼 구성 29",
+				"ar": "تكوين الزر 29"
 			}
 		},
 		{
 			"id": "29",
 			"title": {
 				"en": "Button Config. 30",
-				"nl": "Configuratie 30"
+				"nl": "Configuratie 30",
+				"de": "Tastenkonfig. 30",
+				"fr": "Config. de bouton 30",
+				"it": "Config. pulsante 30",
+				"sv": "Knappkonfig. 30",
+				"no": "Knappekonfig. 30",
+				"es": "Config. de botón 30",
+				"da": "Knapkonfig. 30",
+				"ru": "Конфигурация кнопки 30",
+				"pl": "Konfiguracja przycisku 30",
+				"ko": "버튼 구성 30",
+				"ar": "تكوين الزر 30"
 			}
 		},
 		{
 			"id": "30",
 			"title": {
 				"en": "Button Config. 31",
-				"nl": "Configuratie 31"
+				"nl": "Configuratie 31",
+				"de": "Tastenkonfig. 31",
+				"fr": "Config. de bouton 31",
+				"it": "Config. pulsante 31",
+				"sv": "Knappkonfig. 31",
+				"no": "Knappekonfig. 31",
+				"es": "Config. de botón 31",
+				"da": "Knapkonfig. 31",
+				"ru": "Конфигурация кнопки 31",
+				"pl": "Konfiguracja przycisku 31",
+				"ko": "버튼 구성 31",
+				"ar": "تكوين الزر 31"
 			}
 		},
 		{
 			"id": "31",
 			"title": {
 				"en": "Button Config. 32",
-				"nl": "Configuratie 32"
+				"nl": "Configuratie 32",
+				"de": "Tastenkonfig. 32",
+				"fr": "Config. de bouton 32",
+				"it": "Config. pulsante 32",
+				"sv": "Knappkonfig. 32",
+				"no": "Knappekonfig. 32",
+				"es": "Config. de botón 32",
+				"da": "Knapkonfig. 32",
+				"ru": "Конфигурация кнопки 32",
+				"pl": "Konfiguracja przycisku 32",
+				"ko": "버튼 구성 32",
+				"ar": "تكوين الزر 32"
 			}
 		},
 		{
 			"id": "32",
 			"title": {
 				"en": "Button Config. 33",
-				"nl": "Configuratie 33"
+				"nl": "Configuratie 33",
+				"de": "Tastenkonfig. 33",
+				"fr": "Config. de bouton 33",
+				"it": "Config. pulsante 33",
+				"sv": "Knappkonfig. 33",
+				"no": "Knappekonfig. 33",
+				"es": "Config. de botón 33",
+				"da": "Knapkonfig. 33",
+				"ru": "Конфигурация кнопки 33",
+				"pl": "Konfiguracja przycisku 33",
+				"ko": "버튼 구성 33",
+				"ar": "تكوين الزر 33"
 			}
 		},
 		{
 			"id": "33",
 			"title": {
 				"en": "Button Config. 34",
-				"nl": "Configuratie 34"
+				"nl": "Configuratie 34",
+				"de": "Tastenkonfig. 34",
+				"fr": "Config. de bouton 34",
+				"it": "Config. pulsante 34",
+				"sv": "Knappkonfig. 34",
+				"no": "Knappekonfig. 34",
+				"es": "Config. de botón 34",
+				"da": "Knapkonfig. 34",
+				"ru": "Конфигурация кнопки 34",
+				"pl": "Konfiguracja przycisku 34",
+				"ko": "버튼 구성 34",
+				"ar": "تكوين الزر 34"
 			}
 		},
 		{
 			"id": "34",
 			"title": {
 				"en": "Button Config. 35",
-				"nl": "Configuratie 35"
+				"nl": "Configuratie 35",
+				"de": "Tastenkonfig. 35",
+				"fr": "Config. de bouton 35",
+				"it": "Config. pulsante 35",
+				"sv": "Knappkonfig. 35",
+				"no": "Knappekonfig. 35",
+				"es": "Config. de botón 35",
+				"da": "Knapkonfig. 35",
+				"ru": "Конфигурация кнопки 35",
+				"pl": "Konfiguracja przycisku 35",
+				"ko": "버튼 구성 35",
+				"ar": "تكوين الزر 35"
 			}
 		},
 		{
 			"id": "35",
 			"title": {
 				"en": "Button Config. 36",
-				"nl": "Configuratie 36"
+				"nl": "Configuratie 36",
+				"de": "Tastenkonfig. 36",
+				"fr": "Config. de bouton 36",
+				"it": "Config. pulsante 36",
+				"sv": "Knappkonfig. 36",
+				"no": "Knappekonfig. 36",
+				"es": "Config. de botón 36",
+				"da": "Knapkonfig. 36",
+				"ru": "Конфигурация кнопки 36",
+				"pl": "Konfiguracja przycisku 36",
+				"ko": "버튼 구성 36",
+				"ar": "تكوين الزر 36"
 			}
 		},
 		{
 			"id": "36",
 			"title": {
 				"en": "Button Config. 37",
-				"nl": "Configuratie 37"
+				"nl": "Configuratie 37",
+				"de": "Tastenkonfig. 37",
+				"fr": "Config. de bouton 37",
+				"it": "Config. pulsante 37",
+				"sv": "Knappkonfig. 37",
+				"no": "Knappekonfig. 37",
+				"es": "Config. de botón 37",
+				"da": "Knapkonfig. 37",
+				"ru": "Конфигурация кнопки 37",
+				"pl": "Konfiguracja przycisku 37",
+				"ko": "버튼 구성 37",
+				"ar": "تكوين الزر 37"
 			}
 		},
 		{
 			"id": "37",
 			"title": {
 				"en": "Button Config. 38",
-				"nl": "Configuratie 38"
+				"nl": "Configuratie 38",
+				"de": "Tastenkonfig. 38",
+				"fr": "Config. de bouton 38",
+				"it": "Config. pulsante 38",
+				"sv": "Knappkonfig. 38",
+				"no": "Knappekonfig. 38",
+				"es": "Config. de botón 38",
+				"da": "Knapkonfig. 38",
+				"ru": "Конфигурация кнопки 38",
+				"pl": "Konfiguracja przycisku 38",
+				"ko": "버튼 구성 38",
+				"ar": "تكوين الزر 38"
 			}
 		},
 		{
 			"id": "38",
 			"title": {
 				"en": "Button Config. 39",
-				"nl": "Configuratie 39"
+				"nl": "Configuratie 39",
+				"de": "Tastenkonfig. 39",
+				"fr": "Config. de bouton 39",
+				"it": "Config. pulsante 39",
+				"sv": "Knappkonfig. 39",
+				"no": "Knappekonfig. 39",
+				"es": "Config. de botón 39",
+				"da": "Knapkonfig. 39",
+				"ru": "Конфигурация кнопки 39",
+				"pl": "Konfiguracja przycisku 39",
+				"ko": "버튼 구성 39",
+				"ar": "تكوين الزر 39"
 			}
 		},
 		{
 			"id": "39",
 			"title": {
 				"en": "Button Config. 40",
-				"nl": "Configuratie 40"
+				"nl": "Configuratie 40",
+				"de": "Tastenkonfig. 40",
+				"fr": "Config. de bouton 40",
+				"it": "Config. pulsante 40",
+				"sv": "Knappkonfig. 40",
+				"no": "Knappekonfig. 40",
+				"es": "Config. de botón 40",
+				"da": "Knapkonfig. 40",
+				"ru": "Конфигурация кнопки 40",
+				"pl": "Konfiguracja przycisku 40",
+				"ko": "버튼 구성 40",
+				"ar": "تكوين الزر 40"
 			}
 		}
 

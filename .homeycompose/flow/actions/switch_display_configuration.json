@@ -1,16 +1,49 @@
 {
     "title": {
         "en": "Switch display configuration",
-        "nl": "Stuur display configuratie"
+        "nl": "Stuur display configuratie",
+        "de": "Displaykonfiguration wechseln",
+        "fr": "Changer de configuration d’affichage",
+        "it": "Cambia configurazione del display",
+        "sv": "Byt skärmkonfiguration",
+        "no": "Bytt skjermkonfigurasjon",
+        "es": "Cambiar la configuración de pantalla",
+        "da": "Skift skærmkonfiguration",
+        "ru": "Переключить конфигурацию дисплея",
+        "pl": "Przełącz konfigurację wyświetlacza",
+        "ko": "디스플레이 구성 전환",
+        "ar": "تبديل تكوين الشاشة"
     },
     "titleFormatted": {
         "en": "Switch to Display Configuration [[configurationId]]",
-        "nl": "Wissel naar display configuratie [[configurationId]]"
+        "nl": "Wissel naar display configuratie [[configurationId]]",
+        "de": "Zu Displaykonfiguration [[configurationId]] wechseln",
+        "fr": "Basculer vers la configuration d’affichage [[configurationId]]",
+        "it": "Passa alla configurazione display [[configurationId]]",
+        "sv": "Byt till skärmkonfiguration [[configurationId]]",
+        "no": "Bytt til skjermkonfigurasjon [[configurationId]]",
+        "es": "Cambiar a la configuración de pantalla [[configurationId]]",
+        "da": "Skift til skærmkonfiguration [[configurationId]]",
+        "ru": "Переключить на конфигурацию дисплея [[configurationId]]",
+        "pl": "Przełącz na konfigurację wyświetlacza [[configurationId]]",
+        "ko": "디스플레이 구성 [[configurationId]](으)로 전환",
+        "ar": "التبديل إلى تكوين الشاشة [[configurationId]]"
     },
     
     "hint": {
         "en": "Send the select display configuration to the device",
-        "nl": "Stuur de geselecteerde display configuratie naar het apparaat"
+        "nl": "Stuur de geselecteerde display configuratie naar het apparaat",
+        "de": "Sendet die ausgewählte Displaykonfiguration an das Gerät",
+        "fr": "Envoyer la configuration d’affichage sélectionnée à l’appareil",
+        "it": "Invia la configurazione display selezionata al dispositivo",
+        "sv": "Skicka den valda skärmkonfigurationen till enheten",
+        "no": "Send den valgte skjermkonfigurasjonen til enheten",
+        "es": "Enviar la configuración de pantalla seleccionada al dispositivo",
+        "da": "Send den valgte skærmkonfiguration til enheden",
+        "ru": "Отправить выбранную конфигурацию дисплея на устройство",
+        "pl": "Wyślij wybraną konfigurację wyświetlacza do urządzenia",
+        "ko": "선택한 디스플레이 구성을 장치로 전송합니다",
+        "ar": "إرسال تكوين الشاشة المحدد إلى الجهاز"
     },
     "args": [
         {
@@ -18,15 +51,48 @@
             "name": "configurationId",
             "title": {
                 "en": "Configuration number",
-                "nl": "Configuratie nummer"
+                "nl": "Configuratie nummer",
+                "de": "Konfigurationsnummer",
+                "fr": "Numéro de configuration",
+                "it": "Numero configurazione",
+                "sv": "Konfigurationsnummer",
+                "no": "Konfigurasjonsnummer",
+                "es": "Número de configuración",
+                "da": "Konfigurationsnummer",
+                "ru": "Номер конфигурации",
+                "pl": "Numer konfiguracji",
+                "ko": "구성 번호",
+                "ar": "رقم التكوين"
             },
             "hint": {
                 "en": "Configuration number (1-40)",
-                "nl": "Configuratie nummer (1-40)"
+                "nl": "Configuratie nummer (1-40)",
+                "de": "Konfigurationsnummer (1-40)",
+                "fr": "Numéro de configuration (1-40)",
+                "it": "Numero configurazione (1-40)",
+                "sv": "Konfigurationsnummer (1-40)",
+                "no": "Konfigurasjonsnummer (1-40)",
+                "es": "Número de configuración (1-40)",
+                "da": "Konfigurationsnummer (1-40)",
+                "ru": "Номер конфигурации (1-40)",
+                "pl": "Numer konfiguracji (1-40)",
+                "ko": "구성 번호(1-40)",
+                "ar": "رقم التكوين (1-40)"
             },
             "placeholder": {
                 "en": "Configuration number (1-40)",
-                "nl": "Configuratie nummer (1-40)"
+                "nl": "Configuratie nummer (1-40)",
+                "de": "Konfigurationsnummer (1-40)",
+                "fr": "Numéro de configuration (1-40)",
+                "it": "Numero configurazione (1-40)",
+                "sv": "Konfigurationsnummer (1-40)",
+                "no": "Konfigurasjonsnummer (1-40)",
+                "es": "Número de configuración (1-40)",
+                "da": "Konfigurationsnummer (1-40)",
+                "ru": "Номер конфигурации (1-40)",
+                "pl": "Numer konfiguracji (1-40)",
+                "ko": "구성 번호(1-40)",
+                "ar": "رقم التكوين (1-40)"
             },
             "min": 1,
             "max": 40,

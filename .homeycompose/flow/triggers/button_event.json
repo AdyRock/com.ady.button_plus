@@ -1,11 +1,33 @@
 {
     "title": {
         "en": "A button event occurred",
-        "nl": "Een knop gebeurtenis heeft plaatsgevonden"
+        "nl": "Een knop gebeurtenis heeft plaatsgevonden",
+        "de": "Ein Tastenereignis ist aufgetreten",
+        "fr": "Un événement de bouton s’est produit",
+        "it": "Si è verificato un evento del pulsante",
+        "sv": "En knapphändelse inträffade",
+        "no": "En knapphendelse oppstod",
+        "es": "Se produjo un evento de botón",
+        "da": "Der opstod en knaphændelse",
+        "ru": "Произошло событие кнопки",
+        "pl": "Wystąpiło zdarzenie przycisku",
+        "ko": "버튼 이벤트가 발생함",
+        "ar": "وقع حدث زر"
     },
     "titleFormatted": {
         "en": "The [[left_right]] button on connector [[connector]] was [[state]]",
-        "nl": "De [[left_right]] knop op connector [[connector]] was [[state]]"
+        "nl": "De [[left_right]] knop op connector [[connector]] was [[state]]",
+        "de": "Die [[left_right]] Taste an Anschluss [[connector]] wurde [[state]]",
+        "fr": "Le bouton [[left_right]] du connecteur [[connector]] a été [[state]]",
+        "it": "Il pulsante [[left_right]] sul connettore [[connector]] è stato [[state]]",
+        "sv": "[[left_right]] knapp på anslutning [[connector]] blev [[state]]",
+        "no": "[[left_right]] knapp på tilkobling [[connector]] ble [[state]]",
+        "es": "El botón [[left_right]] del conector [[connector]] fue [[state]]",
+        "da": "Knappen [[left_right]] på tilslutning [[connector]] blev [[state]]",
+        "ru": "Кнопка [[left_right]] на разъеме [[connector]] получила состояние [[state]]",
+        "pl": "Przycisk [[left_right]] na złączu [[connector]] został [[state]]",
+        "ko": "커넥터 [[connector]]의 [[left_right]] 버튼 상태가 [[state]]",
+        "ar": "كانت حالة الزر [[left_right]] في الموصل [[connector]] هي [[state]]"
     },
 	"highlight": true,
     "tokens": [
@@ -14,7 +36,18 @@
             "type": "string",
             "title": {
                 "en": "Value",
-                "nl": "Waarde"
+                "nl": "Waarde",
+                "de": "Wert",
+                "fr": "Valeur",
+                "it": "Valore",
+                "sv": "Värde",
+                "no": "Verdi",
+                "es": "Valor",
+                "da": "Værdi",
+                "ru": "Значение",
+                "pl": "Wartość",
+                "ko": "값",
+                "ar": "القيمة"
             },
             "example": "true"
         },
@@ -23,7 +56,18 @@
             "type": "number",
             "title": {
                 "en": "Number of repeats",
-                "nl": "Aantal herhalingen"
+                "nl": "Aantal herhalingen",
+                "de": "Anzahl der Wiederholungen",
+                "fr": "Nombre de répétitions",
+                "it": "Numero di ripetizioni",
+                "sv": "Antal upprepningar",
+                "no": "Antall gjentakelser",
+                "es": "Número de repeticiones",
+                "da": "Antal gentagelser",
+                "ru": "Количество повторов",
+                "pl": "Liczba powtórzeń",
+                "ko": "반복 횟수",
+                "ar": "عدد مرات التكرار"
             },
             "example": "0 = first event, 1 = first repeat, etc."
 		}
@@ -34,20 +78,42 @@
             "name": "left_right",
             "title": {
                 "en": "Left / Right",
-                "nl": "Links / Rechts"
+                "nl": "Links / Rechts",
+                "de": "Links / Rechts",
+                "fr": "Gauche / Droite",
+                "it": "Sinistro / Destro",
+                "sv": "Vänster / Höger",
+                "no": "Venstre / Høyre",
+                "es": "Izquierdo / Derecho",
+                "da": "Venstre / højre",
+                "ru": "Левая / Правая",
+                "pl": "Lewy / Prawy",
+                "ko": "왼쪽 / 오른쪽",
+                "ar": "يسار / يمين"
             },
             "placeholder": {
                 "en": "Left / Right",
-                "nl": "Links / Rechts"
+                "nl": "Links / Rechts",
+                "de": "Links / Rechts",
+                "fr": "Gauche / Droite",
+                "it": "Sinistro / Destro",
+                "sv": "Vänster / Höger",
+                "no": "Venstre / Høyre",
+                "es": "Izquierdo / Derecho",
+                "da": "Venstre / højre",
+                "ru": "Левая / Правая",
+                "pl": "Lewy / Prawy",
+                "ko": "왼쪽 / 오른쪽",
+                "ar": "يسار / يمين"
             },
             "values": [
                 {
                     "id": "left",
-                    "title": {"en": "Left","nl": "Links"}
+                    "title": {"en": "Left","nl": "Links", "de": "Links", "fr": "Gauche", "it": "Sinistro", "sv": "Vänster", "no": "Venstre", "es": "Izquierdo", "da": "Venstre", "ru": "Левая", "pl": "Lewy", "ko": "왼쪽", "ar": "يسار"}
                 },
                 {
                     "id": "right",
-                    "title": {"en": "Right","nl": "Rechts"}
+                    "title": {"en": "Right","nl": "Rechts", "de": "Rechts", "fr": "Droite", "it": "Destro", "sv": "Höger", "no": "Høyre", "es": "Derecho", "da": "Højre", "ru": "Правая", "pl": "Prawy", "ko": "오른쪽", "ar": "يمين"}
                 }
             ]
         },
@@ -56,15 +122,48 @@
 			"name": "connector",
 			"title": {
 				"en": "Connectore Number",
-				"nl": "Connector nummer"
+				"nl": "Connector nummer",
+				"de": "Anschlussnummer",
+				"fr": "Numéro de connecteur",
+				"it": "Numero connettore",
+				"sv": "Anslutningsnummer",
+				"no": "Tilkoblingsnummer",
+				"es": "Número de conector",
+				"da": "Tilslutningsnummer",
+				"ru": "Номер разъема",
+				"pl": "Numer złącza",
+				"ko": "커넥터 번호",
+				"ar": "رقم الموصل"
 			},
 			"hint": {
 				"en": "The connector number (1-4). Use 0 for any connector.",
-				"nl": "Het connector nummer (1-4). Gebruik 0 voor elke connector."
+				"nl": "Het connector nummer (1-4). Gebruik 0 voor elke connector.",
+				"de": "Die Anschlussnummer (1-4). 0 für einen beliebigen Anschluss verwenden.",
+				"fr": "Le numéro du connecteur (1-4). Utilisez 0 pour n’importe quel connecteur.",
+				"it": "Il numero del connettore (1-4). Usa 0 per qualsiasi connettore.",
+				"sv": "Anslutningsnumret (1-4). Använd 0 för valfri anslutning.",
+				"no": "Tilkoblingsnummeret (1-4). Bruk 0 for en vilkårlig tilkobling.",
+				"es": "El número de conector (1-4). Use 0 para cualquier conector.",
+				"da": "Tilslutningsnummeret (1-4). Brug 0 for en vilkårlig tilslutning.",
+				"ru": "Номер разъема (1-4). Используйте 0 для любого разъема.",
+				"pl": "Numer złącza (1-4). Użyj 0 dla dowolnego złącza.",
+				"ko": "커넥터 번호(1-4). 모든 커넥터에 적용하려면 0을 사용하세요.",
+				"ar": "رقم الموصل (1-4). استخدم 0 لأي موصل."
 			},
 			"placeholder": {
 				"en": "Connector number",
-				"nl": "Connector nummer"
+				"nl": "Connector nummer",
+				"de": "Anschlussnummer",
+				"fr": "Numéro de connecteur",
+				"it": "Numero connettore",
+				"sv": "Anslutningsnummer",
+				"no": "Tilkoblingsnummer",
+				"es": "Número de conector",
+				"da": "Tilslutningsnummer",
+				"ru": "Номер разъема",
+				"pl": "Numer złącza",
+				"ko": "커넥터 번호",
+				"ar": "رقم الموصل"
 			},
 			"min": 0,
 			"max": 4,
@@ -75,28 +174,50 @@
             "name": "state",
             "title": {
                 "en": "State",
-                "nl": "Status"
+                "nl": "Status",
+                "de": "Status",
+                "fr": "État",
+                "it": "Stato",
+                "sv": "Tillstånd",
+                "no": "Tilstand",
+                "es": "Estado",
+                "da": "Tilstand",
+                "ru": "Состояние",
+                "pl": "Stan",
+                "ko": "상태",
+                "ar": "الحالة"
             },
             "placeholder": {
                 "en": "Clicked / Released / Long Pressed",
-                "nl": "Ingedrukt / Losgelaten / Lang ingedrukt"
+                "nl": "Ingedrukt / Losgelaten / Lang ingedrukt",
+                "de": "Angeklickt / Losgelassen / Lange gedrückt",
+                "fr": "Cliqué / Relâché / Appui long",
+                "it": "Premuto / Rilasciato / Premuto a lungo",
+                "sv": "Klickad / Släppt / Långtryckt",
+                "no": "Klikket / Slipp / Langt trykk",
+                "es": "Pulsado / Soltado / Pulsación larga",
+                "da": "Trykket / sluppet / langt tryk",
+                "ru": "Нажата / Отпущена / Долго нажата",
+                "pl": "Kliknięty / Zwolniony / Naciśnięty długo",
+                "ko": "클릭 / 놓음 / 길게 누름",
+                "ar": "نُقر / أُفلت / ضُغط مطولًا"
             },
             "values": [
                 {
                     "id": "clicked",
-                    "title": {"en": "Clicked","nl": "Ingedrukt"}
+                    "title": {"en": "Clicked","nl": "Ingedrukt", "de": "Angeklickt", "fr": "Cliqué", "it": "Premuto", "sv": "Klickad", "no": "Klikket", "es": "Pulsado", "da": "Trykket", "ru": "Нажата", "pl": "Kliknięty", "ko": "클릭함", "ar": "نُقر"}
                 },
                 {
                     "id": "released",
-                    "title": {"en": "Released","nl": "Losgelaten"}
+                    "title": {"en": "Released","nl": "Losgelaten", "de": "Losgelassen", "fr": "Relâché", "it": "Rilasciato", "sv": "Släppt", "no": "Slipp", "es": "Soltado", "da": "Sluppet", "ru": "Отпущена", "pl": "Zwolniony", "ko": "놓음", "ar": "أُفلت"}
                 },
                 {
                     "id": "long",
-                    "title": {"en": "Long Pressed","nl": "Lang ingedrukt"}
+                    "title": {"en": "Long Pressed","nl": "Lang ingedrukt", "de": "Lange gedrückt", "fr": "Appui long", "it": "Premuto a lungo", "sv": "Långtryckt", "no": "Langt trykk", "es": "Pulsación larga", "da": "Langt tryk", "ru": "Долго нажата", "pl": "Naciśnięty długo", "ko": "길게 누름", "ar": "ضُغط مطولًا"}
                 },
                 {
                     "id": "double",
-                    "title": {"en": "Double Clicked","nl": "Dubbel ingedrukt"}
+                    "title": {"en": "Double Clicked","nl": "Dubbel ingedrukt", "de": "Doppelt angeklickt", "fr": "Double-clic", "it": "Premuto due volte", "sv": "Dubbelklickad", "no": "Dobbeltklikket", "es": "Doble pulsación", "da": "Dobbelttrykket", "ru": "Нажата дважды", "pl": "Kliknięty dwukrotnie", "ko": "두 번 클릭함", "ar": "نُقر نقرًا مزدوجًا"}
                 }
             ]
         },
