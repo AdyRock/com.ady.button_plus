@@ -4,7 +4,7 @@ Die App unterstützt die Button + Hardware.
 
 So richten Sie die App ein:
 
-3. Installieren Sie die App auf Ihrem Homey. 
+3. Installieren Sie die App auf Ihrem Homey.
 4. Öffnen Sie die Seite „Button + App-Einstellungen/Konfiguration“ in Homey.
 5. Stellen Sie sicher, dass das Kontrollkästchen Aktualisierung der Button+-Konfiguration zulassen aktiviert ist.
 

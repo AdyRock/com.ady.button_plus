@@ -4,7 +4,7 @@ La aplicación es compatible con el botón + hardware.
 
 Para configurar la aplicación:
 
-3. Instale la aplicación en su Homey. 
+3. Instale la aplicación en su Homey.
 4. Abra la página Botón + Configuración de la aplicación / Configuración en Homey.
 5. Asegúrese de que la opción Permitir actualización de la configuración de Button+ esté marcada.
 

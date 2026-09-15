@@ -4,7 +4,7 @@ Appen støtter knapp + maskinvare.
 
 For å konfigurere appen:
 
-3. Installer appen på din Homey. 
+3. Installer appen på din Homey.
 4. Åpne Button + App Settings / Configuration-siden i Homey.
 5. Sørg for at Tillat oppdatering av Button+-konfigurasjon er merket av.
 

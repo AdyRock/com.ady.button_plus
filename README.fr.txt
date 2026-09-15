@@ -4,7 +4,7 @@ L'application prend en charge le matériel Button +.
 
 Pour configurer l'application :
 
-3. Installez l'application sur votre Homey. 
+3. Installez l'application sur votre Homey.
 4. Ouvrez la page Bouton + Paramètres de l'application / Configuration dans Homey.
 5. Assurez-vous que la case Autoriser la mise à jour de la configuration Button+ est cochée.
 
