@@ -1,60 +1,95 @@
-Bedien Button+-panelen
+Button +
 
-De app ondersteunt de Button+-hardware.
+Maak van je Homey installatie een slimmer en netter bedieningscentrum voor de dingen die je elke dag gebruikt.
 
-De app instellen:
+Met Button + kun je eenvoudig aangepaste fysieke bedieningspanelen maken die aanvoelen als een premium smart home dashboard in plaats van een wirwar van schakelaars en pagina's. Met een Button + paneel kun je de bediening die je echt gebruikt op één plek zetten, in één oogopslag de live status tonen en je huis verfijnder en intuïtiever laten aanvoelen.
 
-3. Installeer de app op je Homey.
-4. Open in Homey de pagina Instellingen / Configuratie van de Button+-app.
-5. Zorg dat Bijwerken van de Button+-configuratie toestaan is aangevinkt.
+Waarom Button + de moeite waard is
 
-Er zijn twee soorten configuraties, Knoppenbalk en Display, die momenteel elk 20 plaatsen hebben.
-De knoppenbalkconfiguraties worden weergegeven wanneer in de eerste keuzelijst Knoppenbalkconfiguraties is geselecteerd. Selecteer Displayconfiguraties in de keuzelijst om de displayconfiguraties weer te geven.
+1. Bediening met één aanraking voor je belangrijkste apparaten en scènes.
+2. Snelle visuele feedback met aangepaste labels, statustekst en live weergavewaarden.
+3. Een nettere smart home ervaring aan de muur zonder door menu's te hoeven gaan.
+4. Flexibele indelingen voor knoppen, displays en gegroepeerde panelen.
+5. Sneller dagelijks gebruik voor routines zoals verlichting, klimaat, beveiliging en media.
+6. Een moderne, aanpasbare uitstraling die past bij je huis en hardwareopstelling.
 
-Knoppenbalkconfiguraties instellen:
+Snelle installatie
 
-1. Selecteer Knoppenbalkconfiguraties in de eerste keuzelijst.
-2. Selecteer een configuratienummer om te bewerken (we kunnen elk van de configuraties later aan Button+-panelen toewijzen).
-3. Onder Linkerknoppenbalk staan de opties voor de knop aan de linkerkant van de Button+-knoppenbalk.
-4. Selecteer in de keuzelijst een Homey-apparaat dat je wilt bedienen (de panelen ondersteunen alleen booleaanse mogelijkheden, maar het filteren van de lijsten moet nog worden geïmplementeerd).
-5. Selecteer een mogelijkheid in de keuzelijst.
-6. Voer een bovenste label in (optioneel). Dit wordt groen weergegeven op het display van de knoppen.
-7. Voer een label in. Dit wordt wit en met een groter lettertype weergegeven op het display van de knoppen, direct onder de bovenste tekst.
-8. Herhaal de stappen voor de rechterknoppenbalk.
-9. Klik op de knop Configuraties opslaan. Er moet nog een melding worden toegevoegd voor als je vergeet op te slaan en het venster sluit.
+1. Installeer de app op je Homey.
+2. Open de pagina Button + App settings / Configuration in Homey.
 
-Displayconfiguraties instellen:
+Er zijn drie hoofdgebieden voor configuratie in de app.
 
-1. Selecteer Displayconfiguraties in de eerste keuzelijst.
-2. Selecteer een configuratienummer om te bewerken (we kunnen elk van de configuraties later aan het Button+-display toewijzen).
-3. Klik op Nieuw display-item.
-4. Selecteer een apparaat of "Variabele".
-5. Selecteer een mogelijkheid of variabele.
-6. Bewerk zo nodig het label.
-7. Bewerk zo nodig de eenheden. (Dit is alleen tekst en verandert de waarden die naar het display worden verzonden niet.)
-8. Voer de X- en Y-posities in. Dit zijn percentages van de breedte / hoogte van het display.
+1. Button bar configurations.
+2. Display configurations.
+3. Group configurations.
+
+Elk configuratiegebied heeft een reeks slots om je paneelindelingen op te bouwen. De configuraties voor de button bar worden gebruikt voor de bedieningsknoppen, de displayconfiguraties worden gebruikt voor het display van het paneel en met de groepsconfiguraties kun je die combineren tot een volledige Button + paneelopstelling.
+
+Button bar configuraties instellen
+
+1. Selecteer Button bar Configurations in de eerste keuzelijst.
+2. Selecteer een configuratienummer om te bewerken. Dit nummer kan later aan een Button+ paneel worden toegewezen.
+3. Onder Left button bar staan de opties voor de knop aan de linkerkant van de Button+ button bar.
+4. Selecteer in de keuzelijst een Homey apparaat dat je wilt bedienen. De panelen ondersteunen boolean capabilities, hoewel het filteren nog wordt verbeterd.
+5. Selecteer een capability in de keuzelijst.
+6. Voer desgewenst een Top Label in. Dit wordt groen weergegeven op het display van de knop.
+7. Voer een Label in. Dit wordt wit en in een groter lettertype weergegeven op het display van de knop, net onder de Top Text.
+8. Herhaal de stappen voor de Right button bar.
+9. Klik op de knop Save Configurations.
+
+Display configuraties instellen
+
+1. Selecteer Display Configurations in de eerste keuzelijst.
+2. Selecteer een configuratienummer om te bewerken. Dit kan later aan een Button+ display worden toegewezen.
+3. Klik op New Display Item.
+4. Selecteer een Device.
+5. Selecteer een Capability.
+6. Bewerk de Label indien nodig.
+7. Bewerk de Units indien nodig. Dit is alleen tekst en verandert de waarden die naar het display worden verzonden niet.
+8. Voer de X en Y posities in. Dit zijn percentages van de breedte en hoogte van het display.
 9. Voer een breedte in. Ook dit is een percentage van de breedte van het display.
-10. Voer een afrondingswaarde in. 0 = gehele getallen (integer), 1 is 1 decimaal, enzovoort.
-11. Selecteer een lettergrootte in de lijst.
-12. Voeg naar wens meer display-items toe.
-13. Klik op Configuraties opslaan.
+10. Voer een Rounding waarde in. 0 betekent hele getallen, 1 betekent 1 decimaal, enzovoort.
+11. Selecteer een Font Size in de lijst.
+12. Voeg meer displayitems toe indien nodig.
+13. Klik op Save Configurations.
 
-Een apparaat aan Homey toevoegen:
+Groepen instellen
 
-1. Selecteer de optie Nieuw apparaat in Homey.
-2. Selecteer Button-knoppenbalk.
-3. Klik op Verbinden.
-4. Het apparaat wordt nu in de lijst weergegeven. Selecteer het en ga verder. (De app gebruikt momenteel de naam onder de algemene instellingen om de knoppenbalk te identificeren.) Als de Button+ niet wordt gevonden, kun je deze handmatig toevoegen door de optie Handmatig te selecteren en het IP-adres in te voeren.
-5. Het apparaat wordt aan Homey toegevoegd.
+Groepen zijn de eenvoudigste manier om een compleet fysiek Button + paneel te definiëren. Een groep vertegenwoordigt één afgewerkte paneelindeling en kan het volgende combineren:
 
-Het Homey-apparaat gebruiken:
+1. één displayconfiguratie.
+2. één of meer button bar of connector configuraties.
+3. een aangepaste naam voor het paneel.
+
+Zo stel je een groep in:
+
+1. Open het tabblad Group Configurations in de app instellingen.
+2. Selecteer een bestaande groep of klik op de knop + om een nieuwe groep te maken.
+3. Geef de groep een naam zoals Woonkamerpaneel of Paneel Hoofdgang.
+4. Kies de displayconfiguratie die je aan die groep wilt toewijzen.
+5. Wijs een of meer connector of button configuraties toe aan de groep.
+6. Gebruik het voorbeeldgebied om de volledige paneelindeling te bekijken voordat je opslaat.
+7. Dupliceer of verwijder groepen indien nodig als je meerdere paneelindelingen wilt.
+
+Dit is handig als je verschillende fysieke panelen in verschillende kamers of voor verschillende doeleinden wilt gebruiken terwijl je dezelfde display en button presets hergebruikt.
+
+Een apparaat toevoegen aan Homey
+
+1. Selecteer in Homey de optie New Device.
+2. Selecteer Button button bar.
+3. Klik op Connect.
+4. Je zou het apparaat dan in de lijst moeten zien. Selecteer het en ga verder. De app gebruikt momenteel de Name onder General settings om de button bar te identificeren. Als de Button + niet wordt gevonden, kun je proberen deze handmatig toe te voegen door de optie Manual te selecteren en het IP adres in te voeren.
+5. Het apparaat wordt toegevoegd aan Homey.
+
+Het Homey apparaat gebruiken
 
 1. Open het apparaat in Homey.
 2. Open het tweede tabblad om een lijst met configuraties voor het display en elke connector te bekijken.
-3. Selecteer het display of een connectornummer in de bovenste keuzelijst (Homey tekent de configuratielijst momenteel over de keuzelijst heen, waardoor het lastig kan zijn om de gewenste optie te selecteren).
-4. Selecteer een configuratienummer om toe te passen op het display / de knoppenbalkconnector.
-5. De configuratie wordt naar de simulator geüpload, maar je moet de simulator vernieuwen voordat deze van kracht wordt. Rechts van de virtuele ID staat een knop om de pagina te vernieuwen.
-6. De informatie die je in de configuratie hebt geselecteerd, wordt nu op de knoppenbalk weergegeven.
-7. Je kunt op de knoppen in de minidisplays klikken om de mogelijkheid in Homey in of uit te schakelen.
+3. Selecteer het Display of een Connector nummer in de bovenste keuzelijst. Homey tekent momenteel de lijst Configuration over de keuzelijst heen, waardoor het lastig kan zijn om te selecteren wat je wilt.
+4. Selecteer een Configuration nummer om toe te passen op de Display of button bar connector.
+5. De configuratie wordt naar de simulator geüpload, maar je moet de simulator vernieuwen voordat deze effect heeft. Rechts van de Virtual Id staat een knop om de pagina te vernieuwen.
+6. Je zou nu de informatie die je in de configuratie hebt geselecteerd op de button bar moeten zien.
+7. Je kunt op de knoppen in de mini displays klikken om de capability in Homey te schakelen.
 
-De app heeft een ingebouwde MQTT-broker, dus daarvoor is geen configuratie nodig. Het is echter mogelijk om op de instellingenpagina van de app een of meer externe MQTT-brokers toe te voegen.
+De app heeft een ingebouwde MQTT broker, dus daarvoor is geen configuratie nodig. Het is echter mogelijk om op de app instellingenpagina een of meer externe MQTT brokers toe te voegen.

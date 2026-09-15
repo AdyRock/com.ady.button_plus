@@ -1,60 +1,95 @@
-Controllo dei pannelli Button+
+Button +
 
-L'app supporta l'hardware Button+.
+Trasforma la tua configurazione Homey in un centro di controllo più intelligente e ordinato per le cose che usi ogni giorno.
 
-Per configurare l'app:
+Button + rende semplice creare pannelli di controllo fisici personalizzati che sembrano una dashboard smart home premium invece di un insieme confuso di interruttori e pagine. Con un pannello Button + puoi riunire in un solo posto i controlli che usi davvero, mostrare lo stato in tempo reale a colpo d'occhio e rendere la tua casa più rifinita e intuitiva.
 
-3. Installa l'app sul tuo Homey.
-4. Apri la pagina Impostazioni / Configurazione dell'app Button+ in Homey.
-5. Assicurati che l'opzione per consentire l'aggiornamento della configurazione di Button+ sia selezionata.
+Perché Button + vale la pena
 
-Esistono due tipi di configurazione, barra dei pulsanti e display, ciascuno dei quali dispone attualmente di 20 slot.
-Le configurazioni della barra dei pulsanti vengono mostrate quando il primo elenco a discesa indica Configurazioni barra dei pulsanti; per mostrare le configurazioni del display, seleziona Configurazioni display nell'elenco a discesa.
+1. Controllo con un solo tocco per i dispositivi e le scene più importanti.
+2. Feedback visivo rapido con etichette personalizzate, testo di stato e valori del display in tempo reale.
+3. Un'esperienza smart home a parete più pulita, senza dover scavare nei menu.
+4. Layout flessibili per pulsanti, display e pannelli raggruppati.
+5. Uso quotidiano più rapido per routine come illuminazione, clima, sicurezza e media.
+6. Un aspetto moderno e personalizzabile che si integra con la tua casa e con la tua configurazione hardware.
 
-Configurazione della barra dei pulsanti:
+Configurazione rapida
 
-1. Seleziona Configurazioni barra dei pulsanti dal primo elenco a discesa.
-2. Seleziona un numero di configurazione da modificare (in seguito potremo assegnare qualsiasi configurazione ai pannelli Button+).
-3. Nella sezione Barra pulsanti sinistra sono disponibili le opzioni per il pulsante sul lato sinistro della barra dei pulsanti Button+.
-4. Seleziona dall'elenco a discesa un dispositivo Homey da controllare (i pannelli supportano solo capability booleane, ma il filtro degli elenchi deve ancora essere implementato).
+1. Installa l'app sul tuo Homey.
+2. Apri la pagina Button + App settings / Configuration in Homey.
+
+Nell'app ci sono tre aree principali di configurazione.
+
+1. Button bar configurations.
+2. Display configurations.
+3. Group configurations.
+
+Ogni area di configurazione ha una serie di slot per costruire i layout del pannello. Le configurazioni della button bar vengono usate per i pulsanti di controllo, le configurazioni del display vengono usate per il display del pannello e le configurazioni di gruppo ti permettono di combinarle in una configurazione completa di pannello Button +.
+
+Impostare le button bar configurations
+
+1. Seleziona Button bar Configurations dal primo elenco a discesa.
+2. Seleziona un numero di configurazione da modificare. In seguito questo numero potrà essere assegnato a un pannello Button+.
+3. Sotto Left button bar ci sono le opzioni per il pulsante sul lato sinistro della Button+ button bar.
+4. Seleziona dall'elenco a discesa un dispositivo Homey che vuoi controllare. I pannelli supportano le boolean capabilities, anche se il filtro è ancora in fase di miglioramento.
 5. Seleziona una capability dall'elenco a discesa.
-6. Inserisci un'etichetta superiore (facoltativa). Viene visualizzata in verde sul display dei pulsanti.
-7. Inserisci un'etichetta. Viene visualizzata in bianco e con un carattere più grande sul display dei pulsanti, subito sotto il testo superiore.
-8. Ripeti i passaggi per la barra dei pulsanti destra.
-9. Fai clic sul pulsante Salva configurazioni. Resta da aggiungere un avviso nel caso in cui si chiuda la finestra senza salvare.
+6. Inserisci un Top Label se lo desideri. Verrà visualizzato in verde sul display del pulsante.
+7. Inserisci un Label. Verrà mostrato in bianco e con un carattere più grande sul display del pulsante, appena sotto il Top Text.
+8. Ripeti i passaggi per la Right button bar.
+9. Fai clic sul pulsante Save Configurations.
 
-Configurazione del display:
+Impostare le display configurations
 
-1. Seleziona Configurazioni display dal primo elenco a discesa.
-2. Seleziona un numero di configurazione da modificare (in seguito potremo assegnare qualsiasi configurazione al display Button+).
-3. Fai clic su Nuovo elemento display.
-4. Seleziona un dispositivo o "Variabile".
-5. Seleziona una capability o una variabile.
-6. Modifica l'etichetta, se necessario.
-7. Modifica le unità, se necessario (si tratta solo di testo e non modifica i valori inviati al display).
-8. Inserisci le posizioni X e Y. Sono espresse come percentuale della larghezza / altezza del display.
-9. Inserisci una larghezza. Anche questa è espressa come percentuale della larghezza del display.
-10. Inserisci un valore di arrotondamento. 0 = numeri interi, 1 = una cifra decimale e così via.
-11. Seleziona una dimensione del carattere dall'elenco.
-12. Aggiungi altri elementi display secondo necessità.
-13. Fai clic su Salva configurazioni.
+1. Seleziona Display Configurations dal primo elenco a discesa.
+2. Seleziona un numero di configurazione da modificare. In seguito potrà essere assegnato a un display Button+.
+3. Fai clic su New Display Item.
+4. Seleziona un Device.
+5. Seleziona una Capability.
+6. Modifica il Label se necessario.
+7. Modifica le Units se necessario. Si tratta solo di testo e non cambia i valori inviati al display.
+8. Inserisci le posizioni X e Y. Sono percentuali della larghezza e dell'altezza del display.
+9. Inserisci una larghezza. Anche questa è una percentuale della larghezza del display.
+10. Inserisci un valore di Rounding. 0 significa numeri interi, 1 significa 1 cifra decimale e così via.
+11. Seleziona una Font Size dall'elenco.
+12. Aggiungi altri elementi del display secondo necessità.
+13. Fai clic su Save Configurations.
 
-Aggiunta di un dispositivo a Homey:
+Impostare i gruppi
 
-1. Seleziona l'opzione Nuovo dispositivo in Homey.
-2. Seleziona Barra dei pulsanti Button.
-3. Fai clic su Connetti.
-4. Il dispositivo dovrebbe apparire nell'elenco: selezionalo e continua. (Attualmente l'app usa il nome presente nelle impostazioni Generali per identificare la barra dei pulsanti.) Se Button+ non viene rilevato, puoi provare ad aggiungerlo manualmente selezionando l'opzione Manuale e inserendo l'indirizzo IP.
+I gruppi sono il modo più semplice per definire un pannello fisico Button + completo. Un gruppo rappresenta un layout di pannello finito e può combinare:
+
+1. una configurazione display.
+2. una o più configurazioni di button bar o connector.
+3. un nome personalizzato per il pannello.
+
+Per impostare un gruppo:
+
+1. Apri la scheda Group Configurations nelle impostazioni dell'app.
+2. Seleziona un gruppo esistente oppure fai clic sul pulsante + per crearne uno nuovo.
+3. Dai al gruppo un nome come Pannello soggiorno o Pannello corridoio principale.
+4. Scegli la configurazione display da assegnare a quel gruppo.
+5. Assegna al gruppo una o più configurazioni di connector o button.
+6. Usa l'area di anteprima per controllare il layout completo del pannello prima di salvare.
+7. Duplica o elimina i gruppi secondo necessità se vuoi più layout di pannello.
+
+Questo è utile quando vuoi pannelli fisici diversi in stanze diverse o per scopi diversi, riutilizzando gli stessi preset di display e pulsanti.
+
+Aggiungere un dispositivo a Homey
+
+1. Seleziona l'opzione New Device in Homey.
+2. Seleziona Button button bar.
+3. Fai clic su Connect.
+4. Dovresti quindi vedere il dispositivo nell'elenco. Selezionalo e continua. Attualmente l'app usa il Name presente nelle General settings per identificare la button bar. Se il Button + non viene trovato, puoi provare ad aggiungerlo manualmente selezionando l'opzione Manual e inserendo l'indirizzo IP.
 5. Il dispositivo verrà aggiunto a Homey.
 
-Utilizzo del dispositivo Homey:
+Usare il dispositivo Homey
 
 1. Apri il dispositivo in Homey.
-2. Apri la seconda scheda per visualizzare l'elenco delle configurazioni del display e di ciascun connettore.
-3. Seleziona il display o il numero di un connettore dall'elenco a discesa superiore (attualmente Homey disegna l'elenco Configurazione sopra l'elenco a discesa, quindi può essere difficile selezionare l'elemento desiderato).
-4. Seleziona un numero di configurazione da applicare al display / connettore della barra dei pulsanti.
-5. La configurazione viene caricata nel simulatore, ma è necessario aggiornare il simulatore affinché abbia effetto. A destra dell'ID virtuale è presente un pulsante per aggiornare la pagina.
-6. Ora le informazioni selezionate nella configurazione dovrebbero essere visualizzate sulla barra dei pulsanti.
-7. Puoi fare clic sui pulsanti dei mini display per commutare la capability in Homey.
+2. Apri la seconda scheda per visualizzare un elenco delle configurazioni del display e di ciascun connector.
+3. Seleziona il Display oppure un numero di Connector dall'elenco a discesa superiore. Attualmente Homey disegna l'elenco Configuration sopra l'elenco a discesa, quindi può essere scomodo selezionare ciò che desideri.
+4. Seleziona un numero di Configuration da applicare al Display o al connector della button bar.
+5. La configurazione viene caricata nel simulatore, ma devi aggiornare il simulatore perché abbia effetto. A destra del Virtual Id c'è un pulsante per aggiornare la pagina.
+6. Ora dovresti vedere sulla button bar le informazioni che hai selezionato nella configurazione.
+7. Puoi fare clic sui pulsanti nei mini display per attivare o disattivare la capability in Homey.
 
-L'app integra un broker MQTT, quindi non è necessaria alcuna configurazione. È comunque possibile aggiungere uno o più broker MQTT esterni nella pagina delle impostazioni dell'app.
+L'app ha un broker MQTT integrato, quindi non è necessaria alcuna configurazione per questo. Tuttavia, è possibile aggiungere uno o più broker MQTT esterni nella pagina delle impostazioni dell'app.

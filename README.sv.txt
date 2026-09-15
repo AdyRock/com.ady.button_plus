@@ -1,60 +1,95 @@
-Kontrollknapp + paneler
+Button +
 
-Appen stöder knapp + hårdvara.
+Gör din Homey installation till ett smartare och renare kontrollcenter för de saker du använder varje dag.
 
-Så här ställer du in appen:
+Button + gör det enkelt att bygga anpassade fysiska kontrollpaneler som känns som en smart home dashboard av premiumklass i stället för en röra av reglage och sidor. Med en Button + panel kan du samla de kontroller du faktiskt använder på ett ställe, visa live status med en snabb blick och få ditt hem att kännas mer genomarbetat och intuitivt.
 
-3. Installera appen på din Homey. 
-4. Öppna knappen Knapp + Appinställningar / Konfigurationssidan i Homey.
-5. Se till att Tillåt uppdatering av Button+-konfigurationen är markerad.
+Varför Button + är värt det
 
-Det finns två typer av konfigurationer, knapprad och display, och var och en har för närvarande 20 platser.
-Knappradens konfigurationer visas när den första listrutan visar knappradens konfigurationer och Display-konfigurationerna visas genom att ändra listrutan till Display Configurations.
+1. Styrning med en enda tryckning för dina viktigaste enheter och scener.
+2. Snabb visuell återkoppling med anpassade etiketter, statustext och live visningsvärden.
+3. En renare väggmonterad smart home upplevelse utan att behöva leta i menyer.
+4. Flexibla layouter för knappar, displayer och grupperade paneler.
+5. Snabbare daglig användning för rutiner som belysning, klimat, säkerhet och media.
+6. Ett modernt och anpassningsbart utseende som passar in i ditt hem och din hårdvaruuppsättning.
 
-Konfigurera knappradskonfigurationer:
+Snabb installation
 
-1. Välj knappradskonfigurationer från den första listrutan.
-2. Välj ett konfigurationsnummer att redigera (vi kan tilldela någon av konfigurationerna till Button+ Panels senare).
-3. Under Vänster knappfält finns alternativen för knappen på vänster sida av knappfältet Button+.
-4. Välj en Homey-enhet som du vill styra från listrutan (panelerna stöder bara booleska funktioner men filtrering av listorna är fortfarande inte implementerad)
-5. Välj en funktion från listrutan.
-6. Ange en toppetikett (valfritt). Detta visas i grönt på knappdisplayen.
-7. Ange en etikett. Detta visas i vitt och ett större teckensnitt på knappdisplayen, precis under den övre texten.
-8. Upprepa stegen för den högra knappraden.
-9. Klicka på knappen Spara konfigurationer. Fortfarande att göra är att lägga till en uppmaning om du glömmer att spara och stänga fönstret.
+1. Installera appen på din Homey.
+2. Öppna sidan Button + App settings / Configuration i Homey.
 
-Konfigurera bildskärmskonfigurationer:
+Det finns tre huvudsakliga konfigurationsområden i appen.
 
-1. Välj bildskärmskonfigurationer från den första listrutan.
-2. Välj ett konfigurationsnummer att redigera (vi kan tilldela någon av konfigurationerna till Button+ Display senare).
-3. Klicka på Nytt visningsobjekt.
-4. Välj en enhet eller "Variabel"
-5. Välj en funktion eller variabel.
-6. Redigera etiketten om det behövs.
-7. Redigera enheterna om det behövs. (detta är endast text och ändrar inte de värden som skickas till displayen).
-8. Ange X- och Y-positionerna. Dessa är en procentandel av displayens bredd/höjd.
-9. Ange en bredd. Återigen är detta en procentandel av displayens bredd.
-10. Ange ett avrundningsvärde. 0 = heltal (heltal), 1 är 1 decimal osv.
-11. Välj en teckenstorlek i listan.
-12. Lägg till fler visningsobjekt efter behov.
-13. Klicka på Spara konfigurationer.
+1. Button bar configurations.
+2. Display configurations.
+3. Group configurations.
 
-Lägga till en enhet i Homey:
+Varje konfigurationsområde har en uppsättning platser för att bygga dina panellayouter. Konfigurationerna för button bar används för kontrollknapparna, displaykonfigurationerna används för panelens display och gruppkonfigurationerna låter dig kombinera dem till en komplett Button + paneluppsättning.
 
-1. Välj alternativet Ny enhet i Homey.
-2. Välj knappfältet.
-3. Klicka på Anslut.
-4. Du bör då se enheten i listan, så välj den och fortsätt. (Appen använder för närvarande namnet som finns under de allmänna inställningarna för att identifiera knappraden). Om knappen + inte hittas kan du försöka lägga till den manuellt genom att välja alternativet Manuell och ange IP-adressen.
+Konfigurera button bar configurations
+
+1. Välj Button bar Configurations i den första listrutan.
+2. Välj ett konfigurationsnummer att redigera. Detta nummer kan senare tilldelas en Button+ panel.
+3. Under Left button bar finns alternativen för knappen på vänster sida av Button+ button bar.
+4. Välj en Homey enhet som du vill styra från listrutan. Panelerna stöder boolean capabilities, även om filtreringen fortfarande förbättras.
+5. Välj en capability från listrutan.
+6. Ange en Top Label om du vill. Den visas i grönt på knappens display.
+7. Ange en Label. Den visas i vitt och med större teckenstorlek på knappens display, precis under Top Text.
+8. Upprepa stegen för Right button bar.
+9. Klicka på knappen Save Configurations.
+
+Konfigurera display configurations
+
+1. Välj Display Configurations i den första listrutan.
+2. Välj ett konfigurationsnummer att redigera. Detta kan senare tilldelas en Button+ display.
+3. Klicka på New Display Item.
+4. Välj en Device.
+5. Välj en Capability.
+6. Redigera Label om det behövs.
+7. Redigera Units om det behövs. Detta är bara text och ändrar inte de värden som skickas till displayen.
+8. Ange positionerna X och Y. De är procent av displayens bredd och höjd.
+9. Ange en bredd. Även detta är en procentandel av displayens bredd.
+10. Ange ett Rounding värde. 0 betyder heltal, 1 betyder 1 decimal och så vidare.
+11. Välj en Font Size i listan.
+12. Lägg till fler visningsobjekt vid behov.
+13. Klicka på Save Configurations.
+
+Konfigurera grupper
+
+Grupper är det enklaste sättet att definiera en komplett fysisk Button + panel. En grupp representerar en färdig panellayout och kan kombinera:
+
+1. en displaykonfiguration.
+2. en eller flera button bar eller connector konfigurationer.
+3. ett anpassat namn för panelen.
+
+Så här ställer du in en grupp:
+
+1. Öppna fliken Group Configurations i appinställningarna.
+2. Välj en befintlig grupp eller klicka på knappen + för att skapa en ny.
+3. Ge gruppen ett namn som Vardagsrumspanel eller Panel i huvudhall.
+4. Välj den displaykonfiguration som ska tilldelas gruppen.
+5. Tilldela en eller flera connector eller button konfigurationer till gruppen.
+6. Använd förhandsgranskningsområdet för att granska den fullständiga panellayouten innan du sparar.
+7. Duplicera eller ta bort grupper vid behov om du vill ha flera panellayouter.
+
+Detta är användbart när du vill ha olika fysiska paneler i olika rum eller för olika ändamål samtidigt som du återanvänder samma förinställningar för display och knappar.
+
+Lägga till en enhet i Homey
+
+1. Välj alternativet New Device i Homey.
+2. Välj Button button bar.
+3. Klicka på Connect.
+4. Då bör du se enheten i listan. Välj den och fortsätt. Appen använder för närvarande Name under General settings för att identifiera button bar. Om Button + inte hittas kan du försöka lägga till den manuellt genom att välja alternativet Manual och ange IP adressen.
 5. Enheten läggs till i Homey.
 
-Använda Homey-enheten:
+Använda Homey enheten
 
 1. Öppna enheten i Homey.
-2. Öppna den andra fliken för att se en lista över konfigurationer för skärmen och varje anslutning.
-3. Välj bildskärms- eller anslutningsnummer från den översta droplistan (Homey ritar för närvarande konfigurationslistan över droplistan, så det kan vara jobbigt att välja vad du vill ha).
-4. Välj ett konfigurationsnummer som ska tillämpas på kontakten Display / knappfält.
-5. Konfigurationen laddas upp till simulatorn, men du måste uppdatera simulatorn för att den ska träda i kraft. Det finns en knapp till höger om det virtuella ID:t för att uppdatera sidan.
-6. Du bör nu se informationen du valde i konfigurationen som visas på knappraden.
-7. Du kan klicka på knapparna i miniskärmarna för att växla mellan funktionerna i Homey.
+2. Öppna den andra fliken för att visa en lista över konfigurationer för displayen och varje connector.
+3. Välj Display eller ett Connector nummer från den översta listrutan. Homey ritar för närvarande listan Configuration över listrutan, så det kan vara besvärligt att välja det du vill ha.
+4. Välj ett Configuration nummer som ska tillämpas på Display eller button bar connector.
+5. Konfigurationen laddas upp till simulatorn, men du måste uppdatera simulatorn för att den ska börja gälla. Det finns en knapp till höger om Virtual Id för att uppdatera sidan.
+6. Nu bör du se den information som du valde i konfigurationen visas på button bar.
+7. Du kan klicka på knapparna i mini displays för att växla capability i Homey.
 
-Appen har en inbyggd MQTT-mäklare, så ingen installation kommer att krävas för det. Det är dock möjligt att lägga till en eller flera externa MQTT-mäklare på sidan för appinställningar.
+Appen har en inbyggd MQTT broker, så ingen konfiguration krävs för det. Det är dock möjligt att lägga till en eller flera externa MQTT brokers på appens inställningssida.

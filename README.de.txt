@@ -1,60 +1,95 @@
-Control Button + Panels
+Button +
 
-Die App unterstützt die Button + Hardware.
+Machen Sie Ihr Homey Setup zu einem intelligenteren und aufgeräumteren Steuerzentrum für die Dinge, die Sie jeden Tag nutzen.
 
-So richten Sie die App ein:
+Mit Button + können Sie ganz einfach individuelle physische Bedienfelder erstellen, die sich eher wie ein hochwertiges Smart Home Dashboard anfühlen als wie ein Durcheinander aus Schaltern und Seiten. Mit einem Button + Panel können Sie die Steuerungen, die Sie wirklich verwenden, an einem Ort bündeln, den Live Status auf einen Blick sehen und Ihr Zuhause aufgeräumter und intuitiver wirken lassen.
 
-3. Installieren Sie die App auf Ihrem Homey.
-4. Öffnen Sie die Seite „Button + App-Einstellungen/Konfiguration“ in Homey.
-5. Stellen Sie sicher, dass das Kontrollkästchen Aktualisierung der Button+-Konfiguration zulassen aktiviert ist.
+Warum sich Button + lohnt
 
-Es gibt zwei Arten von Konfigurationen, Schaltflächenleiste und Anzeige, und jede verfügt derzeit über 20 Steckplätze.
-Die Schaltflächenleistenkonfigurationen werden angezeigt, wenn in der ersten Dropdown-Liste Schaltflächenleistenkonfigurationen angezeigt werden, und die Anzeigekonfigurationen werden angezeigt, indem die Dropdown-Liste in „Anzeigekonfigurationen“ geändert wird.
+1. Steuerung Ihrer wichtigsten Geräte und Szenen mit nur einer Berührung.
+2. Schnelle visuelle Rückmeldung mit benutzerdefinierten Beschriftungen, Statustext und Live Anzeigewerten.
+3. Ein aufgeräumteres Smart Home Erlebnis an der Wand, ohne sich durch Menüs zu arbeiten.
+4. Flexible Layouts für Tasten, Displays und gruppierte Panels.
+5. Schnellere tägliche Nutzung für Routinen wie Licht, Klima, Sicherheit und Medien.
+6. Ein moderner, anpassbarer Look, der sich in Ihr Zuhause und Ihr Hardware Setup einfügt.
 
-Einrichten der Schaltflächenleisten-Konfigurationen:
+Schnelle Einrichtung
 
-1. Wählen Sie Schaltflächenleisten-Konfigurationen aus der ersten Dropdown-Liste.
-2. Wählen Sie eine Konfigurationsnummer zum Bearbeiten aus (wir können Button+ Panels später beliebige Konfigurationen zuweisen).
-3. Unter „Linke Schaltflächenleiste“ finden Sie die Optionen für die Schaltfläche auf der linken Seite der Button+-Schaltflächenleiste.
-4. Wählen Sie aus der Dropdown-Liste ein Homey-Gerät aus, das Sie steuern möchten. (Die Panels unterstützen nur boolesche Funktionen, das Filtern der Listen muss jedoch noch implementiert werden.)
-5. Wählen Sie eine Funktion aus der Dropdown-Liste aus.
-6. Geben Sie eine Top-Beschriftung ein (optional). Dies wird auf dem Tastendisplay grün angezeigt.
-7. Geben Sie eine Bezeichnung ein. Dies wird in Weiß und einer größeren Schriftart auf dem Tastendisplay direkt unter dem oberen Text angezeigt.
-8. Wiederholen Sie die Schritte für die rechte Schaltflächenleiste.
-9. Klicken Sie auf die Schaltfläche Konfigurationen speichern. Sie müssen noch eine Eingabeaufforderung hinzufügen, wenn Sie das Speichern vergessen haben, und das Fenster schließen.
+1. Installieren Sie die App auf Ihrem Homey.
+2. Öffnen Sie in Homey die Seite Button + App settings / Configuration.
 
-Einrichten von Anzeigekonfigurationen:
+Es gibt drei Hauptbereiche für die Konfiguration in der App.
 
-1. Wählen Sie Anzeigekonfigurationen aus der ersten Dropdown-Liste.
-2. Wählen Sie eine Konfigurationsnummer zum Bearbeiten aus (wir können Button+ Display später beliebige Konfigurationen zuweisen).
-3. Klicken Sie auf Neues Anzeigeelement.
-4. Wählen Sie ein Gerät oder eine „Variable“ aus
-5. Wählen Sie eine Fähigkeit oder Variable aus.
-6. Bearbeiten Sie das Etikett bei Bedarf.
-7. Bearbeiten Sie bei Bedarf die Einheiten. (Dies ist nur Text und ändert nicht die Werte, die an die Anzeige gesendet werden).
-8. Geben Sie die X- und Y-Positionen ein. Hierbei handelt es sich um einen Prozentsatz der Anzeigebreite/-höhe.
-9. Geben Sie eine Breite ein. Auch hier handelt es sich um einen Prozentsatz der Anzeigebreite.
-10. Geben Sie einen Rundungswert ein. 0 = ganze Zahlen (Ganzzahl), 1 ist 1 Dezimalstelle usw.
-11. Wählen Sie eine Schriftgröße aus der Liste aus.
-12. Fügen Sie nach Bedarf weitere Anzeigeelemente hinzu.
-13. Klicken Sie auf Konfigurationen speichern.
+1. Button bar configurations.
+2. Display configurations.
+3. Group configurations.
 
-Hinzufügen eines Geräts zu Homey:
+Jeder Konfigurationsbereich verfügt über eine Reihe von Slots zum Aufbau Ihrer Panel Layouts. Die Button bar Konfigurationen werden für die Steuertasten verwendet, die Display Konfigurationen für das Panel Display, und mit den Group Konfigurationen können Sie alles zu einem vollständigen Button + Panel Setup kombinieren.
 
-1. Wählen Sie in Homey die Option Neues Gerät.
-2. Wählen Sie Schaltflächenleiste aus.
-3. Klicken Sie auf Verbinden.
-4. Anschließend sollte das Gerät aufgelistet sein. Wählen Sie es aus und fahren Sie fort. (Die App verwendet derzeit den Namen, der unter den allgemeinen Einstellungen gefunden wird, um die Schaltflächenleiste zu identifizieren.) Wenn die Schaltfläche + nicht gefunden wird, können Sie versuchen, sie manuell hinzuzufügen, indem Sie die Option „Manuell“ auswählen und die IP-Adresse eingeben.
-5. Das Ger��t wird zu Homey hinzugefügt.
+Button bar Konfigurationen einrichten
 
-Verwendung des Homey-Geräts:
+1. Wählen Sie in der ersten Dropdown Liste Button bar Configurations aus.
+2. Wählen Sie eine Konfigurationsnummer zum Bearbeiten aus. Diese Nummer kann später einem Button+ Panel zugewiesen werden.
+3. Unter Left button bar befinden sich die Optionen für die Taste auf der linken Seite der Button+ button bar.
+4. Wählen Sie in der Dropdown Liste ein Homey Gerät aus, das Sie steuern möchten. Die Panels unterstützen boolean capabilities, auch wenn die Filterung noch verbessert wird.
+5. Wählen Sie in der Dropdown Liste eine capability aus.
+6. Geben Sie bei Bedarf ein Top Label ein. Dieses wird auf dem Tasten Display grün angezeigt.
+7. Geben Sie ein Label ein. Dieses wird auf dem Tasten Display weiß und in größerer Schrift direkt unter dem Top Text angezeigt.
+8. Wiederholen Sie die Schritte für die Right button bar.
+9. Klicken Sie auf die Schaltfläche Save Configurations.
+
+Display Konfigurationen einrichten
+
+1. Wählen Sie in der ersten Dropdown Liste Display Configurations aus.
+2. Wählen Sie eine Konfigurationsnummer zum Bearbeiten aus. Diese kann später einem Button+ Display zugewiesen werden.
+3. Klicken Sie auf New Display Item.
+4. Wählen Sie ein Device.
+5. Wählen Sie eine Capability.
+6. Bearbeiten Sie das Label bei Bedarf.
+7. Bearbeiten Sie die Units bei Bedarf. Dies ist nur Text und ändert die an das Display gesendeten Werte nicht.
+8. Geben Sie die X und Y Positionen ein. Diese sind Prozentsätze der Displaybreite und Displayhöhe.
+9. Geben Sie eine Breite ein. Auch diese ist ein Prozentsatz der Displaybreite.
+10. Geben Sie einen Rounding Wert ein. 0 bedeutet ganze Zahlen, 1 bedeutet 1 Dezimalstelle und so weiter.
+11. Wählen Sie eine Font Size aus der Liste.
+12. Fügen Sie bei Bedarf weitere Display Elemente hinzu.
+13. Klicken Sie auf Save Configurations.
+
+Gruppen einrichten
+
+Gruppen sind die einfachste Möglichkeit, ein vollständiges physisches Button + Panel zu definieren. Eine Gruppe steht für ein fertiges Panel Layout und kann Folgendes kombinieren:
+
+1. eine Display Konfiguration.
+2. eine oder mehrere Button bar oder Connector Konfigurationen.
+3. einen benutzerdefinierten Namen für das Panel.
+
+So richten Sie eine Gruppe ein:
+
+1. Öffnen Sie in den App Einstellungen die Registerkarte Group Configurations.
+2. Wählen Sie eine vorhandene Gruppe aus oder klicken Sie auf die Schaltfläche +, um eine neue zu erstellen.
+3. Geben Sie der Gruppe einen Namen wie Wohnzimmer Panel oder Hauptflur Panel.
+4. Wählen Sie die Display Konfiguration aus, die dieser Gruppe zugewiesen werden soll.
+5. Weisen Sie der Gruppe eine oder mehrere Connector oder Button Konfigurationen zu.
+6. Verwenden Sie den Vorschaubereich, um das vollständige Panel Layout vor dem Speichern zu prüfen.
+7. Duplizieren oder löschen Sie Gruppen nach Bedarf, wenn Sie mehrere Panel Layouts möchten.
+
+Das ist nützlich, wenn Sie in verschiedenen Räumen oder für verschiedene Zwecke unterschiedliche physische Panels verwenden möchten und dabei dieselben Display und Button Voreinstellungen wiederverwenden wollen.
+
+Ein Gerät zu Homey hinzufügen
+
+1. Wählen Sie in Homey die Option New Device.
+2. Wählen Sie Button button bar.
+3. Klicken Sie auf Connect.
+4. Danach sollten Sie das Gerät in der Liste sehen. Wählen Sie es aus und fahren Sie fort. Die App verwendet derzeit den Name aus den General settings, um die button bar zu identifizieren. Wenn Button + nicht gefunden wird, können Sie versuchen, es manuell hinzuzufügen, indem Sie die Option Manual auswählen und die IP Adresse eingeben.
+5. Das Gerät wird zu Homey hinzugefügt.
+
+Das Homey Gerät verwenden
 
 1. Öffnen Sie das Gerät in Homey.
-2. Öffnen Sie die zweite Registerkarte, um eine Liste der Konfigurationen für das Display und jeden Anschluss anzuzeigen.
-3. Wählen Sie die Display- oder Connector-Nummer aus der oberen Dropdown-Liste aus (Homey zeichnet derzeit die Konfigurationsliste über die Dropdown-Liste, daher kann es schwierig sein, das Gewünschte auszuwählen).
-4. Wählen Sie eine Konfigurationsnummer aus, die Sie auf den Display-/Tastenleisten-Anschluss anwenden möchten.
-5. Die Konfiguration wird in den Simulator hochgeladen, aber Sie müssen den Simulator aktualisieren, damit sie wirksam wird. Rechts neben der virtuellen ID befindet sich eine Schaltfläche zum Aktualisieren der Seite.
-6. Die von Ihnen in der Konfiguration ausgewählten Informationen sollten nun in der Schaltflächenleiste angezeigt werden.
-7. Sie können auf die Schaltflächen in den Mini-Displays klicken, um die Funktion in Homey umzuschalten.
+2. Öffnen Sie die zweite Registerkarte, um eine Liste der Konfigurationen für das Display und jeden Connector anzuzeigen.
+3. Wählen Sie oben das Display oder eine Connector Nummer aus der Dropdown Liste aus. Homey zeichnet derzeit die Liste Configuration über die Dropdown Liste, daher kann die Auswahl etwas mühsam sein.
+4. Wählen Sie eine Configuration Nummer aus, die auf den Display oder button bar Connector angewendet werden soll.
+5. Die Konfiguration wird in den Simulator hochgeladen, aber Sie müssen den Simulator aktualisieren, damit sie wirksam wird. Rechts neben der Virtual Id befindet sich eine Schaltfläche zum Aktualisieren der Seite.
+6. Sie sollten nun die Informationen, die Sie in der Konfiguration ausgewählt haben, auf der button bar sehen.
+7. Sie können auf die Tasten in den Mini Displays klicken, um die capability in Homey umzuschalten.
 
-Die App verfügt über einen integrierten MQTT-Broker, daher ist hierfür keine Einrichtung erforderlich. Es ist jedoch möglich, auf der Seite mit den App-Einstellungen einen oder mehrere externe MQTT-Broker hinzuzufügen.
+Die App verfügt über einen integrierten MQTT Broker, daher ist dafür keine Einrichtung erforderlich. Es ist jedoch möglich, auf der Seite mit den App Einstellungen einen oder mehrere externe MQTT Broker hinzuzufügen.
