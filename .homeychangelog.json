@@ -1708,5 +1708,20 @@
         "pl": "Dodano funkcję automatycznej jasności na podstawie odczytów czujnika luminancji. Dodano zaawansowane opcje konfiguracji przycisków, zapewniające bardziej szczegółową kontrolę nad zdarzeniami przycisków i typami funkcji, które można zastosować. Dodano zarządzanie grupami dla przycisków.",
         "ko": "휘도 센서 판독값을 기반으로 자동 밝기 기능을 추가했습니다. 버튼 이벤트와 적용할 수 있는 기능 유형을 더욱 세부적으로 제어할 수 있는 고급 버튼 구성 옵션이 추가되었습니다. 버튼에 대한 그룹 관리가 추가되었습니다.",
         "ar": "تمت إضافة ميزة السطوع التلقائي بناءً على قراءات مستشعر النصوع. تمت إضافة خيارات تكوين الزر المتقدمة لمزيد من التحكم الدقيق في أحداث الزر وأنواع الإمكانات التي يمكن تطبيقها. تمت إضافة إدارة المجموعة للأزرار."
-    }
+    },
+	"1.0.1": {
+		"en": "various fixes and improvements.",
+		"nl": "verschillende fixes en verbeteringen.",
+		"de": "verschiedene Fehlerbehebungen und Verbesserungen.",
+		"fr": "divers correctifs et améliorations.",
+		"it": "varie correzioni e miglioramenti.",
+		"sv": "olika fixar och förbättringar.",
+		"no": "ulike feilrettinger og forbedringer.",
+		"es": "varias correcciones y mejoras.",
+		"da": "forskellige rettelser og forbedringer.",
+		"ru": "различные исправления и улучшения.",
+		"pl": "różne poprawki i ulepszenia.",
+		"ko": "여러 가지 수정 및 개선 사항.",
+		"ar": "إصلاحات وتحسينات متنوعة."
+	}
 }
