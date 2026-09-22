@@ -45,6 +45,7 @@ class PanelDevice extends Device
 	 */
 	async onInit()
 	{
+		this.deleted = false;
 		//		this.setUnavailable('Device is initializing');
 		this.initFinished = false;
 		this.longPressOccurred = new Map();
@@ -73,6 +74,7 @@ class PanelDevice extends Device
 		this.advancedCommitTimers = new Map();
 		this.advancedDirectionStates = new Map();
 		this.capabilityDispatchInFlight = new Set();
+		this.registeredCapabilityListeners = new Set();
 		this.barConfigured = [false, false, false, false, false, false, false, false];
 		this.page = 1;
 
@@ -181,7 +183,7 @@ class PanelDevice extends Device
 			}
 		}
 
-		this.registerCapabilityListener('configuration_display', this.onCapabilityDisplayConfiguration.bind(this));
+		this.registerCapabilityListenerOnce('configuration_display', this.onCapabilityDisplayConfiguration.bind(this));
 
 		this.buttonTime = [];
 		await this.configureConnectors(settings);
@@ -191,7 +193,7 @@ class PanelDevice extends Device
 			await this.addCapability('info');
 		}
 
-		await this.registerCapabilityListener('info', this.onCapabilityInfo.bind(this));
+		await this.registerCapabilityListenerOnce('info', this.onCapabilityInfo.bind(this));
 
 		this.checkGatewayConfig();
 
@@ -240,7 +242,7 @@ class PanelDevice extends Device
 			await this.addCapability('button.apply_config');
 		}
 
-		this.registerCapabilityListener('dim', this.onCapabilityDim.bind(this));
+		this.registerCapabilityListenerOnce('dim', this.onCapabilityDim.bind(this));
 
 		let dim = this.getCapabilityValue('dim');
 		if (dim < 0.1)
@@ -249,13 +251,13 @@ class PanelDevice extends Device
 			this.setCapabilityValue('dim', dim).catch(this.error);
 		}
 
-		this.registerCapabilityListener('button.update_firmware', async () =>
+		this.registerCapabilityListenerOnce('button.update_firmware', async () =>
 		{
 			// Maintenance action button was pressed
 			return this.homey.app.updateFirmware(this.ip);
 		});
 
-		this.registerCapabilityListener('button.apply_config', async () =>
+		this.registerCapabilityListenerOnce('button.apply_config', async () =>
 		{
 			// Maintenance action button was pressed
 			await this.uploadConfigurations(true);
@@ -288,8 +290,8 @@ class PanelDevice extends Device
 			await this.setCapabilityOptions('page.max', { title: 'Pages' });
 		}
 
-		this.registerCapabilityListener('next_page_button', this.onCapabilityNextPage.bind(this));
-		this.registerCapabilityListener('previous_page_button', this.onCapabilityPreviousPage.bind(this));
+		this.registerCapabilityListenerOnce('next_page_button', this.onCapabilityNextPage.bind(this));
+		this.registerCapabilityListenerOnce('previous_page_button', this.onCapabilityPreviousPage.bind(this));
 
 		this.disabled = settings.disabled;
 		if (settings.disabled)
@@ -329,7 +331,7 @@ class PanelDevice extends Device
 	 */
 	async intiHardware()
 	{
-		if (this.initHardwareTimer || this.initInProgress)
+		if (this.deleted || this.initHardwareTimer || this.initInProgress)
 		{
 			// Already waiting for the hardware to initialise
 			this.log('PanelDevice is already initializing hardware');
@@ -343,21 +345,20 @@ class PanelDevice extends Device
 			this.log('PanelDevice is initializing hardware');
 
 			// Unsubscribe from the old MQTT client
-			this.homey.app.UnsubscribeMQTTMessage(`buttonplus/${this.buttonId}/#`, (err) =>
-			{
-				if (err)
-				{
-					this.log('Failed to unsubscribe from old MQTT client:', err);
-				}
-			});
+			await this.homey.app.UnsubscribeMQTTMessage('Default', `buttonplus/${this.buttonId}/#`);
 
-			if (await this.uploadConfigurations() !== null)
+			if (this.deleted || await this.uploadConfigurations() !== null)
 			{
+				if (this.deleted)
+				{
+					return;
+				}
+
 				// failed to upload the configuration so try again in 30 seconds
 				this.initHardwareTimer = this.homey.setTimeout(() =>
 				{
 					this.initHardwareTimer = null;
-					if (!this.disabled)
+					if (!this.deleted && !this.disabled)
 					{
 						this.intiHardware().catch(this.error);
 					}
@@ -365,6 +366,11 @@ class PanelDevice extends Device
 
 				this.log('Hardware initialisation failed, retrying in 30 seconds');
 
+				return;
+			}
+
+			if (this.deleted)
+			{
 				return;
 			}
 
@@ -792,6 +798,9 @@ class PanelDevice extends Device
 	 */
 	async onDeleted()
 	{
+		this.deleted = true;
+		this.initInProgress = false;
+
 		if (this.initHardwareTimer)
 		{
 			this.homey.clearTimeout(this.initHardwareTimer);
@@ -928,6 +937,23 @@ class PanelDevice extends Device
 
 		await super.onDeleted();
 		this.log('PanelDevice has been deleted');
+	}
+
+	async registerCapabilityListenerOnce(capability, listener)
+	{
+		if (this.registeredCapabilityListeners.has(capability))
+		{
+			return;
+		}
+
+		await this.registerCapabilityListener(capability, listener);
+		this.registeredCapabilityListeners.add(capability);
+	}
+
+	async removeCapability(capability)
+	{
+		this.registeredCapabilityListeners.delete(capability);
+		return super.removeCapability(capability);
 	}
 
 	/**
@@ -1656,6 +1682,11 @@ class PanelDevice extends Device
 	{
 		try
 		{
+			if (this.deleted)
+			{
+				return 'Device deleted';
+			}
+
 			let deviceConfigurations = null;
 			let readAttempt = 0;
 			const maxReadAttempts = 3;
@@ -1678,8 +1709,16 @@ class PanelDevice extends Device
 			if (deviceConfigurations === null)
 			{
 				this.homey.app.updateLog(`Unable to read device configuration from ${this.ip} after ${maxReadAttempts} attempts`, 0);
-				this.setWarning('Failed to read device configuration');
+				if (!this.deleted)
+				{
+					this.setWarning('Failed to read device configuration').catch(this.error);
+				}
 				return 'Failed to read device configuration';
+			}
+
+			if (this.deleted)
+			{
+				return 'Device deleted';
 			}
 
 			// If a string was returned, it is an error message
@@ -1690,7 +1729,10 @@ class PanelDevice extends Device
 				deviceConfigurations = {};
 			}
 
-			this.unsetWarning();
+			if (!this.deleted)
+			{
+				this.unsetWarning().catch(this.error);
+			}
 			const originalDeviceConfigurations = _.cloneDeep(deviceConfigurations);
 
 			if (deviceConfigurations.info)
@@ -1858,15 +1900,18 @@ class PanelDevice extends Device
 				await this.setupMQTTSubscriptions('Default');
 			}
 
-			if (error)
+			if (error && !this.deleted)
 			{
-				this.setWarning(error);
+				this.setWarning(error).catch(this.error);
 			}
 		}
 		catch (err)
 		{
 			this.homey.app.updateLog(`Error reading device configuration: ${err.message}`, 0);
-			this.setWarning(err.message);
+			if (!this.deleted)
+			{
+				this.setWarning(err.message).catch(this.error);
+			}
 			return err.message;
 		}
 
@@ -2042,7 +2087,7 @@ class PanelDevice extends Device
 
 			try
 			{
-				await this.registerCapabilityListener('configuration_group', async (value) => {
+				await this.registerCapabilityListenerOnce('configuration_group', async (value) => {
 					await this.uploadConfigurations();
 				});
 			}
@@ -2159,8 +2204,8 @@ class PanelDevice extends Device
 					capabilityOption.title = `${connectType === 1 ? this.homey.__('button') : this.homey.__('connector')} ${connector + 1} ${this.homey.__('right')}`;
 					this.setCapabilityOptions(`right_button.connector${connector}`, capabilityOption);
 
-					await this.registerCapabilityListener(`left_button.connector${connector}`, this.onCapabilityLeftButton.bind(this, connector));
-					await this.registerCapabilityListener(`right_button.connector${connector}`, this.onCapabilityRightButton.bind(this, connector));
+					await this.registerCapabilityListenerOnce(`left_button.connector${connector}`, this.onCapabilityLeftButton.bind(this, connector));
+					await this.registerCapabilityListenerOnce(`right_button.connector${connector}`, this.onCapabilityRightButton.bind(this, connector));
 				}
 				else
 				{
@@ -2193,7 +2238,7 @@ class PanelDevice extends Device
 
 					try
 					{
-						await this.registerCapabilityListener('configuration_display', this.onCapabilityDisplayConfiguration.bind(this));
+						await this.registerCapabilityListenerOnce('configuration_display', this.onCapabilityDisplayConfiguration.bind(this));
 					}
 					catch (e) { /* listener may already exist */ }
 
@@ -2233,8 +2278,8 @@ class PanelDevice extends Device
 						capabilityOption.title = `${this.homey.__('display')} ${this.homey.__('connector')} ${connector + 1} ${this.homey.__('right')}`;
 						this.setCapabilityOptions(`right_button.connector${connector}`, capabilityOption);
 
-						await this.registerCapabilityListener(`left_button.connector${connector}`, this.onCapabilityLeftButton.bind(this, connector));
-						await this.registerCapabilityListener(`right_button.connector${connector}`, this.onCapabilityRightButton.bind(this, connector));
+						await this.registerCapabilityListenerOnce(`left_button.connector${connector}`, this.onCapabilityLeftButton.bind(this, connector));
+						await this.registerCapabilityListenerOnce(`right_button.connector${connector}`, this.onCapabilityRightButton.bind(this, connector));
 					}
 					else
 					{
@@ -2304,9 +2349,9 @@ class PanelDevice extends Device
 				delete capabilityOption.values;
 				this.setCapabilityOptions(`right_button.connector${connector}`, capabilityOption);
 
-				await this.registerCapabilityListener(`configuration_button.connector${connector}`, this.onCapabilityConfiguration.bind(this, connector));
-				await this.registerCapabilityListener(`left_button.connector${connector}`, this.onCapabilityLeftButton.bind(this, connector));
-				await this.registerCapabilityListener(`right_button.connector${connector}`, this.onCapabilityRightButton.bind(this, connector));
+				await this.registerCapabilityListenerOnce(`configuration_button.connector${connector}`, this.onCapabilityConfiguration.bind(this, connector));
+				await this.registerCapabilityListenerOnce(`left_button.connector${connector}`, this.onCapabilityLeftButton.bind(this, connector));
+				await this.registerCapabilityListenerOnce(`right_button.connector${connector}`, this.onCapabilityRightButton.bind(this, connector));
 
 				const configNo = this.getCapabilityValue(`configuration_button.connector${connector}`);
 				this.barConfigured[connector] = configNo != null;
@@ -5673,6 +5718,11 @@ class PanelDevice extends Device
 
 	async uploadAllButtonConfigurations(deviceConfigurations, Connector, ConfigNo, force = false)
 	{
+		if (this.deleted)
+		{
+			return null;
+		}
+
 		let writeConfig = false;
 		let mqttQue = [];
 		let delay = 100;
@@ -5680,13 +5730,21 @@ class PanelDevice extends Device
 		{
 			// download the current configuration from the device
 			deviceConfigurations = await this.homey.app.readDeviceConfiguration(this.ip);
+			if (!deviceConfigurations || !deviceConfigurations.info || this.deleted)
+			{
+				return null;
+			}
+
 			writeConfig = true;
 			this.firmwareVersion = deviceConfigurations.info.firmware;
 		}
 
 		if (deviceConfigurations)
 		{
-			this.unsetWarning();
+			if (!this.deleted)
+			{
+				this.unsetWarning().catch(this.error);
+			}
 
 			// Create a new section configuration for the button panel by adding the core and buttons sections of the deviceConfigurations to core and buttons of a new object
 			const sectionConfiguration = {

@@ -420,6 +420,43 @@ class MyApp extends Homey.App
 
 		//        this.getHomeyDevices({});
 		this.deviceDispather = new DeviceDispatcher(this);
+		this.deviceManager.onRemove.subscribe(async (device) =>
+		{
+			await this.deviceDispather.removeDevice(device);
+
+			const deviceId = typeof device === 'string' ? device : device && device.id;
+			if (!deviceId)
+			{
+				return;
+			}
+
+			const prefix = `${deviceId}::`;
+			for (const registrations of [
+				this.displayRegistrationRequestedKeys,
+				this.displayRegistrationRestoredKeys,
+				this.displayRegistrationPendingKeys,
+			])
+			{
+				for (const key of registrations)
+				{
+					if (key.startsWith(prefix))
+					{
+						registrations.delete(key);
+					}
+				}
+			}
+
+			for (const [key, timer] of this.capabilityListenerRetryTimers.entries())
+			{
+				if (key.startsWith(prefix))
+				{
+					this.homey.clearTimeout(timer);
+					this.capabilityListenerRetryTimers.delete(key);
+				}
+			}
+
+			this.logDisplayRegistrationSummary(true);
+		});
 		this.variableDispather = new VariableDispatcher(this);
 
 		try
@@ -3111,6 +3148,11 @@ class MyApp extends Homey.App
 
 	async UnsubscribeMQTTMessage(MQTT_Id, topic)
 	{
+		if (!MQTT_Id || !topic)
+		{
+			return false;
+		}
+
 		if (MQTT_Id === 'Default')
 		{
 			MQTT_Id = this.homey.settings.get('defaultBroker');
@@ -3123,12 +3165,15 @@ class MyApp extends Homey.App
 			if (MQTTclient)
 			{
 				await MQTTclient.unsubscribe(topic);
+				return true;
 			}
 		}
 		catch (err)
 		{
 			this.updateLog(`UnsubscribeMQTTMessage error: ${err.message}`, 0);
 		}
+
+		return false;
 	}
 
 	// Build a list of gateways detected by mDNS
