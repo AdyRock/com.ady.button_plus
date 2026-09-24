@@ -1723,5 +1723,20 @@
 		"pl": "różne poprawki i ulepszenia.",
 		"ko": "여러 가지 수정 및 개선 사항.",
 		"ar": "إصلاحات وتحسينات متنوعة."
+	},
+	"1.0.2": {
+		"en": "Changed Adv button click behavior. Adv button setup now shows Trigger Flow Only instead of Increment when no device is selected. Added a Back button to the buttons tab when reached via the group edit button.",
+		"nl": "Het klikgedrag van de Adv-knop is gewijzigd. De Adv-knopinstelling toont nu Alleen Flow Triggeren in plaats van Verhogen wanneer geen apparaat is geselecteerd. Er is een Terug-knop toegevoegd aan het tabblad knoppen wanneer dit wordt bereikt via de groepsbewerkingsknop.",
+		"de": "Das Klickverhalten der Adv-Taste wurde geändert. Die Einrichtung der Adv-Taste zeigt jetzt Nur Flow auslösen anstelle von Erhöhen, wenn kein Gerät ausgewählt ist. Eine Zurück-Taste wurde dem Schaltflächentab hinzugefügt, wenn es über die Gruppenedittaste erreicht wird.",
+		"fr": "Comportement du bouton Adv modifié. La configuration du bouton Adv affiche désormais Déclencher le flux uniquement au lieu d'Incrémenter lorsqu'aucun appareil n'est sélectionné. Ajout d'un bouton Retour dans l'onglet des boutons lorsqu'il est atteint via le bouton de modification de groupe.",
+		"it": "Modificato il comportamento del clic del pulsante Adv. La configurazione del pulsante Adv ora mostra Solo attiva flusso invece di Incrementa quando nessun dispositivo è selezionato. Aggiunto un pulsante Indietro alla scheda dei pulsanti quando si accede tramite il pulsante di modifica del gruppo.",
+		"sv": "Ändrat klickbeteende för Adv-knappen. Adv-knappens inställning visar nu Endast utlös flöde istället för Öka när ingen enhet är vald. Lagt till en Tillbaka-knapp på knapptabben när den nås via gruppredigeringsknappen.",
+		"no": "Endret klikkatferd for Adv-knappen. Adv-knappoppsettet viser nå Bare utløse flyt i stedet for Øke når ingen enhet er valgt. Lagt til en Tilbake-knapp på knappfanen når den nås via gruppe-redigeringsknappen.",
+		"es": "Cambiado el comportamiento del clic del botón Adv. La configuración del botón Adv ahora muestra Solo activar flujo en lugar de Incrementar cuando no se selecciona ningún dispositivo. Se agregó un botón Atrás a la pestaña de botones cuando se accede a través del botón de edición de grupo.",
+		"da": "Ændret klikadfærd for Adv-knappen. Adv-knapopsætning viser nu Kun udløse flow i stedet for Forøg, når ingen enhed er valgt. Tilføjet en Tilbage-knap til knapfanen, når den nås via gruppe-redigeringsknappen.",
+		"ru": "Изменено поведение кнопки Adv при нажатии. Настройка кнопки Adv теперь показывает Только запуск потока вместо Увеличить, когда устройство не выбрано. Добавлена кнопка Назад на вкладку кнопок при переходе через кнопку редактирования группы.",
+		"pl": "Zmieniono zachowanie przycisku Adv po kliknięciu. Ustawienie przycisku Adv teraz pokazuje Tylko wyzwalanie przepływu zamiast Zwiększ, gdy nie wybrano urządzenia. Dodano przycisk Wstecz do karty przycisków po wejściu przez przycisk edycji grupy.",
+		"ko": "Adv 버튼 클릭 동작이 변경되었습니다. 장치가 선택되지 않은 경우 Adv 버튼 설정에 이제 증가 대신 흐름만 트리거 표시됩니다. 그룹 편집 버튼을 통해 접근할 때 버튼 탭에 뒤로 가기 버튼이 추가되었습니다.",
+		"ar": "تم تغيير سلوك النقر على زر Adv. يعرض إعداد زر Adv الآن تشغيل التدفق فقط بدلاً من الزيادة عند عدم تحديد جهاز. تمت إضافة زر رجوع إلى علامة التبويب الأزرار عند الوصول عبر زر تحرير المجموعة."
 	}
 }

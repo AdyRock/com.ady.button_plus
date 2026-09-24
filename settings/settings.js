@@ -59,6 +59,11 @@ var groupNameCollapsed = true;
 var groupPanelControlsExpanded = true;
 var groupSimCurrentPage = 0;
 var groupSimStates = {};
+var groupEditReturnActive = false;
+var groupEditBackButtonElement = document.getElementById('groupEditBackButton');
+var groupEditReturnScrollPosition = null;
+var groupEditReturnButtonVisibleConfigurationCount = null;
+var groupEditReturnButtonPanelControlsExpanded = null;
 
 var openWebViewElement = document.getElementById('openwebview');
 var webViewIpElement = document.getElementById('webviewip');
@@ -1769,6 +1774,7 @@ function onHomeyReady(Homey)
 
 	configTypeElement.addEventListener('change', function (e)
 	{
+		groupEditReturnActive = false;
 		configTypeChanged(configTypeElement.value);
 	});
 
@@ -1779,9 +1785,42 @@ function onHomeyReady(Homey)
 			tab.addEventListener('click', function ()
 			{
 				const view = tab.dataset.view;
+				groupEditReturnActive = false;
 				configTypeElement.value = view;
 				configTypeChanged(view);
 			});
+		});
+	}
+
+	if (groupEditBackButtonElement)
+	{
+		groupEditBackButtonElement.addEventListener('click', function ()
+		{
+			const scrollPosition = groupEditReturnScrollPosition;
+			const visibleConfigurationCount = groupEditReturnButtonVisibleConfigurationCount;
+			const panelControlsExpanded = groupEditReturnButtonPanelControlsExpanded;
+			groupEditReturnActive = false;
+			configTypeElement.value = 'groupConfig';
+			configTypeChanged('groupConfig');
+			groupEditReturnScrollPosition = null;
+			groupEditReturnButtonVisibleConfigurationCount = null;
+			groupEditReturnButtonPanelControlsExpanded = null;
+			if (panelControlsExpanded !== null)
+			{
+				buttonPanelControlsExpanded = panelControlsExpanded;
+			}
+			if (visibleConfigurationCount !== null)
+			{
+				setButtonVisibleConfigurationCount(visibleConfigurationCount);
+			}
+			updateButtonPanelControlsExpander();
+			if (scrollPosition !== null)
+			{
+				requestAnimationFrame(function ()
+				{
+					window.scrollTo(0, scrollPosition);
+				});
+			}
 		});
 	}
 
@@ -9231,8 +9270,14 @@ function editGroupButtonConfiguration(configNo)
 	const normalizedConfigNo = Number(configNo);
 	if (!Number.isInteger(normalizedConfigNo) || !localButtonConfigurations[normalizedConfigNo]) return;
 
+	groupEditReturnScrollPosition = window.scrollY;
+	groupEditReturnButtonVisibleConfigurationCount = buttonVisibleConfigurationCount;
+	groupEditReturnButtonPanelControlsExpanded = buttonPanelControlsExpanded;
+	groupEditReturnActive = true;
 	configTypeElement.value = 'panelConfig';
 	configTypeChanged('panelConfig');
+	buttonPanelControlsExpanded = true;
+	updateButtonPanelControlsExpander();
 	setButtonVisibleConfigurationCount(1);
 	changeDisplayedButtonConfiguration(0, normalizedConfigNo);
 }
@@ -9601,6 +9646,19 @@ function renderGroupSimulator()
 function configTypeChanged(configSelected)
 {
 	var i, tabcontent, tablinks;
+	if (configSelected !== 'panelConfig')
+	{
+		groupEditReturnActive = false;
+	}
+
+	if (configTypeTabsElement)
+	{
+		configTypeTabsElement.hidden = groupEditReturnActive && configSelected === 'panelConfig';
+	}
+	if (groupEditBackButtonElement)
+	{
+		groupEditBackButtonElement.hidden = !(groupEditReturnActive && configSelected === 'panelConfig');
+	}
 
 	if (configTypeTabsElement)
 	{

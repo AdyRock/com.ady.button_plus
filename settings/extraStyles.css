@@ -100,6 +100,10 @@ label[for="configType"] {
 	padding-bottom: 2px;
 }
 
+.view-tabs[hidden] {
+	display: none;
+}
+
 .view-tab {
 	display: flex;
 	align-items: center;
@@ -128,6 +132,19 @@ label[for="configType"] {
 	height: 22px;
 	display: block;
 	pointer-events: none;
+}
+
+.group-edit-back-button {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 40px;
+	min-height: 40px;
+	padding: 0;
+}
+
+.group-edit-back-button[hidden] {
+	display: none;
 }
 
 .bottomFixButtonComponent {
