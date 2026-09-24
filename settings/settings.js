@@ -5096,6 +5096,20 @@ function fillPopupCapabilitySelector(selectElement, deviceId, selectedCapability
 					selectElement.add(option);
 					seenCapabilityIds.add(dedupKey);
 				}
+
+				if (filterMode === 'event' && !Array.from(selectElement.options).some((option) => option.value !== '__toggleDirection__'))
+				{
+					const toggleOption = selectElement.querySelector('option[value="__toggleDirection__"]');
+					if (toggleOption)
+					{
+						toggleOption.remove();
+					}
+					const flowTriggerOption = document.createElement('option');
+					flowTriggerOption.value = '__flowTrigger__';
+					flowTriggerOption.text = Homey.__('settings.flowTrigger');
+					flowTriggerOption.dataset.flowTriggerOnly = 'true';
+					selectElement.add(flowTriggerOption);
+				}
 			}
 
 			if (selectedCapability && selectElement.querySelector(`option[value="${selectedCapability}"]`))
@@ -5391,6 +5405,27 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 				const showStep = selectedType === 'number' || selectedValue === 'dim';
 				stepRowElement.style.display = showStep ? '' : 'none';
 			};
+			const updateFlowTriggerState = function ()
+			{
+				const selectedOption = capElement.selectedOptions ? capElement.selectedOptions[0] : null;
+				const isFlowTriggerOnly = devElement.value === 'none' || (selectedOption && selectedOption.dataset.flowTriggerOnly === 'true');
+				capElement.disabled = isFlowTriggerOnly;
+				stepElement.disabled = isFlowTriggerOnly;
+				if (isFlowTriggerOnly)
+				{
+					if (devElement.value === 'none')
+					{
+						capElement.innerHTML = '';
+						const flowTriggerOption = document.createElement('option');
+						flowTriggerOption.value = '__flowTrigger__';
+						flowTriggerOption.text = Homey.__('settings.flowTrigger');
+						flowTriggerOption.dataset.flowTriggerOnly = 'true';
+						capElement.add(flowTriggerOption);
+						capElement.value = '__flowTrigger__';
+					}
+				}
+				updateStepVisibility();
+			};
 
 			fillPopupDeviceSelector(devElement, false, true);
 			const eventDevice = pageConfig[`${side}${eventName}Device`] || defaultDevice || 'none';
@@ -5400,13 +5435,13 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 			const combinedSelection = (storedNumericAction === 'toggleDirection') ? '__toggleDirection__' : storedCapability;
 			await fillPopupCapabilitySelector(capElement, devElement.value, combinedSelection, 'event');
 			stepElement.value = pageConfig[`${side}${eventName}ValueStep`] || '+10';
-			updateStepVisibility();
+			updateFlowTriggerState();
 
 			devElement.addEventListener('change', function ()
 			{
 				fillPopupCapabilitySelector(capElement, devElement.value, '', 'event').then(() =>
 				{
-					updateStepVisibility();
+					updateFlowTriggerState();
 				});
 			});
 
@@ -5518,10 +5553,12 @@ function saveAdvancedButtonPopup()
 			const selectedEventType = selectedEventOption ? (selectedEventOption.dataset.type || '') : '';
 			const selectedEventValue = eventCapabilityElement ? (eventCapabilityElement.value || '') : '';
 			const isToggleDirection = selectedEventValue === '__toggleDirection__';
+			const isFlowTriggerOnly = selectedEventOption && selectedEventOption.dataset.flowTriggerOnly === 'true';
 			const isNumericCapability = selectedEventType === 'number' || selectedEventValue === 'dim';
-			pageConfig[`${side}${eventName}Device`] = document.getElementById(`popup${side}${page}${eventName}Device`).value || 'none';
-			pageConfig[`${side}${eventName}Capability`] = isToggleDirection ? '' : selectedEventValue;
-			pageConfig[`${side}${eventName}NumericAction`] = isToggleDirection ? 'toggleDirection' : (isNumericCapability ? 'change' : 'none');
+			const selectedEventDevice = document.getElementById(`popup${side}${page}${eventName}Device`).value || 'none';
+			pageConfig[`${side}${eventName}Device`] = selectedEventDevice;
+			pageConfig[`${side}${eventName}Capability`] = (selectedEventDevice === 'none' || isToggleDirection || isFlowTriggerOnly) ? '' : selectedEventValue;
+			pageConfig[`${side}${eventName}NumericAction`] = (selectedEventDevice === 'none' || isToggleDirection || isFlowTriggerOnly) ? (isToggleDirection ? 'toggleDirection' : 'none') : (isNumericCapability ? 'change' : 'none');
 			pageConfig[`${side}${eventName}ValueStep`] = document.getElementById(`popup${side}${page}${eventName}ValueStep`).value || '+10';
 		}
 	}

@@ -236,6 +236,7 @@
 		"doubleClickValueStep": "Double-click value step",
 		"longRepeatTargetDevice": "Long/repeat target device",
 		"longRepeatActionCapability": "Long/repeat action / capability",
+		"flowTrigger": "Flow Trigger Only",
 		"longRepeatValueStep": "Long/repeat value step",
 		"ledSourceDevice": "LED source device",
 		"ledSourceCapability": "LED source capability (boolean/number)",

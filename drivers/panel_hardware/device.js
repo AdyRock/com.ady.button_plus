@@ -3595,8 +3595,9 @@ class PanelDevice extends Device
 		const numericAction = sideConfig[`${side}${eventName}NumericAction`] || 'change';
 		const rawStep = sideConfig[`${side}${eventName}ValueStep`] || '+10';
 		const directionOnly = (numericAction === 'toggleDirection') && !capabilityName;
+		const flowTriggerOnly = (eventType === 'double') && deviceID === 'none' && !capabilityName;
 
-		if (!directionOnly && (!deviceID || deviceID === 'none' || !capabilityName))
+		if (!directionOnly && !flowTriggerOnly && (!deviceID || deviceID === 'none' || !capabilityName))
 		{
 			return null;
 		}
@@ -3607,6 +3608,7 @@ class PanelDevice extends Device
 			capabilityName,
 			numericAction,
 			directionOnly,
+			flowTriggerOnly,
 			valueStep: this.parseValueStep(rawStep, 10),
 			brokerId,
 			eventName,
@@ -4428,6 +4430,11 @@ class PanelDevice extends Device
 			this.toggleAdvancedDirection(parameters);
 			await this.applyAdvancedDisplayBinding(parameters);
 			await this.applyAdvancedLedBinding(parameters);
+			return true;
+		}
+
+		if (binding.flowTriggerOnly)
+		{
 			return true;
 		}
 
