@@ -2575,6 +2575,24 @@ summary::-webkit-details-marker {
 	opacity: 1;
 }
 
+.display-sim-alignment-guide {
+	position: absolute;
+	pointer-events: none;
+	z-index: 4;
+	background: rgba(96, 220, 255, 0.95);
+	box-shadow: 0 0 0 1px rgba(5, 14, 24, 0.55), 0 0 12px rgba(96, 220, 255, 0.9);
+}
+
+.display-sim-alignment-guide-vertical {
+	width: 2px;
+	transform: translateX(-1px);
+}
+
+.display-sim-alignment-guide-horizontal {
+	height: 2px;
+	transform: translateY(-1px);
+}
+
 body.display-sim-resizing,
 body.display-sim-resizing * {
 	cursor: ew-resize !important;

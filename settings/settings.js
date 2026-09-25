@@ -911,6 +911,155 @@ function stopDisplayInlineLiveRefresh()
 	displayInlineLiveRefreshTimer = null;
 }
 
+function clearDisplayItemMoveAlignmentGuides(surfaceElement)
+{
+	if (!surfaceElement)
+	{
+		return;
+	}
+
+	for (const guideElement of surfaceElement.querySelectorAll('.display-sim-alignment-guide'))
+	{
+		guideElement.remove();
+	}
+}
+
+function appendDisplayItemMoveAlignmentGuide(surfaceElement, className, style)
+{
+	const guideElement = document.createElement('div');
+	guideElement.className = `display-sim-alignment-guide ${className}`;
+	for (const [propertyName, propertyValue] of Object.entries(style))
+	{
+		guideElement.style[propertyName] = propertyValue;
+	}
+	surfaceElement.appendChild(guideElement);
+}
+
+function getDisplayItemAlignmentBox(itemElement)
+{
+	const left = itemElement.offsetLeft;
+	const top = itemElement.offsetTop;
+	const width = itemElement.offsetWidth;
+	const height = itemElement.offsetHeight;
+	return {
+		left,
+		right: left + width,
+		centerX: left + (width / 2),
+		top,
+		bottom: top + height,
+		centerY: top + (height / 2),
+		width,
+		height,
+	};
+}
+
+function getDisplayItemGuideSegment(startA, endA, startB, endB)
+{
+	if (endA < startB)
+	{
+		return { start: endA, end: startB };
+	}
+
+	if (endB < startA)
+	{
+		return { start: endB, end: startA };
+	}
+
+	return {
+		start: Math.min(startA, startB),
+		end: Math.max(endA, endB),
+	};
+}
+
+function updateDisplayItemMoveAlignmentGuides(state)
+{
+	if (!state || !state.surfaceElement || !state.itemElement)
+	{
+		return;
+	}
+
+	clearDisplayItemMoveAlignmentGuides(state.surfaceElement);
+
+	const surfaceWidth = state.surfaceElement.clientWidth;
+	const surfaceHeight = state.surfaceElement.clientHeight;
+	const itemBox = getDisplayItemAlignmentBox(state.itemElement);
+	if (surfaceWidth <= 0 || surfaceHeight <= 0 || itemBox.width <= 0 || itemBox.height <= 0)
+	{
+		return;
+	}
+
+	const alignmentTolerancePx = 2;
+	const currentEdges = {
+		left: itemBox.left,
+		centerX: itemBox.centerX,
+		right: itemBox.right,
+		top: itemBox.top,
+		centerY: itemBox.centerY,
+		bottom: itemBox.bottom,
+	};
+
+	for (const otherElement of state.surfaceElement.querySelectorAll('.display-sim-item'))
+	{
+		if (otherElement === state.itemElement)
+		{
+			continue;
+		}
+
+		const otherBox = getDisplayItemAlignmentBox(otherElement);
+		if (otherBox.width <= 0 || otherBox.height <= 0)
+		{
+			continue;
+		}
+
+		const otherEdges = {
+			left: otherBox.left,
+			centerX: otherBox.centerX,
+			right: otherBox.right,
+			top: otherBox.top,
+			centerY: otherBox.centerY,
+			bottom: otherBox.bottom,
+		};
+
+		for (const currentEdgeName of ['left', 'centerX', 'right'])
+		{
+			for (const otherEdgeName of ['left', 'centerX', 'right'])
+			{
+				if (Math.abs(currentEdges[currentEdgeName] - otherEdges[otherEdgeName]) > alignmentTolerancePx)
+				{
+					continue;
+				}
+
+				const xPosition = (currentEdges[currentEdgeName] + otherEdges[otherEdgeName]) / 2;
+				const ySegment = getDisplayItemGuideSegment(itemBox.top, itemBox.bottom, otherBox.top, otherBox.bottom);
+				appendDisplayItemMoveAlignmentGuide(state.surfaceElement, 'display-sim-alignment-guide-vertical', {
+					left: `${Math.max(0, Math.min(surfaceWidth, xPosition))}px`,
+					top: `${Math.max(0, ySegment.start)}px`,
+					height: `${Math.max(1, Math.min(surfaceHeight, ySegment.end) - Math.max(0, ySegment.start))}px`,
+				});
+			}
+		}
+
+		for (const currentEdgeName of ['top', 'centerY', 'bottom'])
+		{
+			for (const otherEdgeName of ['top', 'centerY', 'bottom'])
+			{
+				if (Math.abs(currentEdges[currentEdgeName] - otherEdges[otherEdgeName]) > alignmentTolerancePx)
+				{
+					continue;
+				}
+
+				const yPosition = (currentEdges[currentEdgeName] + otherEdges[otherEdgeName]) / 2;
+				const xSegment = getDisplayItemGuideSegment(itemBox.left, itemBox.right, otherBox.left, otherBox.right);
+				appendDisplayItemMoveAlignmentGuide(state.surfaceElement, 'display-sim-alignment-guide-horizontal', {
+					left: `${Math.max(0, xSegment.start)}px`,
+					top: `${Math.max(0, Math.min(surfaceHeight, yPosition))}px`,
+					width: `${Math.max(1, Math.min(surfaceWidth, xSegment.end) - Math.max(0, xSegment.start))}px`,
+				});
+			}
+		}
+	}
+}
+
 function startDisplayItemMoveDrag(event, itemNo)
 {
 	if (!event)
@@ -922,6 +1071,10 @@ function startDisplayItemMoveDrag(event, itemNo)
 	event.stopPropagation();
 
 	const handleElement = event.currentTarget;
+	if (handleElement && typeof handleElement.focus === 'function')
+	{
+		handleElement.focus({ preventScroll: true });
+	}
 	const itemElement = handleElement ? handleElement.closest('.display-sim-item') : null;
 	const surfaceElement = itemElement ? itemElement.closest('.display-sim-surface') : null;
 	if (!itemElement || !surfaceElement)
@@ -985,6 +1138,7 @@ function startDisplayItemMoveDrag(event, itemNo)
 		itemHeightPercent: (itemRect.height / surfaceRect.height) * 100,
 		pointerId: event.pointerId,
 	};
+	updateDisplayItemMoveAlignmentGuides(displayItemMoveState);
 
 	document.body.classList.add('display-sim-moving');
 	window.addEventListener('pointermove', onDisplayItemMoveDragMove);
@@ -1045,6 +1199,8 @@ function onDisplayItemMoveDragMove(event)
 	{
 		displayItemMoveState.yInputElement.value = `${displayTopPercent}`;
 	}
+
+	updateDisplayItemMoveAlignmentGuides(displayItemMoveState);
 }
 
 function stopDisplayItemMoveDrag(event)
@@ -1067,6 +1223,7 @@ function stopDisplayItemMoveDrag(event)
 	window.removeEventListener('pointercancel', stopDisplayItemMoveDrag);
 	document.body.classList.remove('display-sim-moving');
 	state.itemElement.classList.remove('display-sim-item-moving');
+	clearDisplayItemMoveAlignmentGuides(state.surfaceElement);
 
 	const finalLeftPercent = parseFloat(state.itemElement?.dataset?.leftPercent || state.xInputElement?.value || '0');
 	const finalTopPercent = parseFloat(state.itemElement?.dataset?.topPercent || state.yInputElement?.value || '0');
@@ -1095,7 +1252,9 @@ function stopDisplayItemMoveDrag(event)
 	configDraftDirtySinceLoad = true;
 	flushConfigurationDraftPersist();
 
+	const scrollPosition = window.scrollY;
 	redisplayDisplyConfig(state.itemNo);
+	window.requestAnimationFrame(() => window.scrollTo(0, scrollPosition));
 	if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
 	{
 		renderDisplayPagePopup();
@@ -1113,6 +1272,10 @@ function startDisplayItemWidthDrag(event, itemNo)
 	event.stopPropagation();
 
 	const handleElement = event.currentTarget;
+	if (handleElement && typeof handleElement.focus === 'function')
+	{
+		handleElement.focus({ preventScroll: true });
+	}
 	const itemElement = handleElement ? handleElement.closest('.display-sim-item') : null;
 	const surfaceElement = itemElement ? itemElement.closest('.display-sim-surface') : null;
 	if (!itemElement || !surfaceElement)
@@ -1255,7 +1418,9 @@ function stopDisplayItemWidthDrag(event)
 	configDraftDirtySinceLoad = true;
 	flushConfigurationDraftPersist();
 
+	const scrollPosition = window.scrollY;
 	redisplayDisplyConfig(state.itemNo);
+	window.requestAnimationFrame(() => window.scrollTo(0, scrollPosition));
 	if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
 	{
 		renderDisplayPagePopup();
@@ -7813,7 +7978,7 @@ function renderDisplaySimulatorSurface(surfaceElement, titleElement, prevElement
 		const valueFocusSuffix = (runtime.deviceId === 'none') ? 'Text' : 'Device';
 		const needsLivePlaceholder = isDynamicValueSource && !hasTextValue && !showValueSvg;
 		const renderedText = needsLivePlaceholder ? displayLoadingPlaceholder : (text || '&nbsp;');
-		const hasUnitValue = !(needsLivePlaceholder || showValueSvg) && !!unitText;
+		const hasUnitValue = isDynamicValueSource && !(needsLivePlaceholder || showValueSvg) && !!unitText;
 		const valueClass = needsLivePlaceholder ? 'display-sim-text display-sim-text-loading' : 'display-sim-text';
 		const valueRowClass = hasUnitValue ? 'display-sim-value-row' : 'display-sim-value-row display-sim-value-row-no-unit';
 		const valueTextPaddingTop = hasExplicitLabel ? 10 : 34;
@@ -9508,7 +9673,7 @@ function getGroupDisplayPreviewHtml(displayConfigNo, pageIndex = groupSimCurrent
 			|| (runtime.deviceId && runtime.deviceId !== 'none' && runtime.deviceId !== 'customMQTT' && runtime.capabilityId);
 		const needsLivePlaceholder = isDynamicValueSource && !hasTextValue && !showValueSvg;
 		const renderedText = needsLivePlaceholder ? displayLoadingPlaceholder : (text || '&nbsp;');
-		const hasUnitValue = !(needsLivePlaceholder || showValueSvg) && !!unitText;
+		const hasUnitValue = isDynamicValueSource && !(needsLivePlaceholder || showValueSvg) && !!unitText;
 		const valueClass = needsLivePlaceholder ? 'display-sim-text display-sim-text-loading' : 'display-sim-text';
 		const valueRowClass = hasUnitValue ? 'display-sim-value-row' : 'display-sim-value-row display-sim-value-row-no-unit';
 		const valueTextPaddingTop = hasExplicitLabel ? 10 : 34;
