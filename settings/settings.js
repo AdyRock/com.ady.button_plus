@@ -126,6 +126,19 @@ var displayInlineSimDeleteItemElement = document.getElementById('displayInlineSi
 var displayPagePopupCurrentPage = 0;
 var displayPagePopupStatusBarPosition = null;
 var displayInlineSelectedItemNo = -1;
+const TARGET_BUTTON_PLUS_DEVICE_ID = '_this_button_plus_';
+const TARGET_BUTTON_PLUS_CAPABILITIES = {
+	page: { id: 'page', title: 'Page', type: 'string' },
+	'page.max': { id: 'page.max', title: 'Pages', type: 'string' },
+	dim: { id: 'dim', title: 'Brightness', type: 'number', units: '%' },
+	measure_temperature: { id: 'measure_temperature', title: 'Temperature', type: 'number', units: '°C' },
+	measure_luminance: { id: 'measure_luminance', title: 'Luminance', type: 'number', units: 'lx' },
+	measure_memory: { id: 'measure_memory', title: 'Free memory', type: 'number', units: 'kB' },
+	measure_signal_strength: { id: 'measure_signal_strength', title: 'Signal strength', type: 'number', units: 'dBm' },
+	date: { id: 'date', title: 'Date', type: 'string' },
+	time: { id: 'time', title: 'Time', type: 'string' },
+	info: { id: 'info', title: 'Info', type: 'string' },
+};
 const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
 const DISPLAY_BOLD_FONT_SIZES = new Set();
 const DISPLAY_SIM_LIVE_REFRESH_MS = 12000;
@@ -7226,6 +7239,21 @@ function getDisplayPopupItemRuntime(item, itemNo)
 	};
 }
 
+function getTargetButtonPlusSimulatorValue(capabilityId, pageIndex, maxPageIndex)
+{
+	if (capabilityId === 'page')
+	{
+		return pageIndex;
+	}
+
+	if (capabilityId === 'page.max')
+	{
+		return maxPageIndex;
+	}
+
+	return undefined;
+}
+
 function formatDisplayPopupValue(value, rounding, item = null)
 {
 	if (value === undefined || value === null)
@@ -7304,7 +7332,7 @@ function refreshDisplayPopupLiveValues()
 				{
 					variableIds.add(runtime.capabilityId);
 				}
-				else if (runtime.deviceId && runtime.capabilityId && runtime.deviceId !== 'none' && runtime.deviceId !== 'customMQTT')
+				else if (runtime.deviceId && runtime.capabilityId && runtime.deviceId !== 'none' && runtime.deviceId !== 'customMQTT' && runtime.deviceId !== TARGET_BUTTON_PLUS_DEVICE_ID)
 				{
 					deviceCapPairs.add(`${runtime.deviceId}::${runtime.capabilityId}`);
 				}
@@ -7331,7 +7359,7 @@ function refreshDisplayPopupLiveValues()
 							{
 								variableIds.add(runtime.capabilityId);
 							}
-							else if (runtime.deviceId && runtime.capabilityId && runtime.deviceId !== 'none' && runtime.deviceId !== 'customMQTT')
+							else if (runtime.deviceId && runtime.capabilityId && runtime.deviceId !== 'none' && runtime.deviceId !== 'customMQTT' && runtime.deviceId !== TARGET_BUTTON_PLUS_DEVICE_ID)
 							{
 								deviceCapPairs.add(`${runtime.deviceId}::${runtime.capabilityId}`);
 							}
@@ -7697,6 +7725,10 @@ function renderDisplaySimulatorSurface(surfaceElement, titleElement, prevElement
 		{
 			const variableValue = displayPagePopupVariableValueCache.get(runtime.capabilityId);
 			displayValueRaw = (variableValue !== undefined) ? variableValue : staticTextFallback;
+		}
+		else if (runtime.deviceId === TARGET_BUTTON_PLUS_DEVICE_ID && runtime.capabilityId)
+		{
+			displayValueRaw = getTargetButtonPlusSimulatorValue(runtime.capabilityId, displayPagePopupCurrentPage, highestPageNumber);
 		}
 		else if (runtime.deviceId && runtime.capabilityId && runtime.deviceId !== 'none' && runtime.deviceId !== 'customMQTT')
 		{
@@ -8442,7 +8474,7 @@ function updatePopupCapabilityIndicator(capabilityElement, indicatorElement)
 	indicatorElement.title = selectedText || '';
 }
 
-function fillDevicesElement(Element, DevicesArray)
+function fillDevicesElement(Element, DevicesArray, includeTargetButtonPlus = false)
 {
 	if (Element && (DevicesArray.length > 0))
 	{
@@ -8466,6 +8498,15 @@ function fillDevicesElement(Element, DevicesArray)
 		option.value = "customMQTT";
 		option.dataset.deviceClass = 'custommqtt';
 		Element.add(option);
+
+		if (includeTargetButtonPlus)
+		{
+			var option = document.createElement("option");
+			option.text = "Target Button+";
+			option.value = TARGET_BUTTON_PLUS_DEVICE_ID;
+			option.dataset.deviceClass = 'button-plus';
+			Element.add(option);
+		}
 
 		let deviceGroup;
 		for (const device of DevicesArray)
@@ -9383,6 +9424,11 @@ function getGroupDisplayPreviewHtml(displayConfigNo, pageIndex = groupSimCurrent
 		{
 			const variableValue = displayPagePopupVariableValueCache.get(runtime.capabilityId);
 			displayValueRaw = (variableValue !== undefined) ? variableValue : staticTextFallback;
+		}
+		else if (runtime.deviceId === TARGET_BUTTON_PLUS_DEVICE_ID && runtime.capabilityId)
+		{
+			const highestDisplayPage = Math.max(...getDisplayPopupPages(displayConfiguration));
+			displayValueRaw = getTargetButtonPlusSimulatorValue(runtime.capabilityId, pageIndex, highestDisplayPage);
 		}
 		else if (runtime.deviceId && runtime.capabilityId && runtime.deviceId !== 'none' && runtime.deviceId !== 'customMQTT')
 		{
@@ -10534,10 +10580,10 @@ function fillDisplayDevices()
 		{
 			for (var itemNo = 0; itemNo < displayConfig.items.length; itemNo++)
 			{
-				fillDevicesElement(document.getElementById(`display${itemNo}Device`), displayDevicesArray);
+				fillDevicesElement(document.getElementById(`display${itemNo}Device`), displayDevicesArray, true);
 
 				// If the current device is not in the list, add it
-				if (displayConfig.items[itemNo].device !== 'none' && displayConfig.items[itemNo].device !== '_variable_' && displayConfig.items[itemNo].device !== 'customMQTT' && displayConfig.items[itemNo].device !== '' && !displayDevicesArray.includes(displayConfig.items[itemNo].device))
+				if (displayConfig.items[itemNo].device !== 'none' && displayConfig.items[itemNo].device !== '_variable_' && displayConfig.items[itemNo].device !== 'customMQTT' && displayConfig.items[itemNo].device !== TARGET_BUTTON_PLUS_DEVICE_ID && displayConfig.items[itemNo].device !== '' && !displayDevicesArray.includes(displayConfig.items[itemNo].device))
 				{
 					var option = document.createElement("option");
 					option.text = displayConfig.items[itemNo].deviceName + " (Missing)";
@@ -10772,6 +10818,13 @@ function getDisplayCapabilities(itemNo)
 			});
 		}
 
+		return;
+	}
+
+	if (deviceId === TARGET_BUTTON_PLUS_DEVICE_ID)
+	{
+		displayCapabilityItems.set(deviceId, TARGET_BUTTON_PLUS_CAPABILITIES);
+		fillDisplayCapabilitiesElement(itemNo, capabilitiesElement, TARGET_BUTTON_PLUS_CAPABILITIES, selectedCapability);
 		return;
 	}
 

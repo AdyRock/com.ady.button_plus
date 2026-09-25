@@ -12,6 +12,7 @@ const V3_LONG_PRESS_EVENT_INTERVAL_MS = 20;
 const DOUBLE_CLICK_WINDOW_MS = 350;
 const DEFAULT_LONG_PRESS_DELAY_MS = 750;
 const DUPLICATE_CLICK_DEBOUNCE_MS = 120;
+const TARGET_BUTTON_PLUS_DEVICE_ID = '_this_button_plus_';
 
 /**
  * PanelDevice - Physical button panel device connected via MQTT to Homey.
@@ -266,23 +267,25 @@ class PanelDevice extends Device
 		if (!this.hasCapability('page'))
 		{
 			await this.addCapability('page');
-			this.setCapabilityValue('page', '1').catch(this.error);
+			this.setCapabilityValue('page', '0').catch(this.error);
 			this.page = 1;
 		}
 		else
 		{
-			// make sure page (converted to an int) is a valid number as it seems it can be NaN
-			const page = parseInt(this.getCapabilityValue('page'), 10);
+			// this.page remains one-based internally; the capability mirrors the panel's zero-based page index.
+			const storedPage = parseInt(this.getCapabilityValue('page'), 10);
+			const page = this.getStoreValue('zeroBasedPageCapability') === true ? storedPage + 1 : storedPage;
 			if (page < 1 || isNaN(page))
 			{
-				this.setCapabilityValue('page', '1').catch(this.error);
 				this.page = 1;
 			}
 			else
 			{
 				this.page = page;
 			}
+			this.setCapabilityValue('page', `${this.page - 1}`).catch(this.error);
 		}
+		await this.setStoreValue('zeroBasedPageCapability', true);
 
 		if (!this.hasCapability('page.max'))
 		{
@@ -1409,7 +1412,7 @@ class PanelDevice extends Device
 				this.page = targetPage;
 				if (this.hasCapability('page'))
 				{
-					this.setCapabilityValue('page', `${this.page}`).catch(this.error);
+					this.setCapabilityValue('page', `${this.page - 1}`).catch(this.error);
 				}
 				this.homey.app.triggerPageChange(this, this.page);
 				await this.updateButtonStatesForCurrentPage();
@@ -2730,7 +2733,7 @@ class PanelDevice extends Device
 						this.page = newPageNumber;
 						if (this.hasCapability('page'))
 						{
-							this.setCapabilityValue('page', `${this.page}`).catch(this.error);
+							this.setCapabilityValue('page', `${pageIndex}`).catch(this.error);
 						}
 						this.homey.app.triggerPageChange(this, this.page);
 						await this.updateButtonStatesForCurrentPage();
@@ -6355,22 +6358,14 @@ class PanelDevice extends Device
 			}
 			else
 			{
-				// Check if it is Button Plus device as it's all for one and one for all
-				let buttonPlusDevice = false;
-				let homeyDeviceObject = await this.homey.app.getHomeyDeviceById(deviceId);
-				if (homeyDeviceObject)
-				{
-					if (homeyDeviceObject.driverId === 'homey:app:com.ady.button_plus:panel_hardware')
-					{
-						buttonPlusDevice = true;
-						deviceId = this.__id;
-					}
-				}
+				const sourceDeviceId = deviceId;
+				const isThisButtonPlusDevice = String(sourceDeviceId) === String(this.__id);
 
 				for (let itemNo = 0; itemNo < item.items.length; itemNo++)
 				{
 					const displayItem = item.items[itemNo];
-					if ((buttonPlusDevice || (displayItem.device === deviceId)) && (displayItem.capability === capability))
+					const isTargetButtonPlusBinding = isThisButtonPlusDevice && displayItem.device === TARGET_BUTTON_PLUS_DEVICE_ID;
+					if ((isTargetButtonPlusBinding || (displayItem.device === sourceDeviceId)) && (displayItem.capability === capability))
 					{
 						// Publish to MQTT
 						const brokerId = displayItem.brokerId || displayItem.brokerid || 'Default';

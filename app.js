@@ -29,6 +29,7 @@ const i = require('./nodemailer');
 
 const MAX_BUTTON_CONFIGURATIONS = 40;
 const MAX_DISPLAY_CONFIGURATIONS = 20;
+const TARGET_BUTTON_PLUS_DEVICE_ID = '_this_button_plus_';
 
 /**
  * MyApp - Main application controller for Button Plus device management.
@@ -1718,18 +1719,13 @@ class MyApp extends Homey.App
 				{
 					brokerId = this.homey.settings.get('defaultBroker');
 				}
-				let homeyDeviceObject = await this.getHomeyDeviceById(item.device);
-				if (homeyDeviceObject)
+				if (item.device === TARGET_BUTTON_PLUS_DEVICE_ID && (!ButtonDevice || !ButtonDevice.__id))
 				{
-					if (homeyDeviceObject.driverId === 'homey:app:com.ady.button_plus:panel_hardware')
-					{
-						if (ButtonDevice && ButtonDevice.__id)
-						{
-							homeyDeviceObject = await this.getHomeyDeviceById(ButtonDevice.__id);
-						}
-					}
+					throw new Error('Target Button+ display binding requires a receiving panel device');
 				}
-
+				let homeyDeviceObject = item.device === TARGET_BUTTON_PLUS_DEVICE_ID && ButtonDevice && ButtonDevice.__id
+					? await this.getHomeyDeviceById(ButtonDevice.__id)
+					: await this.getHomeyDeviceById(item.device);
 				let itemUnit = item.device === 'none' ? '' : (item.unit || '');
 				if (!itemUnit && item.device && item.device !== 'none' && item.device !== '_variable_' && item.device !== 'customMQTT' && homeyDeviceObject && item.capability)
 				{
