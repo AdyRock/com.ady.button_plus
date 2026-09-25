@@ -1725,7 +1725,7 @@
 		"ar": "إصلاحات وتحسينات متنوعة."
 	},
 	"1.0.2": {
-		"en": "Changed Adv button click behavior. Adv button setup now shows Trigger Flow Only instead of Increment when no device is selected. Added a Back button to the buttons tab when reached via the group edit button.",
+		"en": "Changed Adv button click behavior. Adv button setup now shows Trigger Flow Only instead of Increment when no device is selected. Added a Back button to the buttons tab when reached via the group edit button. Fix page number display issue. Added a special Target Button+ device option.",
 		"nl": "Het klikgedrag van de Adv-knop is gewijzigd. De Adv-knopinstelling toont nu Alleen Flow Triggeren in plaats van Verhogen wanneer geen apparaat is geselecteerd. Er is een Terug-knop toegevoegd aan het tabblad knoppen wanneer dit wordt bereikt via de groepsbewerkingsknop.",
 		"de": "Das Klickverhalten der Adv-Taste wurde geändert. Die Einrichtung der Adv-Taste zeigt jetzt Nur Flow auslösen anstelle von Erhöhen, wenn kein Gerät ausgewählt ist. Eine Zurück-Taste wurde dem Schaltflächentab hinzugefügt, wenn es über die Gruppenedittaste erreicht wird.",
 		"fr": "Comportement du bouton Adv modifié. La configuration du bouton Adv affiche désormais Déclencher le flux uniquement au lieu d'Incrémenter lorsqu'aucun appareil n'est sélectionné. Ajout d'un bouton Retour dans l'onglet des boutons lorsqu'il est atteint via le bouton de modification de groupe.",

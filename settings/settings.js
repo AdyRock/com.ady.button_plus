@@ -139,7 +139,7 @@ const TARGET_BUTTON_PLUS_CAPABILITIES = {
 	time: { id: 'time', title: 'Time', type: 'string' },
 	info: { id: 'info', title: 'Info', type: 'string' },
 };
-const DISPLAY_FONT_SIZE_LOOKUP = { 1: 18, 2: 35, 3: 45, 4: 66, 5: 100 };
+const DISPLAY_FONT_SIZE_LOOKUP = { 1: 22, 2: 35, 3: 55, 4: 85, 5: 120 };
 const DISPLAY_BOLD_FONT_SIZES = new Set();
 const DISPLAY_SIM_LIVE_REFRESH_MS = 12000;
 var displayPagePopupLiveValueCache = new Map();
@@ -6892,10 +6892,6 @@ function handleDisplayInlineSimulatorClick(itemNo, fieldSuffix)
 	{
 		displayInlineSelectedItemNo = itemNo;
 		renderDisplayInlineSimulator();
-		if (fieldSuffix !== 'Label')
-		{
-			openDisplayFieldPopup(itemNo, fieldSuffix);
-		}
 		return;
 	}
 
@@ -6909,10 +6905,6 @@ function handleDisplayOverlaySimulatorClick(itemNo, fieldSuffix)
 		displayInlineSelectedItemNo = itemNo;
 		renderDisplayPagePopup();
 		renderDisplayInlineSimulator();
-		if (fieldSuffix !== 'Label')
-		{
-			openDisplayFieldPopup(itemNo, fieldSuffix);
-		}
 		return;
 	}
 
@@ -7213,6 +7205,26 @@ function getDisplayPopupFontPx(fontSize)
 		return DISPLAY_FONT_SIZE_LOOKUP[key];
 	}
 	return DISPLAY_FONT_SIZE_LOOKUP[1];
+}
+
+function getDisplayPopupItemHeightPercent(fontSize)
+{
+	let fontIdx = parseInt(fontSize, 10);
+	switch (fontIdx)
+	{
+		case 1:
+			return 16;
+		case 2:
+			return 20;
+		case 3:
+			return 29;
+		case 4:
+			return 35;
+		case 5:
+			return 49;
+		default:
+			return null;
+	}
 }
 
 function isDisplayPopupFontBold(fontSize)
@@ -7788,6 +7800,7 @@ function renderDisplaySimulatorSurface(surfaceElement, titleElement, prevElement
 		const unitText = escapeHtml(sanitizeDisplayString(liveUnit, ''));
 		const configuredFontSize = getDisplayPopupFieldValue(item, itemNo, 'FontSize', item.fontSize || 1);
 		const fontPx = getDisplayPopupFontPx(configuredFontSize);
+		const itemHeightPercent = getDisplayPopupItemHeightPercent(configuredFontSize);
 		const fontWeight = isDisplayPopupFontBold(configuredFontSize) ? 700 : 400;
 		const boxType = parseInt(getDisplayPopupFieldValue(item, itemNo, 'BoxType', item.boxType || 0), 10) || 0;
 		const underlinedClass = (boxType === 0) ? 'display-sim-item-underlined' : '';
@@ -7813,7 +7826,7 @@ function renderDisplaySimulatorSurface(surfaceElement, titleElement, prevElement
 		const svgClick = isPageZeroOverlay ? '' : ` onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, '${svgFocusSuffix}')"`;
 		const valueRowClick = isPageZeroOverlay ? '' : ` onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, '${valueFocusSuffix}')"`;
 		const unitClick = isPageZeroOverlay ? '' : ` onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, 'Unit')"`;
-		return `<div class="display-sim-item ${underlinedClass}${selectedClass}${overlayClass}" style="left:${xPercent}%; top:${yPercent}%; width:${widthPercent}%;" data-item-no="${itemNo}" data-left-percent="${xPercent}" data-top-percent="${yPercent}" data-width-percent="${widthPercent}"${itemClick}>
+		return `<div class="display-sim-item ${underlinedClass}${selectedClass}${overlayClass}" style="left:${xPercent}%; top:${yPercent}%; width:${widthPercent}%;${itemHeightPercent === null ? '' : ` height:${itemHeightPercent}%;`}" data-item-no="${itemNo}" data-left-percent="${xPercent}" data-top-percent="${yPercent}" data-width-percent="${widthPercent}"${itemClick}>
 					${hasExplicitLabel ? `<div class="display-sim-top-label"${labelClick}>${renderedLabel}</div>` : ''}
 					${showValueSvg
 				? `<div class="display-sim-svg"${svgClick}>${effectiveSvgMarkup}</div>`
@@ -9484,6 +9497,7 @@ function getGroupDisplayPreviewHtml(displayConfigNo, pageIndex = groupSimCurrent
 		const unitText = escapeHtml(sanitizeDisplayString(liveUnit, ''));
 		const configuredFontSize = item.fontSize || 1;
 		const fontPx = getDisplayPopupFontPx(configuredFontSize);
+		const itemHeightPercent = getDisplayPopupItemHeightPercent(configuredFontSize);
 		const fontWeight = isDisplayPopupFontBold(configuredFontSize) ? 700 : 400;
 		const boxType = parseInt(item.boxType || 0, 10) || 0;
 		const underlinedClass = (boxType === 0) ? 'display-sim-item-underlined' : '';
@@ -9499,7 +9513,7 @@ function getGroupDisplayPreviewHtml(displayConfigNo, pageIndex = groupSimCurrent
 		const valueRowClass = hasUnitValue ? 'display-sim-value-row' : 'display-sim-value-row display-sim-value-row-no-unit';
 		const valueTextPaddingTop = hasExplicitLabel ? 10 : 34;
 
-		return `<div class="display-sim-item ${underlinedClass}" style="left:${xPercent}%; top:${yPercent}%; width:${widthPercent}%;">
+		return `<div class="display-sim-item ${underlinedClass}" style="left:${xPercent}%; top:${yPercent}%; width:${widthPercent}%;${itemHeightPercent === null ? '' : ` height:${itemHeightPercent}%;`}">
 					${hasExplicitLabel ? `<div class="display-sim-top-label">${renderedLabel}</div>` : ''}
 					${showValueSvg
 				? `<div class="display-sim-svg">${effectiveSvgMarkup}</div>`
