@@ -1198,7 +1198,6 @@ summary::-webkit-details-marker {
 .group-sim-module-body .button-sim-shell {
 	column-gap: 5px;
 	--button-sim-led-gap: 1px;
-	--button-sim-top-label-offset: 0px;
 	--button-sim-display-height: calc(var(--button-sim-display-inner-height) + 6px);
 }
 
@@ -1215,8 +1214,8 @@ summary::-webkit-details-marker {
 .group-sim-module-body .button-sim-content {
 	width: var(--button-sim-display-inner-width);
 	box-sizing: border-box;
-	padding-top: 3px;
-	padding-bottom: 3px;
+	padding-top: 8px !important;
+	padding-bottom: 3px !important;
 }
 
 .group-sim-module-header {
@@ -1340,7 +1339,14 @@ summary::-webkit-details-marker {
 }
 
 .group-sim-module-body .button-sim-state-block {
-	padding-bottom: 0;
+	padding-top: 14px !important;
+	padding-bottom: 18px !important;
+	margin-top: 4px !important;
+}
+
+.group-sim-module-body .button-sim-state-line {
+	margin-top: 8px !important;
+	transform: translateY(5px);
 }
 
 .group-sim-empty-module {
@@ -2083,6 +2089,29 @@ summary::-webkit-details-marker {
 		--button-sim-display-inner-height: 68px;
 		--button-sim-top-label-offset: 15px;
 	}
+}
+
+.group-sim-module-body .button-sim-shell {
+	--button-sim-top-label-offset: 20px !important;
+}
+
+.group-sim-module-body .button-sim-content {
+	padding-top: 8px !important;
+}
+
+.group-sim-module-body .button-sim-top,
+.group-sim-module-body .button-sim-state-line {
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+	padding-left: 0 !important;
+	padding-right: 0 !important;
+	max-width: 100% !important;
+	white-space: normal !important;
+	overflow: visible !important;
+	text-overflow: clip !important;
+	overflow-wrap: anywhere !important;
+	word-break: break-word !important;
+	transform: translateY(5px);
 }
 
 .button-sim-content>*:not(.button-sim-top-hit-area) {

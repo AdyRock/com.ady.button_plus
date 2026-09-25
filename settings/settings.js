@@ -1540,10 +1540,25 @@ function appendClientDiagnosticLog(message, level = 'INFO')
 function isHomeyMobileAppRuntime()
 {
 	const userAgent = (navigator && navigator.userAgent) ? navigator.userAgent.toLowerCase() : '';
-	const isAndroidWebView = userAgent.includes('android') && userAgent.includes('wv');
+	const isAndroid = userAgent.includes('android');
+	const isIOS = userAgent.includes('iphone') || userAgent.includes('ipad') || userAgent.includes('ipod');
+	const isAndroidWebView = isAndroid && userAgent.includes('wv');
+	const hasHomeyToken = userAgent.includes('homey');
 	const coarsePointer = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
 	const noHover = !!(window.matchMedia && window.matchMedia('(hover: none)').matches);
-	return isAndroidWebView && coarsePointer && noHover;
+	const touchLikeRuntime = coarsePointer || noHover;
+
+	if (isAndroidWebView)
+	{
+		return true;
+	}
+
+	if ((isAndroid || isIOS) && (touchLikeRuntime || hasHomeyToken))
+	{
+		return true;
+	}
+
+	return false;
 }
 
 function adjustMainTopOffset()
@@ -3018,11 +3033,13 @@ function onHomeyReady(Homey)
 	if (displayInlineSimSurfaceElement)
 	{
 		displayInlineSimSurfaceElement.addEventListener('click', handleDisplaySurfaceBackgroundClick);
+		displayInlineSimSurfaceElement.addEventListener('keydown', handleDisplaySimulatorKeydown);
 	}
 
 	if (displayPagePopupSurfaceElement)
 	{
 		displayPagePopupSurfaceElement.addEventListener('click', handleDisplaySurfaceBackgroundClick);
+		displayPagePopupSurfaceElement.addEventListener('keydown', handleDisplaySimulatorKeydown);
 	}
 
 	const refreshButtonPagePopupFromControl = function (event)
@@ -4746,7 +4763,7 @@ function getButtonPanelCapabilityPreviewText(side, pageIndex, deviceValue, capab
 	return selectedOption.dataset.value || '';
 }
 
-function getButtonPanelPreviewMarkup(pageConfig, side, pageIndex = buttonPagePopupCurrentPage, configIndex = currentButtonConfigurationNo, isReadonly = false, isContentBlank = false)
+function getButtonPanelPreviewMarkup(pageConfig, side, pageIndex = buttonPagePopupCurrentPage, configIndex = currentButtonConfigurationNo, isReadonly = false, isContentBlank = false, previewContext = '')
 {
 	ensureButtonSideAdvancedDefaults(pageConfig, side);
 	const isAdvancedMode = isButtonSideAdvanced(pageConfig, side);
@@ -4802,6 +4819,7 @@ function getButtonPanelPreviewMarkup(pageConfig, side, pageIndex = buttonPagePop
 		? customSvgText
 		: (isVariableSvg ? nonBooleanPreviewText : customSvgText);
 	const svgMarkup = getButtonPanelPreviewSvg(selectedSvgText || '');
+	const previewContextClass = previewContext ? ` button-sim-context-${previewContext}` : '';
 	const ledMarkup = `<div class="button-sim-leds ${side === 'right' ? 'button-sim-leds-right' : ''}">${getButtonPanelLedMarkup(pageConfig, side, pageIndex, configIndex, isReadonly)}</div>`;
 	const advancedBadge = (isAdvancedMode && !isReadonly)
 		? `<span class="button-sim-advanced-badge ${side === 'right' ? 'button-sim-advanced-badge-right' : 'button-sim-advanced-badge-left'}" role="button" tabindex="0" title="${Homey.__("settings.advancedMappingsEnabled")}" onclick="activateDisplayedButtonConfiguration(${configIndex}); openButtonAdvancedPopup('${side}', ${pageIndex}, 'event'); return false;"><span class="button-sim-advanced-badge-label">${Homey.__("settings.advancedBadgeLabel")}</span></span>`
@@ -4838,7 +4856,7 @@ function getButtonPanelPreviewMarkup(pageConfig, side, pageIndex = buttonPagePop
 	if (side === 'left')
 	{
 		return `
-					<div class="button-sim-shell button-sim-shell-left">
+					<div class="button-sim-shell button-sim-shell-left${previewContextClass}">
 						${advancedBadge}
 						${ledMarkup}
 						${contentMarkup}
@@ -4846,7 +4864,7 @@ function getButtonPanelPreviewMarkup(pageConfig, side, pageIndex = buttonPagePop
 	}
 
 	return `
-				<div class="button-sim-shell button-sim-shell-right">
+				<div class="button-sim-shell button-sim-shell-right${previewContextClass}">
 					${advancedBadge}
 					${contentMarkup}
 					${ledMarkup}
@@ -6639,6 +6657,8 @@ function closeDisplayFieldPopup()
 	{
 		displayFieldPopupBodyElement.innerHTML = '';
 	}
+
+	focusDisplaySimulatorSurfaceForSelection();
 }
 
 function syncDisplayFieldPopupCapabilityOptions(itemNo, popupCapabilityElement, selectedCapability = '')
@@ -7105,6 +7125,214 @@ function handleDisplaySurfaceBackgroundClick(event)
 	}
 }
 
+function getSelectableDisplaySimulatorItemNos()
+{
+	const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+	if (!displayConfiguration || !Array.isArray(displayConfiguration.items))
+	{
+		return [];
+	}
+
+	const itemNos = [];
+	for (let itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
+	{
+		const item = displayConfiguration.items[itemNo];
+		const itemPage = parseInt(getDisplayPopupFieldValue(item, itemNo, 'page', item.page || 0), 10) || 0;
+		if (itemPage === displayPagePopupCurrentPage)
+		{
+			itemNos.push(itemNo);
+		}
+	}
+
+	return itemNos;
+}
+
+function refreshDisplaySimulatorSurfaces()
+{
+	renderDisplayInlineSimulator();
+	if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
+	{
+		renderDisplayPagePopup();
+	}
+}
+
+function focusDisplaySimulatorSurfaceForSelection()
+{
+	const targetSurfaceElement = (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
+		? displayPagePopupSurfaceElement
+		: displayInlineSimSurfaceElement;
+
+	if (!targetSurfaceElement || typeof targetSurfaceElement.focus !== 'function')
+	{
+		return;
+	}
+
+	// Popup close/blur happens synchronously just before this runs, so focus must be deferred a tick.
+	setTimeout(() => targetSurfaceElement.focus({ preventScroll: true }), 0);
+}
+
+function selectNextDisplaySimulatorItem()
+{
+	const itemNos = getSelectableDisplaySimulatorItemNos();
+	if (itemNos.length === 0)
+	{
+		return;
+	}
+
+	if (displayInlineSelectedItemNo < 0 || !itemNos.includes(displayInlineSelectedItemNo))
+	{
+		displayInlineSelectedItemNo = itemNos[0];
+	}
+	else
+	{
+		const currentIndex = itemNos.indexOf(displayInlineSelectedItemNo);
+		displayInlineSelectedItemNo = itemNos[(currentIndex + 1) % itemNos.length];
+	}
+
+	refreshDisplaySimulatorSurfaces();
+}
+
+function stepDisplaySimulatorPageWithWrap(delta)
+{
+	const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+	if (!displayConfiguration || !Array.isArray(displayConfiguration.items))
+	{
+		return;
+	}
+
+	const pages = getDisplayPopupPages(displayConfiguration);
+	if (pages.length === 0)
+	{
+		return;
+	}
+
+	const pageIndex = pages.indexOf(displayPagePopupCurrentPage);
+	const currentIndex = (pageIndex < 0) ? 0 : pageIndex;
+	const nextIndex = (currentIndex + delta + pages.length) % pages.length;
+	displayPagePopupCurrentPage = pages[nextIndex];
+
+	refreshDisplaySimulatorSurfaces();
+	refreshDisplayPopupLiveValues();
+}
+
+function moveSelectedDisplaySimulatorItem(direction)
+{
+	const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+	const itemNo = displayInlineSelectedItemNo;
+	if (!displayConfiguration || !Array.isArray(displayConfiguration.items) || !displayConfiguration.items[itemNo])
+	{
+		return;
+	}
+
+	const item = displayConfiguration.items[itemNo];
+	const xInputElement = document.getElementById(`display${itemNo}X`);
+	const yInputElement = document.getElementById(`display${itemNo}Y`);
+	const widthInputElement = document.getElementById(`display${itemNo}Width`);
+
+	const widthPercent = clampDisplayPercent(widthInputElement ? widthInputElement.value : item.width, 100);
+	const heightPercent = getDisplayPopupItemHeightPercent(getDisplayPopupFieldValue(item, itemNo, 'FontSize', item.fontSize || 1));
+	const maxLeftPercent = Math.max(0, 100 - widthPercent);
+	const maxTopPercent = (heightPercent === null) ? 100 : Math.max(0, 100 - heightPercent);
+
+	let leftPercent = clampDisplayPercent(xInputElement ? xInputElement.value : item.xPos, 0);
+	let topPercent = clampDisplayPercent(yInputElement ? yInputElement.value : item.yPos, 0);
+
+	switch (direction)
+	{
+		case 'ArrowLeft':
+			leftPercent = Math.max(0, leftPercent - 1);
+			break;
+		case 'ArrowRight':
+			leftPercent = Math.min(maxLeftPercent, leftPercent + 1);
+			break;
+		case 'ArrowUp':
+			topPercent = Math.max(0, topPercent - 1);
+			break;
+		case 'ArrowDown':
+			topPercent = Math.min(maxTopPercent, topPercent + 1);
+			break;
+		default:
+			return;
+	}
+
+	leftPercent = Math.round(leftPercent);
+	topPercent = Math.round(topPercent);
+
+	if (xInputElement)
+	{
+		xInputElement.value = `${leftPercent}`;
+	}
+
+	if (yInputElement)
+	{
+		yInputElement.value = `${topPercent}`;
+	}
+
+	item.xPos = `${leftPercent}`;
+	item.yPos = `${topPercent}`;
+
+	onDisplayLabelChange({ id: `display${itemNo}X`, value: '' }, itemNo);
+
+	configDraftDirtySinceLoad = true;
+	flushConfigurationDraftPersist();
+
+	refreshDisplaySimulatorSurfaces();
+}
+
+function handleDisplaySimulatorKeydown(event)
+{
+	if (!event)
+	{
+		return;
+	}
+
+	switch (event.key)
+	{
+		case 'Tab':
+			event.preventDefault();
+			if (event.shiftKey)
+			{
+				stepDisplaySimulatorPageWithWrap(1);
+			}
+			else
+			{
+				selectNextDisplaySimulatorItem();
+			}
+			break;
+
+		case 'Escape':
+			if (displayInlineSelectedItemNo >= 0)
+			{
+				event.preventDefault();
+				displayInlineSelectedItemNo = -1;
+				refreshDisplaySimulatorSurfaces();
+			}
+			break;
+
+		case 'Enter':
+			if (displayInlineSelectedItemNo >= 0)
+			{
+				event.preventDefault();
+				openDisplayFieldPopup(displayInlineSelectedItemNo, 'Label');
+			}
+			break;
+
+		case 'ArrowLeft':
+		case 'ArrowRight':
+		case 'ArrowUp':
+		case 'ArrowDown':
+			if (displayInlineSelectedItemNo >= 0)
+			{
+				event.preventDefault();
+				moveSelectedDisplaySimulatorItem(event.key);
+			}
+			break;
+
+		default:
+			break;
+	}
+}
+
 function closeDisplayPagePopup()
 {
 	if (!displayPagePopupOverlayElement)
@@ -7129,6 +7357,8 @@ function closeDisplayPagePopup()
 		document.body.classList.remove('sim-panel-open');
 		document.documentElement.style.setProperty('--button-sim-scroll-offset', '0px');
 	}
+
+	focusDisplaySimulatorSurfaceForSelection();
 }
 
 function updateDisplayPagePopupScrollOffset()
@@ -7236,7 +7466,7 @@ function getDisplayPopupPages(displayConfiguration)
 
 function getFirstNonEmptyDisplayPage(displayConfiguration)
 {
-	if (!displayConfiguration || !Array.isArray(displayConfiguration.items) || displayConfiguration.items.length === 0)
+if (!displayConfiguration || !Array.isArray(displayConfiguration.items) || displayConfiguration.items.length === 0)
 	{
 		return 0;
 	}
@@ -9696,6 +9926,70 @@ function getGroupDisplayPreviewHtml(displayConfigNo, pageIndex = groupSimCurrent
 	return `<div class="group-display-panel-frame"><div class="display-sim-surface">${statusBarMarkup}${emptyStateMarkup}${markup}</div></div>`;
 }
 
+function applyGroupSimTextLayoutFix(rootElement)
+{
+	if (!rootElement) return;
+
+	const hasMobileClass = document.body && document.body.classList && document.body.classList.contains('homey-mobile-app');
+	const isMobileRuntime = hasMobileClass || isHomeyMobileAppRuntime();
+	if (!isMobileRuntime)
+	{
+		return;
+	}
+
+	const grids = rootElement.querySelectorAll('.group-sim-module-body .button-inline-sim-grid');
+	grids.forEach((grid) =>
+	{
+		grid.style.setProperty('margin-left', '0', 'important');
+		grid.style.setProperty('margin-right', '0', 'important');
+		grid.style.setProperty('gap', '0', 'important');
+	});
+
+	const gridItems = rootElement.querySelectorAll('.group-sim-module-body .button-inline-sim-grid > .button-sim-item');
+	gridItems.forEach((item) =>
+	{
+		item.style.setProperty('padding-top', '0', 'important');
+		item.style.setProperty('margin-left', '0', 'important');
+		item.style.setProperty('min-width', '0', 'important');
+		item.style.setProperty('overflow', 'visible', 'important');
+	});
+
+	const shells = rootElement.querySelectorAll('.group-sim-module-body .button-sim-shell');
+	shells.forEach((shell) =>
+	{
+		shell.style.setProperty('--button-sim-display-inner-width', '100%', 'important');
+		shell.style.setProperty('--button-sim-display-height', 'auto', 'important');
+		shell.style.setProperty('column-gap', '0', 'important');
+	});
+
+	const contents = rootElement.querySelectorAll('.group-sim-module-body .button-sim-shell .button-sim-content');
+	contents.forEach((content) =>
+	{
+		content.style.setProperty('width', '100%', 'important');
+		content.style.setProperty('min-width', '0', 'important');
+		content.style.setProperty('padding-left', '0', 'important');
+		content.style.setProperty('padding-right', '0', 'important');
+		content.style.setProperty('box-sizing', 'border-box', 'important');
+	});
+
+	const textElements = rootElement.querySelectorAll('.group-sim-module-body .button-sim-shell .button-sim-top, .group-sim-module-body .button-sim-shell .button-sim-state-line');
+	textElements.forEach((element) =>
+	{
+		element.style.setProperty('display', 'block', 'important');
+		element.style.setProperty('width', '100%', 'important');
+		element.style.setProperty('max-width', '100%', 'important');
+		element.style.setProperty('margin-left', '0', 'important');
+		element.style.setProperty('margin-right', '0', 'important');
+		element.style.setProperty('padding-left', '0', 'important');
+		element.style.setProperty('padding-right', '0', 'important');
+		element.style.setProperty('white-space', 'normal', 'important');
+		element.style.setProperty('overflow-wrap', 'anywhere', 'important');
+		element.style.setProperty('word-break', 'break-word', 'important');
+		element.style.setProperty('overflow', 'visible', 'important');
+		element.style.setProperty('text-overflow', 'clip', 'important');
+	});
+}
+
 function renderGroupSimulator()
 {
 	if (!groupSimulatorSurfaceElement) return;
@@ -9809,18 +10103,18 @@ function renderGroupSimulator()
 		if (pageConfig)
 		{
 			buttonPagePopupLedState = groupSimStates[leftKey];
-			leftPreview = getButtonPanelPreviewMarkup(pageConfig, 'left', pageIdx, btnConfigIdx, true);
+			leftPreview = getButtonPanelPreviewMarkup(pageConfig, 'left', pageIdx, btnConfigIdx, true, false, 'group');
 
 			buttonPagePopupLedState = groupSimStates[rightKey];
-			rightPreview = getButtonPanelPreviewMarkup(pageConfig, 'right', pageIdx, btnConfigIdx, true);
+			rightPreview = getButtonPanelPreviewMarkup(pageConfig, 'right', pageIdx, btnConfigIdx, true, false, 'group');
 		}
 		else
 		{
 			buttonPagePopupLedState = groupSimStates[leftKey];
-			leftPreview = getButtonPanelPreviewMarkup({}, 'left', pageIdx, btnConfigIdx, true, true);
+			leftPreview = getButtonPanelPreviewMarkup({}, 'left', pageIdx, btnConfigIdx, true, true, 'group');
 
 			buttonPagePopupLedState = groupSimStates[rightKey];
-			rightPreview = getButtonPanelPreviewMarkup({}, 'right', pageIdx, btnConfigIdx, true, true);
+			rightPreview = getButtonPanelPreviewMarkup({}, 'right', pageIdx, btnConfigIdx, true, true, 'group');
 		}
 
 		buttonPagePopupLedState = oldPopupLedState;
@@ -9866,6 +10160,8 @@ function renderGroupSimulator()
 		addRow.innerHTML = `<button class="homey-button-secondary-shadow" type="button" onclick="addGroupButtonBar()">+ Add Button Bar Module</button>`;
 		groupSimulatorSurfaceElement.appendChild(addRow);
 	}
+
+	applyGroupSimTextLayoutFix(groupSimulatorSurfaceElement);
 }
 
 function configTypeChanged(configSelected)
