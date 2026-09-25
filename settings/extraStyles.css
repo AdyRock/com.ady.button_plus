@@ -2713,9 +2713,9 @@ body.homey-mobile-app .display-sim-status-bar {
 	display: block;
 	width: auto;
 	height: auto;
-	max-width: 31.5%;
-	max-height: 35.1%;
-	padding-top: 15px;
+	max-width: 130%;
+	max-height: 130%;
+	padding-top: 5px;
 }
 
 .button-field-popup-overlay {
