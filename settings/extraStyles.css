@@ -1218,6 +1218,64 @@ summary::-webkit-details-marker {
 	padding-bottom: 3px !important;
 }
 
+@media (hover: none),
+(pointer: coarse) {
+	.group-sim-module-body .button-sim-shell {
+		--button-sim-display-inner-width: 100% !important;
+		justify-items: center;
+	}
+
+	.group-sim-module-body .button-sim-shell-left {
+		grid-template-columns: auto var(--button-sim-display-inner-width);
+		justify-content: center;
+	}
+
+	.group-sim-module-body .button-sim-shell-right {
+		grid-template-columns: var(--button-sim-display-inner-width) auto;
+		justify-content: center;
+	}
+
+	.group-sim-module-body .button-sim-content {
+		width: 100%;
+		max-width: 100%;
+		box-sizing: border-box;
+	}
+
+	.group-sim-module-body[data-mobile-probe="mobile"]::after {
+		content: "MOBILE_PROBE";
+		position: absolute;
+		right: 8px;
+		top: 8px;
+		z-index: 40;
+		padding: 2px 6px;
+		border-radius: 4px;
+		background: rgba(239, 68, 68, 0.92);
+		color: #ffffff;
+		font-size: 9px;
+		font-weight: 800;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		pointer-events: none;
+	}
+
+	.group-sim-module-body[data-mobile-probe="web"]::after {
+		content: "WEB_PROBE";
+		position: absolute;
+		right: 8px;
+		top: 8px;
+		z-index: 40;
+		padding: 2px 6px;
+		border-radius: 4px;
+		background: rgba(59, 130, 246, 0.92);
+		color: #ffffff;
+		font-size: 9px;
+		font-weight: 800;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		pointer-events: none;
+	}
+}
+
 .group-sim-module-header {
 	display: flex;
 	align-items: center;
@@ -1345,8 +1403,31 @@ summary::-webkit-details-marker {
 }
 
 .group-sim-module-body .button-sim-state-line {
-	margin-top: 8px !important;
+	margin-top: 1px !important;
 	transform: translateY(5px);
+}
+
+body.homey-mobile-app .group-sim-module-body .button-sim-content {
+	padding-top: 8px !important;
+}
+
+body.homey-mobile-app .group-sim-module-body .button-sim-state-line {
+	transform: translateY(5px);
+}
+
+body.homey-mobile-app .group-sim-module-body .button-sim-top {
+	font-size: 14px;
+	line-height: 1;
+	font-weight: 500;
+	color: #e5e7b4;
+	min-height: 14px;
+	max-height: 28px;
+	letter-spacing: 0.02em;
+	transform: translateY(0);
+}
+
+body.homey-mobile-app .group-sim-module-body .button-sim-state-block {
+	transform: none;
 }
 
 .group-sim-empty-module {
@@ -2111,7 +2192,14 @@ summary::-webkit-details-marker {
 	text-overflow: clip !important;
 	overflow-wrap: anywhere !important;
 	word-break: break-word !important;
-	transform: translateY(5px);
+}
+
+.group-sim-module-body .button-sim-top {
+	transform: translateY(0);
+}
+
+.group-sim-module-body .button-sim-state-line {
+	transform: translateY(4px);
 }
 
 .button-sim-content>*:not(.button-sim-top-hit-area) {

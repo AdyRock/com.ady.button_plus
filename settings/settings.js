@@ -1540,20 +1540,28 @@ function appendClientDiagnosticLog(message, level = 'INFO')
 function isHomeyMobileAppRuntime()
 {
 	const userAgent = (navigator && navigator.userAgent) ? navigator.userAgent.toLowerCase() : '';
-	const isAndroid = userAgent.includes('android');
-	const isIOS = userAgent.includes('iphone') || userAgent.includes('ipad') || userAgent.includes('ipod');
-	const isAndroidWebView = isAndroid && userAgent.includes('wv');
-	const hasHomeyToken = userAgent.includes('homey');
+	const uaPlatform = (navigator && navigator.platform) ? navigator.platform.toLowerCase() : '';
+	const uaDataPlatform = (navigator && navigator.userAgentData && navigator.userAgentData.platform) ? String(navigator.userAgentData.platform).toLowerCase() : '';
+	const isAndroid = userAgent.includes('android') || uaPlatform.includes('android') || uaDataPlatform.includes('android');
+	const isIOS = userAgent.includes('iphone') || userAgent.includes('ipad') || userAgent.includes('ipod') || uaPlatform.includes('iphone') || uaPlatform.includes('ipad') || uaPlatform.includes('ipod');
+	const isAndroidWebView = isAndroid && (userAgent.includes('wv') || userAgent.includes('android webview'));
+	const hasHomeyToken = userAgent.includes('homey') || userAgent.includes('homeylocal');
+	const isLikelyHomeyAppWebView = !!(window && typeof window === 'object' && (
+		(window.ReactNativeWebView && typeof window.ReactNativeWebView.postMessage === 'function')
+		|| (window.webkit && window.webkit.messageHandlers)
+		|| (window.navigator && window.navigator.standalone)
+	));
 	const coarsePointer = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
 	const noHover = !!(window.matchMedia && window.matchMedia('(hover: none)').matches);
 	const touchLikeRuntime = coarsePointer || noHover;
+	const isHomeyLocalHost = !!(window.location && /homey|homeylocal|192\.168\.|10\./i.test(window.location.hostname));
 
-	if (isAndroidWebView)
+	if (isAndroidWebView || isLikelyHomeyAppWebView)
 	{
 		return true;
 	}
 
-	if ((isAndroid || isIOS) && (touchLikeRuntime || hasHomeyToken))
+	if ((isAndroid || isIOS) && (touchLikeRuntime || hasHomeyToken || isHomeyLocalHost))
 	{
 		return true;
 	}
@@ -7622,6 +7630,32 @@ function getDisplayPopupItemHeightPercent(fontSize)
 	}
 }
 
+function adjustWrappedDisplayItemHeights(rootElement)
+{
+	if (!rootElement || typeof rootElement.querySelectorAll !== 'function')
+	{
+		return;
+	}
+
+	rootElement.querySelectorAll('.display-sim-item[data-base-height-percent]').forEach((itemElement) =>
+	{
+		const labelElement = itemElement.querySelector('.display-sim-top-label');
+		const baseHeightPercent = parseFloat(itemElement.dataset.baseHeightPercent);
+		if (!labelElement || Number.isNaN(baseHeightPercent))
+		{
+			return;
+		}
+
+		const lineHeight = parseFloat(window.getComputedStyle(labelElement).lineHeight);
+		const oneRowHeight = Number.isNaN(lineHeight) ? labelElement.getBoundingClientRect().height : lineHeight;
+		const labelHeight = labelElement.getBoundingClientRect().height;
+		const isWrapped = labelHeight > (oneRowHeight * 1.5);
+		itemElement.style.height = isWrapped
+			? `calc(${baseHeightPercent}% + ${Math.ceil(oneRowHeight)}px)`
+			: `${baseHeightPercent}%`;
+	});
+}
+
 function isDisplayPopupFontBold(fontSize)
 {
 	const key = parseInt(fontSize, 10);
@@ -8212,6 +8246,9 @@ function renderDisplaySimulatorSurface(surfaceElement, titleElement, prevElement
 		const valueClass = needsLivePlaceholder ? 'display-sim-text display-sim-text-loading' : 'display-sim-text';
 		const valueRowClass = hasUnitValue ? 'display-sim-value-row' : 'display-sim-value-row display-sim-value-row-no-unit';
 		const valueTextPaddingTop = hasExplicitLabel ? 10 : 34;
+		const svgTitleSpacer = showValueSvg && !hasExplicitLabel
+			? '<div class="display-sim-top-label display-sim-top-label-placeholder" aria-hidden="true"></div>'
+			: '';
 
 		const isSelected = !isPageZeroOverlay && (itemNo === displayInlineSelectedItemNo);
 		const selectedClass = isSelected ? ' display-sim-item-selected' : '';
@@ -8221,8 +8258,8 @@ function renderDisplaySimulatorSurface(surfaceElement, titleElement, prevElement
 		const svgClick = isPageZeroOverlay ? '' : ` onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, '${svgFocusSuffix}')"`;
 		const valueRowClick = isPageZeroOverlay ? '' : ` onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, '${valueFocusSuffix}')"`;
 		const unitClick = isPageZeroOverlay ? '' : ` onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, 'Unit')"`;
-		return `<div class="display-sim-item ${underlinedClass}${selectedClass}${overlayClass}" style="left:${xPercent}%; top:${yPercent}%; width:${widthPercent}%;${itemHeightPercent === null ? '' : ` height:${itemHeightPercent}%;`}" data-item-no="${itemNo}" data-left-percent="${xPercent}" data-top-percent="${yPercent}" data-width-percent="${widthPercent}"${itemClick}>
-					${hasExplicitLabel ? `<div class="display-sim-top-label"${labelClick}>${renderedLabel}</div>` : ''}
+		return `<div class="display-sim-item ${underlinedClass}${selectedClass}${overlayClass}" style="left:${xPercent}%; top:${yPercent}%; width:${widthPercent}%;${itemHeightPercent === null ? '' : ` height:${itemHeightPercent}%;`}" data-item-no="${itemNo}" data-base-height-percent="${itemHeightPercent === null ? '' : itemHeightPercent}" data-left-percent="${xPercent}" data-top-percent="${yPercent}" data-width-percent="${widthPercent}"${itemClick}>
+					${hasExplicitLabel ? `<div class="display-sim-top-label"${labelClick}>${renderedLabel}</div>` : svgTitleSpacer}
 					${showValueSvg
 				? `<div class="display-sim-svg"${svgClick}>${effectiveSvgMarkup}</div>`
 				: `<div class="${valueRowClass}"${valueRowClick}>
@@ -8238,6 +8275,7 @@ function renderDisplaySimulatorSurface(surfaceElement, titleElement, prevElement
 		: '';
 
 	surfaceElement.innerHTML = statusBarMarkup + emptyStateMarkup + markup;
+	adjustWrappedDisplayItemHeights(surfaceElement);
 
 	renderDisplayPageHeaderTitle(titleElement, displayPagePopupCurrentPage, totalPages);
 
@@ -9907,9 +9945,12 @@ function getGroupDisplayPreviewHtml(displayConfigNo, pageIndex = groupSimCurrent
 		const valueClass = needsLivePlaceholder ? 'display-sim-text display-sim-text-loading' : 'display-sim-text';
 		const valueRowClass = hasUnitValue ? 'display-sim-value-row' : 'display-sim-value-row display-sim-value-row-no-unit';
 		const valueTextPaddingTop = hasExplicitLabel ? 10 : 34;
+		const svgTitleSpacer = showValueSvg && !hasExplicitLabel
+			? '<div class="display-sim-top-label display-sim-top-label-placeholder" aria-hidden="true"></div>'
+			: '';
 
-		return `<div class="display-sim-item ${underlinedClass}" style="left:${xPercent}%; top:${yPercent}%; width:${widthPercent}%;${itemHeightPercent === null ? '' : ` height:${itemHeightPercent}%;`}">
-					${hasExplicitLabel ? `<div class="display-sim-top-label">${renderedLabel}</div>` : ''}
+		return `<div class="display-sim-item ${underlinedClass}" style="left:${xPercent}%; top:${yPercent}%; width:${widthPercent}%;${itemHeightPercent === null ? '' : ` height:${itemHeightPercent}%;`}" data-base-height-percent="${itemHeightPercent === null ? '' : itemHeightPercent}">
+					${hasExplicitLabel ? `<div class="display-sim-top-label">${renderedLabel}</div>` : svgTitleSpacer}
 					${showValueSvg
 				? `<div class="display-sim-svg">${effectiveSvgMarkup}</div>`
 				: `<div class="${valueRowClass}">
@@ -9932,6 +9973,20 @@ function applyGroupSimTextLayoutFix(rootElement)
 
 	const hasMobileClass = document.body && document.body.classList && document.body.classList.contains('homey-mobile-app');
 	const isMobileRuntime = hasMobileClass || isHomeyMobileAppRuntime();
+	if (window && window.console)
+	{
+		console.log('[group-sim-probe]', {
+			hasMobileClass,
+			isMobileRuntime,
+			userAgent: navigator && navigator.userAgent,
+			matchMediaCoarse: !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches),
+			hasHomeyBodyClass: !!(document.body && document.body.classList && document.body.classList.contains('homey-mobile-app'))
+		});
+	}
+	if (rootElement)
+	{
+		rootElement.setAttribute('data-mobile-probe', isMobileRuntime ? 'mobile' : 'web');
+	}
 	if (!isMobileRuntime)
 	{
 		return;
@@ -9957,7 +10012,7 @@ function applyGroupSimTextLayoutFix(rootElement)
 	const shells = rootElement.querySelectorAll('.group-sim-module-body .button-sim-shell');
 	shells.forEach((shell) =>
 	{
-		shell.style.setProperty('--button-sim-display-inner-width', '100%', 'important');
+		shell.style.setProperty('--button-sim-display-inner-width', '80%', 'important');
 		shell.style.setProperty('--button-sim-display-height', 'auto', 'important');
 		shell.style.setProperty('column-gap', '0', 'important');
 	});
@@ -10162,6 +10217,14 @@ function renderGroupSimulator()
 	}
 
 	applyGroupSimTextLayoutFix(groupSimulatorSurfaceElement);
+	adjustWrappedDisplayItemHeights(groupSimulatorSurfaceElement);
+	if (window && window.console)
+	{
+		console.log('[group-sim-probe] rendered', {
+			elementCount: groupSimulatorSurfaceElement ? groupSimulatorSurfaceElement.querySelectorAll('.group-sim-module-body').length : 0,
+			hasSurface: !!groupSimulatorSurfaceElement
+		});
+	}
 }
 
 function configTypeChanged(configSelected)
