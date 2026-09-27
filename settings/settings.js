@@ -4481,11 +4481,12 @@ function getButtonPanelLedMarkup(pageConfig, side, pageIndex = buttonPagePopupCu
 	const wallColor = escapeHtml(getButtonPanelLedColor(pageConfig, side, 'WallLED', pageIndex, configIndex));
 	const frontColor = escapeHtml(getButtonPanelLedColor(pageConfig, side, 'FrontLED', pageIndex, configIndex));
 	const ledColorSuffix = (buttonPagePopupLedState === 'on') ? 'OnColor' : 'OffColor';
+	const ledStateClass = (buttonPagePopupLedState === 'off') ? ' button-sim-led-off' : '';
 	const wallInteraction = isReadonly ? '' : ` onclick="activateDisplayedButtonConfiguration(${configIndex}); return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'WallLED${ledColorSuffix}');"`;
 	const frontInteraction = isReadonly ? '' : ` onclick="activateDisplayedButtonConfiguration(${configIndex}); return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'FrontLED${ledColorSuffix}');"`;
 	return `
-				<div class="button-sim-led button-sim-led-wall" title="${side} wall LED (${buttonPagePopupLedState})"${wallInteraction} style="background-color:${wallColor}; border-color:${wallColor};"></div>
-				<div class="button-sim-led button-sim-led-front" title="${side} front LED (${buttonPagePopupLedState})"${frontInteraction} style="border-color:${frontColor}; box-shadow: 0 0 6px ${frontColor};"></div>`;
+				<div class="button-sim-led button-sim-led-wall${ledStateClass}" title="${side} wall LED (${buttonPagePopupLedState})"${wallInteraction} style="background-color:${wallColor}; border-color:${wallColor};"></div>
+				<div class="button-sim-led button-sim-led-front${ledStateClass}" title="${side} front LED (${buttonPagePopupLedState})"${frontInteraction} style="border-color:${frontColor}; box-shadow: 0 0 6px ${frontColor};"></div>`;
 }
 
 function handleButtonSimFieldClick(event, side, page, fieldSuffix)
@@ -8287,6 +8288,7 @@ function renderDisplaySimulatorSurface(surfaceElement, titleElement, prevElement
 			: '';
 
 		const isSelected = !isPageZeroOverlay && (itemNo === displayInlineSelectedItemNo);
+		const svgItemClass = showValueSvg ? ' display-sim-item-svg' : '';
 		const selectedClass = isSelected ? ' display-sim-item-selected' : '';
 		const overlayClass = isPageZeroOverlay ? ' display-sim-item-page-zero-overlay' : '';
 		const labelClick = isPageZeroOverlay ? '' : ` onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, 'Label')"`;
@@ -8294,7 +8296,7 @@ function renderDisplaySimulatorSurface(surfaceElement, titleElement, prevElement
 		const svgClick = isPageZeroOverlay ? '' : ` onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, '${svgFocusSuffix}')"`;
 		const valueRowClick = isPageZeroOverlay ? '' : ` onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, '${valueFocusSuffix}')"`;
 		const unitClick = isPageZeroOverlay ? '' : ` onclick="event.stopPropagation(); ${clickHandlerName}(${itemNo}, 'Unit')"`;
-		return `<div class="display-sim-item ${underlinedClass}${selectedClass}${overlayClass}" style="left:${xPercent}%; top:${yPercent}%; width:${widthPercent}%;${itemHeightPercent === null ? '' : ` height:${itemHeightPercent}%;`}" data-item-no="${itemNo}" data-base-height-percent="${itemHeightPercent === null ? '' : itemHeightPercent}" data-left-percent="${xPercent}" data-top-percent="${yPercent}" data-width-percent="${widthPercent}"${itemClick}>
+		return `<div class="display-sim-item ${underlinedClass}${svgItemClass}${selectedClass}${overlayClass}" style="left:${xPercent}%; top:${yPercent}%; width:${widthPercent}%;${itemHeightPercent === null ? '' : ` height:${itemHeightPercent}%;`}" data-item-no="${itemNo}" data-base-height-percent="${itemHeightPercent === null ? '' : itemHeightPercent}" data-left-percent="${xPercent}" data-top-percent="${yPercent}" data-width-percent="${widthPercent}"${itemClick}>
 					${hasExplicitLabel ? `<div class="display-sim-top-label"${labelClick}>${renderedLabel}</div>` : svgTitleSpacer}
 					${showValueSvg
 				? `<div class="display-sim-svg"${svgClick}>${effectiveSvgMarkup}</div>`
@@ -9984,8 +9986,9 @@ function getGroupDisplayPreviewHtml(displayConfigNo, pageIndex = groupSimCurrent
 		const svgTitleSpacer = showValueSvg && !hasExplicitLabel
 			? '<div class="display-sim-top-label display-sim-top-label-placeholder" aria-hidden="true"></div>'
 			: '';
+		const svgItemClass = showValueSvg ? ' display-sim-item-svg' : '';
 
-		return `<div class="display-sim-item ${underlinedClass}" style="left:${xPercent}%; top:${yPercent}%; width:${widthPercent}%;${itemHeightPercent === null ? '' : ` height:${itemHeightPercent}%;`}" data-base-height-percent="${itemHeightPercent === null ? '' : itemHeightPercent}">
+		return `<div class="display-sim-item ${underlinedClass}${svgItemClass}" style="left:${xPercent}%; top:${yPercent}%; width:${widthPercent}%;${itemHeightPercent === null ? '' : ` height:${itemHeightPercent}%;`}" data-base-height-percent="${itemHeightPercent === null ? '' : itemHeightPercent}">
 					${hasExplicitLabel ? `<div class="display-sim-top-label">${renderedLabel}</div>` : svgTitleSpacer}
 					${showValueSvg
 				? `<div class="display-sim-svg">${effectiveSvgMarkup}</div>`
@@ -10270,6 +10273,8 @@ function configTypeChanged(configSelected)
 	{
 		groupEditReturnActive = false;
 	}
+
+	document.body.classList.toggle('group-button-edit-active', groupEditReturnActive && configSelected === 'panelConfig');
 
 	if (configTypeTabsElement)
 	{

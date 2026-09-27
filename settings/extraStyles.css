@@ -1021,6 +1021,12 @@ summary::-webkit-details-marker {
 	padding-bottom: 5px;
 }
 
+body.group-button-edit-active #panelConfig .button-panel-controls-expander,
+body.group-button-edit-active #panelConfig .button-visible-count-label,
+body.group-button-edit-active #panelConfig .button-card-editor-controls {
+	display: none;
+}
+
 @media (max-width: 480px) {
 	.button-shared-toolbar {
 		grid-template-columns: minmax(150px, 1fr) 112px;
@@ -2075,8 +2081,12 @@ body.homey-mobile-app .group-sim-module-body .button-sim-state-block {
 	border-radius: 2px;
 	min-height: var(--button-sim-led-height);
 	flex: 0 0 auto;
-	border: 2px solid rgba(255, 255, 255, 0.25);
+	border: 3px solid rgba(255, 255, 255, 0.25);
 	box-sizing: border-box;
+}
+
+.button-sim-led-off {
+	border: 1px solid #b0b0b0 !important;
 }
 
 .button-sim-led-wall {
@@ -2457,10 +2467,11 @@ body.homey-mobile-app .group-sim-module-body .button-sim-state-block {
 }
 
 .display-sim-surface {
+	--display-sim-background: #202020;
 	position: relative;
 	width: min(100%, 520px);
 	aspect-ratio: 4 / 3;
-	background: linear-gradient(180deg, #3a3a3a 0%, #202020 100%);
+	background: var(--display-sim-background);
 	border: 1px solid #2f4459;
 	border-radius: 1px;
 	overflow: hidden;
@@ -2537,6 +2548,10 @@ body.homey-mobile-app .group-sim-module-body .button-sim-state-block {
 	background: transparent;
 	border-radius: 2px;
 	z-index: 1;
+}
+
+.display-sim-item-svg {
+	z-index: 2;
 }
 
 .display-sim-item-underlined {
@@ -2832,7 +2847,9 @@ body.homey-mobile-app .display-sim-status-bar {
 	height: auto;
 	max-width: 130%;
 	max-height: 130%;
-	padding-top: 26px;
+	margin-top: 28px;
+	padding-top: 2px;
+	background: var(--display-sim-background);
 }
 
 .button-field-popup-overlay {
