@@ -29,7 +29,7 @@
         "ko": "디스플레이 구성 [[configurationId]](으)로 전환",
         "ar": "التبديل إلى تكوين الشاشة [[configurationId]]"
     },
-    
+
     "hint": {
         "en": "Send the select display configuration to the device",
         "nl": "Stuur de geselecteerde display configuratie naar het apparaat",
@@ -45,6 +45,7 @@
         "ko": "선택한 디스플레이 구성을 장치로 전송합니다",
         "ar": "إرسال تكوين الشاشة المحدد إلى الجهاز"
     },
+    "deprecated": true,
     "args": [
         {
             "type": "number",

@@ -7655,7 +7655,7 @@ function adjustWrappedDisplayItemHeights(rootElement)
 			: `${baseHeightPercent}%`;
 	});
 
-	// SVG items size to the drawn image rather than the font-size based height.
+	// SVG items use the full viewport because blank SVG space is also rendered by the hardware.
 	rootElement.querySelectorAll('.display-sim-item .display-sim-svg svg').forEach((svgElement) =>
 	{
 		const itemElement = svgElement.closest('.display-sim-item');
@@ -7672,31 +7672,16 @@ function adjustWrappedDisplayItemHeights(rootElement)
 		}
 
 		const itemStyle = window.getComputedStyle(itemElement);
-		// The SVG box can be taller than its drawing (aspect-ratio letterboxing), so measure the drawn content.
-		let contentBottom = svgRect.bottom;
-		try
-		{
-			const bbox = svgElement.getBBox();
-			const ctm = svgElement.getScreenCTM();
-			if (ctm && bbox.height > 0)
-			{
-				contentBottom = Math.min(contentBottom, ctm.f + (ctm.d * (bbox.y + bbox.height)));
-			}
-		}
-		catch (err)
-		{
-			// getBBox can throw for SVGs that aren't rendered; fall back to the element box.
-		}
 		// Rects include CSS zoom on the surface (mobile), but inline px styles don't, so convert back.
 		const zoomScale = (itemElement.offsetHeight > 0) ? (itemRect.height / itemElement.offsetHeight) : 1;
 		const bottomInset = (parseFloat(itemStyle.paddingBottom) || 0) + (parseFloat(itemStyle.borderBottomWidth) || 0);
-		const requiredHeight = Math.ceil(((contentBottom - itemRect.top) / zoomScale) + bottomInset);
-		if (Math.abs(requiredHeight - itemElement.offsetHeight) <= 1)
+		const requiredHeight = Math.ceil(((svgRect.bottom - itemRect.top) / zoomScale) + bottomInset);
+		if (requiredHeight <= itemElement.offsetHeight)
 		{
 			return;
 		}
 
-		// Pin the SVG container height; the SVG's max-height is relative to it and would otherwise follow the item.
+		// Pin the SVG container height; the SVG's max-height is relative to it and would otherwise grow with the item.
 		const svgContainerElement = svgElement.parentElement;
 		if (svgContainerElement)
 		{

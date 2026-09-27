@@ -612,14 +612,14 @@ class MyApp extends Homey.App
 			{
 				const config = args.configurationId - 1;
 				this.log('switch_button_configuration', config);
-				return args.device.triggerCapabilityListener(`configuration_button.connector${args.connector - 1}`, config.toString());
+				return args.device.setButtonConfigurationNo(args.connector - 1, config);
 			});
 
 		this.homey.flow.getActionCard('switch_button_configuration_name')
 			.registerRunListener(async (args, state) =>
 			{
 				this.log('switch_button_configuration_name', args.config.id);
-				return args.device.triggerCapabilityListener(`configuration_button.connector${args.connector - 1}`, args.config.id.toString());
+				return args.device.setButtonConfigurationNo(args.connector - 1, args.config.id);
 			})
 			.registerArgumentAutocompleteListener('config', async (query, args) =>
 			{
@@ -636,14 +636,14 @@ class MyApp extends Homey.App
 			{
 				const config = args.configurationId - 1;
 				this.log('switch_display_configuration', config);
-				return args.device.triggerCapabilityListener('configuration_display', config.toString());
+				return args.device.setDisplayConfigurationNo(config);
 			});
 
 		this.homey.flow.getActionCard('switch_display_configuration_name')
 			.registerRunListener(async (args, state) =>
 			{
 				this.log('switch_display_configuration_name', args.config.id);
-				return args.device.triggerCapabilityListener('configuration_display', args.config.id.toString());
+				return args.device.setDisplayConfigurationNo(args.config.id);
 			})
 			.registerArgumentAutocompleteListener('config', async (query, args) =>
 			{
@@ -783,7 +783,7 @@ class MyApp extends Homey.App
 			{
 				let page = args.page ? args.page : 0;
 
-				this.log(`set_config_name_led_rgb ${args.left_right} config${args.config} to ${args.rgb}. Update Config ${args.update_config}`);
+				this.log(`set_config_name_led_rgb ${args.left_right} config${args.config} to ${args.rgb}. Update Config ${args.update_configuration}`);
 				return args.device.setConfigLEDColour(args.left_right, args.config.id, args.rgb, args.front_wall ? args.front_wall : 'both', page, args.update_configuration ? args.update_configuration : false, args.on_off ? args.on_off : true);
 			})
 			.registerArgumentAutocompleteListener('config', async (query, args) =>

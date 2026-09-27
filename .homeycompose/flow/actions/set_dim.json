@@ -44,6 +44,7 @@
         "ko": "디스플레이 밝기를 설정합니다",
         "ar": "تعيين سطوع الشاشات"
     },
+    "deprecated": true,
     "args": [
         {
             "type": "number",

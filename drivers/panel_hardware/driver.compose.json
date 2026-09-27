@@ -60,6 +60,23 @@
 		"button.update_firmware"
 	],
 	"capabilitiesOptions": {
+		"dim": {
+			"title": {
+				"en": "Display brightness",
+				"nl": "Schermhelderheid",
+				"de": "Displayhelligkeit",
+				"fr": "Luminosité de l’écran",
+				"it": "Luminosità del display",
+				"sv": "Skärmens ljusstyrka",
+				"no": "Skjermens lysstyrke",
+				"es": "Brillo de la pantalla",
+				"da": "Skærmens lysstyrke",
+				"ru": "Яркость дисплея",
+				"pl": "Jasność wyświetlacza",
+				"ko": "디스플레이 밝기",
+				"ar": "سطوع الشاشة"
+			}
+		},
 		"button.update_firmware": {
 			"maintenanceAction": true,
 			"title": {

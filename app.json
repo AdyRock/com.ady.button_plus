@@ -6276,6 +6276,7 @@
           "ko": "디스플레이 밝기를 설정합니다",
           "ar": "تعيين سطوع الشاشات"
         },
+        "deprecated": true,
         "args": [
           {
             "type": "number",
@@ -6795,6 +6796,7 @@
           "ko": "선택한 커넥터의 디스플레이 장치로 선택한 구성을 전송합니다",
           "ar": "إرسال التكوين المحدد إلى جهاز العرض للموصل المحدد"
         },
+        "deprecated": true,
         "args": [
           {
             "type": "number",
@@ -7110,6 +7112,7 @@
           "ko": "선택한 디스플레이 구성을 장치로 전송합니다",
           "ar": "إرسال تكوين الشاشة المحدد إلى الجهاز"
         },
+        "deprecated": true,
         "args": [
           {
             "type": "number",
@@ -7859,6 +7862,23 @@
         "button.update_firmware"
       ],
       "capabilitiesOptions": {
+        "dim": {
+          "title": {
+            "en": "Display brightness",
+            "nl": "Schermhelderheid",
+            "de": "Displayhelligkeit",
+            "fr": "Luminosité de l’écran",
+            "it": "Luminosità del display",
+            "sv": "Skärmens ljusstyrka",
+            "no": "Skjermens lysstyrke",
+            "es": "Brillo de la pantalla",
+            "da": "Skærmens lysstyrke",
+            "ru": "Яркость дисплея",
+            "pl": "Jasność wyświetlacza",
+            "ko": "디스플레이 밝기",
+            "ar": "سطوع الشاشة"
+          }
+        },
         "button.update_firmware": {
           "maintenanceAction": true,
           "title": {

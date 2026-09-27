@@ -994,10 +994,9 @@ class PanelDevice extends Device
 	{
 		let brokerId = 'Default';
 		const buttonIdx = (connector * 2) + (side === 'right' ? 1 : 0);
-		if (this.hasCapability(`configuration_button.connector${connector}`))
+		const configNo = this.getEffectiveConfigNo('button', connector);
+		if (configNo !== null && configNo !== undefined && configNo !== '')
 		{
-			// Get the configuration number for this connector
-			const configNo = this.getCapabilityValue(`configuration_button.connector${connector}`);
 			const configs = this.homey?.app?.buttonConfigurations;
 			const item = Array.isArray(configs) ? configs[configNo] : null;
 			if (item)
@@ -1040,15 +1039,11 @@ class PanelDevice extends Device
 		// Find the button connector that has this configuration
 		for (let connector = 0; connector < 8; connector++)
 		{
-			if (this.hasCapability(`configuration_button.connector${connector}`))
+			const connectorConfigNo = this.getEffectiveConfigNo('button', connector);
+			// eslint-disable-next-line eqeqeq
+			if (connectorConfigNo !== null && connectorConfigNo !== undefined && connectorConfigNo == configNo)
 			{
-				// Get the configuration number for this connector
-				const config = this.getCapabilityValue(`configuration_button.connector${connector}`);
-				// eslint-disable-next-line eqeqeq
-				if (config == configNo)
-				{
-					return connector;
-				}
+				return connector;
 			}
 		}
 
@@ -1366,29 +1361,14 @@ class PanelDevice extends Device
 				this.homey.settings.set('buttonConfigurations', this.homey.app.buttonConfigurations);
 			}
 
-			// Find the button connector that has this configuration
-			for (let connector = 0; connector < 8; connector++)
+			const connector = this.findConnectorUsingConfigNo(configNo);
+			if (updateConfig)
 			{
-				if (this.hasCapability(`configuration_button.connector${connector}`))
-				{
-					// Get the configuration number for this connector
-					const config = this.getCapabilityValue(`configuration_button.connector${connector}`);
-
-					// eslint-disable-next-line eqeqeq
-					if (config == configNo)
-					{
-						if (updateConfig)
-						{
-							// Send the new configuration to the device
-							return this.uploadOneButtonConfiguration(connector, configNo, this.firmwareVersion);
-						}
-
-						return this.setConnectorLEDColour(left_right, connector, rgb, front_wall, page);
-					}
-				}
+				// Send the new configuration to the device
+				return this.uploadOneButtonConfiguration(connector, configNo, this.firmwareVersion);
 			}
 
-			throw new Error('Configuration is not assigned to a button');
+			return this.setConnectorLEDColour(left_right, connector, rgb, front_wall, page);
 		}
 		else
 		{
@@ -2002,33 +1982,46 @@ class PanelDevice extends Device
 		return null;
 	}
 
-	getGroupButtonConfigNo(group, connector, settings = null)
+	// Maps a physical connector index onto its slot in the group's connectorConfigNos array.
+	getGroupSlotIndexForConnector(group, connector, settings = null)
 	{
 		if (!group || !Array.isArray(group.connectorConfigNos))
 		{
-			return null;
+			return -1;
 		}
 
 		const currentSettings = Object.assign({}, this.getSettings(), settings || {});
 		if (Number(currentSettings[`connect${connector}Type`]) !== 1)
 		{
-			return null;
+			return -1;
 		}
 
 		const usesLegacyPhysicalSlots = group.connectorConfigNos.length >= 8
 			&& group.connectorConfigNos.some(configNo => configNo === null || configNo === undefined);
-		let groupIndex = connector;
-		if (!usesLegacyPhysicalSlots)
+		if (usesLegacyPhysicalSlots)
 		{
-			groupIndex = 0;
-			for (let physicalConnector = 0; physicalConnector < connector; physicalConnector++)
-				{
-					if (Number(currentSettings[`connect${physicalConnector}Type`]) === 1)
-					{
-						groupIndex++;
-					}
-				}
+			return connector;
+		}
+
+		let groupIndex = 0;
+		for (let physicalConnector = 0; physicalConnector < connector; physicalConnector++)
+		{
+			if (Number(currentSettings[`connect${physicalConnector}Type`]) === 1)
+			{
+				groupIndex++;
 			}
+		}
+
+		return groupIndex;
+	}
+
+	getGroupButtonConfigNo(group, connector, settings = null)
+	{
+		const groupIndex = this.getGroupSlotIndexForConnector(group, connector, settings);
+		if (groupIndex < 0)
+		{
+			return null;
+		}
 
 		const configNo = group.connectorConfigNos[groupIndex];
 		if (configNo !== undefined && configNo !== null && configNo !== '')
@@ -2037,6 +2030,75 @@ class PanelDevice extends Device
 		}
 
 		return null;
+	}
+
+	isGroupMode(settings = null)
+	{
+		const currentSettings = Object.assign({}, this.getSettings(), settings || {});
+		return currentSettings.configuration_mode === 'group';
+	}
+
+	getActiveGroup()
+	{
+		const groups = this.homey?.app?.getGroupConfigurations ? this.homey.app.getGroupConfigurations() : [];
+		if (!Array.isArray(groups) || groups.length === 0)
+		{
+			return null;
+		}
+
+		const groupId = this.hasCapability('configuration_group') ? this.getCapabilityValue('configuration_group') : null;
+		return groups.find(g => String(g.id) === String(groupId)) || groups[0];
+	}
+
+	// Flow entry point: works in both direct-capability mode and group mode.
+	async setButtonConfigurationNo(connector, configNo)
+	{
+		if (!this.isGroupMode())
+		{
+			return this.triggerCapabilityListener(`configuration_button.connector${connector}`, `${configNo}`);
+		}
+
+		const group = this.getActiveGroup();
+		if (!group)
+		{
+			throw new Error('No panel group is assigned to this device');
+		}
+
+		const groupIndex = this.getGroupSlotIndexForConnector(group, connector);
+		if (groupIndex < 0)
+		{
+			throw new Error(`Connector ${connector + 1} is not a button bar`);
+		}
+
+		if (!Array.isArray(group.connectorConfigNos))
+		{
+			group.connectorConfigNos = [];
+		}
+		group.connectorConfigNos[groupIndex] = Number(configNo);
+
+		const groups = this.homey.app.getGroupConfigurations();
+		await this.homey.app.setGroupConfigurations(groups);
+		return true;
+	}
+
+	async setDisplayConfigurationNo(configNo)
+	{
+		if (!this.isGroupMode())
+		{
+			return this.triggerCapabilityListener('configuration_display', `${configNo}`);
+		}
+
+		const group = this.getActiveGroup();
+		if (!group)
+		{
+			throw new Error('No panel group is assigned to this device');
+		}
+
+		group.displayConfigNo = Number(configNo);
+
+		const groups = this.homey.app.getGroupConfigurations();
+		await this.homey.app.setGroupConfigurations(groups);
+		return true;
 	}
 
 	async syncModeCapabilities(settings = null)
