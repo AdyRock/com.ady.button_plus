@@ -6422,6 +6422,7 @@ class PanelDevice extends Device
 			{
 				const sourceDeviceId = deviceId;
 				const isThisButtonPlusDevice = String(sourceDeviceId) === String(this.__id);
+				let homeyDeviceObject;
 
 				for (let itemNo = 0; itemNo < item.items.length; itemNo++)
 				{
@@ -6466,16 +6467,28 @@ class PanelDevice extends Device
 							const offText = (displayItem.offText || displayItem.OffText || '').trim() || 'Off';
 							displayPublishValue = displayPublishValue ? onText : offText;
 						}
-						else if (homeyDeviceObject)
+						else
 						{
-							const capObj = await this.homey.app.getHomeyCapabilityByName(homeyDeviceObject, capability);
-							if (capObj && capObj.type === 'enum' && Array.isArray(capObj.values))
+							try
 							{
-								const match = capObj.values.find((entry) => entry.id === String(publishValue));
-								if (match && (match.title || match.id))
+								if (homeyDeviceObject === undefined)
 								{
-									displayPublishValue = match.title || match.id;
+									homeyDeviceObject = (await this.homey.app.getHomeyDeviceById(sourceDeviceId)) || null;
 								}
+								const capObj = homeyDeviceObject ? await this.homey.app.getHomeyCapabilityByName(homeyDeviceObject, capability) : null;
+								if (capObj && capObj.type === 'enum' && Array.isArray(capObj.values))
+								{
+									const match = capObj.values.find((entry) => entry.id === String(publishValue));
+									if (match && (match.title || match.id))
+									{
+										displayPublishValue = match.title || match.id;
+									}
+								}
+							}
+							catch (err)
+							{
+								homeyDeviceObject = null;
+								this.homey.app.updateLog(`checkStateChangeForDisplay: enum lookup failed for ${sourceDeviceId}/${capability}: ${err.message}`, 0);
 							}
 						}
 
