@@ -1786,6 +1786,59 @@ function applyDisplaySimulatorLocalization()
 // a method named 'onHomeyReady' must be present in your code
 function onHomeyReady(Homey)
 {
+	// Homey only paints the settings view once ready() is called, so a single error during
+	// initialisation would otherwise leave the user staring at a blank white page.
+	let readyCalled = false;
+	const markReady = function ()
+	{
+		if (readyCalled)
+		{
+			return;
+		}
+		readyCalled = true;
+		try
+		{
+			Homey.ready();
+		}
+		catch (error)
+		{
+			console.error('[ButtonMainDiagnostics][Homey.ready]', error);
+		}
+	};
+
+	try
+	{
+		initialiseSettingsPage(Homey, markReady);
+	}
+	catch (error)
+	{
+		console.error('[ButtonMainDiagnostics][onHomeyReady]', error);
+		try
+		{
+			updateButtonMainDiagnostics('onHomeyReady:error', { message: error && error.message, stack: error && error.stack });
+		}
+		catch (diagnosticsError)
+		{
+			console.error('[ButtonMainDiagnostics][onHomeyReady:diagnostics]', diagnosticsError);
+		}
+
+		try
+		{
+			Homey.alert(`The settings page could not finish loading: ${(error && error.message) ? error.message : error}`);
+		}
+		catch (alertError)
+		{
+			console.error('[ButtonMainDiagnostics][onHomeyReady:alert]', alertError);
+		}
+	}
+	finally
+	{
+		markReady();
+	}
+}
+
+function initialiseSettingsPage(Homey, markReady)
+{
 	itemDisplyType = document.getElementById('ButtonPanelConfigurationNo').style.display;
 	setupFilterableSelects();
 	document.body.classList.toggle('homey-mobile-app', isHomeyMobileAppRuntime());
@@ -1882,9 +1935,9 @@ function onHomeyReady(Homey)
 	Homey.get('buttonConfigurations', function (err, buttonConfigurations)
 	{
 		if (err) return Homey.alert(err);
-		localButtonConfigurations = buttonConfigurations;
+		localButtonConfigurations = Array.isArray(buttonConfigurations) ? buttonConfigurations : [];
 		buttonConfigurationsFetched = true;
-		console.log('buttonConfigurations: ' + JSON.stringify(buttonConfigurations));
+		console.log(`buttonConfigurations: ${localButtonConfigurations.length} configurations loaded`);
 
 		fillConfigListElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
 
@@ -1897,7 +1950,7 @@ function onHomeyReady(Homey)
 		// Get the current configuration
 		var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
 
-		writeButtonsections(buttonPanelConfiguration.length);
+		writeButtonsections(Array.isArray(buttonPanelConfiguration) ? buttonPanelConfiguration.length : 1);
 		updateButtonPanelControls();
 		maybeHandleLoadedConfigurationDraft();
 	});
@@ -1905,7 +1958,7 @@ function onHomeyReady(Homey)
 	Homey.get('displayConfigurations', function (err, displayConfigurations)
 	{
 		if (err) return Homey.alert(err);
-		localDisplayConfigurations = displayConfigurations;
+		localDisplayConfigurations = Array.isArray(displayConfigurations) ? displayConfigurations : [];
 		displayConfigurationsFetched = (localDisplayConfigurations.length > 0);
 
 		fillConfigListElement(displayConfigurationNoElement, Homey.__("settings.displayConfig"), localDisplayConfigurations, MAX_DISPLAY_CONFIGURATIONS);
@@ -1922,16 +1975,17 @@ function onHomeyReady(Homey)
 			{
 				localDisplayConfigurations[i].version = 2;
 				const displayConfiguration = localDisplayConfigurations[i];
-				for (let j = 0; j < displayConfiguration.items.length; j++)
+				const displayItems = Array.isArray(displayConfiguration.items) ? displayConfiguration.items : [];
+				for (let j = 0; j < displayItems.length; j++)
 				{
-					displayConfiguration.items[j].itemId = j;
-					if (displayConfiguration.items[j].page === undefined)
+					displayItems[j].itemId = j;
+					if (displayItems[j].page === undefined)
 					{
-						displayConfiguration.items[j].page = 1;
+						displayItems[j].page = 1;
 					}
 					else
 					{
-						displayConfiguration.items[j].page = parseInt(displayConfiguration.items[j].page, 10) + 1;
+						displayItems[j].page = parseInt(displayItems[j].page, 10) + 1;
 					}
 				}
 			}
@@ -3270,7 +3324,7 @@ function onHomeyReady(Homey)
 	}
 
 	// Tell Homey we're ready to be displayed
-	Homey.ready();
+	markReady();
 
 	configTypeChanged('settings');
 	updateButtonMainDiagnostics('onHomeyReady:complete');

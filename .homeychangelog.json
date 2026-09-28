@@ -1753,5 +1753,20 @@
 		"pl": "Poprawka raportów o awariach w ostatniej wersji.",
 		"ko": "지난 버전의 충돌 보고서 수정.",
 		"ar": "إصلاح تقارير الأعطال في الإصدار الأخير."
+	},
+	"1.0.4": {
+		"en": "Added support for clearing MQTT publish cache to handle panel reboots and resets. Fixed page numbering issue in several places. Fixed single click Flow trigger always reporting Off as the State",
+		"nl": "Ondersteuning toegevoegd voor het wissen van de MQTT-publicatiecache om paneelherstarts en resets af te handelen. Probleem met paginanummering op verschillende plaatsen opgelost. Probleem met enkele klik Flow-trigger die altijd Uit als status rapporteerde opgelost.",
+		"de": "Unterstützung zum Löschen des MQTT-Publish-Cache hinzugefügt, um Panel-Neustarts und -Zurücksetzungen zu behandeln. Problem mit der Seitennummerierung an mehreren Stellen behoben. Einzelklick-Flow-Auslöser, der immer Aus als Status meldete, behoben.",
+		"fr": "Ajout de la prise en charge de l'effacement du cache de publication MQTT pour gérer les redémarrages et réinitialisations du panneau. Correction du problème de numérotation des pages à plusieurs endroits. Correction du déclencheur de flux à un seul clic signalant toujours Off comme état.",
+		"it": "Aggiunto supporto per la cancellazione della cache di pubblicazione MQTT per gestire i riavvii e i reset del pannello. Risolto il problema della numerazione delle pagine in diversi punti. Risolto il problema del trigger del flusso a clic singolo che segnalava sempre Off come stato.",
+		"sv": "Lagt till stöd för att rensa MQTT-publiceringscache för att hantera panelomstarter och återställningar. Fixade sidnumreringsproblem på flera ställen. Fixade enkelklicksflödesutlösaren som alltid rapporterade Av som status.",
+		"no": "Lagt til støtte for å tømme MQTT-publiseringsbufferen for å håndtere panelomstarter og tilbakestillinger. Fikset sidetallproblemer flere steder. Fikset enkelklikk Flow-utløser som alltid rapporterte Av som tilstand.",
+		"es": "Se agregó soporte para borrar la caché de publicación de MQTT para manejar reinicios y restablecimientos del panel. Se solucionó el problema de numeración de páginas en varios lugares. Se solucionó el problema del disparador de flujo de un solo clic que siempre informaba Apagado como estado.",
+		"da": "Tilføjet support til at rydde MQTT-publiceringscachen for at håndtere panelgenstarter og nulstillinger. Rettet problemet med sidetal flere steder. Rettet enkeltklik Flow-udløser, der altid rapporterede Fra som tilstand.",
+		"ru": "Добавлена поддержка очистки кэша публикации MQTT для обработки перезагрузок и сбросов панели. Исправлена проблема с нумерацией страниц в нескольких местах. Исправлен триггер потока с одним щелчком, который всегда сообщал Выкл как состояние.",
+		"pl": "Dodano obsługę czyszczenia pamięci podręcznej publikacji MQTT w celu obsługi ponownych uruchomień i resetów panelu. Naprawiono problem z numeracją stron w kilku miejscach. Naprawiono wyzwalacz Flow pojedynczego kliknięcia, który zawsze zgłaszał Wył jako stan.",
+		"ko": "패널 재부팅 및 재설정을 처리하기 위해 MQTT 게시 캐시를 지우는 기능이 추가되었습니다. 여러 곳에서 페이지 번호 문제를 수정했습니다. 단일 클릭 플로우 트리거가 항상 끄기로 보고하는 문제를 수정했습니다.",
+		"ar": "تمت إضافة دعم لمسح ذاكرة التخزين المؤقت لنشر MQTT للتعامل مع إعادة تشغيل اللوحة وإعادة ضبطها. تم إصلاح مشكلة ترقيم الصفحات في عدة أماكن. تم إصلاح مشغل التدفق بنقرة واحدة الذي كان يبلغ دائمًا عن إيقاف التشغيل كالحالة."
 	}
 }

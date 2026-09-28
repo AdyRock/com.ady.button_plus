@@ -350,6 +350,9 @@ class PanelDevice extends Device
 			// Unsubscribe from the old MQTT client
 			await this.homey.app.UnsubscribeMQTTMessage('Default', `buttonplus/${this.buttonId}/#`);
 
+			// The panel may have rebooted or been reset, so never suppress the re-send of its content.
+			this.homey.app.clearMQTTPublishCache(`buttonplus/${this.buttonId}/`);
+
 			if (this.deleted || await this.uploadConfigurations() !== null)
 			{
 				if (this.deleted)
@@ -1386,18 +1389,19 @@ class PanelDevice extends Device
 		const brokerId = this.homey.settings.get('defaultBroker');
 		if (pageCommand === 'index')
 		{
-			const targetPage = (!page || page < 1) ? 1 : page;
-			if (this.page !== targetPage)
+			// The Flow argument is the zero-based page index shown in the app settings (0 = Default).
+			const pageIndex = (!page || page < 0) ? 0 : page;
+			if (this.page !== (pageIndex + 1))
 			{
-				this.page = targetPage;
+				this.page = pageIndex + 1;
 				if (this.hasCapability('page'))
 				{
-					this.setCapabilityValue('page', `${this.page - 1}`).catch(this.error);
+					this.setCapabilityValue('page', `${pageIndex}`).catch(this.error);
 				}
-				this.homey.app.triggerPageChange(this, this.page);
+				this.homey.app.triggerPageChange(this, pageIndex);
 				await this.updateButtonStatesForCurrentPage();
 			}
-			pageCommand = `${targetPage - 1}`;
+			pageCommand = `${pageIndex}`;
 		}
 
 		this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/page/set`, pageCommand, false).catch(this.error);
@@ -2797,7 +2801,7 @@ class PanelDevice extends Device
 						{
 							this.setCapabilityValue('page', `${pageIndex}`).catch(this.error);
 						}
-						this.homey.app.triggerPageChange(this, this.page);
+						this.homey.app.triggerPageChange(this, pageIndex);
 						await this.updateButtonStatesForCurrentPage();
 					}
 				}
@@ -2925,7 +2929,6 @@ class PanelDevice extends Device
 		parameters.connectorType = this.getSetting(`connect${parameters.connector}Type`);
 		parameters.configNo = ((parameters.connectorType === 2) || (parameters.connectorType === 3)) ? this.getEffectiveConfigNo('display', parameters.connector) : this.getEffectiveConfigNo('button', parameters.connector);
 		parameters.buttonCapability = `${parameters.side}_button.connector${parameters.connector}`;
-		parameters.value = !this.buttonValues.get(`${parameters.side}_${parameters.connector}_${parameters.page}`);
 
 		// Normalize page before creating per-button state keys so click/long/release share the same key.
 		if ((parameters.configNo != null) && (parameters.connectorType !== 2) && (parameters.connectorType !== 3))
@@ -2941,6 +2944,10 @@ class PanelDevice extends Device
 				}
 			}
 		}
+
+		// Must be read using the normalized page above, otherwise this never matches the key
+		// buttonValues is later written with and the toggle guess gets stuck on one constant value.
+		parameters.value = !this.buttonValues.get(`${parameters.side}_${parameters.connector}_${parameters.page}`);
 
 		// Now process the message
 		if (MQTTMessage.event === 'click')
@@ -7391,12 +7398,16 @@ class PanelDevice extends Device
 
 	async turnButtonOnOff(left_right, connector, page, state)
 	{
-		if ((page === 0) || (page === this.page))
+		// `page` is the zero-based page index shown in the app settings (0 = Default); -1 means every page.
+		const allPages = (page === -1);
+		const pageIndex = allPages ? -1 : Math.max(0, page);
+
+		if (allPages || (pageIndex === (this.page - 1)))
 		{
 			await this.triggerCapabilityListener(`${left_right}_button.connector${connector}`, state);
 		}
 
-		if (page === 0)
+		if (allPages)
 		{
 			const configNo = this.hasCapability(`configuration_button.connector${connector}`)
 				? this.getCapabilityValue(`configuration_button.connector${connector}`)
@@ -7410,7 +7421,7 @@ class PanelDevice extends Device
 		}
 		else
 		{
-			this.buttonValues.set(`${left_right}_${connector}_${page - 1}`, state);
+			this.buttonValues.set(`${left_right}_${connector}_${pageIndex}`, state);
 		}
 	}
 

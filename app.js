@@ -657,7 +657,8 @@ class MyApp extends Homey.App
 		this.homey.flow.getActionCard('turn_on_button')
 			.registerRunListener(async (args, state) =>
 			{
-				let page = args.page ? args.page : 0;
+				// Blank means every page; otherwise it is the zero-based page index (0 = Default).
+				const page = (args.page === undefined || args.page === null || args.page === '') ? -1 : args.page;
 
 				this.log(`${args.left_right}.connector${args.connector}`);
 				return args.device.turnButtonOnOff(args.left_right, args.connector - 1, page, true);
@@ -673,7 +674,8 @@ class MyApp extends Homey.App
 		this.homey.flow.getActionCard('turn_off_button')
 			.registerRunListener(async (args, state) =>
 			{
-				let page = args.page ? args.page : 0;
+				// Blank means every page; otherwise it is the zero-based page index (0 = Default).
+				const page = (args.page === undefined || args.page === null || args.page === '') ? -1 : args.page;
 
 				this.log(`${args.left_right}.connector${args.connector}`, args);
 				return args.device.turnButtonOnOff(args.left_right, args.connector - 1, page, false);
@@ -3106,6 +3108,29 @@ class MyApp extends Homey.App
 		});
 	}
 
+	/**
+	 * Forget the last published value for every topic starting with the given prefix.
+	 * A panel that has rebooted or been factory reset may no longer hold the retained value,
+	 * so without this the de-duplication in publishMQTTMessage would suppress the re-send and
+	 * the panel would render blank/black buttons.
+	 */
+	clearMQTTPublishCache(topicPrefix)
+	{
+		if (!topicPrefix)
+		{
+			this.lastMQTTData.clear();
+			return;
+		}
+
+		for (const key of Array.from(this.lastMQTTData.keys()))
+		{
+			if (key.includes(topicPrefix))
+			{
+				this.lastMQTTData.delete(key);
+			}
+		}
+	}
+
 	async flushPendingMQTTMessages(MQTT_Id)
 	{
 		const MQTTclient = this.MQTTClients.get(MQTT_Id);
@@ -3656,7 +3681,8 @@ class MyApp extends Homey.App
 			}
 		}
 
-		const results = [{ name: 'All', id: -1 }];
+		// Ids are the zero-based page index used everywhere else; index 0 is labelled 'Default' in the settings UI.
+		const results = [{ name: 'All', id: -1 }, { name: 'Default', id: 0 }];
 		for (let page = 1; page < pageCount; page++)
 		{
 			results.push({ name: `Page ${page}`, id: page });

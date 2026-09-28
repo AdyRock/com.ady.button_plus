@@ -134,19 +134,19 @@
 				"ar": "رقم الصفحة"
 			},
 			"hint": {
-				"en": "Page number. Use 0 to change for all pages",
-				"nl": "Pagina nummer. Gebruik 0 om voor alle pagina's te wijzigen",
-				"de": "Seitennummer. 0 verwenden, um alle Seiten zu ändern",
-				"fr": "Numéro de page. Utilisez 0 pour modifier toutes les pages",
-				"it": "Numero pagina. Usa 0 per modificare tutte le pagine",
-				"sv": "Sidnummer. Använd 0 för att ändra på alla sidor",
-				"no": "Sidenummer. Bruk 0 for å endre alle sider",
-				"es": "Número de página. Use 0 para cambiar todas las páginas",
-				"da": "Sidenummer. Brug 0 for at ændre alle sider",
-				"ru": "Номер страницы. Используйте 0, чтобы изменить все страницы",
-				"pl": "Numer strony. Użyj 0, aby zmienić na wszystkich stronach",
-				"ko": "페이지 번호. 모든 페이지를 변경하려면 0을 사용하세요",
-				"ar": "رقم الصفحة. استخدم 0 للتغيير في جميع الصفحات"
+				"en": "Page number: 0 = Default page, 1 = Page 1, etc. Leave blank or use -1 for all pages",
+				"nl": "Paginanummer: 0 = Standaardpagina, 1 = Pagina 1, enz. Laat leeg of gebruik -1 voor alle pagina's",
+				"de": "Seitennummer: 0 = Standardseite, 1 = Seite 1 usw. Leer lassen oder -1 für alle Seiten verwenden",
+				"fr": "Numéro de page : 0 = page par défaut, 1 = page 1, etc. Laissez vide ou utilisez -1 pour toutes les pages",
+				"it": "Numero pagina: 0 = pagina predefinita, 1 = pagina 1, ecc. Lascia vuoto o usa -1 per tutte le pagine",
+				"sv": "Sidnummer: 0 = standardsida, 1 = sida 1, osv. Lämna tomt eller använd -1 för alla sidor",
+				"no": "Sidenummer: 0 = standardside, 1 = side 1 osv. La stå tomt eller bruk -1 for alle sider",
+				"es": "Número de página: 0 = página predeterminada, 1 = página 1, etc. Déjelo vacío o use -1 para todas las páginas",
+				"da": "Sidenummer: 0 = standardside, 1 = side 1 osv. Lad feltet stå tomt, eller brug -1 for alle sider",
+				"ru": "Номер страницы: 0 — страница по умолчанию, 1 — страница 1 и т. д. Оставьте пустым или укажите -1 для всех страниц",
+				"pl": "Numer strony: 0 = strona domyślna, 1 = strona 1 itd. Pozostaw puste lub użyj -1 dla wszystkich stron",
+				"ko": "페이지 번호: 0 = 기본 페이지, 1 = 페이지 1 등. 비워 두거나 -1을 사용하면 모든 페이지에 적용됩니다",
+				"ar": "رقم الصفحة: 0 = الصفحة الافتراضية، 1 = الصفحة 1، إلخ. اتركه فارغًا أو استخدم -1 لجميع الصفحات"
 			},
 			"placeholder": {
 				"en": "Page number",
@@ -164,7 +164,7 @@
 				"ar": "رقم الصفحة"
 			},
 			"required": false,
-			"min": 0,
+			"min": -1,
 			"max": 40,
 			"step": 1
 		},
