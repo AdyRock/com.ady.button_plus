@@ -1452,6 +1452,8 @@ var brokerItemsFetched = false;
 var defaultBrokerFetched = false;
 
 const diagLogEnabledElement = document.getElementById('enableLog');
+const simulationEnabledElement = document.getElementById('simulationEnabled');
+let simulationEnabled = false;
 const diagLogElement = document.getElementById('diagLog');
 const clearLogElement = document.getElementById('clearLog');
 const sendLogElement = document.getElementById('sendLog');
@@ -2018,6 +2020,33 @@ function initialiseSettingsPage(Homey, markReady)
 		Homey.set('logEnabled', diagLogEnabledElement.checked);
 	});
 
+	Homey.get('simulationEnabled', (err, enabled) =>
+	{
+		if (err) return;
+		simulationEnabled = enabled === true;
+		simulationEnabledElement.checked = simulationEnabled;
+		if (simulationEnabled)
+		{
+			document.getElementById('simulationFieldset').style.display = '';
+		}
+	});
+
+	simulationEnabledElement.addEventListener('change', () =>
+	{
+		simulationEnabled = simulationEnabledElement.checked;
+		Homey.set('simulationEnabled', simulationEnabled, err =>
+		{
+			if (err) return Homey.alert(err);
+
+			// Drop cached values so simulated entries appear or disappear on the next refresh
+			displayPagePopupLiveValueCache.clear();
+			displayPagePopupVariableValueCache.clear();
+			const previewPages = new Set(Array.from(document.querySelectorAll('[data-button-preview-page]')).map(element => element.dataset.buttonPreviewPage));
+			previewPages.forEach(page => renderInlineButtonPagePreview(Number(page)));
+			refreshDisplayPopupLiveValues();
+		});
+	});
+
 	configTypeElement.addEventListener('change', e =>
 	{
 		groupEditReturnActive = false;
@@ -2028,9 +2057,13 @@ function initialiseSettingsPage(Homey, markReady)
 	{
 		configTypeTabsElement.querySelectorAll('.view-tab').forEach(tab =>
 		{
-			tab.addEventListener('click', () =>
+			tab.addEventListener('click', e =>
 			{
 				const { view } = tab.dataset;
+				if (view === 'settings')
+				{
+					document.getElementById('simulationFieldset').style.display = (e.shiftKey || simulationEnabled) ? '' : 'none';
+				}
 				groupEditReturnActive = false;
 				configTypeElement.value = view;
 				configTypeChanged(view);
@@ -4750,6 +4783,11 @@ function getButtonPanelVariablePreviewText(deviceValue, capabilityValue)
 	}
 
 	const selectedVariable = variablesArray.find(variable => variable.id === capabilityValue);
+	if (!selectedVariable && simulationEnabled && variablesFetched && capabilityValue)
+	{
+		return ButtonPlusSimulation.getSimulatedVariable(capabilityValue).value;
+	}
+
 	if (!selectedVariable || (selectedVariable.type === 'boolean'))
 	{
 		return null;
@@ -4782,6 +4820,26 @@ function getButtonPanelCapabilityPreviewText(side, pageIndex, deviceValue, capab
 
 	const capabilityElement = Number(configIndex) === Number(currentButtonConfigurationNo) ? document.getElementById(`${side}${pageIndex}Capability`) : null;
 	const selectedOption = capabilityElement && capabilityElement.selectedOptions ? capabilityElement.selectedOptions[0] : null;
+	const deviceEntry = buttonDevicesArray.find(device => device.id === deviceValue);
+	const isMissingDevice = buttonDevicesFetched && (!deviceEntry || (deviceEntry.zone && deviceEntry.zone.name === 'Missing Devices'));
+	const isMissingCapability = !!selectedOption && / \(Missing\)$/.test(selectedOption.text || '');
+	if (simulationEnabled && (isMissingDevice || isMissingCapability) && deviceValue && deviceValue !== 'none' && deviceValue !== 'customMQTT')
+	{
+		const simulated = ButtonPlusSimulation.getSimulatedCapability(capabilityValue);
+		if (simulated.type === 'boolean')
+		{
+			return null;
+		}
+
+		if (simulated.type === 'enum')
+		{
+			const match = simulated.values.find(entry => entry.id === simulated.value);
+			return match ? match.title : String(simulated.value);
+		}
+
+		return simulated.units ? `${simulated.value} ${simulated.units}` : String(simulated.value);
+	}
+
 	if (!selectedOption || !selectedOption.dataset.type || (selectedOption.dataset.type === 'boolean'))
 	{
 		return null;
@@ -7954,6 +8012,17 @@ function refreshDisplayPopupLiveValues()
 						{
 							displayPagePopupVariableValueCache.set(variable.id, variable.value);
 						}
+					}
+
+					if (simulationEnabled)
+					{
+						variableIds.forEach(variableId =>
+						{
+							if (!displayPagePopupVariableValueCache.has(variableId))
+							{
+								displayPagePopupVariableValueCache.set(variableId, ButtonPlusSimulation.getSimulatedVariable(variableId).value);
+							}
+						});
 					}
 				}
 				resolve();

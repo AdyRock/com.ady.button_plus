@@ -136,6 +136,8 @@
         "default": "Predefinito",
         "configtoedit": "Seleziona la configurazione da modificare",
         "enableLLogExplanation": "Se abilitata, l'app registrerà numerose informazioni di diagnostica.<br>L'app continuerà a registrare gli errori anche se questa opzione è disabilitata.",
+        "simulation": "Simula i dati mancanti",
+        "simulationExplanation": "Se abilitata, dispositivi, funzionalità e variabili non trovati mostrano dati simulati sui pannelli e nei simulatori: 1234.5 per i numeri, 'Simulation' per il testo, Acceso per acceso/spento e un'opzione adatta per gli elenchi.",
         "emailExplanation": "Se desideri ricevere una risposta al registro, inserisci qui il tuo indirizzo e-mail o l'ID del forum per consentirmi di contattarti.",
         "description": "Descrizione",
         "descriptionExplanation": "Inserisci una breve descrizione del problema se intendi inviare il registro.",
@@ -320,6 +322,8 @@
     "left": "Sinistra",
     "right": "Destra",
     "button": "Barra pulsanti",
+    "anyConnector": "Qualsiasi",
+    "enableDisplayButtonEvents": "Attiva nelle impostazioni avanzate",
     "hello1": "Homey ti saluta",
     "hello2": "Apri le impostazioni dell'app Homey Button+ per configurare le impostazioni",
     "hello3": "Quindi usa il dispositivo Homey Button+ per assegnare le configurazioni ai pulsanti e ai display fisici"

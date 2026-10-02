@@ -352,7 +352,8 @@ class PanelDevice extends Device
 			// The panel may have rebooted or been reset, so never suppress the re-send of its content.
 			this.homey.app.clearMQTTPublishCache(`buttonplus/${this.buttonId}/`);
 
-			if (this.deleted || await this.uploadConfigurations() !== null)
+			// The app's broker keeps retained messages in memory only, so they are gone after an app restart.
+			if (this.deleted || await this.uploadConfigurations(false, true) !== null)
 			{
 				if (this.deleted)
 				{
@@ -1686,7 +1687,7 @@ class PanelDevice extends Device
 	 * Reads device config, compares with desired state, writes differences, then sends MQTT messages.
 	 * Handles retries with exponential backoff if device is unreachable.
 	 */
-	async uploadConfigurations(force = false)
+	async uploadConfigurations(force = false, republishMQTT = false)
 	{
 		try
 		{
@@ -1793,7 +1794,7 @@ class PanelDevice extends Device
 			this.numPages = 0;
 			await this.updateStatusBar(deviceConfigurations);
 			await this.uploadCoreConfiguration(deviceConfigurations, force);
-			({ mqttQue } = await this.uploadAllButtonConfigurations(deviceConfigurations, undefined, undefined, force) || { mqttQue: [] });
+			({ mqttQue } = await this.uploadAllButtonConfigurations(deviceConfigurations, undefined, undefined, force || republishMQTT) || { mqttQue: [] });
 			await this.uploadDisplayConfigurations(deviceConfigurations, force);
 			await this.uploadBrokerConfigurations(deviceConfigurations, force);
 			await this.uploadPanelSensorConfiguration(deviceConfigurations, force);
@@ -4094,7 +4095,7 @@ class PanelDevice extends Device
 		// capabilities, but can still provide boolean, numeric, or text display data.
 		if (binding.deviceID === '_variable_')
 		{
-			const variable = await this.homey.app.getVariable(binding.capabilityName);
+			const variable = (await this.homey.app.getVariable(binding.capabilityName)) || this.homey.app.getSimulatedVariable(binding.capabilityName);
 			if (!variable)
 			{
 				return { textValue: '', svgValue: null };
@@ -4114,12 +4115,7 @@ class PanelDevice extends Device
 		}
 
 		const device = await this.homey.app.getHomeyDeviceById(binding.deviceID);
-		if (!device)
-		{
-			return { textValue: '', svgValue: null };
-		}
-
-		const capability = await this.homey.app.getHomeyCapabilityByName(device, binding.capabilityName);
+		const capability = (device ? await this.homey.app.getHomeyCapabilityByName(device, binding.capabilityName) : null) || this.homey.app.getSimulatedCapability(binding.capabilityName);
 		if (!capability)
 		{
 			return { textValue: '', svgValue: null };
@@ -6449,6 +6445,22 @@ class PanelDevice extends Device
 		return (rawValue === null || rawValue === undefined) ? '' : String(rawValue);
 	}
 
+	formatSimulatedCapabilityText(capability)
+	{
+		if (capability.id === 'windowcoverings_set')
+		{
+			return this.formatWindowCoveringsSetPercentage(capability.value);
+		}
+
+		if ((capability.type === 'enum') && Array.isArray(capability.values))
+		{
+			const match = capability.values.find(entry => entry.id === capability.value);
+			return match ? (match.title || match.id) : String(capability.value);
+		}
+
+		return capability.units ? `${capability.value} ${capability.units}` : String(capability.value);
+	}
+
 	async checkStateChangeForDisplay(configNo, deviceId, capability, value)
 	{
 		// Check if configNo is missing
@@ -6893,7 +6905,7 @@ class PanelDevice extends Device
 		if (sideConfig.deviceID === '_variable_')
 		{
 			// Get the variable value
-			const variable = await this.homey.app.getVariable(sideConfig.capabilityName);
+			const variable = (await this.homey.app.getVariable(sideConfig.capabilityName)) || this.homey.app.getSimulatedVariable(sideConfig.capabilityName);
 			if (variable && variable.type === 'boolean')
 			{
 				value = variable.value;
@@ -6917,12 +6929,16 @@ class PanelDevice extends Device
 			// Get the value from the capability
 			try
 			{
-				const { device, capability } = await this.getDeviceAndCapability(sideConfig);
+				const { device, capability: realCapability } = await this.getDeviceAndCapability(sideConfig);
+				const capability = realCapability || this.homey.app.getSimulatedCapability(sideConfig.capabilityName);
 				if (capability)
 				{
-					this.homey.app.registerDeviceCapabilityStateChange(device, sideConfig.capabilityName);
+					if (realCapability)
+					{
+						this.homey.app.registerDeviceCapabilityStateChange(device, sideConfig.capabilityName);
+					}
 					const isNonBooleanCapability = (capability.type !== 'boolean') && (capability.id !== 'windowcoverings_state') && (sideConfig.capabilityName !== 'dim');
-					if ((sideConfig.capabilityName === 'dim') || isNonBooleanCapability)
+					if (realCapability && ((sideConfig.capabilityName === 'dim') || isNonBooleanCapability))
 					{
 						// Non-boolean capabilities have no on/off value of their own, so also listen for onoff changes to drive the LED
 						this.homey.app.registerDeviceCapabilityStateChange(device, 'onoff');
@@ -6935,10 +6951,10 @@ class PanelDevice extends Device
 					else if (isNonBooleanCapability)
 					{
 						// Text/picker capabilities have no on/off state; normalize display content (enum title or text fallback).
-						rawTextValue = await this.resolveCapabilityDisplayText(sideConfig, value);
+						rawTextValue = realCapability ? await this.resolveCapabilityDisplayText(sideConfig, value) : this.formatSimulatedCapabilityText(capability);
 					}
 
-					if (isNonBooleanCapability)
+					if (realCapability && isNonBooleanCapability)
 					{
 						// eslint-disable-next-line no-await-in-loop
 						const capabilityLedState = await this.getCapabilityLedState(sideConfig);

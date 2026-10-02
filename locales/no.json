@@ -136,6 +136,8 @@
         "default": "Standard",
         "configtoedit": "Velg konfigurasjonen som skal redigeres",
         "enableLLogExplanation": "Hvis dette er aktivert, logger appen mye diagnostikkinformasjon.<br>Appen logger fortsatt feil selv om dette er deaktivert.",
+        "simulation": "Simuler manglende data",
+        "simulationExplanation": "Når dette er aktivert, viser enheter, funksjoner og variabler som ikke finnes simulerte data på panelene og i simulatorene: 1234.5 for tall, 'Simulation' for tekst, På for på/av og et passende alternativ for lister.",
         "emailExplanation": "Hvis du vil at jeg skal svare på loggen, skriver du inn e-postadressen eller forum-ID-en din her, slik at jeg vet hvordan jeg kan kontakte deg.",
         "description": "Beskrivelse",
         "descriptionExplanation": "Skriv inn en kort beskrivelse av problemet hvis du skal sende loggen.",
@@ -320,6 +322,8 @@
     "left": "Venstre",
     "right": "Høyre",
     "button": "Knapperad",
+    "anyConnector": "Hvilken som helst",
+    "enableDisplayButtonEvents": "Aktiver i avanserte innstillinger",
     "hello1": "Homey sier hei",
     "hello2": "Åpne innstillingene for Button+-appen i Homey for å konfigurere oppsett",
     "hello3": "Bruk deretter Button+-enheten i Homey til å tilordne konfigurasjoner til de fysiske knappene og skjermene"

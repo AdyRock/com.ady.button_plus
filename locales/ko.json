@@ -136,6 +136,8 @@
         "default": "기본값",
         "configtoedit": "편집할 구성 선택",
         "enableLLogExplanation": "활성화하면 앱에서 많은 진단 정보를 기록합니다.<br>비활성화해도 오류는 계속 기록됩니다.",
+        "simulation": "누락된 데이터 시뮬레이션",
+        "simulationExplanation": "활성화하면 찾을 수 없는 장치, 기능 및 변수에 대해 패널과 시뮬레이터에 시뮬레이션 데이터가 표시됩니다: 숫자는 1234.5, 텍스트는 'Simulation', 켜기/끄기는 켜짐, 목록은 적절한 옵션.",
         "emailExplanation": "로그에 대한 답변을 받으려면 연락할 수 있도록 이메일 주소 또는 포럼 ID를 여기에 입력하세요.",
         "description": "설명",
         "descriptionExplanation": "로그를 보내려는 경우 문제에 대한 간단한 설명을 입력하세요.",
@@ -320,6 +322,8 @@
     "left": "왼쪽",
     "right": "오른쪽",
     "button": "버튼 바",
+    "anyConnector": "모두",
+    "enableDisplayButtonEvents": "고급 설정에서 활성화",
     "hello1": "Homey가 인사합니다.",
     "hello2": "구성을 설정하려면 Button+ Homey 앱 설정을 여세요.",
     "hello3": "그런 다음 Button+ Homey 장치를 사용하여 물리적 버튼과 디스플레이에 구성을 할당하세요."

@@ -25,6 +25,7 @@ const { isSvgTextContent } = require('./lib/SvgHelper');
 const DeviceManager = require('./lib/DeviceManager');
 const DeviceDispatcher = require('./lib/DeviceStateChangedDispatcher');
 const VariableDispatcher = require('./lib/variables');
+const Simulation = require('./settings/simulation');
 
 const MAX_BUTTON_CONFIGURATIONS = 40;
 const MAX_DISPLAY_CONFIGURATIONS = 20;
@@ -470,6 +471,10 @@ class MyApp extends Homey.App
 
 		this.homey.settings.on('set', async setting =>
 		{
+			if (setting === 'simulationEnabled')
+			{
+				this.uploadConfigurations(true).catch(err => this.updateLog(`simulationEnabled upload error: ${err.message}`, 0));
+			}
 			if ((setting === 'buttonConfigurations') || (setting === 'defaultBroker'))
 			{
 				this.buttonConfigurations = this.homey.settings.get('buttonConfigurations');
@@ -599,6 +604,17 @@ class MyApp extends Homey.App
 			.registerRunListener((args, state) =>
 			{
 				return ((args.left_right === state.left_right) && (args.connector === state.connector) && (args.state === state.state));
+			});
+
+		this._triggerConnectorButtonEvent = this.homey.flow.getDeviceTriggerCard('connector_button_event')
+			.registerRunListener((args, state) =>
+			{
+				const connectorId = args.connector ? args.connector.id : -1;
+				return ((args.left_right === state.left_right) && ((connectorId === -1) || (connectorId === state.connector)) && (args.state === state.state));
+			})
+			.registerArgumentAutocompleteListener('connector', async (query, args) =>
+			{
+				return this.getConnectorOptions(query, args.device);
 			});
 
 		// This trigger is deprecated as it is replaced by the switch_button_configuration_name trigger
@@ -1133,7 +1149,7 @@ class MyApp extends Homey.App
 	 * Reads from buttonConfigurations array, generates MQTT messages, and publishes.
 	 * Handles retries if device IP lookup fails.
 	 */
-	async uploadConfigurations()
+	async uploadConfigurations(force = false)
 	{
 		this.buttonConfigurations = this.homey.settings.get('buttonConfigurations') || [];
 		this.displayConfigurations = this.homey.settings.get('displayConfigurations') || [];
@@ -1151,7 +1167,7 @@ class MyApp extends Homey.App
 				if (device.uploadConfigurations)
 				{
 					uploadTasks.push(
-						device.uploadConfigurations().catch(error =>
+						device.uploadConfigurations(force).catch(error =>
 						{
 							this.updateLog(`uploadConfigurations: ${error.message}`, 0);
 						}),
@@ -1729,11 +1745,11 @@ class MyApp extends Homey.App
 					? await this.getHomeyDeviceById(ButtonDevice.__id)
 					: await this.getHomeyDeviceById(item.device);
 				let itemUnit = item.device === 'none' ? '' : (item.unit || '');
-				if (!itemUnit && item.device && item.device !== 'none' && item.device !== '_variable_' && item.device !== 'customMQTT' && homeyDeviceObject && item.capability)
+				if (!itemUnit && item.device && item.device !== 'none' && item.device !== '_variable_' && item.device !== 'customMQTT' && item.capability)
 				{
 					try
 					{
-						const capObj = await this.getHomeyCapabilityByName(homeyDeviceObject, item.capability);
+						const capObj = (homeyDeviceObject ? await this.getHomeyCapabilityByName(homeyDeviceObject, item.capability) : null) || this.getSimulatedCapability(item.capability);
 						if (capObj)
 						{
 							const rawUnit = capObj.units || capObj.unit || '';
@@ -1777,7 +1793,7 @@ class MyApp extends Homey.App
 				if (item.device === '_variable_')
 				{
 					// Get the variable value
-					const variable = await this.homey.app.getVariable(item.capability);
+					const variable = (await this.homey.app.getVariable(item.capability)) || this.getSimulatedVariable(item.capability);
 					if (variable)
 					{
 						const val = variable.value;
@@ -1823,6 +1839,11 @@ class MyApp extends Homey.App
 							value: isSvgTextContent(chosenSvg) ? '' : routedValue.textValue,
 						});
 					}
+					else
+					{
+						// Overwrite the retained value, which may be a simulated one from before simulation was disabled
+						mqttQueue.push({ brokerId, message: `buttonplus/${item.device}/${item.capability}`, value: '' });
+					}
 				}
 				else if (item.device !== 'none')
 				{
@@ -1834,73 +1855,75 @@ class MyApp extends Homey.App
 
 					try
 					{
-						if (homeyDeviceObject)
+						const capability = (homeyDeviceObject ? await this.getHomeyCapabilityByName(homeyDeviceObject, item.capability) : null) || this.getSimulatedCapability(item.capability);
+						if (capability)
 						{
-							const capability = await this.getHomeyCapabilityByName(homeyDeviceObject, item.capability);
-							if (capability)
+							let { value } = capability;
+							if ((item.capability === 'dim' || item.capability === 'windowcoverings_set') && typeof value === 'number')
 							{
-								let { value } = capability;
-								if ((item.capability === 'dim' || item.capability === 'windowcoverings_set') && typeof value === 'number')
-								{
-									value = value <= 1 ? Math.round(value * 100) : Math.round(value);
-								}
-								if (value === null || value === undefined)
-								{
-									value = '';
-								}
+								value = value <= 1 ? Math.round(value * 100) : Math.round(value);
+							}
+							if (value === null || value === undefined)
+							{
+								value = '';
+							}
 
-								const valueTopic = `buttonplus/${homeyDeviceObject ? homeyDeviceObject.id : item.device}/${item.capability}`;
-								const onSvg = item.onSVG || item.onSvg || '';
-								const offSvg = item.offSVG || item.offSvg || '';
-								let chosenSvg = '';
-								if (onSvg || offSvg)
-								{
-									let isOn = true;
-									if (typeof value === 'boolean') isOn = value;
-									else if (typeof value === 'number') isOn = value > 0;
-									else if (typeof value === 'string')
-									{
-										const lowerStr = String(value).toLowerCase().trim();
-										if (lowerStr === 'false' || lowerStr === 'off' || lowerStr === '0') isOn = false;
-									}
-									chosenSvg = isOn ? (onSvg || item.svg || '') : (offSvg || item.svg || '');
-								}
-
-								let textVal = value;
-								let isBool = typeof value === 'boolean';
-								if (!isBool && typeof value === 'string')
+							const valueTopic = `buttonplus/${homeyDeviceObject ? homeyDeviceObject.id : item.device}/${item.capability}`;
+							const onSvg = item.onSVG || item.onSvg || '';
+							const offSvg = item.offSVG || item.offSvg || '';
+							let chosenSvg = '';
+							if (onSvg || offSvg)
+							{
+								let isOn = true;
+								if (typeof value === 'boolean') isOn = value;
+								else if (typeof value === 'number') isOn = value > 0;
+								else if (typeof value === 'string')
 								{
 									const lowerStr = String(value).toLowerCase().trim();
-									if (lowerStr === 'true' || lowerStr === 'false')
-									{
-										isBool = true;
-										textVal = lowerStr === 'true';
-									}
+									if (lowerStr === 'false' || lowerStr === 'off' || lowerStr === '0') isOn = false;
 								}
-								if (isBool)
-								{
-									const onText = (item.onText || item.OnText || '').trim() || 'On';
-									const offText = (item.offText || item.OffText || '').trim() || 'Off';
-									textVal = textVal ? onText : offText;
-								}
-								else if (capability.type === 'enum' && Array.isArray(capability.values))
-								{
-									const match = capability.values.find(entry => entry.id === String(value));
-									if (match && (match.title || match.id))
-									{
-										textVal = match.title || match.id;
-									}
-								}
-
-								const routedValue = this.routeSvgOrTextValue(textVal, `${homeyDeviceObject ? homeyDeviceObject.id : item.device}/${item.capability}`);
-								svg = isSvgTextContent(chosenSvg) ? chosenSvg : (item.svg || routedValue.svg);
-								// Send the value to the device after a short delay to allow the device to connect to the broker
-								mqttQueue.push({
-									brokerId,
-									message: valueTopic,
-									value: isSvgTextContent(chosenSvg) ? '' : routedValue.textValue,
-								});
+								chosenSvg = isOn ? (onSvg || item.svg || '') : (offSvg || item.svg || '');
 							}
+
+							let textVal = value;
+							let isBool = typeof value === 'boolean';
+							if (!isBool && typeof value === 'string')
+							{
+								const lowerStr = String(value).toLowerCase().trim();
+								if (lowerStr === 'true' || lowerStr === 'false')
+								{
+									isBool = true;
+									textVal = lowerStr === 'true';
+								}
+							}
+							if (isBool)
+							{
+								const onText = (item.onText || item.OnText || '').trim() || 'On';
+								const offText = (item.offText || item.OffText || '').trim() || 'Off';
+								textVal = textVal ? onText : offText;
+							}
+							else if (capability.type === 'enum' && Array.isArray(capability.values))
+							{
+								const match = capability.values.find(entry => entry.id === String(value));
+								if (match && (match.title || match.id))
+								{
+									textVal = match.title || match.id;
+								}
+							}
+
+							const routedValue = this.routeSvgOrTextValue(textVal, `${homeyDeviceObject ? homeyDeviceObject.id : item.device}/${item.capability}`);
+							svg = isSvgTextContent(chosenSvg) ? chosenSvg : (item.svg || routedValue.svg);
+							// Send the value to the device after a short delay to allow the device to connect to the broker
+							mqttQueue.push({
+								brokerId,
+								message: valueTopic,
+								value: isSvgTextContent(chosenSvg) ? '' : routedValue.textValue,
+							});
+						}
+						else
+						{
+							// Overwrite the retained value, which may be a simulated one from before simulation was disabled
+							mqttQueue.push({ brokerId, message: `buttonplus/${sourceDeviceId}/${item.capability}`, value: '' });
 						}
 					}
 					catch (err)
@@ -2556,12 +2579,7 @@ class MyApp extends Homey.App
 		try
 		{
 			const device = await this.getHomeyDeviceById(deviceId);
-			if (!device)
-			{
-				return response;
-			}
-
-			const capability = await this.getHomeyCapabilityByName(device, capabilityId);
+			const capability = (device ? await this.getHomeyCapabilityByName(device, capabilityId) : null) || this.getSimulatedCapability(capabilityId);
 			if (!capability)
 			{
 				return response;
@@ -2577,6 +2595,17 @@ class MyApp extends Homey.App
 			this.updateLog(`Error getting device capability value for ${deviceId}/${capabilityId}: ${e.message}`, 0);
 			return response;
 		}
+	}
+
+	// Returns null unless simulation is enabled in the app settings.
+	getSimulatedCapability(capabilityId)
+	{
+		return (this.homey.settings.get('simulationEnabled') === true) ? Simulation.getSimulatedCapability(capabilityId) : null;
+	}
+
+	getSimulatedVariable(variableId)
+	{
+		return (this.homey.settings.get('simulationEnabled') === true) ? Simulation.getSimulatedVariable(variableId) : null;
 	}
 
 	async getHomeyDeviceCapabilities(device)
@@ -3648,7 +3677,37 @@ class MyApp extends Homey.App
 		};
 
 		this.triggerFlow(this._triggerButtonEvent, device, tokens, state);
+		this.triggerFlow(this._triggerConnectorButtonEvent, device, tokens, state);
 		return this;
+	}
+
+	// Ids are the panel's zero-based connector index; -1 matches any connector.
+	getConnectorOptions(query, device)
+	{
+		const displays = [];
+		const buttonBars = [];
+		if (device)
+		{
+			for (let connector = 0; connector < 8; connector++)
+			{
+				const connectorType = Number(device.getSetting(`connect${connector}Type`));
+				if ((connectorType === 2) || (connectorType === 3))
+				{
+					displays.push(connector);
+				}
+				else if (connectorType === 1)
+				{
+					buttonBars.push(connector);
+				}
+			}
+		}
+
+		const results = [{ name: this.homey.__('anyConnector'), id: -1 }];
+		const displaySuffix = (device && device.getSetting('displayButtonEvents') === true) ? '' : ` (${this.homey.__('enableDisplayButtonEvents')})`;
+		displays.forEach((connector, index) => results.push({ name: `${displays.length > 1 ? `${this.homey.__('display')} ${index + 1}` : this.homey.__('display')}${displaySuffix}`, id: connector }));
+		buttonBars.forEach((connector, index) => results.push({ name: `${this.homey.__('button')} ${index + 1}`, id: connector }));
+
+		return results.filter(result => result.name.toLowerCase().includes(query.toLowerCase()));
 	}
 
 	getFlowPageId(page)

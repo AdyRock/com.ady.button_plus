@@ -15,21 +15,21 @@
         "ar": "وقع حدث زر"
     },
     "titleFormatted": {
-        "en": "The [[left_right]] button on connector [[connector]] was [[state]]",
-        "nl": "De [[left_right]] knop op connector [[connector]] was [[state]]",
-        "de": "Die [[left_right]] Taste an Anschluss [[connector]] wurde [[state]]",
-        "fr": "Le bouton [[left_right]] du connecteur [[connector]] a été [[state]]",
-        "it": "Il pulsante [[left_right]] sul connettore [[connector]] è stato [[state]]",
-        "sv": "[[left_right]] knapp på anslutning [[connector]] blev [[state]]",
-        "no": "[[left_right]] knapp på tilkobling [[connector]] ble [[state]]",
-        "es": "El botón [[left_right]] del conector [[connector]] fue [[state]]",
-        "da": "Knappen [[left_right]] på tilslutning [[connector]] blev [[state]]",
-        "ru": "Кнопка [[left_right]] на разъеме [[connector]] получила состояние [[state]]",
-        "pl": "Przycisk [[left_right]] na złączu [[connector]] został [[state]]",
-        "ko": "커넥터 [[connector]]의 [[left_right]] 버튼 상태가 [[state]]",
-        "ar": "كانت حالة الزر [[left_right]] في الموصل [[connector]] هي [[state]]"
+        "en": "The [[left_right]] button on [[connector]] was [[state]]",
+        "nl": "De [[left_right]] knop op [[connector]] was [[state]]",
+        "de": "Die [[left_right]] Taste an [[connector]] wurde [[state]]",
+        "fr": "Le bouton [[left_right]] de [[connector]] a été [[state]]",
+        "it": "Il pulsante [[left_right]] su [[connector]] è stato [[state]]",
+        "sv": "[[left_right]] knapp på [[connector]] blev [[state]]",
+        "no": "[[left_right]] knapp på [[connector]] ble [[state]]",
+        "es": "El botón [[left_right]] de [[connector]] fue [[state]]",
+        "da": "Knappen [[left_right]] på [[connector]] blev [[state]]",
+        "ru": "Кнопка [[left_right]] на [[connector]] получила состояние [[state]]",
+        "pl": "Przycisk [[left_right]] na [[connector]] został [[state]]",
+        "ko": "[[connector]]의 [[left_right]] 버튼 상태가 [[state]]",
+        "ar": "كانت حالة الزر [[left_right]] في [[connector]] هي [[state]]"
     },
-	"deprecated": true,
+    "highlight": true,
     "tokens": [
         {
             "name": "value",
@@ -70,7 +70,7 @@
                 "ar": "عدد مرات التكرار"
             },
             "example": "0 = first event, 1 = first repeat, etc."
-		}
+        }
     ],
     "args": [
         {
@@ -117,59 +117,56 @@
                 }
             ]
         },
-		{
-			"type": "number",
-			"name": "connector",
-			"title": {
-				"en": "Connectore Number",
-				"nl": "Connector nummer",
-				"de": "Anschlussnummer",
-				"fr": "Numéro de connecteur",
-				"it": "Numero connettore",
-				"sv": "Anslutningsnummer",
-				"no": "Tilkoblingsnummer",
-				"es": "Número de conector",
-				"da": "Tilslutningsnummer",
-				"ru": "Номер разъема",
-				"pl": "Numer złącza",
-				"ko": "커넥터 번호",
-				"ar": "رقم الموصل"
-			},
-			"hint": {
-				"en": "The connector number (1-4). Use 0 for any connector.",
-				"nl": "Het connector nummer (1-4). Gebruik 0 voor elke connector.",
-				"de": "Die Anschlussnummer (1-4). 0 für einen beliebigen Anschluss verwenden.",
-				"fr": "Le numéro du connecteur (1-4). Utilisez 0 pour n’importe quel connecteur.",
-				"it": "Il numero del connettore (1-4). Usa 0 per qualsiasi connettore.",
-				"sv": "Anslutningsnumret (1-4). Använd 0 för valfri anslutning.",
-				"no": "Tilkoblingsnummeret (1-4). Bruk 0 for en vilkårlig tilkobling.",
-				"es": "El número de conector (1-4). Use 0 para cualquier conector.",
-				"da": "Tilslutningsnummeret (1-4). Brug 0 for en vilkårlig tilslutning.",
-				"ru": "Номер разъема (1-4). Используйте 0 для любого разъема.",
-				"pl": "Numer złącza (1-4). Użyj 0 dla dowolnego złącza.",
-				"ko": "커넥터 번호(1-4). 모든 커넥터에 적용하려면 0을 사용하세요.",
-				"ar": "رقم الموصل (1-4). استخدم 0 لأي موصل."
-			},
-			"placeholder": {
-				"en": "Connector number",
-				"nl": "Connector nummer",
-				"de": "Anschlussnummer",
-				"fr": "Numéro de connecteur",
-				"it": "Numero connettore",
-				"sv": "Anslutningsnummer",
-				"no": "Tilkoblingsnummer",
-				"es": "Número de conector",
-				"da": "Tilslutningsnummer",
-				"ru": "Номер разъема",
-				"pl": "Numer złącza",
-				"ko": "커넥터 번호",
-				"ar": "رقم الموصل"
-			},
-			"min": 0,
-			"max": 4,
-			"step": 1
-		},
-		{
+        {
+            "type": "autocomplete",
+            "name": "connector",
+            "title": {
+                "en": "Connector",
+                "nl": "Connector",
+                "de": "Anschluss",
+                "fr": "Connecteur",
+                "it": "Connettore",
+                "sv": "Anslutning",
+                "no": "Tilkobling",
+                "es": "Conector",
+                "da": "Tilslutning",
+                "ru": "Разъем",
+                "pl": "Złącze",
+                "ko": "커넥터",
+                "ar": "الموصل"
+            },
+            "hint": {
+                "en": "The display or button bar the button is on, or Any.",
+                "nl": "Het display of de Button Bar waarop de knop zit, of Elke.",
+                "de": "Das Display oder die Tastenleiste mit der Taste, oder Beliebig.",
+                "fr": "L’écran ou la barre de boutons du bouton, ou N’importe lequel.",
+                "it": "Il display o la barra pulsanti del pulsante, oppure Qualsiasi.",
+                "sv": "Skärmen eller knappraden som knappen sitter på, eller Valfri.",
+                "no": "Skjermen eller knapperaden knappen sitter på, eller Hvilken som helst.",
+                "es": "La pantalla o barra de botones del botón, o Cualquiera.",
+                "da": "Skærmen eller knappanelet, knappen sidder på, eller Vilkårlig.",
+                "ru": "Дисплей или панель кнопок, на которой находится кнопка, или Любой.",
+                "pl": "Wyświetlacz lub listwa przycisków z przyciskiem albo Dowolne.",
+                "ko": "버튼이 있는 디스플레이 또는 버튼 바, 또는 모두.",
+                "ar": "الشاشة أو شريط الأزرار الذي يوجد عليه الزر، أو أي موصل."
+            },
+            "placeholder": {
+                "en": "Display / Button bar",
+                "nl": "Display / Button Bar",
+                "de": "Display / Tastenleiste",
+                "fr": "Écran / Barre de boutons",
+                "it": "Display / Barra pulsanti",
+                "sv": "Skärm / Knapprad",
+                "no": "Skjerm / Knapperad",
+                "es": "Pantalla / Barra de botones",
+                "da": "Skærm / Knappanel",
+                "ru": "Дисплей / Панель кнопок",
+                "pl": "Wyświetlacz / Listwa przycisków",
+                "ko": "디스플레이 / 버튼 바",
+                "ar": "الشاشة / شريط الأزرار"
+            }
+        },
+        {
             "type": "dropdown",
             "name": "state",
             "title": {

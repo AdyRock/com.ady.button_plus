@@ -136,6 +136,8 @@
         "default": "Standard",
         "configtoedit": "Zu bearbeitende Konfiguration auswählen",
         "enableLLogExplanation": "Wenn diese Option aktiviert ist, protokolliert die App viele Diagnoseinformationen.<br>Fehler werden auch dann protokolliert, wenn diese Option deaktiviert ist.",
+        "simulation": "Fehlende Daten simulieren",
+        "simulationExplanation": "Wenn aktiviert, zeigen nicht gefundene Geräte, Funktionen und Variablen simulierte Daten auf den Panels und in den Simulatoren: 1234.5 für Zahlen, 'Simulation' für Text, Ein für Ein/Aus und eine passende Option für Listen.",
         "emailExplanation": "Wenn Sie eine Antwort auf Ihr Protokoll wünschen, geben Sie hier bitte Ihre E-Mail-Adresse oder Forum-ID ein, damit ich Sie kontaktieren kann.",
         "description": "Beschreibung",
         "descriptionExplanation": "Bitte geben Sie eine kurze Beschreibung des Problems ein, wenn Sie das Protokoll senden möchten.",
@@ -320,6 +322,8 @@
     "left": "Links",
     "right": "Rechts",
     "button": "Tastenleiste",
+    "anyConnector": "Beliebig",
+    "enableDisplayButtonEvents": "In den erweiterten Einstellungen aktivieren",
     "hello1": "Homey sagt Hallo",
     "hello2": "Öffnen Sie die Einstellungen der Button+-Homey-App, um Konfigurationen einzurichten.",
     "hello3": "Weisen Sie anschließend mit dem Button+-Homey-Gerät die Konfigurationen den physischen Tasten und Displays zu."

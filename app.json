@@ -553,7 +553,7 @@
           "ko": "커넥터 [[connector]]의 [[left_right]] 버튼 상태가 [[state]]",
           "ar": "كانت حالة الزر [[left_right]] في الموصل [[connector]] هي [[state]]"
         },
-        "highlight": true,
+        "deprecated": true,
         "tokens": [
           {
             "name": "value",
@@ -2966,6 +2966,318 @@
           }
         ],
         "id": "config_name_button_change"
+      },
+      {
+        "title": {
+          "en": "A button event occurred",
+          "nl": "Een knop gebeurtenis heeft plaatsgevonden",
+          "de": "Ein Tastenereignis ist aufgetreten",
+          "fr": "Un événement de bouton s’est produit",
+          "it": "Si è verificato un evento del pulsante",
+          "sv": "En knapphändelse inträffade",
+          "no": "En knapphendelse oppstod",
+          "es": "Se produjo un evento de botón",
+          "da": "Der opstod en knaphændelse",
+          "ru": "Произошло событие кнопки",
+          "pl": "Wystąpiło zdarzenie przycisku",
+          "ko": "버튼 이벤트가 발생함",
+          "ar": "وقع حدث زر"
+        },
+        "titleFormatted": {
+          "en": "The [[left_right]] button on [[connector]] was [[state]]",
+          "nl": "De [[left_right]] knop op [[connector]] was [[state]]",
+          "de": "Die [[left_right]] Taste an [[connector]] wurde [[state]]",
+          "fr": "Le bouton [[left_right]] de [[connector]] a été [[state]]",
+          "it": "Il pulsante [[left_right]] su [[connector]] è stato [[state]]",
+          "sv": "[[left_right]] knapp på [[connector]] blev [[state]]",
+          "no": "[[left_right]] knapp på [[connector]] ble [[state]]",
+          "es": "El botón [[left_right]] de [[connector]] fue [[state]]",
+          "da": "Knappen [[left_right]] på [[connector]] blev [[state]]",
+          "ru": "Кнопка [[left_right]] на [[connector]] получила состояние [[state]]",
+          "pl": "Przycisk [[left_right]] na [[connector]] został [[state]]",
+          "ko": "[[connector]]의 [[left_right]] 버튼 상태가 [[state]]",
+          "ar": "كانت حالة الزر [[left_right]] في [[connector]] هي [[state]]"
+        },
+        "highlight": true,
+        "tokens": [
+          {
+            "name": "value",
+            "type": "string",
+            "title": {
+              "en": "Value",
+              "nl": "Waarde",
+              "de": "Wert",
+              "fr": "Valeur",
+              "it": "Valore",
+              "sv": "Värde",
+              "no": "Verdi",
+              "es": "Valor",
+              "da": "Værdi",
+              "ru": "Значение",
+              "pl": "Wartość",
+              "ko": "값",
+              "ar": "القيمة"
+            },
+            "example": "true"
+          },
+          {
+            "name": "repeatCount",
+            "type": "number",
+            "title": {
+              "en": "Number of repeats",
+              "nl": "Aantal herhalingen",
+              "de": "Anzahl der Wiederholungen",
+              "fr": "Nombre de répétitions",
+              "it": "Numero di ripetizioni",
+              "sv": "Antal upprepningar",
+              "no": "Antall gjentakelser",
+              "es": "Número de repeticiones",
+              "da": "Antal gentagelser",
+              "ru": "Количество повторов",
+              "pl": "Liczba powtórzeń",
+              "ko": "반복 횟수",
+              "ar": "عدد مرات التكرار"
+            },
+            "example": "0 = first event, 1 = first repeat, etc."
+          }
+        ],
+        "args": [
+          {
+            "type": "dropdown",
+            "name": "left_right",
+            "title": {
+              "en": "Left / Right",
+              "nl": "Links / Rechts",
+              "de": "Links / Rechts",
+              "fr": "Gauche / Droite",
+              "it": "Sinistro / Destro",
+              "sv": "Vänster / Höger",
+              "no": "Venstre / Høyre",
+              "es": "Izquierdo / Derecho",
+              "da": "Venstre / højre",
+              "ru": "Левая / Правая",
+              "pl": "Lewy / Prawy",
+              "ko": "왼쪽 / 오른쪽",
+              "ar": "يسار / يمين"
+            },
+            "placeholder": {
+              "en": "Left / Right",
+              "nl": "Links / Rechts",
+              "de": "Links / Rechts",
+              "fr": "Gauche / Droite",
+              "it": "Sinistro / Destro",
+              "sv": "Vänster / Höger",
+              "no": "Venstre / Høyre",
+              "es": "Izquierdo / Derecho",
+              "da": "Venstre / højre",
+              "ru": "Левая / Правая",
+              "pl": "Lewy / Prawy",
+              "ko": "왼쪽 / 오른쪽",
+              "ar": "يسار / يمين"
+            },
+            "values": [
+              {
+                "id": "left",
+                "title": {
+                  "en": "Left",
+                  "nl": "Links",
+                  "de": "Links",
+                  "fr": "Gauche",
+                  "it": "Sinistro",
+                  "sv": "Vänster",
+                  "no": "Venstre",
+                  "es": "Izquierdo",
+                  "da": "Venstre",
+                  "ru": "Левая",
+                  "pl": "Lewy",
+                  "ko": "왼쪽",
+                  "ar": "يسار"
+                }
+              },
+              {
+                "id": "right",
+                "title": {
+                  "en": "Right",
+                  "nl": "Rechts",
+                  "de": "Rechts",
+                  "fr": "Droite",
+                  "it": "Destro",
+                  "sv": "Höger",
+                  "no": "Høyre",
+                  "es": "Derecho",
+                  "da": "Højre",
+                  "ru": "Правая",
+                  "pl": "Prawy",
+                  "ko": "오른쪽",
+                  "ar": "يمين"
+                }
+              }
+            ]
+          },
+          {
+            "type": "autocomplete",
+            "name": "connector",
+            "title": {
+              "en": "Connector",
+              "nl": "Connector",
+              "de": "Anschluss",
+              "fr": "Connecteur",
+              "it": "Connettore",
+              "sv": "Anslutning",
+              "no": "Tilkobling",
+              "es": "Conector",
+              "da": "Tilslutning",
+              "ru": "Разъем",
+              "pl": "Złącze",
+              "ko": "커넥터",
+              "ar": "الموصل"
+            },
+            "hint": {
+              "en": "The display or button bar the button is on, or Any.",
+              "nl": "Het display of de Button Bar waarop de knop zit, of Elke.",
+              "de": "Das Display oder die Tastenleiste mit der Taste, oder Beliebig.",
+              "fr": "L’écran ou la barre de boutons du bouton, ou N’importe lequel.",
+              "it": "Il display o la barra pulsanti del pulsante, oppure Qualsiasi.",
+              "sv": "Skärmen eller knappraden som knappen sitter på, eller Valfri.",
+              "no": "Skjermen eller knapperaden knappen sitter på, eller Hvilken som helst.",
+              "es": "La pantalla o barra de botones del botón, o Cualquiera.",
+              "da": "Skærmen eller knappanelet, knappen sidder på, eller Vilkårlig.",
+              "ru": "Дисплей или панель кнопок, на которой находится кнопка, или Любой.",
+              "pl": "Wyświetlacz lub listwa przycisków z przyciskiem albo Dowolne.",
+              "ko": "버튼이 있는 디스플레이 또는 버튼 바, 또는 모두.",
+              "ar": "الشاشة أو شريط الأزرار الذي يوجد عليه الزر، أو أي موصل."
+            },
+            "placeholder": {
+              "en": "Display / Button bar",
+              "nl": "Display / Button Bar",
+              "de": "Display / Tastenleiste",
+              "fr": "Écran / Barre de boutons",
+              "it": "Display / Barra pulsanti",
+              "sv": "Skärm / Knapprad",
+              "no": "Skjerm / Knapperad",
+              "es": "Pantalla / Barra de botones",
+              "da": "Skærm / Knappanel",
+              "ru": "Дисплей / Панель кнопок",
+              "pl": "Wyświetlacz / Listwa przycisków",
+              "ko": "디스플레이 / 버튼 바",
+              "ar": "الشاشة / شريط الأزرار"
+            }
+          },
+          {
+            "type": "dropdown",
+            "name": "state",
+            "title": {
+              "en": "State",
+              "nl": "Status",
+              "de": "Status",
+              "fr": "État",
+              "it": "Stato",
+              "sv": "Tillstånd",
+              "no": "Tilstand",
+              "es": "Estado",
+              "da": "Tilstand",
+              "ru": "Состояние",
+              "pl": "Stan",
+              "ko": "상태",
+              "ar": "الحالة"
+            },
+            "placeholder": {
+              "en": "Clicked / Released / Long Pressed",
+              "nl": "Ingedrukt / Losgelaten / Lang ingedrukt",
+              "de": "Angeklickt / Losgelassen / Lange gedrückt",
+              "fr": "Cliqué / Relâché / Appui long",
+              "it": "Premuto / Rilasciato / Premuto a lungo",
+              "sv": "Klickad / Släppt / Långtryckt",
+              "no": "Klikket / Slipp / Langt trykk",
+              "es": "Pulsado / Soltado / Pulsación larga",
+              "da": "Trykket / sluppet / langt tryk",
+              "ru": "Нажата / Отпущена / Долго нажата",
+              "pl": "Kliknięty / Zwolniony / Naciśnięty długo",
+              "ko": "클릭 / 놓음 / 길게 누름",
+              "ar": "نُقر / أُفلت / ضُغط مطولًا"
+            },
+            "values": [
+              {
+                "id": "clicked",
+                "title": {
+                  "en": "Clicked",
+                  "nl": "Ingedrukt",
+                  "de": "Angeklickt",
+                  "fr": "Cliqué",
+                  "it": "Premuto",
+                  "sv": "Klickad",
+                  "no": "Klikket",
+                  "es": "Pulsado",
+                  "da": "Trykket",
+                  "ru": "Нажата",
+                  "pl": "Kliknięty",
+                  "ko": "클릭함",
+                  "ar": "نُقر"
+                }
+              },
+              {
+                "id": "released",
+                "title": {
+                  "en": "Released",
+                  "nl": "Losgelaten",
+                  "de": "Losgelassen",
+                  "fr": "Relâché",
+                  "it": "Rilasciato",
+                  "sv": "Släppt",
+                  "no": "Slipp",
+                  "es": "Soltado",
+                  "da": "Sluppet",
+                  "ru": "Отпущена",
+                  "pl": "Zwolniony",
+                  "ko": "놓음",
+                  "ar": "أُفلت"
+                }
+              },
+              {
+                "id": "long",
+                "title": {
+                  "en": "Long Pressed",
+                  "nl": "Lang ingedrukt",
+                  "de": "Lange gedrückt",
+                  "fr": "Appui long",
+                  "it": "Premuto a lungo",
+                  "sv": "Långtryckt",
+                  "no": "Langt trykk",
+                  "es": "Pulsación larga",
+                  "da": "Langt tryk",
+                  "ru": "Долго нажата",
+                  "pl": "Naciśnięty długo",
+                  "ko": "길게 누름",
+                  "ar": "ضُغط مطولًا"
+                }
+              },
+              {
+                "id": "double",
+                "title": {
+                  "en": "Double Clicked",
+                  "nl": "Dubbel ingedrukt",
+                  "de": "Doppelt angeklickt",
+                  "fr": "Double-clic",
+                  "it": "Premuto due volte",
+                  "sv": "Dubbelklickad",
+                  "no": "Dobbeltklikket",
+                  "es": "Doble pulsación",
+                  "da": "Dobbelttrykket",
+                  "ru": "Нажата дважды",
+                  "pl": "Kliknięty dwukrotnie",
+                  "ko": "두 번 클릭함",
+                  "ar": "نُقر نقرًا مزدوجًا"
+                }
+              }
+            ]
+          },
+          {
+            "name": "device",
+            "type": "device",
+            "filter": "driver_id=panel_hardware"
+          }
+        ],
+        "id": "connector_button_event"
       },
       {
         "title": {

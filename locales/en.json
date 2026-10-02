@@ -136,6 +136,8 @@
         "default": "Default",
         "configtoedit": "Select the configuration to edit",
         "enableLLogExplanation": "If enabled, the app will log a lot of diagnostics information.<br>The app will still log errors even if this is disabled.",
+        "simulation": "Simulate missing data",
+        "simulationExplanation": "If enabled, devices, capabilities and variables that cannot be found show simulated data on the panels and in the simulators: 1234.5 for numbers, 'Simulation' for text, On for on/off and the first matching option for lists.",
         "emailExplanation": "If you want me to respond to your log, please enter your email address or forum id here so I know how to contact you.",
         "description": "Description",
         "descriptionExplanation": "Please enter a brief description of the problem if you are going to send the log.",
@@ -321,6 +323,8 @@
     "left": "Left",
     "right": "Right",
     "button": "Button bar",
+    "anyConnector": "Any",
+    "enableDisplayButtonEvents": "Enable in advanced settings",
     "hello1": "Homey says hello",
     "hello2": "Open the Button+ Homey app settings to setup configurations",
     "hello3": "Then use the Button+ Homey device to assign configurations to the physical buttons and displays"

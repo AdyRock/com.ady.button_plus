@@ -136,6 +136,8 @@
         "default": "Domyślny",
         "configtoedit": "Wybierz konfigurację do edycji",
         "enableLLogExplanation": "Gdy ta opcja jest włączona, aplikacja zapisuje wiele informacji diagnostycznych.<br>Błędy będą zapisywane nawet wtedy, gdy ta opcja jest wyłączona.",
+        "simulation": "Symuluj brakujące dane",
+        "simulationExplanation": "Gdy ta opcja jest włączona, nieznalezione urządzenia, funkcje i zmienne pokazują symulowane dane na panelach i w symulatorach: 1234.5 dla liczb, 'Simulation' dla tekstu, Wł. dla wł./wył. i odpowiednią opcję dla list.",
         "emailExplanation": "Jeśli oczekujesz odpowiedzi dotyczącej dziennika, podaj tutaj adres e-mail lub identyfikator na forum, abym mógł się z Tobą skontaktować.",
         "description": "Opis",
         "descriptionExplanation": "Jeśli zamierzasz wysłać dziennik, wprowadź krótki opis problemu.",
@@ -320,6 +322,8 @@
     "left": "Lewy",
     "right": "Prawy",
     "button": "Listwa przycisków",
+    "anyConnector": "Dowolne",
+    "enableDisplayButtonEvents": "Włącz w ustawieniach zaawansowanych",
     "hello1": "Homey mówi: cześć",
     "hello2": "Otwórz ustawienia aplikacji Button+ dla Homey, aby skonfigurować konfiguracje",
     "hello3": "Następnie w urządzeniu Button+ dla Homey przypisz konfiguracje do fizycznych przycisków i wyświetlaczy"

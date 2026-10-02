@@ -91,6 +91,17 @@
 				<p><button class="homey-button-secondary-shadow" id="openwebview" title="Open webview"><span
 							data-i18n="settings.openwebview"></span></button></p>
 			</fieldset>
+			<fieldset class="homey-form-fieldset" id="simulationFieldset" style="display: none;">
+				<label class="homey-form-checkbox">
+					<input class="homey-form-checkbox-input" id="simulationEnabled" type="checkbox" value="auto"
+						title="Simulate data for missing capabilities" />
+					<span class="homey-form-checkbox-checkmark"></span>
+					<span class="homey-form-checkbox-text"><span data-i18n="settings.simulation"></span></span>
+					<div class="tooltip"><i class="fi fi-rr-info"></i>
+						<span class="tooltiptext" data-i18n="settings.simulationExplanation"></span>
+					</div>
+				</label>
+			</fieldset>
 		</div>
 
 		<!-- Diagnostics Log -->
@@ -575,6 +586,7 @@
 
 	<!-- Code to handle page life -->
 
+	<script type="text/javascript" src="simulation.js?v=20261002a"></script>
 	<script type="text/javascript" src="settings.js?v=20260925f"></script>
 </body>
 

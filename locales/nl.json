@@ -134,6 +134,8 @@
         "default": "Standaard",
         "configtoedit": "Selecteer de te bewerken configuratie",
         "enableLLogExplanation": "Indien geactiveerd, zal de app veel diagnostische informatie loggen.<br>De app zal nog steeds fouten loggen, ook als deze instelling is uitgeschakeld.",
+        "simulation": "Ontbrekende gegevens simuleren",
+        "simulationExplanation": "Indien ingeschakeld, tonen apparaten, mogelijkheden en variabelen die niet gevonden worden gesimuleerde gegevens op de panelen en in de simulators: 1234.5 voor getallen, 'Simulation' voor tekst, Aan voor aan/uit en een passende optie voor lijsten.",
         "emailExplanation": "Als je wil dat ik reageer op je log, vul dan hier je emailadres of forum-id in, zodat ik weet hoe ik je kan bereiken.",
         "description": "Omschrijving",
         "descriptionExplanation": "Geef een korte omschrijving van het probleem als je de log verstuurd.",
@@ -320,6 +322,8 @@
     "left": "Links",
     "right": "Rechts",
     "button": "Button Bar",
+    "anyConnector": "Elke",
+    "enableDisplayButtonEvents": "Inschakelen in geavanceerde instellingen",
     "hello1": "Homey zegt hallo",
     "hello2": "Open de Button+ Homey app instellingen om configuraties samen te stellen",
     "hello3": "Gebruik daarna het Button+ Homey device om configuraties toe te kennen aan de fysieke knoppen en displays"
