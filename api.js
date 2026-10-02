@@ -80,5 +80,5 @@ module.exports = {
     // Save group configurations
     async saveGroupConfigurations({ homey, body }) {
         return homey.app.setGroupConfigurations(body.groups);
-    }
+    },
 };

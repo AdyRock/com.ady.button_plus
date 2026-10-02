@@ -46,7 +46,7 @@ class PanelDriver extends Driver
 			return devices;
 		});
 
-		session.setHandler('list_devices_selection', async (data) =>
+		session.setHandler('list_devices_selection', async data =>
 		{
 			// User selected a device so cache the information required to validate it when the credentials are set
 			this.devicesToAdd = data;
@@ -57,7 +57,7 @@ class PanelDriver extends Driver
 			return this.devicesToAdd;
 		});
 
-		session.setHandler('manual_connection', async (data) =>
+		session.setHandler('manual_connection', async data =>
 		{
 			this.ip = data.ip;
 			return this.pairListDevices(data.ip, '');
@@ -66,13 +66,12 @@ class PanelDriver extends Driver
 
 	async onRepair(session, device)
 	{
-
 		session.setHandler('set_ip_setup', async () =>
 		{
 			return device.ip;
 		});
 
-		session.setHandler('set_ip_connection', async (data) =>
+		session.setHandler('set_ip_connection', async data =>
 		{
 			await device.repair(data.ip);
 
@@ -100,8 +99,13 @@ class PanelDriver extends Driver
 		{
 			for (let i = 0; i < 8; i++)
 			{
-				const conn = deviceConfiguration.info.connectors.find((c) => c && c.id === i);
-				settings[`connect${i}Type`] = conn ? conn.type : (i === 0 ? 2 : 0);
+				const conn = deviceConfiguration.info.connectors.find(c => c && c.id === i);
+				let connectorType = i === 0 ? 2 : 0;
+				if (conn)
+				{
+					connectorType = conn.type;
+				}
+				settings[`connect${i}Type`] = connectorType;
 			}
 		}
 

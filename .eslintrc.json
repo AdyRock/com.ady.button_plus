@@ -1,13 +1,45 @@
 {
     "extends": "athom",
+    "parser": "espree",
+    "parserOptions": {
+        "ecmaVersion": 2022,
+        "sourceType": "script"
+    },
+    "overrides": [
+        {
+            "files": ["settings/**/*.js"],
+            "extends": ["eslint:recommended"],
+            "env": {"browser": true},
+            "globals": {"Homey": "readonly"},
+            "rules": {
+                "block-scoped-var": "off",
+                "camelcase": "off",
+                "consistent-return": "off",
+                "func-names": "off",
+                "max-len": "off",
+                "no-alert": "off",
+                "no-console": "off",
+                "no-nested-ternary": "off",
+                "no-redeclare": "off",
+                "no-return-await": "off",
+                "no-tabs": "off",
+                "no-use-before-define": "off",
+                "no-unused-vars": ["error", {"vars": "local", "args": "none", "ignoreRestSiblings": true}],
+                "no-var": "off",
+                "strict": "off",
+                "vars-on-top": "off"
+            }
+        }
+    ],
     "rules":
     {
         "node/no-extraneous-require": "off",
         "indent": "off",
         "brace-style": "off",
+        "no-use-before-define": ["error", {"functions": false}],
         "function-paren-newline": ["error", "consistent"],
         "linebreak-style": ["error", "windows"],
-        "no-tabs": ["error", { "allowIndentationTabs": true }],
+        "no-tabs": "off",
         "object-curly-newline": ["error", { "consistent": true }],
         "max-len": ["error", { "code": 300 }]
     }

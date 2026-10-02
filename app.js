@@ -15,6 +15,7 @@ const { HomeyAPI } = require('homey-api');
 // const { HomeyAPI } = require('athom-api');
 const httpServer = require('http').createServer();
 const ws = require('websocket-stream');
+const _ = require('lodash');
 const net = require('./net');
 const nodemailer = require('./nodemailer');
 const aedes = require('./aedes')();
@@ -24,8 +25,6 @@ const { isSvgTextContent } = require('./lib/SvgHelper');
 const DeviceManager = require('./lib/DeviceManager');
 const DeviceDispatcher = require('./lib/DeviceStateChangedDispatcher');
 const VariableDispatcher = require('./lib/variables');
-const _ = require('lodash');
-const i = require('./nodemailer');
 
 const MAX_BUTTON_CONFIGURATIONS = 40;
 const MAX_DISPLAY_CONFIGURATIONS = 20;
@@ -127,7 +126,7 @@ class MyApp extends Homey.App
 		}
 
 		// Make sure homey broker ip is up to date
-		const homeyBroker = this.brokerItems.find((broker) => broker.brokerid === 'homey');
+		const homeyBroker = this.brokerItems.find(broker => broker.brokerid === 'homey');
 		if (homeyBroker)
 		{
 			if (homeyBroker.url !== `mqtt://${this.homeyIP}`)
@@ -421,7 +420,7 @@ class MyApp extends Homey.App
 
 		//        this.getHomeyDevices({});
 		this.deviceDispather = new DeviceDispatcher(this);
-		this.deviceManager.onRemove.subscribe(async (device) =>
+		this.deviceManager.onRemove.subscribe(async device =>
 		{
 			await this.deviceDispather.removeDevice(device);
 
@@ -469,7 +468,7 @@ class MyApp extends Homey.App
 			this.updateLog(`Error connecting to panel: ${err.message}`, 0);
 		}
 
-		this.homey.settings.on('set', async (setting) =>
+		this.homey.settings.on('set', async setting =>
 		{
 			if ((setting === 'buttonConfigurations') || (setting === 'defaultBroker'))
 			{
@@ -504,12 +503,10 @@ class MyApp extends Homey.App
 								this.setupMQTTClient(brokerItem, this.homeyID);
 							}
 							else
-							{
-								if (!this.server)
+							if (!this.server)
 								{
 									this.setupHomeyMQTTServer();
 								}
-							}
 						}
 						else
 						{
@@ -534,13 +531,13 @@ class MyApp extends Homey.App
 		this._triggerButtonOn = this.homey.flow.getDeviceTriggerCard('button_on')
 			.registerRunListener((args, state) =>
 			{
-				return (((args.left_right === 'any') || (args.left_right === state.left_right)) && ((args.connector === 0) || (args.connector === state.connector)) && ((args.page == undefined) || (args.page === state.page) || (args.page === -1)));
+				return (((args.left_right === 'any') || (args.left_right === state.left_right)) && ((args.connector === 0) || (args.connector === state.connector)) && ((args.page === undefined || args.page === null) || (args.page === state.page) || (args.page === -1)));
 			});
 
 		this._triggerButtonOff = this.homey.flow.getDeviceTriggerCard('button_off')
 			.registerRunListener((args, state) =>
 			{
-				return (((args.left_right === 'any') || (args.left_right === state.left_right)) && ((args.connector === 0) || (args.connector === state.connector)) && ((args.page == undefined) || (args.page === state.page) || (args.page === -1)));
+				return (((args.left_right === 'any') || (args.left_right === state.left_right)) && ((args.connector === 0) || (args.connector === state.connector)) && ((args.page === undefined || args.page === null) || (args.page === state.page) || (args.page === -1)));
 			});
 
 		this._triggerPageChange = this.homey.flow.getDeviceTriggerCard('page_change')
@@ -552,19 +549,19 @@ class MyApp extends Homey.App
 		this._triggerButtonChange = this.homey.flow.getDeviceTriggerCard('button_change')
 			.registerRunListener((args, state) =>
 			{
-				return (((args.left_right === 'any') || (args.left_right === state.left_right)) && ((args.connector === 0) || (args.connector === state.connector)) && ((args.page == undefined) || (args.page === state.page) || (args.page === -1)));
+				return (((args.left_right === 'any') || (args.left_right === state.left_right)) && ((args.connector === 0) || (args.connector === state.connector)) && ((args.page === undefined || args.page === null) || (args.page === state.page) || (args.page === -1)));
 			});
 
 		this._triggerButtonLongPress = this.homey.flow.getDeviceTriggerCard('button_long_press')
 			.registerRunListener((args, state) =>
 			{
-				return (((args.left_right === 'any') || (args.left_right === state.left_right)) && ((args.connector === 0) || (args.connector === state.connector)) && ((args.page == undefined) || (args.page === state.page) || (args.page === -1)));
+				return (((args.left_right === 'any') || (args.left_right === state.left_right)) && ((args.connector === 0) || (args.connector === state.connector)) && ((args.page === undefined || args.page === null) || (args.page === state.page) || (args.page === -1)));
 			});
 
 		this._triggerButtonRelease = this.homey.flow.getDeviceTriggerCard('button_release')
 			.registerRunListener((args, state) =>
 			{
-				return (((args.left_right === 'any') || (args.left_right === state.left_right)) && ((args.connector === 0) || (args.connector === state.connector)) && ((args.page == undefined) || (args.page === state.page) || (args.page === -1)));
+				return (((args.left_right === 'any') || (args.left_right === state.left_right)) && ((args.connector === 0) || (args.connector === state.connector)) && ((args.page === undefined || args.page === null) || (args.page === state.page) || (args.page === -1)));
 			});
 
 		// This flow is deprecated as it is replaced by the config_name_button_change flow
@@ -591,20 +588,18 @@ class MyApp extends Homey.App
 				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config.name ? config.name : ''}`, id: index }));
 
 				// filter the results based on the search query
-				return results.filter((result) => (result.name.toLowerCase().includes(query.toLowerCase())));
+				return results.filter(result => (result.name.toLowerCase().includes(query.toLowerCase())));
 			})
 			.registerArgumentAutocompleteListener('page', async (query, args) =>
 			{
 				return this.getConfigurationPageOptions(query, args);
 			});
 
-
 		this._triggerButtonEvent = this.homey.flow.getDeviceTriggerCard('button_event')
 			.registerRunListener((args, state) =>
 			{
 				return ((args.left_right === state.left_right) && (args.connector === state.connector) && (args.state === state.state));
-			})
-
+			});
 
 		// This trigger is deprecated as it is replaced by the switch_button_configuration_name trigger
 		this.homey.flow.getActionCard('switch_button_configuration')
@@ -627,7 +622,7 @@ class MyApp extends Homey.App
 				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config.name ? config.name : ''}`, id: index }));
 
 				// filter the results based on the search query
-				return results.filter((result) => (result.name.toLowerCase().includes(query.toLowerCase())));
+				return results.filter(result => (result.name.toLowerCase().includes(query.toLowerCase())));
 			});
 
 		// This flow is deprecated as it is replaced by the switch_display_configuration_name flow
@@ -651,7 +646,7 @@ class MyApp extends Homey.App
 				const results = this.displayConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config.name ? config.name : ''}`, id: index }));
 
 				// filter the results based on the search query
-				return results.filter((result) => (result.name.toLowerCase().includes(query.toLowerCase())));
+				return results.filter(result => (result.name.toLowerCase().includes(query.toLowerCase())));
 			});
 
 		this.homey.flow.getActionCard('turn_on_button')
@@ -684,7 +679,7 @@ class MyApp extends Homey.App
 		this.homey.flow.getActionCard('set_connector_button_top_label')
 			.registerRunListener(async (args, state) =>
 			{
-				let page = args.page ? args.page : 0;
+				const page = args.page ? args.page : 0;
 
 				this.log(`set_connector_top_button_label ${args.left_right} connector ${args.connector} on page ${page} to ${args.label}`);
 				return args.device.updateConnectorTopLabel(args.left_right, args.connector - 1, page, args.label);
@@ -693,7 +688,7 @@ class MyApp extends Homey.App
 		this.homey.flow.getActionCard('set_connector_button_text')
 			.registerRunListener(async (args, state) =>
 			{
-				let page = args.page ? args.page : 0;
+				const page = args.page ? args.page : 0;
 
 				this.log(`set_connector_button_text ${args.left_right} connector ${args.connector} on page ${page} to ${args.label}`);
 				return args.device.updateConnectorLabel(args.left_right, args.connector - 1, page, args.label);
@@ -702,7 +697,7 @@ class MyApp extends Homey.App
 		this.homey.flow.getActionCard('set_connector_button_svg')
 			.registerRunListener(async (args, state) =>
 			{
-				let page = args.page ? args.page : 0;
+				const page = args.page ? args.page : 0;
 				const svgValue = (typeof args.svg === 'string') ? args.svg : '';
 
 				this.log(`set_connector_button_svg ${args.left_right} connector ${args.connector} on page ${page}, svg length ${svgValue.length}`);
@@ -713,7 +708,7 @@ class MyApp extends Homey.App
 		this.homey.flow.getActionCard('set_config_button_top_label')
 			.registerRunListener(async (args, state) =>
 			{
-				let page = args.page ? args.page : 0;
+				const page = args.page ? args.page : 0;
 
 				this.log(`set_config_button_top_label ${args.left_right} config ${args.config} on page ${page} to ${args.label}`);
 				return args.device.updateConfigTopLabel(args.left_right, args.config - 1, page, args.label);
@@ -722,7 +717,7 @@ class MyApp extends Homey.App
 		this.homey.flow.getActionCard('set_config_name_button_top_label')
 			.registerRunListener(async (args, state) =>
 			{
-				let page = args.page ? args.page : 0;
+				const page = args.page ? args.page : 0;
 
 				this.log(`set_config_name_button_label ${args.left_right} config ${args.config} on page ${page} to ${args.label}`);
 				return args.device.updateConfigTopLabel(args.left_right, args.config.id, page, args.label);
@@ -733,14 +728,14 @@ class MyApp extends Homey.App
 				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config[0].name ? config[0].name : ''}`, id: index }));
 
 				// filter the results based on the search query
-				return results.filter((result) => (result.name.toLowerCase().includes(query.toLowerCase())));
+				return results.filter(result => (result.name.toLowerCase().includes(query.toLowerCase())));
 			});
 
 		// This flow is deprecated as it is replaced by the set_config_name_button_label flow
 		this.homey.flow.getActionCard('set_config_button_label')
 			.registerRunListener(async (args, state) =>
 			{
-				let page = args.page ? args.page : 0;
+				const page = args.page ? args.page : 0;
 
 				this.log(`set_config_button_label ${args.left_right} config${args.config} on page ${page} to ${args.label}`);
 				return args.device.updateConfigLabel(args.left_right, args.config - 1, page, args.label);
@@ -749,7 +744,7 @@ class MyApp extends Homey.App
 		this.homey.flow.getActionCard('set_config_name_button_label')
 			.registerRunListener(async (args, state) =>
 			{
-				let page = args.page ? args.page : 0;
+				const page = args.page ? args.page : 0;
 
 				this.log(`set_config_name_button_label ${args.left_right} config${args.config} on page ${page} to ${args.label}`);
 				return args.device.updateConfigLabel(args.left_right, args.config.id, page, args.label);
@@ -760,7 +755,7 @@ class MyApp extends Homey.App
 				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config[0].name ? config[0].name : ''}`, id: index }));
 
 				// filter the results based on the search query
-				return results.filter((result) => (result.name.toLowerCase().includes(query.toLowerCase())));
+				return results.filter(result => (result.name.toLowerCase().includes(query.toLowerCase())));
 			});
 
 		// This action is deprecated as it is replaced by standard dim capability
@@ -774,7 +769,7 @@ class MyApp extends Homey.App
 		this.homey.flow.getActionCard('set_connector_led_rgb')
 			.registerRunListener(async (args, state) =>
 			{
-				let page = args.page ? args.page : 0;
+				const page = args.page ? args.page : 0;
 
 				this.log(`set_connector_led_rgb ${args.left_right} connector${args.connector} to ${args.rgb}`);
 				return args.device.setConnectorLEDColour(args.left_right, args.connector - 1, args.rgb, args.front_wall ? args.front_wall : 'both', page);
@@ -783,7 +778,7 @@ class MyApp extends Homey.App
 		this.homey.flow.getActionCard('set_config_name_led_rgb')
 			.registerRunListener(async (args, state) =>
 			{
-				let page = args.page ? args.page : 0;
+				const page = args.page ? args.page : 0;
 
 				this.log(`set_config_name_led_rgb ${args.left_right} config${args.config} to ${args.rgb}. Update Config ${args.update_configuration}`);
 				return args.device.setConfigLEDColour(args.left_right, args.config.id, args.rgb, args.front_wall ? args.front_wall : 'both', page, args.update_configuration ? args.update_configuration : false, args.on_off ? args.on_off : true);
@@ -794,7 +789,7 @@ class MyApp extends Homey.App
 				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config.name ? config.name : ''}`, id: index }));
 
 				// filter the results based on the search query
-				return results.filter((result) => (result.name.toLowerCase().includes(query.toLowerCase())));
+				return results.filter(result => (result.name.toLowerCase().includes(query.toLowerCase())));
 			});
 
 		this.homey.flow.getActionCard('set_display_page')
@@ -807,10 +802,9 @@ class MyApp extends Homey.App
 		this.homey.flow.getActionCard('upload_gonfigurations')
 			.registerRunListener(async (args, state) =>
 			{
-				this.log(`upload_gonfigurations`);
+				this.log('upload_gonfigurations');
 				return args.device.uploadConfigurations();
 			});
-
 
 		/** * CONDITIONS ** */
 		this.homey.flow.getConditionCard('is_button_on')
@@ -843,7 +837,7 @@ class MyApp extends Homey.App
 				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config.name ? config.name : ''}`, id: index }));
 
 				// filter the results based on the search query
-				return results.filter((result) => (result.name.toLowerCase().includes(query.toLowerCase())));
+				return results.filter(result => (result.name.toLowerCase().includes(query.toLowerCase())));
 			});
 
 		// This flow is deprecated as it is replaced by the is_display_config_name flow
@@ -870,10 +864,10 @@ class MyApp extends Homey.App
 				const results = this.displayConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config.name ? config.name : ''}`, id: index }));
 
 				// filter the results based on the search query
-				return results.filter((result) => (result.name.toLowerCase().includes(query.toLowerCase())));
+				return results.filter(result => (result.name.toLowerCase().includes(query.toLowerCase())));
 			});
 
-		this.homey.on('memwarn', (data) =>
+		this.homey.on('memwarn', data =>
 		{
 			if (data)
 			{
@@ -889,7 +883,7 @@ class MyApp extends Homey.App
 			}
 		});
 
-		this.homey.on('cpuwarn', (data) =>
+		this.homey.on('cpuwarn', data =>
 		{
 			if (data)
 			{
@@ -898,9 +892,9 @@ class MyApp extends Homey.App
 					this.updateLog('Closing MQTT server', 0);
 					if (this.server && this.server.listening)
 					{
-						aedes.close((err) =>
+						aedes.close(err =>
 						{
-							this.updateLog(`MQTT Server closed: ${err ? err : 'Success'}`, 0);
+							this.updateLog(`MQTT Server closed: ${err || 'Success'}`, 0);
 							this.server.close();
 							setTimeout(() =>
 							{
@@ -992,7 +986,7 @@ class MyApp extends Homey.App
 		}
 		this.unhandledRejectionGuardInstalled = true;
 
-		process.on('unhandledRejection', (reason) =>
+		process.on('unhandledRejection', reason =>
 		{
 			const message = (reason && reason.message) ? reason.message : String(reason);
 
@@ -1157,10 +1151,10 @@ class MyApp extends Homey.App
 				if (device.uploadConfigurations)
 				{
 					uploadTasks.push(
-						device.uploadConfigurations().catch((error) =>
+						device.uploadConfigurations().catch(error =>
 						{
 							this.updateLog(`uploadConfigurations: ${error.message}`, 0);
-						})
+						}),
 					);
 				}
 
@@ -1419,6 +1413,12 @@ class MyApp extends Homey.App
 		}
 
 		const groups = this.getGroupConfigurations();
+		const configurationMode = (typeof device.getSetting === 'function') ? device.getSetting('configuration_mode') : null;
+		if ((configurationMode === 'group') && Array.isArray(groups) && (groups.length > 0))
+		{
+			const targetName = deviceName.trim().toLowerCase();
+			return groups.find(g => g.name && String(g.name).trim().toLowerCase() === targetName) || null;
+		}
 
 		// 1. Check for exact layout match with numeric comparison
 		let matchedGroup = groups.find(g => {
@@ -1464,7 +1464,7 @@ class MyApp extends Homey.App
 				id: `group_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
 				name: deviceName || 'New Group',
 				displayConfigNo: displayConfigNo !== null && displayConfigNo !== undefined ? displayConfigNo : 0,
-				connectorConfigNos: connectorConfigNos
+				connectorConfigNos,
 			};
 			groups.push(matchedGroup);
 			await this.setGroupConfigurations(groups);
@@ -1614,7 +1614,7 @@ class MyApp extends Homey.App
 			this.updateLog(`Current Config: ${sectionConfiguration}`);
 
 			// write the updated configuration back to the device
-			let error = await this.writeDeviceConfiguration(ip, sectionConfiguration, firmwareVersion);
+			const error = await this.writeDeviceConfiguration(ip, sectionConfiguration, firmwareVersion);
 			if (error)
 			{
 				throw new Error(error);
@@ -1725,7 +1725,7 @@ class MyApp extends Homey.App
 				{
 					throw new Error('Target Button+ display binding requires a receiving panel device');
 				}
-				let homeyDeviceObject = item.device === TARGET_BUTTON_PLUS_DEVICE_ID && ButtonDevice && ButtonDevice.__id
+				const homeyDeviceObject = item.device === TARGET_BUTTON_PLUS_DEVICE_ID && ButtonDevice && ButtonDevice.__id
 					? await this.getHomeyDeviceById(ButtonDevice.__id)
 					: await this.getHomeyDeviceById(item.device);
 				let itemUnit = item.device === 'none' ? '' : (item.unit || '');
@@ -1780,7 +1780,7 @@ class MyApp extends Homey.App
 					const variable = await this.homey.app.getVariable(item.capability);
 					if (variable)
 					{
-						let val = variable.value;
+						const val = variable.value;
 						const onSvg = item.onSVG || item.onSvg || '';
 						const offSvg = item.offSVG || item.offSvg || '';
 						let chosenSvg = '';
@@ -1816,7 +1816,7 @@ class MyApp extends Homey.App
 						}
 
 						const routedValue = this.routeSvgOrTextValue(textVal, `_variable_/${item.capability}`);
-						svg = isSvgTextContent(chosenSvg) ? chosenSvg : (item.svg ? item.svg : routedValue.svg);
+						svg = isSvgTextContent(chosenSvg) ? chosenSvg : (item.svg || routedValue.svg);
 						mqttQueue.push({
 							brokerId,
 							message: `buttonplus/${item.device}/${item.capability}`,
@@ -1827,7 +1827,7 @@ class MyApp extends Homey.App
 				else if (item.device !== 'none')
 				{
 					const sourceDeviceId = homeyDeviceObject ? homeyDeviceObject.id : item.device;
-					this.registerDeviceCapabilityStateChange(sourceDeviceId, item.capability, 'display').catch((err) =>
+					this.registerDeviceCapabilityStateChange(sourceDeviceId, item.capability, 'display').catch(err =>
 					{
 						this.updateLog(`applyDisplayConfiguration register retry setup failed: device=${sourceDeviceId}, capability=${item.capability}, error=${err.message}`, 0);
 					});
@@ -1885,7 +1885,7 @@ class MyApp extends Homey.App
 								}
 								else if (capability.type === 'enum' && Array.isArray(capability.values))
 								{
-									const match = capability.values.find((entry) => entry.id === String(value));
+									const match = capability.values.find(entry => entry.id === String(value));
 									if (match && (match.title || match.id))
 									{
 										textVal = match.title || match.id;
@@ -1893,7 +1893,7 @@ class MyApp extends Homey.App
 								}
 
 								const routedValue = this.routeSvgOrTextValue(textVal, `${homeyDeviceObject ? homeyDeviceObject.id : item.device}/${item.capability}`);
-								svg = isSvgTextContent(chosenSvg) ? chosenSvg : (item.svg ? item.svg : routedValue.svg);
+								svg = isSvgTextContent(chosenSvg) ? chosenSvg : (item.svg || routedValue.svg);
 								// Send the value to the device after a short delay to allow the device to connect to the broker
 								mqttQueue.push({
 									brokerId,
@@ -1940,8 +1940,7 @@ class MyApp extends Homey.App
 		{
 			for (const mqttMsg of mqttQueue)
 			{
-				const ignoreSame = mqttMsg.force === true ? false : false;
-				this.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value, ignoreSame).catch((err) => this.error(err));
+				this.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value, false).catch(err => this.error(err));
 			}
 		}, delay);
 
@@ -1989,7 +1988,7 @@ class MyApp extends Homey.App
 				const mqttQue = await this.applyButtonConfiguration(panelId, deviceConfiguration.info.connectors[connectorNo].type, sectionConfiguration, connectorNo, configurationNo, firmwareVersion);
 
 				// write the updated configuration back to the device
-				let error = await this.writeDeviceConfiguration(ip, sectionConfiguration, firmwareVersion);
+				const error = await this.writeDeviceConfiguration(ip, sectionConfiguration, firmwareVersion);
 				if (error)
 				{
 					throw new Error(error);
@@ -2002,7 +2001,7 @@ class MyApp extends Homey.App
 					{
 						for (const mqttMsg of mqttQue)
 						{
-							this.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value).catch((err) => this.error(err));
+							this.publishMQTTMessage(mqttMsg.brokerId, mqttMsg.message, mqttMsg.value).catch(err => this.error(err));
 						}
 					}, 1000);
 				}
@@ -2060,13 +2059,13 @@ class MyApp extends Homey.App
 
 				if (ButtonPanelConfiguration)
 				{
-					var numPages = ButtonPanelConfiguration.length;
+					const numPages = ButtonPanelConfiguration.length;
 					if (numPages > maxPages)
 					{
 						maxPages = numPages;
 					}
 
-					//for (var page = 0; page < numPages; page++)
+					// for (var page = 0; page < numPages; page++)
 					let page = 1;
 					let iterations = 0;
 					const maxIterations = Math.max(1, numPages + 1);
@@ -2320,7 +2319,7 @@ class MyApp extends Homey.App
 			try
 			{
 				// Use the local device
-				let dataSent = await this.httpHelperLocal.post(`http://${ip}/configsave`, deviceConfiguration, firmwareVersion);
+				const dataSent = await this.httpHelperLocal.post(`http://${ip}/configsave`, deviceConfiguration, firmwareVersion);
 				this.dataSent.set(ip, dataSent);
 				return null;
 			}
@@ -2349,7 +2348,7 @@ class MyApp extends Homey.App
 			{
 				if ((ip !== '') || brokerItem.brokerid !== 'homey')
 				{
-					if (sectionConfiguration.brokers.findIndex((broker) => broker.brokerid === brokerItem.brokerid) < 0)
+					if (sectionConfiguration.brokers.findIndex(broker => broker.brokerid === brokerItem.brokerid) < 0)
 					{
 						// Add the broker Id
 						sectionConfiguration.brokers.push(
@@ -2369,7 +2368,7 @@ class MyApp extends Homey.App
 			else
 			{
 				// Find the broker Id and remove it
-				const brokerIdx = sectionConfiguration.brokers.findIndex((broker) => broker.brokerid === brokerItem.brokerid);
+				const brokerIdx = sectionConfiguration.brokers.findIndex(broker => broker.brokerid === brokerItem.brokerid);
 				if (brokerIdx >= 0)
 				{
 					sectionConfiguration.brokers.splice(brokerIdx, 1);
@@ -2378,7 +2377,7 @@ class MyApp extends Homey.App
 		}
 
 		// find the Homey broker in the device configuration and make sure the IP address is up to date
-		const brokerIdx = sectionConfiguration.brokers.findIndex((broker) => broker.brokerid === 'homey');
+		const brokerIdx = sectionConfiguration.brokers.findIndex(broker => broker.brokerid === 'homey');
 		if (brokerIdx >= 0)
 		{
 			sectionConfiguration.brokers[brokerIdx].url = `mqtt://${this.homeyIP}`;
@@ -2468,7 +2467,7 @@ class MyApp extends Homey.App
 						const capabilitiesArray = Object.values(capabilities);
 						for (const capability of capabilitiesArray)
 						{
-							if ((type && capability.type === type) || (ids && this.id.findIndex((id) => capability.id === id) >= 0))
+							if ((type && capability.type === type) || (ids && this.id.findIndex(id => capability.id === id) >= 0))
 							{
 								filteredDevices.push(device);
 								break;
@@ -2734,13 +2733,13 @@ class MyApp extends Homey.App
 			}
 		}
 
-		this.discoveryStrategy.on('result', (discoveryResult) =>
+		this.discoveryStrategy.on('result', discoveryResult =>
 		{
 			this.updateLog(`Got mDNS result:${this.varToString(discoveryResult)}`);
 			this.mDNSGatewaysUpdate(discoveryResult);
 		});
 
-		this.discoveryStrategy.on('addressChanged', (discoveryResult) =>
+		this.discoveryStrategy.on('addressChanged', discoveryResult =>
 		{
 			this.updateLog(`Got mDNS address changed:${this.varToString(discoveryResult)}`);
 			this.mDNSGatewaysUpdate(discoveryResult);
@@ -2799,7 +2798,7 @@ class MyApp extends Homey.App
 			}
 		}
 
-		this.server.on('error', (err) =>
+		this.server.on('error', err =>
 		{
 			this.updateLog(`server error: ${this.varToString(err)}`, 0);
 		});
@@ -2829,17 +2828,17 @@ class MyApp extends Homey.App
 			}
 		}
 
-		this.wsServer.on('error', (err) =>
+		this.wsServer.on('error', err =>
 		{
 			this.updateLog(`websocket server error: ${this.varToString(err)}`, 0);
 		});
 
-		this.wsServer.on('connection', (socket) =>
+		this.wsServer.on('connection', socket =>
 		{
 			this.updateLog('websocket server connection');
 		});
 
-		this.wsServer.on('message', (message) =>
+		this.wsServer.on('message', message =>
 		{
 			this.updateLog(`websocket server message: ${this.varToString(message)}`);
 		});
@@ -2858,7 +2857,7 @@ class MyApp extends Homey.App
 			MQTTclient.on('connect', () =>
 			{
 				this.updateLog(`setupMQTTClient.onConnect: connected to ${brokerConfig.url}:${brokerConfig.port} as ${brokerConfig.brokerid}`);
-				this.flushPendingMQTTMessages(brokerConfig.brokerid).catch((err) =>
+				this.flushPendingMQTTMessages(brokerConfig.brokerid).catch(err =>
 				{
 					this.updateLog(`setupMQTTClient.onConnect flush error: ${err.message}`, 0);
 				});
@@ -2888,7 +2887,7 @@ class MyApp extends Homey.App
 				}
 			});
 
-			MQTTclient.on('error', (err) =>
+			MQTTclient.on('error', err =>
 			{
 				this.updateLog(`setupMQTTClient.onError: ${this.varToString(err)}`, 0);
 			});
@@ -2940,7 +2939,7 @@ class MyApp extends Homey.App
 											}
 											const page = parseInt(buttonIdxPage[1], 10);
 											const buttonId = parseInt(buttonIdxPage[0], 10);
-											if (isNaN(page) || isNaN(buttonId))
+											if (Number.isNaN(page) || Number.isNaN(buttonId))
 											{
 												this.updateLog(`Invalid button ID or page number: ${buttonIdxPage.join('-')}`, 0);
 												continue;
@@ -2978,14 +2977,14 @@ class MyApp extends Homey.App
 								if (device && device.processMQTTBtnMessage && typeof device.processMQTTBtnMessage === 'function')
 								{
 									// Each device that has a processMQTTBtnMessage method will handle the message and check if it is relevant to itself
-									device.processMQTTBtnMessage(topicParts, mqttMessage).catch((err) =>
+									device.processMQTTBtnMessage(topicParts, mqttMessage).catch(err =>
 									{
 										if (device && device.error && typeof device.error === 'function')
 										{
 											device.error(err);
 										} else
 										{
-											console.error('Error in processMQTTBtnMessage:', err);
+											this.updateLog(`Error in processMQTTBtnMessage: ${err.message}`, 0);
 										}
 									});
 								}
@@ -3069,7 +3068,7 @@ class MyApp extends Homey.App
 		if (Retain && Ignoresame && (lastMQTTData == data))
 		{
 			this.updateLog(`publishMQTTMessage: ${MQTT_Id}_${topic}, ${data}, ignored, same as previous value`);
-			return;
+			return true;
 		}
 
 		this.updateLog(`publishMQTTMessage: ${data} to topic ${topic}`);
@@ -3082,12 +3081,10 @@ class MyApp extends Homey.App
 				this.lastMQTTData.set(`${MQTT_Id}_${topic}`, data);
 				return true;
 			}
-			else
-			{
+
 				this.queueMQTTMessage(MQTT_Id, topic, data, Retain);
 				this.updateLog(`publishMQTTMessage: broker ${MQTT_Id} not connected, queued ${topic}`, 1);
 				return false;
-			}
 		}
 		catch (err)
 		{
@@ -3202,7 +3199,7 @@ class MyApp extends Homey.App
 	{
 		try
 		{
-			let index = this.mDNSPanels.findIndex((panel) =>
+			let index = this.mDNSPanels.findIndex(panel =>
 			{
 				return panel.id === discoveryResult.txt.id;
 			});
@@ -3266,7 +3263,7 @@ class MyApp extends Homey.App
 
 	findGatewayIPById(id)
 	{
-		const index = this.mDNSPanels.findIndex((panel) =>
+		const index = this.mDNSPanels.findIndex(panel =>
 		{
 			return panel.id === id;
 		});
@@ -3490,7 +3487,7 @@ class MyApp extends Homey.App
 	// Register a device so we receive state change events that are posted to the MQTT server
 	async registerDeviceCapabilityStateChange(device, capabilityId, source = 'general')
 	{
-		const deviceId = (typeof device === 'string') ? device : (device && device.id ? device.id : 'unknown');
+		const deviceId = (typeof device === 'string') ? device : ((device && device.id) || 'unknown');
 		this.updateLog(`registerDeviceCapabilityStateChange request: device=${deviceId}, capability=${capabilityId}`);
 		if (!device || !capabilityId)
 		{
@@ -3543,7 +3540,7 @@ class MyApp extends Homey.App
 			const retryTimer = this.homey.setTimeout(() =>
 			{
 				this.capabilityListenerRetryTimers.delete(retryKey);
-				this.registerDeviceCapabilityStateChange(deviceId, capabilityId, source).catch((err) =>
+				this.registerDeviceCapabilityStateChange(deviceId, capabilityId, source).catch(err =>
 				{
 					this.updateLog(`registerDeviceCapabilityStateChange retry failed: ${err.message}`, 0);
 				});
@@ -3688,7 +3685,7 @@ class MyApp extends Homey.App
 			results.push({ name: `Page ${page}`, id: page });
 		}
 
-		return results.filter((result) => result.name.toLowerCase().includes(query.toLowerCase()));
+		return results.filter(result => result.name.toLowerCase().includes(query.toLowerCase()));
 	}
 
 	/**
@@ -3708,12 +3705,12 @@ class MyApp extends Homey.App
 
 			try
 			{
-				await trigger.trigger(device, tokens, state)
+				await trigger.trigger(device, tokens, state);
 			}
 			catch (error)
 			{
 				this.updateLog(`triggerFlow (${trigger.id}) Error: ${error.message}`, 0);
-			};
+			}
 		}
 	}
 
@@ -3727,7 +3724,7 @@ class MyApp extends Homey.App
 			return false;
 		}
 
-		let button = {};
+		const button = {};
 
 		if (connectorType === 1)
 		{
@@ -3764,7 +3761,7 @@ class MyApp extends Homey.App
 						frontwall: 'wall',
 						onrgb: 0,
 						topics: [],
-					}
+					},
 				];
 			}
 			else
@@ -3786,7 +3783,7 @@ class MyApp extends Homey.App
 		{
 			button.page = page >= 0 ? page : 0;
 			button.position = buttonIdx + 1;
-			button.label = ``;
+			button.label = '';
 			button.toplabel = '';
 			button.topics = [];
 
@@ -3802,7 +3799,7 @@ class MyApp extends Homey.App
 						frontwall: 'wall',
 						onrgb: 0,
 						topics: [],
-					}
+					},
 				];
 			}
 		}
@@ -3969,6 +3966,7 @@ class MyApp extends Homey.App
 	{
 		return this.dataSent.get(ip);
 	}
+
 }
 
 module.exports = MyApp;

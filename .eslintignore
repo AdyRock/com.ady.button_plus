@@ -1,0 +1,7 @@
+.homeybuild/
+.localization-work/
+node_modules/
+aedes/
+mqtt/
+net/
+nodemailer/

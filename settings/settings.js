@@ -1,4 +1,4 @@
-﻿// General declarations
+// General declarations
 const MAX_BUTTON_CONFIGURATIONS = 40;
 const MAX_DISPLAY_CONFIGURATIONS = 20;
 const CONFIG_DRAFT_STORAGE_KEY = 'unsavedConfigurationDraft';
@@ -6,126 +6,123 @@ const CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY = 'unsavedConfigurationDraftDismissed
 const CONFIG_DRAFT_SAVE_DEBOUNCE_MS = 500;
 const BUTTON_VISIBLE_CONFIGURATION_COUNT_KEY = 'buttonVisibleConfigurationCount';
 const BUTTON_PANEL_CONTROLS_COLLAPSED_KEY = 'buttonPanelControlsCollapsed';
-var buttonDevicesArray = [];
-var buttonDevicesFetched = false;
-var variablesArray = [];
-var variablesFetched = false;
-var displayDevicesArray = [];
-var displayDevicesFetched = false;
-var configTypeElement = document.getElementById('configType');
-var configTypeTabsElement = document.getElementById('configTypeTabs');
-var saveButton = document.getElementById('save');
-var saveBlock = document.getElementById('saveBlock');
+let buttonDevicesArray = [];
+let buttonDevicesFetched = false;
+let variablesArray = [];
+let variablesFetched = false;
+let displayDevicesArray = [];
+let displayDevicesFetched = false;
+const configTypeElement = document.getElementById('configType');
+const configTypeTabsElement = document.getElementById('configTypeTabs');
+const saveButton = document.getElementById('save');
+const saveBlock = document.getElementById('saveBlock');
 
 // Declarations for the Button Bar Config page
 
-var buttonConfigurationNoElement = document.getElementById('ButtonPanelConfigurationNo');
-var configNameElement = document.getElementById('configName');
-var configNameRowElement = document.getElementById('configNameRow');
-var toggleConfigNameVisibilityElement = document.getElementById('toggleConfigNameVisibility');
-var panelConfigNameCollapsed = true;
+const buttonConfigurationNoElement = document.getElementById('ButtonPanelConfigurationNo');
+const configNameElement = document.getElementById('configName');
+const configNameRowElement = document.getElementById('configNameRow');
+const toggleConfigNameVisibilityElement = document.getElementById('toggleConfigNameVisibility');
+let panelConfigNameCollapsed = true;
 
-var copyButtonConfigElement = document.getElementById('copyButtonConfig');
-var pasteButtonConfigElement = document.getElementById('pasteButtonConfig');
+const copyButtonConfigElement = document.getElementById('copyButtonConfig');
+const pasteButtonConfigElement = document.getElementById('pasteButtonConfig');
 
-var buttonConfigurationsFetched = false;
-var localButtonConfigurations = [];
-var currentButtonConfigurationNo = 0;
-var buttonVisibleConfigurationCount = 1;
-var buttonVisibleConfigurationNos = [0];
-var buttonPanelControlsExpanded = true;
-var customMQTTItemsElements = [];
-var customDisplayMQTTItemsElements = [];
+let buttonConfigurationsFetched = false;
+let localButtonConfigurations = [];
+let currentButtonConfigurationNo = 0;
+let buttonVisibleConfigurationCount = 1;
+const buttonVisibleConfigurationNos = [0];
+let buttonPanelControlsExpanded = true;
+let customMQTTItemsElements = [];
+let customDisplayMQTTItemsElements = [];
 
-var groupSelectElement = document.getElementById('groupSelect');
-var toggleGroupNameVisibilityElement = document.getElementById('toggleGroupNameVisibility');
-var groupNameInputElement = document.getElementById('groupNameInput');
-var groupNameRowElement = document.getElementById('groupNameRow');
-var addGroupBtnElement = document.getElementById('addGroupBtn');
-var deleteGroupBtnElement = document.getElementById('deleteGroupBtn');
-var copyGroupBtnElement = document.getElementById('copyGroupBtn');
-var groupDisplaySelectElement = document.getElementById('groupDisplaySelect');
-var groupConnectorsListElement = document.getElementById('groupConnectorsList');
-var groupPanelControlsExpanderElement = document.getElementById('groupPanelControlsExpander');
-var groupSimulatorSurfaceElement = document.getElementById('groupSimulatorSurface');
-var groupSimPageTitleElement = document.getElementById('groupSimPageTitle');
-var groupSimPrevPageElement = document.getElementById('groupSimPrevPage');
-var groupSimNextPageElement = document.getElementById('groupSimNextPage');
+const groupSelectElement = document.getElementById('groupSelect');
+const toggleGroupNameVisibilityElement = document.getElementById('toggleGroupNameVisibility');
+const groupNameInputElement = document.getElementById('groupNameInput');
+const groupNameRowElement = document.getElementById('groupNameRow');
+const addGroupBtnElement = document.getElementById('addGroupBtn');
+const deleteGroupBtnElement = document.getElementById('deleteGroupBtn');
+const copyGroupBtnElement = document.getElementById('copyGroupBtn');
+const groupPanelControlsExpanderElement = document.getElementById('groupPanelControlsExpander');
+const groupSimulatorSurfaceElement = document.getElementById('groupSimulatorSurface');
+const groupSimPageTitleElement = document.getElementById('groupSimPageTitle');
+const groupSimPrevPageElement = document.getElementById('groupSimPrevPage');
+const groupSimNextPageElement = document.getElementById('groupSimNextPage');
 
-var localGroupConfigurations = [];
-var currentGroupIndex = 0;
-var groupConfigurationsFetched = false;
-var groupNameCollapsed = true;
-var groupPanelControlsExpanded = true;
-var groupSimCurrentPage = 0;
-var groupSimStates = {};
-var groupEditReturnActive = false;
-var groupEditBackButtonElement = document.getElementById('groupEditBackButton');
-var groupEditReturnScrollPosition = null;
-var groupEditReturnButtonVisibleConfigurationCount = null;
-var groupEditReturnButtonPanelControlsExpanded = null;
+let localGroupConfigurations = [];
+let currentGroupIndex = 0;
+let groupNameCollapsed = true;
+let groupPanelControlsExpanded = true;
+let groupSimCurrentPage = 0;
+const groupSimStates = {};
+let groupEditReturnActive = false;
+const groupEditBackButtonElement = document.getElementById('groupEditBackButton');
+let groupEditReturnScrollPosition = null;
+let groupEditReturnButtonVisibleConfigurationCount = null;
+let groupEditReturnButtonPanelControlsExpanded = null;
 
-var openWebViewElement = document.getElementById('openwebview');
-var webViewIpElement = document.getElementById('webviewip');
-var buttonPagePopupOverlayElement = document.getElementById('buttonPagePopupOverlay');
-var buttonPagePopupCloseElement = document.getElementById('buttonPagePopupClose');
-var buttonPagePopupPrevElement = document.getElementById('buttonPagePopupPrev');
-var buttonPagePopupNextElement = document.getElementById('buttonPagePopupNext');
-var buttonPagePopupTitleElement = document.getElementById('buttonPagePopupTitle');
-var buttonPagePopupContentElement = document.getElementById('buttonPagePopupContent');
-var buttonPagePopupStateToggleElement = document.getElementById('buttonPagePopupStateToggle');
-var buttonMainCurrentPage = 0;
-var buttonFieldPopupOverlayElement = document.getElementById('buttonFieldPopupOverlay');
-var buttonFieldPopupTitleElement = document.getElementById('buttonFieldPopupTitle');
-var buttonFieldPopupBodyElement = document.getElementById('buttonFieldPopupBody');
-var buttonFieldPopupCancelElement = document.getElementById('buttonFieldPopupCancel');
-var buttonFieldPopupSaveElement = document.getElementById('buttonFieldPopupSave');
-var buttonPagePopupCurrentPage = -1;
-var buttonPagePopupLedState = 'on';
-var buttonFieldPopupBindings = [];
-var buttonFieldPopupContext = null;
-var displayFieldPopupOverlayElement = document.getElementById('displayFieldPopupOverlay');
-var displayFieldPopupTitleElement = document.getElementById('displayFieldPopupTitle');
-var displayFieldPopupBodyElement = document.getElementById('displayFieldPopupBody');
-var displayFieldPopupCancelElement = document.getElementById('displayFieldPopupCancel');
-var displayFieldPopupSaveElement = document.getElementById('displayFieldPopupSave');
-var sendSupportPopupOverlayElement = document.getElementById('sendSupportPopupOverlay');
-var sendSupportPopupTitleElement = document.getElementById('sendSupportPopupTitle');
-var sendSupportPopupMessageElement = document.getElementById('sendSupportPopupMessage');
-var sendSupportEmailElement = document.getElementById('sendSupportEmail');
-var sendSupportDescriptionElement = document.getElementById('sendSupportDescription');
-var sendSupportPopupCancelElement = document.getElementById('sendSupportPopupCancel');
-var sendSupportPopupSendElement = document.getElementById('sendSupportPopupSend');
-var sendSupportPopupResolver = null;
-var sendSupportPopupContext = null;
-var lastSupportEmailValue = '';
-var configDraftRestoreOverlayElement = document.getElementById('configDraftRestoreOverlay');
-var configDraftRestoreRetrieveElement = document.getElementById('configDraftRestoreRetrieve');
-var configDraftRestoreDiscardElement = document.getElementById('configDraftRestoreDiscard');
-var configDraftRestoreDialogResolver = null;
-var displayFieldPopupBindings = [];
-var displayFieldPopupContext = null;
-var displayPagePopupOpenElement = document.getElementById('displayPageSimOpen');
-var displayPagePopupOverlayElement = document.getElementById('displayPagePopupOverlay');
-var displayPagePopupCloseElement = document.getElementById('displayPagePopupClose');
-var displayPagePopupPrevElement = document.getElementById('displayPagePopupPrev');
-var displayPagePopupNextElement = document.getElementById('displayPagePopupNext');
-var displayPagePopupTitleElement = document.getElementById('displayPagePopupTitle');
-var displayPagePopupStatusBarPositionElement = document.getElementById('displayPagePopupStatusBarPosition');
-var displayPagePopupSurfaceElement = document.getElementById('displayPagePopupSurface');
-var displayInlineSimPrevElement = document.getElementById('displayInlineSimPrev');
-var displayInlineSimNextElement = document.getElementById('displayInlineSimNext');
-var displayInlineSimTitleElement = document.getElementById('displayInlineSimTitle');
-var displayInlineSimStatusBarPositionElement = document.getElementById('displayInlineSimStatusBarPosition');
-var displayInlineSimShowPageZeroElement = document.getElementById('displayInlineSimShowPageZero');
-var displayInlineSimSurfaceElement = document.getElementById('displayInlineSimSurface');
-var displayInlineSimAddPageElement = document.getElementById('displayInlineSimAddPage');
-var displayInlineSimDeletePageElement = document.getElementById('displayInlineSimDeletePage');
-var displayInlineSimAddItemElement = document.getElementById('displayInlineSimAddItem');
-var displayInlineSimDeleteItemElement = document.getElementById('displayInlineSimDeleteItem');
-var displayPagePopupCurrentPage = 0;
-var displayPagePopupStatusBarPosition = null;
-var displayInlineSelectedItemNo = -1;
+const openWebViewElement = document.getElementById('openwebview');
+const webViewIpElement = document.getElementById('webviewip');
+const buttonPagePopupOverlayElement = document.getElementById('buttonPagePopupOverlay');
+const buttonPagePopupCloseElement = document.getElementById('buttonPagePopupClose');
+const buttonPagePopupPrevElement = document.getElementById('buttonPagePopupPrev');
+const buttonPagePopupNextElement = document.getElementById('buttonPagePopupNext');
+const buttonPagePopupTitleElement = document.getElementById('buttonPagePopupTitle');
+const buttonPagePopupContentElement = document.getElementById('buttonPagePopupContent');
+const buttonPagePopupStateToggleElement = document.getElementById('buttonPagePopupStateToggle');
+let buttonMainCurrentPage = 0;
+const buttonFieldPopupOverlayElement = document.getElementById('buttonFieldPopupOverlay');
+const buttonFieldPopupTitleElement = document.getElementById('buttonFieldPopupTitle');
+const buttonFieldPopupBodyElement = document.getElementById('buttonFieldPopupBody');
+const buttonFieldPopupCancelElement = document.getElementById('buttonFieldPopupCancel');
+const buttonFieldPopupSaveElement = document.getElementById('buttonFieldPopupSave');
+let buttonPagePopupCurrentPage = -1;
+let buttonPagePopupLedState = 'on';
+let buttonFieldPopupBindings = [];
+let buttonFieldPopupContext = null;
+const displayFieldPopupOverlayElement = document.getElementById('displayFieldPopupOverlay');
+const displayFieldPopupTitleElement = document.getElementById('displayFieldPopupTitle');
+const displayFieldPopupBodyElement = document.getElementById('displayFieldPopupBody');
+const displayFieldPopupCancelElement = document.getElementById('displayFieldPopupCancel');
+const displayFieldPopupSaveElement = document.getElementById('displayFieldPopupSave');
+const sendSupportPopupOverlayElement = document.getElementById('sendSupportPopupOverlay');
+const sendSupportPopupTitleElement = document.getElementById('sendSupportPopupTitle');
+const sendSupportPopupMessageElement = document.getElementById('sendSupportPopupMessage');
+const sendSupportEmailElement = document.getElementById('sendSupportEmail');
+const sendSupportDescriptionElement = document.getElementById('sendSupportDescription');
+const sendSupportPopupCancelElement = document.getElementById('sendSupportPopupCancel');
+const sendSupportPopupSendElement = document.getElementById('sendSupportPopupSend');
+let sendSupportPopupResolver = null;
+let sendSupportPopupContext = null;
+let lastSupportEmailValue = '';
+const configDraftRestoreOverlayElement = document.getElementById('configDraftRestoreOverlay');
+const configDraftRestoreRetrieveElement = document.getElementById('configDraftRestoreRetrieve');
+const configDraftRestoreDiscardElement = document.getElementById('configDraftRestoreDiscard');
+let configDraftRestoreDialogResolver = null;
+let displayFieldPopupBindings = [];
+let displayFieldPopupContext = null;
+const displayPagePopupOpenElement = document.getElementById('displayPageSimOpen');
+const displayPagePopupOverlayElement = document.getElementById('displayPagePopupOverlay');
+const displayPagePopupCloseElement = document.getElementById('displayPagePopupClose');
+const displayPagePopupPrevElement = document.getElementById('displayPagePopupPrev');
+const displayPagePopupNextElement = document.getElementById('displayPagePopupNext');
+const displayPagePopupTitleElement = document.getElementById('displayPagePopupTitle');
+const displayPagePopupStatusBarPositionElement = document.getElementById('displayPagePopupStatusBarPosition');
+const displayPagePopupSurfaceElement = document.getElementById('displayPagePopupSurface');
+const displayInlineSimPrevElement = document.getElementById('displayInlineSimPrev');
+const displayInlineSimNextElement = document.getElementById('displayInlineSimNext');
+const displayInlineSimTitleElement = document.getElementById('displayInlineSimTitle');
+const displayInlineSimStatusBarPositionElement = document.getElementById('displayInlineSimStatusBarPosition');
+const displayInlineSimShowPageZeroElement = document.getElementById('displayInlineSimShowPageZero');
+const displayInlineSimSurfaceElement = document.getElementById('displayInlineSimSurface');
+const displayInlineSimAddPageElement = document.getElementById('displayInlineSimAddPage');
+const displayInlineSimDeletePageElement = document.getElementById('displayInlineSimDeletePage');
+const displayInlineSimAddItemElement = document.getElementById('displayInlineSimAddItem');
+const displayInlineSimDeleteItemElement = document.getElementById('displayInlineSimDeleteItem');
+let displayPagePopupCurrentPage = 0;
+let displayPagePopupStatusBarPosition = null;
+let displayInlineSelectedItemNo = -1;
 const TARGET_BUTTON_PLUS_DEVICE_ID = '_this_button_plus_';
 const TARGET_BUTTON_PLUS_CAPABILITIES = {
 	page: { id: 'page', title: 'Page', type: 'string' },
@@ -142,31 +139,30 @@ const TARGET_BUTTON_PLUS_CAPABILITIES = {
 const DISPLAY_FONT_SIZE_LOOKUP = { 1: 22, 2: 35, 3: 55, 4: 85, 5: 120 };
 const DISPLAY_BOLD_FONT_SIZES = new Set();
 const DISPLAY_SIM_LIVE_REFRESH_MS = 12000;
-var displayPagePopupLiveValueCache = new Map();
-var displayPagePopupVariableValueCache = new Map();
-var displayPagePopupVariableValueFetchedAt = 0;
-var displayPagePopupLiveRefreshTimer = null;
-var displayInlineLiveRefreshTimer = null;
-var displayItemResizeState = null;
-var displayItemMoveState = null;
-var displaySimInitialPageSelectionConfigKey = null;
-var configDraftSaveTimer = null;
-var configDraftAutoSaveEnabled = false;
-var configDraftPendingPersist = false;
-var configDraftDirtySinceLoad = false;
-var configDraftLastSnapshotSignature = null;
-var configDraftDismissedSignature = null;
-var configDraftDismissedAt = 0;
-var configDraftDismissedSignatureLoaded = false;
-var configDraftLoadedData = null;
-var configDraftLoaded = false;
-var configDraftRestoreDecisionMade = false;
-var restoredDraftDefaultBroker = null;
-var configDraftStoreButtonSettingsFn = null;
-var fixedTopResizeObserver = null;
-var mainTopOffsetAnimationFrame = null;
-var capabilityRequestTokens = new Map();
-var displayCapabilityRequestTokens = new Map();
+const displayPagePopupLiveValueCache = new Map();
+const displayPagePopupVariableValueCache = new Map();
+let displayPagePopupLiveRefreshTimer = null;
+let displayInlineLiveRefreshTimer = null;
+let displayItemResizeState = null;
+let displayItemMoveState = null;
+let displaySimInitialPageSelectionConfigKey = null;
+let configDraftSaveTimer = null;
+let configDraftAutoSaveEnabled = false;
+let configDraftPendingPersist = false;
+let configDraftDirtySinceLoad = false;
+let configDraftLastSnapshotSignature = null;
+let configDraftDismissedSignature = null;
+let configDraftDismissedAt = 0;
+let configDraftDismissedSignatureLoaded = false;
+let configDraftLoadedData = null;
+let configDraftLoaded = false;
+let configDraftRestoreDecisionMade = false;
+let restoredDraftDefaultBroker = null;
+let configDraftStoreButtonSettingsFn = null;
+let fixedTopResizeObserver = null;
+let mainTopOffsetAnimationFrame = null;
+const capabilityRequestTokens = new Map();
+const displayCapabilityRequestTokens = new Map();
 
 function enableConfigurationDraftAutoSave()
 {
@@ -465,7 +461,7 @@ function scheduleConfigurationDraftPersist()
 		clearTimeout(configDraftSaveTimer);
 	}
 
-	configDraftSaveTimer = setTimeout(function ()
+	configDraftSaveTimer = setTimeout(() =>
 	{
 		configDraftSaveTimer = null;
 		persistConfigurationDraftNow();
@@ -530,7 +526,7 @@ function applyConfigurationDraft(draft)
 	{
 		localButtonConfigurations = draftButtons;
 		buttonConfigurationsFetched = true;
-		fillConfigListElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
+		fillConfigListElement(buttonConfigurationNoElement, Homey.__('settings.buttonConfig'), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
 		const restoredButtonNo = parseInt(draft.currentButtonConfigurationNo, 10);
 		currentButtonConfigurationNo = Number.isNaN(restoredButtonNo)
 			? 0
@@ -547,7 +543,7 @@ function applyConfigurationDraft(draft)
 		normalizeDisplayConfigurationsPages(draftDisplays);
 		localDisplayConfigurations = draftDisplays;
 		displayConfigurationsFetched = true;
-		fillConfigListElement(displayConfigurationNoElement, Homey.__("settings.displayConfig"), localDisplayConfigurations, MAX_DISPLAY_CONFIGURATIONS);
+		fillConfigListElement(displayConfigurationNoElement, Homey.__('settings.displayConfig'), localDisplayConfigurations, MAX_DISPLAY_CONFIGURATIONS);
 		const restoredDisplayNo = parseInt(draft.currentDisplayConfigurationNo, 10);
 		currentDisplayConfigurationNo = Number.isNaN(restoredDisplayNo)
 			? 0
@@ -634,7 +630,7 @@ function maybeHandleLoadedConfigurationDraft()
 		return;
 	}
 
-	showConfigDraftRestoreDialog().then((ok) =>
+	showConfigDraftRestoreDialog().then(ok =>
 	{
 		if (ok)
 		{
@@ -703,9 +699,9 @@ function showConfigDraftRestoreDialog()
 {
 	if (!configDraftRestoreOverlayElement || !configDraftRestoreRetrieveElement || !configDraftRestoreDiscardElement)
 	{
-		return new Promise((resolve) =>
+		return new Promise(resolve =>
 		{
-			Homey.confirm(Homey.__("settings.unsavedSettingsDetectedMessage"), null, function (err, ok)
+			Homey.confirm(Homey.__('settings.unsavedSettingsDetectedMessage'), null, (err, ok) =>
 			{
 				resolve(!!ok);
 			});
@@ -726,7 +722,7 @@ function showConfigDraftRestoreDialog()
 		configDraftRestoreRetrieveElement.focus();
 	}, 0);
 
-	return new Promise((resolve) =>
+	return new Promise(resolve =>
 	{
 		configDraftRestoreDialogResolver = resolve;
 	});
@@ -741,7 +737,8 @@ function buildExportConfigurationText()
 			displayConfigurations: localDisplayConfigurations,
 			groupConfigurations: localGroupConfigurations,
 			brokerItems: localBrokerItems,
-		}, null, 2);
+		}, null, 2,
+);
 }
 
 function closeSendSupportPopup(result = null)
@@ -788,7 +785,7 @@ function submitSendSupportPopup()
 
 	if (!description)
 	{
-		Homey.alert(Homey.__("settings.descriptionExplanation"));
+		Homey.alert(Homey.__('settings.descriptionExplanation'));
 		if (sendSupportDescriptionElement)
 		{
 			sendSupportDescriptionElement.focus();
@@ -819,8 +816,8 @@ function showSendSupportPopup(context)
 	}
 
 	sendSupportPopupContext = context || {};
-	sendSupportPopupTitleElement.textContent = sendSupportPopupContext.title || Homey.__("settings.sendSupportTitle");
-	sendSupportPopupMessageElement.textContent = sendSupportPopupContext.message || Homey.__("settings.sendSupportMessage");
+	sendSupportPopupTitleElement.textContent = sendSupportPopupContext.title || Homey.__('settings.sendSupportTitle');
+	sendSupportPopupMessageElement.textContent = sendSupportPopupContext.message || Homey.__('settings.sendSupportMessage');
 
 	if (sendSupportEmailElement)
 	{
@@ -843,7 +840,7 @@ function showSendSupportPopup(context)
 		}
 	}, 0);
 
-	return new Promise((resolve) =>
+	return new Promise(resolve =>
 	{
 		sendSupportPopupResolver = resolve;
 	});
@@ -864,7 +861,7 @@ function sendSupportPayload(payload)
 			content: payload.content,
 			contentType: payload.contentType,
 			subject: payload.subject,
-		}, function (err, result)
+		}, (err, result) =>
 	{
 		if (err)
 		{
@@ -872,7 +869,7 @@ function sendSupportPayload(payload)
 		}
 		else
 		{
-			Homey.alert(result || Homey.__("settings.logSent"));
+			Homey.alert(result || Homey.__('settings.logSent'));
 		}
 	});
 }
@@ -1427,45 +1424,45 @@ function stopDisplayItemWidthDrag(event)
 	}
 }
 
-var lastSentIpElement = document.getElementById('sentip');
-var getLogElement = document.getElementById('getLog');
-var sentLogElement = document.getElementById('sentLog');
+const lastSentIpElement = document.getElementById('sentip');
+const getLogElement = document.getElementById('getLog');
+const sentLogElement = document.getElementById('sentLog');
 
 // Declarations for the Display Config page
 
 var displayConfigurationNoElement = document.getElementById('displayConfigurationNo');
-var displayConfigNameElement = document.getElementById('displayConfigName');
-var displayConfigNameRowElement = document.getElementById('displayConfigNameRow');
-var toggleDisplayConfigNameVisibilityElement = document.getElementById('toggleDisplayConfigNameVisibility');
-var displayConfigNameCollapsed = true;
-var newDisplayItemButton = document.getElementById('newDisplayItem');
+const displayConfigNameElement = document.getElementById('displayConfigName');
+const displayConfigNameRowElement = document.getElementById('displayConfigNameRow');
+const toggleDisplayConfigNameVisibilityElement = document.getElementById('toggleDisplayConfigNameVisibility');
+let displayConfigNameCollapsed = true;
+const newDisplayItemButton = document.getElementById('newDisplayItem');
 
 var displayConfigurationsFetched = false;
 var localDisplayConfigurations = [];
 var currentDisplayConfigurationNo = 0;
-var displayCapabilityItems = new Map();
-var copyDisplayConfigElement = document.getElementById('copyDisplayConfig');
-var pasteDisplayConfigElement = document.getElementById('pasteDisplayConfig');
+const displayCapabilityItems = new Map();
+const copyDisplayConfigElement = document.getElementById('copyDisplayConfig');
+const pasteDisplayConfigElement = document.getElementById('pasteDisplayConfig');
 
 // Declarations for the Broker Config page
 var defaultBrokerElement = document.getElementById('defaultBroker');
-var newBrokerItemButton = document.getElementById('newBrokerItem');
+const newBrokerItemButton = document.getElementById('newBrokerItem');
 var localBrokerItems = [];
 var brokerItemsFetched = false;
 var defaultBrokerFetched = false;
 
-var diagLogEnabledElement = document.getElementById('enableLog');
-var diagLogElement = document.getElementById('diagLog');
-var clearLogElement = document.getElementById('clearLog');
-var sendLogElement = document.getElementById('sendLog');
-var getListenersElement = document.getElementById('getListeners');
+const diagLogEnabledElement = document.getElementById('enableLog');
+const diagLogElement = document.getElementById('diagLog');
+const clearLogElement = document.getElementById('clearLog');
+const sendLogElement = document.getElementById('sendLog');
+const getListenersElement = document.getElementById('getListeners');
 
-var copyTextElement = document.getElementById('copyText');
-var importElement = document.getElementById('import');
-var exportElement = document.getElementById('export');
-var sendExportElement = document.getElementById('sendExport');
+const copyTextElement = document.getElementById('copyText');
+const importElement = document.getElementById('import');
+const exportElement = document.getElementById('export');
+const sendExportElement = document.getElementById('sendExport');
 
-var itemDisplyType = "flex";
+let itemDisplyType = 'flex';
 const MAX_SVG_FIELD_LENGTH = 3 * 1024;
 const BUTTON_MAIN_DIAGNOSTICS_ENABLED = false;
 let trimmedSVGFieldCount = 0;
@@ -1485,7 +1482,7 @@ function clampSVGField(svgValue)
 
 function collectInvalidButtonSVGField(side, page, state)
 {
-	const sideLabel = side === 'left' ? Homey.__("settings.leftPanel") : Homey.__("settings.rightPanel");
+	const sideLabel = side === 'left' ? Homey.__('settings.leftPanel') : Homey.__('settings.rightPanel');
 	const pageLabel = formatButtonPageLabel(page);
 	const stateLabel = state === 'On' ? 'On SVG' : 'Off SVG';
 	const warning = `${sideLabel} / Page ${pageLabel} / ${stateLabel}`;
@@ -1590,7 +1587,7 @@ function scheduleMainTopOffsetAdjustment()
 		return;
 	}
 
-	mainTopOffsetAnimationFrame = requestAnimationFrame(function ()
+	mainTopOffsetAnimationFrame = requestAnimationFrame(() =>
 	{
 		mainTopOffsetAnimationFrame = null;
 		adjustMainTopOffset();
@@ -1687,7 +1684,7 @@ function setupSvgPreviews(root = document)
 	}
 
 	const textareas = Array.from(root.querySelectorAll('textarea[data-svg-preview-target]'));
-	textareas.forEach((textareaElement) =>
+	textareas.forEach(textareaElement =>
 	{
 		if (textareaElement.dataset.svgPreviewBound === 'true')
 		{
@@ -1789,7 +1786,7 @@ function onHomeyReady(Homey)
 	// Homey only paints the settings view once ready() is called, so a single error during
 	// initialisation would otherwise leave the user staring at a blank white page.
 	let readyCalled = false;
-	const markReady = function ()
+	const markReady = function()
 	{
 		if (readyCalled)
 		{
@@ -1860,7 +1857,7 @@ function initialiseSettingsPage(Homey, markReady)
 		}
 	}
 
-	Homey.get(BUTTON_VISIBLE_CONFIGURATION_COUNT_KEY, function (err, savedCount)
+	Homey.get(BUTTON_VISIBLE_CONFIGURATION_COUNT_KEY, (err, savedCount) =>
 	{
 		const parsedCount = parseInt(savedCount, 10);
 		if (err || Number.isNaN(parsedCount))
@@ -1877,7 +1874,7 @@ function initialiseSettingsPage(Homey, markReady)
 		}
 	});
 
-	Homey.get(BUTTON_PANEL_CONTROLS_COLLAPSED_KEY, function (err, savedCollapsed)
+	Homey.get(BUTTON_PANEL_CONTROLS_COLLAPSED_KEY, (err, savedCollapsed) =>
 	{
 		if (err || (savedCollapsed !== true && savedCollapsed !== false))
 		{
@@ -1888,7 +1885,7 @@ function initialiseSettingsPage(Homey, markReady)
 		updateButtonPanelControlsExpander();
 	});
 
-	Homey.get(CONFIG_DRAFT_STORAGE_KEY, function (err, loadedDraft)
+	Homey.get(CONFIG_DRAFT_STORAGE_KEY, (err, loadedDraft) =>
 	{
 		if (!err && loadedDraft && typeof loadedDraft === 'object')
 		{
@@ -1904,7 +1901,7 @@ function initialiseSettingsPage(Homey, markReady)
 		maybeHandleLoadedConfigurationDraft();
 	});
 
-	Homey.get(CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY, function (err, dismissedSignature)
+	Homey.get(CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY, (err, dismissedSignature) =>
 	{
 		if (!err && dismissedSignature && typeof dismissedSignature === 'object')
 		{
@@ -1930,16 +1927,15 @@ function initialiseSettingsPage(Homey, markReady)
 		maybeHandleLoadedConfigurationDraft();
 	});
 
-
 	// Read the button configuration from the settings and write the controls
-	Homey.get('buttonConfigurations', function (err, buttonConfigurations)
+	Homey.get('buttonConfigurations', (err, buttonConfigurations) =>
 	{
 		if (err) return Homey.alert(err);
 		localButtonConfigurations = Array.isArray(buttonConfigurations) ? buttonConfigurations : [];
 		buttonConfigurationsFetched = true;
 		console.log(`buttonConfigurations: ${localButtonConfigurations.length} configurations loaded`);
 
-		fillConfigListElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
+		fillConfigListElement(buttonConfigurationNoElement, Homey.__('settings.buttonConfig'), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
 
 		// Make sure currentButtonConfigurationNo is set and within range
 		if (!currentButtonConfigurationNo || (currentButtonConfigurationNo >= localButtonConfigurations.length))
@@ -1948,27 +1944,22 @@ function initialiseSettingsPage(Homey, markReady)
 		}
 
 		// Get the current configuration
-		var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+		const buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
 
 		writeButtonsections(Array.isArray(buttonPanelConfiguration) ? buttonPanelConfiguration.length : 1);
 		updateButtonPanelControls();
 		maybeHandleLoadedConfigurationDraft();
 	});
 
-	Homey.get('displayConfigurations', function (err, displayConfigurations)
+	Homey.get('displayConfigurations', (err, displayConfigurations) =>
 	{
 		if (err) return Homey.alert(err);
 		localDisplayConfigurations = Array.isArray(displayConfigurations) ? displayConfigurations : [];
 		displayConfigurationsFetched = (localDisplayConfigurations.length > 0);
 
-		fillConfigListElement(displayConfigurationNoElement, Homey.__("settings.displayConfig"), localDisplayConfigurations, MAX_DISPLAY_CONFIGURATIONS);
+		fillConfigListElement(displayConfigurationNoElement, Homey.__('settings.displayConfig'), localDisplayConfigurations, MAX_DISPLAY_CONFIGURATIONS);
 
 		// add the itemId and validate the page number to each item
-		let displayVersion = 0;
-		if (localDisplayConfigurations.length > 0)
-		{
-			displayVersion = localDisplayConfigurations[0].version | 0;
-		}
 		for (let i = 0; i < localDisplayConfigurations.length; i++)
 		{
 			if (!localDisplayConfigurations[i].version || localDisplayConfigurations[i].version < 2)
@@ -2000,7 +1991,7 @@ function initialiseSettingsPage(Homey, markReady)
 
 	getDevices();
 
-	Homey.get('brokerConfigurationItems', function (err, brokerItems)
+	Homey.get('brokerConfigurationItems', (err, brokerItems) =>
 	{
 		if (err) return Homey.alert(err);
 		brokerItemsFetched = true;
@@ -2012,7 +2003,7 @@ function initialiseSettingsPage(Homey, markReady)
 	setupGroupUI();
 	fetchAndInitGroupConfigurations();
 
-	Homey.get('displayPagePopupStatusBarPosition', function (err, savedStatusBarPosition)
+	Homey.get('displayPagePopupStatusBarPosition', (err, savedStatusBarPosition) =>
 	{
 		if (err) return;
 		const parsedStatusBarPosition = parseInt(savedStatusBarPosition, 10);
@@ -2022,12 +2013,12 @@ function initialiseSettingsPage(Homey, markReady)
 		}
 	});
 
-	diagLogEnabledElement.addEventListener('click', function (e)
+	diagLogEnabledElement.addEventListener('click', e =>
 	{
 		Homey.set('logEnabled', diagLogEnabledElement.checked);
 	});
 
-	configTypeElement.addEventListener('change', function (e)
+	configTypeElement.addEventListener('change', e =>
 	{
 		groupEditReturnActive = false;
 		configTypeChanged(configTypeElement.value);
@@ -2035,11 +2026,11 @@ function initialiseSettingsPage(Homey, markReady)
 
 	if (configTypeTabsElement)
 	{
-		configTypeTabsElement.querySelectorAll('.view-tab').forEach(function (tab)
+		configTypeTabsElement.querySelectorAll('.view-tab').forEach(tab =>
 		{
-			tab.addEventListener('click', function ()
+			tab.addEventListener('click', () =>
 			{
-				const view = tab.dataset.view;
+				const { view } = tab.dataset;
 				groupEditReturnActive = false;
 				configTypeElement.value = view;
 				configTypeChanged(view);
@@ -2049,7 +2040,7 @@ function initialiseSettingsPage(Homey, markReady)
 
 	if (groupEditBackButtonElement)
 	{
-		groupEditBackButtonElement.addEventListener('click', function ()
+		groupEditBackButtonElement.addEventListener('click', () =>
 		{
 			const scrollPosition = groupEditReturnScrollPosition;
 			const visibleConfigurationCount = groupEditReturnButtonVisibleConfigurationCount;
@@ -2071,7 +2062,7 @@ function initialiseSettingsPage(Homey, markReady)
 			updateButtonPanelControlsExpander();
 			if (scrollPosition !== null)
 			{
-				requestAnimationFrame(function ()
+				requestAnimationFrame(() =>
 				{
 					window.scrollTo(0, scrollPosition);
 				});
@@ -2079,12 +2070,12 @@ function initialiseSettingsPage(Homey, markReady)
 		});
 	}
 
-	clearLogElement.addEventListener('click', function (e)
+	clearLogElement.addEventListener('click', e =>
 	{
 		Homey.api('POST', '/clearLog/',
 			{
-				notify: true
-			}, function (err, result)
+				notify: true,
+			}, (err, result) =>
 		{
 			if (err)
 			{
@@ -2093,27 +2084,26 @@ function initialiseSettingsPage(Homey, markReady)
 		});
 	});
 
-	openWebViewElement.addEventListener('click', function (e)
+	openWebViewElement.addEventListener('click', e =>
 	{
-		let ip = webViewIpElement.value;
+		const ip = webViewIpElement.value;
 		Homey.openURL(`http://${ip}`);
 	});
 
-	sendLogElement.addEventListener('click', function (e)
+	sendLogElement.addEventListener('click', e =>
 	{
 		openSupportSendFlow({
-			title: Homey.__("settings.sendLogPopupTitle"),
-			message: Homey.__("settings.sendLogPopupMessage"),
+			title: Homey.__('settings.sendLogPopupTitle'),
+			message: Homey.__('settings.sendLogPopupMessage'),
 			content: diagLogElement ? diagLogElement.value : '',
 			contentType: 'diagnosticLog',
-			subject: Homey.__("settings.sendLogMailSubject"),
+			subject: Homey.__('settings.sendLogMailSubject'),
 		});
 	});
 
-	getListenersElement.addEventListener('click', function (e)
+	getListenersElement.addEventListener('click', e =>
 	{
-
-		Homey.api('GET', '/get_capability_listeners/', { notify: true }, function (err, result)
+		Homey.api('GET', '/get_capability_listeners/', { notify: true }, (err, result) =>
 		{
 			if (err)
 			{
@@ -2127,15 +2117,15 @@ function initialiseSettingsPage(Homey, markReady)
 		});
 	});
 
-	getLogElement.addEventListener('click', function (e)
+	getLogElement.addEventListener('click', e =>
 	{
 		if (!lastSentIpElement.value)
 		{
-			Homey.alert(Homey.__("settings.selectDeviceFromListError"));
+			Homey.alert(Homey.__('settings.selectDeviceFromListError'));
 			return;
 		}
 
-		Homey.api('GET', `/getLog/?ip=${lastSentIpElement.value}`, { notify: true }, function (err, result)
+		Homey.api('GET', `/getLog/?ip=${lastSentIpElement.value}`, { notify: true }, (err, result) =>
 		{
 			if (err)
 			{
@@ -2143,7 +2133,7 @@ function initialiseSettingsPage(Homey, markReady)
 			}
 			else if (result === null || result === undefined)
 			{
-				sentLogElement.value = 'No configuration data available for this device.\n\nConfiguration data is stored when you save a configuration to the device.\n\nDevice IP: ' + lastSentIpElement.value;
+				sentLogElement.value = `No configuration data available for this device.\n\nConfiguration data is stored when you save a configuration to the device.\n\nDevice IP: ${lastSentIpElement.value}`;
 			}
 			else
 			{
@@ -2163,12 +2153,12 @@ function initialiseSettingsPage(Homey, markReady)
 		});
 	});
 
-	Homey.on('com.ady.button_plus.logupdated', function (data)
+	Homey.on('com.ady.button_plus.logupdated', data =>
 	{
 		diagLogElement.value = data.log;
 	});
 
-	saveButton.addEventListener('click', async function (e)
+	saveButton.addEventListener('click', async e =>
 	{
 		try
 		{
@@ -2184,8 +2174,8 @@ function initialiseSettingsPage(Homey, markReady)
 			await Homey.set('defaultBroker', getSafeDefaultBrokerValue());
 
 			// Store the current button configuration
-			var buttonPanelConfigurationNo = buttonConfigurationNoElement.value;
-			var ButtonPanelConfiguration = localButtonConfigurations[buttonPanelConfigurationNo];
+			const buttonPanelConfigurationNo = buttonConfigurationNoElement.value;
+			const ButtonPanelConfiguration = localButtonConfigurations[buttonPanelConfigurationNo];
 
 			if (!Array.isArray(ButtonPanelConfiguration) || ButtonPanelConfiguration.length === 0)
 			{
@@ -2196,7 +2186,7 @@ function initialiseSettingsPage(Homey, markReady)
 
 			await Homey.set('buttonConfigurations', localButtonConfigurations);
 
-			//Copy the values from the controls to the displayConfiguration
+			// Copy the values from the controls to the displayConfiguration
 			storeDisplaySettings();
 			await Homey.set('displayConfigurations', localDisplayConfigurations);
 
@@ -2213,7 +2203,7 @@ function initialiseSettingsPage(Homey, markReady)
 
 			console.log('Save completed locally. Triggering device upload via /settings_changed/.');
 			appendClientDiagnosticLog('Local save completed. Triggering device upload via /settings_changed/.', 'INFO');
-			Homey.api('POST', '/settings_changed/', {}, function (err, variables)
+			Homey.api('POST', '/settings_changed/', {}, (err, variables) =>
 			{
 				if (err)
 				{
@@ -2238,12 +2228,12 @@ function initialiseSettingsPage(Homey, markReady)
 						warningLines.push(`Invalid SVG detected in ${invalidButtonSVGFields.length} field(s): ${invalidButtonSVGFields.join('; ')}`);
 					}
 
-					Homey.alert(`${Homey.__("settings.saved")}\n\nWarning: ${warningLines.join('\n')}`);
+					Homey.alert(`${Homey.__('settings.saved')}\n\nWarning: ${warningLines.join('\n')}`);
 					appendClientDiagnosticLog(`Save completed with warning: ${warningLines.join(' | ')}`, 'WARN');
 				}
 				else
 				{
-					Homey.alert(Homey.__("settings.saved"));
+					Homey.alert(Homey.__('settings.saved'));
 					appendClientDiagnosticLog('Save completed successfully.', 'INFO');
 				}
 			});
@@ -2252,7 +2242,7 @@ function initialiseSettingsPage(Homey, markReady)
 		{
 			console.error('Save failed before /settings_changed/ was called:', saveError);
 			appendClientDiagnosticLog(`Save failed before /settings_changed/ was called: ${saveError && saveError.message ? saveError.message : saveError}`, 'ERROR');
-			Homey.alert(Homey.__("settings.saveFailedError", { error: saveError && saveError.message ? saveError.message : `${saveError}` }));
+			Homey.alert(Homey.__('settings.saveFailedError', { error: saveError && saveError.message ? saveError.message : `${saveError}` }));
 		}
 	});
 
@@ -2261,7 +2251,7 @@ function initialiseSettingsPage(Homey, markReady)
 		// Store the configuration name
 		ButtonPanelConfiguration[0].name = configNameElement.value;
 
-		for (page = 0; page < ButtonPanelConfiguration.length; page++)
+		for (let page = 0; page < ButtonPanelConfiguration.length; page++)
 		{
 			ButtonPanelConfiguration[page].PageNum = page;
 
@@ -2275,31 +2265,29 @@ function initialiseSettingsPage(Homey, markReady)
 
 	function storeButtonSettingsSection(side, page, ButtonPanelConfiguration)
 	{
-		var topTextElement = document.getElementById(`${side}${page}TopText`);
-		var onTextElement = document.getElementById(`${side}${page}OnText`);
-		var offTextElement = document.getElementById(`${side}${page}OffText`);
-		var dimChangeElement = document.getElementById(`${side}${page}DimChange`);
-		var pageNumElement = document.getElementById(`${side}${page}PageNum`);
-		var deviceElement = document.getElementById(`${side}${page}Device`);
-		var capabilityElement = document.getElementById(`${side}${page}Capability`);
-		var brokerIdElement = document.getElementById(`${side}${page}BrokerId`);
-		var newCustomMQTTItemButton = document.getElementById(`new${side}${page}CustomMQTTItem`);
-		var frontLEDOnColorElement = document.getElementById(`${side}${page}FrontLEDOnColor`);
-		var wallLEDOnColorElement = document.getElementById(`${side}${page}WallLEDOnColor`);
-		var frontLEDOffColorElement = document.getElementById(`${side}${page}FrontLEDOffColor`);
-		var wallLEDOffColorElement = document.getElementById(`${side}${page}WallLEDOffColor`);
-		var longRepeatElement = document.getElementById(`${side}${page}DisableLongRepeat`);
-		var longDelayMsElement = document.getElementById(`${side}${page}LongDelayMs`);
-		var longRepeatMsElement = document.getElementById(`${side}${page}LongRepeatMs`);
-		var OnSVGElement = document.getElementById(`${side}${page}OnSVG`);
-		var OffSVGElement = document.getElementById(`${side}${page}OffSVG`);
+		const topTextElement = document.getElementById(`${side}${page}TopText`);
+		const onTextElement = document.getElementById(`${side}${page}OnText`);
+		const offTextElement = document.getElementById(`${side}${page}OffText`);
+		const dimChangeElement = document.getElementById(`${side}${page}DimChange`);
+		const deviceElement = document.getElementById(`${side}${page}Device`);
+		const capabilityElement = document.getElementById(`${side}${page}Capability`);
+		const brokerIdElement = document.getElementById(`${side}${page}BrokerId`);
+		const frontLEDOnColorElement = document.getElementById(`${side}${page}FrontLEDOnColor`);
+		const wallLEDOnColorElement = document.getElementById(`${side}${page}WallLEDOnColor`);
+		const frontLEDOffColorElement = document.getElementById(`${side}${page}FrontLEDOffColor`);
+		const wallLEDOffColorElement = document.getElementById(`${side}${page}WallLEDOffColor`);
+		const longRepeatElement = document.getElementById(`${side}${page}DisableLongRepeat`);
+		const longDelayMsElement = document.getElementById(`${side}${page}LongDelayMs`);
+		const longRepeatMsElement = document.getElementById(`${side}${page}LongRepeatMs`);
+		const OnSVGElement = document.getElementById(`${side}${page}OnSVG`);
+		const OffSVGElement = document.getElementById(`${side}${page}OffSVG`);
 
 		if (capabilityElement.value === 'dim')
 		{
 			const dimVal = parseInt(dimChangeElement.value, 10);
 			if (dimVal < -100 || dimVal > 100 || dimVal === 0)
 			{
-				Homey.alert(Homey.__("settings.dimError", { leftRight: Homey.__(`settings.${side}Panel`) }));
+				Homey.alert(Homey.__('settings.dimError', { leftRight: Homey.__(`settings.${side}Panel`) }));
 				return;
 			}
 		}
@@ -2362,9 +2350,9 @@ function initialiseSettingsPage(Homey, markReady)
 		ButtonPanelConfiguration[`${side}LongRepeatMs`] = normalizeLongPressTimingMs(longRepeatMsElement.value, 50, 500);
 		ButtonPanelConfiguration[`${side}OnSVG`] = sanitizeAndValidateButtonSVGField(OnSVGElement?.value || '', side, page, 'On');
 		ButtonPanelConfiguration[`${side}OffSVG`] = sanitizeAndValidateButtonSVGField(OffSVGElement?.value || '', side, page, 'Off');
-	};
+	}
 
-	buttonConfigurationNoElement.addEventListener('change', function (e)
+	buttonConfigurationNoElement.addEventListener('change', e =>
 	{
 		// Store the current configuration
 		var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
@@ -2388,7 +2376,7 @@ function initialiseSettingsPage(Homey, markReady)
 
 	if (toggleConfigNameVisibilityElement)
 	{
-		toggleConfigNameVisibilityElement.addEventListener('click', function ()
+		toggleConfigNameVisibilityElement.addEventListener('click', () =>
 		{
 			panelConfigNameCollapsed = !panelConfigNameCollapsed;
 			if (configNameRowElement)
@@ -2412,7 +2400,7 @@ function initialiseSettingsPage(Homey, markReady)
 
 	if (toggleDisplayConfigNameVisibilityElement)
 	{
-		toggleDisplayConfigNameVisibilityElement.addEventListener('click', function ()
+		toggleDisplayConfigNameVisibilityElement.addEventListener('click', () =>
 		{
 			displayConfigNameCollapsed = !displayConfigNameCollapsed;
 			if (displayConfigNameRowElement)
@@ -2434,9 +2422,9 @@ function initialiseSettingsPage(Homey, markReady)
 		}
 	}
 
-	configNameElement.addEventListener('change', function ()
+	configNameElement.addEventListener('change', () =>
 	{
-		var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+		let buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
 		if (!Array.isArray(buttonPanelConfiguration) || buttonPanelConfiguration.length === 0)
 		{
 			buttonPanelConfiguration = [{ PageNum: 0 }];
@@ -2446,63 +2434,63 @@ function initialiseSettingsPage(Homey, markReady)
 		buttonPanelConfiguration[0].name = configNameElement.value;
 
 		// Update the configuration list
-		let txt = Homey.__("settings.buttonConfig");
-		var option = buttonConfigurationNoElement.options[buttonConfigurationNoElement.selectedIndex];
+		const txt = Homey.__('settings.buttonConfig');
+		const option = buttonConfigurationNoElement.options[buttonConfigurationNoElement.selectedIndex];
 		if (option)
 		{
 			option.text = `${txt} ${parseInt(currentButtonConfigurationNo, 10) + 1} - ${configNameElement.value}`;
 		}
 	});
 
-	displayConfigNameElement.addEventListener('change', function (e)
+	displayConfigNameElement.addEventListener('change', e =>
 	{
-		var DisplayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+		const DisplayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
 		DisplayConfiguration.name = displayConfigNameElement.value;
 
 		// Update the configuration list
-		let txt = Homey.__("settings.displayConfig");
-		var option = displayConfigurationNoElement.options[displayConfigurationNoElement.selectedIndex];
-		option.text = `${txt} ${parseInt(currentDisplayConfigurationNo, 10) + 1} - ${displayConfigNameElement.value}`
+		const txt = Homey.__('settings.displayConfig');
+		const option = displayConfigurationNoElement.options[displayConfigurationNoElement.selectedIndex];
+		option.text = `${txt} ${parseInt(currentDisplayConfigurationNo, 10) + 1} - ${displayConfigNameElement.value}`;
 	});
 
 	// Display Config code
 
-	displayConfigurationNoElement.addEventListener('change', function (e)
+	displayConfigurationNoElement.addEventListener('change', e =>
 	{
 		redisplayDisplyConfig();
 	});
 
-	copyButtonConfigElement.addEventListener('click', function (e)
+	copyButtonConfigElement.addEventListener('click', e =>
 	{
 		try
 		{
 			// Sync unsaved UI edits into the local model before copying.
-			var currentButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+			const currentButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
 			if (Array.isArray(currentButtonPanelConfiguration))
 			{
 				storeButtonSettings(currentButtonPanelConfiguration);
 			}
 
 			// Copy only the currently active page of the button configuration to the clipboard.
-			var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-			var activePageIndex = Math.max(0, Math.min(buttonMainCurrentPage, buttonPanelConfiguration.length - 1));
-			var copy = {};
-			copy.copySource = "ButtonPanel";
+			const buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+			const activePageIndex = Math.max(0, Math.min(buttonMainCurrentPage, buttonPanelConfiguration.length - 1));
+			const copy = {};
+			copy.copySource = 'ButtonPanel';
 			copy.page = buttonPanelConfiguration[activePageIndex];
 			const jsonString = JSON.stringify(copy, null, 2);
 
 			copyTextElement.value = jsonString;
 
 			// Notify the user
-			Homey.alert(Homey.__("settings.copied"));
+			Homey.alert(Homey.__('settings.copied'));
 		}
 		catch (err)
 		{
-			Homey.alert(Homey.__("settings.clipboardError", { error: err }));
+			Homey.alert(Homey.__('settings.clipboardError', { error: err }));
 		}
 	});
 
-	pasteButtonConfigElement.addEventListener('click', function (e)
+	pasteButtonConfigElement.addEventListener('click', e =>
 	{
 		try
 		{
@@ -2510,25 +2498,25 @@ function initialiseSettingsPage(Homey, markReady)
 			const copy = JSON.parse(copyTextElement.value);
 			if (!copy || typeof copy !== 'object' || Array.isArray(copy))
 			{
-				Homey.alert(Homey.__("settings.clipboardError", { error: "Invalid top-level structure: expected an object" }));
+				Homey.alert(Homey.__('settings.clipboardError', { error: 'Invalid top-level structure: expected an object' }));
 				return;
 			}
 
 			const allowedTopLevelKeys = ['copySource', 'page', 'butons'];
-			const unknownTopLevelKeys = Object.keys(copy).filter(function (key)
+			const unknownTopLevelKeys = Object.keys(copy).filter(key =>
 			{
 				return !allowedTopLevelKeys.includes(key);
 			});
 
 			if (unknownTopLevelKeys.length > 0)
 			{
-				Homey.alert(Homey.__("settings.clipboardError", { error: `Unknown top-level field(s): ${unknownTopLevelKeys.join(', ')}` }));
+				Homey.alert(Homey.__('settings.clipboardError', { error: `Unknown top-level field(s): ${unknownTopLevelKeys.join(', ')}` }));
 				return;
 			}
 
-			if (copy.copySource !== "ButtonPanel")
+			if (copy.copySource !== 'ButtonPanel')
 			{
-				Homey.alert(Homey.__("settings.clipboardError", { error: "Invalid source" }));
+				Homey.alert(Homey.__('settings.clipboardError', { error: 'Invalid source' }));
 				return;
 			}
 
@@ -2537,11 +2525,11 @@ function initialiseSettingsPage(Homey, markReady)
 			const sourcePageConfiguration = copy.page || (Array.isArray(copy.butons) ? copy.butons[0] : undefined);
 			if (!sourcePageConfiguration || typeof sourcePageConfiguration !== 'object')
 			{
-				Homey.alert(Homey.__("settings.clipboardError", { error: "Invalid data" }));
+				Homey.alert(Homey.__('settings.clipboardError', { error: 'Invalid data' }));
 				return;
 			}
 
-			let buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+			const buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
 			const targetPageIndex = Math.max(0, Math.min(buttonMainCurrentPage, buttonPanelConfiguration.length - 1));
 
 			// if the page doesn't exist, add it
@@ -2551,7 +2539,7 @@ function initialiseSettingsPage(Homey, markReady)
 			}
 
 			// Copy every known field so newly introduced settings (for example SVG data) are preserved.
-			Object.keys(sourcePageConfiguration).forEach(function (fieldName)
+			Object.keys(sourcePageConfiguration).forEach(fieldName =>
 			{
 				if (fieldName === 'PageNum')
 				{
@@ -2574,36 +2562,36 @@ function initialiseSettingsPage(Homey, markReady)
 		}
 		catch (err)
 		{
-			Homey.alert(Homey.__("settings.clipboardError", { error: err }));
+			Homey.alert(Homey.__('settings.clipboardError', { error: err }));
 		}
 	});
 
-	copyDisplayConfigElement.addEventListener('click', function (e)
+	copyDisplayConfigElement.addEventListener('click', e =>
 	{
 		try
 		{
 			storeDisplaySettings();
 
 			// Copy the current button configuration to the clipboard in JSON format
-			var displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
 			const copy = {
-				copySource: "Display",
-				displayConfiguration: displayConfiguration,
+				copySource: 'Display',
+				displayConfiguration,
 			};
 			const jsonString = JSON.stringify(copy, null, 2);
 
 			copyTextElement.value = jsonString;
 
 			// Notify the user
-			Homey.alert(Homey.__("settings.copied"));
+			Homey.alert(Homey.__('settings.copied'));
 		}
 		catch (err)
 		{
-			Homey.alert(Homey.__("settings.clipboardError", { error: err }));
+			Homey.alert(Homey.__('settings.clipboardError', { error: err }));
 		}
 	});
 
-	pasteDisplayConfigElement.addEventListener('click', function (e)
+	pasteDisplayConfigElement.addEventListener('click', e =>
 	{
 		try
 		{
@@ -2611,27 +2599,27 @@ function initialiseSettingsPage(Homey, markReady)
 			const copy = JSON.parse(copyTextElement.value);
 			if (!copy || typeof copy !== 'object' || Array.isArray(copy))
 			{
-				Homey.alert(Homey.__("settings.clipboardError", { error: "Invalid top-level structure: expected an object" }));
+				Homey.alert(Homey.__('settings.clipboardError', { error: 'Invalid top-level structure: expected an object' }));
 				return;
 			}
 
-			if (copy.copySource !== "Display")
+			if (copy.copySource !== 'Display')
 			{
-				Homey.alert(Homey.__("settings.clipboardError", { error: "Invalid source" }));
+				Homey.alert(Homey.__('settings.clipboardError', { error: 'Invalid source' }));
 				return;
 			}
 
 			if (Object.prototype.hasOwnProperty.call(copy, 'displayConfiguration'))
 			{
 				const allowedTopLevelKeys = ['copySource', 'displayConfiguration'];
-				const unknownTopLevelKeys = Object.keys(copy).filter(function (key)
+				const unknownTopLevelKeys = Object.keys(copy).filter(key =>
 				{
 					return !allowedTopLevelKeys.includes(key);
 				});
 
 				if (unknownTopLevelKeys.length > 0)
 				{
-					Homey.alert(Homey.__("settings.clipboardError", { error: `Unknown top-level field(s): ${unknownTopLevelKeys.join(', ')}` }));
+					Homey.alert(Homey.__('settings.clipboardError', { error: `Unknown top-level field(s): ${unknownTopLevelKeys.join(', ')}` }));
 					return;
 				}
 			}
@@ -2639,14 +2627,14 @@ function initialiseSettingsPage(Homey, markReady)
 			const newDisplayConfiguration = copy.displayConfiguration || copy;
 			if (!newDisplayConfiguration || typeof newDisplayConfiguration !== 'object')
 			{
-				Homey.alert(Homey.__("settings.clipboardError", { error: "Invalid data" }));
+				Homey.alert(Homey.__('settings.clipboardError', { error: 'Invalid data' }));
 				return;
 			}
 
-			let displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+			const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
 
 			// Copy all available display fields so newly added properties are not lost.
-			Object.keys(newDisplayConfiguration).forEach(function (fieldName)
+			Object.keys(newDisplayConfiguration).forEach(fieldName =>
 			{
 				if (fieldName === 'copySource')
 				{
@@ -2664,21 +2652,21 @@ function initialiseSettingsPage(Homey, markReady)
 		}
 		catch (err)
 		{
-			Homey.alert(Homey.__("settings.clipboardError", { error: err }));
+			Homey.alert(Homey.__('settings.clipboardError', { error: err }));
 		}
 	});
 
 	// Import button click handler
-	importElement.addEventListener('click', function (e)
+	importElement.addEventListener('click', e =>
 	{
 		try
 		{
 			// Parse the JSON string
 			const newConfigurations = JSON.parse(copyTextElement.value);
 
-			if (newConfigurations.copySource !== "Export")
+			if (newConfigurations.copySource !== 'Export')
 			{
-				Homey.alert(Homey.__("settings.clipboardError", { error: "Invalid source" }));
+				Homey.alert(Homey.__('settings.clipboardError', { error: 'Invalid source' }));
 				return;
 			}
 
@@ -2699,7 +2687,7 @@ function initialiseSettingsPage(Homey, markReady)
 				if (localBrokerItems[i].brokerid === 'homey')
 				{
 					// extract the ip address from the host url which is in the form '192-168-1-32.homey.homeylocal.com'
-					let ip = window.location.hostname.replace(/-/g, '.').replace('.homey.homeylocal.com', '');
+					const ip = window.location.hostname.replace(/-/g, '.').replace('.homey.homeylocal.com', '');
 
 					// url will be 'mqtt://homeyip'
 					localBrokerItems[i].url = `mqtt://${ip}`;
@@ -2714,7 +2702,7 @@ function initialiseSettingsPage(Homey, markReady)
 				{
 					for (let j = 0; j < localDisplayConfigurations[i].items.length; j++)
 					{
-						let page = parseInt(localDisplayConfigurations[i].items[j].page, 10) + 1;
+						const page = parseInt(localDisplayConfigurations[i].items[j].page, 10) + 1;
 						localDisplayConfigurations[i].items[j].page = `${page}`;
 					}
 
@@ -2724,7 +2712,7 @@ function initialiseSettingsPage(Homey, markReady)
 
 			// Update the controls
 			// Get the current configuration
-			var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+			let buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
 
 			// Make sure currentButtonConfigurationNo is an array
 			if (!Array.isArray(buttonPanelConfiguration))
@@ -2739,16 +2727,16 @@ function initialiseSettingsPage(Homey, markReady)
 			drawBrokerItems();
 
 			// Notify the user
-			Homey.alert(Homey.__("settings.imported"));
+			Homey.alert(Homey.__('settings.imported'));
 		}
 		catch (err)
 		{
-			Homey.alert(Homey.__("settings.clipboardError", { error: err }));
+			Homey.alert(Homey.__('settings.clipboardError', { error: err }));
 		}
 	});
 
 	// Export button click handler
-	exportElement.addEventListener('click', function (e)
+	exportElement.addEventListener('click', e =>
 	{
 		try
 		{
@@ -2758,33 +2746,33 @@ function initialiseSettingsPage(Homey, markReady)
 			copyTextElement.value = jsonString;
 
 			// Notify the user
-			Homey.alert(Homey.__("settings.exported"));
+			Homey.alert(Homey.__('settings.exported'));
 		}
 		catch (err)
 		{
-			Homey.alert(Homey.__("settings.clipboardError", { error: err }));
+			Homey.alert(Homey.__('settings.clipboardError', { error: err }));
 		}
 	});
 
 	if (sendExportElement)
 	{
-		sendExportElement.addEventListener('click', function ()
+		sendExportElement.addEventListener('click', () =>
 		{
 			const exportText = buildExportConfigurationText();
 			copyTextElement.value = exportText;
 			openSupportSendFlow({
-				title: Homey.__("settings.sendExportPopupTitle"),
-				message: Homey.__("settings.sendExportPopupMessage"),
+				title: Homey.__('settings.sendExportPopupTitle'),
+				message: Homey.__('settings.sendExportPopupMessage'),
 				content: exportText,
 				contentType: 'exportConfiguration',
-				subject: Homey.__("settings.sendExportMailSubject"),
+				subject: Homey.__('settings.sendExportMailSubject'),
 			});
 		});
 	}
 
 	if (newDisplayItemButton)
 	{
-		newDisplayItemButton.addEventListener('click', function (e)
+		newDisplayItemButton.addEventListener('click', e =>
 		{
 			addDisplayItem();
 		});
@@ -2831,12 +2819,12 @@ function initialiseSettingsPage(Homey, markReady)
 	// 	}
 	// });
 
-	newBrokerItemButton.addEventListener('click', function (e)
+	newBrokerItemButton.addEventListener('click', e =>
 	{
 		// Create a new broker item
-		var brokerItem = {
-			brokerid: "Unnamed",
-			url: "",
+		const brokerItem = {
+			brokerid: 'Unnamed',
+			url: '',
 			port: 1883,
 			wsPort: 9001,
 			enabled: true,
@@ -2855,7 +2843,7 @@ function initialiseSettingsPage(Homey, markReady)
 
 	if (!window.tooltipHoverListenerBound)
 	{
-		document.addEventListener('mouseover', function (event)
+		document.addEventListener('mouseover', event =>
 		{
 			const tooltipTrigger = event.target.closest('.tooltip');
 			if (!tooltipTrigger)
@@ -2872,7 +2860,7 @@ function initialiseSettingsPage(Homey, markReady)
 			position_tooltip.call(tooltipTrigger);
 		});
 
-		document.addEventListener('mouseout', function (event)
+		document.addEventListener('mouseout', event =>
 		{
 			const tooltipTrigger = event.target.closest('.tooltip');
 			if (!tooltipTrigger)
@@ -2918,7 +2906,7 @@ function initialiseSettingsPage(Homey, markReady)
 
 	if (sendSupportPopupCancelElement)
 	{
-		sendSupportPopupCancelElement.addEventListener('click', function ()
+		sendSupportPopupCancelElement.addEventListener('click', () =>
 		{
 			closeSendSupportPopup(null);
 		});
@@ -2931,7 +2919,7 @@ function initialiseSettingsPage(Homey, markReady)
 
 	if (configDraftRestoreRetrieveElement)
 	{
-		configDraftRestoreRetrieveElement.addEventListener('click', function ()
+		configDraftRestoreRetrieveElement.addEventListener('click', () =>
 		{
 			closeConfigDraftRestoreDialog(true);
 		});
@@ -2939,7 +2927,7 @@ function initialiseSettingsPage(Homey, markReady)
 
 	if (configDraftRestoreDiscardElement)
 	{
-		configDraftRestoreDiscardElement.addEventListener('click', function ()
+		configDraftRestoreDiscardElement.addEventListener('click', () =>
 		{
 			closeConfigDraftRestoreDialog(false);
 		});
@@ -2947,7 +2935,7 @@ function initialiseSettingsPage(Homey, markReady)
 
 	if (buttonPagePopupStateToggleElement)
 	{
-		buttonPagePopupStateToggleElement.addEventListener('click', function ()
+		buttonPagePopupStateToggleElement.addEventListener('click', () =>
 		{
 			buttonPagePopupLedState = (buttonPagePopupLedState === 'on') ? 'off' : 'on';
 			renderButtonPagePopup();
@@ -2956,7 +2944,7 @@ function initialiseSettingsPage(Homey, markReady)
 
 	if (buttonPagePopupPrevElement)
 	{
-		buttonPagePopupPrevElement.addEventListener('click', function ()
+		buttonPagePopupPrevElement.addEventListener('click', () =>
 		{
 			stepButtonPagePopup(-1);
 		});
@@ -2964,7 +2952,7 @@ function initialiseSettingsPage(Homey, markReady)
 
 	if (buttonPagePopupNextElement)
 	{
-		buttonPagePopupNextElement.addEventListener('click', function ()
+		buttonPagePopupNextElement.addEventListener('click', () =>
 		{
 			stepButtonPagePopup(1);
 		});
@@ -2972,7 +2960,7 @@ function initialiseSettingsPage(Homey, markReady)
 
 	if (displayPagePopupOpenElement)
 	{
-		displayPagePopupOpenElement.addEventListener('click', function ()
+		displayPagePopupOpenElement.addEventListener('click', () =>
 		{
 			openDisplayPagePopup(displayPagePopupCurrentPage);
 		});
@@ -2985,7 +2973,7 @@ function initialiseSettingsPage(Homey, markReady)
 
 	if (displayPagePopupPrevElement)
 	{
-		displayPagePopupPrevElement.addEventListener('click', function ()
+		displayPagePopupPrevElement.addEventListener('click', () =>
 		{
 			stepDisplayPagePopup(-1);
 		});
@@ -2993,7 +2981,7 @@ function initialiseSettingsPage(Homey, markReady)
 
 	if (displayPagePopupNextElement)
 	{
-		displayPagePopupNextElement.addEventListener('click', function ()
+		displayPagePopupNextElement.addEventListener('click', () =>
 		{
 			stepDisplayPagePopup(1);
 		});
@@ -3001,7 +2989,7 @@ function initialiseSettingsPage(Homey, markReady)
 
 	if (displayInlineSimPrevElement)
 	{
-		displayInlineSimPrevElement.addEventListener('click', function ()
+		displayInlineSimPrevElement.addEventListener('click', () =>
 		{
 			stepDisplayPagePopup(-1);
 			renderDisplayInlineSimulator();
@@ -3010,7 +2998,7 @@ function initialiseSettingsPage(Homey, markReady)
 
 	if (displayInlineSimNextElement)
 	{
-		displayInlineSimNextElement.addEventListener('click', function ()
+		displayInlineSimNextElement.addEventListener('click', () =>
 		{
 			stepDisplayPagePopup(1);
 			renderDisplayInlineSimulator();
@@ -3019,7 +3007,7 @@ function initialiseSettingsPage(Homey, markReady)
 
 	if (displayInlineSimStatusBarPositionElement)
 	{
-		displayInlineSimStatusBarPositionElement.addEventListener('change', function ()
+		displayInlineSimStatusBarPositionElement.addEventListener('change', function()
 		{
 			const selectedStatusBarPosition = parseInt(this.value, 10) || 0;
 			displayPagePopupStatusBarPosition = selectedStatusBarPosition;
@@ -3048,7 +3036,7 @@ function initialiseSettingsPage(Homey, markReady)
 
 	if (displayInlineSimAddPageElement)
 	{
-		displayInlineSimAddPageElement.addEventListener('click', function ()
+		displayInlineSimAddPageElement.addEventListener('click', () =>
 		{
 			addDisplayPage();
 		});
@@ -3056,7 +3044,7 @@ function initialiseSettingsPage(Homey, markReady)
 
 	if (displayInlineSimDeletePageElement)
 	{
-		displayInlineSimDeletePageElement.addEventListener('click', function ()
+		displayInlineSimDeletePageElement.addEventListener('click', () =>
 		{
 			deleteCurrentDisplayPage();
 		});
@@ -3064,7 +3052,7 @@ function initialiseSettingsPage(Homey, markReady)
 
 	if (displayInlineSimAddItemElement)
 	{
-		displayInlineSimAddItemElement.addEventListener('click', function ()
+		displayInlineSimAddItemElement.addEventListener('click', () =>
 		{
 			addDisplayItem();
 			renderDisplayInlineSimulator();
@@ -3073,7 +3061,7 @@ function initialiseSettingsPage(Homey, markReady)
 
 	if (displayInlineSimDeleteItemElement)
 	{
-		displayInlineSimDeleteItemElement.addEventListener('click', function ()
+		displayInlineSimDeleteItemElement.addEventListener('click', () =>
 		{
 			deleteSelectedInlineDisplayItem();
 		});
@@ -3081,7 +3069,7 @@ function initialiseSettingsPage(Homey, markReady)
 
 	if (displayInlineSimShowPageZeroElement)
 	{
-		displayInlineSimShowPageZeroElement.addEventListener('change', function ()
+		displayInlineSimShowPageZeroElement.addEventListener('change', () =>
 		{
 			renderDisplayInlineSimulator();
 			if (displayPagePopupOverlayElement && displayPagePopupOverlayElement.classList.contains('visible'))
@@ -3104,9 +3092,9 @@ function initialiseSettingsPage(Homey, markReady)
 		displayPagePopupSurfaceElement.addEventListener('keydown', handleDisplaySimulatorKeydown);
 	}
 
-	const refreshButtonPagePopupFromControl = function (event)
+	const refreshButtonPagePopupFromControl = function(event)
 	{
-		const target = event.target;
+		const { target } = event;
 		if (!target || !target.id)
 		{
 			return;
@@ -3158,9 +3146,9 @@ function initialiseSettingsPage(Homey, markReady)
 		}
 	};
 
-	const refreshDisplayPagePopupFromControl = function (event)
+	const refreshDisplayPagePopupFromControl = function(event)
 	{
-		const target = event.target;
+		const { target } = event;
 		if (!target || !target.id)
 		{
 			return;
@@ -3202,7 +3190,7 @@ function initialiseSettingsPage(Homey, markReady)
 	document.addEventListener('input', refreshDisplayPagePopupFromControl);
 	document.addEventListener('change', refreshDisplayPagePopupFromControl);
 
-	const draftEventHandler = function (event)
+	const draftEventHandler = function(event)
 	{
 		if (event && event.isTrusted === false)
 		{
@@ -3226,7 +3214,7 @@ function initialiseSettingsPage(Homey, markReady)
 	document.addEventListener('change', draftEventHandler);
 	window.addEventListener('beforeunload', flushConfigurationDraftPersist);
 	window.addEventListener('pagehide', flushConfigurationDraftPersist);
-	document.addEventListener('visibilitychange', function ()
+	document.addEventListener('visibilitychange', () =>
 	{
 		if (document.visibilityState === 'hidden')
 		{
@@ -3234,9 +3222,9 @@ function initialiseSettingsPage(Homey, markReady)
 		}
 	});
 
-	document.addEventListener('focusin', function (event)
+	document.addEventListener('focusin', event =>
 	{
-		const target = event.target;
+		const { target } = event;
 		if (!target || !target.id)
 		{
 			return;
@@ -3287,7 +3275,7 @@ function initialiseSettingsPage(Homey, markReady)
 		renderButtonPagePopup();
 	});
 
-	document.addEventListener('keydown', function (event)
+	document.addEventListener('keydown', event =>
 	{
 		if (event.key === 'Escape')
 		{
@@ -3300,7 +3288,7 @@ function initialiseSettingsPage(Homey, markReady)
 
 	if (!window.buttonMainDiagnosticsErrorHandlersBound)
 	{
-		window.addEventListener('error', function (event)
+		window.addEventListener('error', event =>
 		{
 			console.error('[ButtonMainDiagnostics][window.error]', {
 				message: event.message,
@@ -3312,7 +3300,7 @@ function initialiseSettingsPage(Homey, markReady)
 			updateButtonMainDiagnostics('window:error', { message: event.message, lineno: event.lineno, colno: event.colno });
 		});
 
-		window.addEventListener('unhandledrejection', function (event)
+		window.addEventListener('unhandledrejection', event =>
 		{
 			console.error('[ButtonMainDiagnostics][unhandledrejection]', {
 				reason: event.reason,
@@ -3333,7 +3321,7 @@ function initialiseSettingsPage(Homey, markReady)
 function position_tooltip()
 {
 	// Get tooltip text in the hovered tooltip trigger.
-	var tooltip = this.querySelector(".tooltiptext");
+	const tooltip = this.querySelector('.tooltiptext');
 	if (!tooltip)
 	{
 		return;
@@ -3345,7 +3333,7 @@ function position_tooltip()
 	tooltip.style.left = '-100%';
 
 	// Get tooltip coordinates and size
-	var tooltip_rect = tooltip.getBoundingClientRect();
+	const tooltip_rect = tooltip.getBoundingClientRect();
 	let correction = 0;
 	const viewportWidth = document.documentElement.clientWidth;
 
@@ -3399,7 +3387,7 @@ function restoreNativeTooltipTitles(tooltipTrigger)
 		return;
 	}
 
-	tooltipTrigger._suppressedTitleElements.forEach((entry) =>
+	tooltipTrigger._suppressedTitleElements.forEach(entry =>
 	{
 		if (entry && entry.element && entry.title !== null)
 		{
@@ -3419,11 +3407,11 @@ function setupFilterableSelects()
 		return;
 	}
 
-	window.filterableSelectsObserver = new MutationObserver((mutations) =>
+	window.filterableSelectsObserver = new MutationObserver(mutations =>
 	{
-		mutations.forEach((mutation) =>
+		mutations.forEach(mutation =>
 		{
-			mutation.addedNodes.forEach((node) =>
+			mutation.addedNodes.forEach(node =>
 			{
 				if (node.nodeType !== Node.ELEMENT_NODE)
 				{
@@ -3449,7 +3437,7 @@ function enhanceFilterableSelects(root)
 		? [root]
 		: Array.from(root.querySelectorAll('select.homey-form-select'));
 
-	selects.forEach((selectElement) =>
+	selects.forEach(selectElement =>
 	{
 		enhanceFilterableSelect(selectElement);
 	});
@@ -3586,7 +3574,7 @@ function enhanceFilterableSelect(selectElement)
 			return allOptions;
 		}
 
-		return allOptions.filter((option) =>
+		return allOptions.filter(option =>
 		{
 			const optionText = option.text || '';
 			const optionValue = option.value || '';
@@ -3595,7 +3583,7 @@ function enhanceFilterableSelect(selectElement)
 		});
 	};
 
-	const getDeviceClassIcon = (deviceClass) =>
+	const getDeviceClassIcon = deviceClass =>
 	{
 		switch ((deviceClass || '').toLowerCase())
 		{
@@ -3627,7 +3615,7 @@ function enhanceFilterableSelect(selectElement)
 				iconImage.alt = '';
 				iconImage.loading = 'lazy';
 				iconImage.decoding = 'async';
-				iconImage.addEventListener('error', function ()
+				iconImage.addEventListener('error', () =>
 				{
 					const iconFallback = document.createElement('span');
 					iconFallback.className = 'filterable-select-option-icon-fallback';
@@ -3662,7 +3650,7 @@ function enhanceFilterableSelect(selectElement)
 		{
 			const noMatch = document.createElement('div');
 			noMatch.className = 'filterable-select-dropdown-option filterable-select-disabled';
-			noMatch.textContent = Homey.__("settings.noMatches");
+			noMatch.textContent = Homey.__('settings.noMatches');
 			dropdown.appendChild(noMatch);
 			activeIndex = -1;
 			return;
@@ -3688,7 +3676,7 @@ function enhanceFilterableSelect(selectElement)
 			}
 
 			appendOptionLabel(optionNode, option, query);
-			optionNode.addEventListener('mousedown', function (event)
+			optionNode.addEventListener('mousedown', event =>
 			{
 				event.preventDefault();
 				if (option.disabled)
@@ -3745,9 +3733,9 @@ function enhanceFilterableSelect(selectElement)
 		}
 	};
 
-	const setActiveIndex = (newIndex) =>
+	const setActiveIndex = newIndex =>
 	{
-		const filteredOptions = getFilteredOptions().filter((option) => !option.disabled);
+		const filteredOptions = getFilteredOptions().filter(option => !option.disabled);
 		if (filteredOptions.length === 0)
 		{
 			activeIndex = -1;
@@ -3777,7 +3765,7 @@ function enhanceFilterableSelect(selectElement)
 		}
 	};
 
-	input.addEventListener('focus', function ()
+	input.addEventListener('focus', () =>
 	{
 		if (!dropdownOpen)
 		{
@@ -3786,13 +3774,13 @@ function enhanceFilterableSelect(selectElement)
 		}
 	});
 
-	input.addEventListener('click', function ()
+	input.addEventListener('click', () =>
 	{
 		openDropdown();
 		renderDropdown();
 	});
 
-	input.addEventListener('input', function ()
+	input.addEventListener('input', () =>
 	{
 		if (!dropdownOpen)
 		{
@@ -3802,7 +3790,7 @@ function enhanceFilterableSelect(selectElement)
 		renderDropdown();
 	});
 
-	input.addEventListener('keydown', function (event)
+	input.addEventListener('keydown', event =>
 	{
 		if (event.key === 'ArrowDown')
 		{
@@ -3823,7 +3811,7 @@ function enhanceFilterableSelect(selectElement)
 		if (event.key === 'Enter')
 		{
 			event.preventDefault();
-			const filteredOptions = getFilteredOptions().filter((option) => !option.disabled);
+			const filteredOptions = getFilteredOptions().filter(option => !option.disabled);
 			if (filteredOptions.length === 0)
 			{
 				return;
@@ -3846,14 +3834,14 @@ function enhanceFilterableSelect(selectElement)
 
 	// Keep the fixed-position dropdown aligned with its input if the page or a scrollable
 	// ancestor (e.g. a popup body) scrolls, or the window resizes, while it's open.
-	window.addEventListener('scroll', function ()
+	window.addEventListener('scroll', () =>
 	{
 		if (dropdownOpen)
 		{
 			positionDropdown();
 		}
 	}, true);
-	window.addEventListener('resize', function ()
+	window.addEventListener('resize', () =>
 	{
 		if (dropdownOpen)
 		{
@@ -3861,7 +3849,7 @@ function enhanceFilterableSelect(selectElement)
 		}
 	});
 
-	wrapper.addEventListener('focusout', function ()
+	wrapper.addEventListener('focusout', () =>
 	{
 		setTimeout(() =>
 		{
@@ -3872,7 +3860,7 @@ function enhanceFilterableSelect(selectElement)
 		}, 0);
 	});
 
-	selectElement.addEventListener('change', function ()
+	selectElement.addEventListener('change', () =>
 	{
 		syncInputDisplay();
 		renderDropdown();
@@ -3895,13 +3883,13 @@ function enhanceFilterableSelect(selectElement)
 
 function fillConfigListElement(element, txt, configurations, NumConfigurations)
 {
-	//fill the configuration list with configuration number / names
-	element.innerHTML = "";
+	// fill the configuration list with configuration number / names
+	element.innerHTML = '';
 
-	var option = document.createElement("option");
+	var option = document.createElement('option');
 	for (let i = 0; i < NumConfigurations; i++)
 	{
-		let config = configurations[i];
+		const config = configurations[i];
 		let configName = '';
 		if (Array.isArray(config))
 		{
@@ -3912,7 +3900,7 @@ function fillConfigListElement(element, txt, configurations, NumConfigurations)
 			configName = (config && config.name) ? config.name : '';
 		}
 
-		var option = document.createElement("option");
+		var option = document.createElement('option');
 		option.value = i;
 		option.text = `${txt} ${i + 1} - ${configName}`;
 		element.add(option);
@@ -3923,14 +3911,14 @@ function fillDefaultBrokerList()
 {
 	if (brokerItemsFetched)
 	{
-		//fill the broker lists with brokers
-		defaultBrokerElement.innerHTML = "";
+		// fill the broker lists with brokers
+		defaultBrokerElement.innerHTML = '';
 		for (let i = 0; i < localBrokerItems.length; i++)
 		{
 			const brokerItem = localBrokerItems[i];
 			if (brokerItem.enabled)
 			{
-				var option = document.createElement("option");
+				const option = document.createElement('option');
 				option.value = brokerItem.brokerid;
 				option.text = brokerItem.brokerid;
 				defaultBrokerElement.add(option);
@@ -3953,13 +3941,13 @@ function collectButtonMainDiagnostics(source, extra = {})
 {
 	const rawConfig = localButtonConfigurations[currentButtonConfigurationNo];
 	const pageSections = Array.from(document.querySelectorAll('.button-main-page'));
-	const activeIndex = pageSections.findIndex((section) => section.classList.contains('active'));
+	const activeIndex = pageSections.findIndex(section => section.classList.contains('active'));
 	const activeSection = (activeIndex >= 0) ? pageSections[activeIndex] : null;
 	const activeGroup = activeSection ? activeSection.querySelector('.horizontalgroup') : null;
 	const buttonItemsSection = document.getElementById('buttonItemsSection');
 	const panelConfigTab = document.getElementById('panelConfig');
-	const visibleCount = pageSections.filter((section) => section.style.display !== 'none').length;
-	const getDisplayValue = function (element)
+	const visibleCount = pageSections.filter(section => section.style.display !== 'none').length;
+	const getDisplayValue = function(element)
 	{
 		if (!element)
 		{
@@ -4005,12 +3993,11 @@ function updateButtonMainDiagnostics(source, extra = {})
 
 	const diagnostics = collectButtonMainDiagnostics(source, extra);
 	console.log('[ButtonMainDiagnostics]', diagnostics);
-
 }
 
 function hidePopupManagedFieldsForSection(side, page)
 {
-	const hideById = function (id)
+	const hideById = function(id)
 	{
 		const element = document.getElementById(id);
 		if (element)
@@ -4019,7 +4006,7 @@ function hidePopupManagedFieldsForSection(side, page)
 		}
 	};
 
-	const hideLabelFor = function (id)
+	const hideLabelFor = function(id)
 	{
 		const section = document.getElementById(`${side}${page}PanelSection`);
 		if (!section)
@@ -4111,7 +4098,7 @@ function updateButtonInlineSettingsToggleState(page)
 	}
 
 	toggleElement.classList.toggle('is-open', detailElement.open);
-	toggleElement.title = detailElement.open ? Homey.__("settings.collapseAutoRepeatBrokerSettings") : Homey.__("settings.expandAutoRepeatBrokerSettings");
+	toggleElement.title = detailElement.open ? Homey.__('settings.collapseAutoRepeatBrokerSettings') : Homey.__('settings.expandAutoRepeatBrokerSettings');
 	toggleElement.setAttribute('aria-label', toggleElement.title);
 	toggleElement.setAttribute('aria-expanded', detailElement.open ? 'true' : 'false');
 }
@@ -4140,7 +4127,7 @@ function collapseAllDetails(root = document)
 		return;
 	}
 
-	root.querySelectorAll('details').forEach((detailElement) =>
+	root.querySelectorAll('details').forEach(detailElement =>
 	{
 		detailElement.open = false;
 	});
@@ -4149,20 +4136,20 @@ function collapseAllDetails(root = document)
 function getButtonInlineMainControlHtml(side, page)
 {
 	const ctrlLabels = {
-		longRepeat: Homey.__("settings.longRepeat"),
-		longDelayMs: Homey.__("settings.longDelayMs"),
-		longRepeatMs: Homey.__("settings.longRepeatMs"),
-		brokerId: Homey.__("settings.brokerId"),
+		longRepeat: Homey.__('settings.longRepeat'),
+		longDelayMs: Homey.__('settings.longDelayMs'),
+		longRepeatMs: Homey.__('settings.longRepeatMs'),
+		brokerId: Homey.__('settings.brokerId'),
 	};
 
 	const ctrlExplanations = {
-		longRepeat: Homey.__("settings.longRepeatExplanation"),
-		longDelayMs: Homey.__("settings.longDelayMsExplanation"),
-		longRepeatMs: Homey.__("settings.longRepeatMsExplanation"),
-		brokerId: Homey.__("settings.brokerIdExplanation"),
+		longRepeat: Homey.__('settings.longRepeatExplanation'),
+		longDelayMs: Homey.__('settings.longDelayMsExplanation'),
+		longRepeatMs: Homey.__('settings.longRepeatMsExplanation'),
+		brokerId: Homey.__('settings.brokerIdExplanation'),
 	};
 
-	const panelLabel = side === 'left' ? Homey.__("settings.leftPanel") : Homey.__("settings.rightPanel");
+	const panelLabel = side === 'left' ? Homey.__('settings.leftPanel') : Homey.__('settings.rightPanel');
 
 	return `<div class="button-inline-main-control-column">
 				<div class="button-inline-main-control-heading">${panelLabel}</div>
@@ -4441,11 +4428,11 @@ function renderButtonMainPage()
 
 	const prevButtons = document.querySelectorAll('.button-main-page-prev');
 	const nextButtons = document.querySelectorAll('.button-main-page-next');
-	prevButtons.forEach((button) =>
+	prevButtons.forEach(button =>
 	{
 		button.disabled = (buttonMainCurrentPage <= 0);
 	});
-	nextButtons.forEach((button) =>
+	nextButtons.forEach(button =>
 	{
 		button.disabled = (buttonMainCurrentPage >= (pageSections.length - 1));
 	});
@@ -4659,7 +4646,7 @@ function renderDisplayPageHeaderTitle(titleElement, currentPage, totalPages)
 		return;
 	}
 
-	const displayPageLabel = Homey.__("settings.page");
+	const displayPageLabel = Homey.__('settings.page');
 	const currentPageLabel = formatDisplayPageLabel(currentPage);
 	const nonDefaultPageCount = Math.max(0, totalPages - 1);
 	if (nonDefaultPageCount === 0)
@@ -4668,7 +4655,6 @@ function renderDisplayPageHeaderTitle(titleElement, currentPage, totalPages)
 		return;
 	}
 
-	const totalPagesHint = escapeHtml(Homey.__("settings.displaySimTotalPagesHint"));
 	const sharedPageHeaderHint = normalizeTooltipHtml(getSharedPageHeaderTooltipText());
 	const safeDisplayPageLabel = escapeHtml(displayPageLabel);
 	const safeCurrentPageLabel = escapeHtml(currentPageLabel);
@@ -4677,8 +4663,8 @@ function renderDisplayPageHeaderTitle(titleElement, currentPage, totalPages)
 
 function getSharedPageHeaderTooltipText()
 {
-	const pageHelpText = (Homey.__("settings.buttonPageExplanation") || '').trim();
-	const totalPagesHelpText = (Homey.__("settings.displaySimTotalPagesHint") || '').trim();
+	const pageHelpText = (Homey.__('settings.buttonPageExplanation') || '').trim();
+	const totalPagesHelpText = (Homey.__('settings.displaySimTotalPagesHint') || '').trim();
 
 	if (!pageHelpText)
 	{
@@ -4700,7 +4686,7 @@ function getSharedPageHeaderTooltipText()
 
 function getButtonPageHeaderTitleMarkup(currentPage, totalPages)
 {
-	const buttonPageLabel = Homey.__("settings.page");
+	const buttonPageLabel = Homey.__('settings.page');
 	const currentPageLabel = formatButtonPageLabel(currentPage);
 	const nonDefaultPageCount = Math.max(0, totalPages - 1);
 	const safeButtonPageLabel = escapeHtml(buttonPageLabel);
@@ -4763,7 +4749,7 @@ function getButtonPanelVariablePreviewText(deviceValue, capabilityValue)
 		return null;
 	}
 
-	const selectedVariable = variablesArray.find((variable) => variable.id === capabilityValue);
+	const selectedVariable = variablesArray.find(variable => variable.id === capabilityValue);
 	if (!selectedVariable || (selectedVariable.type === 'boolean'))
 	{
 		return null;
@@ -4806,7 +4792,7 @@ function getButtonPanelCapabilityPreviewText(side, pageIndex, deviceValue, capab
 		try
 		{
 			const values = JSON.parse(selectedOption.dataset.values || '[]');
-			const match = values.find((entry) => entry.id === selectedOption.dataset.value);
+			const match = values.find(entry => entry.id === selectedOption.dataset.value);
 			return match ? (match.title || match.id) : (selectedOption.dataset.value || '');
 		}
 		catch (err)
@@ -4839,18 +4825,18 @@ function getButtonPanelPreviewMarkup(pageConfig, side, pageIndex = buttonPagePop
 	{
 		if (deviceValue === '_variable_')
 		{
-			const varObj = variablesArray.find((v) => v.id === capabilityValue);
+			const varObj = variablesArray.find(v => v.id === capabilityValue);
 			if (varObj && varObj.name) resolvedTopText = varObj.name;
 		}
 		else
 		{
-			const devObj = buttonDevicesArray.find((d) => d.id === deviceValue);
+			const devObj = buttonDevicesArray.find(d => d.id === deviceValue);
 			if (devObj && devObj.name) resolvedTopText = devObj.name;
 		}
 	}
 
 	const hasTopText = !!resolvedTopText;
-	const topText = hasTopText ? escapeHtml(resolvedTopText) : (isReadonly ? '' : `<span class="button-sim-placeholder">${Homey.__("settings.clickToAddTitle")}</span>`);
+	const topText = hasTopText ? escapeHtml(resolvedTopText) : (isReadonly ? '' : `<span class="button-sim-placeholder">${Homey.__('settings.clickToAddTitle')}</span>`);
 	const isDimCapability = (capabilityValue === 'dim');
 	const variablePreviewText = getButtonPanelVariablePreviewText(deviceValue, capabilityValue);
 	const capabilityPreviewText = (variablePreviewText === null) ? getButtonPanelCapabilityPreviewText(side, pageIndex, deviceValue, capabilityValue, configIndex) : null;
@@ -4874,7 +4860,7 @@ function getButtonPanelPreviewMarkup(pageConfig, side, pageIndex = buttonPagePop
 		stateTextRaw = (buttonPagePopupLedState === 'on') ? (onTextRaw || defaultStateText) : (offTextRaw || defaultStateText);
 	}
 	const hasStateText = !!sanitizeDisplayString(stateTextRaw, '');
-	const stateText = hasStateText ? escapeHtml(stateTextRaw) : (isReadonly ? '' : `<span class="button-sim-placeholder">${Homey.__("settings.clickToAddValue")}</span>`);
+	const stateText = hasStateText ? escapeHtml(stateTextRaw) : (isReadonly ? '' : `<span class="button-sim-placeholder">${Homey.__('settings.clickToAddValue')}</span>`);
 	const textFieldSuffix = isDimCapability ? 'DimChange' : (isNonBooleanVariable ? 'Capability' : ((buttonPagePopupLedState === 'on') ? 'OnText' : 'OffText'));
 	const svgFieldSuffix = (buttonPagePopupLedState === 'on') ? 'OnSVG' : 'OffSVG';
 	const customSvgText = getLiveButtonPanelFieldValue(pageConfig, side, svgFieldSuffix, '', pageIndex, configIndex);
@@ -4885,7 +4871,7 @@ function getButtonPanelPreviewMarkup(pageConfig, side, pageIndex = buttonPagePop
 	const previewContextClass = previewContext ? ` button-sim-context-${previewContext}` : '';
 	const ledMarkup = `<div class="button-sim-leds ${side === 'right' ? 'button-sim-leds-right' : ''}">${getButtonPanelLedMarkup(pageConfig, side, pageIndex, configIndex, isReadonly)}</div>`;
 	const advancedBadge = (isAdvancedMode && !isReadonly)
-		? `<span class="button-sim-advanced-badge ${side === 'right' ? 'button-sim-advanced-badge-right' : 'button-sim-advanced-badge-left'}" role="button" tabindex="0" title="${Homey.__("settings.advancedMappingsEnabled")}" onclick="activateDisplayedButtonConfiguration(${configIndex}); openButtonAdvancedPopup('${side}', ${pageIndex}, 'event'); return false;"><span class="button-sim-advanced-badge-label">${Homey.__("settings.advancedBadgeLabel")}</span></span>`
+		? `<span class="button-sim-advanced-badge ${side === 'right' ? 'button-sim-advanced-badge-right' : 'button-sim-advanced-badge-left'}" role="button" tabindex="0" title="${Homey.__('settings.advancedMappingsEnabled')}" onclick="activateDisplayedButtonConfiguration(${configIndex}); openButtonAdvancedPopup('${side}', ${pageIndex}, 'event'); return false;"><span class="button-sim-advanced-badge-label">${Homey.__('settings.advancedBadgeLabel')}</span></span>`
 		: '';
 	const activateConfig = isReadonly ? '' : `activateDisplayedButtonConfiguration(${configIndex}); `;
 	const contentMarkup = isContentBlank
@@ -4904,12 +4890,12 @@ function getButtonPanelPreviewMarkup(pageConfig, side, pageIndex = buttonPagePop
 				</div>`)
 		: (svgMarkup
 			? `<div class="button-sim-content button-sim-content-svg" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, '${svgFieldSuffix}');">
-					<div class="button-sim-top-hit-area" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');" title="${Homey.__("settings.editTopLabel")}"></div>
+					<div class="button-sim-top-hit-area" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');" title="${Homey.__('settings.editTopLabel')}"></div>
 					<div class="button-sim-top" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');">${topText}</div>
 					<div class="button-sim-icon" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, '${svgFieldSuffix}');">${svgMarkup}</div>
 				</div>`
 			: `<div class="button-sim-content">
-					<div class="button-sim-top-hit-area" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');" title="${Homey.__("settings.editTopLabel")}"></div>
+					<div class="button-sim-top-hit-area" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');" title="${Homey.__('settings.editTopLabel')}"></div>
 					<div class="button-sim-top" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, 'TopText');">${topText}</div>
 					<div class="button-sim-state-block" onclick="${activateConfig}return handleButtonSimFieldClick(event, '${side}', ${pageIndex}, '${textFieldSuffix}');">
 						<div class="button-sim-state-line">${stateText}</div>
@@ -4937,7 +4923,7 @@ function getButtonPanelPreviewMarkup(pageConfig, side, pageIndex = buttonPagePop
 function renderInlineButtonPagePreview(page)
 {
 	const previewElements = document.querySelectorAll(`[data-button-preview-page="${page}"]`);
-	previewElements.forEach((previewElement) =>
+	previewElements.forEach(previewElement =>
 	{
 		const configIndex = Number(previewElement.dataset.configIndex);
 		const config = localButtonConfigurations[configIndex];
@@ -4949,27 +4935,26 @@ function renderInlineButtonPagePreview(page)
 		const pageConfig = config[page];
 		const leftAdvanced = isButtonSideAdvanced(pageConfig, 'left');
 		const rightAdvanced = isButtonSideAdvanced(pageConfig, 'right');
-		previewElement.innerHTML =
-			`<button class="button-sim-mode-toggle button-sim-mode-toggle-left${leftAdvanced ? ' advanced' : ''}" type="button" onclick="return toggleDisplayedButtonMode(event, ${configIndex}, 'left', ${page});" aria-pressed="${leftAdvanced ? 'true' : 'false'}" title="${Homey.__("settings.leftAdvancedLabel")}">${leftAdvanced ? 'ADV' : 'STD'}</button>
-					<button class="button-sim-mode-toggle button-sim-mode-toggle-right${rightAdvanced ? ' advanced' : ''}" type="button" onclick="return toggleDisplayedButtonMode(event, ${configIndex}, 'right', ${page});" aria-pressed="${rightAdvanced ? 'true' : 'false'}" title="${Homey.__("settings.rightAdvancedLabel")}">${rightAdvanced ? 'ADV' : 'STD'}</button>
-					<button class="button-sim-item" onclick="activateDisplayedButtonConfiguration(${configIndex}); return handleButtonSimShellClick(event, 'left', ${page});" title="${Homey.__("settings.openLeftPanelSettings")}">
+		previewElement.innerHTML =			`<button class="button-sim-mode-toggle button-sim-mode-toggle-left${leftAdvanced ? ' advanced' : ''}" type="button" onclick="return toggleDisplayedButtonMode(event, ${configIndex}, 'left', ${page});" aria-pressed="${leftAdvanced ? 'true' : 'false'}" title="${Homey.__('settings.leftAdvancedLabel')}">${leftAdvanced ? 'ADV' : 'STD'}</button>
+					<button class="button-sim-mode-toggle button-sim-mode-toggle-right${rightAdvanced ? ' advanced' : ''}" type="button" onclick="return toggleDisplayedButtonMode(event, ${configIndex}, 'right', ${page});" aria-pressed="${rightAdvanced ? 'true' : 'false'}" title="${Homey.__('settings.rightAdvancedLabel')}">${rightAdvanced ? 'ADV' : 'STD'}</button>
+					<button class="button-sim-item" onclick="activateDisplayedButtonConfiguration(${configIndex}); return handleButtonSimShellClick(event, 'left', ${page});" title="${Homey.__('settings.openLeftPanelSettings')}">
 						${getButtonPanelPreviewMarkup(pageConfig, 'left', page, configIndex)}
 					</button>
-					<div class="button-sim-click-zones-help" role="note" title="${Homey.__("settings.clickableZonesHelp")}">
-						<span class="tooltip button-sim-click-zones-tooltip" aria-label="${Homey.__("settings.clickableZonesHelp")}">
+					<div class="button-sim-click-zones-help" role="note" title="${Homey.__('settings.clickableZonesHelp')}">
+						<span class="tooltip button-sim-click-zones-tooltip" aria-label="${Homey.__('settings.clickableZonesHelp')}">
 							<i class="fi fi-rr-info" aria-hidden="true"></i>
-							<span class="tooltiptext">${normalizeTooltipHtml(Homey.__("settings.clickZonesHelpTooltip"))}</span>
+							<span class="tooltiptext">${normalizeTooltipHtml(Homey.__('settings.clickZonesHelpTooltip'))}</span>
 						</span>
 					</div>
-					<button class="button-sim-item" onclick="activateDisplayedButtonConfiguration(${configIndex}); return handleButtonSimShellClick(event, 'right', ${page});" title="${Homey.__("settings.openRightPanelSettings")}">
+					<button class="button-sim-item" onclick="activateDisplayedButtonConfiguration(${configIndex}); return handleButtonSimShellClick(event, 'right', ${page});" title="${Homey.__('settings.openRightPanelSettings')}">
 						${getButtonPanelPreviewMarkup(pageConfig, 'right', page, configIndex)}
 					</button>
 					`;
 	});
 
-	document.querySelectorAll('.button-inline-state-toggle').forEach((stateToggleElement) =>
+	document.querySelectorAll('.button-inline-state-toggle').forEach(stateToggleElement =>
 	{
-		stateToggleElement.textContent = (buttonPagePopupLedState === 'on') ? Homey.__("settings.onState") : Homey.__("settings.offState");
+		stateToggleElement.textContent = (buttonPagePopupLedState === 'on') ? Homey.__('settings.onState') : Homey.__('settings.offState');
 	});
 }
 
@@ -5012,30 +4997,29 @@ function renderButtonPagePopup()
 	}
 
 	const pageConfig = config[buttonPagePopupCurrentPage];
-	buttonPagePopupContentElement.innerHTML =
-		`<div class="button-sim-bar">
-					<button class="button-sim-item" onclick="return handleButtonSimShellClick(event, 'left', ${buttonPagePopupCurrentPage});" title="${Homey.__("settings.openLeftPanelSettings")}">
+	buttonPagePopupContentElement.innerHTML =		`<div class="button-sim-bar">
+					<button class="button-sim-item" onclick="return handleButtonSimShellClick(event, 'left', ${buttonPagePopupCurrentPage});" title="${Homey.__('settings.openLeftPanelSettings')}">
 						${getButtonPanelPreviewMarkup(pageConfig, 'left')}
 					</button>
-					<div class="button-sim-click-zones-help" role="note" title="${Homey.__("settings.clickableZonesHelp")}">
-						<span class="tooltip button-sim-click-zones-tooltip" aria-label="${Homey.__("settings.clickableZonesHelp")}">
+					<div class="button-sim-click-zones-help" role="note" title="${Homey.__('settings.clickableZonesHelp')}">
+						<span class="tooltip button-sim-click-zones-tooltip" aria-label="${Homey.__('settings.clickableZonesHelp')}">
 							<i class="fi fi-rr-info" aria-hidden="true"></i>
-							<span class="tooltiptext">${normalizeTooltipHtml(Homey.__("settings.clickZonesHelpTooltip"))}</span>
+							<span class="tooltiptext">${normalizeTooltipHtml(Homey.__('settings.clickZonesHelpTooltip'))}</span>
 						</span>
 					</div>
-					<button class="button-sim-item" onclick="return handleButtonSimShellClick(event, 'right', ${buttonPagePopupCurrentPage});" title="${Homey.__("settings.openRightPanelSettings")}">
+					<button class="button-sim-item" onclick="return handleButtonSimShellClick(event, 'right', ${buttonPagePopupCurrentPage});" title="${Homey.__('settings.openRightPanelSettings')}">
 						${getButtonPanelPreviewMarkup(pageConfig, 'right')}
 					</button>
 				</div>`;
 
 	if (buttonPagePopupStateToggleElement)
 	{
-		buttonPagePopupStateToggleElement.textContent = `${buttonPagePopupLedState === 'on' ? Homey.__("settings.onState") : Homey.__("settings.offState")}`;
+		buttonPagePopupStateToggleElement.textContent = `${buttonPagePopupLedState === 'on' ? Homey.__('settings.onState') : Homey.__('settings.offState')}`;
 	}
 
 	if (buttonPagePopupTitleElement)
 	{
-		buttonPagePopupTitleElement.textContent = `${Homey.__("settings.page")} ${formatButtonPageLabel(buttonPagePopupCurrentPage)}`;
+		buttonPagePopupTitleElement.textContent = `${Homey.__('settings.page')} ${formatButtonPageLabel(buttonPagePopupCurrentPage)}`;
 	}
 
 	if (buttonPagePopupPrevElement)
@@ -5072,7 +5056,7 @@ function focusButtonPageSectionFromPopup(page)
 		configTypeChanged('panelConfig');
 	}
 
-	const alignPageSectionBelowSim = function (attempt = 0)
+	const alignPageSectionBelowSim = function(attempt = 0)
 	{
 		updateButtonPagePopupScrollOffset();
 
@@ -5217,13 +5201,13 @@ function fillPopupCapabilitySelector(selectElement, deviceId, selectedCapability
 
 	selectElement.innerHTML = '';
 	const seenCapabilityIds = new Set();
-	const getDedupKey = (capabilityId) => String(capabilityId || '').trim().toLowerCase();
+	const getDedupKey = capabilityId => String(capabilityId || '').trim().toLowerCase();
 
 	if (filterMode === 'event')
 	{
 		const toggleOption = document.createElement('option');
 		toggleOption.value = '__toggleDirection__';
-		toggleOption.text = Homey.__("settings.toggleDirection");
+		toggleOption.text = Homey.__('settings.toggleDirection');
 		toggleOption.dataset.type = 'direction';
 		selectElement.add(toggleOption);
 	}
@@ -5232,7 +5216,7 @@ function fillPopupCapabilitySelector(selectElement, deviceId, selectedCapability
 	{
 		const noneOption = document.createElement('option');
 		noneOption.value = 'none';
-		noneOption.text = Homey.__("settings.none");
+		noneOption.text = Homey.__('settings.none');
 		selectElement.add(noneOption);
 	}
 
@@ -5254,9 +5238,9 @@ function fillPopupCapabilitySelector(selectElement, deviceId, selectedCapability
 
 		if (!variablesFetched)
 		{
-			return new Promise((resolve) =>
+			return new Promise(resolve =>
 			{
-				Homey.api('POST', '/get_variables/', {}, function (err, variables)
+				Homey.api('POST', '/get_variables/', {}, (err, variables) =>
 				{
 					if (isStaleRequest())
 					{
@@ -5320,9 +5304,9 @@ function fillPopupCapabilitySelector(selectElement, deviceId, selectedCapability
 		return Promise.resolve();
 	}
 
-	return new Promise((resolve) =>
+	return new Promise(resolve =>
 	{
-		Homey.api('POST', '/device_capabilities/', { deviceId }, function (err, capabilities)
+		Homey.api('POST', '/device_capabilities/', { deviceId }, (err, capabilities) =>
 		{
 			if (isStaleRequest())
 			{
@@ -5331,7 +5315,7 @@ function fillPopupCapabilitySelector(selectElement, deviceId, selectedCapability
 			}
 			if (!err && capabilities)
 			{
-				const inferCapabilityType = function (capabilityId)
+				const inferCapabilityType = function(capabilityId)
 				{
 					if (capabilityId === 'onoff')
 					{
@@ -5395,7 +5379,7 @@ function fillPopupCapabilitySelector(selectElement, deviceId, selectedCapability
 					seenCapabilityIds.add(dedupKey);
 				}
 
-				if (filterMode === 'event' && !Array.from(selectElement.options).some((option) => option.value !== '__toggleDirection__'))
+				if (filterMode === 'event' && !Array.from(selectElement.options).some(option => option.value !== '__toggleDirection__'))
 				{
 					const toggleOption = selectElement.querySelector('option[value="__toggleDirection__"]');
 					if (toggleOption)
@@ -5420,7 +5404,7 @@ function fillPopupCapabilitySelector(selectElement, deviceId, selectedCapability
 			}
 			else if (filterMode === 'event')
 			{
-				const firstCapabilityOption = Array.from(selectElement.options).find((option) => option.value !== '__toggleDirection__');
+				const firstCapabilityOption = Array.from(selectElement.options).find(option => option.value !== '__toggleDirection__');
 				if (firstCapabilityOption)
 				{
 					selectElement.value = firstCapabilityOption.value;
@@ -5454,9 +5438,9 @@ async function resolvePopupCapabilityType(deviceId, capabilityId)
 	{
 		if (!variablesFetched)
 		{
-			await new Promise((resolve) =>
+			await new Promise(resolve =>
 			{
-				Homey.api('POST', '/get_variables/', {}, function (err, variables)
+				Homey.api('POST', '/get_variables/', {}, (err, variables) =>
 				{
 					if (!err && variables)
 					{
@@ -5468,13 +5452,13 @@ async function resolvePopupCapabilityType(deviceId, capabilityId)
 			});
 		}
 
-		const selectedVariable = variablesArray.find((variable) => variable.id === capabilityId);
+		const selectedVariable = variablesArray.find(variable => variable.id === capabilityId);
 		return selectedVariable ? String(selectedVariable.type || '') : '';
 	}
 
-	return await new Promise((resolve) =>
+	return await new Promise(resolve =>
 	{
-		Homey.api('POST', '/device_capabilities/', { deviceId }, function (err, capabilities)
+		Homey.api('POST', '/device_capabilities/', { deviceId }, (err, capabilities) =>
 		{
 			if (err || !capabilities)
 			{
@@ -5529,68 +5513,68 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 
 	buttonFieldPopupBindings = [];
 	buttonFieldPopupContext = { side, page, isAdvancedPopup: true, popupMode: mode };
-	buttonFieldPopupTitleElement.textContent = `${Homey.__(`settings.${side}Panel`)} - ${mode === 'led' ? Homey.__("settings.ledsPopupTitle") : Homey.__("settings.advancedMappingsPopupTitle")}`;
+	buttonFieldPopupTitleElement.textContent = `${Homey.__(`settings.${side}Panel`)} - ${mode === 'led' ? Homey.__('settings.ledsPopupTitle') : Homey.__('settings.advancedMappingsPopupTitle')}`;
 
 	if (mode !== 'led')
 	{
 		buttonFieldPopupBodyElement.innerHTML = `
 					<div class="button-field-popup-field button-popup-radio-row" id="popup${side}${page}DisplayRenderRow">
-						<label class="button-popup-radio-option"><input type="radio" name="popup${side}${page}DisplayBooleanRender" value="text"> ${Homey.__("settings.textLabel")}</label>
-						<label class="button-popup-radio-option"><input type="radio" name="popup${side}${page}DisplayBooleanRender" value="svg"> ${Homey.__("settings.svgLabel")}</label>
+						<label class="button-popup-radio-option"><input type="radio" name="popup${side}${page}DisplayBooleanRender" value="text"> ${Homey.__('settings.textLabel')}</label>
+						<label class="button-popup-radio-option"><input type="radio" name="popup${side}${page}DisplayBooleanRender" value="svg"> ${Homey.__('settings.svgLabel')}</label>
 					</div>
 					<div class="button-field-popup-field" id="popup${side}${page}DisplayOnTextRow">
-						<label class="button-field-popup-label" for="popup${side}${page}DisplayOnText"><span>${Homey.__("settings.displayOnText")}</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}DisplayOnText"><span>${Homey.__('settings.displayOnText')}</span></label>
 						<input class="homey-form-input" id="popup${side}${page}DisplayOnText" type="text" maxlength="20">
 					</div>
 					<div class="button-field-popup-field" id="popup${side}${page}DisplayOffTextRow">
-						<label class="button-field-popup-label" for="popup${side}${page}DisplayOffText"><span>${Homey.__("settings.displayOffText")}</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}DisplayOffText"><span>${Homey.__('settings.displayOffText')}</span></label>
 						<input class="homey-form-input" id="popup${side}${page}DisplayOffText" type="text" maxlength="20">
 					</div>
 					<div class="button-field-popup-field" id="popup${side}${page}DisplayOnSvgRow">
-						<label class="button-field-popup-label" for="popup${side}${page}DisplayOnSVG"><span>${Homey.__("settings.displayOnSvg")}</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}DisplayOnSVG"><span>${Homey.__('settings.displayOnSvg')}</span></label>
 						<textarea class="homey-form-textarea" id="popup${side}${page}DisplayOnSVG" style="min-height:120px;"></textarea>
 					</div>
 					<div class="button-field-popup-field" id="popup${side}${page}DisplayOffSvgRow">
-						<label class="button-field-popup-label" for="popup${side}${page}DisplayOffSVG"><span>${Homey.__("settings.displayOffSvg")}</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}DisplayOffSVG"><span>${Homey.__('settings.displayOffSvg')}</span></label>
 						<textarea class="homey-form-textarea" id="popup${side}${page}DisplayOffSVG" style="min-height:120px;"></textarea>
 					</div>
 					<hr>
 					<div class="button-field-popup-field">
-						<label class="button-field-popup-label" for="popup${side}${page}ClickDevice"><span>${Homey.__("settings.clickTargetDevice")}</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}ClickDevice"><span>${Homey.__('settings.clickTargetDevice')}</span></label>
 						${buildDeviceSelectHtml(`popup${side}${page}ClickDevice`)}
 					</div>
 					<div class="button-field-popup-field">
-						<label class="button-field-popup-label" for="popup${side}${page}ClickCapability"><span>${Homey.__("settings.clickActionCapability")}</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}ClickCapability"><span>${Homey.__('settings.clickActionCapability')}</span></label>
 						<select class="homey-form-select" id="popup${side}${page}ClickCapability"></select>
 					</div>
 					<div class="button-field-popup-field" id="popup${side}${page}ClickValueStepRow">
-						<label class="button-field-popup-label" for="popup${side}${page}ClickValueStep"><span>${Homey.__("settings.clickValueStep")}</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}ClickValueStep"><span>${Homey.__('settings.clickValueStep')}</span></label>
 						<input class="homey-form-input" id="popup${side}${page}ClickValueStep" type="text">
 					</div>
 					<hr>
 					<div class="button-field-popup-field">
-						<label class="button-field-popup-label" for="popup${side}${page}DoubleDevice"><span>${Homey.__("settings.doubleClickTargetDevice")}</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}DoubleDevice"><span>${Homey.__('settings.doubleClickTargetDevice')}</span></label>
 						${buildDeviceSelectHtml(`popup${side}${page}DoubleDevice`)}
 					</div>
 					<div class="button-field-popup-field">
-						<label class="button-field-popup-label" for="popup${side}${page}DoubleCapability"><span>${Homey.__("settings.doubleClickActionCapability")}</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}DoubleCapability"><span>${Homey.__('settings.doubleClickActionCapability')}</span></label>
 						<select class="homey-form-select" id="popup${side}${page}DoubleCapability"></select>
 					</div>
 					<div class="button-field-popup-field" id="popup${side}${page}DoubleValueStepRow">
-						<label class="button-field-popup-label" for="popup${side}${page}DoubleValueStep"><span>${Homey.__("settings.doubleClickValueStep")}</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}DoubleValueStep"><span>${Homey.__('settings.doubleClickValueStep')}</span></label>
 						<input class="homey-form-input" id="popup${side}${page}DoubleValueStep" type="text">
 					</div>
 					<hr>
 					<div class="button-field-popup-field">
-						<label class="button-field-popup-label" for="popup${side}${page}LongDevice"><span>${Homey.__("settings.longRepeatTargetDevice")}</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}LongDevice"><span>${Homey.__('settings.longRepeatTargetDevice')}</span></label>
 						${buildDeviceSelectHtml(`popup${side}${page}LongDevice`)}
 					</div>
 					<div class="button-field-popup-field">
-						<label class="button-field-popup-label" for="popup${side}${page}LongCapability"><span>${Homey.__("settings.longRepeatActionCapability")}</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}LongCapability"><span>${Homey.__('settings.longRepeatActionCapability')}</span></label>
 						<select class="homey-form-select" id="popup${side}${page}LongCapability"></select>
 					</div>
 					<div class="button-field-popup-field" id="popup${side}${page}LongValueStepRow">
-						<label class="button-field-popup-label" for="popup${side}${page}LongValueStep"><span>${Homey.__("settings.longRepeatValueStep")}</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}LongValueStep"><span>${Homey.__('settings.longRepeatValueStep')}</span></label>
 						<input class="homey-form-input" id="popup${side}${page}LongValueStep" type="text">
 					</div>`;
 	}
@@ -5599,26 +5583,26 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 		buttonFieldPopupBodyElement.innerHTML = `
 					${showLedSourceSelectors ? `
 					<div class="button-field-popup-field">
-						<label class="button-field-popup-label" for="popup${side}${page}LedDevice"><span>${Homey.__("settings.ledSourceDevice")}</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}LedDevice"><span>${Homey.__('settings.ledSourceDevice')}</span></label>
 						${buildDeviceSelectHtml(`popup${side}${page}LedDevice`)}
 					</div>
 					<div class="button-field-popup-field">
-						<label class="button-field-popup-label" for="popup${side}${page}LedCapability"><span>${Homey.__("settings.ledSourceCapability")}</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}LedCapability"><span>${Homey.__('settings.ledSourceCapability')}</span></label>
 						<select class="homey-form-select" id="popup${side}${page}LedCapability"></select>
 					</div>` : ''}
 					${showLedSourceSelectors ? `
 					<div class="button-field-popup-field" id="popup${side}${page}LedOnOffRow">
-						<label class="button-field-popup-label" for="popup${side}${page}LedOnOffCapability"><span>${Homey.__("settings.ledOnOffCapability")}</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}LedOnOffCapability"><span>${Homey.__('settings.ledOnOffCapability')}</span></label>
 						<select class="homey-form-select" id="popup${side}${page}LedOnOffCapability"></select>
 					</div>` : ''}
 					<div class="button-popup-led-matrix" id="popup${side}${page}LedColorMatrix">
 						<div class="button-popup-led-empty"></div>
-						<div class="button-popup-led-header button-popup-led-header-on">${Homey.__("settings.ledMatrixOn")}</div>
-						<div class="button-popup-led-header button-popup-led-header-off">${Homey.__("settings.ledMatrixOff")}</div>
-						<div class="button-popup-led-row button-popup-led-row-front">${Homey.__("settings.ledMatrixFront")}</div>
+						<div class="button-popup-led-header button-popup-led-header-on">${Homey.__('settings.ledMatrixOn')}</div>
+						<div class="button-popup-led-header button-popup-led-header-off">${Homey.__('settings.ledMatrixOff')}</div>
+						<div class="button-popup-led-row button-popup-led-row-front">${Homey.__('settings.ledMatrixFront')}</div>
 						<input class="homey-form-input button-popup-led-input button-popup-led-input-front-on" id="popup${side}${page}FrontLEDOnColor" type="color">
 						<input class="homey-form-input button-popup-led-input button-popup-led-input-front-off" id="popup${side}${page}FrontLEDOffColor" type="color">
-						<div class="button-popup-led-row button-popup-led-row-wall">${Homey.__("settings.ledMatrixWall")}</div>
+						<div class="button-popup-led-row button-popup-led-row-wall">${Homey.__('settings.ledMatrixWall')}</div>
 						<input class="homey-form-input button-popup-led-input button-popup-led-input-wall-on" id="popup${side}${page}WallLEDOnColor" type="color">
 						<input class="homey-form-input button-popup-led-input button-popup-led-input-wall-off" id="popup${side}${page}WallLEDOffColor" type="color">
 					</div>`;
@@ -5642,7 +5626,7 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 		const displayDeviceId = pageConfig[`${side}DisplayDevice`] || 'none';
 		const displayCapabilityId = pageConfig[`${side}DisplayCapability`] || '';
 		const displayCapabilityType = await resolvePopupCapabilityType(displayDeviceId, displayCapabilityId);
-		const updateDisplayRenderVisibility = function ()
+		const updateDisplayRenderVisibility = function()
 		{
 			if (!displayRenderRowElement)
 			{
@@ -5678,7 +5662,7 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 			renderInput.checked = true;
 		}
 
-		buttonFieldPopupBodyElement.querySelectorAll(`input[name="popup${side}${page}DisplayBooleanRender"]`).forEach((input) =>
+		buttonFieldPopupBodyElement.querySelectorAll(`input[name="popup${side}${page}DisplayBooleanRender"]`).forEach(input =>
 		{
 			input.addEventListener('change', updateDisplayRenderVisibility);
 		});
@@ -5695,7 +5679,7 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 				continue;
 			}
 
-			const updateStepVisibility = function ()
+			const updateStepVisibility = function()
 			{
 				const selectedOption = capElement.selectedOptions ? capElement.selectedOptions[0] : null;
 				const selectedType = selectedOption ? (selectedOption.dataset.type || '') : '';
@@ -5703,7 +5687,7 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 				const showStep = selectedType === 'number' || selectedValue === 'dim';
 				stepRowElement.style.display = showStep ? '' : 'none';
 			};
-			const updateFlowTriggerState = function ()
+			const updateFlowTriggerState = function()
 			{
 				const selectedOption = capElement.selectedOptions ? capElement.selectedOptions[0] : null;
 				const isFlowTriggerOnly = devElement.value === 'none' || (selectedOption && selectedOption.dataset.flowTriggerOnly === 'true');
@@ -5735,7 +5719,7 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 			stepElement.value = pageConfig[`${side}${eventName}ValueStep`] || '+10';
 			updateFlowTriggerState();
 
-			devElement.addEventListener('change', function ()
+			devElement.addEventListener('change', () =>
 			{
 				fillPopupCapabilitySelector(capElement, devElement.value, '', 'event').then(() =>
 				{
@@ -5756,7 +5740,7 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 		{
 			const ledColorMatrixElement = document.getElementById(`popup${side}${page}LedColorMatrix`);
 			const ledOnOffRowElement = document.getElementById(`popup${side}${page}LedOnOffRow`);
-			const updateLedColorMatrixVisibility = function ()
+			const updateLedColorMatrixVisibility = function()
 			{
 				if (!ledColorMatrixElement)
 				{
@@ -5781,7 +5765,7 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 				await fillPopupCapabilitySelector(ledOnOffCapabilityElement, ledDeviceElement.value, pageConfig[`${side}LedOnOffCapability`] || 'none', 'onoff');
 			}
 			updateLedColorMatrixVisibility();
-			ledDeviceElement.addEventListener('change', function ()
+			ledDeviceElement.addEventListener('change', () =>
 			{
 				Promise.all([
 					fillPopupCapabilitySelector(ledCapabilityElement, ledDeviceElement.value, '', 'led'),
@@ -5819,7 +5803,7 @@ function saveAdvancedButtonPopup()
 	const pageConfig = config[page];
 	ensureButtonSideAdvancedDefaults(pageConfig, side);
 
-	const syncMainControlValue = function (suffix, value)
+	const syncMainControlValue = function(suffix, value)
 	{
 		const element = document.getElementById(`${side}${page}${suffix}`);
 		if (element)
@@ -5996,7 +5980,7 @@ function getButtonFieldPopupSpec(side, page, fieldSuffix)
 	if (fieldSuffix.endsWith('Color'))
 	{
 		return {
-			title: `${sideLabel} - ${Homey.__("settings.ledsPopupTitle")}`,
+			title: `${sideLabel} - ${Homey.__('settings.ledsPopupTitle')}`,
 			fields: ['FrontLEDOnColor', 'WallLEDOnColor', 'FrontLEDOffColor', 'WallLEDOffColor'],
 			labels,
 			tooltipKeys,
@@ -6075,7 +6059,7 @@ function updateButtonFieldPopupCapabilityState(popupElementsBySuffix)
 
 	// Dim buttons show their level and direction on the display instead, so the On/Off text and icon fields don't apply
 	const isDimCapability = (capabilityElement.value === 'dim');
-	const selectedVariable = (deviceValue === '_variable_') ? variablesArray.find((variable) => variable.id === capabilityElement.value) : null;
+	const selectedVariable = (deviceValue === '_variable_') ? variablesArray.find(variable => variable.id === capabilityElement.value) : null;
 	const isNonBooleanVariable = !!selectedVariable && (selectedVariable.type !== 'boolean');
 	const selectedCapabilityOption = capabilityElement.selectedOptions ? capabilityElement.selectedOptions[0] : null;
 	const selectedCapabilityType = selectedCapabilityOption ? selectedCapabilityOption.dataset.type : '';
@@ -6178,8 +6162,8 @@ function appendButtonFieldPopupBooleanRenderControls(side, page, popupElementsBy
 
 	const radioName = `buttonPopup${side}${page}BasicBooleanRender`;
 	renderRow.innerHTML = `
-				<label class="button-popup-radio-option"><input type="radio" name="${radioName}" value="text"> ${Homey.__("settings.textLabel")}</label>
-				<label class="button-popup-radio-option"><input type="radio" name="${radioName}" value="svg"> ${Homey.__("settings.svgLabel")}</label>`;
+				<label class="button-popup-radio-option"><input type="radio" name="${radioName}" value="text"> ${Homey.__('settings.textLabel')}</label>
+				<label class="button-popup-radio-option"><input type="radio" name="${radioName}" value="svg"> ${Homey.__('settings.svgLabel')}</label>`;
 
 	const checkedInput = renderRow.querySelector(`input[name="${radioName}"][value="${popupElementsBySuffix.__booleanRenderMode}"]`);
 	if (checkedInput)
@@ -6187,7 +6171,7 @@ function appendButtonFieldPopupBooleanRenderControls(side, page, popupElementsBy
 		checkedInput.checked = true;
 	}
 
-	renderRow.addEventListener('change', function ()
+	renderRow.addEventListener('change', () =>
 	{
 		const selectedInput = renderRow.querySelector(`input[name="${radioName}"]:checked`);
 		popupElementsBySuffix.__booleanRenderMode = selectedInput ? selectedInput.value : 'text';
@@ -6304,8 +6288,8 @@ function saveButtonFieldPopup()
 
 	if (buttonFieldPopupContext && buttonFieldPopupContext.popupElementsBySuffix && buttonFieldPopupContext.popupElementsBySuffix.Device && buttonFieldPopupContext.popupElementsBySuffix.Capability)
 	{
-		const side = buttonFieldPopupContext.side;
-		const page = buttonFieldPopupContext.page;
+		const { side } = buttonFieldPopupContext;
+		const { page } = buttonFieldPopupContext;
 		const config = localButtonConfigurations[currentButtonConfigurationNo];
 		const pageConfig = Array.isArray(config) ? config[page] : null;
 		if (pageConfig)
@@ -6329,9 +6313,9 @@ function saveButtonFieldPopup()
 
 		if (sourceCapabilityElement && shouldApplyCapability)
 		{
-			const applyCapabilityValue = function (attempt = 0)
+			const applyCapabilityValue = function(attempt = 0)
 			{
-				const hasOption = Array.from(sourceCapabilityElement.options || []).some((option) => option.value === capabilityValue);
+				const hasOption = Array.from(sourceCapabilityElement.options || []).some(option => option.value === capabilityValue);
 				if (hasOption)
 				{
 					sourceCapabilityElement.value = capabilityValue;
@@ -6543,7 +6527,7 @@ function openButtonFieldPopup(side, page, fieldSuffix, retryCount = 0)
 		}
 		updateButtonFieldPopupCapabilityState(popupElementsBySuffix);
 
-		popupElementsBySuffix.Device.addEventListener('change', function ()
+		popupElementsBySuffix.Device.addEventListener('change', () =>
 		{
 			const sourceDeviceElement = document.getElementById(`${side}${page}Device`);
 			if (sourceDeviceElement)
@@ -6584,7 +6568,7 @@ function openButtonFieldPopup(side, page, fieldSuffix, retryCount = 0)
 			}, 320);
 		});
 
-		popupElementsBySuffix.Capability.addEventListener('change', function ()
+		popupElementsBySuffix.Capability.addEventListener('change', () =>
 		{
 			if (popupCapabilityIndicatorElement)
 			{
@@ -6789,7 +6773,7 @@ function updateDisplayFieldPopupCapabilityState(popupElementsBySuffix)
 	}
 	else if (deviceValue === '_variable_')
 	{
-		const selectedVariable = variablesArray.find((v) => v.id === capabilityId);
+		const selectedVariable = variablesArray.find(v => v.id === capabilityId);
 		isBoolean = !!selectedVariable && (selectedVariable.type === 'boolean');
 	}
 	else if (deviceValue !== 'customMQTT')
@@ -6892,7 +6876,7 @@ function saveDisplayFieldPopup()
 
 	if (displayFieldPopupContext && displayFieldPopupContext.popupElementsBySuffix && displayFieldPopupContext.popupElementsBySuffix.Device && displayFieldPopupContext.popupElementsBySuffix.Capability)
 	{
-		const itemNo = displayFieldPopupContext.itemNo;
+		const { itemNo } = displayFieldPopupContext;
 		const deviceValue = displayFieldPopupContext.popupElementsBySuffix.Device.value;
 		const capabilityValue = displayFieldPopupContext.popupElementsBySuffix.Capability.value;
 		const shouldApplyCapability = (deviceValue !== 'none' && deviceValue !== 'customMQTT');
@@ -6908,9 +6892,9 @@ function saveDisplayFieldPopup()
 
 		if (sourceCapabilityElement && shouldApplyCapability)
 		{
-			const applyCapabilityValue = function (attempt = 0)
+			const applyCapabilityValue = function(attempt = 0)
 			{
-				const hasOption = Array.from(sourceCapabilityElement.options || []).some((option) => option.value === capabilityValue);
+				const hasOption = Array.from(sourceCapabilityElement.options || []).some(option => option.value === capabilityValue);
 				if (hasOption)
 				{
 					sourceCapabilityElement.value = capabilityValue;
@@ -7091,7 +7075,7 @@ function openDisplayFieldPopup(itemNo, fieldSuffix, retryCount = 0)
 	{
 		appendDisplayFieldPopupCustomMQTTSection(itemNo);
 
-		popupElementsBySuffix.Device.addEventListener('change', function ()
+		popupElementsBySuffix.Device.addEventListener('change', () =>
 		{
 			const sourceDeviceElement = document.getElementById(`display${itemNo}Device`);
 			if (sourceDeviceElement)
@@ -7108,7 +7092,7 @@ function openDisplayFieldPopup(itemNo, fieldSuffix, retryCount = 0)
 			}, 140);
 		});
 
-		popupElementsBySuffix.Capability.addEventListener('change', function ()
+		popupElementsBySuffix.Capability.addEventListener('change', () =>
 		{
 			updateDisplayFieldPopupCapabilityState(popupElementsBySuffix);
 		});
@@ -7667,7 +7651,7 @@ function getDisplayPopupFontPx(fontSize)
 
 function getDisplayPopupItemHeightPercent(fontSize)
 {
-	let fontIdx = parseInt(fontSize, 10);
+	const fontIdx = parseInt(fontSize, 10);
 	switch (fontIdx)
 	{
 		case 1:
@@ -7692,7 +7676,7 @@ function adjustWrappedDisplayItemHeights(rootElement)
 		return;
 	}
 
-	rootElement.querySelectorAll('.display-sim-item[data-base-height-percent]').forEach((itemElement) =>
+	rootElement.querySelectorAll('.display-sim-item[data-base-height-percent]').forEach(itemElement =>
 	{
 		const labelElement = itemElement.querySelector('.display-sim-top-label');
 		const baseHeightPercent = parseFloat(itemElement.dataset.baseHeightPercent);
@@ -7711,7 +7695,7 @@ function adjustWrappedDisplayItemHeights(rootElement)
 	});
 
 	// SVG items use the full viewport because blank SVG space is also rendered by the hardware.
-	rootElement.querySelectorAll('.display-sim-item .display-sim-svg svg').forEach((svgElement) =>
+	rootElement.querySelectorAll('.display-sim-item .display-sim-svg svg').forEach(svgElement =>
 	{
 		const itemElement = svgElement.closest('.display-sim-item');
 		if (!itemElement)
@@ -7813,7 +7797,7 @@ function formatDisplayPopupValue(value, rounding, item = null)
 
 	if (item && item.enumMeta && Array.isArray(item.enumMeta))
 	{
-		const match = item.enumMeta.find((entry) => entry.id === String(value));
+		const match = item.enumMeta.find(entry => entry.id === String(value));
 		if (match)
 		{
 			return match.title || match.id;
@@ -7902,13 +7886,13 @@ function refreshDisplayPopupLiveValues()
 
 			if (Array.isArray(group.connectorConfigNos))
 			{
-				group.connectorConfigNos.forEach((btnConfigNo) =>
+				group.connectorConfigNos.forEach(btnConfigNo =>
 				{
 					if (btnConfigNo === null || btnConfigNo === undefined || !localButtonConfigurations[btnConfigNo]) return;
 					const pages = Array.isArray(localButtonConfigurations[btnConfigNo]) ? localButtonConfigurations[btnConfigNo] : [localButtonConfigurations[btnConfigNo]];
 					const pConfig = pages[groupSimCurrentPage];
 					if (!pConfig) return;
-					['left', 'right'].forEach((side) =>
+					['left', 'right'].forEach(side =>
 					{
 						const devId = pConfig[`${side}Device`];
 						const capId = pConfig[`${side}Capability`];
@@ -7935,11 +7919,11 @@ function refreshDisplayPopupLiveValues()
 		const parts = pair.split('::');
 		const deviceId = parts[0];
 		const capabilityId = parts[1];
-		requests.push(new Promise((resolve) =>
+		requests.push(new Promise(resolve =>
 		{
 			Homey.api('POST', '/device_capability_value/',
 				{ deviceId, capabilityId },
-				function (err, result)
+				(err, result) =>
 				{
 					if (!err && result && result.success)
 					{
@@ -7957,9 +7941,9 @@ function refreshDisplayPopupLiveValues()
 
 	if (variableIds.size > 0)
 	{
-		requests.push(new Promise((resolve) =>
+		requests.push(new Promise(resolve =>
 		{
-			Homey.api('POST', '/get_variables/', {}, function (err, variables)
+			Homey.api('POST', '/get_variables/', {}, (err, variables) =>
 			{
 				if (!err && variables)
 				{
@@ -7971,7 +7955,6 @@ function refreshDisplayPopupLiveValues()
 							displayPagePopupVariableValueCache.set(variable.id, variable.value);
 						}
 					}
-					displayPagePopupVariableValueFetchedAt = Date.now();
 				}
 				resolve();
 			});
@@ -8025,7 +8008,7 @@ function focusDisplayControlFromPopup(itemNo, fieldSuffix)
 		configTypeChanged('displayConfig');
 	}
 
-	const alignDisplaySectionBelowSim = function (attempt = 0)
+	const alignDisplaySectionBelowSim = function(attempt = 0)
 	{
 		const focusCandidatesBySuffix = {
 			Label: ['Label'],
@@ -8037,7 +8020,7 @@ function focusDisplayControlFromPopup(itemNo, fieldSuffix)
 		};
 		const suffixCandidates = focusCandidatesBySuffix[fieldSuffix] || [fieldSuffix, 'Label'];
 
-		const resolveFocusElement = function (preferVisible = false, allowLabelFallback = true)
+		const resolveFocusElement = function(preferVisible = false, allowLabelFallback = true)
 		{
 			for (const suffix of suffixCandidates)
 			{
@@ -8145,7 +8128,7 @@ function renderDisplaySimulatorSurface(surfaceElement, titleElement, prevElement
 		return;
 	}
 
-	const setDisplayInlineDeleteButtonState = function (buttonElement, canDelete)
+	const setDisplayInlineDeleteButtonState = function(buttonElement, canDelete)
 	{
 		if (!buttonElement)
 		{
@@ -8157,17 +8140,17 @@ function renderDisplaySimulatorSurface(surfaceElement, titleElement, prevElement
 	};
 
 	const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
-	const displayMoveHandleTitle = escapeHtml(Homey.__("settings.displaySimMoveHandleTitle"));
-	const displayMoveHandleAria = escapeHtml(Homey.__("settings.displaySimMoveHandleAria"));
-	const displayResizeHandleTitle = escapeHtml(Homey.__("settings.displaySimResizeHandleTitle"));
-	const displayResizeHandleAria = escapeHtml(Homey.__("settings.displaySimResizeHandleAria"));
-	const displayTooltipX = escapeHtml(Homey.__("settings.displaySimTooltipX"));
-	const displayTooltipY = escapeHtml(Homey.__("settings.displaySimTooltipY"));
-	const displayTooltipW = escapeHtml(Homey.__("settings.displaySimTooltipW"));
-	const displayLoadingPlaceholder = escapeHtml(Homey.__("settings.displaySimLoading"));
-	const displayEmptyMessage = escapeHtml(Homey.__("settings.displaySimEmptyMessage"));
-	const displayStatusLeftPlaceholder = escapeHtml(Homey.__("settings.displaySimStatusLeftPlaceholder"));
-	const displayStatusRightPlaceholder = escapeHtml(Homey.__("settings.displaySimStatusRightPlaceholder"));
+	const displayMoveHandleTitle = escapeHtml(Homey.__('settings.displaySimMoveHandleTitle'));
+	const displayMoveHandleAria = escapeHtml(Homey.__('settings.displaySimMoveHandleAria'));
+	const displayResizeHandleTitle = escapeHtml(Homey.__('settings.displaySimResizeHandleTitle'));
+	const displayResizeHandleAria = escapeHtml(Homey.__('settings.displaySimResizeHandleAria'));
+	const displayTooltipX = escapeHtml(Homey.__('settings.displaySimTooltipX'));
+	const displayTooltipY = escapeHtml(Homey.__('settings.displaySimTooltipY'));
+	const displayTooltipW = escapeHtml(Homey.__('settings.displaySimTooltipW'));
+	const displayLoadingPlaceholder = escapeHtml(Homey.__('settings.displaySimLoading'));
+	const displayEmptyMessage = escapeHtml(Homey.__('settings.displaySimEmptyMessage'));
+	const displayStatusLeftPlaceholder = escapeHtml(Homey.__('settings.displaySimStatusLeftPlaceholder'));
+	const displayStatusRightPlaceholder = escapeHtml(Homey.__('settings.displaySimStatusRightPlaceholder'));
 	if (!displayConfiguration || !Array.isArray(displayConfiguration.items))
 	{
 		surfaceElement.innerHTML = '';
@@ -8381,7 +8364,7 @@ function renderDisplaySimulatorSurface(surfaceElement, titleElement, prevElement
 		nextElement.disabled = (pages.indexOf(displayPagePopupCurrentPage) >= pages.length - 1);
 	}
 
-	const hasSelection = pageItems.some((entry) => !entry.isPageZeroOverlay && entry.itemNo === displayInlineSelectedItemNo);
+	const hasSelection = pageItems.some(entry => !entry.isPageZeroOverlay && entry.itemNo === displayInlineSelectedItemNo);
 	setDisplayInlineDeleteButtonState(displayInlineSimDeleteItemElement, hasSelection);
 
 	const canDeleteCurrentPage = (displayPagePopupCurrentPage > 0);
@@ -8436,7 +8419,7 @@ function openDisplayPagePopup(page)
 	displayPagePopupCurrentPage = pages.includes(page) ? page : pages[0];
 	if (displayPagePopupStatusBarPositionElement)
 	{
-		displayPagePopupStatusBarPositionElement.onchange = function ()
+		displayPagePopupStatusBarPositionElement.onchange = function()
 		{
 			const selectedStatusBarPosition = parseInt(this.value, 10) || 0;
 			displayPagePopupStatusBarPosition = selectedStatusBarPosition;
@@ -8509,23 +8492,24 @@ function sortDevices(devicesArray)
 
 function filterButtonDevices(devices)
 {
-	return devices.filter((device) =>
+	return devices.filter(device =>
 	{
 		// Check if at least one capability has type "boolean"
 		if (device.capabilitiesObj)
 		{
-			return Object.values(device.capabilitiesObj).some((capability) =>
+			return Object.values(device.capabilitiesObj).some(capability =>
 			{
-				return ((capability.type === "boolean") || (capability.id === "dim") || (capability.id === "windowcoverings_state"));
+				return ((capability.type === 'boolean') || (capability.id === 'dim') || (capability.id === 'windowcoverings_state'));
 			});
 		}
+		return false;
 	});
 }
 
 // Fetch the devices and then update the displays
 function getDevices()
 {
-	Homey.api('POST', '/Devices/', {}, function (err, devices)
+	Homey.api('POST', '/Devices/', {}, (err, devices) =>
 	{
 		if (err) return Homey.alert(err);
 
@@ -8539,7 +8523,7 @@ function getDevices()
 		buttonDevicesFetched = true;
 
 		// Get the current configuration
-		var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+		const buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
 
 		writeButtonsections(buttonPanelConfiguration.length);
 		updateButtonPanelControls();
@@ -8552,7 +8536,7 @@ function fillButtonDevices()
 	if (buttonDevicesFetched)
 	{
 		// Get the number of pages in the current configuration
-		var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+		let buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
 
 		// Make sure buttonPanelConfiguration is an array
 		if (!Array.isArray(buttonPanelConfiguration))
@@ -8560,7 +8544,7 @@ function fillButtonDevices()
 			buttonPanelConfiguration = [buttonPanelConfiguration];
 			localButtonConfigurations[currentButtonConfigurationNo] = buttonPanelConfiguration;
 		}
-		var numPages = buttonPanelConfiguration.length;
+		const numPages = buttonPanelConfiguration.length;
 
 		for (let i = 0; i < numPages; i++)
 		{
@@ -8568,22 +8552,22 @@ function fillButtonDevices()
 			fillDevicesElement(leftElement, buttonDevicesArray);
 
 			// Select the current device
-			const leftDevice = buttonPanelConfiguration[i].leftDevice;
+			const { leftDevice } = buttonPanelConfiguration[i];
 			if (leftDevice)
 			{
 				// If the device is not in the element options list then add it
 				if (!Array.from(leftElement.options).some(option => option.value === leftDevice))
 				{
-					var option = document.createElement("option");
-					option.text = buttonPanelConfiguration[i].leftDeviceName + " (Missing)";
+					var option = document.createElement('option');
+					option.text = `${buttonPanelConfiguration[i].leftDeviceName} (Missing)`;
 					option.value = leftDevice;
 					leftElement.add(option);
 
 					leftElement.value = leftDevice;
 
 					// As the device is missing the capability is also missing so add it to the list
-					var option = document.createElement("option");
-					option.text = buttonPanelConfiguration[i].leftCapabilityName + " (Missing)";
+					var option = document.createElement('option');
+					option.text = `${buttonPanelConfiguration[i].leftCapabilityName} (Missing)`;
 					option.value = buttonPanelConfiguration[i].leftCapability;
 					document.getElementById(`left${i}Capability`).add(option);
 
@@ -8592,7 +8576,6 @@ function fillButtonDevices()
 
 					// Show the capability section
 					document.getElementById(`left${i}Capability`).style.display = itemDisplyType;
-
 				}
 				else
 				{
@@ -8607,22 +8590,22 @@ function fillButtonDevices()
 			fillDevicesElement(rightElement, buttonDevicesArray);
 
 			// Select the current device
-			const rightDevice = buttonPanelConfiguration[i].rightDevice;
+			const { rightDevice } = buttonPanelConfiguration[i];
 			if (rightDevice)
 			{
 				// If the device is not in the element options list then add it
 				if (!Array.from(rightElement.options).some(option => option.value === rightDevice))
 				{
-					var option = document.createElement("option");
-					option.text = buttonPanelConfiguration[i].rightDeviceName + " (Missing)";
+					var option = document.createElement('option');
+					option.text = `${buttonPanelConfiguration[i].rightDeviceName} (Missing)`;
 					option.value = rightDevice;
 					rightElement.add(option);
 
 					rightElement.value = rightDevice;
 
 					// As the device is missing the capability is also missing so add it to the list
-					var option = document.createElement("option");
-					option.text = buttonPanelConfiguration[i].rightCapabilityName + " (Missing)";
+					var option = document.createElement('option');
+					option.text = `${buttonPanelConfiguration[i].rightCapabilityName} (Missing)`;
 					option.value = buttonPanelConfiguration[i].rightCapability;
 					document.getElementById(`right${i}Capability`).add(option);
 
@@ -8641,7 +8624,7 @@ function fillButtonDevices()
 
 			updateButtonDeviceIndicator('right', i);
 		}
-	};
+	}
 }
 
 function getButtonDeviceClassIcon(deviceClass)
@@ -8795,7 +8778,7 @@ function updateButtonDeviceIndicator(side, page)
 		}
 		else
 		{
-			const selectedDevice = buttonDevicesArray.find((device) => device.id === deviceElement.value);
+			const selectedDevice = buttonDevicesArray.find(device => device.id === deviceElement.value);
 			if (selectedDevice)
 			{
 				const iconObj = selectedDevice.iconObj || {};
@@ -8816,7 +8799,7 @@ function updateButtonDeviceIndicator(side, page)
 		iconImage.alt = '';
 		iconImage.loading = 'lazy';
 		iconImage.decoding = 'async';
-		iconImage.addEventListener('error', function ()
+		iconImage.addEventListener('error', () =>
 		{
 			const iconFallback = document.createElement('span');
 			iconFallback.className = 'button-device-active-icon-fallback';
@@ -8864,7 +8847,7 @@ function updateButtonCapabilityIndicator(side, page)
 		iconImage.alt = '';
 		iconImage.loading = 'lazy';
 		iconImage.decoding = 'async';
-		iconImage.addEventListener('error', function ()
+		iconImage.addEventListener('error', () =>
 		{
 			const iconFallback = document.createElement('span');
 			iconFallback.className = 'button-capability-active-icon-fallback';
@@ -8922,7 +8905,7 @@ function updatePopupDeviceIndicator(deviceElement, indicatorElement)
 		}
 		else
 		{
-			const selectedDevice = buttonDevicesArray.find((device) => device.id === deviceElement.value);
+			const selectedDevice = buttonDevicesArray.find(device => device.id === deviceElement.value);
 			if (selectedDevice)
 			{
 				const iconObj = selectedDevice.iconObj || {};
@@ -8943,7 +8926,7 @@ function updatePopupDeviceIndicator(deviceElement, indicatorElement)
 		iconImage.alt = '';
 		iconImage.loading = 'lazy';
 		iconImage.decoding = 'async';
-		iconImage.addEventListener('error', function ()
+		iconImage.addEventListener('error', () =>
 		{
 			const iconFallback = document.createElement('span');
 			iconFallback.className = 'button-field-popup-device-icon-fallback';
@@ -8989,7 +8972,7 @@ function updatePopupCapabilityIndicator(capabilityElement, indicatorElement)
 		iconImage.alt = '';
 		iconImage.loading = 'lazy';
 		iconImage.decoding = 'async';
-		iconImage.addEventListener('error', function ()
+		iconImage.addEventListener('error', () =>
 		{
 			const iconFallback = document.createElement('span');
 			iconFallback.className = 'button-field-popup-capability-icon-fallback';
@@ -9016,31 +8999,31 @@ function fillDevicesElement(Element, DevicesArray, includeTargetButtonPlus = fal
 {
 	if (Element && (DevicesArray.length > 0))
 	{
-		//fill the device lists with devices
-		Element.innerHTML = "";
+		// fill the device lists with devices
+		Element.innerHTML = '';
 
-		var option = document.createElement("option");
-		option.text = Homey.__("settings.none");
-		option.value = "none";
+		var option = document.createElement('option');
+		option.text = Homey.__('settings.none');
+		option.value = 'none';
 		option.dataset.deviceClass = 'none';
 		Element.add(option);
 
-		var option = document.createElement("option");
-		option.text = Homey.__("settings.variable");
-		option.value = "_variable_";
+		var option = document.createElement('option');
+		option.text = Homey.__('settings.variable');
+		option.value = '_variable_';
 		option.dataset.deviceClass = 'variable';
 		Element.add(option);
 
-		var option = document.createElement("option");
-		option.text = Homey.__("settings.customMQTT");
-		option.value = "customMQTT";
+		var option = document.createElement('option');
+		option.text = Homey.__('settings.customMQTT');
+		option.value = 'customMQTT';
 		option.dataset.deviceClass = 'custommqtt';
 		Element.add(option);
 
 		if (includeTargetButtonPlus)
 		{
-			var option = document.createElement("option");
-			option.text = "Target Button+";
+			var option = document.createElement('option');
+			option.text = 'Target Button+';
 			option.value = TARGET_BUTTON_PLUS_DEVICE_ID;
 			option.dataset.deviceClass = 'button-plus';
 			Element.add(option);
@@ -9050,9 +9033,9 @@ function fillDevicesElement(Element, DevicesArray, includeTargetButtonPlus = fal
 		for (const device of DevicesArray)
 		{
 			const zoneName = device.zone.name ?? device.zoneName;
-			if (deviceGroup != zoneName)
+			if (deviceGroup !== zoneName)
 			{
-				var option = document.createElement("option");
+				var option = document.createElement('option');
 				deviceGroup = zoneName;
 				option.text = deviceGroup;
 				option.value = deviceGroup;
@@ -9060,8 +9043,8 @@ function fillDevicesElement(Element, DevicesArray, includeTargetButtonPlus = fal
 				Element.add(option);
 			}
 
-			var option = document.createElement("option");
-			option.text = "\xA0\xA0" + device.name;
+			var option = document.createElement('option');
+			option.text = `\xA0\xA0${device.name}`;
 			option.value = device.id;
 			const iconObj = device.iconObj || {};
 			const iconUrl = iconObj.url || iconObj.small || iconObj.medium || iconObj.large || device.icon || '';
@@ -9081,12 +9064,12 @@ function fillDevicesElement(Element, DevicesArray, includeTargetButtonPlus = fal
 function fillButtonVariablesElement(side, page, capabilityElement, selectedCapability, selectedCapabilityName)
 {
 	// Remove the ' (Missing)' from the selectedCapabilityName
-	selectedCapabilityName = selectedCapabilityName.replace(/ \(Missing\)/g, "");
+	selectedCapabilityName = selectedCapabilityName.replace(/ \(Missing\)/g, '');
 
 	for (const variable of variablesArray)
 	{
-		var option = document.createElement("option");
-		option.text = (variable.type === "boolean") ? variable.name : `${variable.name} (${variable.type})`;
+		var option = document.createElement('option');
+		option.text = (variable.type === 'boolean') ? variable.name : `${variable.name} (${variable.type})`;
 		option.value = variable.id;
 		capabilityElement.add(option);
 	}
@@ -9096,8 +9079,8 @@ function fillButtonVariablesElement(side, page, capabilityElement, selectedCapab
 	if (capabilityElement.value !== selectedCapability)
 	{
 		// The variable must be missing, so add it to the list
-		var option = document.createElement("option");
-		option.text = selectedCapabilityName + " (Missing)";
+		var option = document.createElement('option');
+		option.text = `${selectedCapabilityName} (Missing)`;
 		option.value = selectedCapability;
 		capabilityElement.add(option);
 
@@ -9123,36 +9106,36 @@ function getCapabilities(side, page, deviceId, selectedCapability, selectedCapab
 	};
 
 	// Remove any ' (Missing)' text from the selectedCapabilityName
-	selectedCapabilityName = selectedCapabilityName ? selectedCapabilityName.replace(/ \(Missing\)/g, "") : selectedCapabilityName;
+	selectedCapabilityName = selectedCapabilityName ? selectedCapabilityName.replace(/ \(Missing\)/g, '') : selectedCapabilityName;
 
 	// Clear the list options
-	let capabilityElement = document.getElementById(`${side}${page}Capability`);
-	capabilityElement.innerHTML = "";
+	const capabilityElement = document.getElementById(`${side}${page}Capability`);
+	capabilityElement.innerHTML = '';
 
-	let capabilityDivElement = document.getElementById(`${side}${page}CapabilityDiv`);
+	const capabilityDivElement = document.getElementById(`${side}${page}CapabilityDiv`);
 
-	if ((deviceId === "none") || (deviceId === ""))
+	if ((deviceId === 'none') || (deviceId === ''))
 	{
 		// Hide the capability element items using the div
-		capabilityDivElement.style.display = "none";
+		capabilityDivElement.style.display = 'none';
 
 		// We don't want to show Dim Change value
-		document.getElementById(`${side}${page}DimChangeDiv`).style.display = "none";
+		document.getElementById(`${side}${page}DimChangeDiv`).style.display = 'none';
 		document.getElementById(`${side}${page}BrokerIdDiv`).style.display = itemDisplyType;
-		document.getElementById(`${side}${page}CustomMQTTDiv`).style.display = "none";
+		document.getElementById(`${side}${page}CustomMQTTDiv`).style.display = 'none';
 		hidePopupManagedFieldsForSection(side, page);
 		updateButtonCapabilityIndicator(side, page);
 		return;
 	}
 
-	if (deviceId === "customMQTT")
+	if (deviceId === 'customMQTT')
 	{
 		// Hide the capability element items using the div
-		capabilityDivElement.style.display = "none";
+		capabilityDivElement.style.display = 'none';
 
 		// We don't want to show Dim Change value
-		document.getElementById(`${side}${page}DimChangeDiv`).style.display = "none";
-		document.getElementById(`${side}${page}BrokerIdDiv`).style.display = "none";
+		document.getElementById(`${side}${page}DimChangeDiv`).style.display = 'none';
+		document.getElementById(`${side}${page}BrokerIdDiv`).style.display = 'none';
 
 		// Show the custom MQTT section
 		document.getElementById(`${side}${page}CustomMQTTDiv`).style.display = itemDisplyType;
@@ -9172,7 +9155,7 @@ function getCapabilities(side, page, deviceId, selectedCapability, selectedCapab
 		else
 		{
 			// Resquest the list of variables
-			Homey.api('POST', '/get_variables/', {}, function (err, variables)
+			Homey.api('POST', '/get_variables/', {}, (err, variables) =>
 			{
 				if (!isLatestCapabilityRequest() || !matchesCurrentDeviceSelection())
 				{
@@ -9194,31 +9177,31 @@ function getCapabilities(side, page, deviceId, selectedCapability, selectedCapab
 		// Show the capability section
 		capabilityDivElement.style.display = itemDisplyType;
 		document.getElementById(`${side}${page}BrokerIdDiv`).style.display = itemDisplyType;
-		document.getElementById(`${side}${page}CustomMQTTDiv`).style.display = "none";
+		document.getElementById(`${side}${page}CustomMQTTDiv`).style.display = 'none';
 		hidePopupManagedFieldsForSection(side, page);
 		updateButtonCapabilityIndicator(side, page);
 		return;
 	}
 
-	const devIdx = buttonDevicesArray.findIndex((device) => device.id === deviceId)
+	const devIdx = buttonDevicesArray.findIndex(device => device.id === deviceId);
 	if (devIdx >= 0)
 	{
 		const device = buttonDevicesArray[devIdx];
 		const zoneName = device.zone.name ?? device.zoneName;
-		if (zoneName === "Missing Devices")
+		if (zoneName === 'Missing Devices')
 		{
 			// Remove ' (Missing Devices)' from the selectedCapabilityName
-			selectedCapabilityName = selectedCapabilityName.replace(/ \(Missing Devices\)/g, "");
+			selectedCapabilityName = selectedCapabilityName.replace(/ \(Missing Devices\)/g, '');
 
 			// There won't be any capabilities defined for this device, so add the capability for the missing device from the ButtonPanelConfiguration.'side'Capability setting
-			var option = document.createElement("option");
+			const option = document.createElement('option');
 			option.text = selectedCapabilityName;
 			option.value = selectedCapability;
 			capabilityElement.add(option);
 
 			capabilityDivElement.style.display = itemDisplyType;
 			document.getElementById(`${side}${page}BrokerIdDiv`).style.display = itemDisplyType;
-			document.getElementById(`${side}${page}CustomMQTTDiv`).style.display = "none";
+			document.getElementById(`${side}${page}CustomMQTTDiv`).style.display = 'none';
 
 			// Restore the previous capability selection
 			capabilityElement.value = selectedCapability;
@@ -9230,7 +9213,7 @@ function getCapabilities(side, page, deviceId, selectedCapability, selectedCapab
 	}
 
 	// Request the capabilities for the selected device
-	Homey.api('POST', '/device_capabilities/', { deviceId }, function (err, capabilities)
+	Homey.api('POST', '/device_capabilities/', { deviceId }, (err, capabilities) =>
 	{
 		if (!isLatestCapabilityRequest() || !matchesCurrentDeviceSelection())
 		{
@@ -9241,7 +9224,7 @@ function getCapabilities(side, page, deviceId, selectedCapability, selectedCapab
 
 		if (capabilities)
 		{
-			const isPanelButtonCapability = (capabilityId) => /^(left|right)_button\.connector\d+$/.test(capabilityId || "");
+			const isPanelButtonCapability = capabilityId => /^(left|right)_button\.connector\d+$/.test(capabilityId || '');
 			const blockedButtonPlusCapabilities = new Set([
 				'previous_page_button',
 				'next_page_button',
@@ -9252,9 +9235,9 @@ function getCapabilities(side, page, deviceId, selectedCapability, selectedCapab
 
 			// Add each of the capabilities to the item drop list
 			const capabilitiesArray = Object.values(capabilities);
-			const isButtonPlusDevice = capabilitiesArray.some((capability) =>
+			const isButtonPlusDevice = capabilitiesArray.some(capability =>
 			{
-				const capabilityId = String(capability && capability.id ? capability.id : "");
+				const capabilityId = String(capability && capability.id ? capability.id : '');
 				return blockedButtonPlusCapabilities.has(capabilityId)
 					|| isPanelButtonCapability(capabilityId)
 					|| /^configuration_button\.connector\d+$/.test(capabilityId)
@@ -9264,13 +9247,13 @@ function getCapabilities(side, page, deviceId, selectedCapability, selectedCapab
 			const addedCapabilityIds = new Set();
 			for (const capability of capabilitiesArray)
 			{
-				const capabilityId = String(capability.id || "");
+				const capabilityId = String(capability.id || '');
 				const isBlockedButtonPlusCapability = isPanelButtonCapability(capabilityId) || blockedButtonPlusCapabilities.has(capabilityId);
 				const isAllowedForButtonPlus = !isButtonPlusDevice || capabilityId === 'dim';
 
 				if (isAllowedForButtonPlus && !isBlockedButtonPlusCapability && !addedCapabilityIds.has(capabilityId))
 				{
-					var option = document.createElement("option");
+					const option = document.createElement('option');
 					option.text = `${capability.title} (${capabilityId})`;
 					option.value = capabilityId;
 					option.dataset.type = capability.type || '';
@@ -9311,10 +9294,10 @@ function getCapabilities(side, page, deviceId, selectedCapability, selectedCapab
 			// Show the capability section
 			capabilityDivElement.style.display = itemDisplyType;
 			document.getElementById(`${side}${page}BrokerIdDiv`).style.display = itemDisplyType;
-			document.getElementById(`${side}${page}CustomMQTTDiv`).style.display = "none";
+			document.getElementById(`${side}${page}CustomMQTTDiv`).style.display = 'none';
 
 			// Restore the previous capability selection where valid, otherwise fall back to the first allowed option.
-			if (Array.from(capabilityElement.options).some((option) => option.value === selectedCapability))
+			if (Array.from(capabilityElement.options).some(option => option.value === selectedCapability))
 			{
 				capabilityElement.value = selectedCapability;
 			}
@@ -9333,22 +9316,22 @@ function capabilityChanged(side, page, value)
 {
 	const deviceElement = document.getElementById(`${side}${page}Device`);
 	const isVariableDevice = !!deviceElement && (deviceElement.value === '_variable_');
-	const selectedVariable = isVariableDevice ? variablesArray.find((variable) => variable.id === value) : null;
+	const selectedVariable = isVariableDevice ? variablesArray.find(variable => variable.id === value) : null;
 	const isNonBooleanVariable = !!selectedVariable && (selectedVariable.type !== 'boolean');
 	const capabilityElement = document.getElementById(`${side}${page}Capability`);
 	const selectedOption = capabilityElement && capabilityElement.selectedOptions ? capabilityElement.selectedOptions[0] : null;
 	const selectedCapabilityType = selectedOption ? selectedOption.dataset.type : '';
 	const isNonBooleanDeviceCapability = !isVariableDevice && (value !== 'dim') && (value !== 'windowcoverings_state') && (selectedCapabilityType !== '') && (selectedCapabilityType !== 'boolean');
-	const hideOnOffFields = (value === "dim") || isNonBooleanVariable || isNonBooleanDeviceCapability;
+	const hideOnOffFields = (value === 'dim') || isNonBooleanVariable || isNonBooleanDeviceCapability;
 
 	// Only dim capabilities show the dim change value
-	document.getElementById(`${side}${page}DimChangeDiv`).style.display = (value === "dim") ? itemDisplyType : "none";
+	document.getElementById(`${side}${page}DimChangeDiv`).style.display = (value === 'dim') ? itemDisplyType : 'none';
 
 	// Dim capabilities, non-boolean variables and text/picker device capabilities have no on/off state, so hide the On/Off text
-	document.getElementById(`${side}${page}OnTextDiv`).style.display = hideOnOffFields ? "none" : itemDisplyType;
-	document.getElementById(`${side}${page}OffText`).style.display = hideOnOffFields ? "none" : itemDisplyType;
-	document.getElementById(`${side}${page}OffTextLabel`).style.display = hideOnOffFields ? "none" : itemDisplyType;
-	//document.getElementById(`${side}TopText`).value = document.getElementById(`${side}TopText`).value ? document.getElementById(`${side}TopText`).value : value;
+	document.getElementById(`${side}${page}OnTextDiv`).style.display = hideOnOffFields ? 'none' : itemDisplyType;
+	document.getElementById(`${side}${page}OffText`).style.display = hideOnOffFields ? 'none' : itemDisplyType;
+	document.getElementById(`${side}${page}OffTextLabel`).style.display = hideOnOffFields ? 'none' : itemDisplyType;
+	// document.getElementById(`${side}TopText`).value = document.getElementById(`${side}TopText`).value ? document.getElementById(`${side}TopText`).value : value;
 	hidePopupManagedFieldsForSection(side, page);
 
 	renderInlineButtonPagePreview(page);
@@ -9361,7 +9344,7 @@ function capabilityChanged(side, page, value)
 // If the config and devices have been fetched, update all the control values
 function updateButtonPanelControls()
 {
-	if ((buttonConfigurationsFetched == false) || (buttonDevicesFetched == false)) return;
+	if ((buttonConfigurationsFetched === false) || (buttonDevicesFetched === false)) return;
 
 	if (currentButtonConfigurationNo < 0 || currentButtonConfigurationNo >= localButtonConfigurations.length)
 	{
@@ -9385,12 +9368,12 @@ function updateButtonPanelControls()
 	}
 
 	// let ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-	configNameElement.value = config[0].name ? config[0].name : "";
+	configNameElement.value = config[0].name ? config[0].name : '';
 
 	for (let page = 0; page < config.length; page++)
 	{
-		updateButtonPanelControlsSection("left", page, config[page]);
-		updateButtonPanelControlsSection("right", page, config[page]);
+		updateButtonPanelControlsSection('left', page, config[page]);
+		updateButtonPanelControlsSection('right', page, config[page]);
 		hidePopupManagedFieldsForPage(page);
 		updateButtonAdvancedToggleState('left', page);
 		updateButtonAdvancedToggleState('right', page);
@@ -9416,27 +9399,27 @@ function updateButtonPanelControlsSection(side, page, ButtonPanelConfiguration)
 {
 	ensureButtonSideAdvancedDefaults(ButtonPanelConfiguration, side);
 
-	if (buttonConfigurationNoElement.value == "")
+	if (buttonConfigurationNoElement.value === '')
 	{
 		// fillButtonConfigListElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
 
-		configNameElement.value = "";
-		document.getElementById(`${side}${page}TopText`).value = "";
-		document.getElementById(`${side}${page}OnText`).value = "";
-		document.getElementById(`${side}${page}OffText`).value = "";
-		document.getElementById(`${side}${page}Device`).value = "";
-		document.getElementById(`${side}${page}Capability`).value = "";
+		configNameElement.value = '';
+		document.getElementById(`${side}${page}TopText`).value = '';
+		document.getElementById(`${side}${page}OnText`).value = '';
+		document.getElementById(`${side}${page}OffText`).value = '';
+		document.getElementById(`${side}${page}Device`).value = '';
+		document.getElementById(`${side}${page}Capability`).value = '';
 		setBrokerSelectValue(document.getElementById(`${side}${page}BrokerId`), 'Default');
-		document.getElementById(`${side}${page}DimChange`).value = "+10";
-		document.getElementById(`${side}${page}FrontLEDOnColor`).value = "#ff0000";
-		document.getElementById(`${side}${page}WallLEDOnColor`).value = "#ff0000";
-		document.getElementById(`${side}${page}FrontLEDOffColor`).value = "#000000";
-		document.getElementById(`${side}${page}WallLEDOffColor`).value = "#000000";
+		document.getElementById(`${side}${page}DimChange`).value = '+10';
+		document.getElementById(`${side}${page}FrontLEDOnColor`).value = '#ff0000';
+		document.getElementById(`${side}${page}WallLEDOnColor`).value = '#ff0000';
+		document.getElementById(`${side}${page}FrontLEDOffColor`).value = '#000000';
+		document.getElementById(`${side}${page}WallLEDOffColor`).value = '#000000';
 		document.getElementById(`${side}${page}DisableLongRepeat`).checked = true;
-		document.getElementById(`${side}${page}LongDelayMs`).value = "750";
-		document.getElementById(`${side}${page}LongRepeatMs`).value = "500";
-		document.getElementById(`${side}${page}OnSVG`).value = "";
-		document.getElementById(`${side}${page}OffSVG`).value = "";
+		document.getElementById(`${side}${page}LongDelayMs`).value = '750';
+		document.getElementById(`${side}${page}LongRepeatMs`).value = '500';
+		document.getElementById(`${side}${page}OnSVG`).value = '';
+		document.getElementById(`${side}${page}OffSVG`).value = '';
 		const advancedToggle = document.getElementById(`${side}${page}AdvancedMode`);
 		if (advancedToggle)
 		{
@@ -9459,19 +9442,19 @@ function updateButtonPanelControlsSection(side, page, ButtonPanelConfiguration)
 		document.getElementById(`${side}${page}OffText`).value = ButtonPanelConfiguration[`${side}OffText`];
 		document.getElementById(`${side}${page}Device`).value = ButtonPanelConfiguration[`${side}Device`];
 		// If the element is not in the list, add it
-		if (document.getElementById(`${side}${page}Device`).value != ButtonPanelConfiguration[`${side}Device`])
+		if (document.getElementById(`${side}${page}Device`).value !== ButtonPanelConfiguration[`${side}Device`])
 		{
-			if (buttonDevicesArray.findIndex((device) => device.id === ButtonPanelConfiguration[`${side}Device`]) < 0)
+			if (buttonDevicesArray.findIndex(device => device.id === ButtonPanelConfiguration[`${side}Device`]) < 0)
 			{
-				var name = ButtonPanelConfiguration[`${side}DeviceName`] ? ButtonPanelConfiguration[`${side}DeviceName`] : ButtonPanelConfiguration[`${side}Device`];
+				let name = ButtonPanelConfiguration[`${side}DeviceName`] ? ButtonPanelConfiguration[`${side}DeviceName`] : ButtonPanelConfiguration[`${side}Device`];
 
 				// Remove any leading spaces from the device name
 				name = name.trim();
 
 				// Remove all occurrences of ' (Missing Devices)' from the name
-				name = name.replace(/ \(Missing Devices\)/g, "");
+				name = name.replace(/ \(Missing Devices\)/g, '');
 
-				buttonDevicesArray.push({ id: ButtonPanelConfiguration[`${side}Device`], name, zone: { name: "Missing Devices" } });
+				buttonDevicesArray.push({ id: ButtonPanelConfiguration[`${side}Device`], name, zone: { name: 'Missing Devices' } });
 				buttonDevicesArray = sortDevices(buttonDevicesArray);
 				fillButtonDevices();
 				// document.getElementById(`${side}${page}Device`).value = ButtonPanelConfiguration[`${side}Device`];
@@ -9485,8 +9468,8 @@ function updateButtonPanelControlsSection(side, page, ButtonPanelConfiguration)
 		document.getElementById(`${side}${page}FrontLEDOffColor`).value = ButtonPanelConfiguration[`${side}FrontLEDOffColor`];
 		document.getElementById(`${side}${page}WallLEDOffColor`).value = ButtonPanelConfiguration[`${side}WallLEDOffColor`];
 		document.getElementById(`${side}${page}DisableLongRepeat`).checked = !ButtonPanelConfiguration[`${side}DisableLongRepeat`];
-		document.getElementById(`${side}${page}LongDelayMs`).value = ButtonPanelConfiguration[`${side}LongDelayMs`] ?? "750";
-		document.getElementById(`${side}${page}LongRepeatMs`).value = ButtonPanelConfiguration[`${side}LongRepeatMs`] ?? "500";
+		document.getElementById(`${side}${page}LongDelayMs`).value = ButtonPanelConfiguration[`${side}LongDelayMs`] ?? '750';
+		document.getElementById(`${side}${page}LongRepeatMs`).value = ButtonPanelConfiguration[`${side}LongRepeatMs`] ?? '500';
 		document.getElementById(`${side}${page}OnSVG`).value = ButtonPanelConfiguration[`${side}OnSVG`] || '';
 		document.getElementById(`${side}${page}OffSVG`).value = ButtonPanelConfiguration[`${side}OffSVG`] || '';
 		const advancedToggle = document.getElementById(`${side}${page}AdvancedMode`);
@@ -9501,7 +9484,7 @@ function setupGroupUI()
 {
 	if (!groupSelectElement) return;
 
-	groupSelectElement.addEventListener('change', function ()
+	groupSelectElement.addEventListener('change', () =>
 	{
 		storeCurrentGroupFromForm();
 		currentGroupIndex = parseInt(groupSelectElement.value, 10) || 0;
@@ -9510,7 +9493,7 @@ function setupGroupUI()
 
 	if (toggleGroupNameVisibilityElement)
 	{
-		toggleGroupNameVisibilityElement.addEventListener('click', function ()
+		toggleGroupNameVisibilityElement.addEventListener('click', () =>
 		{
 			groupNameCollapsed = !groupNameCollapsed;
 			if (groupNameRowElement)
@@ -9518,12 +9501,12 @@ function setupGroupUI()
 				groupNameRowElement.style.display = groupNameCollapsed ? 'none' : 'block';
 			}
 			toggleGroupNameVisibilityElement.classList.toggle('is-open', !groupNameCollapsed);
-			toggleGroupNameVisibilityElement.title = groupNameCollapsed ? (Homey.__("settings.showGroupName") || 'Show group name') : (Homey.__("settings.hideGroupName") || 'Hide group name');
+			toggleGroupNameVisibilityElement.title = groupNameCollapsed ? (Homey.__('settings.showGroupName') || 'Show group name') : (Homey.__('settings.hideGroupName') || 'Hide group name');
 			toggleGroupNameVisibilityElement.setAttribute('aria-label', toggleGroupNameVisibilityElement.title);
 		});
 
 		toggleGroupNameVisibilityElement.classList.toggle('is-open', !groupNameCollapsed);
-		toggleGroupNameVisibilityElement.title = groupNameCollapsed ? (Homey.__("settings.showGroupName") || 'Show group name') : (Homey.__("settings.hideGroupName") || 'Hide group name');
+		toggleGroupNameVisibilityElement.title = groupNameCollapsed ? (Homey.__('settings.showGroupName') || 'Show group name') : (Homey.__('settings.hideGroupName') || 'Hide group name');
 		toggleGroupNameVisibilityElement.setAttribute('aria-label', toggleGroupNameVisibilityElement.title);
 		if (groupNameRowElement)
 		{
@@ -9533,7 +9516,7 @@ function setupGroupUI()
 
 	if (groupNameInputElement)
 	{
-		groupNameInputElement.addEventListener('input', function ()
+		groupNameInputElement.addEventListener('input', () =>
 		{
 			if (localGroupConfigurations[currentGroupIndex])
 			{
@@ -9546,16 +9529,16 @@ function setupGroupUI()
 
 	if (addGroupBtnElement)
 	{
-		addGroupBtnElement.title = Homey.__("settings.addGroup") || "New Group";
-		addGroupBtnElement.setAttribute("aria-label", Homey.__("settings.addGroup") || "New Group");
-		addGroupBtnElement.addEventListener('click', function ()
+		addGroupBtnElement.title = Homey.__('settings.addGroup') || 'New Group';
+		addGroupBtnElement.setAttribute('aria-label', Homey.__('settings.addGroup') || 'New Group');
+		addGroupBtnElement.addEventListener('click', () =>
 		{
 			storeCurrentGroupFromForm();
 			const newGroup = {
-				id: 'group_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
-				name: 'New Group ' + (localGroupConfigurations.length + 1),
+				id: `group_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+				name: `New Group ${localGroupConfigurations.length + 1}`,
 				displayConfigNo: 0,
-				connectorConfigNos: [0]
+				connectorConfigNos: [0],
 			};
 			localGroupConfigurations.push(newGroup);
 			currentGroupIndex = localGroupConfigurations.length - 1;
@@ -9566,15 +9549,15 @@ function setupGroupUI()
 
 	if (deleteGroupBtnElement)
 	{
-		deleteGroupBtnElement.title = Homey.__("settings.deleteGroup") || "Delete Group";
-		deleteGroupBtnElement.setAttribute("aria-label", Homey.__("settings.deleteGroup") || "Delete Group");
-		deleteGroupBtnElement.addEventListener('click', function ()
+		deleteGroupBtnElement.title = Homey.__('settings.deleteGroup') || 'Delete Group';
+		deleteGroupBtnElement.setAttribute('aria-label', Homey.__('settings.deleteGroup') || 'Delete Group');
+		deleteGroupBtnElement.addEventListener('click', () =>
 		{
 			const currentGroup = localGroupConfigurations[currentGroupIndex];
 			const groupName = (currentGroup && currentGroup.name) ? currentGroup.name : `Group ${currentGroupIndex + 1}`;
-			const confirmMessage = Homey.__("settings.deleteGroupConfirm", { groupName });
+			const confirmMessage = Homey.__('settings.deleteGroupConfirm', { groupName });
 
-			Homey.confirm(confirmMessage, null, function (err, ok)
+			Homey.confirm(confirmMessage, null, (err, ok) =>
 			{
 				if (err || !ok) return;
 
@@ -9584,7 +9567,7 @@ function setupGroupUI()
 						id: 'group_0',
 						name: 'Group 1',
 						displayConfigNo: 0,
-						connectorConfigNos: [0]
+						connectorConfigNos: [0],
 					};
 				} else
 				{
@@ -9602,17 +9585,17 @@ function setupGroupUI()
 
 	if (copyGroupBtnElement)
 	{
-		copyGroupBtnElement.title = Homey.__("settings.copyGroup") || "Duplicate Group";
-		copyGroupBtnElement.setAttribute("aria-label", Homey.__("settings.copyGroup") || "Duplicate Group");
-		copyGroupBtnElement.addEventListener('click', function ()
+		copyGroupBtnElement.title = Homey.__('settings.copyGroup') || 'Duplicate Group';
+		copyGroupBtnElement.setAttribute('aria-label', Homey.__('settings.copyGroup') || 'Duplicate Group');
+		copyGroupBtnElement.addEventListener('click', () =>
 		{
 			storeCurrentGroupFromForm();
 			const current = localGroupConfigurations[currentGroupIndex];
 			if (current)
 			{
 				const copiedGroup = JSON.parse(JSON.stringify(current));
-				copiedGroup.id = 'group_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
-				copiedGroup.name = (current.name || 'Group') + ' (Copy)';
+				copiedGroup.id = `group_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+				copiedGroup.name = `${current.name || 'Group'} (Copy)`;
 				localGroupConfigurations.push(copiedGroup);
 				currentGroupIndex = localGroupConfigurations.length - 1;
 				updateGroupListDropdown();
@@ -9623,7 +9606,7 @@ function setupGroupUI()
 
 	if (groupPanelControlsExpanderElement)
 	{
-		groupPanelControlsExpanderElement.addEventListener('click', function ()
+		groupPanelControlsExpanderElement.addEventListener('click', () =>
 		{
 			groupPanelControlsExpanded = !groupPanelControlsExpanded;
 			updateGroupPanelControlsExpander();
@@ -9643,7 +9626,7 @@ function updateGroupPanelControlsExpander()
 	}
 	if (saveBlock && configTypeElement && configTypeElement.value === 'groupConfig')
 	{
-		saveBlock.style.display = groupPanelControlsExpanded ? "block" : "none";
+		saveBlock.style.display = groupPanelControlsExpanded ? 'block' : 'none';
 	}
 	groupSimulatorSurfaceElement.classList.toggle('group-panel-controls-collapsed', !groupPanelControlsExpanded);
 	groupPanelControlsExpanderElement.classList.toggle('is-open', groupPanelControlsExpanded);
@@ -9652,18 +9635,18 @@ function updateGroupPanelControlsExpander()
 	if (labelElement)
 	{
 		labelElement.textContent = groupPanelControlsExpanded
-			? Homey.__("settings.preview")
-			: Homey.__("settings.configure");
+			? Homey.__('settings.preview')
+			: Homey.__('settings.configure');
 	}
 	groupPanelControlsExpanderElement.title = groupPanelControlsExpanded
-		? Homey.__("settings.collapsePanelControls")
-		: Homey.__("settings.expandPanelControls");
+		? Homey.__('settings.collapsePanelControls')
+		: Homey.__('settings.expandPanelControls');
 	groupPanelControlsExpanderElement.setAttribute('aria-label', groupPanelControlsExpanderElement.title);
 }
 
 function fetchAndInitGroupConfigurations()
 {
-	Homey.get('groupConfigurations', function (err, groupConfigurations)
+	Homey.get('groupConfigurations', (err, groupConfigurations) =>
 	{
 		if (!err && Array.isArray(groupConfigurations) && groupConfigurations.length > 0)
 		{
@@ -9674,10 +9657,9 @@ function fetchAndInitGroupConfigurations()
 				id: 'group_0',
 				name: 'Group 1 (Main Panel)',
 				displayConfigNo: 0,
-				connectorConfigNos: [0]
+				connectorConfigNos: [0],
 			}];
 		}
-		groupConfigurationsFetched = true;
 		updateGroupListDropdown();
 		loadGroupIntoForm(currentGroupIndex);
 	});
@@ -9707,7 +9689,7 @@ function loadGroupIntoForm(index)
 				id: 'group_0',
 				name: 'Group 1',
 				displayConfigNo: 0,
-				connectorConfigNos: [0]
+				connectorConfigNos: [0],
 			});
 		}
 		index = 0;
@@ -9731,13 +9713,13 @@ function storeCurrentGroupFromForm()
 
 function getGroupDisplayOptionsHtml(selectedNo)
 {
-	let html = `<option value="none"${selectedNo === null || selectedNo === undefined ? ' selected' : ''}>-- ${Homey.__("noDisplayAssigned") || 'No Display'} --</option>`;
+	let html = `<option value="none"${selectedNo === null || selectedNo === undefined ? ' selected' : ''}>-- ${Homey.__('noDisplayAssigned') || 'No Display'} --</option>`;
 	for (let i = 0; i < MAX_DISPLAY_CONFIGURATIONS; i++)
 	{
 		const config = localDisplayConfigurations[i];
 		const name = config && config.name ? config.name : '';
 		const isSel = (selectedNo !== null && selectedNo !== undefined && Number(selectedNo) === i) ? ' selected' : '';
-		html += `<option value="${i}"${isSel}>${Homey.__("displayConfig")} ${i + 1}${name ? ': ' + escapeHtml(name) : ''}</option>`;
+		html += `<option value="${i}"${isSel}>${Homey.__('displayConfig')} ${i + 1}${name ? `: ${escapeHtml(name)}` : ''}</option>`;
 	}
 	return html;
 }
@@ -9751,7 +9733,7 @@ function getGroupButtonOptionsHtml(selectedNo)
 		const p0 = pages[0] || {};
 		const name = p0.name || '';
 		const isSel = (selectedNo !== null && selectedNo !== undefined && Number(selectedNo) === i) ? ' selected' : '';
-		html += `<option value="${i}"${isSel}>${Homey.__("buttonConfig")} ${i + 1}${name ? ': ' + escapeHtml(name) : ''}</option>`;
+		html += `<option value="${i}"${isSel}>${Homey.__('buttonConfig')} ${i + 1}${name ? `: ${escapeHtml(name)}` : ''}</option>`;
 	}
 	return html;
 }
@@ -9786,7 +9768,18 @@ function addGroupButtonBar()
 	}
 	if (group.connectorConfigNos.length >= 8) return;
 	const cleanNos = group.connectorConfigNos.filter(val => val !== null && val !== undefined);
-	cleanNos.push(0);
+	const usedNos = new Set(cleanNos.map(val => Number(val)));
+	const configCount = Array.isArray(localButtonConfigurations) ? localButtonConfigurations.length : 0;
+	let nextNo = cleanNos.length > 0 ? Number(cleanNos[cleanNos.length - 1]) + 1 : 0;
+	while (usedNos.has(nextNo)) nextNo++;
+	if (configCount > 0 && nextNo >= configCount)
+	{
+		// Ran past the last configuration; fall back to the first unused one (or 0 if all are used)
+		nextNo = 0;
+		while (nextNo < configCount && usedNos.has(nextNo)) nextNo++;
+		if (nextNo >= configCount) nextNo = 0;
+	}
+	cleanNos.push(nextNo);
 	group.connectorConfigNos = cleanNos;
 	configDraftDirtySinceLoad = true;
 	flushConfigurationDraftPersist();
@@ -9883,7 +9876,7 @@ function stepGroupSimPage(delta)
 		? group.connectorConfigNos.filter(val => val !== null && val !== undefined)
 		: [];
 
-	cleanConnectorConfigNos.forEach((btnConfigNo) =>
+	cleanConnectorConfigNos.forEach(btnConfigNo =>
 	{
 		const btnConfigIdx = Number(btnConfigNo);
 		const configObj = localButtonConfigurations[btnConfigIdx];
@@ -9906,7 +9899,7 @@ function getGroupDisplayPreviewHtml(displayConfigNo, pageIndex = groupSimCurrent
 	const displayConfiguration = localDisplayConfigurations[displayConfigNo];
 	if (!displayConfiguration || !Array.isArray(displayConfiguration.items))
 	{
-		return `<div class="display-sim-surface"><div class="display-sim-empty-message">${escapeHtml(Homey.__("settings.displaySimEmptyMessage"))}</div></div>`;
+		return `<div class="display-sim-surface"><div class="display-sim-empty-message">${escapeHtml(Homey.__('settings.displaySimEmptyMessage'))}</div></div>`;
 	}
 
 	const pageItems = [];
@@ -9921,7 +9914,7 @@ function getGroupDisplayPreviewHtml(displayConfigNo, pageIndex = groupSimCurrent
 	}
 
 	let statusBarPosition = 0;
-	for (const { item, itemNo } of pageItems)
+	for (const { item } of pageItems)
 	{
 		const statusBarRaw = parseInt(item.statusBarPosition || 0, 10);
 		const statusBarValue = Number.isNaN(statusBarRaw) ? 0 : Math.max(0, Math.min(statusBarRaw, 2));
@@ -9932,9 +9925,9 @@ function getGroupDisplayPreviewHtml(displayConfigNo, pageIndex = groupSimCurrent
 		}
 	}
 
-	const displayStatusLeftPlaceholder = escapeHtml(Homey.__("settings.displaySimStatusLeftPlaceholder") || '###.###.##.###');
-	const displayStatusRightPlaceholder = escapeHtml(Homey.__("settings.displaySimStatusRightPlaceholder") || '-## dB Free ##/##/#### kB');
-	const displayLoadingPlaceholder = escapeHtml(Homey.__("settings.displaySimLoading") || '--');
+	const displayStatusLeftPlaceholder = escapeHtml(Homey.__('settings.displaySimStatusLeftPlaceholder') || '###.###.##.###');
+	const displayStatusRightPlaceholder = escapeHtml(Homey.__('settings.displaySimStatusRightPlaceholder') || '-## dB Free ##/##/#### kB');
+	const displayLoadingPlaceholder = escapeHtml(Homey.__('settings.displaySimLoading') || '--');
 
 	const statusBarMarkup = statusBarPosition === 0
 		? ''
@@ -10054,7 +10047,7 @@ function getGroupDisplayPreviewHtml(displayConfigNo, pageIndex = groupSimCurrent
 	}).join('');
 
 	const emptyStateMarkup = (pageItems.length === 0)
-		? `<div class="display-sim-empty-message">${escapeHtml(Homey.__("settings.displaySimEmptyMessage"))}</div>`
+		? `<div class="display-sim-empty-message">${escapeHtml(Homey.__('settings.displaySimEmptyMessage'))}</div>`
 		: '';
 
 	return `<div class="group-display-panel-frame"><div class="display-sim-surface">${statusBarMarkup}${emptyStateMarkup}${markup}</div></div>`;
@@ -10073,7 +10066,7 @@ function applyGroupSimTextLayoutFix(rootElement)
 			isMobileRuntime,
 			userAgent: navigator && navigator.userAgent,
 			matchMediaCoarse: !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches),
-			hasHomeyBodyClass: !!(document.body && document.body.classList && document.body.classList.contains('homey-mobile-app'))
+			hasHomeyBodyClass: !!(document.body && document.body.classList && document.body.classList.contains('homey-mobile-app')),
 		});
 	}
 	if (rootElement)
@@ -10086,7 +10079,7 @@ function applyGroupSimTextLayoutFix(rootElement)
 	}
 
 	const grids = rootElement.querySelectorAll('.group-sim-module-body .button-inline-sim-grid');
-	grids.forEach((grid) =>
+	grids.forEach(grid =>
 	{
 		grid.style.setProperty('margin-left', '0', 'important');
 		grid.style.setProperty('margin-right', '0', 'important');
@@ -10094,7 +10087,7 @@ function applyGroupSimTextLayoutFix(rootElement)
 	});
 
 	const gridItems = rootElement.querySelectorAll('.group-sim-module-body .button-inline-sim-grid > .button-sim-item');
-	gridItems.forEach((item) =>
+	gridItems.forEach(item =>
 	{
 		item.style.setProperty('padding-top', '0', 'important');
 		item.style.setProperty('margin-left', '0', 'important');
@@ -10103,7 +10096,7 @@ function applyGroupSimTextLayoutFix(rootElement)
 	});
 
 	const shells = rootElement.querySelectorAll('.group-sim-module-body .button-sim-shell');
-	shells.forEach((shell) =>
+	shells.forEach(shell =>
 	{
 		shell.style.setProperty('--button-sim-display-inner-width', '80%', 'important');
 		shell.style.setProperty('--button-sim-display-height', 'auto', 'important');
@@ -10111,7 +10104,7 @@ function applyGroupSimTextLayoutFix(rootElement)
 	});
 
 	const contents = rootElement.querySelectorAll('.group-sim-module-body .button-sim-shell .button-sim-content');
-	contents.forEach((content) =>
+	contents.forEach(content =>
 	{
 		content.style.setProperty('width', '100%', 'important');
 		content.style.setProperty('min-width', '0', 'important');
@@ -10121,7 +10114,7 @@ function applyGroupSimTextLayoutFix(rootElement)
 	});
 
 	const textElements = rootElement.querySelectorAll('.group-sim-module-body .button-sim-shell .button-sim-top, .group-sim-module-body .button-sim-shell .button-sim-state-line');
-	textElements.forEach((element) =>
+	textElements.forEach(element =>
 	{
 		element.style.setProperty('display', 'block', 'important');
 		element.style.setProperty('width', '100%', 'important');
@@ -10168,7 +10161,7 @@ function renderGroupSimulator()
 		}
 	}
 
-	cleanConnectorConfigNos.forEach((btnConfigNo) =>
+	cleanConnectorConfigNos.forEach(btnConfigNo =>
 	{
 		const btnConfigIdx = Number(btnConfigNo);
 		const configObj = localButtonConfigurations[btnConfigIdx];
@@ -10183,7 +10176,7 @@ function renderGroupSimulator()
 	if (groupSimPageTitleElement)
 	{
 		const displayPageLabel = formatDisplayPageLabel(groupSimCurrentPage);
-		groupSimPageTitleElement.innerHTML = `${Homey.__("settings.page")} ${displayPageLabel} / ${maxPages - 1}`;
+		groupSimPageTitleElement.innerHTML = `${Homey.__('settings.page')} ${displayPageLabel} / ${maxPages - 1}`;
 	}
 	if (groupSimPrevPageElement)
 	{
@@ -10305,7 +10298,7 @@ function renderGroupSimulator()
 	{
 		const addRow = document.createElement('div');
 		addRow.className = 'group-sim-add-bar-row';
-		addRow.innerHTML = `<button class="homey-button-secondary-shadow" type="button" onclick="addGroupButtonBar()">+ Add Button Bar Module</button>`;
+		addRow.innerHTML = '<button class="homey-button-secondary-shadow" type="button" onclick="addGroupButtonBar()">+ Add Button Bar Module</button>';
 		groupSimulatorSurfaceElement.appendChild(addRow);
 	}
 
@@ -10315,14 +10308,13 @@ function renderGroupSimulator()
 	{
 		console.log('[group-sim-probe] rendered', {
 			elementCount: groupSimulatorSurfaceElement ? groupSimulatorSurfaceElement.querySelectorAll('.group-sim-module-body').length : 0,
-			hasSurface: !!groupSimulatorSurfaceElement
+			hasSurface: !!groupSimulatorSurfaceElement,
 		});
 	}
 }
 
 function configTypeChanged(configSelected)
 {
-	var i, tabcontent, tablinks;
 	if (configSelected !== 'panelConfig')
 	{
 		groupEditReturnActive = false;
@@ -10341,7 +10333,7 @@ function configTypeChanged(configSelected)
 
 	if (configTypeTabsElement)
 	{
-		configTypeTabsElement.querySelectorAll('.view-tab').forEach(function (tab)
+		configTypeTabsElement.querySelectorAll('.view-tab').forEach(tab =>
 		{
 			const isActive = tab.dataset.view === configSelected;
 			tab.classList.toggle('view-tab-active', isActive);
@@ -10359,46 +10351,46 @@ function configTypeChanged(configSelected)
 	}
 
 	// Get all elements with class="tabcontent" and hide them
-	tabcontent = document.getElementsByClassName("tabcontent");
-	for (i = configSelected ? 0 : 1; i < tabcontent.length; i++)
+	const tabcontent = document.getElementsByClassName('tabcontent');
+	for (let i = configSelected ? 0 : 1; i < tabcontent.length; i++)
 	{
-		tabcontent[i].style.display = "none";
+		tabcontent[i].style.display = 'none';
 	}
-	if (configSelected !== "")
+	if (configSelected !== '')
 	{
 		// Hide the save button for the settings and diagnostics pages
-		if ((configSelected === "settings") || (configSelected === "diagnosticLog") || (configSelected === "lastSentLog") || (configSelected === "groupConfig" && !groupPanelControlsExpanded))
+		if ((configSelected === 'settings') || (configSelected === 'diagnosticLog') || (configSelected === 'lastSentLog') || (configSelected === 'groupConfig' && !groupPanelControlsExpanded))
 		{
-			saveBlock.style.display = "none";
+			saveBlock.style.display = 'none';
 		}
 		else
 		{
-			saveBlock.style.display = "block";
+			saveBlock.style.display = 'block';
 		}
-		document.getElementById(configSelected).style.display = "block";
+		document.getElementById(configSelected).style.display = 'block';
 
 		if (configSelected === 'panelConfig')
 		{
-			setTimeout(function ()
+			setTimeout(() =>
 			{
 				const panelConfigElement = document.getElementById('panelConfig');
 				collapseAllDetails(panelConfigElement);
 			}, 0);
 		}
 
-		if (configSelected === "diagnosticLog")
+		if (configSelected === 'diagnosticLog')
 		{
 			// Refresh the log data
-			Homey.get('logEnabled', function (err, logLevel)
+			Homey.get('logEnabled', (err, logLevel) =>
 			{
 				if (err) return Homey.alert(err);
-				enableLog.checked = logLevel;
+				diagLogEnabledElement.checked = logLevel;
 			});
 
 			Homey.api('GET', '/getLog/',
 				{
-					notify: true
-				}, function (err, result)
+					notify: true,
+				}, (err, result) =>
 			{
 				if (err)
 				{
@@ -10410,18 +10402,18 @@ function configTypeChanged(configSelected)
 
 			// Make the log text area fill the page
 			diagLogElement.style.width = '100%';
-			diagLogElement.style.height = (window.innerHeight - diagLogElement.offsetTop - 35) + 'px';
+			diagLogElement.style.height = `${window.innerHeight - diagLogElement.offsetTop - 35}px`;
 		}
-		else if (configSelected === "importExport")
+		else if (configSelected === 'importExport')
 		{
 			// Make the log text area fill the page
-			copyTextElement.style.height = (window.innerHeight - copyTextElement.offsetTop - 120) + 'px';
+			copyTextElement.style.height = `${window.innerHeight - copyTextElement.offsetTop - 120}px`;
 		}
-		else if (configSelected === "lastSentLog")
+		else if (configSelected === 'lastSentLog')
 		{
 			// Make the log text area fill the page
 			sentLogElement.style.width = '100%';
-			sentLogElement.style.height = (window.innerHeight - sentLogElement.offsetTop - 35) + 'px';
+			sentLogElement.style.height = `${window.innerHeight - sentLogElement.offsetTop - 35}px`;
 		}
 		else if (configSelected === 'displayConfig')
 		{
@@ -10448,7 +10440,7 @@ function updateDisplayConfiguration(expandItem = -1)
 	{
 		currentDisplayConfigurationNo = displayConfigurationNoElement.value;
 
-		var displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+		let displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
 
 		let expandItemId = -1;
 		if (displayConfiguration == null)
@@ -10457,12 +10449,10 @@ function updateDisplayConfiguration(expandItem = -1)
 			displayConfiguration.items = [];
 		}
 		else
-		{
-			if (expandItem >= 0)
+		if (expandItem >= 0)
 			{
 				expandItemId = displayConfiguration.items[expandItem].itemId;
 			}
-		}
 
 		drawDisplayConfiguration(displayConfiguration, expandItemId);
 	}
@@ -10479,7 +10469,7 @@ function drawDisplayConfiguration(displayConfiguration, expandItemId = -1)
 	let selectedItem = null;
 	if (expandItemId >= 0)
 	{
-		selectedItem = displayConfiguration.items.find((it) => it && it.itemId === expandItemId);
+		selectedItem = displayConfiguration.items.find(it => it && it.itemId === expandItemId);
 	}
 	else if (displayInlineSelectedItemNo >= 0 && displayInlineSelectedItemNo < displayConfiguration.items.length)
 	{
@@ -10527,29 +10517,30 @@ function drawDisplayConfiguration(displayConfiguration, expandItemId = -1)
 
 	let page = -1;
 	// document.getElementById('displayItemsSection').innerHTML = "";
-	displayConfigNameElement.value = displayConfiguration.name
-	let htmlText = "";
+	displayConfigNameElement.value = displayConfiguration.name;
+	let htmlText = '';
 	for (var itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
 	{
 		const item = displayConfiguration.items[itemNo];
 		// const capabilities = {}
 		// displayCapabilityItems.push(capabilities);
 
-		if (page != item.page)
+		const itemPage = (item.page === null || item.page === undefined || item.page === '') ? 0 : Number(item.page);
+		if (page !== itemPage)
 		{
 			// Insert a page number heading
 			if (page >= 0)
 			{
-				htmlText += `</div></div>`;
+				htmlText += '</div></div>';
 			}
 
-			page = item.page;
-			htmlText += `<div class="horizontalcontainer"><div class="horizontalgroup"><h2>${Homey.__("settings.page")} ${item.page === 0 ? Homey.__("settings.all") : item.page} <div class="tooltip"><i class="fi fi-rr-info"></i><span class="tooltiptext">${normalizeTooltipHtml(Homey.__("settings.pageExplanation"))}</span></div></h2>`;
+			page = itemPage;
+			htmlText += `<div class="horizontalcontainer"><div class="horizontalgroup"><h2>${Homey.__('settings.page')} ${itemPage === 0 ? Homey.__('settings.all') : itemPage} <div class="tooltip"><i class="fi fi-rr-info"></i><span class="tooltiptext">${normalizeTooltipHtml(Homey.__('settings.pageExplanation'))}</span></div></h2>`;
 		}
 
 		htmlText += insertDisplayItemSection(item, itemNo, (item.itemId === expandItemId));
 	}
-	htmlText += `</div></div>`;
+	htmlText += '</div></div>';
 	const displayItemsSectionElement = document.getElementById('displayItemsSection');
 	displayItemsSectionElement.innerHTML = htmlText;
 	displayItemsSectionElement.classList.add('display-items-backing-store');
@@ -10574,9 +10565,9 @@ function drawDisplayConfiguration(displayConfiguration, expandItemId = -1)
 	for (var itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
 	{
 		// Add a 'Default' broker entry to the lists
-		var defaultText = Homey.__("settings.default");
+		const defaultText = Homey.__('settings.default');
 
-		var option = document.createElement("option");
+		var option = document.createElement('option');
 		option.value = 'Default';
 		option.text = defaultText;
 		document.getElementById(`display${itemNo}BrokerId`).add(option);
@@ -10587,7 +10578,7 @@ function drawDisplayConfiguration(displayConfiguration, expandItemId = -1)
 			const brokerItem = localBrokerItems[i];
 			if (brokerItem.enabled)
 			{
-				var option = document.createElement("option");
+				var option = document.createElement('option');
 				option.value = brokerItem.brokerid;
 				option.text = brokerItem.brokerid;
 				document.getElementById(`display${itemNo}BrokerId`).add(option);
@@ -10619,20 +10610,19 @@ function drawDisplayConfiguration(displayConfiguration, expandItemId = -1)
 	refreshDisplayPopupLiveValues();
 }
 
-
 function newDisplayMQTTTopic(Item)
 {
-	var displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+	const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
 	if (displayConfiguration)
 	{
 		// Save the current settings
 		storeDisplayCustomMQTTItems(Item, displayConfiguration.items[Item].customMQTTTopics);
 
-		var customMQTTItem = {
+		const customMQTTItem = {
 			id: '',
 			type: 0,
-			topic: "",
-			payload: "",
+			topic: '',
+			payload: '',
 			brokerId: 'Default',
 			enabled: true,
 		};
@@ -10643,15 +10633,14 @@ function newDisplayMQTTTopic(Item)
 			displayConfiguration.items[Item].customMQTTTopics = [];
 		}
 
-
 		displayConfiguration.items[Item].customMQTTTopics.push(customMQTTItem);
 		drawDisplayCustomMQTTTopics(Item, displayConfiguration.items[Item].customMQTTTopics);
 	}
-};
+}
 
 function newMQTTTopic(side, page)
 {
-	var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+	const buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
 	if (!Array.isArray(buttonPanelConfiguration) || !buttonPanelConfiguration[page])
 	{
 		return;
@@ -10683,7 +10672,7 @@ function drawDisplayCustomMQTTTopics(Item, Topics)
 {
 	if (!Array.isArray(Topics)) return;
 
-	document.getElementById(`display${Item}CustomMQTTTopicsSection`).innerHTML = "";
+	document.getElementById(`display${Item}CustomMQTTTopicsSection`).innerHTML = '';
 	customDisplayMQTTItemsElements = [];
 	if (Topics.length === 0) return;
 
@@ -10700,38 +10689,38 @@ function drawDisplayCustomMQTTTopics(Item, Topics)
 		setBrokerSelectValue(document.getElementById(`display${Item}CustomMQTT${itemNo}BrokerId`), topic.brokerId);
 	}
 
-	var tooltips = document.querySelectorAll(".tooltip");
-	tooltips.forEach(function (tooltip, index)
+	const tooltips = document.querySelectorAll('.tooltip');
+	tooltips.forEach((tooltip, index) =>
 	{
 		// Set a mouse over function for each tooltop element
-		tooltip.addEventListener("mouseover", position_tooltip); // On hover, launch the function below
-	})
+		tooltip.addEventListener('mouseover', position_tooltip); // On hover, launch the function below
+	});
 }
 
 function insertDisplayCustomMQTTTopicSection(Topic, ItemNo, Item)
 {
 	const ctrlLabels = {
-		brokerId: Homey.__("settings.brokerId"),
-		brokerIdExplanation: Homey.__("settings.brokerIdExplanation"),
-		id: Homey.__("settings.MQTTId"),
-		idExplanation: Homey.__("settings.MQTTIdExplanation"),
-		type: Homey.__("settings.type"),
-		typeExplanation: Homey.__("settings.displayTypeExplanation"),
-		topic: Homey.__("settings.topic"),
-		topicExplanation: Homey.__("settings.topicExplanation"),
-		payload: Homey.__("settings.payload"),
-		payloadExplanation: Homey.__("settings.payloadExplanation"),
-		enabled: Homey.__("settings.enabled"),
-		value: Homey.__("settings.value"),
-		label: Homey.__("settings.label"),
-		unit: Homey.__("settings.unit"),
+		brokerId: Homey.__('settings.brokerId'),
+		brokerIdExplanation: Homey.__('settings.brokerIdExplanation'),
+		id: Homey.__('settings.MQTTId'),
+		idExplanation: Homey.__('settings.MQTTIdExplanation'),
+		type: Homey.__('settings.type'),
+		typeExplanation: Homey.__('settings.displayTypeExplanation'),
+		topic: Homey.__('settings.topic'),
+		topicExplanation: Homey.__('settings.topicExplanation'),
+		payload: Homey.__('settings.payload'),
+		payloadExplanation: Homey.__('settings.payloadExplanation'),
+		enabled: Homey.__('settings.enabled'),
+		value: Homey.__('settings.value'),
+		label: Homey.__('settings.label'),
+		unit: Homey.__('settings.unit'),
 	};
-	const itemLegend = Homey.__("settings.customMQTTItemlegend", { itemNo: ItemNo + 1 });
-	const enableOption = Topic.enabled ? "checked" : "";
+	const itemLegend = Homey.__('settings.customMQTTItemlegend', { itemNo: ItemNo + 1 });
+	const enableOption = Topic.enabled ? 'checked' : '';
 
-	var section = document.getElementById(`display${Item}CustomMQTTTopicsSection`).innerHTML;
-	section = section +
-		`<div class="horizontalcontainer">
+	let section = document.getElementById(`display${Item}CustomMQTTTopicsSection`).innerHTML;
+	section
+		+= `<div class="horizontalcontainer">
 					<div class="horizontalgroup">
 						<legend class="homey-subtitle">${itemLegend}</legend>
 
@@ -10789,27 +10778,26 @@ function insertDisplayCustomMQTTTopicSection(Topic, ItemNo, Item)
 	const idx = customDisplayMQTTItemsElements.push(document.getElementById(`display${Item}CustomMQTT${ItemNo}BrokerId`)) - 1;
 
 	// Add the brokers to the broker list
-	var option = document.createElement("option");
+	let option = document.createElement('option');
 	option.text = 'Default';
 	option.value = 'Default';
 	customDisplayMQTTItemsElements[idx].add(option);
 
-	for (var brokerNo = 0; brokerNo < localBrokerItems.length; brokerNo++)
+	for (let brokerNo = 0; brokerNo < localBrokerItems.length; brokerNo++)
 	{
 		const brokerItem = localBrokerItems[brokerNo];
-		option = document.createElement("option");
+		option = document.createElement('option');
 		option.text = brokerItem.brokerid;
 		option.value = brokerItem.brokerid;
 		customDisplayMQTTItemsElements[idx].add(option);
 	}
 }
 
-
 // Delete the specified custom item from the display panel configuration and redraw the list
 function deleteDisplayCustomMQTTItem(ItemNo, Item)
 {
-	var displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
-	const customMQTTTopics = displayConfiguration.items[Item].customMQTTTopics;
+	const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+	const { customMQTTTopics } = displayConfiguration.items[Item];
 
 	customMQTTTopics.splice(ItemNo, 1);
 	drawDisplayCustomMQTTTopics(Item, customMQTTTopics);
@@ -10845,64 +10833,63 @@ function storeDisplayCustomMQTTItems(Item, Topics)
 {
 	if (!Topics || Topics.length === 0) return;
 
-	for (var itemNo = 0; itemNo < Topics.length; itemNo++)
+	for (let itemNo = 0; itemNo < Topics.length; itemNo++)
 	{
 		storeDisplayCustomMQTTItem(Item, Topics, itemNo);
 	}
 }
 
-
 // Add the HTML for the specified display item
 function insertDisplayItemSection(item, itemNo, expanded = false)
 {
-	var section = ""; // document.getElementById('displayItemsSection').innerHTML;
+	let section = ''; // document.getElementById('displayItemsSection').innerHTML;
 	const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo] || { items: [] };
 	const ctrlLabels = {
-		device: Homey.__("settings.device"),
-		capability: Homey.__("settings.capability"),
-		label: Homey.__("settings.topLabel"),
-		text: Homey.__("settings.text"),
-		unit: Homey.__("settings.unit"),
-		xPos: Homey.__("settings.xPos"),
-		yPos: Homey.__("settings.yPos"),
-		width: Homey.__("settings.width"),
-		rounding: Homey.__("settings.rounding"),
-		fontSize: Homey.__("settings.fontSize"),
-		deleteItem: Homey.__("settings.deleteItem"),
-		brokerId: Homey.__("settings.brokerId"),
-		page: Homey.__("settings.page"),
-		boxType: Homey.__("settings.boxType"),
-		customMQTTTopic: Homey.__("settings.customMQTTTopic"),
-		newCustomMQTTItem: Homey.__("settings.newCustomMQTTItem"),
-	}
+		device: Homey.__('settings.device'),
+		capability: Homey.__('settings.capability'),
+		label: Homey.__('settings.topLabel'),
+		text: Homey.__('settings.text'),
+		unit: Homey.__('settings.unit'),
+		xPos: Homey.__('settings.xPos'),
+		yPos: Homey.__('settings.yPos'),
+		width: Homey.__('settings.width'),
+		rounding: Homey.__('settings.rounding'),
+		fontSize: Homey.__('settings.fontSize'),
+		deleteItem: Homey.__('settings.deleteItem'),
+		brokerId: Homey.__('settings.brokerId'),
+		page: Homey.__('settings.page'),
+		boxType: Homey.__('settings.boxType'),
+		customMQTTTopic: Homey.__('settings.customMQTTTopic'),
+		newCustomMQTTItem: Homey.__('settings.newCustomMQTTItem'),
+	};
 	const ctrlExplanations = {
-		device: Homey.__("settings.deviceDExplanation"),
-		capability: Homey.__("settings.capabilityDExplanation"),
-		label: Homey.__("settings.toplabelDisplayExplanation"),
-		text: Homey.__("settings.textExplanation"),
-		unit: Homey.__("settings.unitExplanation"),
-		xPos: Homey.__("settings.xPosExplanation"),
-		yPos: Homey.__("settings.yPosExplanation"),
-		width: Homey.__("settings.widthExplanation"),
-		rounding: Homey.__("settings.roundingExplanation"),
-		fontSize: Homey.__("settings.fontSizeExplanation"),
-		deleteItem: Homey.__("settings.deleteItemExplanation"),
-		brokerId: Homey.__("settings.brokerIdExplanation"),
-		page: Homey.__("settings.pageExplanation"),
-		boxType: Homey.__("settings.boxTypeExplanation"),
-		customMQTTTopic: Homey.__("settings.customMQTTTopicExplanation"),
-	}
-	const itemLegend = Homey.__("settings.displayItemlegend", { itemNo: itemNo + 1 });
+		device: Homey.__('settings.deviceDExplanation'),
+		capability: Homey.__('settings.capabilityDExplanation'),
+		label: Homey.__('settings.toplabelDisplayExplanation'),
+		text: Homey.__('settings.textExplanation'),
+		unit: Homey.__('settings.unitExplanation'),
+		xPos: Homey.__('settings.xPosExplanation'),
+		yPos: Homey.__('settings.yPosExplanation'),
+		width: Homey.__('settings.widthExplanation'),
+		rounding: Homey.__('settings.roundingExplanation'),
+		fontSize: Homey.__('settings.fontSizeExplanation'),
+		deleteItem: Homey.__('settings.deleteItemExplanation'),
+		brokerId: Homey.__('settings.brokerIdExplanation'),
+		page: Homey.__('settings.pageExplanation'),
+		boxType: Homey.__('settings.boxTypeExplanation'),
+		customMQTTTopic: Homey.__('settings.customMQTTTopicExplanation'),
+	};
+	const itemLegend = Homey.__('settings.displayItemlegend', { itemNo: itemNo + 1 });
 	const sanitizedLabel = sanitizeDisplayString(item.label, '');
 	const sanitizedText = sanitizeDisplayString(item.text, '');
 	const sanitizedOnText = sanitizeDisplayString(item.onText || item.OnText, '');
 	const sanitizedOffText = sanitizeDisplayString(item.offText || item.OffText, '');
 	const sanitizedCapabilityName = sanitizeDisplayString(item.capabilityName, '');
 	const sanitizedUnit = sanitizeDisplayString(item.unit, '');
-	const itemLegendName = sanitizedLabel ? sanitizedLabel : (item.device === 'none' ? sanitizedText : sanitizedCapabilityName);
+	const itemLegendName = sanitizedLabel || (item.device === 'none' ? sanitizedText : sanitizedCapabilityName);
 	const itemLegendPageLabel = formatDisplayPageLabel(parseInt(item.page, 10) || 0);
-	const underlined = Homey.__("settings.boxTypeUnderlined");
-	const notUnderlined = Homey.__("settings.boxTypeNotUnderlined");
+	const underlined = Homey.__('settings.boxTypeUnderlined');
+	const notUnderlined = Homey.__('settings.boxTypeNotUnderlined');
 
 	if (typeof item.page === 'undefined')
 	{
@@ -10911,8 +10898,8 @@ function insertDisplayItemSection(item, itemNo, expanded = false)
 
 	const pageSelectOptions = getDisplayPageSelectOptionsMarkup(displayConfiguration, item.page);
 
-	section = section +
-		`<div class="horizontalcontainer">
+	section
+		+= `<div class="horizontalcontainer">
 					<div class="horizontalgroup" id="displayItem${item.itemId}Section">
 						<details ${expanded ? 'open' : ''}>
 							<summary class="summary">
@@ -10974,7 +10961,7 @@ function insertDisplayItemSection(item, itemNo, expanded = false)
 								<input class="homey-form-input" id="display${itemNo}Text" type="text" oninput="onDisplayLabelChange(this, ${itemNo})" value="${sanitizedText}" />
 							</div>
 							<div id="display${itemNo}OnTextDiv">
-								<label class="homey-form-label" for="display${itemNo}OnText">${Homey.__("settings.displayOnText") || 'Display On text'}
+								<label class="homey-form-label" for="display${itemNo}OnText">${Homey.__('settings.displayOnText') || 'Display On text'}
 									<div class="tooltip"><i class="fi fi-rr-info"></i>
 										<span class="tooltiptext">Text to display when boolean value is true/on</span>
 									</div>
@@ -10982,7 +10969,7 @@ function insertDisplayItemSection(item, itemNo, expanded = false)
 								<input class="homey-form-input" id="display${itemNo}OnText" type="text" value="${sanitizedOnText}" placeholder="On" />
 							</div>
 							<div id="display${itemNo}OffTextDiv">
-								<label class="homey-form-label" for="display${itemNo}OffText">${Homey.__("settings.displayOffText") || 'Display Off text'}
+								<label class="homey-form-label" for="display${itemNo}OffText">${Homey.__('settings.displayOffText') || 'Display Off text'}
 									<div class="tooltip"><i class="fi fi-rr-info"></i>
 										<span class="tooltiptext">Text to display when boolean value is false/off</span>
 									</div>
@@ -11042,7 +11029,7 @@ function insertDisplayItemSection(item, itemNo, expanded = false)
 							<select class="homey-form-select" id="display${itemNo}BrokerId">
 							</select>
 							<div id="display${itemNo}OnSVGDiv">
-								<label class="homey-form-label" for="display${itemNo}OnSVG">${Homey.__("settings.displayOnSvg") || 'On SVG Data'}
+								<label class="homey-form-label" for="display${itemNo}OnSVG">${Homey.__('settings.displayOnSvg') || 'On SVG Data'}
 									<div class="tooltip"><i class="fi fi-rr-info"></i>
 										<span class="tooltiptext">Raw SVG code to display when capability is active/on</span>
 									</div>
@@ -11054,7 +11041,7 @@ function insertDisplayItemSection(item, itemNo, expanded = false)
 								<br>
 							</div>
 							<div id="display${itemNo}OffSVGDiv">
-								<label class="homey-form-label" for="display${itemNo}OffSVG">${Homey.__("settings.displayOffSvg") || 'Off SVG Data'}
+								<label class="homey-form-label" for="display${itemNo}OffSVG">${Homey.__('settings.displayOffSvg') || 'Off SVG Data'}
 									<div class="tooltip"><i class="fi fi-rr-info"></i>
 										<span class="tooltiptext">Raw SVG code to display when capability is inactive/off</span>
 									</div>
@@ -11141,7 +11128,6 @@ function onDisplayLabelChange(element, itemNo)
 			}
 			else
 			{
-				const capability = document.getElementById(`display${itemNo}Capability`).value;
 				const capabilityElement = document.getElementById(`display${itemNo}Capability`);
 				newLabel = capabilityElement.options && capabilityElement.options.length > 0 ? capabilityElement.options[capabilityElement.selectedIndex].text : device;
 			}
@@ -11154,20 +11140,20 @@ function onDisplayLabelChange(element, itemNo)
 	const pageRaw = document.getElementById(`display${itemNo}page`).value;
 	const pageLabel = formatDisplayPageLabel(parseInt(pageRaw, 10) || 0);
 
-	document.getElementById(`display${itemNo}Legend`).innerHTML = `<b><em>${Homey.__("settings.displayItemlegend", { itemNo: itemNo + 1 })}</em></b> - ${newLabel}: P:${pageLabel}, X:${x}, Y:${y}, W:${width}`;
+	document.getElementById(`display${itemNo}Legend`).innerHTML = `<b><em>${Homey.__('settings.displayItemlegend', { itemNo: itemNo + 1 })}</em></b> - ${newLabel}: P:${pageLabel}, X:${x}, Y:${y}, W:${width}`;
 }
 
 function makeSummarySticky()
 {
-	var summaries = document.querySelectorAll('.summary');
-	var lastStickySummary = null;
-	var lastSummary = null;
-	var fixedTopHeight = document.querySelector('.fixedTop').offsetHeight; // Get the height of the fixedTop div
-	var lastTop = 0;
+	const summaries = document.querySelectorAll('.summary');
+	let lastStickySummary = null;
+	let lastSummary = null;
+	const fixedTopHeight = document.querySelector('.fixedTop').offsetHeight; // Get the height of the fixedTop div
+	let lastTop = 0;
 
-	summaries.forEach(function (summary)
+	summaries.forEach(summary =>
 	{
-		var rect = summary.getBoundingClientRect();
+		const rect = summary.getBoundingClientRect();
 		if (rect.height !== 0)
 		{
 			if (lastTop <= fixedTopHeight && rect.top > fixedTopHeight)
@@ -11185,12 +11171,12 @@ function makeSummarySticky()
 		lastStickySummary = lastSummary;
 	}
 
-	summaries.forEach(function (summary)
+	summaries.forEach(summary =>
 	{
 		if (summary === lastStickySummary)
 		{
 			summary.classList.add('summary-sticky');
-			summary.style.top = fixedTopHeight + 'px'; // Set the top of the summary div to the height of the fixedTop div
+			summary.style.top = `${fixedTopHeight}px`; // Set the top of the summary div to the height of the fixedTop div
 		}
 		else
 		{
@@ -11199,7 +11185,7 @@ function makeSummarySticky()
 	});
 }
 
-window.addEventListener("scroll", makeSummarySticky);
+window.addEventListener('scroll', makeSummarySticky);
 
 // if the display configuration has been fetched, update the display controls
 function fillDisplayDevices()
@@ -11207,19 +11193,19 @@ function fillDisplayDevices()
 	if (displayDevicesFetched)
 	{
 		// Get the current display configuration
-		var displayConfig = localDisplayConfigurations[displayConfigurationNoElement.value];
+		const displayConfig = localDisplayConfigurations[displayConfigurationNoElement.value];
 
 		if (displayConfig)
 		{
-			for (var itemNo = 0; itemNo < displayConfig.items.length; itemNo++)
+			for (let itemNo = 0; itemNo < displayConfig.items.length; itemNo++)
 			{
 				fillDevicesElement(document.getElementById(`display${itemNo}Device`), displayDevicesArray, true);
 
 				// If the current device is not in the list, add it
 				if (displayConfig.items[itemNo].device !== 'none' && displayConfig.items[itemNo].device !== '_variable_' && displayConfig.items[itemNo].device !== 'customMQTT' && displayConfig.items[itemNo].device !== TARGET_BUTTON_PLUS_DEVICE_ID && displayConfig.items[itemNo].device !== '' && !displayDevicesArray.includes(displayConfig.items[itemNo].device))
 				{
-					var option = document.createElement("option");
-					option.text = displayConfig.items[itemNo].deviceName + " (Missing)";
+					const option = document.createElement('option');
+					option.text = `${displayConfig.items[itemNo].deviceName} (Missing)`;
 					option.value = displayConfig.items[itemNo].device;
 					document.getElementById(`display${itemNo}Device`).add(option);
 
@@ -11251,7 +11237,7 @@ function fillDisplayVariablesElement(item, capabilityElement, selectedVariable, 
 {
 	for (const variable of variablesArray)
 	{
-		var option = document.createElement("option");
+		var option = document.createElement('option');
 		option.text = variable.name;
 		option.value = variable.id;
 		capabilityElement.add(option);
@@ -11262,8 +11248,8 @@ function fillDisplayVariablesElement(item, capabilityElement, selectedVariable, 
 	if (capabilityElement.value !== selectedVariable)
 	{
 		// The variable must be missing, so add it to the list
-		var option = document.createElement("option");
-		option.text = selectedVariableName + " (Missing)";
+		var option = document.createElement('option');
+		option.text = `${selectedVariableName} (Missing)`;
 		option.value = selectedVariable;
 		capabilityElement.add(option);
 
@@ -11330,7 +11316,7 @@ function updateDisplayItemControlsVisibility(itemNo)
 	let isBoolean = false;
 	if (deviceId === '_variable_')
 	{
-		const selectedVariable = variablesArray.find((v) => v.id === capabilityId);
+		const selectedVariable = variablesArray.find(v => v.id === capabilityId);
 		isBoolean = !!selectedVariable && (selectedVariable.type === 'boolean');
 	}
 	else
@@ -11352,8 +11338,8 @@ function updateDisplayItemControlsVisibility(itemNo)
 function getDisplayCapabilities(itemNo)
 {
 	const deviceElement = document.getElementById(`display${itemNo}Device`);
-	var deviceId = deviceElement.value;
-	var capabilitiesElement = document.getElementById(`display${itemNo}Capability`);
+	const deviceId = deviceElement.value;
+	const capabilitiesElement = document.getElementById(`display${itemNo}Capability`);
 	const previousDeviceId = capabilitiesElement.dataset.deviceId || '';
 	const currentDisplayConfig = localDisplayConfigurations[displayConfigurationNoElement.value];
 	const configuredItem = currentDisplayConfig && currentDisplayConfig.items ? currentDisplayConfig.items[itemNo] : null;
@@ -11366,7 +11352,7 @@ function getDisplayCapabilities(itemNo)
 		&& document.getElementById(`display${itemNo}Device`) === deviceElement
 		&& deviceElement.value === deviceId;
 
-	capabilitiesElement.innerHTML = "";
+	capabilitiesElement.innerHTML = '';
 	capabilitiesElement.dataset.deviceId = deviceId;
 
 	if (deviceId === 'customMQTT')
@@ -11375,7 +11361,7 @@ function getDisplayCapabilities(itemNo)
 	}
 	else
 	{
-		document.getElementById(`display${itemNo}CustomMQTTTopicDiv`).style.display = "none";
+		document.getElementById(`display${itemNo}CustomMQTTTopicDiv`).style.display = 'none';
 	}
 
 	if (deviceId === 'customMQTT' || deviceId === 'none')
@@ -11389,8 +11375,8 @@ function getDisplayCapabilities(itemNo)
 	{
 		updateDisplayItemControlsVisibility(itemNo);
 
-		var selectedVariable = '';
-		var selectedVariableName = '';
+		let selectedVariable = '';
+		let selectedVariableName = '';
 		if (configuredItem && configuredItem.device === deviceId)
 		{
 			selectedVariable = configuredItem.capability;
@@ -11404,9 +11390,9 @@ function getDisplayCapabilities(itemNo)
 		}
 		else
 		{
-			const loadingOption = document.createElement("option");
-			loadingOption.text = Homey.__("settings.loadingVariables");
-			loadingOption.value = "";
+			const loadingOption = document.createElement('option');
+			loadingOption.text = Homey.__('settings.loadingVariables');
+			loadingOption.value = '';
 			loadingOption.disabled = true;
 			loadingOption.selected = true;
 			capabilitiesElement.add(loadingOption);
@@ -11423,7 +11409,7 @@ function getDisplayCapabilities(itemNo)
 			}
 
 			// Resquest the list of variables
-			Homey.api('POST', '/get_variables/', {}, function (err, variables)
+			Homey.api('POST', '/get_variables/', {}, (err, variables) =>
 			{
 				if (!isCurrentRequest()) return;
 				if (err) return Homey.alert(err);
@@ -11469,7 +11455,7 @@ function getDisplayCapabilities(itemNo)
 	else
 	{
 		// Resquest the list of capabilities
-		Homey.api('POST', '/device_capabilities/', { deviceId }, function (err, capabilities)
+		Homey.api('POST', '/device_capabilities/', { deviceId }, (err, capabilities) =>
 		{
 			if (!isCurrentRequest()) return;
 			if (err) return Homey.alert(err);
@@ -11488,7 +11474,7 @@ function fillDisplayCapabilitiesElement(itemNo, capabilitiesElement, capabilitie
 	const capabilitiesArray = Object.values(capabilities);
 	for (const capability of capabilitiesArray)
 	{
-		var option = document.createElement("option");
+		var option = document.createElement('option');
 		option.text = `${capability.title} (${capability.id})`;
 		option.value = capability.id;
 		option.dataset.type = capability.type || '';
@@ -11505,14 +11491,14 @@ function fillDisplayCapabilitiesElement(itemNo, capabilitiesElement, capabilitie
 	}
 
 	document.getElementById(`display${itemNo}CapabilityDiv`).style.display = itemDisplyType;
-	document.getElementById(`display${itemNo}UnitDiv`).style.display = "none";
-	document.getElementById(`display${itemNo}TextDiv`).style.display = "none";
+	document.getElementById(`display${itemNo}UnitDiv`).style.display = 'none';
+	document.getElementById(`display${itemNo}TextDiv`).style.display = 'none';
 	const onTextDiv = document.getElementById(`display${itemNo}OnTextDiv`);
 	const offTextDiv = document.getElementById(`display${itemNo}OffTextDiv`);
 	if (onTextDiv) onTextDiv.style.display = itemDisplyType;
 	if (offTextDiv) offTextDiv.style.display = itemDisplyType;
 
-	var displayConfig = localDisplayConfigurations[displayConfigurationNoElement.value];
+	const displayConfig = localDisplayConfigurations[displayConfigurationNoElement.value];
 	if (displayConfig)
 	{
 		const capabilityID = selectedCapability !== null ? selectedCapability : displayConfig.items[itemNo].capability;
@@ -11537,8 +11523,8 @@ function fillDisplayCapabilitiesElement(itemNo, capabilitiesElement, capabilitie
 		else if (capabilityID)
 		{
 			// The capability must be missing, so add it to the list
-			var option = document.createElement("option");
-			option.text = capabilityID + " (Missing)";
+			var option = document.createElement('option');
+			option.text = `${capabilityID} (Missing)`;
 			option.value = capabilityID;
 			capabilitiesElement.add(option);
 		}
@@ -11567,7 +11553,7 @@ function deleteItem(itemNo)
 	// Save all the settings so they don't get lost when the controls are redawn
 	storeDisplaySettings();
 
-	var displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+	const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
 
 	if (displayConfiguration != null)
 	{
@@ -11604,14 +11590,14 @@ function deleteSelectedInlineDisplayItem()
 
 function storeDisplaySettings()
 {
-	var displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
+	const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
 
 	if (displayConfiguration != null)
 	{
 		displayConfiguration.version = 2;
 		displayConfiguration.name = displayConfigNameElement.value;
 
-		for (var itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
+		for (let itemNo = 0; itemNo < displayConfiguration.items.length; itemNo++)
 		{
 			const deviceElement = document.getElementById(`display${itemNo}Device`);
 
@@ -11625,7 +11611,7 @@ function storeDisplaySettings()
 			}
 			else
 			{
-				displayConfiguration.items[itemNo].deviceName = "";
+				displayConfiguration.items[itemNo].deviceName = '';
 			}
 
 			displayConfiguration.items[itemNo].capability = document.getElementById(`display${itemNo}Capability`).value;
@@ -11638,7 +11624,7 @@ function storeDisplaySettings()
 			}
 			else
 			{
-				displayConfiguration.items[itemNo].capabilityName = "";
+				displayConfiguration.items[itemNo].capabilityName = '';
 			}
 			displayConfiguration.items[itemNo].label = sanitizeDisplayString(document.getElementById(`display${itemNo}Label`).value, '');
 			displayConfiguration.items[itemNo].unit = sanitizeDisplayString(document.getElementById(`display${itemNo}Unit`).value, '');
@@ -11673,22 +11659,22 @@ function addDisplayItem()
 
 	storeDisplaySettings();
 
-	displayConfigurationNo = displayConfigurationNoElement.value;
-	var displayConfiguration = localDisplayConfigurations[displayConfigurationNo];
+	const displayConfigurationNo = displayConfigurationNoElement.value;
+	const displayConfiguration = localDisplayConfigurations[displayConfigurationNo];
 	if (displayConfiguration)
 	{
 		const maxItemId = displayConfiguration.items.reduce((max, it) => Math.max(max, (it && typeof it.itemId === 'number') ? it.itemId : -1), -1);
 		const itemId = maxItemId + 1;
 		const targetPage = Number.isInteger(displayPagePopupCurrentPage) ? displayPagePopupCurrentPage : 0;
 
-		var displayItem = {
+		const displayItem = {
 			itemId,
-			device: "none",
-			deviceName: "none",
-			capability: "",
-			capabilityName: "",
-			label: "New Item",
-			unit: "",
+			device: 'none',
+			deviceName: 'none',
+			capability: '',
+			capabilityName: '',
+			label: 'New Item',
+			unit: '',
 			numberRounding: -1,
 			xPos: 0,
 			yPos: 0,
@@ -11767,7 +11753,7 @@ function deleteCurrentDisplayPage()
 		return;
 	}
 
-	displayConfiguration.items = displayConfiguration.items.filter((item) =>
+	displayConfiguration.items = displayConfiguration.items.filter(item =>
 	{
 		const itemPage = parseInt(item.page, 10) || 0;
 		return itemPage !== displayPagePopupCurrentPage;
@@ -11799,8 +11785,8 @@ function deleteCurrentDisplayPage()
 /// Broker Config code
 function drawBrokerItems()
 {
-	document.getElementById('brokerItemsSection').innerHTML = "";
-	for (var itemNo = 0; itemNo < localBrokerItems.length; itemNo++)
+	document.getElementById('brokerItemsSection').innerHTML = '';
+	for (let itemNo = 0; itemNo < localBrokerItems.length; itemNo++)
 	{
 		const item = localBrokerItems[itemNo];
 		insertBrokerItemSection(item, itemNo);
@@ -11810,49 +11796,49 @@ function drawBrokerItems()
 function insertBrokerItemSection(item, itemNo, expanded = false)
 {
 	const ctrlLabels = {
-		id: Homey.__("settings.id"),
-		address: Homey.__("settings.address"),
-		port: Homey.__("settings.port"),
-		wsPort: Homey.__("settings.wsPort"),
-		enabled: Homey.__("settings.enabled"),
-		username: Homey.__("settings.username"),
-		password: Homey.__("settings.password"),
-		idExplanation: Homey.__("settings.idExplanation"),
-		addressExplanation: Homey.__("settings.addressExplanation"),
-		portExplanation: Homey.__("settings.portExplanation"),
-		wsPortExplanation: Homey.__("settings.wsPortExplanation"),
-		enabledExplanation: Homey.__("settings.enabledExplanation"),
-		usernameExplanation: Homey.__("settings.usernameExplanation"),
-		passwordExplanation: Homey.__("settings.passwordExplanation"),
+		id: Homey.__('settings.id'),
+		address: Homey.__('settings.address'),
+		port: Homey.__('settings.port'),
+		wsPort: Homey.__('settings.wsPort'),
+		enabled: Homey.__('settings.enabled'),
+		username: Homey.__('settings.username'),
+		password: Homey.__('settings.password'),
+		idExplanation: Homey.__('settings.idExplanation'),
+		addressExplanation: Homey.__('settings.addressExplanation'),
+		portExplanation: Homey.__('settings.portExplanation'),
+		wsPortExplanation: Homey.__('settings.wsPortExplanation'),
+		enabledExplanation: Homey.__('settings.enabledExplanation'),
+		usernameExplanation: Homey.__('settings.usernameExplanation'),
+		passwordExplanation: Homey.__('settings.passwordExplanation'),
 	};
-	const itemLegend = Homey.__("settings.brokerItemlegend", { itemNo: itemNo + 1 });
-	const protected = item.protected ? "disabled" : "";
-	const enableOption = item.enabled ? "checked" : "";
-	let deleteButton = "";
+	const itemLegend = Homey.__('settings.brokerItemlegend', { itemNo: itemNo + 1 });
+	const protected = item.protected ? 'disabled' : '';
+	const enableOption = item.enabled ? 'checked' : '';
+	let deleteButton = '';
 	if (!item.protected)
 	{
 		deleteButton = `<p><button class="homey-button-secondary-shadow" id="deleteBrokerItem${itemNo}" onClick="deleteBrokerItem(${itemNo})" style="font-size: 30px;"><i class="fi fi-rr-trash"></i> </button></p>`;
 	}
 
-	let brokerDescription = "";
-	if (item.brokerid === "homey")
+	let brokerDescription = '';
+	if (item.brokerid === 'homey')
 	{
-		brokerDescription = Homey.__("settings.brokerHomey");
-		ctrlLabels.passwordExplanation = Homey.__("settings.homeyPasswordExplanation");
-		ctrlLabels.usernameExplanation = Homey.__("settings.homeyUsernameExplanation");
+		brokerDescription = Homey.__('settings.brokerHomey');
+		ctrlLabels.passwordExplanation = Homey.__('settings.homeyPasswordExplanation');
+		ctrlLabels.usernameExplanation = Homey.__('settings.homeyUsernameExplanation');
 	}
-	else if (item.brokerid === "buttonplus")
+	else if (item.brokerid === 'buttonplus')
 	{
-		brokerDescription = Homey.__("settings.brokerButtonPlus");
+		brokerDescription = Homey.__('settings.brokerButtonPlus');
 	}
 	else
 	{
-		brokerDescription = Homey.__("settings.brokerUser");
+		brokerDescription = Homey.__('settings.brokerUser');
 	}
 
-	var section = document.getElementById('brokerItemsSection').innerHTML;
-	section = section +
-		`<div class="horizontalcontainer">
+	let section = document.getElementById('brokerItemsSection').innerHTML;
+	section
+		+= `<div class="horizontalcontainer">
 					<div class="horizontalgroup">
 						<details ${expanded ? 'open' : ''}>
 							<summary class="summary">
@@ -11895,14 +11881,14 @@ function insertBrokerItemSection(item, itemNo, expanded = false)
 									<span class="tooltiptext">${normalizeTooltipHtml(ctrlLabels.usernameExplanation)}</span>
 								</div>
 							</label>
-							<input class="homey-form-input" id="broker${itemNo}Username" type="text" value="${item.username ? item.username : ""}""/>
+							<input class="homey-form-input" id="broker${itemNo}Username" type="text" value="${item.username ? item.username : ''}""/>
 
 							<label class="homey-form-label" for="broker${itemNo}Password">${ctrlLabels.password}
 								<div class="tooltip" onmouseover="position_tooltip"><i class="fi fi-rr-info"></i>
 									<span class="tooltiptext">${normalizeTooltipHtml(ctrlLabels.passwordExplanation)}</span>
 								</div>
 							</label>
-							<input class="homey-form-input" id="broker${itemNo}Password" type="text" value="${item.password ? item.password : ""}""/>
+							<input class="homey-form-input" id="broker${itemNo}Password" type="text" value="${item.password ? item.password : ''}""/>
 
 							<label class="homey-form-checkbox">
 								<input class="homey-form-checkbox-input" id="broker${itemNo}Enabled" onClick="rebuildBrokerLists(${itemNo})" type="checkbox" ${enableOption}/>
@@ -11923,7 +11909,7 @@ function insertBrokerItemSection(item, itemNo, expanded = false)
 
 function onBrokerLabelChange(element, itemNo)
 {
-	document.getElementById(`broker${itemNo}Legend`).innerHTML = `<b><em>${Homey.__("settings.brokerItemlegend", { itemNo: itemNo + 1 })}</em></b> - ${element.value}`;
+	document.getElementById(`broker${itemNo}Legend`).innerHTML = `<b><em>${Homey.__('settings.brokerItemlegend', { itemNo: itemNo + 1 })}</em></b> - ${element.value}`;
 }
 
 function updateBrokerLists(itemNo)
@@ -11956,7 +11942,7 @@ function updateBrokerLists(itemNo)
 
 	// Update the broker lists in the display config
 	const displayConfig = localDisplayConfigurations[currentDisplayConfigurationNo];
-	for (var displayItemNo = 0; displayItemNo < displayConfig.items.length; displayItemNo++)
+	for (let displayItemNo = 0; displayItemNo < displayConfig.items.length; displayItemNo++)
 	{
 		const brokerIdElement = document.getElementById(`display${displayItemNo}BrokerId`);
 		brokerIdElement.options[itemNo].text = document.getElementById(`broker${itemNo}Id`).value;
@@ -11985,7 +11971,7 @@ function deleteBrokerItem(itemNo)
 	}
 	else
 	{
-		Homey.alert(Homey.__("settings.deleteBrokerItemError"));
+		Homey.alert(Homey.__('settings.deleteBrokerItemError'));
 	}
 }
 
@@ -12025,7 +12011,6 @@ function rebuildBrokerLists(itemNo)
 	}
 
 	// Reset the default broker list
-	const defaultBrokerItem = defaultBrokerElement.value;
 	defaultBrokerElement.length = 0;
 
 	const displayConfig = localDisplayConfigurations[currentDisplayConfigurationNo];
@@ -12039,7 +12024,7 @@ function rebuildBrokerLists(itemNo)
 	}
 
 	// Add a 'Default' broker entry to the lists
-	var defaultText = Homey.__("settings.default");
+	const defaultText = Homey.__('settings.default');
 
 	for (let page = 0; page < numberOfPages; page++)
 	{
@@ -12047,12 +12032,12 @@ function rebuildBrokerLists(itemNo)
 		const leftBrokerIdElement = document.getElementById(`left${page}BrokerId`);
 		const rightBrokerIdElement = document.getElementById(`right${page}BrokerId`);
 
-		var option = document.createElement("option");
+		var option = document.createElement('option');
 		option.value = 'Default';
 		option.text = defaultText;
 		leftBrokerIdElement.add(option);
 
-		var option = document.createElement("option");
+		var option = document.createElement('option');
 		option.value = 'Default';
 		option.text = defaultText;
 		rightBrokerIdElement.add(option);
@@ -12062,7 +12047,7 @@ function rebuildBrokerLists(itemNo)
 	for (var itemNo = 0; itemNo < localBrokerItems.length; itemNo++)
 	{
 		// Add the broker to the broker list in the panel and display config
-		var brokerItem = localBrokerItems[itemNo];
+		const brokerItem = localBrokerItems[itemNo];
 		if (brokerItem.enabled)
 		{
 			addBrokerToConfig(brokerItem);
@@ -12082,7 +12067,7 @@ function rebuildBrokerLists(itemNo)
 
 	for (let displayItemNo = 0; displayItemNo < displayConfig.items.length; displayItemNo++)
 	{
-		var optionDisplay = document.createElement("option");
+		const optionDisplay = document.createElement('option');
 		optionDisplay.value = 'Default';
 		optionDisplay.text = defaultText;
 		document.getElementById(`display${displayItemNo}BrokerId`).add(optionDisplay);
@@ -12095,7 +12080,7 @@ function rebuildBrokerLists(itemNo)
 function addBrokerToConfig(brokerItem, numberOfPages)
 {
 	// Add the new broker to the default broker list
-	var option = document.createElement("option");
+	var option = document.createElement('option');
 	option.value = brokerItem.brokerid;
 	option.text = brokerItem.brokerid;
 	defaultBrokerElement.add(option);
@@ -12107,12 +12092,12 @@ function addBrokerToConfig(brokerItem, numberOfPages)
 		const rightBrokerIdElement = document.getElementById(`right${page}BrokerId`);
 
 		// Add the new broker to the panel config broker lists
-		var optionLeft = document.createElement("option");
+		const optionLeft = document.createElement('option');
 		optionLeft.value = brokerItem.brokerid;
 		optionLeft.text = brokerItem.brokerid;
 		leftBrokerIdElement.add(optionLeft);
 
-		var optionRight = document.createElement("option");
+		const optionRight = document.createElement('option');
 		optionRight.value = brokerItem.brokerid;
 		optionRight.text = brokerItem.brokerid;
 		rightBrokerIdElement.add(optionRight);
@@ -12121,7 +12106,7 @@ function addBrokerToConfig(brokerItem, numberOfPages)
 	// Add the new broker to the custom MQTT topic broker lists
 	for (let k = 0; k < customMQTTItemsElements.length; k++)
 	{
-		var option = document.createElement("option");
+		var option = document.createElement('option');
 		option.value = brokerItem.brokerid;
 		option.text = brokerItem.brokerid;
 		customMQTTItemsElements[k].add(option);
@@ -12130,7 +12115,7 @@ function addBrokerToConfig(brokerItem, numberOfPages)
 	// Add the new broker to the custom display MQTT topic broker lists
 	for (let k = 0; k < customDisplayMQTTItemsElements.length; k++)
 	{
-		var option = document.createElement("option");
+		var option = document.createElement('option');
 		option.value = brokerItem.brokerid;
 		option.text = brokerItem.brokerid;
 		customDisplayMQTTItemsElements[k].add(option);
@@ -12140,11 +12125,10 @@ function addBrokerToConfig(brokerItem, numberOfPages)
 	const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
 	for (let j = 0; j < displayConfiguration.items.length; j++)
 	{
-		const displayItem = displayConfiguration.items[j];
-		var option = document.createElement("option");
+		var option = document.createElement('option');
 		option.value = brokerItem.brokerid;
 		option.text = brokerItem.brokerid;
-		let brokerIdElement = document.getElementById(`display${j}BrokerId`);
+		const brokerIdElement = document.getElementById(`display${j}BrokerId`);
 		brokerIdElement.add(option);
 	}
 }
@@ -12152,12 +12136,12 @@ function addBrokerToConfig(brokerItem, numberOfPages)
 function removeBrokerFromConfig(itemNo)
 {
 	// Get the current configuration
-	var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+	const buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
 
 	// if localButtonConfigurations is an array, then set numPage to the length of the array otherwise set numPage to 1
-	var numPages = Array.isArray(buttonPanelConfiguration) ? buttonPanelConfiguration.length : 1;
+	const numPages = Array.isArray(buttonPanelConfiguration) ? buttonPanelConfiguration.length : 1;
 
-	for (page = 0; page < numPages; page++)
+	for (let page = 0; page < numPages; page++)
 	{
 		// Remove the broker from the left and right broker list in the panel config
 		const leftBrokerIdElement = document.getElementById(`left${page}BrokerId`);
@@ -12181,9 +12165,8 @@ function removeBrokerFromConfig(itemNo)
 
 	// Remove the broker from all the lists in the display config items
 	const displayConfig = localDisplayConfigurations[currentDisplayConfigurationNo];
-	for (var displayItemNo = 0; displayItemNo < displayConfig.items.length; displayItemNo++)
+	for (let displayItemNo = 0; displayItemNo < displayConfig.items.length; displayItemNo++)
 	{
-		const item = displayConfig.items[displayItemNo];
 		const brokerIdElement = document.getElementById(`display${displayItemNo}BrokerId`);
 		brokerIdElement.remove(itemNo);
 	}
@@ -12194,16 +12177,16 @@ function removeBrokerFromConfig(itemNo)
 function storeBrokerSettings()
 {
 	let oneEnabled = false;
-	for (var itemNo = 0; itemNo < localBrokerItems.length; itemNo++)
+	for (let itemNo = 0; itemNo < localBrokerItems.length; itemNo++)
 	{
 		// Make sure there isn't already a broker with this id
-		newBrokerid = document.getElementById(`broker${itemNo}Id`).value;
+		const newBrokerid = document.getElementById(`broker${itemNo}Id`).value;
 
-		for (var itemNo2 = 0; itemNo2 < itemNo; itemNo2++)
+		for (let itemNo2 = 0; itemNo2 < itemNo; itemNo2++)
 		{
 			if (newBrokerid.toUpperCase() === localBrokerItems[itemNo2].brokerid.toUpperCase())
 			{
-				Homey.alert(Homey.__("settings.duplicateBrokerIdError", { brokerId: newBrokerid }));
+				Homey.alert(Homey.__('settings.duplicateBrokerIdError', { brokerId: newBrokerid }));
 				return false;
 			}
 		}
@@ -12223,7 +12206,7 @@ function storeBrokerSettings()
 		const password = document.getElementById(`broker${itemNo}Password`).value;
 		if (!username && password)
 		{
-			Homey.alert(Homey.__("settings.passwordError1"));
+			Homey.alert(Homey.__('settings.passwordError1'));
 			return false;
 		}
 		localBrokerItems[itemNo].username = username;
@@ -12232,7 +12215,7 @@ function storeBrokerSettings()
 
 	if (!oneEnabled)
 	{
-		Homey.alert(Homey.__("settings.noEnabledBrokerError"));
+		Homey.alert(Homey.__('settings.noEnabledBrokerError'));
 		return false;
 	}
 	return oneEnabled;
@@ -12247,7 +12230,7 @@ function drawCustomMQTTTopics(side, page, buttonPanelConfiguration)
 		return;
 	}
 
-	customMQTTTopicsSectionElement.innerHTML = "";
+	customMQTTTopicsSectionElement.innerHTML = '';
 	customMQTTItemsElements = [];
 
 	const customMQTTTopics = Array.isArray(buttonPanelConfiguration[`${side}CustomMQTTTopics`]) ? buttonPanelConfiguration[`${side}CustomMQTTTopics`] : [];
@@ -12265,38 +12248,38 @@ function drawCustomMQTTTopics(side, page, buttonPanelConfiguration)
 		setBrokerSelectValue(document.getElementById(`${side}${page}CustomMQTT${itemNo}BrokerId`), topic.brokerId);
 	}
 
-	var tooltips = document.querySelectorAll(".tooltip");
-	tooltips.forEach(function (tooltip, index)
+	const tooltips = document.querySelectorAll('.tooltip');
+	tooltips.forEach((tooltip, index) =>
 	{
 		// Set a mouse over function for each tooltop element
-		tooltip.addEventListener("mouseover", position_tooltip); // On hover, launch the function below
-	})
+		tooltip.addEventListener('mouseover', position_tooltip); // On hover, launch the function below
+	});
 }
 
 function insertCustomMQTTTopicSection(Topic, ItemNo, Side, Page)
 {
 	const ctrlLabels = {
-		brokerId: Homey.__("settings.brokerId"),
-		brokerIdExplanation: Homey.__("settings.brokerIdExplanation"),
-		id: Homey.__("settings.MQTTId"),
-		idExplanation: Homey.__("settings.MQTTIdExplanation"),
-		type: Homey.__("settings.type"),
-		typeExplanation: Homey.__("settings.typeExplanation"),
-		topic: Homey.__("settings.topic"),
-		topicExplanation: Homey.__("settings.topicExplanation"),
-		payload: Homey.__("settings.payload"),
-		payloadExplanation: Homey.__("settings.payloadExplanation"),
-		enabled: Homey.__("settings.enabled"),
-		click: Homey.__("settings.click"),
-		longPress: Homey.__("settings.longPress"),
-		led: Homey.__("settings.led"),
+		brokerId: Homey.__('settings.brokerId'),
+		brokerIdExplanation: Homey.__('settings.brokerIdExplanation'),
+		id: Homey.__('settings.MQTTId'),
+		idExplanation: Homey.__('settings.MQTTIdExplanation'),
+		type: Homey.__('settings.type'),
+		typeExplanation: Homey.__('settings.typeExplanation'),
+		topic: Homey.__('settings.topic'),
+		topicExplanation: Homey.__('settings.topicExplanation'),
+		payload: Homey.__('settings.payload'),
+		payloadExplanation: Homey.__('settings.payloadExplanation'),
+		enabled: Homey.__('settings.enabled'),
+		click: Homey.__('settings.click'),
+		longPress: Homey.__('settings.longPress'),
+		led: Homey.__('settings.led'),
 	};
-	const itemLegend = Homey.__("settings.customMQTTItemlegend", { itemNo: ItemNo + 1 });
-	const enableOption = Topic.enabled ? "checked" : "";
+	const itemLegend = Homey.__('settings.customMQTTItemlegend', { itemNo: ItemNo + 1 });
+	const enableOption = Topic.enabled ? 'checked' : '';
 
-	var section = document.getElementById(`${Side}${Page}CustomMQTTTopicsSection`).innerHTML;
-	section = section +
-		`<div class="horizontalcontainer">
+	let section = document.getElementById(`${Side}${Page}CustomMQTTTopicsSection`).innerHTML;
+	section
+		+= `<div class="horizontalcontainer">
 					<div class="horizontalgroup">
 						<legend class="homey-subtitle">${itemLegend}</legend>
 
@@ -12354,14 +12337,14 @@ function insertCustomMQTTTopicSection(Topic, ItemNo, Side, Page)
 	const idx = customMQTTItemsElements.push(document.getElementById(`${Side}${Page}CustomMQTT${ItemNo}BrokerId`)) - 1;
 
 	// Add the brokers to the broker list
-	var option = document.createElement("option");
+	var option = document.createElement('option');
 	option.text = 'Default';
 	option.value = 'Default';
 	customMQTTItemsElements[idx].add(option);
-	for (var brokerNo = 0; brokerNo < localBrokerItems.length; brokerNo++)
+	for (let brokerNo = 0; brokerNo < localBrokerItems.length; brokerNo++)
 	{
 		const brokerItem = localBrokerItems[brokerNo];
-		var option = document.createElement("option");
+		var option = document.createElement('option');
 		option.text = brokerItem.brokerid;
 		option.value = brokerItem.brokerid;
 		customMQTTItemsElements[idx].add(option);
@@ -12372,7 +12355,7 @@ function insertCustomMQTTTopicSection(Topic, ItemNo, Side, Page)
 // Delete the specified custom item from the button panel configuration and redraw the list
 function deleteCustomMQTTItem(itemNo, side, page)
 {
-	var ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+	const ButtonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
 	if (!Array.isArray(ButtonPanelConfiguration) || !ButtonPanelConfiguration[page])
 	{
 		return;
@@ -12424,7 +12407,7 @@ function storeCustomMQTTItems(side, page, buttonPanelConfiguration)
 	}
 
 	const topicBrokerElements = topicsSectionElement.querySelectorAll(`select[id^="${side}${page}CustomMQTT"][id$="BrokerId"]`);
-	for (var itemNo = 0; itemNo < topicBrokerElements.length; itemNo++)
+	for (let itemNo = 0; itemNo < topicBrokerElements.length; itemNo++)
 	{
 		storeCustomMQTTItem(side, page, buttonPanelConfiguration, itemNo);
 	}
@@ -12432,7 +12415,7 @@ function storeCustomMQTTItems(side, page, buttonPanelConfiguration)
 
 function getButtonList()
 {
-	Homey.api('POST', '/buttondevices/', {}, function (err, devices)
+	Homey.api('POST', '/buttondevices/', {}, (err, devices) =>
 	{
 		if (err) return Homey.alert(err);
 
@@ -12445,12 +12428,12 @@ function fillButtonListElement(Element, DevicesArray)
 {
 	if (Element && (DevicesArray.length > 0))
 	{
-		//fill the device lists with devices
-		Element.innerHTML = "";
+		// fill the device lists with devices
+		Element.innerHTML = '';
 
 		for (const device of DevicesArray)
 		{
-			var option = document.createElement("option");
+			const option = document.createElement('option');
 			option.text = device.name;
 			option.value = device.ip;
 			Element.add(option);
@@ -12467,8 +12450,7 @@ function setupButtonBrokerItems()
 	}
 
 	// Add a 'Default' broker entry to the lists
-	var defaultText = Homey.__("settings.default");
-
+	const defaultText = Homey.__('settings.default');
 
 	// Make sure currentButtonConfigurationNo is set and within range
 	if (!currentButtonConfigurationNo || (currentButtonConfigurationNo >= localButtonConfigurations.length))
@@ -12477,10 +12459,10 @@ function setupButtonBrokerItems()
 	}
 
 	// Get the current configuration
-	var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+	const buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
 
 	// if localButtonConfigurations is an array, then set numPage to the length of the array otherwise set numPage to 1
-	var numPages = buttonPanelConfiguration.length;
+	const numPages = buttonPanelConfiguration.length;
 
 	// Reset broker lists before repopulating to avoid duplicates after draft restore.
 	for (let page = 0; page < numPages; page++)
@@ -12536,12 +12518,12 @@ function setupButtonBrokerItems()
 		const rightBrokerIdElement = document.getElementById(`right${page}BrokerId`);
 
 		// Add the deafult option to the broker lists
-		var option = document.createElement("option");
+		var option = document.createElement('option');
 		option.value = 'Default';
 		option.text = defaultText;
 		leftBrokerIdElement.add(option);
 
-		var option = document.createElement("option");
+		var option = document.createElement('option');
 		option.value = 'Default';
 		option.text = defaultText;
 		rightBrokerIdElement.add(option);
@@ -12554,7 +12536,7 @@ function setupButtonBrokerItems()
 		for (let j = 0; j < displayConfiguration.items.length; j++)
 		{
 			const displayItem = displayConfiguration.items[j];
-			var optionDisplay = document.createElement("option");
+			var optionDisplay = document.createElement('option');
 			optionDisplay.value = 'Default';
 			optionDisplay.text = defaultText;
 			document.getElementById(`display${j}BrokerId`).add(optionDisplay);
@@ -12573,7 +12555,7 @@ function setupButtonBrokerItems()
 				const leftBrokerIdElement = document.getElementById(`left${page}BrokerId`);
 				const rightBrokerIdElement = document.getElementById(`right${page}BrokerId`);
 
-				var option = document.createElement("option");
+				var option = document.createElement('option');
 				option.value = brokerItem.brokerid;
 				option.text = brokerItem.brokerid;
 				leftBrokerIdElement.add(option);
@@ -12582,7 +12564,7 @@ function setupButtonBrokerItems()
 					setBrokerSelectValue(leftBrokerIdElement, buttonPanelConfiguration[page].leftBrokerId);
 				}
 
-				var option = document.createElement("option");
+				var option = document.createElement('option');
 				option.value = brokerItem.brokerid;
 				option.text = brokerItem.brokerid;
 				rightBrokerIdElement.add(option);
@@ -12595,7 +12577,7 @@ function setupButtonBrokerItems()
 			// Add the broker to the custom MQTT topic broker lists
 			for (let k = 0; k < customMQTTItemsElements.length; k++)
 			{
-				var option = document.createElement("option");
+				var option = document.createElement('option');
 				option.value = brokerItem.brokerid;
 				option.text = brokerItem.brokerid;
 				customMQTTItemsElements[k].add(option);
@@ -12604,7 +12586,7 @@ function setupButtonBrokerItems()
 			// Add the broker to the custom display MQTT topic broker lists
 			for (let k = 0; k < customDisplayMQTTItemsElements.length; k++)
 			{
-				var option = document.createElement("option");
+				var option = document.createElement('option');
 				option.value = brokerItem.brokerid;
 				option.text = brokerItem.brokerid;
 				customDisplayMQTTItemsElements[k].add(option);
@@ -12617,7 +12599,7 @@ function setupButtonBrokerItems()
 				for (let j = 0; j < displayConfiguration.items.length; j++)
 				{
 					const displayItem = displayConfiguration.items[j];
-					var optionDisplay = document.createElement("option");
+					var optionDisplay = document.createElement('option');
 					optionDisplay.value = brokerItem.brokerid;
 					optionDisplay.text = brokerItem.brokerid;
 					document.getElementById(`display${j}BrokerId`).add(optionDisplay);
@@ -12631,7 +12613,7 @@ function setupButtonBrokerItems()
 
 	// Fill the default broker list
 	fillDefaultBrokerList();
-	Homey.get('defaultBroker', function (err, defaultBroker)
+	Homey.get('defaultBroker', (err, defaultBroker) =>
 	{
 		if (err)
 		{
@@ -12644,7 +12626,7 @@ function setupButtonBrokerItems()
 			? restoredDraftDefaultBroker
 			: defaultBroker;
 
-		if (defaultBrokerToApply === "")
+		if (defaultBrokerToApply === '')
 		{
 			defaultBrokerElement.value = 'homey';
 		}
@@ -12661,13 +12643,13 @@ function setupButtonBrokerItems()
 function buttonDeviceChanged(side, page)
 {
 	// Get the current button configuration
-	var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+	const buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
 
 	// Get the device element
-	var deviceElement = document.getElementById(`${side}${page}Device`);
+	const deviceElement = document.getElementById(`${side}${page}Device`);
 
 	// Get the config page
-	var config = buttonPanelConfiguration[page];
+	const config = buttonPanelConfiguration[page];
 
 	// Update the device in the local configuration
 	config[`${side}Device`] = deviceElement.value;
@@ -12707,7 +12689,7 @@ function buttonCapabilityChanged(side, page)
 function deleteButtonPage(page)
 {
 	const pageLabel = formatButtonPageLabel(page);
-	Homey.confirm(Homey.__("settings.deletePageConfirm", { pageLabel }), null, function (err, ok)
+	Homey.confirm(Homey.__('settings.deletePageConfirm', { pageLabel }), null, (err, ok) =>
 	{
 		if (err || !ok)
 		{
@@ -12715,7 +12697,7 @@ function deleteButtonPage(page)
 		}
 
 		// Delete the page from the current button configuration
-		var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+		const buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
 		buttonPanelConfiguration.splice(page, 1);
 
 		// Renumber the pages
@@ -12744,7 +12726,7 @@ function deleteDisplayedButtonPage(configNo, page)
 	}
 
 	const pageLabel = formatButtonPageLabel(page);
-	Homey.confirm(Homey.__("settings.deletePageConfirm", { pageLabel }), null, function (err, ok)
+	Homey.confirm(Homey.__('settings.deletePageConfirm', { pageLabel }), null, (err, ok) =>
 	{
 		if (err || !ok)
 		{
@@ -12796,7 +12778,10 @@ function addButtonPage()
 		// save the controls into the local configuration
 		try
 		{
-			storeButtonSettings(buttonPanelConfiguration);
+			if (typeof configDraftStoreButtonSettingsFn === 'function')
+			{
+				configDraftStoreButtonSettingsFn(buttonPanelConfiguration);
+			}
 		}
 		catch (error)
 		{
@@ -12824,7 +12809,7 @@ function addButtonPage()
 
 		if (buttonPanelConfiguration.length <= beforeLength)
 		{
-			Homey.alert(Homey.__("settings.unableToAddPage"));
+			Homey.alert(Homey.__('settings.unableToAddPage'));
 			return;
 		}
 
@@ -12855,7 +12840,7 @@ function addButtonPage()
 	catch (error)
 	{
 		console.error('[addButtonPage] failed', error);
-		Homey.alert(Homey.__("settings.unableToAddPageError", { error: error && error.message ? error.message : `${error}` }));
+		Homey.alert(Homey.__('settings.unableToAddPageError', { error: error && error.message ? error.message : `${error}` }));
 	}
 }
 
@@ -12876,14 +12861,14 @@ window.toggleButtonPanelControls = toggleButtonPanelControls;
 function bindButtonPageHeaderActions()
 {
 	const addButtons = document.querySelectorAll('.button-page-add-btn[data-action="add-page"]');
-	addButtons.forEach((button) =>
+	addButtons.forEach(button =>
 	{
 		if (button.dataset.boundClick === 'true')
 		{
 			return;
 		}
 
-		button.addEventListener('click', function (event)
+		button.addEventListener('click', event =>
 		{
 			event.preventDefault();
 			event.stopPropagation();
@@ -12894,14 +12879,14 @@ function bindButtonPageHeaderActions()
 	});
 
 	const deleteButtons = document.querySelectorAll('.button-page-delete-btn[data-action="delete-page"]');
-	deleteButtons.forEach((button) =>
+	deleteButtons.forEach(button =>
 	{
 		if (button.dataset.boundClick === 'true')
 		{
 			return;
 		}
 
-		button.addEventListener('click', function (event)
+		button.addEventListener('click', event =>
 		{
 			event.preventDefault();
 			event.stopPropagation();
@@ -12918,24 +12903,24 @@ function bindButtonPageHeaderActions()
 
 function onButtonPageChange(Element, page)
 {
-	if (Element.value === "")
+	if (Element.value === '')
 	{
 		return;
 	}
 
-	let newPage = parseInt(Element.value);
+	const newPage = parseInt(Element.value, 10);
 
 	// make sure the new number is > 0 and less than the number of pages
 	if (newPage < 0 || newPage >= localButtonConfigurations[currentButtonConfigurationNo].length)
 	{
-		alert(Homey.__("settings.pageError"));
+		alert(Homey.__('settings.pageError'));
 		Element.value = page;
 		return;
 	}
 
 	// Now we need to move the page to the new position in the array
-	var buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-	var oldPage = page;
+	const buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+	const oldPage = page;
 
 	// If the new page is less than the old page, then we need to move the old page to the new page and move all the pages between the new and old page up one
 	if (newPage < oldPage)
@@ -12980,7 +12965,7 @@ function getDisplayedButtonConfigurationNos()
 		buttonVisibleConfigurationNos.push(buttonVisibleConfigurationNos.length % MAX_BUTTON_CONFIGURATIONS);
 	}
 
-	return buttonVisibleConfigurationNos.slice(0, buttonVisibleConfigurationCount).map((configNo) =>
+	return buttonVisibleConfigurationNos.slice(0, buttonVisibleConfigurationCount).map(configNo =>
 	{
 		const normalized = Number(configNo);
 		return Number.isNaN(normalized) ? 0 : Math.max(0, Math.min(normalized, MAX_BUTTON_CONFIGURATIONS - 1));
@@ -12989,7 +12974,7 @@ function getDisplayedButtonConfigurationNos()
 
 function getDisplayedButtonPageCount()
 {
-	return Math.max(1, ...getDisplayedButtonConfigurationNos().map((configNo) =>
+	return Math.max(1, ...getDisplayedButtonConfigurationNos().map(configNo =>
 	{
 		const config = localButtonConfigurations[configNo];
 		return Array.isArray(config) ? config.length : 1;
@@ -12998,7 +12983,7 @@ function getDisplayedButtonPageCount()
 
 function getButtonConfigurationOptionsHtml(selectedConfigNo)
 {
-	const label = Homey.__("settings.buttonConfig");
+	const label = Homey.__('settings.buttonConfig');
 	let options = '';
 	for (let configNo = 0; configNo < MAX_BUTTON_CONFIGURATIONS; configNo++)
 	{
@@ -13041,7 +13026,7 @@ function handleDisplayedButtonCardClick(event, configNo)
 		return;
 	}
 
-	const target = event.target;
+	const { target } = event;
 	if (target && target.closest && target.closest('button, input, select, textarea, label, summary, a, [role="button"], .button-sim-bar'))
 	{
 		return;
@@ -13093,8 +13078,8 @@ function updateButtonPanelControlsExpander()
 	button.classList.toggle('is-open', buttonPanelControlsExpanded);
 	button.setAttribute('aria-expanded', buttonPanelControlsExpanded ? 'true' : 'false');
 	button.title = buttonPanelControlsExpanded
-		? Homey.__("settings.collapsePanelControls")
-		: Homey.__("settings.expandPanelControls");
+		? Homey.__('settings.collapsePanelControls')
+		: Homey.__('settings.expandPanelControls');
 	button.setAttribute('aria-label', button.title);
 }
 
@@ -13131,7 +13116,7 @@ function renameDisplayedButtonConfiguration(slot, value)
 	{
 		configNameElement.value = value;
 	}
-	fillConfigListElement(buttonConfigurationNoElement, Homey.__("settings.buttonConfig"), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
+	fillConfigListElement(buttonConfigurationNoElement, Homey.__('settings.buttonConfig'), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
 	buttonConfigurationNoElement.value = `${currentButtonConfigurationNo}`;
 	configDraftDirtySinceLoad = true;
 	flushConfigurationDraftPersist();
@@ -13142,8 +13127,8 @@ function renameDisplayedButtonConfiguration(slot, value)
 function getDisplayedButtonBrokerOptionsHtml(selectedBrokerId)
 {
 	const selectedValue = selectedBrokerId || 'Default';
-	let options = `<option value="Default"${selectedValue === 'Default' ? ' selected' : ''}>${escapeHtml(Homey.__("settings.default"))}</option>`;
-	localBrokerItems.forEach((brokerItem) =>
+	let options = `<option value="Default"${selectedValue === 'Default' ? ' selected' : ''}>${escapeHtml(Homey.__('settings.default'))}</option>`;
+	localBrokerItems.forEach(brokerItem =>
 	{
 		if (!brokerItem || !brokerItem.enabled)
 		{
@@ -13208,7 +13193,7 @@ function getDisplayedButtonInlineMainControlHtml(side, page, configNo, slot)
 {
 	const pageConfig = localButtonConfigurations[configNo][page];
 	const idPrefix = `buttonCard${slot}Page${page}${side}`;
-	const panelLabel = side === 'left' ? Homey.__("settings.leftPanel") : Homey.__("settings.rightPanel");
+	const panelLabel = side === 'left' ? Homey.__('settings.leftPanel') : Homey.__('settings.rightPanel');
 	const repeatEnabled = !pageConfig[`${side}DisableLongRepeat`];
 	const longDelayMs = normalizeLongPressTimingMs(pageConfig[`${side}LongDelayMs`], 0, 750);
 	const longRepeatMs = normalizeLongPressTimingMs(pageConfig[`${side}LongRepeatMs`], 50, 500);
@@ -13220,13 +13205,13 @@ function getDisplayedButtonInlineMainControlHtml(side, page, configNo, slot)
 					<label class="homey-form-checkbox">
 						<input class="homey-form-checkbox-input" id="${idPrefix}Repeat" type="checkbox"${repeatEnabled ? ' checked' : ''} onchange="updateDisplayedButtonSetting(${configNo}, ${page}, '${side}', 'DisableLongRepeat', this.checked)">
 						<span class="homey-form-checkbox-checkmark"></span>
-						<span class="homey-form-checkbox-text">${Homey.__("settings.longRepeat")}</span>
+						<span class="homey-form-checkbox-text">${Homey.__('settings.longRepeat')}</span>
 					</label>
-					<label class="homey-form-label" for="${idPrefix}Delay">${Homey.__("settings.longDelayMs")}</label>
+					<label class="homey-form-label" for="${idPrefix}Delay">${Homey.__('settings.longDelayMs')}</label>
 					<input class="homey-form-input" id="${idPrefix}Delay" type="number" min="0" max="10000" step="10" value="${longDelayMs}" onchange="updateDisplayedButtonSetting(${configNo}, ${page}, '${side}', 'LongDelayMs', this.value)">
-					<label class="homey-form-label" for="${idPrefix}Interval">${Homey.__("settings.longRepeatMs")}</label>
+					<label class="homey-form-label" for="${idPrefix}Interval">${Homey.__('settings.longRepeatMs')}</label>
 					<input class="homey-form-input" id="${idPrefix}Interval" type="number" min="50" max="10000" step="10" value="${longRepeatMs}" onchange="updateDisplayedButtonSetting(${configNo}, ${page}, '${side}', 'LongRepeatMs', this.value)">
-					<label class="homey-form-label" for="${idPrefix}Broker">${Homey.__("settings.brokerId")}</label>
+					<label class="homey-form-label" for="${idPrefix}Broker">${Homey.__('settings.brokerId')}</label>
 					<select class="homey-form-select" id="${idPrefix}Broker" onchange="updateDisplayedButtonSetting(${configNo}, ${page}, '${side}', 'BrokerId', this.value)">${getDisplayedButtonBrokerOptionsHtml(brokerId)}</select>
 				</div>
 			</div>`;
@@ -13288,30 +13273,30 @@ function getDisplayedButtonCardsHtml(page)
 			? `<div class="button-sim-bar button-inline-sim-grid" data-button-preview-page="${page}" data-config-index="${configNo}"></div>
 					<div class="button-card-footer">
 						<details class="button-card-settings-details">
-							<summary class="homey-button-secondary-shadow button-card-settings-summary"><span>${Homey.__("settings.autoRepeatBroker")}</span><span class="icon">&#8628;</span></summary>
+							<summary class="homey-button-secondary-shadow button-card-settings-summary"><span>${Homey.__('settings.autoRepeatBroker')}</span><span class="icon">&#8628;</span></summary>
 							<div class="button-inline-main-control-grid">
 								${getDisplayedButtonInlineMainControlHtml('left', page, configNo, slot)}
 								${getDisplayedButtonInlineMainControlHtml('right', page, configNo, slot)}
 							</div>
 						</details>
-						${page > 0 ? `<div class="button-card-page-action"><span>${Homey.__("settings.page")}</span><button class="homey-button-secondary-shadow button-card-delete-page" type="button" onclick="deleteDisplayedButtonPage(${configNo}, ${page}); return false;" title="${Homey.__("settings.deletePage")}" aria-label="${Homey.__("settings.deletePage")}"><i class="fi fi-rr-trash" aria-hidden="true"></i></button></div>` : ''}
+						${page > 0 ? `<div class="button-card-page-action"><span>${Homey.__('settings.page')}</span><button class="homey-button-secondary-shadow button-card-delete-page" type="button" onclick="deleteDisplayedButtonPage(${configNo}, ${page}); return false;" title="${Homey.__('settings.deletePage')}" aria-label="${Homey.__('settings.deletePage')}"><i class="fi fi-rr-trash" aria-hidden="true"></i></button></div>` : ''}
 					</div>`
 			: `<div class="button-config-page-empty">
-						<span>${Homey.__("settings.configurationHasNoPage")}</span>
-						<button class="homey-button-secondary-shadow button-config-add-page" type="button" onclick="addDisplayedButtonPage(${configNo}, ${page}); return false;" title="${Homey.__("settings.addPage")}" aria-label="${Homey.__("settings.addPage")}"><i class="fi fi-rr-plus" aria-hidden="true"></i></button>
+						<span>${Homey.__('settings.configurationHasNoPage')}</span>
+						<button class="homey-button-secondary-shadow button-config-add-page" type="button" onclick="addDisplayedButtonPage(${configNo}, ${page}); return false;" title="${Homey.__('settings.addPage')}" aria-label="${Homey.__('settings.addPage')}"><i class="fi fi-rr-plus" aria-hidden="true"></i></button>
 					</div>`;
 
 		return `<section class="button-config-preview-card${activeClass}" onclick="handleDisplayedButtonCardClick(event, ${configNo})">
 					<span class="button-sim-config-number" aria-hidden="true">${configNo + 1}</span>
-					<select class="button-sim-config-select" data-view-only="true" aria-label="${escapeHtml(`${Homey.__("settings.buttonConfig")} ${configNo + 1}`)}" onchange="changeDisplayedButtonConfiguration(${slot}, this.value)">${getButtonConfigurationOptionsHtml(configNo)}</select>
+					<select class="button-sim-config-select" data-view-only="true" aria-label="${escapeHtml(`${Homey.__('settings.buttonConfig')} ${configNo + 1}`)}" onchange="changeDisplayedButtonConfiguration(${slot}, this.value)">${getButtonConfigurationOptionsHtml(configNo)}</select>
 					<div class="button-card-editor-controls">
-					<label class="homey-form-label">${Homey.__("settings.configtoedit")}</label>
+					<label class="homey-form-label">${Homey.__('settings.configtoedit')}</label>
 					<div class="panel-config-selector-row">
 						<select class="homey-form-select" data-view-only="true" onchange="changeDisplayedButtonConfiguration(${slot}, this.value)">${getButtonConfigurationOptionsHtml(configNo)}</select>
-						<button class="homey-button-secondary-shadow panel-config-toggle-btn" type="button" onclick="toggleDisplayedButtonConfigName(this); return false;" title="${Homey.__("settings.configName")}" aria-label="${Homey.__("settings.configName")}" aria-expanded="false"><span class="icon">&#8628;</span></button>
+						<button class="homey-button-secondary-shadow panel-config-toggle-btn" type="button" onclick="toggleDisplayedButtonConfigName(this); return false;" title="${Homey.__('settings.configName')}" aria-label="${Homey.__('settings.configName')}" aria-expanded="false"><span class="icon">&#8628;</span></button>
 					</div>
 					<div class="button-displayed-config-name-row">
-						<label class="homey-form-label">${Homey.__("settings.configName")}</label>
+						<label class="homey-form-label">${Homey.__('settings.configName')}</label>
 						<input class="homey-form-input" maxlength="20" value="${escapeHtml(configName)}" onchange="renameDisplayedButtonConfiguration(${slot}, this.value)">
 					</div>
 					</div>
@@ -13338,31 +13323,31 @@ function writeButtonsections(numPages)
 		buttonMainCurrentPage = Math.max(0, numPages - 1);
 	}
 
-	var html = `<div class="button-global-controls">
+	let html = `<div class="button-global-controls">
 			<div class="button-main-canvas-header button-shared-sim-header">
 				<div class="button-shared-sim-actions">
-					<span class="homey-form-label button-main-canvas-title">${Homey.__("settings.simulate")}</span>
-					<button class="homey-button-secondary-shadow button-inline-state-toggle" onClick="toggleInlineButtonSimState(); return false;">${Homey.__("settings.onState")}</button>
+					<span class="homey-form-label button-main-canvas-title">${Homey.__('settings.simulate')}</span>
+					<button class="homey-button-secondary-shadow button-inline-state-toggle" onClick="toggleInlineButtonSimState(); return false;">${Homey.__('settings.onState')}</button>
 				</div>
-				<button class="homey-button-secondary-shadow button-panel-controls-expander" id="buttonPanelControlsExpander" type="button" onclick="toggleButtonPanelControls(); return false;" aria-expanded="${buttonPanelControlsExpanded ? 'true' : 'false'}"><span>${Homey.__("settings.panelControls")}</span><span class="icon">&#8628;</span></button>
+				<button class="homey-button-secondary-shadow button-panel-controls-expander" id="buttonPanelControlsExpander" type="button" onclick="toggleButtonPanelControls(); return false;" aria-expanded="${buttonPanelControlsExpanded ? 'true' : 'false'}"><span>${Homey.__('settings.panelControls')}</span><span class="icon">&#8628;</span></button>
 			</div>
 			<div class="button-shared-toolbar">
 				<div class="button-page-label-group">
 					<div class="display-sim-title button-shared-page-title">${getButtonPageHeaderTitleMarkup(buttonMainCurrentPage, numPages)}</div>
 					<div class="display-sim-title-group button-main-page-nav">
-						<button class="homey-button-secondary-shadow display-sim-page-nav button-main-page-prev" type="button" onclick="stepButtonMainPage(-1); return false;" title="${Homey.__("settings.previousPage")}" aria-label="${Homey.__("settings.previousPage")}">&lt;</button>
-						<button class="homey-button-secondary-shadow display-sim-page-nav button-main-page-next" type="button" onclick="stepButtonMainPage(1); return false;" title="${Homey.__("settings.nextPage")}" aria-label="${Homey.__("settings.nextPage")}">&gt;</button>
-						<button class="homey-button-secondary-shadow display-inline-sim-action-btn button-page-add-btn" type="button" data-action="add-page" title="${Homey.__("settings.addPage")}" aria-label="${Homey.__("settings.addPage")}"><i class="fi fi-rr-plus"></i></button>
+						<button class="homey-button-secondary-shadow display-sim-page-nav button-main-page-prev" type="button" onclick="stepButtonMainPage(-1); return false;" title="${Homey.__('settings.previousPage')}" aria-label="${Homey.__('settings.previousPage')}">&lt;</button>
+						<button class="homey-button-secondary-shadow display-sim-page-nav button-main-page-next" type="button" onclick="stepButtonMainPage(1); return false;" title="${Homey.__('settings.nextPage')}" aria-label="${Homey.__('settings.nextPage')}">&gt;</button>
+						<button class="homey-button-secondary-shadow display-inline-sim-action-btn button-page-add-btn" type="button" data-action="add-page" title="${Homey.__('settings.addPage')}" aria-label="${Homey.__('settings.addPage')}"><i class="fi fi-rr-plus"></i></button>
 					</div>
 				</div>
-				<label class="button-visible-count-label">${Homey.__("settings.configurationsShown")}
+				<label class="button-visible-count-label">${Homey.__('settings.configurationsShown')}
 					<select class="homey-form-select button-visible-count-select" data-view-only="true" onchange="setButtonVisibleConfigurationCount(this.value)">
-						${[1, 2, 3, 4].map((count) => `<option value="${count}"${count === buttonVisibleConfigurationCount ? ' selected' : ''}>${count}</option>`).join('')}
+						${[1, 2, 3, 4].map(count => `<option value="${count}"${count === buttonVisibleConfigurationCount ? ' selected' : ''}>${count}</option>`).join('')}
 					</select>
 				</label>
 			</div>
 			</div>`;
-	for (page = 0; page < numPages; page++)
+	for (let page = 0; page < numPages; page++)
 	{
 		html += `<div class="horizontalcontainer button-main-page${page === buttonMainCurrentPage ? ' active' : ''}">
 					<div class="horizontalgroup" id="${page}ButtonPageSection">
@@ -13374,31 +13359,31 @@ function writeButtonsections(numPages)
 											<div class="display-sim-title">${getButtonPageHeaderTitleMarkup(page, numPages)}</div>
 										</div>
 										<div class="display-sim-title-group button-main-page-nav">
-											<button class="homey-button-secondary-shadow display-sim-page-nav button-main-page-prev" type="button" onclick="stepButtonMainPage(-1); return false;" title="${Homey.__("settings.previousPage")}" aria-label="${Homey.__("settings.previousPage")}">&lt;</button>
-											<button class="homey-button-secondary-shadow display-sim-page-nav button-main-page-next" type="button" onclick="stepButtonMainPage(1); return false;" title="${Homey.__("settings.nextPage")}" aria-label="${Homey.__("settings.nextPage")}">&gt;</button>
-											<button class="homey-button-secondary-shadow display-inline-sim-action-btn button-page-add-btn" type="button" data-action="add-page" title="${Homey.__("settings.addPage")}" aria-label="${Homey.__("settings.addPage")}"><i class="fi fi-rr-plus"></i></button>
+											<button class="homey-button-secondary-shadow display-sim-page-nav button-main-page-prev" type="button" onclick="stepButtonMainPage(-1); return false;" title="${Homey.__('settings.previousPage')}" aria-label="${Homey.__('settings.previousPage')}">&lt;</button>
+											<button class="homey-button-secondary-shadow display-sim-page-nav button-main-page-next" type="button" onclick="stepButtonMainPage(1); return false;" title="${Homey.__('settings.nextPage')}" aria-label="${Homey.__('settings.nextPage')}">&gt;</button>
+											<button class="homey-button-secondary-shadow display-inline-sim-action-btn button-page-add-btn" type="button" data-action="add-page" title="${Homey.__('settings.addPage')}" aria-label="${Homey.__('settings.addPage')}"><i class="fi fi-rr-plus"></i></button>
 										</div>
 									</div>
 									<div class="button-page-header-actions">
-										${page !== 0 ? `<button class="homey-button-secondary-shadow display-inline-sim-action-btn button-page-delete-btn" id="deletePage${page}" type="button" data-action="delete-page" data-page="${page}" title="${Homey.__("settings.deletePage")}" aria-label="${Homey.__("settings.deletePage")}"><i class="fi fi-rr-trash"></i></button>` : ''}
+										${page !== 0 ? `<button class="homey-button-secondary-shadow display-inline-sim-action-btn button-page-delete-btn" id="deletePage${page}" type="button" data-action="delete-page" data-page="${page}" title="${Homey.__('settings.deletePage')}" aria-label="${Homey.__('settings.deletePage')}"><i class="fi fi-rr-trash"></i></button>` : ''}
 									</div>
 								</div>
 								<div class="button-main-canvas">
 									<div class="button-main-canvas-header">
-										<span class="homey-form-label button-main-canvas-title">${Homey.__("settings.simulate")}</span>
-										<button class="homey-button-secondary-shadow button-inline-state-toggle" id="${page}ButtonInlineSimState" onClick="toggleInlineButtonSimState(); return false;">${Homey.__("settings.onState")}</button>
+										<span class="homey-form-label button-main-canvas-title">${Homey.__('settings.simulate')}</span>
+										<button class="homey-button-secondary-shadow button-inline-state-toggle" id="${page}ButtonInlineSimState" onClick="toggleInlineButtonSimState(); return false;">${Homey.__('settings.onState')}</button>
 									</div>
 									<div class="button-legacy-preview-controls">
 									<div class="button-mode-toggle-grid">
 										<label class="homey-form-checkbox button-mode-toggle-option" for="left${page}AdvancedMode">
 											<input class="homey-form-checkbox-input" id="left${page}AdvancedMode" type="checkbox" onchange="onButtonModeToggleChange('left', ${page}, this.checked)">
 											<span class="homey-form-checkbox-checkmark"></span>
-											<span class="homey-form-checkbox-text button-mode-toggle-label"><span>${Homey.__("settings.leftAdvancedLabel")}</span><span class="tooltip button-mode-toggle-tooltip" aria-label="${Homey.__("settings.advancedModeHelpAria")}"><i class="fi fi-rr-info" aria-hidden="true"></i><span class="tooltiptext">${normalizeTooltipHtml(Homey.__("settings.advancedModeTooltip"))}</span></span></span>
+											<span class="homey-form-checkbox-text button-mode-toggle-label"><span>${Homey.__('settings.leftAdvancedLabel')}</span><span class="tooltip button-mode-toggle-tooltip" aria-label="${Homey.__('settings.advancedModeHelpAria')}"><i class="fi fi-rr-info" aria-hidden="true"></i><span class="tooltiptext">${normalizeTooltipHtml(Homey.__('settings.advancedModeTooltip'))}</span></span></span>
 										</label>
 										<label class="homey-form-checkbox button-mode-toggle-option" for="right${page}AdvancedMode">
 											<input class="homey-form-checkbox-input" id="right${page}AdvancedMode" type="checkbox" onchange="onButtonModeToggleChange('right', ${page}, this.checked)">
 											<span class="homey-form-checkbox-checkmark"></span>
-											<span class="homey-form-checkbox-text button-mode-toggle-label"><span>${Homey.__("settings.rightAdvancedLabel")}</span><span class="tooltip button-mode-toggle-tooltip" aria-label="${Homey.__("settings.advancedModeHelpAria")}"><i class="fi fi-rr-info" aria-hidden="true"></i><span class="tooltiptext">${normalizeTooltipHtml(Homey.__("settings.advancedModeTooltip"))}</span></span></span>
+											<span class="homey-form-checkbox-text button-mode-toggle-label"><span>${Homey.__('settings.rightAdvancedLabel')}</span><span class="tooltip button-mode-toggle-tooltip" aria-label="${Homey.__('settings.advancedModeHelpAria')}"><i class="fi fi-rr-info" aria-hidden="true"></i><span class="tooltiptext">${normalizeTooltipHtml(Homey.__('settings.advancedModeTooltip'))}</span></span></span>
 										</label>
 									</div>
 									<div class="button-sim-bar button-inline-sim-grid" id="${page}ButtonInlineSimContent"></div>
@@ -13406,20 +13391,20 @@ function writeButtonsections(numPages)
 									<div class="button-config-preview-stack">${getDisplayedButtonCardsHtml(page)}</div>
 									</div>
 									<div class="button-inline-settings-toggle-row button-canonical-settings">
-										<button class="homey-button-secondary-shadow button-inline-settings-toggle" id="${page}ButtonInlineSettingsToggle" type="button" onClick="toggleButtonInlineSettingsSection(${page}); return false;" aria-expanded="false" title="${Homey.__("settings.expandAutoRepeatBrokerSettings")}" aria-label="${Homey.__("settings.expandAutoRepeatBrokerSettings")}"><span>${Homey.__("settings.autoRepeatBroker")}</span><span class="icon" style='font-size:22px;'>&#8628;</span></button>
+										<button class="homey-button-secondary-shadow button-inline-settings-toggle" id="${page}ButtonInlineSettingsToggle" type="button" onClick="toggleButtonInlineSettingsSection(${page}); return false;" aria-expanded="false" title="${Homey.__('settings.expandAutoRepeatBrokerSettings')}" aria-label="${Homey.__('settings.expandAutoRepeatBrokerSettings')}"><span>${Homey.__('settings.autoRepeatBroker')}</span><span class="icon" style='font-size:22px;'>&#8628;</span></button>
 									</div>
 									<details id="${page}ButtonInlineSettingsDetails" class="button-inline-settings-details button-canonical-settings" ontoggle="updateButtonInlineSettingsToggleState(${page})">
-										<summary class="button-inline-settings-summary">${Homey.__("settings.repeatBrokerSummary")}</summary>
+										<summary class="button-inline-settings-summary">${Homey.__('settings.repeatBrokerSummary')}</summary>
 										<div class="button-inline-main-control-grid">
-											${getButtonInlineMainControlHtml("left", page)}
-											${getButtonInlineMainControlHtml("right", page)}
+											${getButtonInlineMainControlHtml('left', page)}
+											${getButtonInlineMainControlHtml('right', page)}
 										</div>
-									</details>`
+									</details>`;
 
-		html += `<div class="button-side-columns">`;
-		html += getButtonHtml("left", page);
-		html += getButtonHtml("right", page);
-		html += `</div>`;
+		html += '<div class="button-side-columns">';
+		html += getButtonHtml('left', page);
+		html += getButtonHtml('right', page);
+		html += '</div>';
 
 		html += `</div>
 					</div>
@@ -13442,49 +13427,49 @@ function writeButtonsections(numPages)
 // Create the HTML for the button page and side
 function getButtonHtml(side, page)
 {
-	const leftPanelText = Homey.__("settings.leftPanel");
-	const rightPanelText = Homey.__("settings.rightPanel");
+	const leftPanelText = Homey.__('settings.leftPanel');
+	const rightPanelText = Homey.__('settings.rightPanel');
 
 	const ctrlLabels = {
-		device: Homey.__("settings.device"),
-		capability: Homey.__("settings.capability"),
-		label: Homey.__("settings.topLabel"),
-		text: Homey.__("settings.text"),
-		unit: Homey.__("settings.unit"),
-		topLabel: Homey.__("settings.topLabel"),
-		labelOn: Homey.__("settings.labelOn"),
-		labelOff: Homey.__("settings.labelOff"),
+		device: Homey.__('settings.device'),
+		capability: Homey.__('settings.capability'),
+		label: Homey.__('settings.topLabel'),
+		text: Homey.__('settings.text'),
+		unit: Homey.__('settings.unit'),
+		topLabel: Homey.__('settings.topLabel'),
+		labelOn: Homey.__('settings.labelOn'),
+		labelOff: Homey.__('settings.labelOff'),
 		dimChange: 'Value increment / decrement',
-		frontLEDOnColor: Homey.__("settings.frontLEDOnColor"),
-		frontLEDOffColor: Homey.__("settings.frontLEDOffColor"),
-		wallLEDOffColor: Homey.__("settings.wallLEDOffColor"),
-		wallLEDOnColor: Homey.__("settings.wallLEDOnColor"),
+		frontLEDOnColor: Homey.__('settings.frontLEDOnColor'),
+		frontLEDOffColor: Homey.__('settings.frontLEDOffColor'),
+		wallLEDOffColor: Homey.__('settings.wallLEDOffColor'),
+		wallLEDOnColor: Homey.__('settings.wallLEDOnColor'),
 		longRepeat: 'Repeat',
-		brokerId: Homey.__("settings.brokerId"),
-		page: Homey.__("settings.page"),
-		customMQTTTopic: Homey.__("settings.customMQTTTopic"),
-		newCustomMQTTItem: Homey.__("settings.newCustomMQTTItem"),
+		brokerId: Homey.__('settings.brokerId'),
+		page: Homey.__('settings.page'),
+		customMQTTTopic: Homey.__('settings.customMQTTTopic'),
+		newCustomMQTTItem: Homey.__('settings.newCustomMQTTItem'),
 		panel: side === 'left' ? leftPanelText : rightPanelText,
-	}
+	};
 	const ctrlExplanations = {
-		device: Homey.__("settings.deviceDExplanation"),
-		capability: Homey.__("settings.capabilityDExplanation"),
-		label: Homey.__("settings.toplabelDisplayExplanation"),
-		text: Homey.__("settings.textExplanation"),
-		unit: Homey.__("settings.unitExplanation"),
-		topLabel: Homey.__("settings.topLabelExplanation"),
-		labelOn: Homey.__("settings.labelOnExplanation"),
-		labelOff: Homey.__("settings.labelOffExplanation"),
-		dimChange: Homey.__("settings.dimValueExplanation"),
-		frontLEDOnColor: Homey.__("settings.frontLEDOnColorExplanation"),
-		frontLEDOffColor: Homey.__("settings.frontLEDOffColorExplanation"),
-		wallLEDOffColor: Homey.__("settings.wallLEDOffColorExplanation"),
-		wallLEDOnColor: Homey.__("settings.wallLEDOnColorExplanation"),
-		longRepeat: Homey.__("settings.longRepeatExplanation"),
-		brokerId: Homey.__("settings.brokerIdExplanation"),
-		page: Homey.__("settings.buttonPageExplanation"),
-		customMQTTTopic: Homey.__("settings.customMQTTTopicExplanation"),
-	}
+		device: Homey.__('settings.deviceDExplanation'),
+		capability: Homey.__('settings.capabilityDExplanation'),
+		label: Homey.__('settings.toplabelDisplayExplanation'),
+		text: Homey.__('settings.textExplanation'),
+		unit: Homey.__('settings.unitExplanation'),
+		topLabel: Homey.__('settings.topLabelExplanation'),
+		labelOn: Homey.__('settings.labelOnExplanation'),
+		labelOff: Homey.__('settings.labelOffExplanation'),
+		dimChange: Homey.__('settings.dimValueExplanation'),
+		frontLEDOnColor: Homey.__('settings.frontLEDOnColorExplanation'),
+		frontLEDOffColor: Homey.__('settings.frontLEDOffColorExplanation'),
+		wallLEDOffColor: Homey.__('settings.wallLEDOffColorExplanation'),
+		wallLEDOnColor: Homey.__('settings.wallLEDOnColorExplanation'),
+		longRepeat: Homey.__('settings.longRepeatExplanation'),
+		brokerId: Homey.__('settings.brokerIdExplanation'),
+		page: Homey.__('settings.buttonPageExplanation'),
+		customMQTTTopic: Homey.__('settings.customMQTTTopicExplanation'),
+	};
 
 	const html = `<div class="button-side-column">
 						<div class="horizontalgroup">
@@ -13621,9 +13606,36 @@ function getButtonHtml(side, page)
 	return html;
 }
 
-
-
-
-
-
-
+	Object.assign(window, {
+		startDisplayItemMoveDrag,
+		startDisplayItemWidthDrag,
+		onHomeyReady,
+		onButtonPageChange,
+		onButtonLabelChange,
+		toggleButtonInlineSettingsSection,
+		stepButtonMainPage,
+		handleButtonSimFieldClick,
+		toggleInlineButtonSimState,
+		handleButtonSimShellClick,
+		handleDisplayInlineSimulatorClick,
+		handleDisplayOverlaySimulatorClick,
+		setGroupDisplayConfig,
+		setGroupButtonConfig,
+		addGroupButtonBar,
+		deleteGroupButtonBar,
+		moveGroupButtonBar,
+		toggleGroupSimButtonState,
+		editGroupDisplayConfiguration,
+		editGroupButtonConfiguration,
+		stepGroupSimPage,
+		newDisplayMQTTTopic,
+		newMQTTTopic,
+		deleteDisplayCustomMQTTItem,
+		selectDisplayCapability,
+		onBrokerLabelChange,
+		updateBrokerLists,
+		deleteBrokerItem,
+		rebuildBrokerLists,
+		deleteCustomMQTTItem,
+		buttonCapabilityChanged,
+	});
