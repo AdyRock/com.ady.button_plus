@@ -266,8 +266,8 @@ class PanelDevice extends Device
 		if (!this.hasCapability('page'))
 		{
 			await this.addCapability('page');
-			this.setCapabilityValue('page', '1').catch(this.error);
 			this.page = 1;
+			this.setCapabilityValue('page', `${this.getCapabilityPageNumber(this.page - 1)}`).catch(this.error);
 		}
 		else
 		{
@@ -282,7 +282,7 @@ class PanelDevice extends Device
 			{
 				this.page = page;
 			}
-			this.setCapabilityValue('page', `${this.page}`).catch(this.error);
+			this.setCapabilityValue('page', `${this.getCapabilityPageNumber(this.page - 1)}`).catch(this.error);
 		}
 		await this.setStoreValue('zeroBasedPageCapability', false);
 
@@ -1417,7 +1417,7 @@ class PanelDevice extends Device
 				this.page = pageIndex + 1;
 				if (this.hasCapability('page'))
 				{
-					this.setCapabilityValue('page', `${this.page}`).catch(this.error);
+					this.setCapabilityValue('page', `${this.getCapabilityPageNumber(pageIndex)}`).catch(this.error);
 				}
 				this.homey.app.triggerPageChange(this, pageIndex);
 				await this.updateButtonStatesForCurrentPage();
@@ -1426,6 +1426,12 @@ class PanelDevice extends Device
 		}
 
 		this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/page/set`, pageCommand, false).catch(this.error);
+	}
+
+	getCapabilityPageNumber(pageIndex)
+	{
+		// The default entry is virtual and falls back to the first physical page.
+		return Math.max(1, pageIndex);
 	}
 
 	async uploadPanelSensorConfiguration(deviceConfigurations, force = false)
@@ -1980,7 +1986,7 @@ class PanelDevice extends Device
 
 		if (isGroupMode)
 		{
-			const groupId = this.getCapabilityValue('configuration_group');
+			const groupId = this.configurationGroupIdOverride ?? this.getCapabilityValue('configuration_group');
 			const groups = this.homey?.app?.getGroupConfigurations ? this.homey.app.getGroupConfigurations() : [];
 			let group = Array.isArray(groups) ? groups.find(g => String(g.id) === String(groupId)) : null;
 			if (!group && Array.isArray(groups) && groups.length > 0)
@@ -2077,7 +2083,7 @@ class PanelDevice extends Device
 			return null;
 		}
 
-		const groupId = this.hasCapability('configuration_group') ? this.getCapabilityValue('configuration_group') : null;
+		const groupId = this.configurationGroupIdOverride ?? (this.hasCapability('configuration_group') ? this.getCapabilityValue('configuration_group') : null);
 		return groups.find(g => String(g.id) === String(groupId)) || groups[0];
 	}
 
@@ -2184,7 +2190,16 @@ class PanelDevice extends Device
 			try
 			{
 				await this.registerCapabilityListenerOnce('configuration_group', async value => {
-					await this.uploadConfigurations();
+					const previousGroupId = this.configurationGroupIdOverride;
+					this.configurationGroupIdOverride = value;
+					try
+					{
+						await this.uploadConfigurations();
+					}
+					finally
+					{
+						this.configurationGroupIdOverride = previousGroupId;
+					}
 				});
 			}
 			catch (e) { /* listener may already exist */ }
@@ -2813,7 +2828,7 @@ class PanelDevice extends Device
 						this.page = newPageNumber;
 						if (this.hasCapability('page'))
 						{
-							this.setCapabilityValue('page', `${this.page}`).catch(this.error);
+							this.setCapabilityValue('page', `${this.getCapabilityPageNumber(pageIndex)}`).catch(this.error);
 						}
 						this.homey.app.triggerPageChange(this, pageIndex);
 						await this.updateButtonStatesForCurrentPage();
@@ -5418,6 +5433,18 @@ class PanelDevice extends Device
 				const { device, capability } = await this.getDeviceAndCapability(config);
 				if (device && capability)
 				{
+					if (capability.setable === false)
+					{
+						this.homey.app.updateLog(`Ignored button action for read-only capability ${config.capabilityName}`, 1);
+						if (parameters.fromButton)
+						{
+							const currentValue = Boolean(capability.value);
+							this.buttonValues.set(key, currentValue);
+							setImmediate(() => this.safeSetCapabilityValue(parameters.buttonCapability, currentValue));
+						}
+						return;
+					}
+
 					try
 					{
 						const targetDeviceId = this.getHomeyDeviceId(device);
@@ -7538,9 +7565,7 @@ class PanelDevice extends Device
 
 		if (allPages)
 		{
-			const configNo = this.hasCapability(`configuration_button.connector${connector}`)
-				? this.getCapabilityValue(`configuration_button.connector${connector}`)
-				: null;
+			const configNo = this.getEffectiveConfigNo('button', connector);
 			const config = configNo != null ? this.homey.app.buttonConfigurations[configNo] : null;
 			const pages = Array.isArray(config) && config.length > 0 ? config.length : 1;
 			for (let p = 0; p < pages; p++)

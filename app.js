@@ -1661,6 +1661,9 @@ class MyApp extends Homey.App
 		const displayConfiguration = this.displayConfigurations[configurationNo];
 		const mqttQueue = [];
 		let maxPages = 0;
+		const legacyPageNumbering = checkSEMVerGreaterOrEqual(firmwareVersion, '2.0.0')
+			&& displayConfiguration
+			&& (!displayConfiguration.version || displayConfiguration.version < 2);
 
 		// Update the device configuration
 		if (displayConfiguration)
@@ -1680,7 +1683,7 @@ class MyApp extends Homey.App
 					continue;
 				}
 
-				if (checkSEMVerGreaterOrEqual(firmwareVersion, '2.0.0') && ((!displayConfiguration.version || displayConfiguration.version < 2)))
+				if (legacyPageNumbering)
 				{
 					// From firmware version 2 page 0 means all pages so increment the page number for older configurations
 					page++;

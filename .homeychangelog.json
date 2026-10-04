@@ -1783,5 +1783,20 @@
         "pl": "Dodano symulację brakujących danych urządzeń, możliwości i zmiennych w ustawieniach. Dodano wyzwalacz Flow zdarzeń przycisku dla konkretnego złącza. Wymuś publikację MQTT po ponownym uruchomieniu aplikacji. Przełączanie stanu przycisku między włączonym i wyłączonym, gdy nie przypisano mu żadnej funkcji.",
         "ko": "설정에 누락된 장치, 기능 및 변수 데이터 시뮬레이션을 추가했습니다. 커넥터별 버튼 이벤트 흐름 트리거를 추가했습니다. 앱 재시작 후 MQTT 게시를 강제합니다. 버튼에 기능이 할당되지 않은 경우 버튼의 켜짐/꺼짐 상태를 전환합니다.",
         "ar": "تمت إضافة محاكاة في الإعدادات للبيانات المفقودة للأجهزة والإمكانات والمتغيرات. تمت إضافة مشغل تدفق لأحداث الأزرار خاص بالموصل. فرض نشر MQTT بعد إعادة تشغيل التطبيق. تبديل حالة الزر بين التشغيل والإيقاف عند عدم تعيين أي إمكانية له."
-	}
+    },
+    "1.0.6": {
+        "en": "Fixed page capability numbering for the default page. Fixed group configuration updates and button configuration lookup. Prevented button actions from changing read-only capabilities.",
+        "nl": "Paginanummering voor de standaardpagina gecorrigeerd. Updates van groepsconfiguraties en het opzoeken van knopconfiguraties gecorrigeerd. Voorkomen dat knopacties alleen-lezenmogelijkheden wijzigen.",
+        "de": "Seitennummerierung für die Standardseite korrigiert. Aktualisierung von Gruppenkonfigurationen und Ermittlung der Tastenkonfiguration korrigiert. Verhindert, dass Tastenaktionen schreibgeschützte Funktionen ändern.",
+        "fr": "Correction de la numérotation des pages pour la page par défaut. Correction de la mise à jour des configurations de groupe et de la recherche de configuration des boutons. Empêche les actions des boutons de modifier des capacités en lecture seule.",
+        "it": "Corretta la numerazione delle pagine per la pagina predefinita. Corretti l'aggiornamento delle configurazioni di gruppo e il recupero della configurazione dei pulsanti. Impedito alle azioni dei pulsanti di modificare funzionalità di sola lettura.",
+        "sv": "Korrigerade sidnumreringen för standardsidan. Korrigerade uppdatering av gruppkonfigurationer och hämtning av knappkonfigurationer. Förhindrar knappåtgärder från att ändra skrivskyddade funktioner.",
+        "no": "Korrigerte sidenummereringen for standardsiden. Korrigerte oppdatering av gruppekonfigurasjoner og oppslag av knappkonfigurasjoner. Hindrer knapphandlinger i å endre skrivebeskyttede funksjoner.",
+        "es": "Se corrigió la numeración de páginas de la página predeterminada. Se corrigieron la actualización de las configuraciones de grupo y la búsqueda de configuraciones de botones. Se impide que las acciones de los botones modifiquen capacidades de solo lectura.",
+        "da": "Rettede sidenummereringen for standardsiden. Rettede opdatering af gruppekonfigurationer og opslag af knapkonfigurationer. Forhindrer knaphandlinger i at ændre skrivebeskyttede funktioner.",
+        "ru": "Исправлена нумерация страниц для страницы по умолчанию. Исправлены обновление групповых конфигураций и поиск конфигурации кнопки. Действия кнопок больше не изменяют возможности только для чтения.",
+        "pl": "Poprawiono numerację stron dla strony domyślnej. Poprawiono aktualizowanie konfiguracji grup i wyszukiwanie konfiguracji przycisków. Zablokowano zmianę funkcji tylko do odczytu przez działania przycisków.",
+        "ko": "기본 페이지의 페이지 번호를 수정했습니다. 그룹 구성 업데이트와 버튼 구성 조회를 수정했습니다. 버튼 동작으로 읽기 전용 기능이 변경되지 않도록 했습니다.",
+        "ar": "تم إصلاح ترقيم صفحات الصفحة الافتراضية. تم إصلاح تحديث تكوينات المجموعات والبحث عن تكوينات الأزرار. منع إجراءات الأزرار من تغيير الإمكانات للقراءة فقط."
+    }
 }
