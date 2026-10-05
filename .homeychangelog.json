@@ -1813,4 +1813,5 @@
 		"pl": "feat: dodano metodę sprawdzania stanu przycisku na bieżącej stronie i aktualizacji logiki ustawiania funkcji",
 		"ko": "feat: 현재 페이지에서 버튼 상태를 확인하고 기능 설정 로직을 업데이트하는 메서드 추가",
 		"ar": "feat: إضافة طريقة للتحقق من حالة الزر في الصفحة الحالية وتحديث منطق إعداد الإمكانات"
+	}
 }
