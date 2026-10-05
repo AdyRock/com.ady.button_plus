@@ -1798,5 +1798,19 @@
         "pl": "Poprawiono numerację stron dla strony domyślnej. Poprawiono aktualizowanie konfiguracji grup i wyszukiwanie konfiguracji przycisków. Zablokowano zmianę funkcji tylko do odczytu przez działania przycisków.",
         "ko": "기본 페이지의 페이지 번호를 수정했습니다. 그룹 구성 업데이트와 버튼 구성 조회를 수정했습니다. 버튼 동작으로 읽기 전용 기능이 변경되지 않도록 했습니다.",
         "ar": "تم إصلاح ترقيم صفحات الصفحة الافتراضية. تم إصلاح تحديث تكوينات المجموعات والبحث عن تكوينات الأزرار. منع إجراءات الأزرار من تغيير الإمكانات للقراءة فقط."
-    }
+    },
+	"1.0.7": {
+		"en": "feat: add method to check button state on current page and update capability setting logic",
+		"nl": "feat: methode toegevoegd om de knopstatus op de huidige pagina te controleren en de logica voor het instellen van mogelijkheden bij te werken",
+		"de": "feat: Methode hinzugefügt, um den Tastenstatus auf der aktuellen Seite zu überprüfen und die Logik zur Einstellung von Funktionen zu aktualisieren",
+		"fr": "feat: ajout d'une méthode pour vérifier l'état du bouton sur la page actuelle et mettre à jour la logique de configuration des capacités",
+		"it": "feat: aggiunto metodo per controllare lo stato del pulsante nella pagina corrente e aggiornare la logica di impostazione delle funzionalità",
+		"sv": "feat: lägg till metod för att kontrollera knappens status på aktuell sida och uppdatera logik för kapabilitetsinställning",
+		"no": "feat: legg til metode for å sjekke knappens tilstand på gjeldende side og oppdatere logikken for innstilling av funksjoner",
+		"es": "feat: agregar método para verificar el estado del botón en la página actual y actualizar la lógica de configuración de capacidades",
+		"da": "feat: tilføj metode til at kontrollere knaptilstand på den aktuelle side og opdatere logik for kapabilitetsindstilling",
+		"ru": "feat: добавлен метод для проверки состояния кнопки на текущей странице и обновления логики настройки возможностей",
+		"pl": "feat: dodano metodę sprawdzania stanu przycisku na bieżącej stronie i aktualizacji logiki ustawiania funkcji",
+		"ko": "feat: 현재 페이지에서 버튼 상태를 확인하고 기능 설정 로직을 업데이트하는 메서드 추가",
+		"ar": "feat: إضافة طريقة للتحقق من حالة الزر في الصفحة الحالية وتحديث منطق إعداد الإمكانات"
 }

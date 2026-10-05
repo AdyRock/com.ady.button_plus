@@ -2630,6 +2630,18 @@ class PanelDevice extends Device
 		await this.processClickMessage(parameters);
 	}
 
+	isButtonStateOnCurrentPage(parameters)
+	{
+		const currentPage = Math.max(0, this.page - 1);
+		if ((parameters.configNo == null) || (parameters.connectorType === 2) || (parameters.connectorType === 3))
+		{
+			return parameters.page === currentPage;
+		}
+
+		const currentConfig = this.getConfigPageSide(null, currentPage, parameters.side, parameters.configNo);
+		return parameters.page === parseInt(currentConfig.page, 10);
+	}
+
 	isPanelButtonCapability(capabilityName)
 	{
 		return /^(left|right)_button\.connector\d+$/.test(capabilityName || '');
@@ -3262,9 +3274,9 @@ class PanelDevice extends Device
 		const value = Boolean(parameters.value);
 
 		this.buttonValues.set(`${parameters.side}_${parameters.connector}_${parameters.page}`, value);
-		if (!parameters.fromButton && (parameters.page === (this.page - 1)))
+		if (!parameters.fromButton && this.isButtonStateOnCurrentPage(parameters))
 		{
-			this.safeSetCapabilityValue(parameters.buttonCapability, value);
+			await this.safeSetCapabilityValue(parameters.buttonCapability, value);
 		}
 
 		if (value)
@@ -5578,10 +5590,10 @@ class PanelDevice extends Device
 
 		if (typeof value === 'boolean')
 		{
-			if (!parameters.fromButton && (parameters.page === (this.page - 1)))
+			if (!parameters.fromButton && this.isButtonStateOnCurrentPage(parameters))
 			{
 				// Set the virtual button state
-				this.safeSetCapabilityValue(parameters.buttonCapability, value);
+				await this.safeSetCapabilityValue(parameters.buttonCapability, value);
 			}
 
 			this.buttonValues.set(`${parameters.side}_${parameters.connector}_${parameters.page}`, value);
