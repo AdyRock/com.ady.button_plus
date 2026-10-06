@@ -7572,7 +7572,13 @@ class PanelDevice extends Device
 
 		if (allPages || (pageIndex === (this.page - 1)))
 		{
-			await this.triggerCapabilityListener(`${left_right}_button.connector${connector}`, state);
+			const buttonCapability = `${left_right}_button.connector${connector}`;
+			const buttonKey = `${left_right}_${connector}_${Math.max(0, this.page - 1)}`;
+			const currentState = this.buttonValues.has(buttonKey) ? this.buttonValues.get(buttonKey) : this.getCapabilityValue(buttonCapability);
+			if (currentState !== state)
+			{
+				await this.triggerCapabilityListener(buttonCapability, state);
+			}
 		}
 
 		if (allPages)

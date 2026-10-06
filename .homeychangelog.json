@@ -1813,5 +1813,20 @@
 		"pl": "feat: dodano metodę sprawdzania stanu przycisku na bieżącej stronie i aktualizacji logiki ustawiania funkcji",
 		"ko": "feat: 현재 페이지에서 버튼 상태를 확인하고 기능 설정 로직을 업데이트하는 메서드 추가",
 		"ar": "feat: إضافة طريقة للتحقق من حالة الزر في الصفحة الحالية وتحديث منطق إعداد الإمكانات"
+	},
+	"1.0.8": {
+		"en": "feat: optimize button state triggering to prevent unnecessary recurring updates",
+		"nl": "feat: optimaliseer het activeren van de knopstatus om onnodige terugkerende updates te voorkomen",
+		"de": "feat: Optimierung der Tastenstatusauslösung, um unnötige wiederkehrende Aktualisierungen zu verhindern",
+		"fr": "feat: optimiser le déclenchement de l'état du bouton pour éviter les mises à jour récurrentes inutiles",
+		"it": "feat: ottimizzare il trigger dello stato del pulsante per evitare aggiornamenti ricorrenti non necessari",
+		"sv": "feat: optimera knappstatusutlösning för att förhindra onödiga återkommande uppdateringar",
+		"no": "feat: optimaliser knappetilstandstrigging for å forhindre unødvendige tilbakevendende oppdateringer",
+		"es": "feat: optimizar el disparo del estado del botón para evitar actualizaciones recurrentes innecesarias",
+		"da": "feat: optimer knaptilstandsudløsning for at forhindre unødvendige tilbagevendende opdateringer",
+		"ru": "feat: оптимизация срабатывания состояния кнопки для предотвращения ненужных повторяющихся обновлений",
+		"pl": "feat: optymalizacja wyzwalania stanu przycisku w celu zapobiegania niepotrzebnym powtarzającym się aktualizacjom",
+		"ko": "feat: 불필요한 반복 업데이트를 방지하기 위해 버튼 상태 트리거 최적화",
+		"ar": "feat: تحسين تشغيل حالة الزر لمنع التحديثات المتكررة غير الضرورية"
 	}
 }
