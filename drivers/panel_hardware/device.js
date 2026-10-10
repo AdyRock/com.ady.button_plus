@@ -72,6 +72,7 @@ class PanelDevice extends Device
 		this.pickerCommitTimers = new Map();
 		this.advancedPendingValues = new Map();
 		this.advancedCommitTimers = new Map();
+		this.advancedRelockTimers = new Map();
 		this.advancedDirectionStates = new Map();
 		this.capabilityDispatchInFlight = new Set();
 		this.registeredCapabilityListeners = new Set();
@@ -931,6 +932,14 @@ class PanelDevice extends Device
 				this.homey.clearTimeout(timer);
 			}
 			this.advancedCommitTimers.clear();
+		}
+		if (this.advancedRelockTimers)
+		{
+			for (const timer of this.advancedRelockTimers.values())
+			{
+				this.homey.clearTimeout(timer);
+			}
+			this.advancedRelockTimers.clear();
 		}
 		if (this.advancedPendingValues)
 		{
@@ -3793,6 +3802,8 @@ class PanelDevice extends Device
 		}
 
 		const brokerId = sideConfig[`${side}BrokerId`] || sideConfig[`${side}brokerid`] || 'Default';
+		const rawRelock = sideConfig[`${side}${eventName}RelockSeconds`];
+		const parsedRelock = Number(rawRelock);
 		return {
 			deviceID,
 			capabilityName,
@@ -3800,9 +3811,69 @@ class PanelDevice extends Device
 			directionOnly,
 			flowTriggerOnly,
 			valueStep: this.parseValueStep(rawStep, 10),
+			relockSeconds: (rawRelock === undefined || rawRelock === null || rawRelock === '' || !Number.isFinite(parsedRelock)) ? 5 : Math.max(0, parsedRelock),
 			brokerId,
 			eventName,
 		};
+	}
+
+	isLockCapability(capabilityName)
+	{
+		return capabilityName === 'locked' || (typeof capabilityName === 'string' && capabilityName.startsWith('locked.'));
+	}
+
+	/**
+	 * After a lock is unlocked from a button, lock it again once relockSeconds elapse (0 disables).
+	 * Any new write to the same lock cancels the pending relock.
+	 */
+	scheduleAdvancedRelock(deviceID, capabilityName, writtenValue, relockSeconds)
+	{
+		if (!this.isLockCapability(capabilityName) || !deviceID)
+		{
+			return;
+		}
+
+		const key = `${deviceID}::${capabilityName}`;
+		const existingTimer = this.advancedRelockTimers.get(key);
+		if (existingTimer)
+		{
+			this.homey.clearTimeout(existingTimer);
+			this.advancedRelockTimers.delete(key);
+		}
+
+		if (writtenValue !== false || !(relockSeconds > 0))
+		{
+			return;
+		}
+
+		const timer = this.homey.setTimeout(async () =>
+		{
+			this.advancedRelockTimers.delete(key);
+			if (this.deleted)
+			{
+				return;
+			}
+
+			try
+			{
+				const device = await this.homey.app.getHomeyDeviceById(deviceID);
+				if (!device)
+				{
+					return;
+				}
+
+				const capability = await this.homey.app.getHomeyCapabilityByName(device, capabilityName);
+				if (capability && capability.value === false)
+				{
+					await this.guardedSetCapabilityValueOnDevice(device, capabilityName, true, 'advanced:relock');
+				}
+			}
+			catch (err)
+			{
+				this.error(err);
+			}
+		}, relockSeconds * 1000);
+		this.advancedRelockTimers.set(key, timer);
 	}
 
 	queueAdvancedLongReleaseCommit(parameters, binding, valueToCommit)
@@ -3817,6 +3888,7 @@ class PanelDevice extends Device
 			deviceID: binding.deviceID,
 			capabilityName: binding.capabilityName,
 			valueToCommit,
+			relockSeconds: binding.relockSeconds,
 		});
 	}
 
@@ -3910,6 +3982,7 @@ class PanelDevice extends Device
 		}
 
 		await this.guardedSetCapabilityValueOnDevice(device, pending.capabilityName, pending.valueToCommit, sourceLabel || 'advanced:long:releaseCommit');
+		this.scheduleAdvancedRelock(pending.deviceID, pending.capabilityName, pending.valueToCommit, pending.relockSeconds);
 	}
 
 	/**
@@ -4669,6 +4742,7 @@ class PanelDevice extends Device
 			else
 			{
 				await this.guardedSetCapabilityValueOnDevice(device, binding.capabilityName, valueToWrite, `advanced:${eventType}:boolean`);
+				this.scheduleAdvancedRelock(binding.deviceID, binding.capabilityName, valueToWrite, binding.relockSeconds);
 				// Reported click/double State tokens read buttonValues, so keep it in step with the written boolean
 				this.buttonValues.set(`${parameters.side}_${parameters.connector}_${parameters.page}`, valueToWrite);
 			}

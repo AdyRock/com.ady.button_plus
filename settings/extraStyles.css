@@ -896,14 +896,21 @@ summary::-webkit-details-marker {
 	min-width: 26px !important;
 	min-height: 26px !important;
 	padding: 0 !important;
-	border: 0;
+	border: 0 !important;
 	border-radius: 4px;
-	background: transparent;
-	color: #cbe3ff;
-	font-size: 14px;
+	background: transparent !important;
+	box-shadow: none !important;
+	color: #fff !important;
+	-webkit-text-fill-color: #fff;
+	font-size: 22px;
 	line-height: 1;
 	cursor: pointer;
 	transform: translateX(-50%);
+}
+
+.button-sim-clear i {
+	display: block;
+	line-height: 1;
 }
 
 .button-sim-clear-left {
@@ -915,13 +922,67 @@ summary::-webkit-details-marker {
 }
 
 .button-sim-clear:hover {
-	color: #ff8a8a;
-	background: #292020;
+	color: #ff8a8a !important;
+	-webkit-text-fill-color: #ff8a8a;
 }
 
 .button-sim-clear:focus-visible {
 	outline: 2px solid #7ab7ff;
 	outline-offset: 1px;
+}
+
+.button-sim-wizard {
+	position: absolute;
+	bottom: 0;
+	z-index: 14;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 26px;
+	height: 26px;
+	min-width: 26px !important;
+	min-height: 26px !important;
+	padding: 0 !important;
+	border: 0 !important;
+	border-radius: 4px;
+	background: transparent !important;
+	box-shadow: none !important;
+	color: #fff !important;
+	cursor: pointer;
+	transform: translateX(-50%);
+}
+
+.button-sim-wizard svg {
+	width: 20px;
+	height: 20px;
+	stroke-width: 2;
+}
+
+.button-sim-wizard-left {
+	left: 25%;
+}
+
+.button-sim-wizard-right {
+	left: 75%;
+}
+
+.button-sim-wizard:hover {
+	color: #ffd866 !important;
+}
+
+.button-sim-wizard:focus-visible {
+	outline: 2px solid #7ab7ff;
+	outline-offset: 1px;
+}
+
+#buttonWizardOverlay .button-field-popup-body {
+	align-content: start;
+}
+
+.button-wizard-hint {
+	margin: 0;
+	font-size: 12px;
+	color: #52637a;
 }
 
 @media (max-width: 440px) {

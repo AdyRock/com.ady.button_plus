@@ -7,7 +7,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<!-- The '/homey.js' script must be included in your settings view to work -->
 	<script type="text/javascript" src="/homey.js" data-origin="settings"></script>
-	<link rel="stylesheet" type="text/css" href="extraStyles.css?v=20261010a">
+	<link rel="stylesheet" type="text/css" href="extraStyles.css?v=20261010d">
 	<link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css'>
 </head>
 
@@ -514,6 +514,33 @@
 		</div>
 	</div>
 
+	<div id="buttonWizardOverlay" class="button-field-popup-overlay" aria-hidden="true">
+		<div class="button-field-popup-dialog" role="dialog" aria-modal="true" aria-labelledby="buttonWizardTitle">
+			<div class="button-field-popup-header">
+				<div class="button-field-popup-title" id="buttonWizardTitle">Button setup wizard</div>
+			</div>
+			<div class="button-field-popup-body">
+				<p class="button-wizard-hint" data-i18n="settings.buttonWizardHint"></p>
+				<div class="button-field-popup-field">
+					<label class="button-field-popup-label" for="buttonWizardType"><span
+							data-i18n="settings.buttonWizardDeviceType"></span></label>
+					<select class="homey-form-select" id="buttonWizardType"></select>
+				</div>
+				<div class="button-field-popup-field">
+					<label class="button-field-popup-label" for="buttonWizardDevice"><span
+							data-i18n="settings.device"></span></label>
+					<select class="homey-form-select" id="buttonWizardDevice" disabled></select>
+				</div>
+			</div>
+			<div class="button-field-popup-actions">
+				<button class="homey-button-secondary-shadow" id="buttonWizardCancel"><span
+						data-i18n="settings.cancel"></span></button>
+				<button class="homey-button-primary-shadow" id="buttonWizardApply" disabled><span
+						data-i18n="settings.buttonWizardApply"></span></button>
+			</div>
+		</div>
+	</div>
+
 	<div id="displayFieldPopupOverlay" class="button-field-popup-overlay" aria-hidden="true">
 		<div class="button-field-popup-dialog" role="dialog" aria-modal="true" aria-labelledby="displayFieldPopupTitle">
 			<div class="button-field-popup-header">
@@ -587,7 +614,7 @@
 	<!-- Code to handle page life -->
 
 	<script type="text/javascript" src="simulation.js?v=20261002a"></script>
-	<script type="text/javascript" src="settings.js?v=20261010g"></script>
+	<script type="text/javascript" src="settings.js?v=20261010n"></script>
 </body>
 
 </html>

@@ -332,7 +332,7 @@ function syncCurrentButtonSettingsForDraftSnapshot()
 				pageConfig[`${side}Device`] = deviceElement.value;
 				if (deviceElement.selectedIndex >= 0 && deviceElement.options && deviceElement.options[deviceElement.selectedIndex])
 				{
-					pageConfig[`${side}DeviceName`] = deviceElement.options[deviceElement.selectedIndex].text.trim();
+					pageConfig[`${side}DeviceName`] = stripMissingNameSuffix(deviceElement.options[deviceElement.selectedIndex].text);
 				}
 			}
 			if (capabilityElement)
@@ -340,7 +340,7 @@ function syncCurrentButtonSettingsForDraftSnapshot()
 				pageConfig[`${side}Capability`] = capabilityElement.value;
 				if (capabilityElement.selectedIndex >= 0 && capabilityElement.options && capabilityElement.options[capabilityElement.selectedIndex])
 				{
-					pageConfig[`${side}CapabilityName`] = capabilityElement.options[capabilityElement.selectedIndex].text;
+					pageConfig[`${side}CapabilityName`] = stripMissingNameSuffix(capabilityElement.options[capabilityElement.selectedIndex].text);
 				}
 			}
 			if (brokerIdElement) pageConfig[`${side}BrokerId`] = getBrokerSelectValue(brokerIdElement, pageConfig[`${side}BrokerId`]);
@@ -1597,6 +1597,12 @@ function scheduleMainTopOffsetAdjustment()
 	});
 }
 
+// Option labels for missing entries get a UI-only suffix that must never be persisted.
+function stripMissingNameSuffix(name)
+{
+	return String(name || '').replace(/ \(Missing( Devices)?\)/g, '').trim();
+}
+
 function escapeHtml(value)
 {
 	return String(value)
@@ -2350,11 +2356,7 @@ function initialiseSettingsPage(Homey, markReady)
 				ButtonPanelConfiguration[`${side}DeviceName`] = deviceElement.value;
 			}
 
-			// Remove any leading spaces from the device name
-			ButtonPanelConfiguration[`${side}DeviceName`] = ButtonPanelConfiguration[`${side}DeviceName`].trim();
-
-			// Remove all occurrences of ' (Missing Devices)' from the capability name
-			ButtonPanelConfiguration[`${side}DeviceName`] = ButtonPanelConfiguration[`${side}DeviceName`].replace(/ \(Missing Devices\)/g, '');
+			ButtonPanelConfiguration[`${side}DeviceName`] = stripMissingNameSuffix(ButtonPanelConfiguration[`${side}DeviceName`]);
 		}
 
 		if (capabilityElement.value !== '')
@@ -2369,8 +2371,7 @@ function initialiseSettingsPage(Homey, markReady)
 				ButtonPanelConfiguration[`${side}CapabilityName`] = capabilityElement.value;
 			}
 
-			// Remove ' (Missing)' from the capability name
-			ButtonPanelConfiguration[`${side}CapabilityName`] = ButtonPanelConfiguration[`${side}CapabilityName`].replace(/ \(Missing\)/g, '');
+			ButtonPanelConfiguration[`${side}CapabilityName`] = stripMissingNameSuffix(ButtonPanelConfiguration[`${side}CapabilityName`]);
 		}
 
 		ButtonPanelConfiguration[`${side}BrokerId`] = getBrokerSelectValue(brokerIdElement, ButtonPanelConfiguration[`${side}BrokerId`]);
@@ -4422,6 +4423,345 @@ function clearDisplayedButton(event, configNo, side, page)
 	return false;
 }
 
+const BUTTON_WIZARD_ICON_SVG = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l11-11"/><path d="M11 10l3 3"/><path d="M18 2v4M16 4h4"/><path d="M21 8.5v3M19.5 10h3"/><path d="M19.5 15.5v2M18.5 16.5h2"/><path d="M22 20.25v1.5M21.25 21h1.5"/></svg>';
+
+let buttonWizardContext = null;
+
+function getWizardCapability(device, capabilityId, requireSetable = true)
+{
+	const capabilities = (device && device.capabilitiesObj) || {};
+	const capability = capabilities[capabilityId]
+		|| Object.values(capabilities).find(cap => cap && typeof cap.id === 'string' && cap.id.startsWith(`${capabilityId}.`));
+	if (!capability || (requireSetable && capability.setable === false))
+	{
+		return null;
+	}
+	return capability;
+}
+
+function isWizardDeviceClass(device, className)
+{
+	return !!device && (device.class === className || device.virtualClass === className);
+}
+
+function getWizardFanModeCapability(device)
+{
+	return Object.values((device && device.capabilitiesObj) || {}).find(cap => cap && cap.type === 'enum' && cap.setable !== false) || null;
+}
+
+function getWizardCapabilityName(capability)
+{
+	return capability ? `${capability.title || capability.id} (${capability.id})` : '';
+}
+
+// Each builder returns field values (without the left/right prefix) for one button side.
+const BUTTON_WIZARD_TYPES = [
+	{
+		id: 'onoff',
+		labelKey: 'buttonWizardTypeOnOff',
+		match: device => !!getWizardCapability(device, 'onoff'),
+		build: device => buildWizardToggleFields(getWizardCapability(device, 'onoff')),
+	},
+	{
+		id: 'dim',
+		labelKey: 'buttonWizardTypeDim',
+		match: device => !!getWizardCapability(device, 'dim'),
+		build: device => buildWizardNumericFields(getWizardCapability(device, 'onoff'), getWizardCapability(device, 'dim'), { clickStep: '+100', longStep: '+10' }),
+	},
+	{
+		id: 'colour',
+		labelKey: 'buttonWizardTypeColour',
+		match: device => !!getWizardCapability(device, 'light_hue'),
+		build: device =>
+		{
+			const onoff = getWizardCapability(device, 'onoff');
+			const fields = buildWizardNumericFields(onoff, getWizardCapability(device, 'light_hue'), { clickStep: '+0.1', longStep: '+0.1' });
+			fields.LedOnOffCapability = onoff ? onoff.id : 'none';
+			return fields;
+		},
+	},
+	{
+		id: 'windowcoverings',
+		labelKey: 'buttonWizardTypeWindowCoverings',
+		match: device => !!getWizardCapability(device, 'windowcoverings_set'),
+		build: device => buildWizardNumericFields(null, getWizardCapability(device, 'windowcoverings_set'), { clickStep: '+100', longStep: '+10' }),
+	},
+	{
+		id: 'thermostat',
+		labelKey: 'buttonWizardTypeThermostat',
+		match: device => !!getWizardCapability(device, 'target_temperature'),
+		build: device => buildWizardNumericFields(null, getWizardCapability(device, 'target_temperature'), { clickStep: '+1', longStep: '+2' }),
+	},
+	{
+		id: 'fan',
+		labelKey: 'buttonWizardTypeFan',
+		match: device => isWizardDeviceClass(device, 'fan') && (!!getWizardCapability(device, 'onoff') || !!getWizardCapability(device, 'dim') || !!getWizardFanModeCapability(device)),
+		build: device =>
+		{
+			const onoff = getWizardCapability(device, 'onoff');
+			const dim = getWizardCapability(device, 'dim');
+			if (dim)
+			{
+				return buildWizardNumericFields(onoff, dim, { clickStep: '+100', longStep: '+10' });
+			}
+
+			const mode = getWizardFanModeCapability(device);
+			if (!mode)
+			{
+				return buildWizardToggleFields(onoff);
+			}
+
+			const fields = buildWizardToggleFields(onoff || mode);
+			Object.assign(fields, {
+				Capability: mode.id,
+				CapabilityName: getWizardCapabilityName(mode),
+				OnText: '',
+				OffText: '',
+				LongDevice: device.id,
+				LongCapability: mode.id,
+				LongNumericAction: 'none',
+				DisableLongRepeat: false,
+			});
+			return fields;
+		},
+	},
+	{
+		id: 'lock',
+		labelKey: 'buttonWizardTypeLock',
+		match: device => !!getWizardCapability(device, 'locked'),
+		build: device => Object.assign(buildWizardToggleFields(getWizardCapability(device, 'locked')), {
+			OnText: Homey.__('settings.buttonWizardLockedText'),
+			OffText: Homey.__('settings.buttonWizardUnlockedText'),
+			ClickRelockSeconds: DEFAULT_RELOCK_SECONDS,
+		}),
+	},
+];
+
+function buildWizardToggleFields(capability)
+{
+	return {
+		Capability: capability.id,
+		CapabilityName: getWizardCapabilityName(capability),
+		OnText: Homey.__('settings.buttonWizardOnText'),
+		OffText: Homey.__('settings.buttonWizardOffText'),
+		LedCapability: capability.id,
+		LedOnOffCapability: 'none',
+		ClickCapability: capability.id,
+		ClickNumericAction: 'none',
+		ClickValueStep: '+10',
+		DoubleDevice: 'none',
+		DoubleCapability: '',
+		DoubleNumericAction: 'none',
+		DoubleValueStep: '+10',
+		LongDevice: 'none',
+		LongCapability: '',
+		LongNumericAction: 'none',
+		LongValueStep: '+10',
+	};
+}
+
+function buildWizardNumericFields(onoffCapability, valueCapability, { clickStep, longStep })
+{
+	return {
+		Capability: valueCapability.id,
+		CapabilityName: getWizardCapabilityName(valueCapability),
+		OnText: '',
+		OffText: '',
+		DimChange: longStep,
+		LedCapability: onoffCapability ? onoffCapability.id : valueCapability.id,
+		LedOnOffCapability: 'none',
+		ClickCapability: onoffCapability ? onoffCapability.id : valueCapability.id,
+		ClickNumericAction: onoffCapability ? 'none' : 'change',
+		ClickValueStep: clickStep,
+		DoubleCapability: '',
+		DoubleNumericAction: 'toggleDirection',
+		DoubleValueStep: '+10',
+		LongCapability: valueCapability.id,
+		LongNumericAction: 'change',
+		LongValueStep: longStep,
+		DisableLongRepeat: false,
+	};
+}
+
+function getButtonWizardDevices(typeId)
+{
+	const type = BUTTON_WIZARD_TYPES.find(entry => entry.id === typeId);
+	if (!type)
+	{
+		return [];
+	}
+	return buttonDevicesArray.filter(device => !(device.zone && device.zone.name === 'Missing Devices') && type.match(device));
+}
+
+function openButtonWizard(event, configNo, side, page)
+{
+	if (event)
+	{
+		event.preventDefault();
+		event.stopPropagation();
+	}
+
+	const overlay = document.getElementById('buttonWizardOverlay');
+	if (!overlay || !activateDisplayedButtonConfiguration(configNo))
+	{
+		return false;
+	}
+
+	buttonWizardContext = { configNo: Number(configNo), side, page };
+
+	const typeElement = document.getElementById('buttonWizardType');
+	const deviceElement = document.getElementById('buttonWizardDevice');
+	const applyElement = document.getElementById('buttonWizardApply');
+	const cancelElement = document.getElementById('buttonWizardCancel');
+
+	if (!overlay.dataset.initialised)
+	{
+		overlay.dataset.initialised = 'true';
+		typeElement.addEventListener('change', refreshButtonWizardDevices);
+		deviceElement.addEventListener('change', updateButtonWizardApplyState);
+		cancelElement.addEventListener('click', closeButtonWizard);
+		applyElement.addEventListener('click', applyButtonWizard);
+	}
+
+	document.getElementById('buttonWizardTitle').textContent = `${Homey.__(`settings.${side}Panel`)} - ${Homey.__('settings.buttonWizardTitle')}`;
+
+	typeElement.innerHTML = '';
+	const placeholder = document.createElement('option');
+	placeholder.value = '';
+	placeholder.text = Homey.__('settings.buttonWizardSelectType');
+	typeElement.add(placeholder);
+	for (const type of BUTTON_WIZARD_TYPES)
+	{
+		const option = document.createElement('option');
+		option.value = type.id;
+		option.text = Homey.__(`settings.${type.labelKey}`);
+		typeElement.add(option);
+	}
+	typeElement.value = '';
+	refreshButtonWizardDevices();
+
+	overlay.classList.add('visible');
+	overlay.setAttribute('aria-hidden', 'false');
+	return false;
+}
+
+function refreshButtonWizardDevices()
+{
+	const typeId = document.getElementById('buttonWizardType').value;
+	const deviceElement = document.getElementById('buttonWizardDevice');
+	deviceElement.innerHTML = '';
+
+	const devices = getButtonWizardDevices(typeId);
+	const placeholder = document.createElement('option');
+	placeholder.value = '';
+	placeholder.text = !typeId
+		? ''
+		: (devices.length ? Homey.__('settings.buttonWizardSelectDevice') : Homey.__('settings.buttonWizardNoDevices'));
+	deviceElement.add(placeholder);
+
+	let group = null;
+	for (const device of devices)
+	{
+		const zoneName = (device.zone && device.zone.name) || device.zoneName || '';
+		if (!group || group.label !== zoneName)
+		{
+			group = document.createElement('optgroup');
+			group.label = zoneName;
+			deviceElement.appendChild(group);
+		}
+		const option = document.createElement('option');
+		option.value = device.id;
+		option.text = device.name;
+		group.appendChild(option);
+	}
+
+	deviceElement.value = '';
+	deviceElement.disabled = !typeId || devices.length === 0;
+	updateButtonWizardApplyState();
+}
+
+function updateButtonWizardApplyState()
+{
+	document.getElementById('buttonWizardApply').disabled = !document.getElementById('buttonWizardDevice').value;
+}
+
+function closeButtonWizard()
+{
+	const overlay = document.getElementById('buttonWizardOverlay');
+	if (overlay)
+	{
+		overlay.classList.remove('visible');
+		overlay.setAttribute('aria-hidden', 'true');
+	}
+	buttonWizardContext = null;
+}
+
+function applyButtonWizard()
+{
+	if (!buttonWizardContext)
+	{
+		return;
+	}
+
+	const { configNo, side, page } = buttonWizardContext;
+	const type = BUTTON_WIZARD_TYPES.find(entry => entry.id === document.getElementById('buttonWizardType').value);
+	const device = buttonDevicesArray.find(entry => entry.id === document.getElementById('buttonWizardDevice').value);
+	const config = localButtonConfigurations[configNo];
+	if (!type || !device || !Array.isArray(config) || !config[page] || !activateDisplayedButtonConfiguration(configNo))
+	{
+		closeButtonWizard();
+		return;
+	}
+
+	if (typeof configDraftStoreButtonSettingsFn === 'function')
+	{
+		configDraftStoreButtonSettingsFn(config);
+	}
+
+	const pageConfig = config[page];
+	ensureButtonSideAdvancedDefaults(pageConfig, side);
+	const fields = Object.assign({
+		Mode: 'advanced',
+		TopText: sanitizeDisplayString(device.name || '', '').substring(0, 20),
+		Device: device.id,
+		DeviceName: device.name,
+		DisplayDevice: device.id,
+		DisplayCapability: '',
+		DisplayBooleanRender: 'text',
+		BasicBooleanRender: 'text',
+		LedDevice: device.id,
+		ClickDevice: device.id,
+		DoubleDevice: device.id,
+		LongDevice: device.id,
+	}, type.build(device));
+
+	Object.entries(fields).forEach(([field, value]) =>
+	{
+		pageConfig[`${side}${field}`] = value;
+	});
+
+	// Make sure the LEDs are visible when the side had no on colour configured.
+	if (!pageConfig[`${side}FrontLEDOnColor`] || pageConfig[`${side}FrontLEDOnColor`] === '#000000')
+	{
+		pageConfig[`${side}FrontLEDOnColor`] = '#38c266';
+	}
+	if (!pageConfig[`${side}WallLEDOnColor`] || pageConfig[`${side}WallLEDOnColor`] === '#000000')
+	{
+		pageConfig[`${side}WallLEDOnColor`] = '#81ef8d';
+	}
+
+	closeButtonWizard();
+
+	writeButtonsections(getDisplayedButtonPageCount());
+	updateButtonPanelControls();
+	if (buttonPagePopupOverlayElement && buttonPagePopupOverlayElement.classList.contains('visible'))
+	{
+		renderButtonPagePopup();
+	}
+	configDraftDirtySinceLoad = true;
+	flushConfigurationDraftPersist();
+}
+
 function findAdvancedDefaultDeviceForSide(pageConfig, side)
 {
 	const candidateKeys = [`${side}ClickDevice`, `${side}DoubleDevice`, `${side}LongDevice`, `${side}LedDevice`, `${side}DisplayDevice`];
@@ -4883,6 +5223,11 @@ function getButtonPanelCapabilityPreviewText(side, pageIndex, deviceValue, capab
 	if (deviceValue && capabilityValue && deviceValue !== 'none' && deviceValue !== 'customMQTT')
 	{
 		const cacheEntry = displayPagePopupLiveValueCache.get(`${deviceValue}_${capabilityValue}`);
+		if (cacheEntry && (typeof cacheEntry.value === 'boolean' || /^(true|false)$/i.test(String(cacheEntry.value).trim())))
+		{
+			// Booleans render via the button's own On/Off text.
+			return null;
+		}
 		if (cacheEntry && cacheEntry.value !== undefined && cacheEntry.value !== null)
 		{
 			const valueText = sanitizeDisplayString(formatDisplayPopupValue(normalizeSimulatorCapabilityValue(capabilityValue, cacheEntry.value), capabilityValue === 'windowcoverings_set' ? 0 : 1), '');
@@ -5065,6 +5410,8 @@ function renderInlineButtonPagePreview(page)
 		const rightAdvanced = isButtonSideAdvanced(pageConfig, 'right');
 		previewElement.innerHTML =			`<button class="button-sim-clear button-sim-clear-left" type="button" onclick="return clearDisplayedButton(event, ${configIndex}, 'left', ${page});" title="${Homey.__('settings.clearButtonSettings')}" aria-label="${Homey.__('settings.clearButtonSettings')} (${Homey.__('settings.leftPanel')})"><i class="fi fi-rr-trash" aria-hidden="true"></i></button>
 					<button class="button-sim-clear button-sim-clear-right" type="button" onclick="return clearDisplayedButton(event, ${configIndex}, 'right', ${page});" title="${Homey.__('settings.clearButtonSettings')}" aria-label="${Homey.__('settings.clearButtonSettings')} (${Homey.__('settings.rightPanel')})"><i class="fi fi-rr-trash" aria-hidden="true"></i></button>
+					<button class="button-sim-wizard button-sim-wizard-left" type="button" onclick="return openButtonWizard(event, ${configIndex}, 'left', ${page});" title="${Homey.__('settings.buttonWizardTitle')}" aria-label="${Homey.__('settings.buttonWizardTitle')} (${Homey.__('settings.leftPanel')})">${BUTTON_WIZARD_ICON_SVG}</button>
+					<button class="button-sim-wizard button-sim-wizard-right" type="button" onclick="return openButtonWizard(event, ${configIndex}, 'right', ${page});" title="${Homey.__('settings.buttonWizardTitle')}" aria-label="${Homey.__('settings.buttonWizardTitle')} (${Homey.__('settings.rightPanel')})">${BUTTON_WIZARD_ICON_SVG}</button>
 					<button class="button-sim-mode-toggle button-sim-mode-toggle-left${leftAdvanced ? ' advanced' : ''}" type="button" onclick="return toggleDisplayedButtonMode(event, ${configIndex}, 'left', ${page});" aria-pressed="${leftAdvanced ? 'true' : 'false'}" title="${Homey.__('settings.leftAdvancedLabel')}">${leftAdvanced ? 'ADV' : 'STD'}</button>
 					<button class="button-sim-mode-toggle button-sim-mode-toggle-right${rightAdvanced ? ' advanced' : ''}" type="button" onclick="return toggleDisplayedButtonMode(event, ${configIndex}, 'right', ${page});" aria-pressed="${rightAdvanced ? 'true' : 'false'}" title="${Homey.__('settings.rightAdvancedLabel')}">${rightAdvanced ? 'ADV' : 'STD'}</button>
 					<button class="button-sim-item" onclick="activateDisplayedButtonConfiguration(${configIndex}); return handleButtonSimShellClick(event, 'left', ${page});" title="${Homey.__('settings.openLeftPanelSettings')}">
@@ -5624,6 +5971,24 @@ async function resolvePopupCapabilityType(deviceId, capabilityId)
 	});
 }
 
+const DEFAULT_RELOCK_SECONDS = 5;
+
+function isLockCapabilityId(capabilityId)
+{
+	return capabilityId === 'locked' || (typeof capabilityId === 'string' && capabilityId.startsWith('locked.'));
+}
+
+function buildRelockRowHtml(side, page, eventName)
+{
+	const id = `popup${side}${page}${eventName}RelockSeconds`;
+	return `<div class="button-field-popup-field" id="popup${side}${page}${eventName}RelockRow" style="display:none;">
+						<label class="button-field-popup-label" for="${id}"><span>${Homey.__('settings.relockSeconds')}</span>
+							<div class="tooltip"><i class="fi fi-rr-info"></i><span class="tooltiptext">${normalizeTooltipHtml(Homey.__('settings.relockSecondsExplanation'))}</span></div>
+						</label>
+						<input class="homey-form-input" id="${id}" type="number" min="0" max="3600" step="1">
+					</div>`;
+}
+
 async function openButtonAdvancedPopup(side, page, mode = 'event')
 {
 	if (!buttonFieldPopupOverlayElement || !buttonFieldPopupBodyElement || !buttonFieldPopupTitleElement)
@@ -5681,6 +6046,7 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 						<label class="button-field-popup-label" for="popup${side}${page}ClickValueStep"><span>${Homey.__('settings.clickValueStep')}</span></label>
 						<input class="homey-form-input" id="popup${side}${page}ClickValueStep" type="text">
 					</div>
+					${buildRelockRowHtml(side, page, 'Click')}
 					<hr>
 					<div class="button-field-popup-field">
 						<label class="button-field-popup-label" for="popup${side}${page}DoubleDevice"><span>${Homey.__('settings.doubleClickTargetDevice')}</span></label>
@@ -5694,6 +6060,7 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 						<label class="button-field-popup-label" for="popup${side}${page}DoubleValueStep"><span>${Homey.__('settings.doubleClickValueStep')}</span></label>
 						<input class="homey-form-input" id="popup${side}${page}DoubleValueStep" type="text">
 					</div>
+					${buildRelockRowHtml(side, page, 'Double')}
 					<hr>
 					<div class="button-field-popup-field">
 						<label class="button-field-popup-label" for="popup${side}${page}LongDevice"><span>${Homey.__('settings.longRepeatTargetDevice')}</span></label>
@@ -5706,7 +6073,8 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 					<div class="button-field-popup-field" id="popup${side}${page}LongValueStepRow">
 						<label class="button-field-popup-label" for="popup${side}${page}LongValueStep"><span>${Homey.__('settings.longRepeatValueStep')}</span></label>
 						<input class="homey-form-input" id="popup${side}${page}LongValueStep" type="text">
-					</div>`;
+					</div>
+					${buildRelockRowHtml(side, page, 'Long')}`;
 	}
 	else
 	{
@@ -5804,6 +6172,13 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 			const capElement = document.getElementById(`popup${side}${page}${eventName}Capability`);
 			const stepElement = document.getElementById(`popup${side}${page}${eventName}ValueStep`);
 			const stepRowElement = document.getElementById(`popup${side}${page}${eventName}ValueStepRow`);
+			const relockRowElement = document.getElementById(`popup${side}${page}${eventName}RelockRow`);
+			const relockElement = document.getElementById(`popup${side}${page}${eventName}RelockSeconds`);
+			if (relockElement)
+			{
+				const storedRelock = pageConfig[`${side}${eventName}RelockSeconds`];
+				relockElement.value = (storedRelock === undefined || storedRelock === null || storedRelock === '') ? DEFAULT_RELOCK_SECONDS : storedRelock;
+			}
 			if (!devElement || !capElement || !stepElement || !stepRowElement)
 			{
 				continue;
@@ -5816,6 +6191,10 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 				const selectedValue = capElement.value || '';
 				const showStep = selectedType === 'number' || selectedValue === 'dim';
 				stepRowElement.style.display = showStep ? '' : 'none';
+				if (relockRowElement)
+				{
+					relockRowElement.style.display = (!capElement.disabled && isLockCapabilityId(selectedValue)) ? '' : 'none';
+				}
 			};
 			const updateFlowTriggerState = function()
 			{
@@ -5972,6 +6351,12 @@ function saveAdvancedButtonPopup()
 			pageConfig[`${side}${eventName}Capability`] = (selectedEventDevice === 'none' || isToggleDirection || isFlowTriggerOnly) ? '' : selectedEventValue;
 			pageConfig[`${side}${eventName}NumericAction`] = (selectedEventDevice === 'none' || isToggleDirection || isFlowTriggerOnly) ? (isToggleDirection ? 'toggleDirection' : 'none') : (isNumericCapability ? 'change' : 'none');
 			pageConfig[`${side}${eventName}ValueStep`] = document.getElementById(`popup${side}${page}${eventName}ValueStep`).value || '+10';
+			const relockElement = document.getElementById(`popup${side}${page}${eventName}RelockSeconds`);
+			if (relockElement)
+			{
+				const relockSeconds = Number(relockElement.value);
+				pageConfig[`${side}${eventName}RelockSeconds`] = Number.isFinite(relockSeconds) && relockElement.value !== '' ? Math.max(0, Math.min(3600, relockSeconds)) : DEFAULT_RELOCK_SECONDS;
+			}
 		}
 	}
 	else
@@ -8733,7 +9118,7 @@ function fillButtonDevices()
 				if (!Array.from(leftElement.options).some(option => option.value === leftDevice))
 				{
 					var option = document.createElement('option');
-					option.text = `${buttonPanelConfiguration[i].leftDeviceName} (Missing)`;
+					option.text = `${stripMissingNameSuffix(buttonPanelConfiguration[i].leftDeviceName)} (Missing)`;
 					option.value = leftDevice;
 					leftElement.add(option);
 
@@ -8741,7 +9126,7 @@ function fillButtonDevices()
 
 					// As the device is missing the capability is also missing so add it to the list
 					var option = document.createElement('option');
-					option.text = `${buttonPanelConfiguration[i].leftCapabilityName} (Missing)`;
+					option.text = `${stripMissingNameSuffix(buttonPanelConfiguration[i].leftCapabilityName)} (Missing)`;
 					option.value = buttonPanelConfiguration[i].leftCapability;
 					document.getElementById(`left${i}Capability`).add(option);
 
@@ -8771,7 +9156,7 @@ function fillButtonDevices()
 				if (!Array.from(rightElement.options).some(option => option.value === rightDevice))
 				{
 					var option = document.createElement('option');
-					option.text = `${buttonPanelConfiguration[i].rightDeviceName} (Missing)`;
+					option.text = `${stripMissingNameSuffix(buttonPanelConfiguration[i].rightDeviceName)} (Missing)`;
 					option.value = rightDevice;
 					rightElement.add(option);
 
@@ -8779,7 +9164,7 @@ function fillButtonDevices()
 
 					// As the device is missing the capability is also missing so add it to the list
 					var option = document.createElement('option');
-					option.text = `${buttonPanelConfiguration[i].rightCapabilityName} (Missing)`;
+					option.text = `${stripMissingNameSuffix(buttonPanelConfiguration[i].rightCapabilityName)} (Missing)`;
 					option.value = buttonPanelConfiguration[i].rightCapability;
 					document.getElementById(`right${i}Capability`).add(option);
 
@@ -9641,11 +10026,7 @@ function updateButtonPanelControlsSection(side, page, ButtonPanelConfiguration)
 			{
 				let name = ButtonPanelConfiguration[`${side}DeviceName`] ? ButtonPanelConfiguration[`${side}DeviceName`] : ButtonPanelConfiguration[`${side}Device`];
 
-				// Remove any leading spaces from the device name
-				name = name.trim();
-
-				// Remove all occurrences of ' (Missing Devices)' from the name
-				name = name.replace(/ \(Missing Devices\)/g, '');
+				name = stripMissingNameSuffix(name);
 
 				buttonDevicesArray.push({ id: ButtonPanelConfiguration[`${side}Device`], name, zone: { name: 'Missing Devices' } });
 				buttonDevicesArray = sortDevices(buttonDevicesArray);
@@ -11416,7 +11797,7 @@ function fillDisplayDevices()
 				if (displayConfig.items[itemNo].device !== 'none' && displayConfig.items[itemNo].device !== '_variable_' && displayConfig.items[itemNo].device !== 'customMQTT' && displayConfig.items[itemNo].device !== TARGET_BUTTON_PLUS_DEVICE_ID && displayConfig.items[itemNo].device !== '' && !displayDevicesArray.includes(displayConfig.items[itemNo].device))
 				{
 					const option = document.createElement('option');
-					option.text = `${displayConfig.items[itemNo].deviceName} (Missing)`;
+					option.text = `${stripMissingNameSuffix(displayConfig.items[itemNo].deviceName)} (Missing)`;
 					option.value = displayConfig.items[itemNo].device;
 					document.getElementById(`display${itemNo}Device`).add(option);
 
@@ -11817,8 +12198,7 @@ function storeDisplaySettings()
 			{
 				displayConfiguration.items[itemNo].deviceName = deviceElement.options[deviceElement.selectedIndex].text;
 
-				// Remove ' (Missing Devices)' from the device name
-				displayConfiguration.items[itemNo].deviceName = displayConfiguration.items[itemNo].deviceName.replace(/ \(Missing Devices\)/g, '');
+				displayConfiguration.items[itemNo].deviceName = stripMissingNameSuffix(displayConfiguration.items[itemNo].deviceName);
 			}
 			else
 			{
@@ -12873,8 +13253,7 @@ function buttonDeviceChanged(side, page)
 		config[`${side}DeviceName`] = deviceElement.value;
 	}
 
-	// Remove all occurrences of ' (Missing Devices)' from the device name
-	config[`${side}DeviceName`] = config[`${side}DeviceName`].replace(/ \(Missing Devices\)/g, '');
+	config[`${side}DeviceName`] = stripMissingNameSuffix(config[`${side}DeviceName`]);
 
 	// Remove any leading spaces from the device name
 	config[`${side}Device`] = config[`${side}Device`].trim();
