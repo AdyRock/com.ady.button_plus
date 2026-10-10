@@ -4212,6 +4212,7 @@ class PanelDevice extends Device
 			booleanRender: sideConfig[`${side}DisplayBooleanRender`] || 'text',
 			onText: sideConfig[`${side}OnText`] || '',
 			offText: sideConfig[`${side}OffText`] || '',
+			unit: sideConfig[`${side}Unit`] || '',
 			onSVG: normalizeSvgText(sideConfig[`${side}OnSVG`] || ''),
 			offSVG: normalizeSvgText(sideConfig[`${side}OffSVG`] || ''),
 			brokerId: sideConfig[`${side}BrokerId`] || sideConfig[`${side}brokerid`] || 'Default',
@@ -4291,7 +4292,7 @@ class PanelDevice extends Device
 				return { textValue: isOn ? binding.onText : binding.offText, svgValue: null };
 			}
 
-			return { textValue: variable.value == null ? '' : String(variable.value), svgValue: null };
+			return { textValue: this.formatVariableDisplayValue(variable.value, binding.unit), svgValue: null };
 		}
 
 		const device = await this.homey.app.getHomeyDeviceById(binding.deviceID);
@@ -6554,7 +6555,7 @@ class PanelDevice extends Device
 
 					if (isNonBooleanVariable)
 					{
-						this.publishTextButtonLabel(sideConfig.brokerId, buttonIdx, page, value);
+						this.publishTextButtonLabel(sideConfig.brokerId, buttonIdx, page, this.formatVariableDisplayValue(value, sideConfig.unit));
 					}
 					else if (isNonBooleanDeviceCapability)
 					{
@@ -7119,7 +7120,7 @@ class PanelDevice extends Device
 			else if (variable)
 			{
 				// Text/number variables have no on/off state; show their content instead
-				rawTextValue = variable.value;
+				rawTextValue = this.formatVariableDisplayValue(variable.value, sideConfig.unit);
 			}
 
 			if (page === (this.page - 1))
@@ -7331,6 +7332,7 @@ class PanelDevice extends Device
 			topLabel: config[`${side}TopText`],
 			onMessage: config[`${side}OnText`],
 			offMessage: config[`${side}OffText`],
+			unit: config[`${side}Unit`] || '',
 			brokerId,
 			dimChange: config[`${side}DimChange`],
 			frontLEDOnColor: config[`${side}FrontLEDOnColor`],
@@ -7342,6 +7344,13 @@ class PanelDevice extends Device
 			offSVG: useSvg ? normalizeSvgText(config[`${side}OffSVG`] || '') : '',
 			raw: config,
 		};
+	}
+
+	formatVariableDisplayValue(value, unit)
+	{
+		const text = value == null ? '' : String(value);
+		const unitText = this.getCapabilityUnitText({ units: unit });
+		return typeof value === 'number' && unitText ? `${text} ${unitText}` : text;
 	}
 
 	async getDeviceAndCapability(config)

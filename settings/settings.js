@@ -328,6 +328,8 @@ function syncCurrentButtonSettingsForDraftSnapshot()
 			if (topTextElement) pageConfig[`${side}TopText`] = topTextElement.value;
 			if (onTextElement) pageConfig[`${side}OnText`] = onTextElement.value;
 			if (offTextElement) pageConfig[`${side}OffText`] = offTextElement.value;
+			const unitElement = document.getElementById(`${side}${page}Unit`);
+			if (unitElement) pageConfig[`${side}Unit`] = unitElement.value.trim();
 			if (deviceElement)
 			{
 				pageConfig[`${side}Device`] = deviceElement.value;
@@ -2341,6 +2343,7 @@ function initialiseSettingsPage(Homey, markReady)
 		ButtonPanelConfiguration[`${side}TopText`] = topTextElement.value;
 		ButtonPanelConfiguration[`${side}OnText`] = onTextElement.value;
 		ButtonPanelConfiguration[`${side}OffText`] = offTextElement.value;
+		ButtonPanelConfiguration[`${side}Unit`] = document.getElementById(`${side}${page}Unit`)?.value.trim() || '';
 
 		// The device/capability selects start out with an empty placeholder option until
 		// fillButtonDevices()/getCapabilities() finish their async population. If this runs
@@ -3155,7 +3158,7 @@ function initialiseSettingsPage(Homey, markReady)
 			return;
 		}
 
-		const match = target.id.match(/^(left|right)(\d+)(TopText|OnText|OffText|OnSVG|OffSVG|FrontLEDOnColor|WallLEDOnColor|FrontLEDOffColor|WallLEDOffColor)$/);
+		const match = target.id.match(/^(left|right)(\d+)(TopText|Unit|OnText|OffText|OnSVG|OffSVG|FrontLEDOnColor|WallLEDOnColor|FrontLEDOffColor|WallLEDOffColor)$/);
 		if (!match)
 		{
 			return;
@@ -3289,7 +3292,7 @@ function initialiseSettingsPage(Homey, markReady)
 			return;
 		}
 
-		const match = target.id.match(/^(left|right)(\d+)(TopText|OnText|OffText|OnSVG|OffSVG|FrontLEDOnColor|WallLEDOnColor|FrontLEDOffColor|WallLEDOffColor)$/);
+		const match = target.id.match(/^(left|right)(\d+)(TopText|Unit|OnText|OffText|OnSVG|OffSVG|FrontLEDOnColor|WallLEDOnColor|FrontLEDOffColor|WallLEDOffColor)$/);
 		if (!match)
 		{
 			return;
@@ -4069,6 +4072,7 @@ function hidePopupManagedFieldsForSection(side, page)
 	hideLabelFor(`${side}${page}TopText`);
 
 	hideById(`${side}${page}OnTextDiv`);
+	hideById(`${side}${page}UnitDiv`);
 	hideById(`${side}${page}OffText`);
 	hideById(`${side}${page}OffTextLabel`);
 
@@ -5371,6 +5375,12 @@ function getButtonPanelPreviewMarkup(pageConfig, side, pageIndex = buttonPagePop
 	else if (isNonBooleanVariable && !isVariableSvg)
 	{
 		stateTextRaw = sanitizeDisplayString(nonBooleanPreviewText, '');
+		const selectedVariable = deviceValue === '_variable_' ? variablesArray.find(variable => variable.id === capabilityValue) : null;
+		const unit = sanitizeDisplayString(getLiveButtonPanelFieldValue(pageConfig, side, 'Unit', '', pageIndex, configIndex), '').trim();
+		if (selectedVariable && selectedVariable.type === 'number' && stateTextRaw && unit)
+		{
+			stateTextRaw = `${stateTextRaw} ${unit}`;
+		}
 	}
 	else
 	{
@@ -6061,6 +6071,10 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 	if (mode !== 'led')
 	{
 		buttonFieldPopupBodyElement.innerHTML = `
+					<div class="button-field-popup-field" id="popup${side}${page}DisplayUnitRow" style="display:none;">
+						<label class="button-field-popup-label" for="popup${side}${page}DisplayUnit"><span>${Homey.__('settings.unit')}</span></label>
+						<input class="homey-form-input" id="popup${side}${page}DisplayUnit" type="text">
+					</div>
 					<div class="button-field-popup-field button-popup-radio-row" id="popup${side}${page}DisplayRenderRow" style="display:none;">
 						<label class="button-popup-radio-option"><input type="radio" name="popup${side}${page}DisplayBooleanRender" value="text"> ${Homey.__('settings.textLabel')}</label>
 						<label class="button-popup-radio-option"><input type="radio" name="popup${side}${page}DisplayBooleanRender" value="svg"> ${Homey.__('settings.svgLabel')}</label>
@@ -6172,6 +6186,10 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 		const displayDeviceId = pageConfig[`${side}DisplayDevice`] || 'none';
 		const displayCapabilityId = pageConfig[`${side}DisplayCapability`] || '';
 		const displayCapabilityType = await resolvePopupCapabilityType(displayDeviceId, displayCapabilityId);
+		const displayUnitElement = document.getElementById(`popup${side}${page}DisplayUnit`);
+		if (displayUnitElement) displayUnitElement.value = pageConfig[`${side}Unit`] || '';
+		const displayUnitRow = document.getElementById(`popup${side}${page}DisplayUnitRow`);
+		if (displayUnitRow) displayUnitRow.style.display = displayDeviceId === '_variable_' && displayCapabilityType === 'number' ? '' : 'none';
 		const updateDisplayRenderVisibility = function()
 		{
 			if (!displayRenderRowElement)
@@ -6379,6 +6397,8 @@ function saveAdvancedButtonPopup()
 	if (popupMode !== 'led')
 	{
 		pageConfig[`${side}Mode`] = 'advanced';
+		pageConfig[`${side}Unit`] = document.getElementById(`popup${side}${page}DisplayUnit`)?.value.trim() || '';
+		syncMainControlValue('Unit', pageConfig[`${side}Unit`]);
 		const displayRenderInput = buttonFieldPopupBodyElement.querySelector(`input[name="popup${side}${page}DisplayBooleanRender"]:checked`);
 		pageConfig[`${side}DisplayBooleanRender`] = displayRenderInput ? displayRenderInput.value : 'text';
 		pageConfig[`${side}OnText`] = document.getElementById(`popup${side}${page}DisplayOnText`).value || '';
@@ -6468,6 +6488,7 @@ function getButtonFieldPopupSpec(side, page, fieldSuffix)
 		TopText: Homey.__('settings.topLabel'),
 		OnText: Homey.__('settings.labelOn'),
 		OffText: Homey.__('settings.labelOff'),
+		Unit: Homey.__('settings.unit'),
 		OnSVG: 'On SVG Data',
 		OffSVG: 'Off SVG Data',
 		DimChange: 'Value increment / decrement',
@@ -6482,6 +6503,7 @@ function getButtonFieldPopupSpec(side, page, fieldSuffix)
 		TopText: 'settings.topLabelExplanation',
 		OnText: 'settings.labelOnExplanation',
 		OffText: 'settings.labelOffExplanation',
+		Unit: 'settings.unitExplanation',
 		OnSVG: 'settings.textExplanation',
 		OffSVG: 'settings.textExplanation',
 		DimChange: 'settings.dimChangeExplanation',
@@ -6491,8 +6513,8 @@ function getButtonFieldPopupSpec(side, page, fieldSuffix)
 		WallLEDOffColor: 'settings.wallLEDOffColorExplanation',
 	};
 	const textAndSvgFields = isAdvancedMode
-		? ['Device', 'Capability', 'OnText', 'OffText', 'OnSVG', 'OffSVG']
-		: ['Device', 'Capability', 'OnText', 'OffText', 'OnSVG', 'OffSVG', 'DimChange'];
+		? ['Device', 'Capability', 'Unit', 'OnText', 'OffText', 'OnSVG', 'OffSVG']
+		: ['Device', 'Capability', 'Unit', 'OnText', 'OffText', 'OnSVG', 'OffSVG', 'DimChange'];
 
 	if (fieldSuffix === 'TopText')
 	{
@@ -6638,6 +6660,11 @@ function updateButtonFieldPopupCapabilityState(popupElementsBySuffix)
 	const selectedCapabilityType = selectedCapabilityOption ? selectedCapabilityOption.dataset.type : '';
 	const isNonBooleanDeviceCapability = (deviceValue !== '_variable_') && !isDimCapability && (capabilityElement.value !== 'windowcoverings_state') && (selectedCapabilityType !== '') && (selectedCapabilityType !== 'boolean');
 	const hideOnOffFields = isDimCapability || isNonBooleanVariable || isNonBooleanDeviceCapability;
+	const unitRow = popupElementsBySuffix.Unit ? popupElementsBySuffix.Unit.closest('.button-field-popup-field') : null;
+	if (unitRow)
+	{
+		unitRow.style.display = selectedVariable && selectedVariable.type === 'number' ? '' : 'none';
+	}
 	const booleanRenderMode = popupElementsBySuffix.__booleanRenderMode || 'text';
 	const showSvgFields = booleanRenderMode === 'svg';
 	const booleanRenderRow = popupElementsBySuffix.__booleanRenderRow || null;
@@ -7330,15 +7357,6 @@ function updateDisplayFieldPopupCapabilityState(popupElementsBySuffix)
 		}
 	}
 
-	if (popupElementsBySuffix.Unit)
-	{
-		const unitRow = popupElementsBySuffix.Unit.closest('.button-field-popup-field');
-		if (unitRow)
-		{
-			unitRow.style.display = 'none';
-		}
-	}
-
 	let isBoolean = false;
 	if (deviceValue === 'none')
 	{
@@ -7356,6 +7374,15 @@ function updateDisplayFieldPopupCapabilityState(popupElementsBySuffix)
 		const selectedOption = capabilityElement && capabilityElement.selectedOptions ? capabilityElement.selectedOptions[0] : null;
 		const optionType = selectedOption ? (selectedOption.dataset.type || '') : '';
 		isBoolean = (capabilityId === 'onoff') || (capObj && capObj.type === 'boolean') || (optionType === 'boolean');
+	}
+
+	if (popupElementsBySuffix.Unit)
+	{
+		const unitRow = popupElementsBySuffix.Unit.closest('.button-field-popup-field');
+		if (unitRow)
+		{
+			unitRow.style.display = (deviceValue === '_variable_' && !isBoolean) ? '' : 'none';
+		}
 	}
 
 	const onOffDisplay = isBoolean ? '' : 'none';
@@ -9954,6 +9981,8 @@ function capabilityChanged(side, page, value)
 	const selectedCapabilityType = selectedOption ? selectedOption.dataset.type : '';
 	const isNonBooleanDeviceCapability = !isVariableDevice && (value !== 'dim') && (value !== 'windowcoverings_state') && (selectedCapabilityType !== '') && (selectedCapabilityType !== 'boolean');
 	const hideOnOffFields = (value === 'dim') || isNonBooleanVariable || isNonBooleanDeviceCapability;
+	const unitDiv = document.getElementById(`${side}${page}UnitDiv`);
+	if (unitDiv) unitDiv.style.display = selectedVariable && selectedVariable.type === 'number' ? itemDisplyType : 'none';
 
 	// Only dim capabilities show the dim change value
 	document.getElementById(`${side}${page}DimChangeDiv`).style.display = (value === 'dim') ? itemDisplyType : 'none';
@@ -10042,6 +10071,7 @@ function updateButtonPanelControlsSection(side, page, ButtonPanelConfiguration)
 		document.getElementById(`${side}${page}TopText`).value = '';
 		document.getElementById(`${side}${page}OnText`).value = '';
 		document.getElementById(`${side}${page}OffText`).value = '';
+		document.getElementById(`${side}${page}Unit`).value = '';
 		document.getElementById(`${side}${page}Device`).value = '';
 		document.getElementById(`${side}${page}Capability`).value = '';
 		setBrokerSelectValue(document.getElementById(`${side}${page}BrokerId`), 'Default');
@@ -10076,6 +10106,7 @@ function updateButtonPanelControlsSection(side, page, ButtonPanelConfiguration)
 		document.getElementById(`button${side}${page}Legend`).innerHTML = `<b><em>${panelText}</em></b> - ${document.getElementById(`${side}${page}TopText`).value}`;
 		document.getElementById(`${side}${page}OnText`).value = ButtonPanelConfiguration[`${side}OnText`];
 		document.getElementById(`${side}${page}OffText`).value = ButtonPanelConfiguration[`${side}OffText`];
+		document.getElementById(`${side}${page}Unit`).value = ButtonPanelConfiguration[`${side}Unit`] || '';
 		document.getElementById(`${side}${page}Device`).value = ButtonPanelConfiguration[`${side}Device`];
 		// If the element is not in the list, add it
 		if (document.getElementById(`${side}${page}Device`).value !== ButtonPanelConfiguration[`${side}Device`])
@@ -11961,7 +11992,6 @@ function updateDisplayItemControlsVisibility(itemNo)
 	}
 
 	if (capabilityDiv) capabilityDiv.style.display = itemDisplyType;
-	if (unitDiv) unitDiv.style.display = 'none';
 	if (textDiv) textDiv.style.display = 'none';
 
 	let isBoolean = false;
@@ -11979,6 +12009,7 @@ function updateDisplayItemControlsVisibility(itemNo)
 		isBoolean = (capabilityId === 'onoff') || (capObj && capObj.type === 'boolean') || (optionType === 'boolean');
 	}
 
+	if (unitDiv) unitDiv.style.display = (deviceId === '_variable_' && !isBoolean) ? itemDisplyType : 'none';
 	const onOffDisplay = isBoolean ? itemDisplyType : 'none';
 	if (onTextDiv) onTextDiv.style.display = onOffDisplay;
 	if (offTextDiv) offTextDiv.style.display = onOffDisplay;
@@ -14162,6 +14193,11 @@ function getButtonHtml(side, page)
 															</div>
 														</div>
 													</span>
+
+													<div id="${side}${page}UnitDiv" style="display:none;">
+														<label class="homey-form-label" for="${side}${page}Unit"><span>${ctrlLabels.unit}</span></label>
+														<input class="homey-form-input" id="${side}${page}Unit" type="text" value="">
+													</div>
 
 													<label class="homey-form-label" for="${side}${page}TopText"><span>${ctrlLabels.topLabel}</span>
 														<div class="tooltip"><i class="fi fi-rr-info"></i>
