@@ -4537,18 +4537,21 @@ const BUTTON_WIZARD_TYPES = [
 	{
 		id: 'lock',
 		labelKey: 'buttonWizardTypeLock',
-		match: device => !!getWizardCapability(device, 'locked'),
-		build: device => Object.assign(buildWizardToggleFields(getWizardCapability(device, 'locked')), {
-			OnText: Homey.__('settings.buttonWizardLockedText'),
-			OffText: Homey.__('settings.buttonWizardUnlockedText'),
-			ClickRelockSeconds: DEFAULT_RELOCK_SECONDS,
-		}),
-	},
-	{
-		id: 'lockButtons',
-		labelKey: 'buttonWizardTypeLockButtons',
-		match: device => !!getWizardCapability(device, 'unlock') && !!getWizardCapability(device, 'lock'),
-		build: device => buildWizardLockButtonFields(device),
+		match: device => !!getWizardCapability(device, 'locked') || (!!getWizardCapability(device, 'unlock') && !!getWizardCapability(device, 'lock')),
+		build: device =>
+		{
+			if (getWizardCapability(device, 'unlock') && getWizardCapability(device, 'lock'))
+			{
+				return buildWizardLockButtonFields(device);
+			}
+
+			return {
+				...buildWizardToggleFields(getWizardCapability(device, 'locked')),
+				OnText: Homey.__('settings.buttonWizardLockedText'),
+				OffText: Homey.__('settings.buttonWizardUnlockedText'),
+				ClickRelockSeconds: DEFAULT_RELOCK_SECONDS,
+			};
+		},
 	},
 ];
 
@@ -6058,23 +6061,23 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 	if (mode !== 'led')
 	{
 		buttonFieldPopupBodyElement.innerHTML = `
-					<div class="button-field-popup-field button-popup-radio-row" id="popup${side}${page}DisplayRenderRow">
+					<div class="button-field-popup-field button-popup-radio-row" id="popup${side}${page}DisplayRenderRow" style="display:none;">
 						<label class="button-popup-radio-option"><input type="radio" name="popup${side}${page}DisplayBooleanRender" value="text"> ${Homey.__('settings.textLabel')}</label>
 						<label class="button-popup-radio-option"><input type="radio" name="popup${side}${page}DisplayBooleanRender" value="svg"> ${Homey.__('settings.svgLabel')}</label>
 					</div>
-					<div class="button-field-popup-field" id="popup${side}${page}DisplayOnTextRow">
+					<div class="button-field-popup-field" id="popup${side}${page}DisplayOnTextRow" style="display:none;">
 						<label class="button-field-popup-label" for="popup${side}${page}DisplayOnText"><span>${Homey.__('settings.displayOnText')}</span></label>
 						<input class="homey-form-input" id="popup${side}${page}DisplayOnText" type="text" maxlength="20">
 					</div>
-					<div class="button-field-popup-field" id="popup${side}${page}DisplayOffTextRow">
+					<div class="button-field-popup-field" id="popup${side}${page}DisplayOffTextRow" style="display:none;">
 						<label class="button-field-popup-label" for="popup${side}${page}DisplayOffText"><span>${Homey.__('settings.displayOffText')}</span></label>
 						<input class="homey-form-input" id="popup${side}${page}DisplayOffText" type="text" maxlength="20">
 					</div>
-					<div class="button-field-popup-field" id="popup${side}${page}DisplayOnSvgRow">
+					<div class="button-field-popup-field" id="popup${side}${page}DisplayOnSvgRow" style="display:none;">
 						<label class="button-field-popup-label" for="popup${side}${page}DisplayOnSVG"><span>${Homey.__('settings.displayOnSvg')}</span></label>
 						<textarea class="homey-form-textarea" id="popup${side}${page}DisplayOnSVG" style="min-height:120px;"></textarea>
 					</div>
-					<div class="button-field-popup-field" id="popup${side}${page}DisplayOffSvgRow">
+					<div class="button-field-popup-field" id="popup${side}${page}DisplayOffSvgRow" style="display:none;">
 						<label class="button-field-popup-label" for="popup${side}${page}DisplayOffSVG"><span>${Homey.__('settings.displayOffSvg')}</span></label>
 						<textarea class="homey-form-textarea" id="popup${side}${page}DisplayOffSVG" style="min-height:120px;"></textarea>
 					</div>
@@ -6209,6 +6212,7 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 		{
 			input.addEventListener('change', updateDisplayRenderVisibility);
 		});
+		updateDisplayRenderVisibility();
 
 		const defaultDevice = findAdvancedDefaultDeviceForSide(pageConfig, side);
 		for (const eventName of ['Click', 'Double', 'Long'])
@@ -6283,8 +6287,6 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 
 			capElement.addEventListener('change', updateStepVisibility);
 		}
-
-		updateDisplayRenderVisibility();
 	}
 	else
 	{
