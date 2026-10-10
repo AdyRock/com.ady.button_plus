@@ -12,6 +12,7 @@ const DOUBLE_CLICK_WINDOW_MS = 350;
 const DEFAULT_LONG_PRESS_DELAY_MS = 750;
 const DUPLICATE_CLICK_DEBOUNCE_MS = 120;
 const TARGET_BUTTON_PLUS_DEVICE_ID = '_this_button_plus_';
+const OPTIMISTIC_LOCK_FEEDBACK_MS = 20000;
 
 /**
  * PanelDevice - Physical button panel device connected via MQTT to Homey.
@@ -73,6 +74,7 @@ class PanelDevice extends Device
 		this.advancedPendingValues = new Map();
 		this.advancedCommitTimers = new Map();
 		this.advancedRelockTimers = new Map();
+		this.optimisticLockTimers = new Map();
 		this.advancedDirectionStates = new Map();
 		this.capabilityDispatchInFlight = new Set();
 		this.registeredCapabilityListeners = new Set();
@@ -940,6 +942,14 @@ class PanelDevice extends Device
 				this.homey.clearTimeout(timer);
 			}
 			this.advancedRelockTimers.clear();
+		}
+		if (this.optimisticLockTimers)
+		{
+			for (const timer of this.optimisticLockTimers.values())
+			{
+				this.homey.clearTimeout(timer);
+			}
+			this.optimisticLockTimers.clear();
 		}
 		if (this.advancedPendingValues)
 		{
@@ -3822,18 +3832,68 @@ class PanelDevice extends Device
 		return capabilityName === 'locked' || (typeof capabilityName === 'string' && capabilityName.startsWith('locked.'));
 	}
 
+	// Button-style lock capabilities (e.g. SwitchBot locks expose unlock/lock/deadbolt as separate buttons).
+	isLockButtonCapability(capabilityName)
+	{
+		return ['unlock', 'lock', 'deadbolt', 'nightlatchunlock'].includes(capabilityName);
+	}
+
+	/**
+	 * Show "Unlocking"/"Locking" on the panel as soon as a lock button command is sent, because cloud locks
+	 * can take several seconds to report their new state. The real state replaces it when it arrives.
+	 */
+	async applyOptimisticLockFeedback(parameters, deviceID, capabilityName, brokerId)
+	{
+		const isUnlocking = capabilityName === 'unlock' || capabilityName === 'nightlatchunlock';
+		const buttonIdx = parameters.connector * 2 + (parameters.side === 'left' ? 0 : 1) + 1;
+		const topicBase = `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}`;
+		const textValue = this.homey.__(isUnlocking ? 'settings.lockUnlockingText' : 'settings.lockLockingText');
+		this.homey.app.publishMQTTMessage(brokerId, `${topicBase}/svg/set`, '').catch(err => this.error(err));
+		this.homey.app.publishMQTTMessage(brokerId, `${topicBase}/label/set`, textValue).catch(err => this.error(err));
+
+		const ledBinding = this.resolveAdvancedLedBinding(parameters);
+		if (ledBinding && ledBinding.deviceID === deviceID && this.isLockCapability(ledBinding.capabilityName))
+		{
+			await this.applyAdvancedLedBinding(parameters, { deviceID, capabilityName: ledBinding.capabilityName, value: !isUnlocking });
+		}
+
+		// Homey emits no capability event when the lock reports the same status it had before
+		// (e.g. unlocked then auto-relocked before the cloud reported), so restore the real state ourselves.
+		const timerKey = this.getButtonStateKey(parameters.connector, parameters.side, parameters.page);
+		const existingTimer = this.optimisticLockTimers.get(timerKey);
+		if (existingTimer)
+		{
+			this.homey.clearTimeout(existingTimer);
+		}
+		const refreshParameters = { ...parameters };
+		const timer = this.homey.setTimeout(() =>
+		{
+			this.optimisticLockTimers.delete(timerKey);
+			if (this.deleted)
+			{
+				return;
+			}
+			this.applyAdvancedDisplayBinding(refreshParameters)
+				.then(() => this.applyAdvancedLedBinding(refreshParameters))
+				.catch(err => this.error(err));
+		}, OPTIMISTIC_LOCK_FEEDBACK_MS);
+		this.optimisticLockTimers.set(timerKey, timer);
+	}
+
 	/**
 	 * After a lock is unlocked from a button, lock it again once relockSeconds elapse (0 disables).
-	 * Any new write to the same lock cancels the pending relock.
+	 * Supports a writable `locked` boolean, or `unlock`/`nightlatchunlock` buttons paired with a `lock` button.
+	 * Any new lock-related write to the same device cancels the pending relock.
 	 */
 	scheduleAdvancedRelock(deviceID, capabilityName, writtenValue, relockSeconds)
 	{
-		if (!this.isLockCapability(capabilityName) || !deviceID)
+		const isLockedBoolean = this.isLockCapability(capabilityName);
+		if (!deviceID || (!isLockedBoolean && !this.isLockButtonCapability(capabilityName)))
 		{
 			return;
 		}
 
-		const key = `${deviceID}::${capabilityName}`;
+		const key = `${deviceID}::relock`;
 		const existingTimer = this.advancedRelockTimers.get(key);
 		if (existingTimer)
 		{
@@ -3841,7 +3901,9 @@ class PanelDevice extends Device
 			this.advancedRelockTimers.delete(key);
 		}
 
-		if (writtenValue !== false || !(relockSeconds > 0))
+		const isUnlockButton = (capabilityName === 'unlock' || capabilityName === 'nightlatchunlock') && writtenValue === true;
+		const isUnlockedBoolean = isLockedBoolean && writtenValue === false;
+		if ((!isUnlockButton && !isUnlockedBoolean) || !(relockSeconds > 0))
 		{
 			return;
 		}
@@ -3862,10 +3924,21 @@ class PanelDevice extends Device
 					return;
 				}
 
-				const capability = await this.homey.app.getHomeyCapabilityByName(device, capabilityName);
-				if (capability && capability.value === false)
+				if (isUnlockedBoolean)
 				{
-					await this.guardedSetCapabilityValueOnDevice(device, capabilityName, true, 'advanced:relock');
+					const capability = await this.homey.app.getHomeyCapabilityByName(device, capabilityName);
+					if (capability && capability.value === false)
+					{
+						await this.guardedSetCapabilityValueOnDevice(device, capabilityName, true, 'advanced:relock');
+					}
+					return;
+				}
+
+				// Don't gate on `locked`: cloud locks can still report the pre-unlock state when the timer fires.
+				const lockButton = await this.homey.app.getHomeyCapabilityByName(device, 'lock');
+				if (lockButton && lockButton.setable !== false)
+				{
+					await this.guardedSetCapabilityValueOnDevice(device, 'lock', true, 'advanced:relock');
 				}
 			}
 			catch (err)
@@ -3933,9 +4006,16 @@ class PanelDevice extends Device
 		}
 
 		const key = this.getButtonStateKey(parameters.connector, parameters.side, parameters.page);
+		const pending = this.pendingAdvancedLongReleaseCommits.get(key);
 		await this.flushAdvancedLongReleaseCommitByKey(key, 'advanced:long:releaseCommit');
 		await this.applyAdvancedDisplayBinding(parameters);
 		await this.applyAdvancedLedBinding(parameters);
+		if (pending && this.isLockButtonCapability(pending.capabilityName))
+		{
+			const sideConfig = this.resolveAdvancedSideConfig(parameters);
+			const brokerId = (sideConfig && (sideConfig[`${parameters.side}BrokerId`] || sideConfig[`${parameters.side}brokerid`])) || 'Default';
+			await this.applyOptimisticLockFeedback(parameters, pending.deviceID, pending.capabilityName, brokerId);
+		}
 	}
 
 	async flushAdvancedLongReleaseCommitFamily(connector, side, excludeKey)
@@ -4578,7 +4658,8 @@ class PanelDevice extends Device
 		const capability = device ? await this.homey.app.getHomeyCapabilityByName(device, binding.capabilityName) : null;
 		if (capability && (capability.type === 'boolean'))
 		{
-			return !!capability.value;
+			const value = override && override.capabilityName === binding.capabilityName ? override.value : capability.value;
+			return !!value;
 		}
 
 		if (capability && (capability.type === 'number'))
@@ -4726,8 +4807,14 @@ class PanelDevice extends Device
 		{
 			const queuedValue = shouldBufferUntilRelease ? this.getQueuedAdvancedLongReleaseValue(parameters, binding) : undefined;
 			const currentBoolean = queuedValue === undefined ? Boolean(capability.value) : Boolean(queuedValue);
-			valueToWrite = !currentBoolean;
-			const previewApplied = await this.applyAdvancedDisplayPreviewValue(parameters, binding, capability, valueToWrite);
+			// Non-getable booleans are momentary buttons, so always press rather than toggle.
+			valueToWrite = capability.getable === false ? true : !currentBoolean;
+			const isLockButton = this.isLockButtonCapability(binding.capabilityName);
+			if (isLockButton)
+			{
+				hasLocalPreview = true;
+			}
+			const previewApplied = isLockButton ? true : await this.applyAdvancedDisplayPreviewValue(parameters, binding, capability, valueToWrite);
 			let localPreviewApplied = previewApplied;
 			if (shouldBufferUntilRelease && !previewApplied)
 			{
@@ -4878,6 +4965,10 @@ class PanelDevice extends Device
 			capabilityName: binding.capabilityName,
 			value: valueToWrite,
 		});
+		if (this.isLockButtonCapability(binding.capabilityName))
+		{
+			await this.applyOptimisticLockFeedback(parameters, binding.deviceID, binding.capabilityName, binding.brokerId);
+		}
 		this.homey.app.updateLog(`ADVDBG map ${eventType}: done localPreview=${hasLocalPreview}, buffered=${shouldBufferUntilRelease}`, 1);
 		if ((eventType === 'click') && this.advancedLastClickProcessedAt)
 		{

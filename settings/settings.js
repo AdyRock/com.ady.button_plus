@@ -4535,7 +4535,40 @@ const BUTTON_WIZARD_TYPES = [
 			ClickRelockSeconds: DEFAULT_RELOCK_SECONDS,
 		}),
 	},
+	{
+		id: 'lockButtons',
+		labelKey: 'buttonWizardTypeLockButtons',
+		match: device => !!getWizardCapability(device, 'unlock') && !!getWizardCapability(device, 'lock'),
+		build: device => buildWizardLockButtonFields(device),
+	},
 ];
+
+function buildWizardLockButtonFields(device)
+{
+	const status = getWizardCapability(device, 'locked_status', false) || getWizardCapability(device, 'locked', false);
+	const locked = getWizardCapability(device, 'locked', false);
+	const deadbolt = getWizardCapability(device, 'deadbolt');
+	return {
+		Capability: status ? status.id : '',
+		CapabilityName: getWizardCapabilityName(status),
+		OnText: Homey.__('settings.buttonWizardLockedText'),
+		OffText: Homey.__('settings.buttonWizardUnlockedText'),
+		LedCapability: locked ? locked.id : '',
+		LedOnOffCapability: 'none',
+		ClickCapability: 'unlock',
+		ClickNumericAction: 'none',
+		ClickValueStep: '+10',
+		ClickRelockSeconds: DEFAULT_RELOCK_SECONDS,
+		DoubleCapability: deadbolt ? deadbolt.id : 'lock',
+		DoubleNumericAction: 'none',
+		DoubleValueStep: '+10',
+		LongDevice: deadbolt ? device.id : 'none',
+		LongCapability: deadbolt ? 'lock' : '',
+		LongNumericAction: 'none',
+		LongValueStep: '+10',
+		DisableLongRepeat: true,
+	};
+}
 
 function buildWizardToggleFields(capability)
 {
@@ -5836,7 +5869,9 @@ function fillPopupCapabilitySelector(selectElement, deviceId, selectedCapability
 					}
 					else if (filterMode === 'led')
 					{
-						if (type !== 'boolean' && type !== 'number')
+						// Write-only (button) capabilities have no state for the LED to follow.
+						const isGetable = !(capability && typeof capability === 'object' && capability.getable === false);
+						if ((type !== 'boolean' && type !== 'number') || !isGetable)
 						{
 							continue;
 						}
@@ -5973,9 +6008,10 @@ async function resolvePopupCapabilityType(deviceId, capabilityId)
 
 const DEFAULT_RELOCK_SECONDS = 5;
 
-function isLockCapabilityId(capabilityId)
+function isRelockCapabilityId(capabilityId)
 {
-	return capabilityId === 'locked' || (typeof capabilityId === 'string' && capabilityId.startsWith('locked.'));
+	return capabilityId === 'locked' || capabilityId === 'unlock' || capabilityId === 'nightlatchunlock'
+		|| (typeof capabilityId === 'string' && capabilityId.startsWith('locked.'));
 }
 
 function buildRelockRowHtml(side, page, eventName)
@@ -6193,7 +6229,7 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 				stepRowElement.style.display = showStep ? '' : 'none';
 				if (relockRowElement)
 				{
-					relockRowElement.style.display = (!capElement.disabled && isLockCapabilityId(selectedValue)) ? '' : 'none';
+					relockRowElement.style.display = (!capElement.disabled && isRelockCapabilityId(selectedValue)) ? '' : 'none';
 				}
 			};
 			const updateFlowTriggerState = function()
@@ -6249,6 +6285,14 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 		{
 			const ledColorMatrixElement = document.getElementById(`popup${side}${page}LedColorMatrix`);
 			const ledOnOffRowElement = document.getElementById(`popup${side}${page}LedOnOffRow`);
+			// An extra on/off gate only matters for numeric sources and when the device has an onoff capability.
+			const isLedOnOffRowRelevant = function()
+			{
+				const onOffElement = document.getElementById(`popup${side}${page}LedOnOffCapability`);
+				const selectedOption = ledCapabilityElement.selectedOptions ? ledCapabilityElement.selectedOptions[0] : null;
+				const isBooleanSource = !selectedOption || (selectedOption.dataset.type || '') === 'boolean';
+				return !!onOffElement && onOffElement.options.length > 1 && !isBooleanSource;
+			};
 			const updateLedColorMatrixVisibility = function()
 			{
 				if (!ledColorMatrixElement)
@@ -6260,7 +6304,7 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 				const usesDeviceColor = capability === 'light_hue' || capability === 'light_saturation';
 				if (ledOnOffRowElement)
 				{
-					ledOnOffRowElement.style.display = capability === 'onoff' ? 'none' : '';
+					ledOnOffRowElement.style.display = isLedOnOffRowRelevant() ? '' : 'none';
 				}
 				ledColorMatrixElement.style.display = usesDeviceColor ? 'none' : '';
 			};
@@ -6368,7 +6412,9 @@ function saveAdvancedButtonPopup()
 			pageConfig[`${side}LedDevice`] = ledDeviceElement.value || 'none';
 			pageConfig[`${side}LedCapability`] = ledCapabilityElement.value || '';
 			const ledOnOffCapabilityElement = document.getElementById(`popup${side}${page}LedOnOffCapability`);
-			pageConfig[`${side}LedOnOffCapability`] = (ledCapabilityElement.value === 'onoff')
+			const ledOnOffRowElement = document.getElementById(`popup${side}${page}LedOnOffRow`);
+			const ledOnOffHidden = ledOnOffRowElement && ledOnOffRowElement.style.display === 'none';
+			pageConfig[`${side}LedOnOffCapability`] = (ledCapabilityElement.value === 'onoff' || ledOnOffHidden)
 				? 'none'
 				: (ledOnOffCapabilityElement ? (ledOnOffCapabilityElement.value || 'none') : 'none');
 		}
