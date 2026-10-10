@@ -6023,11 +6023,7 @@ class PanelDevice extends Device
 						// initialise buttonValues from the device's current state, even when the
 						// MQTT configuration has not changed and does not need to be republished.
 						const pageMqttMessages = await this.setupConnectorMQTTmessages(buttonPanelConfiguration, page, i);
-						const shouldPublishPage = force || this.shouldPublishConnectorPageMQTT(deviceConfigurations, sectionConfiguration, i, page);
-						if (shouldPublishPage)
-						{
-							mqttQue = mqttQue.concat(pageMqttMessages);
-						}
+						mqttQue = mqttQue.concat(pageMqttMessages);
 					}
 				}
 				catch (error)
@@ -7157,6 +7153,7 @@ class PanelDevice extends Device
 
 		// Setup which of our buttons (left or right) this message is for
 		const brokerId = config[`${side}BrokerId`] || config[`${side}brokerid`] || 'Default';
+		const useSvg = config[`${side}Mode`] === 'advanced' || config[`${side}BasicBooleanRender`] !== 'text';
 		return {
 			deviceID: config[`${side}Device`],
 			capabilityName: config[`${side}Capability`],
@@ -7170,8 +7167,8 @@ class PanelDevice extends Device
 			frontLEDOffColor: config[`${side}FrontLEDOffColor`],
 			wallLEDOffColor: config[`${side}WallLEDOffColor`],
 			page: config['PageNum'] === 'Default' ? 0 : config['PageNum'],
-			onSVG: normalizeSvgText(config[`${side}OnSVG`] || ''),
-			offSVG: normalizeSvgText(config[`${side}OffSVG`] || ''),
+			onSVG: useSvg ? normalizeSvgText(config[`${side}OnSVG`] || '') : '',
+			offSVG: useSvg ? normalizeSvgText(config[`${side}OffSVG`] || '') : '',
 			raw: config,
 		};
 	}

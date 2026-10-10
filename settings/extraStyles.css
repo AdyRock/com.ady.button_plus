@@ -884,6 +884,58 @@ summary::-webkit-details-marker {
 	cursor: pointer;
 }
 
+.button-sim-clear {
+	position: absolute;
+	top: 4px;
+	z-index: 14;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 26px;
+	height: 26px;
+	min-width: 26px !important;
+	min-height: 26px !important;
+	padding: 0 !important;
+	border: 0;
+	border-radius: 4px;
+	background: transparent;
+	color: #cbe3ff;
+	font-size: 14px;
+	line-height: 1;
+	cursor: pointer;
+	transform: translateX(-50%);
+}
+
+.button-sim-clear-left {
+	left: 25%;
+}
+
+.button-sim-clear-right {
+	left: 75%;
+}
+
+.button-sim-clear:hover {
+	color: #ff8a8a;
+	background: #292020;
+}
+
+.button-sim-clear:focus-visible {
+	outline: 2px solid #7ab7ff;
+	outline-offset: 1px;
+}
+
+@media (max-width: 440px) {
+	.button-inline-sim-grid .button-sim-advanced-badge {
+		width: 54px;
+		padding: 0 2px !important;
+		box-sizing: border-box;
+	}
+
+	.button-inline-sim-grid .button-sim-advanced-badge-label {
+		font-size: 7px;
+	}
+}
+
 .button-sim-mode-toggle {
 	position: absolute;
 	top: 8px;

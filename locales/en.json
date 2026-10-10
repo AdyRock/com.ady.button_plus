@@ -218,6 +218,7 @@
 		"dimValueExplanation": "Specifies how much the dim button changes the brightness level on each repeat of the long press",
 		"deletePageConfirm": "Delete page __pageLabel__?",
 		"deletePage": "Delete page",
+        "clearButtonSettings": "Clear button settings",
 		"unableToAddPage": "Unable to add a new page.",
 		"unableToAddPageError": "Unable to add page: __error__",
 		"selectDeviceFromListError": "Please select a device from the list",

@@ -140,6 +140,7 @@ const DISPLAY_FONT_SIZE_LOOKUP = { 1: 22, 2: 35, 3: 55, 4: 85, 5: 120 };
 const DISPLAY_BOLD_FONT_SIZES = new Set();
 const DISPLAY_SIM_LIVE_REFRESH_MS = 12000;
 const displayPagePopupLiveValueCache = new Map();
+const buttonCapabilityPreviewCache = new Map();
 const displayPagePopupVariableValueCache = new Map();
 let displayPagePopupLiveRefreshTimer = null;
 let displayInlineLiveRefreshTimer = null;
@@ -4356,6 +4357,71 @@ function toggleDisplayedButtonMode(event, configNo, side, page)
 	return false;
 }
 
+function clearDisplayedButton(event, configNo, side, page)
+{
+	if (event)
+	{
+		event.preventDefault();
+		event.stopPropagation();
+	}
+
+	const config = localButtonConfigurations[Number(configNo)];
+	if (!Array.isArray(config) || !config[page] || (side !== 'left' && side !== 'right'))
+	{
+		return false;
+	}
+
+	if (!activateDisplayedButtonConfiguration(configNo))
+	{
+		return false;
+	}
+	if (typeof configDraftStoreButtonSettingsFn === 'function')
+	{
+		configDraftStoreButtonSettingsFn(config);
+	}
+
+	const pageConfig = config[page];
+	Object.keys(pageConfig).filter(key => key.startsWith(side)).forEach(key =>
+	{
+		delete pageConfig[key];
+	});
+	const defaults = {
+		TopText: '',
+		OnText: '',
+		OffText: '',
+		OnSVG: '',
+		OffSVG: '',
+		Device: 'none',
+		DeviceName: '',
+		Capability: '',
+		CapabilityName: '',
+		BrokerId: 'Default',
+		DimChange: '+10',
+		DisableLongRepeat: false,
+		LongDelayMs: 750,
+		LongRepeatMs: 500,
+		FrontLEDOnColor: '#000000',
+		WallLEDOnColor: '#000000',
+		FrontLEDOffColor: '#000000',
+		WallLEDOffColor: '#000000',
+	};
+	Object.entries(defaults).forEach(([field, value]) =>
+	{
+		pageConfig[`${side}${field}`] = value;
+	});
+	ensureButtonSideAdvancedDefaults(pageConfig, side);
+
+	writeButtonsections(getDisplayedButtonPageCount());
+	updateButtonPanelControls();
+	if (buttonPagePopupOverlayElement && buttonPagePopupOverlayElement.classList.contains('visible'))
+	{
+		renderButtonPagePopup();
+	}
+	configDraftDirtySinceLoad = true;
+	flushConfigurationDraftPersist();
+	return false;
+}
+
 function findAdvancedDefaultDeviceForSide(pageConfig, side)
 {
 	const candidateKeys = [`${side}ClickDevice`, `${side}DoubleDevice`, `${side}LongDevice`, `${side}LedDevice`, `${side}DisplayDevice`];
@@ -4497,6 +4563,7 @@ function stepButtonMainPage(delta)
 	ensureButtonMainContextVisible();
 	buttonMainCurrentPage = Number(buttonMainCurrentPage) + (Number.isNaN(step) ? 0 : step);
 	renderButtonMainPage();
+	refreshDisplayPopupLiveValues();
 	ensureButtonMainContextVisible();
 	updateButtonMainDiagnostics('stepButtonMainPage:after', { delta, step });
 }
@@ -4734,6 +4801,15 @@ function getButtonPageHeaderTitleMarkup(currentPage, totalPages)
 	return `${safeButtonPageLabel}: ${safeCurrentPageLabel} / <span class="display-sim-total-pages">${nonDefaultPageCount}</span><span class="tooltip display-sim-total-pages-tooltip"><i class="fi fi-rr-info" aria-hidden="true"></i><span class="tooltiptext">${sharedPageHeaderHint}</span></span>`;
 }
 
+function normalizeSimulatorCapabilityValue(capabilityId, value)
+{
+	if ((capabilityId === 'dim' || capabilityId === 'windowcoverings_set') && typeof value === 'number')
+	{
+		return Math.round(value <= 1 ? value * 100 : value);
+	}
+	return value;
+}
+
 function getButtonPanelDimPreviewText(pageConfig, side, pageIndex, configIndex = currentButtonConfigurationNo)
 {
 	const deviceValue = getLiveButtonPanelFieldValue(pageConfig, side, 'Device', '', pageIndex, configIndex);
@@ -4753,10 +4829,11 @@ function getButtonPanelDimPreviewText(pageConfig, side, pageIndex, configIndex =
 		}
 	}
 
-	if (Number.isNaN(percent) && Number(configIndex) === Number(currentButtonConfigurationNo))
+	if (Number.isNaN(percent))
 	{
-		const capabilityElement = document.getElementById(`${side}${pageIndex}Capability`);
-		const selectedOption = capabilityElement && capabilityElement.selectedOptions ? capabilityElement.selectedOptions[0] : null;
+		const capabilityElement = Number(configIndex) === Number(currentButtonConfigurationNo) ? document.getElementById(`${side}${pageIndex}Capability`) : null;
+		const selectedOption = (capabilityElement && capabilityElement.selectedOptions ? capabilityElement.selectedOptions[0] : null)
+			|| buttonCapabilityPreviewCache.get(`${deviceValue}_${capabilityValue}`);
 		const rawValue = selectedOption ? parseFloat(selectedOption.dataset.value) : NaN;
 		if (!Number.isNaN(rawValue))
 		{
@@ -4808,8 +4885,8 @@ function getButtonPanelCapabilityPreviewText(side, pageIndex, deviceValue, capab
 		const cacheEntry = displayPagePopupLiveValueCache.get(`${deviceValue}_${capabilityValue}`);
 		if (cacheEntry && cacheEntry.value !== undefined && cacheEntry.value !== null)
 		{
-			const valueText = sanitizeDisplayString(formatDisplayPopupValue(cacheEntry.value, 1), '');
-			const unitText = sanitizeDisplayString(cacheEntry.unit || '', '');
+			const valueText = sanitizeDisplayString(formatDisplayPopupValue(normalizeSimulatorCapabilityValue(capabilityValue, cacheEntry.value), capabilityValue === 'windowcoverings_set' ? 0 : 1), '');
+			const unitText = capabilityValue === 'windowcoverings_set' ? '%' : sanitizeDisplayString(cacheEntry.unit || '', '');
 			const withUnit = unitText ? `${valueText}${valueText ? ' ' : ''}${unitText}` : valueText;
 			if (withUnit)
 			{
@@ -4819,7 +4896,8 @@ function getButtonPanelCapabilityPreviewText(side, pageIndex, deviceValue, capab
 	}
 
 	const capabilityElement = Number(configIndex) === Number(currentButtonConfigurationNo) ? document.getElementById(`${side}${pageIndex}Capability`) : null;
-	const selectedOption = capabilityElement && capabilityElement.selectedOptions ? capabilityElement.selectedOptions[0] : null;
+	const selectedOption = (capabilityElement && capabilityElement.selectedOptions ? capabilityElement.selectedOptions[0] : null)
+		|| buttonCapabilityPreviewCache.get(`${deviceValue}_${capabilityValue}`);
 	const deviceEntry = buttonDevicesArray.find(device => device.id === deviceValue);
 	const isMissingDevice = buttonDevicesFetched && (!deviceEntry || (deviceEntry.zone && deviceEntry.zone.name === 'Missing Devices'));
 	const isMissingCapability = !!selectedOption && / \(Missing\)$/.test(selectedOption.text || '');
@@ -4837,6 +4915,10 @@ function getButtonPanelCapabilityPreviewText(side, pageIndex, deviceValue, capab
 			return match ? match.title : String(simulated.value);
 		}
 
+		if (capabilityValue === 'windowcoverings_set')
+		{
+			return `${normalizeSimulatorCapabilityValue(capabilityValue, simulated.value)} %`;
+		}
 		return simulated.units ? `${simulated.value} ${simulated.units}` : String(simulated.value);
 	}
 
@@ -4861,8 +4943,11 @@ function getButtonPanelCapabilityPreviewText(side, pageIndex, deviceValue, capab
 
 	if (selectedOption.dataset.type === 'number')
 	{
-		const valueText = sanitizeDisplayString(selectedOption.dataset.value || '', '');
-		const unitText = sanitizeDisplayString(selectedOption.dataset.unit || '', '');
+		const rawValue = selectedOption.dataset.value;
+		const valueText = capabilityValue === 'windowcoverings_set' && rawValue !== '' && Number.isFinite(Number(rawValue))
+			? String(normalizeSimulatorCapabilityValue(capabilityValue, Number(rawValue)))
+			: sanitizeDisplayString(rawValue || '', '');
+		const unitText = capabilityValue === 'windowcoverings_set' ? '%' : sanitizeDisplayString(selectedOption.dataset.unit || '', '');
 		const withUnit = unitText ? `${valueText}${valueText ? ' ' : ''}${unitText}` : valueText;
 		return withUnit ? `${withUnit} +/-` : '+/-';
 	}
@@ -4878,23 +4963,8 @@ function getButtonPanelPreviewMarkup(pageConfig, side, pageIndex = buttonPagePop
 	const deviceValue = getLiveButtonPanelFieldValue(pageConfig, side, 'Device', '', pageIndex, configIndex);
 	const capabilityValue = getLiveButtonPanelFieldValue(pageConfig, side, 'Capability', '', pageIndex, configIndex);
 
-	let resolvedTopText = topTextRaw;
-	if (!resolvedTopText && deviceValue && deviceValue !== 'none' && deviceValue !== 'customMQTT')
-	{
-		if (deviceValue === '_variable_')
-		{
-			const varObj = variablesArray.find(v => v.id === capabilityValue);
-			if (varObj && varObj.name) resolvedTopText = varObj.name;
-		}
-		else
-		{
-			const devObj = buttonDevicesArray.find(d => d.id === deviceValue);
-			if (devObj && devObj.name) resolvedTopText = devObj.name;
-		}
-	}
-
-	const hasTopText = !!resolvedTopText;
-	const topText = hasTopText ? escapeHtml(resolvedTopText) : (isReadonly ? '' : `<span class="button-sim-placeholder">${Homey.__('settings.clickToAddTitle')}</span>`);
+	const hasTopText = !!topTextRaw;
+	const topText = hasTopText ? escapeHtml(topTextRaw) : (isReadonly ? '' : `<span class="button-sim-placeholder">${Homey.__('settings.clickToAddTitle')}</span>`);
 	const isDimCapability = (capabilityValue === 'dim');
 	const variablePreviewText = getButtonPanelVariablePreviewText(deviceValue, capabilityValue);
 	const capabilityPreviewText = (variablePreviewText === null) ? getButtonPanelCapabilityPreviewText(side, pageIndex, deviceValue, capabilityValue, configIndex) : null;
@@ -4914,14 +4984,14 @@ function getButtonPanelPreviewMarkup(pageConfig, side, pageIndex = buttonPagePop
 	}
 	else
 	{
-		const defaultStateText = (buttonPagePopupLedState === 'on') ? 'On' : 'Off';
-		stateTextRaw = (buttonPagePopupLedState === 'on') ? (onTextRaw || defaultStateText) : (offTextRaw || defaultStateText);
+		stateTextRaw = (buttonPagePopupLedState === 'on') ? onTextRaw : offTextRaw;
 	}
 	const hasStateText = !!sanitizeDisplayString(stateTextRaw, '');
 	const stateText = hasStateText ? escapeHtml(stateTextRaw) : (isReadonly ? '' : `<span class="button-sim-placeholder">${Homey.__('settings.clickToAddValue')}</span>`);
 	const textFieldSuffix = isDimCapability ? 'DimChange' : (isNonBooleanVariable ? 'Capability' : ((buttonPagePopupLedState === 'on') ? 'OnText' : 'OffText'));
 	const svgFieldSuffix = (buttonPagePopupLedState === 'on') ? 'OnSVG' : 'OffSVG';
-	const customSvgText = getLiveButtonPanelFieldValue(pageConfig, side, svgFieldSuffix, '', pageIndex, configIndex);
+	const useCustomSvg = !isDimCapability && !isNonBooleanVariable && pageConfig[`${side}BasicBooleanRender`] === 'svg';
+	const customSvgText = useCustomSvg ? getLiveButtonPanelFieldValue(pageConfig, side, svgFieldSuffix, '', pageIndex, configIndex) : '';
 	const selectedSvgText = (customSvgText && isSvgTextContent(customSvgText))
 		? customSvgText
 		: (isVariableSvg ? nonBooleanPreviewText : customSvgText);
@@ -4993,7 +5063,9 @@ function renderInlineButtonPagePreview(page)
 		const pageConfig = config[page];
 		const leftAdvanced = isButtonSideAdvanced(pageConfig, 'left');
 		const rightAdvanced = isButtonSideAdvanced(pageConfig, 'right');
-		previewElement.innerHTML =			`<button class="button-sim-mode-toggle button-sim-mode-toggle-left${leftAdvanced ? ' advanced' : ''}" type="button" onclick="return toggleDisplayedButtonMode(event, ${configIndex}, 'left', ${page});" aria-pressed="${leftAdvanced ? 'true' : 'false'}" title="${Homey.__('settings.leftAdvancedLabel')}">${leftAdvanced ? 'ADV' : 'STD'}</button>
+		previewElement.innerHTML =			`<button class="button-sim-clear button-sim-clear-left" type="button" onclick="return clearDisplayedButton(event, ${configIndex}, 'left', ${page});" title="${Homey.__('settings.clearButtonSettings')}" aria-label="${Homey.__('settings.clearButtonSettings')} (${Homey.__('settings.leftPanel')})"><i class="fi fi-rr-trash" aria-hidden="true"></i></button>
+					<button class="button-sim-clear button-sim-clear-right" type="button" onclick="return clearDisplayedButton(event, ${configIndex}, 'right', ${page});" title="${Homey.__('settings.clearButtonSettings')}" aria-label="${Homey.__('settings.clearButtonSettings')} (${Homey.__('settings.rightPanel')})"><i class="fi fi-rr-trash" aria-hidden="true"></i></button>
+					<button class="button-sim-mode-toggle button-sim-mode-toggle-left${leftAdvanced ? ' advanced' : ''}" type="button" onclick="return toggleDisplayedButtonMode(event, ${configIndex}, 'left', ${page});" aria-pressed="${leftAdvanced ? 'true' : 'false'}" title="${Homey.__('settings.leftAdvancedLabel')}">${leftAdvanced ? 'ADV' : 'STD'}</button>
 					<button class="button-sim-mode-toggle button-sim-mode-toggle-right${rightAdvanced ? ' advanced' : ''}" type="button" onclick="return toggleDisplayedButtonMode(event, ${configIndex}, 'right', ${page});" aria-pressed="${rightAdvanced ? 'true' : 'false'}" title="${Homey.__('settings.rightAdvancedLabel')}">${rightAdvanced ? 'ADV' : 'STD'}</button>
 					<button class="button-sim-item" onclick="activateDisplayedButtonConfiguration(${configIndex}); return handleButtonSimShellClick(event, 'left', ${page});" title="${Homey.__('settings.openLeftPanelSettings')}">
 						${getButtonPanelPreviewMarkup(pageConfig, 'left', page, configIndex)}
@@ -6080,7 +6152,8 @@ function syncButtonFieldPopupCapabilityOptions(side, page, popupCapabilityElemen
 	}
 
 	popupCapabilityElement.innerHTML = sourceCapabilityElement.innerHTML;
-	const wantedValue = selectedCapability || sourceCapabilityElement.value;
+	const pageConfig = localButtonConfigurations[currentButtonConfigurationNo]?.[page];
+	const wantedValue = selectedCapability || sourceCapabilityElement.value || pageConfig?.[`${side}Capability`];
 	if (wantedValue)
 	{
 		popupCapabilityElement.value = wantedValue;
@@ -7913,6 +7986,30 @@ function refreshDisplayPopupLiveValues()
 			}
 		}
 	}
+	else if (activeView === 'panelConfig')
+	{
+		getDisplayedButtonConfigurationNos().forEach(configNo =>
+		{
+			const pageConfig = localButtonConfigurations[configNo]?.[buttonMainCurrentPage];
+			if (!pageConfig)
+			{
+				return;
+			}
+			['left', 'right'].forEach(side =>
+			{
+				const deviceId = pageConfig[`${side}Device`];
+				const capabilityId = pageConfig[`${side}Capability`];
+				if (deviceId === '_variable_' && capabilityId)
+				{
+					variableIds.add(capabilityId);
+				}
+				else if (deviceId && capabilityId && deviceId !== 'none' && deviceId !== 'customMQTT')
+				{
+					deviceCapPairs.add(`${deviceId}::${capabilityId}`);
+				}
+			});
+		});
+	}
 	else if (activeView === 'groupConfig')
 	{
 		const group = localGroupConfigurations[currentGroupIndex];
@@ -7988,7 +8085,7 @@ function refreshDisplayPopupLiveValues()
 						displayPagePopupLiveValueCache.set(`${deviceId}_${capabilityId}`,
 							{
 								value: result.value,
-								unit: sanitizeDisplayString(result.unit, ''),
+								unit: typeof result.unit === 'object' && result.unit ? String(result.unit.en || Object.values(result.unit)[0] || '') : sanitizeDisplayString(result.unit, ''),
 								fetchedAt: Date.now(),
 							});
 					}
@@ -8032,7 +8129,11 @@ function refreshDisplayPopupLiveValues()
 
 	if (requests.length === 0)
 	{
-		if (activeView === 'groupConfig')
+		if (activeView === 'panelConfig')
+		{
+			renderInlineButtonPagePreviews();
+		}
+		else if (activeView === 'groupConfig')
 		{
 			renderGroupSimulator();
 		}
@@ -8054,7 +8155,11 @@ function refreshDisplayPopupLiveValues()
 			return;
 		}
 
-		if (activeView === 'groupConfig')
+		if (activeView === 'panelConfig')
+		{
+			renderInlineButtonPagePreviews();
+		}
+		else if (activeView === 'groupConfig')
 		{
 			renderGroupSimulator();
 		}
@@ -8319,7 +8424,7 @@ function renderDisplaySimulatorSurface(surfaceElement, titleElement, prevElement
 			const cacheEntry = displayPagePopupLiveValueCache.get(runtime.valueKey);
 			if (cacheEntry)
 			{
-				displayValueRaw = (cacheEntry.value !== undefined && cacheEntry.value !== null) ? cacheEntry.value : '';
+				displayValueRaw = (cacheEntry.value !== undefined && cacheEntry.value !== null) ? normalizeSimulatorCapabilityValue(runtime.capabilityId, cacheEntry.value) : '';
 				if (!liveUnit)
 				{
 					liveUnit = cacheEntry.unit || '';
@@ -9355,6 +9460,7 @@ function getCapabilities(side, page, deviceId, selectedCapability, selectedCapab
 						// Let the button simulator preview a text/number capability's current content
 						option.dataset.value = (capability.value === undefined || capability.value === null) ? '' : String(capability.value);
 					}
+					buttonCapabilityPreviewCache.set(`${deviceId}_${capabilityId}`, { text: option.text, dataset: { ...option.dataset } });
 					capabilityElement.add(option);
 					addedCapabilityIds.add(capabilityId);
 				}
@@ -9384,6 +9490,20 @@ function getCapabilities(side, page, deviceId, selectedCapability, selectedCapab
 function capabilityChanged(side, page, value)
 {
 	const deviceElement = document.getElementById(`${side}${page}Device`);
+	if (buttonFieldPopupContext && buttonFieldPopupContext.side === side && buttonFieldPopupContext.page === page)
+	{
+		const popupElements = buttonFieldPopupContext.popupElementsBySuffix;
+		if (popupElements && popupElements.Device && popupElements.Capability && popupElements.Device.value === deviceElement?.value)
+		{
+			syncButtonFieldPopupCapabilityOptions(side, page, popupElements.Capability, popupElements.Capability.value);
+			updateButtonFieldPopupCapabilityState(popupElements);
+			const indicator = buttonFieldPopupBodyElement.querySelector('.button-field-popup-capability-icon');
+			if (indicator)
+			{
+				updatePopupCapabilityIndicator(popupElements.Capability, indicator);
+			}
+		}
+	}
 	const isVariableDevice = !!deviceElement && (deviceElement.value === '_variable_');
 	const selectedVariable = isVariableDevice ? variablesArray.find(variable => variable.id === value) : null;
 	const isNonBooleanVariable = !!selectedVariable && (selectedVariable.type !== 'boolean');
@@ -9461,6 +9581,10 @@ function updateButtonPanelControls()
 	}
 
 	updateButtonMainDiagnostics('updateButtonPanelControls');
+	if (configTypeElement && configTypeElement.value === 'panelConfig')
+	{
+		refreshDisplayPopupLiveValues();
+	}
 }
 
 // Update the controls for the specified side and page
@@ -10035,7 +10159,7 @@ function getGroupDisplayPreviewHtml(displayConfigNo, pageIndex = groupSimCurrent
 			const cacheEntry = displayPagePopupLiveValueCache.get(runtime.valueKey);
 			if (cacheEntry)
 			{
-				displayValueRaw = (cacheEntry.value !== undefined && cacheEntry.value !== null) ? cacheEntry.value : '';
+				displayValueRaw = (cacheEntry.value !== undefined && cacheEntry.value !== null) ? normalizeSimulatorCapabilityValue(runtime.capabilityId, cacheEntry.value) : '';
 				if (!liveUnit)
 				{
 					liveUnit = cacheEntry.unit || '';
@@ -10359,6 +10483,24 @@ function renderGroupSimulator()
 				</div>
 			</div>
 		`;
+		if (pageConfig)
+		{
+			for (const side of ['left', 'right'])
+			{
+				const contentElement = barCard.querySelector(`.button-sim-shell-${side} .button-sim-content`);
+				if (contentElement)
+				{
+					contentElement.addEventListener('click', event =>
+					{
+						event.preventDefault();
+						event.stopPropagation();
+						const fieldSuffix = event.target.closest('.button-sim-top') ? 'TopText' : 'Capability';
+						editGroupButtonConfiguration(btnConfigIdx);
+						focusButtonControlFromPopup(side, pageIdx, fieldSuffix);
+					});
+				}
+			}
+		}
 		groupSimulatorSurfaceElement.appendChild(barCard);
 	});
 
@@ -10410,7 +10552,7 @@ function configTypeChanged(configSelected)
 		});
 	}
 
-	if (configSelected !== 'displayConfig' && configSelected !== 'groupConfig')
+	if (configSelected !== 'displayConfig' && configSelected !== 'groupConfig' && configSelected !== 'panelConfig')
 	{
 		stopDisplayInlineLiveRefresh();
 	}
@@ -12917,6 +13059,7 @@ window.deleteButtonPage = deleteButtonPage;
 window.addButtonPage = addButtonPage;
 window.activateDisplayedButtonConfiguration = activateDisplayedButtonConfiguration;
 window.toggleDisplayedButtonMode = toggleDisplayedButtonMode;
+window.clearDisplayedButton = clearDisplayedButton;
 window.handleDisplayedButtonCardClick = handleDisplayedButtonCardClick;
 window.changeDisplayedButtonConfiguration = changeDisplayedButtonConfiguration;
 window.setButtonVisibleConfigurationCount = setButtonVisibleConfigurationCount;
