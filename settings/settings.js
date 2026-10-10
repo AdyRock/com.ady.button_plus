@@ -321,6 +321,7 @@ function syncCurrentButtonSettingsForDraftSnapshot()
 			const frontLEDOffColorElement = document.getElementById(`${side}${page}FrontLEDOffColor`);
 			const wallLEDOffColorElement = document.getElementById(`${side}${page}WallLEDOffColor`);
 			const longRepeatElement = document.getElementById(`${side}${page}DisableLongRepeat`);
+			const clickReleaseEventElement = document.getElementById(`${side}${page}ClickReleaseEvent`);
 			const longDelayMsElement = document.getElementById(`${side}${page}LongDelayMs`);
 			const longRepeatMsElement = document.getElementById(`${side}${page}LongRepeatMs`);
 
@@ -350,6 +351,7 @@ function syncCurrentButtonSettingsForDraftSnapshot()
 			if (frontLEDOffColorElement) pageConfig[`${side}FrontLEDOffColor`] = frontLEDOffColorElement.value;
 			if (wallLEDOffColorElement) pageConfig[`${side}WallLEDOffColor`] = wallLEDOffColorElement.value;
 			if (longRepeatElement) pageConfig[`${side}DisableLongRepeat`] = !longRepeatElement.checked;
+			if (clickReleaseEventElement) pageConfig[`${side}ClickReleaseEvent`] = clickReleaseEventElement.checked;
 			if (longDelayMsElement) pageConfig[`${side}LongDelayMs`] = normalizeLongPressTimingMs(longDelayMsElement.value, 0, 750);
 			if (longRepeatMsElement) pageConfig[`${side}LongRepeatMs`] = normalizeLongPressTimingMs(longRepeatMsElement.value, 50, 500);
 		}
@@ -2317,6 +2319,7 @@ function initialiseSettingsPage(Homey, markReady)
 		const frontLEDOffColorElement = document.getElementById(`${side}${page}FrontLEDOffColor`);
 		const wallLEDOffColorElement = document.getElementById(`${side}${page}WallLEDOffColor`);
 		const longRepeatElement = document.getElementById(`${side}${page}DisableLongRepeat`);
+		const clickReleaseEventElement = document.getElementById(`${side}${page}ClickReleaseEvent`);
 		const longDelayMsElement = document.getElementById(`${side}${page}LongDelayMs`);
 		const longRepeatMsElement = document.getElementById(`${side}${page}LongRepeatMs`);
 		const OnSVGElement = document.getElementById(`${side}${page}OnSVG`);
@@ -2381,6 +2384,7 @@ function initialiseSettingsPage(Homey, markReady)
 		ButtonPanelConfiguration[`${side}FrontLEDOffColor`] = frontLEDOffColorElement.value;
 		ButtonPanelConfiguration[`${side}WallLEDOffColor`] = wallLEDOffColorElement.value;
 		ButtonPanelConfiguration[`${side}DisableLongRepeat`] = !longRepeatElement.checked;
+		ButtonPanelConfiguration[`${side}ClickReleaseEvent`] = clickReleaseEventElement.checked;
 		ButtonPanelConfiguration[`${side}LongDelayMs`] = normalizeLongPressTimingMs(longDelayMsElement.value, 0, 750);
 		ButtonPanelConfiguration[`${side}LongRepeatMs`] = normalizeLongPressTimingMs(longRepeatMsElement.value, 50, 500);
 		ButtonPanelConfiguration[`${side}OnSVG`] = sanitizeAndValidateButtonSVGField(OnSVGElement?.value || '', side, page, 'On');
@@ -4189,6 +4193,11 @@ function getButtonInlineMainControlHtml(side, page)
 	return `<div class="button-inline-main-control-column">
 				<div class="button-inline-main-control-heading">${panelLabel}</div>
 				<div class="button-inline-main-controls">
+					<label class="homey-form-checkbox">
+						<input class="homey-form-checkbox-input" id="${side}${page}ClickReleaseEvent" type="checkbox" checked />
+						<span class="homey-form-checkbox-checkmark"></span>
+						<span class="homey-form-checkbox-text">${Homey.__('settings.clickReleaseEvent')}</span>
+					</label>
 					<label class="homey-form-checkbox">
 						<input class="homey-form-checkbox-input" id="${side}${page}DisableLongRepeat" type="checkbox" value="auto" />
 						<span class="homey-form-checkbox-checkmark"></span>
@@ -10040,6 +10049,7 @@ function updateButtonPanelControlsSection(side, page, ButtonPanelConfiguration)
 		document.getElementById(`${side}${page}FrontLEDOffColor`).value = '#000000';
 		document.getElementById(`${side}${page}WallLEDOffColor`).value = '#000000';
 		document.getElementById(`${side}${page}DisableLongRepeat`).checked = true;
+		document.getElementById(`${side}${page}ClickReleaseEvent`).checked = true;
 		document.getElementById(`${side}${page}LongDelayMs`).value = '750';
 		document.getElementById(`${side}${page}LongRepeatMs`).value = '500';
 		document.getElementById(`${side}${page}OnSVG`).value = '';
@@ -10088,6 +10098,7 @@ function updateButtonPanelControlsSection(side, page, ButtonPanelConfiguration)
 		document.getElementById(`${side}${page}FrontLEDOffColor`).value = ButtonPanelConfiguration[`${side}FrontLEDOffColor`];
 		document.getElementById(`${side}${page}WallLEDOffColor`).value = ButtonPanelConfiguration[`${side}WallLEDOffColor`];
 		document.getElementById(`${side}${page}DisableLongRepeat`).checked = !ButtonPanelConfiguration[`${side}DisableLongRepeat`];
+		document.getElementById(`${side}${page}ClickReleaseEvent`).checked = ButtonPanelConfiguration[`${side}ClickReleaseEvent`] !== false;
 		document.getElementById(`${side}${page}LongDelayMs`).value = ButtonPanelConfiguration[`${side}LongDelayMs`] ?? '750';
 		document.getElementById(`${side}${page}LongRepeatMs`).value = ButtonPanelConfiguration[`${side}LongRepeatMs`] ?? '500';
 		document.getElementById(`${side}${page}OnSVG`).value = ButtonPanelConfiguration[`${side}OnSVG`] || '';
@@ -13808,7 +13819,7 @@ function updateDisplayedButtonSetting(configNo, page, side, field, value)
 		: null;
 	if (canonicalElement)
 	{
-		if (field === 'DisableLongRepeat')
+		if (field === 'DisableLongRepeat' || field === 'ClickReleaseEvent')
 		{
 			canonicalElement.checked = value;
 		}
@@ -13839,6 +13850,11 @@ function getDisplayedButtonInlineMainControlHtml(side, page, configNo, slot)
 	return `<div class="button-inline-main-control-column">
 				<div class="button-inline-main-control-heading">${panelLabel}</div>
 				<div class="button-inline-main-controls">
+					<label class="homey-form-checkbox">
+						<input class="homey-form-checkbox-input" id="${idPrefix}ClickReleaseEvent" type="checkbox"${pageConfig[`${side}ClickReleaseEvent`] !== false ? ' checked' : ''} onchange="updateDisplayedButtonSetting(${configNo}, ${page}, '${side}', 'ClickReleaseEvent', this.checked)">
+						<span class="homey-form-checkbox-checkmark"></span>
+						<span class="homey-form-checkbox-text">${Homey.__('settings.clickReleaseEvent')}</span>
+					</label>
 					<label class="homey-form-checkbox">
 						<input class="homey-form-checkbox-input" id="${idPrefix}Repeat" type="checkbox"${repeatEnabled ? ' checked' : ''} onchange="updateDisplayedButtonSetting(${configNo}, ${page}, '${side}', 'DisableLongRepeat', this.checked)">
 						<span class="homey-form-checkbox-checkmark"></span>

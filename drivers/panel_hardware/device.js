@@ -5957,11 +5957,16 @@ class PanelDevice extends Device
 		let buttonIdx = parameters.idx;
 		buttonIdx++;
 
-		this.homey.app.triggerButtonRelease(this, parameters.side === 'left', parameters.connector + 1, parameters.page);
-
 		const config = this.getConfigPageSide(null, parameters.page, parameters.side, parameters.configNo);
 
 		const releaseKey = `${parameters.connector}_${parameters.side}_${parameters.page}`;
+		const clickReleaseEvent = config && config.raw ? config.raw[`${parameters.side}ClickReleaseEvent`] : undefined;
+		const sendReleaseEvent = clickReleaseEvent !== false || (this.longPressOccurred.get(releaseKey) > 0);
+		if (sendReleaseEvent)
+		{
+			this.homey.app.triggerButtonRelease(this, parameters.side === 'left', parameters.connector + 1, parameters.page);
+		}
+
 		try
 		{
 			const clickStateOnRelease = this.clickEventStates.get(releaseKey);
@@ -5973,7 +5978,8 @@ class PanelDevice extends Device
 			await this.flushAdvancedLongReleaseCommit(parameters);
 			await this.flushAdvancedLongReleaseCommitFamily(parameters.connector, parameters.side, releaseKey);
 
-			if (!this.consumeSuppression(this.releaseSuppressions, releaseKey))
+			const releaseSuppressed = this.consumeSuppression(this.releaseSuppressions, releaseKey);
+			if (sendReleaseEvent && !releaseSuppressed)
 			{
 				const releaseFire = () => this.homey.app.triggerButtonEvent(this, parameters.side, parameters.connector, 'released', parameters.value, parameters.value.toString(), 0);
 				if (this.isWaitingForClickResolution(releaseKey))
