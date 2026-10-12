@@ -413,7 +413,7 @@
             "type": "number",
             "name": "connector",
             "title": {
-              "en": "Connectore Number",
+              "en": "Connector Number",
               "nl": "Connector nummer",
               "de": "Anschlussnummer",
               "fr": "Numéro de connecteur",
@@ -673,7 +673,7 @@
             "type": "number",
             "name": "connector",
             "title": {
-              "en": "Connectore Number",
+              "en": "Connector Number",
               "nl": "Connector nummer",
               "de": "Anschlussnummer",
               "fr": "Numéro de connecteur",
@@ -13706,7 +13706,7 @@
           },
           "value": "",
           "hint": {
-            "en": "Firmware version of the device. This is read in when the devices is initialised.",
+            "en": "Firmware version of the device. This is read when the device is initialised.",
             "nl": "Firmware versie van het apparaat. Deze is uitgelezen toen het apparaat werd geïnitialiseerd",
             "de": "Firmwareversion des Geräts. Sie wird beim Initialisieren des Geräts eingelesen.",
             "fr": "Version du firmware de l’appareil. Elle est lue lors de l’initialisation de l’appareil.",

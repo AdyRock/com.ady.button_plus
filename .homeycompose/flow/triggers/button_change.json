@@ -179,7 +179,7 @@
             "type": "number",
             "name": "connector",
             "title": {
-                "en": "Connectore Number",
+                "en": "Connector Number",
                 "nl": "Connector nummer",
                 "de": "Anschlussnummer",
                 "fr": "Numéro de connecteur",

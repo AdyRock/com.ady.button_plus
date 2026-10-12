@@ -645,7 +645,7 @@
         "ar": "إصلاح تغير نص الزر الأيمن إلى نص الزر الأيسر عند تغيير التسمية العليا لأول مرة إلى #93. إصلاح مشكلة اكتشاف mDNS. تحسين تحميل التكوين الكامل."
     },
     "0.3.17": {
-        "en": "Added Flow action cards to chenage the LED colour. Add optional Configuration Name to to both Button and Display Configurations to help identify them (not in the device lists though). Reduce the size of some of the MQTT messages.",
+        "en": "Added Flow action cards for changing the LED colour. Added an optional configuration name to button and display configurations to make them easier to identify (although the names don't appear in device lists). Reduced the size of some MQTT messages.",
         "nl": "Flow-actiekaarten toegevoegd om de LED-kleur te wijzigen. Voeg een optionele configuratienaam toe aan zowel de knop- als de displayconfiguraties om ze te helpen identificeren (niet in de apparaatlijsten). Verklein de grootte van sommige MQTT-berichten.",
         "de": "Flow-Aktionskarten hinzugefügt, um die LED-Farbe zu ändern. Fügen Sie den Tasten- und Anzeigekonfigurationen einen optionalen Konfigurationsnamen hinzu, um sie leichter identifizieren zu können (allerdings nicht in den Gerätelisten). Reduzieren Sie die Größe einiger MQTT-Nachrichten.",
         "fr": "Ajout de cartes d'action Flow pour modifier la couleur des LED. Ajoutez un nom de configuration facultatif aux configurations de bouton et d'affichage pour faciliter leur identification (pas dans les listes de périphériques cependant). Réduisez la taille de certains messages MQTT.",
@@ -975,7 +975,7 @@
         "ar": "تمت إضافة موضوعات MQTT مخصصة لعرض التكوين. تمت إضافة مؤشر LED إلى بطاقة عمل المستوى الخافت المحدد وجعل جميع المعلمات اختيارية."
     },
     "0.5.8": {
-        "en": "Fixed windowcoverings_state handling for buttons and added a stop feature when the button pressed for the second time. Fixe date & time not updating on the display. Improve handling of a bad configuration that is read back from the display.",
+        "en": "Fixed windowcoverings_state handling for buttons and added a stop feature that activates when a button is pressed a second time. Fixed an issue that prevented the date and time from updating on the display. Improved handling of invalid configurations read back from the display.",
         "nl": "De afhandeling van windowcoverings_state voor knoppen is opgelost en er is een stopfunctie toegevoegd wanneer de knop voor de tweede keer wordt ingedrukt. Probleem opgelost dat datum en tijd niet worden bijgewerkt op het display. Verbeter de afhandeling van een slechte configuratie die wordt teruggelezen van het display.",
         "de": "Die Behandlung von windowcoverings_state für Schaltflächen wurde korrigiert und eine Stoppfunktion hinzugefügt, wenn die Schaltfläche zum zweiten Mal gedrückt wird. Behebung, dass Datum und Uhrzeit nicht auf dem Display aktualisiert werden. Verbessern Sie die Handhabung einer fehlerhaften Konfiguration, die von der Anzeige zurückgelesen wird.",
         "fr": "Correction de la gestion de windowcoverings_state pour les boutons et ajout d'une fonction d'arrêt lorsque le bouton est enfoncé pour la deuxième fois. Correction de la date et de l'heure qui ne se mettent pas à jour sur l'écran. Améliorer la gestion d'une mauvaise configuration qui est relue à partir de l'écran.",
@@ -1005,7 +1005,7 @@
         "ar": "تغيير م��الجة cpu_warn حيث أن Homey 2023 يعطي 5 تحذيرات فقط وليس 20 تحذيرًا قدمها Homeys الأقدم."
     },
     "0.5.10": {
-        "en": "Added font size 5 to display configureations.",
+        "en": "Added font size 5 to display configurations.",
         "nl": "Lettergrootte 5 toegevoegd om configuraties weer te geven.",
         "de": "Schriftgröße 5 hinzugefügt, um Konfigurationen anzuzeigen.",
         "fr": "Ajout de la taille de police 5 pour afficher les configurations.",
@@ -1470,7 +1470,7 @@
         "ar": "تحسين التعامل مع SVG."
     },
     "0.7.32": {
-        "en": "Improve performance when one or more Button+ device are not responding when pushing the configuration to ensure they don't prevent other Button+ devices from being updated.",
+        "en": "Improved performance when one or more Button+ devices are not responding while configurations are being sent, ensuring they don't prevent other Button+ devices from being updated.",
         "nl": "Verbeter de prestaties wanneer een of meer Button+-apparaten niet reageren bij het pushen van de configuratie om ervoor te zorgen dat ze niet voorkomen dat andere Button+-apparaten worden bijgewerkt.",
         "de": "Verbessern Sie die Leistung, wenn ein oder mehrere Button+-Geräte beim Pushen der Konfiguration nicht reagieren, um sicherzustellen, dass andere Button+-Geräte nicht daran gehindert werden, aktualisiert zu werden.",
         "fr": "Améliorez les performances lorsqu'un ou plusieurs appareils Button+ ne répondent pas lors de la configuration pour garantir qu'ils n'empêchent pas la mise à jour d'autres appareils Button+.",
@@ -1500,7 +1500,7 @@
         "ar": "يتم إجراء محاولات أخرى لمراقبة عمليات رد الاتصال الخاصة بالقدرة. تحسين معالجة إعادة التشغيل Homey عندما لا تبدأ التطبيقات الأخرى قبل Button+."
     },
     "0.7.34": {
-        "en": "Added Simulators in the Configuration pages for the Buttons and Display. Fix Temperature sensor recording on V3 firmaware. Add light sensor, Free Memory and WiFi signal strength reporting to the device. Fixed Trigger Flow card for button in configuration changed.",
+        "en": "Added Simulators in the Configuration pages for the Buttons and Display. Fix Temperature sensor recording on V3 firmware. Add light sensor, Free Memory and WiFi signal strength reporting to the device. Fixed Trigger Flow card for button in configuration changed.",
         "nl": "Simulators toegevoegd op de configuratiepagina's voor de knoppen en het display. Fix Temperatuursensoropname op V3 firmware. Voeg een lichtsensor, gratis geheugen en WiFi-signaalsterkterapportage toe aan het apparaat. Vaste Trigger Flow-kaart voor knop in configuratie gewijzigd.",
         "de": "Simulatoren auf den Konfigurationsseiten für die Schaltflächen und die Anzeige hinzugefügt. Temperatursensoraufzeichnung auf V3-Firmware behoben. Fügen Sie dem Gerät Lichtsensor, freien Speicher und WLAN-Signalstärkeberichte hinzu. Die Trigger-Flow-Karte für die Schaltfläche wurde in der Konfiguration geändert.",
         "fr": "Ajout de simulateurs dans les pages de configuration pour les boutons et l'affichage. Correction de l'enregistrement du capteur de température sur le firmware V3. Ajoutez un capteur de lumière, de la mémoire libre et des rapports sur la force du signal WiFi à l'appareil. Correction de la carte Trigger Flow pour le bouton dans la configuration modifiée.",
@@ -1545,7 +1545,7 @@
         "ar": "عمليات فحص إضافية للمعلمات المفقودة."
     },
     "0.7.37": {
-        "en": "Fix for the button configuration self linking that cancrash the app due to recursion.",
+        "en": "Fix for the button configuration self linking that can crash the app due to recursion.",
         "nl": "Oplossing voor de zelfkoppeling van de knopconfiguratie, waardoor de app kon crashen vanwege recursie.",
         "de": "Korrektur für die Selbstverknüpfung der Schaltflächenkonfiguration, die aufgrund von Rekursion zum Absturz der App führen kann.",
         "fr": "Correction de la configuration des boutons auto-liés qui peut faire planter l'application en raison de la récursivité.",
@@ -1725,7 +1725,7 @@
 		"ar": "إصلاحات وتحسينات متنوعة."
 	},
 	"1.0.2": {
-		"en": "Changed Adv button click behavior. Adv button setup now shows Trigger Flow Only instead of Increment when no device is selected. Added a Back button to the buttons tab when reached via the group edit button. Fix page number display issue. Added a special Target Button+ device option. Fixed Flow issue when using Groups",
+        "en": "Changed Adv button click behaviour. Adv button setup now shows Trigger Flow Only instead of Increment when no device is selected. Added a Back button to the buttons tab when reached via the group edit button. Fix page number display issue. Added a special Target Button+ device option. Fixed Flow issue when using Groups",
 		"nl": "Het klikgedrag van de Adv-knop is gewijzigd. De Adv-knopinstelling toont nu Alleen Flow Triggeren in plaats van Verhogen wanneer geen apparaat is geselecteerd. Er is een Terug-knop toegevoegd aan het tabblad knoppen wanneer dit wordt bereikt via de groepsbewerkingsknop. Probleem met paginanummerweergave opgelost. Speciale Target Button+ apparaatoptie toegevoegd. Flow-probleem bij gebruik van groepen opgelost.",
 		"de": "Das Klickverhalten der Adv-Taste wurde geändert. Die Einrichtung der Adv-Taste zeigt jetzt Nur Flow auslösen anstelle von Erhöhen, wenn kein Gerät ausgewählt ist. Eine Zurück-Taste wurde dem Schaltflächentab hinzugefügt, wenn es über die Gruppenedittaste erreicht wird. Anzeigeproblem der Seitenzahlen behoben. Spezielle Target Button+ Geräteoption hinzugefügt. Flow-Problem bei Verwendung von Gruppen behoben.",
 		"fr": "Comportement du bouton Adv modifié. La configuration du bouton Adv affiche désormais Déclencher le flux uniquement au lieu d'Incrémenter lorsqu'aucun appareil n'est sélectionné. Ajout d'un bouton Retour dans l'onglet des boutons lorsqu'il est atteint via le bouton de modification de groupe. Problème d'affichage du numéro de page corrigé. Option spéciale Target Button+ ajoutée. Problème de flux lors de l'utilisation des groupes corrigé.",
@@ -1815,7 +1815,7 @@
 		"ar": "إضافة طريقة للتحقق من حالة الزر في الصفحة الحالية وتحديث منطق إعداد الإمكانات"
 	},
 	"1.0.8": {
-		"en": "foptimize button state triggering to prevent unnecessary recurring updates",
+        "en": "Optimise button state triggering to prevent unnecessary recurring updates",
 		"nl": "foptimaliseer het activeren van de knopstatus om onnodige terugkerende updates te voorkomen",
 		"de": "fOptimierung der Tastenstatusauslösung, um unnötige wiederkehrende Aktualisierungen zu verhindern",
 		"fr": "foptimiser le déclenchement de l'état du bouton pour éviter les mises à jour récurrentes inutiles",
