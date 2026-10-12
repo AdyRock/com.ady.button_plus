@@ -545,7 +545,7 @@ class MyApp extends Homey.App
 				return (((args.left_right === 'any') || (args.left_right === state.left_right)) && ((args.connector === 0) || (args.connector === state.connector)) && ((args.page === undefined || args.page === null) || (args.page === state.page) || (args.page === -1)));
 			});
 
-		this._triggerPageChange = this.homey.flow.getDeviceTriggerCard('page_change')
+		this._triggerPageChange = this.getDeviceFlowCard('Trigger', 'page_change')
 			.registerRunListener((args, state) =>
 			{
 				return true;
@@ -581,24 +581,36 @@ class MyApp extends Homey.App
 				return this.getConfigurationPageOptions(query, args);
 			});
 
-		this._triggerConfigButtonNameChanged = this.homey.flow.getDeviceTriggerCard('config_name_button_change')
-			.registerRunListener((args, state) =>
-			{
-				const page = this.getFlowPageId(args.page);
-				return ((args.left_right === state.left_right) && (args.config.id === state.config) && (args.display_button === state.display_button) && (args.state === state.state) && ((page == null) || (page === -1) || (page === state.page)));
-			})
-			.registerArgumentAutocompleteListener('config', async (query, args) =>
-			{
-				// iterate over the config array and return the name and id
-				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config.name ? config.name : ''}`, id: index }));
+		this._triggerConfigButtonNameChanged = this.homey.flow.getDeviceTriggerCard('config_name_button_change');
+		this._triggerAppConfigButtonNameChanged = this.homey.flow.getTriggerCard('config_name_button_change_app')
+			.registerArgumentAutocompleteListener('device', async query => this.getFlowDeviceOptions(query));
 
-				// filter the results based on the search query
-				return results.filter(result => (result.name.toLowerCase().includes(query.toLowerCase())));
-			})
-			.registerArgumentAutocompleteListener('page', async (query, args) =>
-			{
-				return this.getConfigurationPageOptions(query, args);
-			});
+		for (const trigger of [this._triggerConfigButtonNameChanged, this._triggerAppConfigButtonNameChanged])
+		{
+			trigger.registerRunListener((args, state) =>
+				{
+					const page = this.getFlowPageId(args.page);
+					const deviceMatches = (trigger === this._triggerConfigButtonNameChanged) || this.isAnyFlowDevice(args.device) || (args.device && (args.device.id === state.deviceId));
+					return (deviceMatches && (args.left_right === state.left_right) && (args.config.id === state.config) && (args.display_button === state.display_button) && (args.state === state.state) && ((page == null) || (page === -1) || (page === state.page)));
+				})
+				.registerArgumentAutocompleteListener('config', async (query, args) =>
+				{
+					const configurations = args.display_button === 'display' ? this.displayConfigurations : this.buttonConfigurations;
+					const results = (configurations || []).map((config, index) =>
+					{
+						const configuration = Array.isArray(config) ? config[0] : config;
+						const name = configuration && configuration.name ? configuration.name : '';
+						return { name: `Configuration ${index + 1}${name ? ` ${name}` : ''}`, id: index };
+					});
+
+					// filter the results based on the search query
+					return results.filter(result => (result.name.toLowerCase().includes(query.toLowerCase())));
+				})
+				.registerArgumentAutocompleteListener('page', async (query, args) =>
+				{
+					return this.getConfigurationPageOptions(query, args);
+				});
+		}
 
 		this._triggerButtonEvent = this.homey.flow.getDeviceTriggerCard('button_event')
 			.registerRunListener((args, state) =>
@@ -606,7 +618,7 @@ class MyApp extends Homey.App
 				return ((args.left_right === state.left_right) && (args.connector === state.connector) && (args.state === state.state));
 			});
 
-		this._triggerConnectorButtonEvent = this.homey.flow.getDeviceTriggerCard('connector_button_event')
+		this._triggerConnectorButtonEvent = this.getDeviceFlowCard('Trigger', 'connector_button_event')
 			.registerRunListener((args, state) =>
 			{
 				const connectorId = args.connector ? args.connector.id : -1;
@@ -626,7 +638,7 @@ class MyApp extends Homey.App
 				return args.device.setButtonConfigurationNo(args.connector - 1, config);
 			});
 
-		this.homey.flow.getActionCard('switch_button_configuration_name')
+		this.getDeviceFlowCard('Action', 'switch_button_configuration_name')
 			.registerRunListener(async (args, state) =>
 			{
 				this.log('switch_button_configuration_name', args.config.id);
@@ -634,11 +646,7 @@ class MyApp extends Homey.App
 			})
 			.registerArgumentAutocompleteListener('config', async (query, args) =>
 			{
-				// iterate over the config array and return the name and id
-				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config.name ? config.name : ''}`, id: index }));
-
-				// filter the results based on the search query
-				return results.filter(result => (result.name.toLowerCase().includes(query.toLowerCase())));
+				return this.getFlowConfigurationOptions(query, this.buttonConfigurations);
 			});
 
 		// This flow is deprecated as it is replaced by the switch_display_configuration_name flow
@@ -650,7 +658,7 @@ class MyApp extends Homey.App
 				return args.device.setDisplayConfigurationNo(config);
 			});
 
-		this.homey.flow.getActionCard('switch_display_configuration_name')
+		this.getDeviceFlowCard('Action', 'switch_display_configuration_name')
 			.registerRunListener(async (args, state) =>
 			{
 				this.log('switch_display_configuration_name', args.config.id);
@@ -658,14 +666,10 @@ class MyApp extends Homey.App
 			})
 			.registerArgumentAutocompleteListener('config', async (query, args) =>
 			{
-				// iterate over the config array and return the name and id
-				const results = this.displayConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config.name ? config.name : ''}`, id: index }));
-
-				// filter the results based on the search query
-				return results.filter(result => (result.name.toLowerCase().includes(query.toLowerCase())));
+				return this.getFlowConfigurationOptions(query, this.displayConfigurations);
 			});
 
-		this.homey.flow.getActionCard('turn_on_button')
+		this.getDeviceFlowCard('Action', 'turn_on_button')
 			.registerRunListener(async (args, state) =>
 			{
 				// Blank means every page; otherwise it is the zero-based page index (0 = Default).
@@ -675,14 +679,14 @@ class MyApp extends Homey.App
 				return args.device.turnButtonOnOff(args.left_right, args.connector - 1, page, true);
 			});
 
-		this.homey.flow.getActionCard('set_info')
+		this.getDeviceFlowCard('Action', 'set_info')
 			.registerRunListener(async (args, state) =>
 			{
 				this.log(`${args.info}`);
 				return args.device.triggerCapabilityListener('info', args.info);
 			});
 
-		this.homey.flow.getActionCard('turn_off_button')
+		this.getDeviceFlowCard('Action', 'turn_off_button')
 			.registerRunListener(async (args, state) =>
 			{
 				// Blank means every page; otherwise it is the zero-based page index (0 = Default).
@@ -692,7 +696,7 @@ class MyApp extends Homey.App
 				return args.device.turnButtonOnOff(args.left_right, args.connector - 1, page, false);
 			});
 
-		this.homey.flow.getActionCard('set_connector_button_top_label')
+		this.getDeviceFlowCard('Action', 'set_connector_button_top_label')
 			.registerRunListener(async (args, state) =>
 			{
 				const page = args.page ? args.page : 0;
@@ -701,7 +705,7 @@ class MyApp extends Homey.App
 				return args.device.updateConnectorTopLabel(args.left_right, args.connector - 1, page, args.label);
 			});
 
-		this.homey.flow.getActionCard('set_connector_button_text')
+		this.getDeviceFlowCard('Action', 'set_connector_button_text')
 			.registerRunListener(async (args, state) =>
 			{
 				const page = args.page ? args.page : 0;
@@ -710,7 +714,7 @@ class MyApp extends Homey.App
 				return args.device.updateConnectorLabel(args.left_right, args.connector - 1, page, args.label);
 			});
 
-		this.homey.flow.getActionCard('set_connector_button_svg')
+		this.getDeviceFlowCard('Action', 'set_connector_button_svg')
 			.registerRunListener(async (args, state) =>
 			{
 				const page = args.page ? args.page : 0;
@@ -730,7 +734,7 @@ class MyApp extends Homey.App
 				return args.device.updateConfigTopLabel(args.left_right, args.config - 1, page, args.label);
 			});
 
-		this.homey.flow.getActionCard('set_config_name_button_top_label')
+		this.getDeviceFlowCard('Action', 'set_config_name_button_top_label')
 			.registerRunListener(async (args, state) =>
 			{
 				const page = args.page ? args.page : 0;
@@ -740,11 +744,7 @@ class MyApp extends Homey.App
 			})
 			.registerArgumentAutocompleteListener('config', async (query, args) =>
 			{
-				// iterate over the config array and return the name and id
-				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config[0].name ? config[0].name : ''}`, id: index }));
-
-				// filter the results based on the search query
-				return results.filter(result => (result.name.toLowerCase().includes(query.toLowerCase())));
+				return this.getFlowConfigurationOptions(query, this.buttonConfigurations);
 			});
 
 		// This flow is deprecated as it is replaced by the set_config_name_button_label flow
@@ -757,7 +757,7 @@ class MyApp extends Homey.App
 				return args.device.updateConfigLabel(args.left_right, args.config - 1, page, args.label);
 			});
 
-		this.homey.flow.getActionCard('set_config_name_button_label')
+		this.getDeviceFlowCard('Action', 'set_config_name_button_label')
 			.registerRunListener(async (args, state) =>
 			{
 				const page = args.page ? args.page : 0;
@@ -767,11 +767,7 @@ class MyApp extends Homey.App
 			})
 			.registerArgumentAutocompleteListener('config', async (query, args) =>
 			{
-				// iterate over the config array and return the name and id
-				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config[0].name ? config[0].name : ''}`, id: index }));
-
-				// filter the results based on the search query
-				return results.filter(result => (result.name.toLowerCase().includes(query.toLowerCase())));
+				return this.getFlowConfigurationOptions(query, this.buttonConfigurations);
 			});
 
 		// This action is deprecated as it is replaced by standard dim capability
@@ -782,7 +778,7 @@ class MyApp extends Homey.App
 				return args.device.setDimLevel(args.large, args.mini, args.led);
 			});
 
-		this.homey.flow.getActionCard('set_connector_led_rgb')
+		this.getDeviceFlowCard('Action', 'set_connector_led_rgb')
 			.registerRunListener(async (args, state) =>
 			{
 				const page = args.page ? args.page : 0;
@@ -791,7 +787,7 @@ class MyApp extends Homey.App
 				return args.device.setConnectorLEDColour(args.left_right, args.connector - 1, args.rgb, args.front_wall ? args.front_wall : 'both', page);
 			});
 
-		this.homey.flow.getActionCard('set_config_name_led_rgb')
+		this.getDeviceFlowCard('Action', 'set_config_name_led_rgb')
 			.registerRunListener(async (args, state) =>
 			{
 				const page = args.page ? args.page : 0;
@@ -801,21 +797,17 @@ class MyApp extends Homey.App
 			})
 			.registerArgumentAutocompleteListener('config', async (query, args) =>
 			{
-				// iterate over the config array and return the name and id
-				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config.name ? config.name : ''}`, id: index }));
-
-				// filter the results based on the search query
-				return results.filter(result => (result.name.toLowerCase().includes(query.toLowerCase())));
+				return this.getFlowConfigurationOptions(query, this.buttonConfigurations);
 			});
 
-		this.homey.flow.getActionCard('set_display_page')
+		this.getDeviceFlowCard('Action', 'set_display_page')
 			.registerRunListener(async (args, state) =>
 			{
 				this.log(`set_display_page ${args.pageCommand} to ${args.index}`);
 				return args.device.setSetDisplayPage(args.pageCommand, args.index);
 			});
 
-		this.homey.flow.getActionCard('upload_gonfigurations')
+		this.getDeviceFlowCard('Action', 'upload_gonfigurations')
 			.registerRunListener(async (args, state) =>
 			{
 				this.log('upload_gonfigurations');
@@ -823,7 +815,7 @@ class MyApp extends Homey.App
 			});
 
 		/** * CONDITIONS ** */
-		this.homey.flow.getConditionCard('is_button_on')
+		this.getDeviceFlowCard('Condition', 'is_button_on')
 			.registerRunListener(async (args, state) =>
 			{
 				return args.device.getCapabilityValue(`${args.left_right}_button.connector${args.connector - 1}`);
@@ -839,22 +831,49 @@ class MyApp extends Homey.App
 				return activeConfig == requiredConfig;
 			});
 
-		this.homey.flow.getConditionCard('is_button_config_name')
-			.registerRunListener(async (args, state) =>
-			{
-				const activeConfig = args.device.getCapabilityValue(`configuration_button.connector${args.connector - 1}`);
-				const requiredConfig = args.config.id;
-				// eslint-disable-next-line eqeqeq
-				return activeConfig == requiredConfig;
-			})
-			.registerArgumentAutocompleteListener('config', async (query, args) =>
-			{
-				// iterate over the config array and return the name and id
-				const results = this.buttonConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config.name ? config.name : ''}`, id: index }));
+		const appButtonConfigCondition = this.homey.flow.getConditionCard('is_button_config_name_app')
+			.registerArgumentAutocompleteListener('device', async query => this.getFlowDeviceOptions(query));
 
-				// filter the results based on the search query
-				return results.filter(result => (result.name.toLowerCase().includes(query.toLowerCase())));
-			});
+		for (const condition of [this.homey.flow.getConditionCard('is_button_config_name'), appButtonConfigCondition])
+		{
+			condition.registerRunListener(async (args, state) =>
+				{
+					let { device } = args;
+					if (condition === appButtonConfigCondition)
+					{
+						const devices = this.homey.drivers.getDriver('panel_hardware').getDevices();
+						const { id: requiredConfig } = args.config;
+						if (this.isAnyFlowDevice(args.device))
+						{
+							return Object.values(devices).some(panel =>
+							{
+								const activeConfig = panel.getCapabilityValue(`configuration_button.connector${args.connector - 1}`);
+								// eslint-disable-next-line eqeqeq
+								return activeConfig == requiredConfig;
+							});
+						}
+						device = Object.values(devices).find(panel => args.device && (panel.getData().id === args.device.id));
+						if (!device)
+						{
+							throw new Error('The selected Button+ device is no longer available');
+						}
+					}
+					const activeConfig = device.getCapabilityValue(`configuration_button.connector${args.connector - 1}`);
+						const requiredConfig = args.config.id;
+					// eslint-disable-next-line eqeqeq
+					return activeConfig == requiredConfig;
+				})
+				.registerArgumentAutocompleteListener('config', async (query, args) =>
+				{
+					const results = (this.buttonConfigurations || []).map((config, index) =>
+					{
+						const configuration = Array.isArray(config) ? config[0] : config;
+						const name = configuration && configuration.name ? configuration.name : '';
+						return { name: `Configuration ${index + 1}${name ? ` ${name}` : ''}`, id: index };
+					});
+					return results.filter(result => result.name.toLowerCase().includes(query.toLowerCase()));
+				});
+		}
 
 		// This flow is deprecated as it is replaced by the is_display_config_name flow
 		this.homey.flow.getConditionCard('is_display_config')
@@ -866,7 +885,7 @@ class MyApp extends Homey.App
 				return activeConfig == requiredConfig;
 			});
 
-		this.homey.flow.getConditionCard('is_display_config_name')
+		this.getDeviceFlowCard('Condition', 'is_display_config_name')
 			.registerRunListener(async (args, state) =>
 			{
 				const activeConfig = args.device.getCapabilityValue('configuration_display');
@@ -876,8 +895,12 @@ class MyApp extends Homey.App
 			})
 			.registerArgumentAutocompleteListener('config', async (query, args) =>
 			{
-				// iterate over the config array and return the name and id
-				const results = this.displayConfigurations.map((config, index) => ({ name: `Configuration ${index + 1} ${config.name ? config.name : ''}`, id: index }));
+				const results = (this.displayConfigurations || []).map((config, index) =>
+				{
+					const configuration = Array.isArray(config) ? config[0] : config;
+					const name = configuration && configuration.name ? configuration.name : '';
+					return { name: `Configuration ${index + 1}${name ? ` ${name}` : ''}`, id: index };
+				});
 
 				// filter the results based on the search query
 				return results.filter(result => (result.name.toLowerCase().includes(query.toLowerCase())));
@@ -3667,6 +3690,10 @@ class MyApp extends Homey.App
 		this.triggerFlow(this._triggerConfigButtonChanged, device, tokens, state);
 		state.config = parseInt(configID, 10);
 		this.triggerFlow(this._triggerConfigButtonNameChanged, device, tokens, state);
+		this._triggerAppConfigButtonNameChanged.trigger(tokens, { ...state, deviceId: device.getData().id }).catch(error =>
+		{
+			this.updateLog(`triggerFlow (config_name_button_change_app) Error: ${error.message}`, 0);
+		});
 		return this;
 	}
 
@@ -3682,6 +3709,108 @@ class MyApp extends Homey.App
 		this.triggerFlow(this._triggerButtonEvent, device, tokens, state);
 		this.triggerFlow(this._triggerConnectorButtonEvent, device, tokens, state);
 		return this;
+	}
+
+	getFlowDeviceOptions(query)
+	{
+		const devices = this.homey.drivers.getDriver('panel_hardware').getDevices();
+		const results = [{ name: this.homey.__('anyConnector'), id: '*' }, ...Object.values(devices).map(device => ({ name: device.getName(), id: device.getData().id }))];
+		return results.filter(result => result.name.toLowerCase().includes(query.toLowerCase()));
+	}
+
+	isAnyFlowDevice(selection)
+	{
+		return Boolean(selection && (selection.id === '*'));
+	}
+
+	getFlowDevice(selection)
+	{
+		const devices = this.homey.drivers.getDriver('panel_hardware').getDevices();
+		const device = Object.values(devices).find(panel => selection && (panel.getData().id === selection.id));
+		if (!device)
+		{
+			throw new Error('The selected Button+ device is no longer available');
+		}
+		return device;
+	}
+
+	getFlowConfigurationOptions(query, configurations)
+	{
+		const results = (configurations || []).map((config, index) =>
+		{
+			const configuration = Array.isArray(config) ? config[0] : config;
+			const name = configuration && configuration.name ? configuration.name : '';
+			return { name: `Configuration ${index + 1}${name ? ` ${name}` : ''}`, id: index };
+		});
+		return results.filter(result => result.name.toLowerCase().includes(query.toLowerCase()));
+	}
+
+	getDeviceFlowCard(type, id)
+	{
+		const deviceCard = type === 'Trigger' ? this.homey.flow.getDeviceTriggerCard(id) : this.homey.flow[`get${type}Card`](id);
+		const appCard = this.homey.flow[`get${type}Card`](`${id}_app`);
+		appCard.registerArgumentAutocompleteListener('device', async query => this.getFlowDeviceOptions(query));
+		const app = this;
+		return {
+			id,
+			registerRunListener(listener)
+			{
+				deviceCard.registerRunListener(listener);
+				appCard.registerRunListener(async (args, state) =>
+				{
+					const anyDevice = app.isAnyFlowDevice(args.device);
+					if (type === 'Trigger' && (!args.device || (!anyDevice && (args.device.id !== state.deviceId))))
+					{
+						return false;
+					}
+					if (type === 'Trigger')
+					{
+						const device = app.getFlowDevice(anyDevice ? { id: state.deviceId } : args.device);
+						return listener({ ...args, device }, state);
+					}
+					if (anyDevice)
+					{
+						const devices = Object.values(app.homey.drivers.getDriver('panel_hardware').getDevices());
+						if (type === 'Condition')
+						{
+							for (const device of devices)
+							{
+								if (await listener({ ...args, device }, state))
+								{
+									return true;
+								}
+							}
+							return false;
+						}
+						let result;
+						for (const device of devices)
+						{
+							result = await listener({ ...args, device }, state);
+						}
+						return result;
+					}
+					return listener({ ...args, device: app.getFlowDevice(args.device) }, state);
+				});
+				return this;
+			},
+			registerArgumentAutocompleteListener(name, listener)
+			{
+				deviceCard.registerArgumentAutocompleteListener(name, listener);
+				appCard.registerArgumentAutocompleteListener(name, async (query, args) =>
+				{
+					const device = args.device && !app.isAnyFlowDevice(args.device) ? app.getFlowDevice(args.device) : undefined;
+					return listener(query, { ...args, device });
+				});
+				return this;
+			},
+			async trigger(device, tokens, state)
+			{
+				await Promise.all([
+					deviceCard.trigger(device, tokens, state),
+					appCard.trigger(tokens, { ...state, deviceId: device.getData().id }),
+				]);
+			},
+		};
 	}
 
 	// Ids are the panel's zero-based connector index; -1 matches any connector.

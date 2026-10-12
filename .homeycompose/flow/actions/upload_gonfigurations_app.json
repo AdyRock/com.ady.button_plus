@@ -1,0 +1,83 @@
+{
+    "title": {
+        "en": "Re-apply Configurations (Device)",
+        "nl": "Herstel Configuraties (Apparaat)",
+        "de": "Konfigurationen erneut anwenden (Gerät)",
+        "fr": "Réappliquer les configurations (Appareil)",
+        "it": "Riapplica le configurazioni (Dispositivo)",
+        "sv": "Tillämpa konfigurationer igen (Enhet)",
+        "no": "Bruk konfigurasjoner på nytt (Enhet)",
+        "es": "Volver a aplicar las configuraciones (Dispositivo)",
+        "da": "Anvend konfigurationer igen (Enhed)",
+        "ru": "Повторно применить конфигурации (Устройство)",
+        "pl": "Zastosuj konfiguracje ponownie (Urządzenie)",
+        "ko": "구성 다시 적용 (장치)",
+        "ar": "إعادة تطبيق التكوينات (الجهاز)"
+    },
+    "titleFormatted": {
+        "en": "Re-apply Configurations ([[device]])",
+        "nl": "Herstel Configuraties ([[device]])",
+        "de": "Konfigurationen erneut anwenden ([[device]])",
+        "fr": "Réappliquer les configurations ([[device]])",
+        "it": "Riapplica le configurazioni ([[device]])",
+        "sv": "Tillämpa konfigurationer igen ([[device]])",
+        "no": "Bruk konfigurasjoner på nytt ([[device]])",
+        "es": "Volver a aplicar las configuraciones ([[device]])",
+        "da": "Anvend konfigurationer igen ([[device]])",
+        "ru": "Повторно применить конфигурации ([[device]])",
+        "pl": "Zastosuj konfiguracje ponownie ([[device]])",
+        "ko": "구성 다시 적용 ([[device]])",
+        "ar": "إعادة تطبيق التكوينات ([[device]])"
+    },
+    "hint": {
+        "en": "Uploads the configurations to the device",
+        "nl": "Upload de configuraties naar het apparaat",
+        "de": "Lädt die Konfigurationen auf das Gerät hoch",
+        "fr": "Téléverse les configurations sur l’appareil",
+        "it": "Carica le configurazioni sul dispositivo",
+        "sv": "Överför konfigurationerna till enheten",
+        "no": "Laster opp konfigurasjonene til enheten",
+        "es": "Carga las configuraciones en el dispositivo",
+        "da": "Overfører konfigurationerne til enheden",
+        "ru": "Загружает конфигурации на устройство",
+        "pl": "Przesyła konfiguracje do urządzenia",
+        "ko": "구성을 장치에 업로드합니다",
+        "ar": "يرفع التكوينات إلى الجهاز"
+    },
+    "args": [
+        {
+            "name": "device",
+            "type": "autocomplete",
+            "title": {
+                "en": "Device",
+                "nl": "Apparaat",
+                "de": "Gerät",
+                "fr": "Appareil",
+                "it": "Dispositivo",
+                "sv": "Enhet",
+                "no": "Enhet",
+                "es": "Dispositivo",
+                "da": "Enhed",
+                "ru": "Устройство",
+                "pl": "Urządzenie",
+                "ko": "장치",
+                "ar": "الجهاز"
+            },
+            "placeholder": {
+                "en": "Choose a device",
+                "nl": "Kies een apparaat",
+                "de": "Gerät auswählen",
+                "fr": "Choisir un appareil",
+                "it": "Scegli un dispositivo",
+                "sv": "Välj en enhet",
+                "no": "Velg en enhet",
+                "es": "Elegir un dispositivo",
+                "da": "Vælg en enhed",
+                "ru": "Выберите устройство",
+                "pl": "Wybierz urządzenie",
+                "ko": "장치 선택",
+                "ar": "اختر جهازًا"
+            }
+        }
+    ]
+}

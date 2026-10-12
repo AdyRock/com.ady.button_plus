@@ -1,0 +1,91 @@
+{
+    "title": {
+        "en": "The page was changed (Device)",
+        "nl": "De pagina is veranderd (Apparaat)",
+        "de": "Die Seite wurde geändert (Gerät)",
+        "fr": "La page a été changée (Appareil)",
+        "it": "La pagina è stata cambiata (Dispositivo)",
+        "sv": "Sidan ändrades (Enhet)",
+        "no": "Siden ble endret (Enhet)",
+        "es": "Se cambió la página (Dispositivo)",
+        "da": "Siden blev ændret (Enhed)",
+        "ru": "Страница была изменена (Устройство)",
+        "pl": "Strona została zmieniona (Urządzenie)",
+        "ko": "페이지가 변경됨 (장치)",
+        "ar": "تم تغيير الصفحة (الجهاز)"
+    },
+    "titleFormatted": {
+        "en": "The page changed ([[device]])",
+        "nl": "De pagina is veranderd ([[device]])",
+        "de": "Die Seite hat sich geändert ([[device]])",
+        "fr": "La page a changé ([[device]])",
+        "it": "La pagina è cambiata ([[device]])",
+        "sv": "Sidan ändrades ([[device]])",
+        "no": "Siden endret seg ([[device]])",
+        "es": "La página cambió ([[device]])",
+        "da": "Siden skiftede ([[device]])",
+        "ru": "Страница изменилась ([[device]])",
+        "pl": "Strona się zmieniła ([[device]])",
+        "ko": "페이지가 변경됨 ([[device]])",
+        "ar": "تغيرت الصفحة ([[device]])"
+    },
+    "highlight": true,
+    "tokens": [
+        {
+            "name": "page",
+            "type": "number",
+            "title": {
+                "en": "Page",
+                "nl": "Pagina",
+                "de": "Seite",
+                "fr": "Page",
+                "it": "Pagina",
+                "sv": "Sida",
+                "no": "Side",
+                "es": "Página",
+                "da": "Side",
+                "ru": "Страница",
+                "pl": "Strona",
+                "ko": "페이지",
+                "ar": "الصفحة"
+            },
+            "example": "1"
+        }
+    ],
+    "args": [
+        {
+            "name": "device",
+            "type": "autocomplete",
+            "title": {
+                "en": "Device",
+                "nl": "Apparaat",
+                "de": "Gerät",
+                "fr": "Appareil",
+                "it": "Dispositivo",
+                "sv": "Enhet",
+                "no": "Enhet",
+                "es": "Dispositivo",
+                "da": "Enhed",
+                "ru": "Устройство",
+                "pl": "Urządzenie",
+                "ko": "장치",
+                "ar": "الجهاز"
+            },
+            "placeholder": {
+                "en": "Choose a device",
+                "nl": "Kies een apparaat",
+                "de": "Gerät auswählen",
+                "fr": "Choisir un appareil",
+                "it": "Scegli un dispositivo",
+                "sv": "Välj en enhet",
+                "no": "Velg en enhet",
+                "es": "Elegir un dispositivo",
+                "da": "Vælg en enhed",
+                "ru": "Выберите устройство",
+                "pl": "Wybierz urządzenie",
+                "ko": "장치 선택",
+                "ar": "اختر جهازًا"
+            }
+        }
+    ]
+}

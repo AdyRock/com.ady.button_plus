@@ -1,0 +1,132 @@
+{
+    "title": {
+        "en": "Switch display configuration (Device)",
+        "nl": "Stuur display configuratie (Apparaat)",
+        "de": "Displaykonfiguration wechseln (Gerät)",
+        "fr": "Changer de configuration d’affichage (Appareil)",
+        "it": "Cambia configurazione del display (Dispositivo)",
+        "sv": "Byt skärmkonfiguration (Enhet)",
+        "no": "Bytt skjermkonfigurasjon (Enhet)",
+        "es": "Cambiar la configuración de pantalla (Dispositivo)",
+        "da": "Skift skærmkonfiguration (Enhed)",
+        "ru": "Переключить конфигурацию дисплея (Устройство)",
+        "pl": "Przełącz konfigurację wyświetlacza (Urządzenie)",
+        "ko": "디스플레이 구성 전환 (장치)",
+        "ar": "تبديل تكوين الشاشة (الجهاز)"
+    },
+    "titleFormatted": {
+        "en": "Switch to Display Configuration [[config]] ([[device]])",
+        "nl": "Wissel naar display configuratie [[config]] ([[device]])",
+        "de": "Zu Displaykonfiguration [[config]] wechseln ([[device]])",
+        "fr": "Basculer vers la configuration d’affichage [[config]] ([[device]])",
+        "it": "Passa alla configurazione display [[config]] ([[device]])",
+        "sv": "Byt till skärmkonfiguration [[config]] ([[device]])",
+        "no": "Bytt til skjermkonfigurasjon [[config]] ([[device]])",
+        "es": "Cambiar a la configuración de pantalla [[config]] ([[device]])",
+        "da": "Skift til skærmkonfiguration [[config]] ([[device]])",
+        "ru": "Переключить на конфигурацию дисплея [[config]] ([[device]])",
+        "pl": "Przełącz na konfigurację wyświetlacza [[config]] ([[device]])",
+        "ko": "디스플레이 구성 [[config]](으)로 전환 ([[device]])",
+        "ar": "التبديل إلى تكوين الشاشة [[config]] ([[device]])"
+    },
+    "hint": {
+        "en": "Send the select display configuration to the device",
+        "nl": "Stuur de geselecteerde display configuratie naar het apparaat",
+        "de": "Sendet die ausgewählte Displaykonfiguration an das Gerät",
+        "fr": "Envoyer la configuration d’affichage sélectionnée à l’appareil",
+        "it": "Invia la configurazione display selezionata al dispositivo",
+        "sv": "Skicka den valda skärmkonfigurationen till enheten",
+        "no": "Send den valgte skjermkonfigurasjonen til enheten",
+        "es": "Enviar la configuración de pantalla seleccionada al dispositivo",
+        "da": "Send den valgte skærmkonfiguration til enheden",
+        "ru": "Отправить выбранную конфигурацию дисплея на устройство",
+        "pl": "Wyślij wybraną konfigurację wyświetlacza do urządzenia",
+        "ko": "선택한 디스플레이 구성을 장치로 전송합니다",
+        "ar": "إرسال تكوين الشاشة المحدد إلى الجهاز"
+    },
+    "args": [
+        {
+            "name": "device",
+            "type": "autocomplete",
+            "title": {
+                "en": "Device",
+                "nl": "Apparaat",
+                "de": "Gerät",
+                "fr": "Appareil",
+                "it": "Dispositivo",
+                "sv": "Enhet",
+                "no": "Enhet",
+                "es": "Dispositivo",
+                "da": "Enhed",
+                "ru": "Устройство",
+                "pl": "Urządzenie",
+                "ko": "장치",
+                "ar": "الجهاز"
+            },
+            "placeholder": {
+                "en": "Choose a device",
+                "nl": "Kies een apparaat",
+                "de": "Gerät auswählen",
+                "fr": "Choisir un appareil",
+                "it": "Scegli un dispositivo",
+                "sv": "Välj en enhet",
+                "no": "Velg en enhet",
+                "es": "Elegir un dispositivo",
+                "da": "Vælg en enhed",
+                "ru": "Выберите устройство",
+                "pl": "Wybierz urządzenie",
+                "ko": "장치 선택",
+                "ar": "اختر جهازًا"
+            }
+        },
+        {
+            "type": "autocomplete",
+            "name": "config",
+            "title": {
+                "en": "Configuration",
+                "nl": "Configuratie",
+                "de": "Konfiguration",
+                "fr": "Configuration",
+                "it": "Configurazione",
+                "sv": "Konfiguration",
+                "no": "Konfigurasjon",
+                "es": "Configuración",
+                "da": "Konfiguration",
+                "ru": "Конфигурация",
+                "pl": "Konfiguracja",
+                "ko": "구성",
+                "ar": "التكوين"
+            },
+            "hint": {
+                "en": "Find this Configuration on a button connector",
+                "nl": "Vind deze configuratie op een knop connector",
+                "de": "Diese Konfiguration an einem Tastenanschluss suchen",
+                "fr": "Trouver cette configuration sur un connecteur de bouton",
+                "it": "Trova questa configurazione su un connettore del pulsante",
+                "sv": "Hitta den här konfigurationen på en knappanslutning",
+                "no": "Finn denne konfigurasjonen på en knappetilkobling",
+                "es": "Buscar esta configuración en un conector de botón",
+                "da": "Find denne konfiguration på en knaptilslutning",
+                "ru": "Найти эту конфигурацию на разъеме кнопки",
+                "pl": "Znajdź tę konfigurację na złączu przycisku",
+                "ko": "버튼 커넥터에서 이 구성 찾기",
+                "ar": "البحث عن هذا التكوين في موصل زر"
+            },
+            "placeholder": {
+                "en": "Choose a configuration",
+                "nl": "Kies een configuratie",
+                "de": "Konfiguration auswählen",
+                "fr": "Choisir une configuration",
+                "it": "Scegli una configurazione",
+                "sv": "Välj en konfiguration",
+                "no": "Velg en konfigurasjon",
+                "es": "Elegir una configuración",
+                "da": "Vælg en konfiguration",
+                "ru": "Выберите конфигурацию",
+                "pl": "Wybierz konfigurację",
+                "ko": "구성 선택",
+                "ar": "اختر تكوينًا"
+            }
+        }
+    ]
+}

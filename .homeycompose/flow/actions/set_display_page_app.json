@@ -1,0 +1,244 @@
+{
+    "title": {
+        "en": "Select the display page (Device)",
+        "nl": "Selecteer de display pagina (Apparaat)",
+        "de": "Displayseite auswählen (Gerät)",
+        "fr": "Sélectionner la page d’affichage (Appareil)",
+        "it": "Seleziona la pagina del display (Dispositivo)",
+        "sv": "Välj skärmsida (Enhet)",
+        "no": "Velg skjermside (Enhet)",
+        "es": "Seleccionar la página de la pantalla (Dispositivo)",
+        "da": "Vælg skærmsiden (Enhed)",
+        "ru": "Выбрать страницу дисплея (Устройство)",
+        "pl": "Wybierz stronę wyświetlacza (Urządzenie)",
+        "ko": "디스플레이 페이지 선택 (장치)",
+        "ar": "تحديد صفحة الشاشة (الجهاز)"
+    },
+    "titleFormatted": {
+        "en": "Select the [[pageCommand]] [[index]] large display page ([[device]])",
+        "nl": "Selecteer de [[pageCommand]] [[index]] grote display pagina ([[device]])",
+        "de": "Seite [[pageCommand]] [[index]] des großen Displays auswählen ([[device]])",
+        "fr": "Sélectionner la page [[pageCommand]] [[index]] du grand écran ([[device]])",
+        "it": "Seleziona la pagina [[pageCommand]] [[index]] del display grande ([[device]])",
+        "sv": "Välj [[pageCommand]] [[index]] sida på den stora skärmen ([[device]])",
+        "no": "Velg [[pageCommand]] [[index]] side på den store skjermen ([[device]])",
+        "es": "Seleccionar la página [[pageCommand]] [[index]] de la pantalla grande ([[device]])",
+        "da": "Vælg siden [[pageCommand]] [[index]] på den store skærm ([[device]])",
+        "ru": "Выбрать страницу большого дисплея [[pageCommand]] [[index]] ([[device]])",
+        "pl": "Wybierz stronę dużego wyświetlacza [[pageCommand]] [[index]] ([[device]])",
+        "ko": "대형 디스플레이의 [[pageCommand]] [[index]] 페이지 선택 ([[device]])",
+        "ar": "تحديد صفحة الشاشة الكبيرة [[pageCommand]] [[index]] ([[device]])"
+    },
+    "hint": {
+        "en": "Select the page of the displays",
+        "nl": "Selecteer de pagina van de displays",
+        "de": "Wählt die Seite der Displays aus",
+        "fr": "Sélectionner la page des écrans",
+        "it": "Seleziona la pagina dei display",
+        "sv": "Välj sida för skärmarna",
+        "no": "Velg siden for skjermene",
+        "es": "Seleccionar la página de las pantallas",
+        "da": "Vælg skærmenes side",
+        "ru": "Выбрать страницу дисплеев",
+        "pl": "Wybierz stronę wyświetlaczy",
+        "ko": "디스플레이 페이지를 선택합니다",
+        "ar": "تحديد صفحة الشاشات"
+    },
+    "args": [
+        {
+            "name": "device",
+            "type": "autocomplete",
+            "title": {
+                "en": "Device",
+                "nl": "Apparaat",
+                "de": "Gerät",
+                "fr": "Appareil",
+                "it": "Dispositivo",
+                "sv": "Enhet",
+                "no": "Enhet",
+                "es": "Dispositivo",
+                "da": "Enhed",
+                "ru": "Устройство",
+                "pl": "Urządzenie",
+                "ko": "장치",
+                "ar": "الجهاز"
+            },
+            "placeholder": {
+                "en": "Choose a device",
+                "nl": "Kies een apparaat",
+                "de": "Gerät auswählen",
+                "fr": "Choisir un appareil",
+                "it": "Scegli un dispositivo",
+                "sv": "Välj en enhet",
+                "no": "Velg en enhet",
+                "es": "Elegir un dispositivo",
+                "da": "Vælg en enhed",
+                "ru": "Выберите устройство",
+                "pl": "Wybierz urządzenie",
+                "ko": "장치 선택",
+                "ar": "اختر جهازًا"
+            }
+        },
+        {
+            "type": "dropdown",
+            "name": "pageCommand",
+            "title": {
+                "en": "Page Command",
+                "nl": "Pagina Commando",
+                "de": "Seitenbefehl",
+                "fr": "Commande de page",
+                "it": "Comando pagina",
+                "sv": "Sidkommando",
+                "no": "Sidekommando",
+                "es": "Comando de página",
+                "da": "Sidekommando",
+                "ru": "Команда страницы",
+                "pl": "Polecenie strony",
+                "ko": "페이지 명령",
+                "ar": "أمر الصفحة"
+            },
+            "placeholder": {
+                "en": "Select the page command",
+                "nl": "Selecteer het pagina commando",
+                "de": "Seitenbefehl auswählen",
+                "fr": "Sélectionner la commande de page",
+                "it": "Seleziona il comando pagina",
+                "sv": "Välj sidkommando",
+                "no": "Velg sidekommando",
+                "es": "Seleccionar el comando de página",
+                "da": "Vælg sidekommandoen",
+                "ru": "Выберите команду страницы",
+                "pl": "Wybierz polecenie strony",
+                "ko": "페이지 명령 선택",
+                "ar": "حدد أمر الصفحة"
+            },
+            "values": [
+                {
+                    "id": "index",
+                    "title": {
+                        "en": "page index",
+                        "nl": "pagina index",
+                        "de": "Seitenindex",
+                        "fr": "index de page",
+                        "it": "indice pagina",
+                        "sv": "sidindex",
+                        "no": "sideindeks",
+                        "es": "índice de página",
+                        "da": "sideindeks",
+                        "ru": "индекс страницы",
+                        "pl": "indeks strony",
+                        "ko": "페이지 인덱스",
+                        "ar": "فهرس الصفحة"
+                    }
+                },
+                {
+                    "id": "first",
+                    "title": {
+                        "en": "first page",
+                        "nl": "Eerste",
+                        "de": "erste Seite",
+                        "fr": "première page",
+                        "it": "prima pagina",
+                        "sv": "första sidan",
+                        "no": "første side",
+                        "es": "primera página",
+                        "da": "første side",
+                        "ru": "первая страница",
+                        "pl": "pierwsza strona",
+                        "ko": "첫 페이지",
+                        "ar": "الصفحة الأولى"
+                    }
+                },
+                {
+                    "id": "previous",
+                    "title": {
+                        "en": "previous page",
+                        "nl": "Vorige",
+                        "de": "vorherige Seite",
+                        "fr": "page précédente",
+                        "it": "pagina precedente",
+                        "sv": "föregående sida",
+                        "no": "forrige side",
+                        "es": "página anterior",
+                        "da": "forrige side",
+                        "ru": "предыдущая страница",
+                        "pl": "poprzednia strona",
+                        "ko": "이전 페이지",
+                        "ar": "الصفحة السابقة"
+                    }
+                },
+                {
+                    "id": "next",
+                    "title": {
+                        "en": "next page",
+                        "nl": "Volgende",
+                        "de": "nächste Seite",
+                        "fr": "page suivante",
+                        "it": "pagina successiva",
+                        "sv": "nästa sida",
+                        "no": "neste side",
+                        "es": "página siguiente",
+                        "da": "næste side",
+                        "ru": "следующая страница",
+                        "pl": "następna strona",
+                        "ko": "다음 페이지",
+                        "ar": "الصفحة التالية"
+                    }
+                }
+            ]
+        },
+        {
+            "type": "number",
+            "name": "index",
+            "title": {
+                "en": "Page Index",
+                "nl": "Pagina Index",
+                "de": "Seitenindex",
+                "fr": "Index de page",
+                "it": "Indice pagina",
+                "sv": "Sidindex",
+                "no": "Sideindeks",
+                "es": "Índice de página",
+                "da": "Sideindeks",
+                "ru": "Индекс страницы",
+                "pl": "Indeks strony",
+                "ko": "페이지 인덱스",
+                "ar": "فهرس الصفحة"
+            },
+            "hint": {
+                "en": "Page index between 0 and 99 (0 = Default page)",
+                "nl": "Pagina-index tussen 0 en 99 (0 = Standaardpagina)",
+                "de": "Seitenindex zwischen 0 und 99 (0 = Standardseite)",
+                "fr": "Index de page compris entre 0 et 99 (0 = page par défaut)",
+                "it": "Indice pagina compreso tra 0 e 99 (0 = pagina predefinita)",
+                "sv": "Sidindex mellan 0 och 99 (0 = standardsida)",
+                "no": "Sideindeks mellom 0 og 99 (0 = standardside)",
+                "es": "Índice de página entre 0 y 99 (0 = página predeterminada)",
+                "da": "Sideindeks mellem 0 og 99 (0 = standardside)",
+                "ru": "Индекс страницы от 0 до 99 (0 — страница по умолчанию)",
+                "pl": "Indeks strony od 0 do 99 (0 = strona domyślna)",
+                "ko": "0에서 99 사이의 페이지 인덱스(0 = 기본 페이지)",
+                "ar": "فهرس الصفحة بين 0 و 99 (0 = الصفحة الافتراضية)"
+            },
+            "placeholder": {
+                "en": "Large display page index (0-99)",
+                "nl": "Grote display pagina index (0-99)",
+                "de": "Seitenindex des großen Displays (0-99)",
+                "fr": "Index de page du grand écran (0-99)",
+                "it": "Indice pagina del display grande (0-99)",
+                "sv": "Sidindex för stor skärm (0-99)",
+                "no": "Sideindeks for stor skjerm (0-99)",
+                "es": "Índice de página de la pantalla grande (0-99)",
+                "da": "Sideindeks for stor skærm (0-99)",
+                "ru": "Индекс страницы большого дисплея (0-99)",
+                "pl": "Indeks strony dużego wyświetlacza (0-99)",
+                "ko": "대형 디스플레이 페이지 인덱스(0-99)",
+                "ar": "فهرس صفحة الشاشة الكبيرة (0-99)"
+            },
+            "required": false,
+            "min": 0,
+            "max": 99,
+            "step": 1
+        }
+    ]
+}

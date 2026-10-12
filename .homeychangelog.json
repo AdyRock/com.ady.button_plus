@@ -1843,5 +1843,21 @@
         "pl": "Dodano kreator konfiguracji przycisków dla przełączników, świateł ściemnianych i kolorowych, rolet, termostatów, wentylatorów i zamków z automatyczną konfiguracją wyświetlacza, diod LED i działań. Dodano opcję wyczyszczenia ustawień przycisku. Dodano konfigurowalne ponowne blokowanie po określonym czasie i natychmiastową informację zwrotną dla zamków, również z osobnymi przyciskami blokowania i odblokowania. Dodano opcję wyłączenia zdarzeń zwolnienia po krótkich kliknięciach, zachowując je po długich naciśnięciach. Ulepszono układ, etykiety, tłumaczenia, nazwy brakujących urządzeń i widoczność pól wyświetlacza. Dodano edytowalne jednostki dla zmiennych Homey w elementach wyświetlacza i zmiennych liczbowych w podstawowych i zaawansowanych konfiguracjach przycisków, wraz z zapisem, podglądem i aktualizacjami na żywo.",
         "ko": "스위치, 밝기 및 색상 조절 조명, 블라인드, 온도 조절기, 팬 및 잠금장치를 위한 버튼 설정 마법사를 추가하여 화면, LED 및 동작을 자동으로 구성합니다. 버튼 설정 초기화 옵션을 추가했습니다. 설정 가능한 자동 재잠금 타이머와 즉각적인 잠금 상태 피드백을 추가했으며, 별도의 잠금 및 잠금 해제 버튼도 지원합니다. 짧은 클릭 후의 버튼 해제 이벤트를 끄되 길게 누른 후의 해제 이벤트는 유지하는 옵션을 추가했습니다. 설정 화면, 라벨, 번역, 누락된 장치 이름 및 화면 필드 표시를 개선했습니다. 화면 항목의 Homey 변수와 기본 및 고급 버튼 구성의 숫자 변수에 편집 가능한 단위를 추가했으며, 저장, 미리보기 및 실시간 업데이트를 지원합니다.",
         "ar": "تمت إضافة معالج لإعداد الأزرار للمفاتيح والأضواء القابلة للتعتيم والملونة والستائر ومنظمات الحرارة والمراوح والأقفال، مع إعداد تلقائي للشاشة ومصابيح LED والإجراءات. تمت إضافة خيار لمسح إعدادات الأزرار. تمت إضافة إعادة قفل بمؤقت قابل للضبط واستجابة فورية لحالة القفل، مع دعم أزرار منفصلة للقفل وإلغاء القفل. تمت إضافة خيار لتعطيل أحداث تحرير الزر بعد النقرات القصيرة مع الاحتفاظ بها بعد الضغط المطول. تم تحسين تخطيط الإعدادات والتسميات والترجمات وأسماء الأجهزة المفقودة وظهور حقول العرض. تمت إضافة وحدات قابلة للتحرير لمتغيرات Homey في عناصر العرض والمتغيرات الرقمية في إعدادات الأزرار الأساسية والمتقدمة، مع الحفظ والمعاينة والتحديثات المباشرة."
+	},
+	"1.0.10": {
+        "en": "Added app-level Flow cards and fixed the configuration dropdown to display names.",
+        "nl": "Flow-kaarten op appniveau toegevoegd en de configuratiekeuzelijst aangepast zodat de namen worden weergegeven.",
+        "de": "Flow-Karten auf App-Ebene hinzugefügt und die Konfigurationsdropdownliste korrigiert, damit die Namen angezeigt werden.",
+        "fr": "Ajout de cartes Flow au niveau de l'application et correction de la liste déroulante de configuration afin d'afficher les noms.",
+        "it": "Aggiunte le schede Flow a livello di app e corretta la casella di selezione della configurazione affinché mostri i nomi.",
+        "sv": "Lade till Flow-kort på appnivå och korrigerade konfigurationslistan så att namnen visas.",
+        "no": "La til Flow-kort på appnivå og rettet konfigurasjonslisten slik at navnene vises.",
+        "es": "Se añadieron tarjetas Flow a nivel de aplicación y se corrigió la lista desplegable de configuración para que muestre los nombres.",
+        "da": "Tilføjede Flow-kort på appniveau og rettede konfigurationslisten, så navnene vises.",
+        "ru": "Добавлены карточки Flow на уровне приложения и исправлен список конфигураций, чтобы в нём отображались названия.",
+        "pl": "Dodano karty Flow na poziomie aplikacji i poprawiono listę konfiguracji, aby wyświetlała nazwy.",
+        "ko": "앱 수준 Flow 카드를 추가하고 구성 드롭다운에 이름이 표시되도록 수정했습니다.",
+        "ar": "تمت إضافة بطاقات Flow على مستوى التطبيق وإصلاح قائمة التكوين المنسدلة لعرض الأسماء."
+
 	}
 }

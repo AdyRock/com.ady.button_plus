@@ -1,0 +1,117 @@
+{
+    "title": {
+        "en": "The specified display configuration !{{is|isn't}} active (Device)",
+        "nl": "De opgegeven display configuratie !{{is|isn't}} actief (Apparaat)",
+        "de": "Die angegebene Displaykonfiguration !{{is|isn't}} aktiv (Gerät)",
+        "fr": "La configuration d’affichage indiquée !{{is|isn't}} active (Appareil)",
+        "it": "La configurazione display specificata !{{is|isn't}} attiva (Dispositivo)",
+        "sv": "Den angivna skärmkonfigurationen !{{is|isn't}} aktiv (Enhet)",
+        "no": "Den valgte skjermkonfigurasjonen !{{is|isn't}} aktiv (Enhet)",
+        "es": "La configuración de pantalla especificada !{{is|isn't}} activa (Dispositivo)",
+        "da": "Den angivne skærmkonfiguration !{{is|isn't}} aktiv (Enhed)",
+        "ru": "Указанная конфигурация дисплея !{{is|isn't}} активна (Устройство)",
+        "pl": "Wskazana konfiguracja wyświetlacza !{{is|isn't}} aktywna (Urządzenie)",
+        "ko": "지정한 디스플레이 구성이 !{{is|isn't}} 활성 상태 (장치)",
+        "ar": "تكوين الشاشة المحدد !{{is|isn't}} نشطًا (الجهاز)"
+    },
+    "titleFormatted": {
+        "en": "The display configuration [[config]] !{{is|isn't}} active ([[device]])",
+        "nl": "De display configuratie [[config]] !{{is|isn't}} actief ([[device]])",
+        "de": "Die Displaykonfiguration [[config]] !{{is|isn't}} aktiv ([[device]])",
+        "fr": "La configuration d’affichage [[config]] !{{is|isn't}} active ([[device]])",
+        "it": "La configurazione display [[config]] !{{is|isn't}} attiva ([[device]])",
+        "sv": "Skärmkonfigurationen [[config]] !{{is|isn't}} aktiv ([[device]])",
+        "no": "Skjermkonfigurasjonen [[config]] !{{is|isn't}} aktiv ([[device]])",
+        "es": "La configuración de pantalla [[config]] !{{is|isn't}} activa ([[device]])",
+        "da": "Skærmkonfigurationen [[config]] !{{is|isn't}} aktiv ([[device]])",
+        "ru": "Конфигурация дисплея [[config]] !{{is|isn't}} активна ([[device]])",
+        "pl": "Konfiguracja wyświetlacza [[config]] !{{is|isn't}} aktywna ([[device]])",
+        "ko": "디스플레이 구성 [[config]]이(가) !{{is|isn't}} 활성 상태 ([[device]])",
+        "ar": "تكوين الشاشة [[config]] !{{is|isn't}} نشطًا ([[device]])"
+    },
+    "args": [
+        {
+            "name": "device",
+            "type": "autocomplete",
+            "title": {
+                "en": "Device",
+                "nl": "Apparaat",
+                "de": "Gerät",
+                "fr": "Appareil",
+                "it": "Dispositivo",
+                "sv": "Enhet",
+                "no": "Enhet",
+                "es": "Dispositivo",
+                "da": "Enhed",
+                "ru": "Устройство",
+                "pl": "Urządzenie",
+                "ko": "장치",
+                "ar": "الجهاز"
+            },
+            "placeholder": {
+                "en": "Choose a device",
+                "nl": "Kies een apparaat",
+                "de": "Gerät auswählen",
+                "fr": "Choisir un appareil",
+                "it": "Scegli un dispositivo",
+                "sv": "Välj en enhet",
+                "no": "Velg en enhet",
+                "es": "Elegir un dispositivo",
+                "da": "Vælg en enhed",
+                "ru": "Выберите устройство",
+                "pl": "Wybierz urządzenie",
+                "ko": "장치 선택",
+                "ar": "اختر جهازًا"
+            }
+        },
+        {
+            "type": "autocomplete",
+            "name": "config",
+            "title": {
+                "en": "Configuration",
+                "nl": "Configuratie",
+                "de": "Konfiguration",
+                "fr": "Configuration",
+                "it": "Configurazione",
+                "sv": "Konfiguration",
+                "no": "Konfigurasjon",
+                "es": "Configuración",
+                "da": "Konfiguration",
+                "ru": "Конфигурация",
+                "pl": "Konfiguracja",
+                "ko": "구성",
+                "ar": "التكوين"
+            },
+            "hint": {
+                "en": "Find this Configuration on a button connector",
+                "nl": "Vind deze configuratie op een knop connector",
+                "de": "Diese Konfiguration an einem Tastenanschluss suchen",
+                "fr": "Trouver cette configuration sur un connecteur de bouton",
+                "it": "Trova questa configurazione su un connettore del pulsante",
+                "sv": "Hitta den här konfigurationen på en knappanslutning",
+                "no": "Finn denne konfigurasjonen på en knappetilkobling",
+                "es": "Buscar esta configuración en un conector de botón",
+                "da": "Find denne konfiguration på en knaptilslutning",
+                "ru": "Найти эту конфигурацию на разъеме кнопки",
+                "pl": "Znajdź tę konfigurację na złączu przycisku",
+                "ko": "버튼 커넥터에서 이 구성 찾기",
+                "ar": "البحث عن هذا التكوين في موصل زر"
+            },
+            "placeholder": {
+                "en": "Choose a configuration",
+                "nl": "Kies een configuratie",
+                "de": "Konfiguration auswählen",
+                "fr": "Choisir une configuration",
+                "it": "Scegli una configurazione",
+                "sv": "Välj en konfiguration",
+                "no": "Velg en konfigurasjon",
+                "es": "Elegir una configuración",
+                "da": "Vælg en konfiguration",
+                "ru": "Выберите конфигурацию",
+                "pl": "Wybierz konfigurację",
+                "ko": "구성 선택",
+                "ar": "اختر تكوينًا"
+            }
+        }
+    ]
+}
