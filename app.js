@@ -821,6 +821,36 @@ class MyApp extends Homey.App
 				return args.device.getCapabilityValue(`${args.left_right}_button.connector${args.connector - 1}`);
 			});
 
+		this.getDeviceFlowCard('Condition', 'is_button_config_on')
+			.registerRunListener(async args =>
+			{
+				const requiredConfig = args.config.id;
+				for (let connector = 0; connector < 8; connector++)
+				{
+					if (Number(args.device.getSetting(`connect${connector}Type`)) !== 1)
+					{
+						continue;
+					}
+					const activeConfig = args.device.getEffectiveConfigNo('button', connector);
+					// eslint-disable-next-line eqeqeq
+					if (activeConfig == requiredConfig)
+					{
+						const page = Math.max(0, (Number(args.device.page) || 1) - 1);
+						const sideConfig = args.device.getConfigPageSide(null, page, args.left_right, requiredConfig);
+						const fallback = args.device.getCapabilityValue(`${args.left_right}_button.connector${connector}`);
+						if (await args.device.getConfigLedButtonState(sideConfig, fallback))
+						{
+							return true;
+						}
+					}
+				}
+				return false;
+			})
+			.registerArgumentAutocompleteListener('config', async query =>
+			{
+				return this.getFlowConfigurationOptions(query, this.buttonConfigurations);
+			});
+
 		// This flow is deprecated as it is replaced by the is_button_config_name flow
 		this.homey.flow.getConditionCard('is_button_config')
 			.registerRunListener(async (args, state) =>

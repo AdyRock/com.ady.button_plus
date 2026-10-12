@@ -1,0 +1,56 @@
+{
+    "title": {
+        "en": "The specified button in the configuration !{{is|isn't}} on (Device)",
+        "nl": "De opgegeven knop in de configuratie !{{is|isn't}} aan (Apparaat)",
+        "de": "Die angegebene Taste in der Konfiguration !{{is|isn't}} eingeschaltet (Gerät)",
+        "fr": "Le bouton indiqué dans la configuration !{{is|isn't}} allumé (Appareil)",
+        "it": "Il pulsante specificato nella configurazione !{{is|isn't}} acceso (Dispositivo)",
+        "sv": "Den angivna knappen i konfigurationen !{{is|isn't}} på (Enhet)",
+        "no": "Den valgte knappen i konfigurasjonen !{{is|isn't}} på (Enhet)",
+        "es": "El botón especificado en la configuración !{{is|isn't}} encendido (Dispositivo)",
+        "da": "Den angivne knap i konfigurationen !{{is|isn't}} tændt (Enhed)",
+        "ru": "Указанная кнопка в конфигурации !{{is|isn't}} включена (Устройство)",
+        "pl": "Wskazany przycisk w konfiguracji !{{is|isn't}} włączony (Urządzenie)",
+        "ko": "지정한 구성의 버튼이 !{{is|isn't}} 켜짐 상태 (장치)",
+        "ar": "الزر المحدد في التكوين !{{is|isn't}} قيد التشغيل (الجهاز)"
+    },
+    "titleFormatted": {
+        "en": "The [[left_right]] button in configuration [[config]] !{{is|isn't}} on ([[device]])",
+        "nl": "De [[left_right]] knop in configuratie [[config]] !{{is|isn't}} aan ([[device]])",
+        "de": "Die [[left_right]] Taste in Konfiguration [[config]] !{{is|isn't}} eingeschaltet ([[device]])",
+        "fr": "Le bouton [[left_right]] de la configuration [[config]] !{{is|isn't}} allumé ([[device]])",
+        "it": "Il pulsante [[left_right]] nella configurazione [[config]] !{{is|isn't}} acceso ([[device]])",
+        "sv": "[[left_right]]-knappen i konfigurationen [[config]] !{{is|isn't}} på ([[device]])",
+        "no": "[[left_right]]-knappen i konfigurasjonen [[config]] !{{is|isn't}} på ([[device]])",
+        "es": "El botón [[left_right]] de la configuración [[config]] !{{is|isn't}} encendido ([[device]])",
+        "da": "Knappen [[left_right]] i konfiguration [[config]] !{{is|isn't}} tændt ([[device]])",
+        "ru": "Кнопка [[left_right]] в конфигурации [[config]] !{{is|isn't}} включена ([[device]])",
+        "pl": "Przycisk [[left_right]] w konfiguracji [[config]] !{{is|isn't}} włączony ([[device]])",
+        "ko": "구성 [[config]]의 [[left_right]] 버튼이 !{{is|isn't}} 켜짐 상태 ([[device]])",
+        "ar": "الزر [[left_right]] في التكوين [[config]] !{{is|isn't}} قيد التشغيل ([[device]])"
+    },
+    "args": [
+        {
+            "name": "device",
+            "type": "autocomplete",
+            "title": {"en": "Device", "nl": "Apparaat", "de": "Gerät", "fr": "Appareil", "it": "Dispositivo", "sv": "Enhet", "no": "Enhet", "es": "Dispositivo", "da": "Enhed", "ru": "Устройство", "pl": "Urządzenie", "ko": "장치", "ar": "الجهاز"},
+            "placeholder": {"en": "Choose a device", "nl": "Kies een apparaat", "de": "Gerät auswählen", "fr": "Choisir un appareil", "it": "Scegli un dispositivo", "sv": "Välj en enhet", "no": "Velg en enhet", "es": "Elegir un dispositivo", "da": "Vælg en enhed", "ru": "Выберите устройство", "pl": "Wybierz urządzenie", "ko": "장치 선택", "ar": "اختر جهازًا"}
+        },
+        {
+            "type": "dropdown",
+            "name": "left_right",
+            "title": {"en": "Left / Right", "nl": "Links / Rechts", "de": "Links / Rechts", "fr": "Gauche / Droite", "it": "Sinistro / Destro", "sv": "Vänster / Höger", "no": "Venstre / Høyre", "es": "Izquierdo / Derecho", "da": "Venstre / højre", "ru": "Левая / Правая", "pl": "Lewy / Prawy", "ko": "왼쪽 / 오른쪽", "ar": "يسار / يمين"},
+            "placeholder": {"en": "Left / Right", "nl": "Links / Rechts", "de": "Links / Rechts", "fr": "Gauche / Droite", "it": "Sinistro / Destro", "sv": "Vänster / Höger", "no": "Venstre / Høyre", "es": "Izquierdo / Derecho", "da": "Venstre / højre", "ru": "Левая / Правая", "pl": "Lewy / Prawy", "ko": "왼쪽 / 오른쪽", "ar": "يسار / يمين"},
+            "values": [
+                {"id": "left", "title": {"en": "Left", "nl": "Links", "de": "Links", "fr": "Gauche", "it": "Sinistro", "sv": "Vänster", "no": "Venstre", "es": "Izquierdo", "da": "Venstre", "ru": "Левая", "pl": "Lewy", "ko": "왼쪽", "ar": "يسار"}},
+                {"id": "right", "title": {"en": "Right", "nl": "Rechts", "de": "Rechts", "fr": "Droite", "it": "Destro", "sv": "Höger", "no": "Høyre", "es": "Derecho", "da": "Højre", "ru": "Правая", "pl": "Prawy", "ko": "오른쪽", "ar": "يمين"}}
+            ]
+        },
+        {
+            "type": "autocomplete",
+            "name": "config",
+            "title": {"en": "Configuration", "nl": "Configuratie", "de": "Konfiguration", "fr": "Configuration", "it": "Configurazione", "sv": "Konfiguration", "no": "Konfigurasjon", "es": "Configuración", "da": "Konfiguration", "ru": "Конфигурация", "pl": "Konfiguracja", "ko": "구성", "ar": "التكوين"},
+            "placeholder": {"en": "Choose a configuration", "nl": "Kies een configuratie", "de": "Konfiguration auswählen", "fr": "Choisir une configuration", "it": "Scegli una configurazione", "sv": "Välj en konfiguration", "no": "Velg en konfigurasjon", "es": "Elegir una configuración", "da": "Vælg en konfiguration", "ru": "Выберите конфигурацию", "pl": "Wybierz konfigurację", "ko": "구성 선택", "ar": "اختر تكوينًا"}
+        }
+    ]
+}

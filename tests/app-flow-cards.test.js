@@ -37,6 +37,10 @@ function createPanel(id, activeConfig)
 		getData: () => ({ id }),
 		getName: () => `Panel ${id}`,
 		getSetting: name => name === 'connect0Type' ? 1 : 0,
+		getEffectiveConfigNo: (_type, connector) => connector === 0 ? activeConfig : null,
+		getConfigPageSide: () => ({ capabilityName: 'onoff' }),
+		getConfigLedButtonState: (_config, fallback) => fallback,
+		page: 1,
 		getCapabilityValue: name => name.includes('configuration') ? activeConfig : activeConfig === 0,
 	}, {
 		get(target, property)
@@ -131,7 +135,7 @@ async function run()
 			assert.strictEqual(await card.run({ ...args, device: { id: '*' } }, {}), 'done');
 			assert.deepStrictEqual(calls.splice(-2).map(call => call.id).sort(), ['a', 'b'], card.id);
 	}
-	for (const id of ['is_button_on', 'is_button_config_name', 'is_display_config_name'])
+	for (const id of ['is_button_on', 'is_button_config_on', 'is_button_config_name', 'is_display_config_name'])
 	{
 		const card = getCard('conditions', `${id}_app`);
 		assert.strictEqual(await card.run({ ...args, device: { id: 'a' } }, {}), true, id);
@@ -139,6 +143,16 @@ async function run()
 		assert.strictEqual(await card.run({ ...args, device: { id: '*' } }, {}), true, id);
 		await assert.rejects(card.run({ ...args, device: { id: 'deleted' } }, {}), /no longer available/);
 	}
+	const buttonConfigCondition = getCard('conditions', 'is_button_config_on');
+	const dimPanel = {
+		page: 1,
+		getSetting: name => name === 'connect0Type' ? 1 : 0,
+		getEffectiveConfigNo: (_type, connector) => connector === 0 ? 3 : null,
+		getConfigPageSide: () => ({ capabilityName: 'dim' }),
+		getConfigLedButtonState: (config, fallback) => config.capabilityName === 'dim' ? true : fallback,
+		getCapabilityValue: () => false,
+	};
+	assert.strictEqual(await buttonConfigCondition.run({ ...args, device: dimPanel, left_right: 'right', config: { id: 3 } }, {}), true);
 	assert.strictEqual(await getCard('conditions', 'is_button_config_name_app').autocomplete.device('anyconnector').then(options => options[0].id), '*');
 	const appConfigCondition = getCard('conditions', 'is_button_config_name_app');
 	const anyDeviceOptions = await appConfigCondition.autocomplete.device('Any');
