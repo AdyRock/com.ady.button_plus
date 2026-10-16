@@ -11,6 +11,7 @@ const { isSvgTextContent, normalizeSvgText } = require('../../lib/SvgHelper');
 const DOUBLE_CLICK_WINDOW_MS = 350;
 const DEFAULT_LONG_PRESS_DELAY_MS = 750;
 const DUPLICATE_CLICK_DEBOUNCE_MS = 120;
+const ADVANCED_DISPLAY_FEEDBACK_MS = 3000;
 const TARGET_BUTTON_PLUS_DEVICE_ID = '_this_button_plus_';
 const OPTIMISTIC_LOCK_FEEDBACK_MS = 20000;
 
@@ -73,6 +74,7 @@ class PanelDevice extends Device
 		this.pickerCommitTimers = new Map();
 		this.advancedPendingValues = new Map();
 		this.advancedCommitTimers = new Map();
+		this.advancedDisplayFeedbackTimers = new Map();
 		this.advancedRelockTimers = new Map();
 		this.optimisticLockTimers = new Map();
 		this.advancedDirectionStates = new Map();
@@ -934,6 +936,14 @@ class PanelDevice extends Device
 				this.homey.clearTimeout(timer);
 			}
 			this.advancedCommitTimers.clear();
+		}
+		if (this.advancedDisplayFeedbackTimers)
+		{
+			for (const timer of this.advancedDisplayFeedbackTimers.values())
+			{
+				this.homey.clearTimeout(timer);
+			}
+			this.advancedDisplayFeedbackTimers.clear();
 		}
 		if (this.advancedRelockTimers)
 		{
@@ -3534,6 +3544,34 @@ class PanelDevice extends Device
 		return parsedStep;
 	}
 
+	isAdvancedStepRelative(rawStep)
+	{
+		return /^[+-]/.test(String(rawStep ?? '').trim());
+	}
+
+	getAdvancedAbsoluteValue(rawValue, capabilityName, capability)
+	{
+		const numericValue = this.parseValueStep(rawValue, 10);
+		if (capabilityName === 'dim' || capabilityName === 'windowcoverings_set')
+		{
+			const min = Number.isFinite(Number(capability.min)) ? Number(capability.min) : 0;
+			const max = Number.isFinite(Number(capability.max)) ? Number(capability.max) : 1;
+			const absoluteValue = min + ((numericValue / 100) * (max - min));
+			return Math.round(Math.max(min, Math.min(max, absoluteValue)) * 1000) / 1000;
+		}
+
+		let absoluteValue = numericValue;
+		if (Number.isFinite(Number(capability.min)))
+		{
+			absoluteValue = Math.max(Number(capability.min), absoluteValue);
+		}
+		if (Number.isFinite(Number(capability.max)))
+		{
+			absoluteValue = Math.min(Number(capability.max), absoluteValue);
+		}
+		return absoluteValue;
+	}
+
 	/**
 	 * Format brightness (dim) as percentage with current adjustment direction indicator (+ or -).
 	 */
@@ -3688,6 +3726,45 @@ class PanelDevice extends Device
 		return existing === '-' ? '-' : '+';
 	}
 
+	getAdvancedStepDelta(parameters, rawStep)
+	{
+		const numericStep = this.parseValueStep(rawStep, 10);
+		const key = this.getAdvancedDirectionKey(parameters);
+		if (!this.advancedDirectionStates.has(key))
+		{
+			this.setAdvancedDirection(parameters, numericStep < 0 ? '-' : '+');
+		}
+
+		const magnitude = Math.abs(numericStep);
+		return this.getAdvancedDirection(parameters) === '-' ? -magnitude : magnitude;
+	}
+
+	prepareAdvancedDirectionForEvent(parameters, binding)
+	{
+		if (!parameters || !binding || binding.directionOnly)
+		{
+			return;
+		}
+
+		const numericAction = binding.numericAction || 'change';
+		if (numericAction === 'setPlus')
+		{
+			this.setAdvancedDirection(parameters, '+');
+		}
+		else if (numericAction === 'setMinus')
+		{
+			this.setAdvancedDirection(parameters, '-');
+		}
+		else if (numericAction === 'toggleDirection')
+		{
+			this.toggleAdvancedDirection(parameters);
+		}
+		else if (this.isAdvancedStepRelative(binding.rawValueStep))
+		{
+			this.getAdvancedStepDelta(parameters, binding.valueStep);
+		}
+	}
+
 	setAdvancedDirection(parameters, direction)
 	{
 		const key = this.getAdvancedDirectionKey(parameters);
@@ -3821,6 +3898,7 @@ class PanelDevice extends Device
 			directionOnly,
 			flowTriggerOnly,
 			valueStep: this.parseValueStep(rawStep, 10),
+			rawValueStep: rawStep,
 			relockSeconds: (rawRelock === undefined || rawRelock === null || rawRelock === '' || !Number.isFinite(parsedRelock)) ? 5 : Math.max(0, parsedRelock),
 			brokerId,
 			eventName,
@@ -4167,6 +4245,7 @@ class PanelDevice extends Device
 
 		let deviceID = sideConfig[`${side}DisplayDevice`] || 'none';
 		let capabilityName = sideConfig[`${side}DisplayCapability`] || '';
+		let source = 'configured';
 
 		// Older configurations stored one shared device/capability pair instead of
 		// a dedicated display binding. Preserve that value when upgrading configs.
@@ -4177,6 +4256,7 @@ class PanelDevice extends Device
 			{
 				deviceID = legacySideConfig.deviceID;
 				capabilityName = legacySideConfig.capabilityName;
+				source = 'legacy';
 				this.homey.app.updateLog(`ADVDBG displayBinding fallback: ${parameters.connector}/${parameters.side}/${parameters.page} using Legacy ${deviceID}/${capabilityName}`, 1);
 			}
 		}
@@ -4196,6 +4276,7 @@ class PanelDevice extends Device
 
 				deviceID = fallbackDeviceId;
 				capabilityName = fallbackCapabilityName;
+				source = 'action';
 				this.homey.app.updateLog(`ADVDBG displayBinding fallback: ${parameters.connector}/${parameters.side}/${parameters.page} using ${eventName} ${deviceID}/${capabilityName}`, 1);
 				break;
 			}
@@ -4207,6 +4288,7 @@ class PanelDevice extends Device
 		}
 
 		return {
+			source,
 			deviceID,
 			capabilityName,
 			booleanRender: sideConfig[`${side}DisplayBooleanRender`] || 'text',
@@ -4354,6 +4436,26 @@ class PanelDevice extends Device
 		return { textValue: effectiveValue == null ? '' : String(effectiveValue), svgValue: null };
 	}
 
+	getAdvancedDisplayIdleValue(binding, parameters)
+	{
+		const buttonValueKey = `${parameters.side}_${parameters.connector}_${parameters.page}`;
+		const isOn = this.buttonValues.get(buttonValueKey) === true;
+	return {
+			textValue: null,
+			svgValue: isOn ? binding.onSVG : binding.offSVG,
+		};
+	}
+
+	async resolveAdvancedDisplayInitialValue(binding, parameters)
+	{
+		if (binding && binding.source === 'action')
+		{
+			return this.getAdvancedDisplayIdleValue(binding, parameters);
+		}
+
+		return this.resolveAdvancedDisplayValue(binding, undefined, parameters);
+	}
+
 	/**
 	 * Apply display binding to the panel: publish SVG or text label via MQTT.
 	 * Called after each event and during long-press to provide live feedback.
@@ -4365,6 +4467,21 @@ class PanelDevice extends Device
 		if (!binding)
 		{
 			this.homey.app.updateLog(`ADVDBG applyDisplay skip: ${parameters ? `${parameters.connector}/${parameters.side}/${parameters.page}` : 'unknown'}`, 1);
+			return;
+		}
+
+		const feedbackKey = this.getButtonStateKey(parameters.connector, parameters.side, parameters.page);
+		if (this.advancedDisplayFeedbackTimers.has(feedbackKey))
+		{
+			return;
+		}
+
+		if (binding.source === 'action')
+		{
+			const idleValue = this.getAdvancedDisplayIdleValue(binding, parameters);
+			const buttonIdx = parameters.connector * 2 + (parameters.side === 'left' ? 0 : 1) + 1;
+			this.homey.app.publishMQTTMessage(binding.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/svg/set`, idleValue.svgValue || '').catch(err => this.error(err));
+			this.homey.app.publishMQTTMessage(binding.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/label/set`, '').catch(err => this.error(err));
 			return;
 		}
 
@@ -4385,6 +4502,90 @@ class PanelDevice extends Device
 			this.homey.app.publishMQTTMessage(binding.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/svg/set`, '').catch(err => this.error(err));
 			this.homey.app.publishMQTTMessage(binding.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/label/set`, value && value.textValue != null ? value.textValue : '').catch(this.error);
 		}
+	}
+
+	async applyAdvancedEventDisplayFeedback(parameters, eventBinding, overrideValue)
+	{
+		const displayBinding = this.resolveAdvancedDisplayBinding(parameters);
+		if (!displayBinding)
+		{
+			return false;
+		}
+		const matchesDisplayCapability = !!(eventBinding
+			&& eventBinding.deviceID === displayBinding.deviceID
+			&& eventBinding.capabilityName === displayBinding.capabilityName);
+		if (displayBinding.source !== 'action' && (!eventBinding || matchesDisplayCapability))
+		{
+			return false;
+		}
+
+		const feedbackBinding = (eventBinding && eventBinding.deviceID && eventBinding.capabilityName)
+			? {
+				...displayBinding,
+				deviceID: eventBinding.deviceID,
+				capabilityName: eventBinding.capabilityName,
+				booleanRender: 'text',
+				onText: 'On',
+				offText: 'Off',
+			}
+			: displayBinding;
+		const value = await this.resolveAdvancedDisplayValue(feedbackBinding, overrideValue, parameters);
+		if (!value || (!value.svgValue && !value.textValue))
+		{
+			return false;
+		}
+
+		const feedbackKey = this.getButtonStateKey(parameters.connector, parameters.side, parameters.page);
+		const existingTimer = this.advancedDisplayFeedbackTimers.get(feedbackKey);
+		if (existingTimer)
+		{
+			this.homey.clearTimeout(existingTimer);
+		}
+
+		const restoreParameters = { ...parameters };
+		const timer = this.homey.setTimeout(() =>
+		{
+			this.advancedDisplayFeedbackTimers.delete(feedbackKey);
+			this.applyAdvancedDisplayBinding(restoreParameters).catch(err => this.error(err));
+		}, ADVANCED_DISPLAY_FEEDBACK_MS);
+		this.advancedDisplayFeedbackTimers.set(feedbackKey, timer);
+
+		const buttonIdx = parameters.connector * 2 + (parameters.side === 'left' ? 0 : 1) + 1;
+		if (value.svgValue)
+		{
+			this.homey.app.publishMQTTMessage(displayBinding.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/svg/set`, value.svgValue).catch(err => this.error(err));
+			this.homey.app.publishMQTTMessage(displayBinding.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/label/set`, '').catch(err => this.error(err));
+		}
+		else
+		{
+			this.homey.app.publishMQTTMessage(displayBinding.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/svg/set`, '').catch(err => this.error(err));
+			this.homey.app.publishMQTTMessage(displayBinding.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/label/set`, value.textValue || '').catch(err => this.error(err));
+		}
+		return true;
+	}
+
+	async showInitialAdvancedDisplayValue(parameters, eventBinding)
+	{
+		const displayBinding = this.resolveAdvancedDisplayBinding(parameters);
+		if (!displayBinding)
+		{
+			return false;
+		}
+		const matchesDisplayCapability = !!(eventBinding
+			&& eventBinding.deviceID === displayBinding.deviceID
+			&& eventBinding.capabilityName === displayBinding.capabilityName);
+		if (displayBinding.source !== 'action' && matchesDisplayCapability)
+		{
+			return false;
+		}
+
+		const feedbackKey = this.getButtonStateKey(parameters.connector, parameters.side, parameters.page);
+		if (this.advancedDisplayFeedbackTimers.has(feedbackKey))
+		{
+			return false;
+		}
+
+		return this.applyAdvancedEventDisplayFeedback(parameters, eventBinding);
 	}
 
 	/**
@@ -4766,17 +4967,23 @@ class PanelDevice extends Device
 		}
 
 		this.homey.app.updateLog(`ADVDBG map ${eventType}: ${parameters.connector}/${parameters.side}/${parameters.page} -> ${binding.deviceID}/${binding.capabilityName}, action=${binding.numericAction}, step=${binding.valueStep}`, 1);
-
-		const shouldBufferUntilRelease = eventType === 'long';
-		let hasLocalPreview = false;
-
 		if (binding.directionOnly)
 		{
 			this.toggleAdvancedDirection(parameters);
+			await this.applyAdvancedEventDisplayFeedback(parameters, null);
 			await this.applyAdvancedDisplayBinding(parameters);
 			await this.applyAdvancedLedBinding(parameters);
 			return true;
 		}
+
+		this.prepareAdvancedDirectionForEvent(parameters, binding);
+		if (await this.showInitialAdvancedDisplayValue(parameters, binding))
+		{
+			return true;
+		}
+
+		const shouldBufferUntilRelease = eventType === 'long';
+		let hasLocalPreview = false;
 
 		if (binding.flowTriggerOnly)
 		{
@@ -4793,6 +5000,7 @@ class PanelDevice extends Device
 		if (!device)
 		{
 			this.homey.app.updateLog(`ADVDBG map ${eventType}: device missing ${binding.deviceID}`, 1);
+			await this.applyAdvancedEventDisplayFeedback(parameters, binding);
 			return true;
 		}
 
@@ -4800,6 +5008,7 @@ class PanelDevice extends Device
 		if (!capability || capability.setable === false)
 		{
 			this.homey.app.updateLog(`ADVDBG map ${eventType}: capability missing/not setable ${binding.capabilityName}`, 1);
+			await this.applyAdvancedEventDisplayFeedback(parameters, binding);
 			return true;
 		}
 
@@ -4889,15 +5098,18 @@ class PanelDevice extends Device
 			{
 				this.toggleAdvancedDirection(parameters);
 			}
+			else if (!this.isAdvancedStepRelative(binding.rawValueStep))
+			{
+				valueToWrite = this.getAdvancedAbsoluteValue(binding.rawValueStep, binding.capabilityName, capability);
+			}
 			else
 			{
-				const direction = this.getAdvancedDirection(parameters);
-				const step = Math.abs(binding.valueStep);
+				const stepDelta = this.getAdvancedStepDelta(parameters, binding.valueStep);
 				if (binding.capabilityName === 'dim')
 				{
 					const currentDim = Number.isFinite(Number(currentNumericValue)) ? Number(currentNumericValue) : 0;
-					const delta = step / 100;
-					valueToWrite = direction === '-' ? currentDim - delta : currentDim + delta;
+					const delta = stepDelta / 100;
+					valueToWrite = currentDim + delta;
 					valueToWrite = Math.max(0, Math.min(1, valueToWrite));
 					valueToWrite = Math.round(valueToWrite * 1000) / 1000;
 					this.applyAdvancedDirectionAtBounds(parameters, valueToWrite, 0, 1);
@@ -4905,8 +5117,8 @@ class PanelDevice extends Device
 				else if (binding.capabilityName === 'windowcoverings_set')
 				{
 					const currentCoverings = Number.isFinite(Number(currentNumericValue)) ? Number(currentNumericValue) : 0;
-					const delta = step / 100;
-					valueToWrite = direction === '-' ? currentCoverings - delta : currentCoverings + delta;
+					const delta = stepDelta / 100;
+					valueToWrite = currentCoverings + delta;
 					const min = Number.isFinite(Number(capability.min)) ? Number(capability.min) : 0;
 					const max = Number.isFinite(Number(capability.max)) ? Number(capability.max) : 1;
 					valueToWrite = Math.max(min, Math.min(max, valueToWrite));
@@ -4916,8 +5128,7 @@ class PanelDevice extends Device
 				else
 				{
 					const currentNumber = Number.isFinite(Number(currentNumericValue)) ? Number(currentNumericValue) : 0;
-					const delta = step;
-					valueToWrite = direction === '-' ? currentNumber - delta : currentNumber + delta;
+					valueToWrite = currentNumber + stepDelta;
 					if (Number.isFinite(Number(capability.min)))
 					{
 						valueToWrite = Math.max(Number(capability.min), valueToWrite);
@@ -4951,6 +5162,8 @@ class PanelDevice extends Device
 				}
 			}
 		}
+
+		await this.applyAdvancedEventDisplayFeedback(parameters, binding, valueToWrite);
 
 		// For debounced updates, avoid immediately re-reading the old device value and overwriting preview feedback.
 		if (!hasLocalPreview)
@@ -6932,9 +7145,12 @@ class PanelDevice extends Device
 
 	async setupConnectorMQTTmessages(config, page, connector)
 	{
+		const effectiveConfig = Array.isArray(config) && typeof this.homey.app.resolveEffectiveButtonPageConfiguration === 'function'
+			? config.map((_pageConfig, pageNo) => this.homey.app.resolveEffectiveButtonPageConfiguration(config, pageNo))
+			: config;
 		const [leftQueue, rightQueue] = await Promise.all([
-			this.publishButtonMQTTmessages(config, page, connector * 2),
-			this.publishButtonMQTTmessages(config, page, connector * 2 + 1),
+			this.publishButtonMQTTmessages(effectiveConfig, page, connector * 2),
+			this.publishButtonMQTTmessages(effectiveConfig, page, connector * 2 + 1),
 		]);
 
 		return leftQueue.concat(rightQueue);
@@ -7087,7 +7303,7 @@ class PanelDevice extends Device
 				// Config reloads don't go through checkStateChangeForConnector, so the stored
 				// direction (default '+') would otherwise be stale if the value is already at a bound.
 				await this.updateAdvancedDirectionForExternalChange(advancedParameters, effectiveDisplayBinding);
-				const displayValue = await this.resolveAdvancedDisplayValue(effectiveDisplayBinding, undefined, advancedParameters);
+				const displayValue = await this.resolveAdvancedDisplayInitialValue(effectiveDisplayBinding, advancedParameters);
 				mqttQueue.push(
 					{
 						brokerId: effectiveDisplayBinding.brokerId || displayBrokerId,
@@ -7299,7 +7515,9 @@ class PanelDevice extends Device
 				{
 					page = 0;
 				}
-				config = buttonPanelConfiguration[page];
+				config = (typeof this.homey.app.resolveEffectiveButtonPageConfiguration === 'function')
+					? this.homey.app.resolveEffectiveButtonPageConfiguration(buttonPanelConfiguration, page)
+					: buttonPanelConfiguration[page];
 			}
 		}
 

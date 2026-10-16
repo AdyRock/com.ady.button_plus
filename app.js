@@ -638,7 +638,7 @@ class MyApp extends Homey.App
 				return args.device.setButtonConfigurationNo(args.connector - 1, config);
 			});
 
-		this.getDeviceFlowCard('Action', 'switch_button_configuration_name')
+		this.getDeviceFlowCard('Action', 'switch_button_configuration_name', false)
 			.registerRunListener(async (args, state) =>
 			{
 				this.log('switch_button_configuration_name', args.config.id);
@@ -658,7 +658,7 @@ class MyApp extends Homey.App
 				return args.device.setDisplayConfigurationNo(config);
 			});
 
-		this.getDeviceFlowCard('Action', 'switch_display_configuration_name')
+		this.getDeviceFlowCard('Action', 'switch_display_configuration_name', false)
 			.registerRunListener(async (args, state) =>
 			{
 				this.log('switch_display_configuration_name', args.config.id);
@@ -679,7 +679,7 @@ class MyApp extends Homey.App
 				return args.device.turnButtonOnOff(args.left_right, args.connector - 1, page, true);
 			});
 
-		this.getDeviceFlowCard('Action', 'set_info')
+		this.getDeviceFlowCard('Action', 'set_info', false)
 			.registerRunListener(async (args, state) =>
 			{
 				this.log(`${args.info}`);
@@ -696,7 +696,7 @@ class MyApp extends Homey.App
 				return args.device.turnButtonOnOff(args.left_right, args.connector - 1, page, false);
 			});
 
-		this.getDeviceFlowCard('Action', 'set_connector_button_top_label')
+		this.getDeviceFlowCard('Action', 'set_connector_button_top_label', false)
 			.registerRunListener(async (args, state) =>
 			{
 				const page = args.page ? args.page : 0;
@@ -778,7 +778,7 @@ class MyApp extends Homey.App
 				return args.device.setDimLevel(args.large, args.mini, args.led);
 			});
 
-		this.getDeviceFlowCard('Action', 'set_connector_led_rgb')
+		this.getDeviceFlowCard('Action', 'set_connector_led_rgb', false)
 			.registerRunListener(async (args, state) =>
 			{
 				const page = args.page ? args.page : 0;
@@ -787,7 +787,7 @@ class MyApp extends Homey.App
 				return args.device.setConnectorLEDColour(args.left_right, args.connector - 1, args.rgb, args.front_wall ? args.front_wall : 'both', page);
 			});
 
-		this.getDeviceFlowCard('Action', 'set_config_name_led_rgb')
+		this.getDeviceFlowCard('Action', 'set_config_name_led_rgb', false)
 			.registerRunListener(async (args, state) =>
 			{
 				const page = args.page ? args.page : 0;
@@ -800,7 +800,7 @@ class MyApp extends Homey.App
 				return this.getFlowConfigurationOptions(query, this.buttonConfigurations);
 			});
 
-		this.getDeviceFlowCard('Action', 'set_display_page')
+		this.getDeviceFlowCard('Action', 'set_display_page', false)
 			.registerRunListener(async (args, state) =>
 			{
 				this.log(`set_display_page ${args.pageCommand} to ${args.index}`);
@@ -1596,6 +1596,28 @@ class MyApp extends Homey.App
 					continue;
 				}
 
+				const pageConfigVersion = Number(pageConfig.buttonConfigVersion) || 0;
+				if (pageConfigVersion < 2)
+				{
+					for (const side of ['left', 'right'])
+					{
+						for (const eventName of ['Click', 'Double', 'Long'])
+						{
+							const stepKey = `${side}${eventName}ValueStep`;
+							const rawStep = pageConfig[stepKey];
+							const stepText = (rawStep === undefined || rawStep === null) ? '' : String(rawStep).trim();
+							if (rawStep !== undefined && rawStep !== null && !/^[+-]/.test(stepText))
+							{
+								const numericStep = Number(stepText);
+								pageConfig[stepKey] = stepText && Number.isFinite(numericStep) && numericStep !== 0 ? `+${stepText}` : '+10';
+							}
+						}
+					}
+
+					pageConfig.buttonConfigVersion = 2;
+					changed = true;
+				}
+
 				for (const side of ['left', 'right'])
 				{
 					const deviceKey = `${side}Device`;
@@ -1603,19 +1625,26 @@ class MyApp extends Homey.App
 					const capabilityNameKey = `${side}CapabilityName`;
 					const targetDeviceId = pageConfig[deviceKey];
 					const targetCapability = String(pageConfig[capabilityKey] || '');
+					const targetCapabilityName = String(pageConfig[capabilityNameKey] || '');
 
-					if (!targetDeviceId || targetDeviceId === 'none' || targetDeviceId === '_variable_' || targetDeviceId === 'customMQTT')
+					if ((!targetDeviceId || targetDeviceId === 'none') && (targetCapability || targetCapabilityName))
 					{
-						continue;
+						pageConfig[capabilityKey] = '';
+						pageConfig[capabilityNameKey] = '';
+						changed = true;
+						this.updateLog(`Cleared unused capability in config ${configNo}, page ${pageNo}, side ${side} because its device is none (${source})`, 1);
 					}
 
-					const isButtonPlusTarget = await this.isButtonPlusDeviceId(targetDeviceId, buttonPlusDeviceCache);
-					if (isButtonPlusTarget && targetCapability !== 'dim')
+					if (targetCapability && targetDeviceId && targetDeviceId !== 'none' && targetDeviceId !== '_variable_' && targetDeviceId !== 'customMQTT')
 					{
-						pageConfig[capabilityKey] = 'dim';
-						pageConfig[capabilityNameKey] = 'Dim (dim)';
-						changed = true;
-						this.updateLog(`Sanitized Button+ target capability in config ${configNo}, page ${pageNo}, side ${side}: ${targetCapability} -> dim (${source})`, 0);
+						const isButtonPlusTarget = await this.isButtonPlusDeviceId(targetDeviceId, buttonPlusDeviceCache);
+						if (isButtonPlusTarget && targetCapability !== 'dim')
+						{
+							pageConfig[capabilityKey] = 'dim';
+							pageConfig[capabilityNameKey] = 'Dim (dim)';
+							changed = true;
+							this.updateLog(`Sanitized Button+ target capability in config ${configNo}, page ${pageNo}, side ${side}: ${targetCapability} -> dim (${source})`, 0);
+						}
 					}
 
 					for (const advancedBindingKey of [`${side}Led`, `${side}Display`, `${side}Click`, `${side}Double`, `${side}Long`])
@@ -1625,7 +1654,7 @@ class MyApp extends Homey.App
 						const advancedTargetDeviceId = pageConfig[advancedDeviceKey];
 						const advancedTargetCapability = String(pageConfig[advancedCapabilityKey] || '');
 
-						if (!advancedTargetDeviceId || advancedTargetDeviceId === 'none' || advancedTargetDeviceId === '_variable_' || advancedTargetDeviceId === 'customMQTT')
+						if (!advancedTargetCapability || !advancedTargetDeviceId || advancedTargetDeviceId === 'none' || advancedTargetDeviceId === '_variable_' || advancedTargetDeviceId === 'customMQTT')
 						{
 							continue;
 						}
@@ -2102,6 +2131,81 @@ class MyApp extends Homey.App
 	 * Handles legacy basic mode and advanced mode with separate click/long/double bindings.
 	 * Generates MQTT topic list and parameter values for device firmware.
 	 */
+	isButtonPageSideBlank(pageConfig, side)
+	{
+		if (!pageConfig || typeof pageConfig !== 'object' || String(pageConfig[`${side}Mode`] || 'basic').toLowerCase() !== 'basic')
+		{
+			return false;
+		}
+
+		const deviceId = String(pageConfig[`${side}Device`] || 'none').trim();
+		if (deviceId !== 'none' || String(pageConfig[`${side}Capability`] || '').trim())
+		{
+			return false;
+		}
+
+		for (const field of ['TopText', 'OnText', 'OffText', 'OnSVG', 'OffSVG', 'Unit'])
+		{
+			if (String(pageConfig[`${side}${field}`] || '').trim())
+			{
+				return false;
+			}
+		}
+
+		for (const field of ['FrontLEDOnColor', 'WallLEDOnColor', 'FrontLEDOffColor', 'WallLEDOffColor'])
+		{
+			const color = String(pageConfig[`${side}${field}`] || '#000000').toLowerCase();
+			if (color !== '#000000')
+			{
+				return false;
+			}
+		}
+
+		const customTopics = pageConfig[`${side}CustomMQTTTopics`];
+		if (Array.isArray(customTopics) && customTopics.some(topic => topic && topic.enable !== false && topic.enabled !== false))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	resolveEffectiveButtonPageConfiguration(buttonConfigurations, pageNumber)
+	{
+		const pages = Array.isArray(buttonConfigurations) ? buttonConfigurations : [buttonConfigurations];
+		const page = Math.max(0, parseInt(pageNumber, 10) || 0);
+		const pageConfig = pages[page];
+		const pageZeroConfig = pages[0];
+		if (!pageConfig || !pageZeroConfig || page === 0)
+		{
+			return pageConfig || null;
+		}
+
+		let effectivePageConfig = null;
+		for (const side of ['left', 'right'])
+		{
+			if (pageConfig[`${side}BlankPageFallback`] !== 'page0' || !this.isButtonPageSideBlank(pageConfig, side))
+			{
+				continue;
+			}
+
+			if (!effectivePageConfig)
+			{
+				effectivePageConfig = { ...pageConfig };
+			}
+
+			for (const [field, value] of Object.entries(pageZeroConfig))
+			{
+				if (field.startsWith(side) && field !== `${side}BlankPageFallback`)
+				{
+					effectivePageConfig[field] = value;
+				}
+			}
+		}
+
+		return effectivePageConfig || pageConfig;
+	}
+
 	async applyButtonConfiguration(panelId, connectorType, sectionConfiguration, connectorNo, configurationNo, firmwareVersion)
 	{
 		if ((configurationNo === null) || (configurationNo === undefined))
@@ -2134,6 +2238,14 @@ class MyApp extends Homey.App
 				if (!Array.isArray(ButtonPanelConfiguration))
 				{
 					ButtonPanelConfiguration = [ButtonPanelConfiguration];
+				}
+				else
+				{
+					const storedButtonPanelConfiguration = ButtonPanelConfiguration;
+					ButtonPanelConfiguration = storedButtonPanelConfiguration.map((pageConfig, pageNo) =>
+					{
+						return this.resolveEffectiveButtonPageConfiguration(storedButtonPanelConfiguration, pageNo) || pageConfig;
+					});
 				}
 
 				if (ButtonPanelConfiguration)
@@ -3775,70 +3887,81 @@ class MyApp extends Homey.App
 		return results.filter(result => result.name.toLowerCase().includes(query.toLowerCase()));
 	}
 
-	getDeviceFlowCard(type, id)
+	getDeviceFlowCard(type, id, includeAppCard = true)
 	{
 		const deviceCard = type === 'Trigger' ? this.homey.flow.getDeviceTriggerCard(id) : this.homey.flow[`get${type}Card`](id);
-		const appCard = this.homey.flow[`get${type}Card`](`${id}_app`);
-		appCard.registerArgumentAutocompleteListener('device', async query => this.getFlowDeviceOptions(query));
+		const appCard = includeAppCard ? this.homey.flow[`get${type}Card`](`${id}_app`) : null;
+		if (appCard)
+		{
+			appCard.registerArgumentAutocompleteListener('device', async query => this.getFlowDeviceOptions(query));
+		}
 		const app = this;
 		return {
 			id,
 			registerRunListener(listener)
 			{
 				deviceCard.registerRunListener(listener);
-				appCard.registerRunListener(async (args, state) =>
+				if (appCard)
 				{
-					const anyDevice = app.isAnyFlowDevice(args.device);
-					if (type === 'Trigger' && (!args.device || (!anyDevice && (args.device.id !== state.deviceId))))
+					appCard.registerRunListener(async (args, state) =>
 					{
-						return false;
-					}
-					if (type === 'Trigger')
-					{
-						const device = app.getFlowDevice(anyDevice ? { id: state.deviceId } : args.device);
-						return listener({ ...args, device }, state);
-					}
-					if (anyDevice)
-					{
-						const devices = Object.values(app.homey.drivers.getDriver('panel_hardware').getDevices());
-						if (type === 'Condition')
+						const anyDevice = app.isAnyFlowDevice(args.device);
+						if (type === 'Trigger' && (!args.device || (!anyDevice && (args.device.id !== state.deviceId))))
 						{
-							for (const device of devices)
-							{
-								if (await listener({ ...args, device }, state))
-								{
-									return true;
-								}
-							}
 							return false;
 						}
-						let result;
-						for (const device of devices)
+						if (type === 'Trigger')
 						{
-							result = await listener({ ...args, device }, state);
+							const device = app.getFlowDevice(anyDevice ? { id: state.deviceId } : args.device);
+							return listener({ ...args, device }, state);
 						}
-						return result;
-					}
-					return listener({ ...args, device: app.getFlowDevice(args.device) }, state);
-				});
+						if (anyDevice)
+						{
+							const devices = Object.values(app.homey.drivers.getDriver('panel_hardware').getDevices());
+							if (type === 'Condition')
+							{
+								for (const device of devices)
+								{
+									if (await listener({ ...args, device }, state))
+									{
+										return true;
+									}
+								}
+								return false;
+							}
+							let result;
+							for (const device of devices)
+							{
+								result = await listener({ ...args, device }, state);
+							}
+							return result;
+						}
+						return listener({ ...args, device: app.getFlowDevice(args.device) }, state);
+					});
+				}
 				return this;
 			},
 			registerArgumentAutocompleteListener(name, listener)
 			{
 				deviceCard.registerArgumentAutocompleteListener(name, listener);
-				appCard.registerArgumentAutocompleteListener(name, async (query, args) =>
+				if (appCard)
 				{
-					const device = args.device && !app.isAnyFlowDevice(args.device) ? app.getFlowDevice(args.device) : undefined;
-					return listener(query, { ...args, device });
-				});
+					appCard.registerArgumentAutocompleteListener(name, async (query, args) =>
+					{
+						const device = args.device && !app.isAnyFlowDevice(args.device) ? app.getFlowDevice(args.device) : undefined;
+						return listener(query, { ...args, device });
+					});
+				}
 				return this;
 			},
 			async trigger(device, tokens, state)
 			{
-				await Promise.all([
-					deviceCard.trigger(device, tokens, state),
-					appCard.trigger(tokens, { ...state, deviceId: device.getData().id }),
-				]);
+				const triggers = [deviceCard.trigger(device, tokens, state)];
+				if (appCard)
+				{
+					triggers.push(appCard.trigger(tokens, { ...state, deviceId: device.getData().id }));
+				}
+				await Promise.all(triggers);
 			},
 		};
 	}

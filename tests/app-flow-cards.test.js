@@ -13,10 +13,23 @@ const app = vm.runInNewContext(`new (class { ${source.slice(methodsStart, method
 const cards = new Map();
 const calls = [];
 const pending = [];
+const deviceOnlyCards = new Set([
+	'set_config_name_led_rgb',
+	'set_connector_button_top_label',
+	'set_connector_led_rgb',
+	'set_display_page',
+	'set_info',
+	'switch_button_configuration_name',
+	'switch_display_configuration_name',
+]);
 const plain = value => JSON.parse(JSON.stringify(value));
 
 function getCard(type, id)
 {
+	if (id.endsWith('_app') && !fs.existsSync(path.join(root, '.homeycompose', 'flow', type, `${id}.json`)))
+	{
+		throw new Error(`Invalid Flow Card ID: ${id}`);
+	}
 	const key = `${type}:${id}`;
 	if (!cards.has(key))
 	{
@@ -90,6 +103,13 @@ async function run()
 				assert.strictEqual(fs.existsSync(appPath), false, `Deprecated card ${id}`);
 				continue;
 			}
+			if (!fs.existsSync(appPath))
+			{
+				assert.ok(deviceOnlyCards.has(id), `Unexpected device-only card ${id}`);
+				assert.strictEqual(typeof getCard(type, id).run, 'function', `${id} device run listener`);
+				continue;
+			}
+			assert.ok(!deviceOnlyCards.has(id), `Unexpected app-level card ${id}`);
 			const added = JSON.parse(fs.readFileSync(appPath, 'utf8'));
 			assert.strictEqual(added.args.find(arg => arg.name === 'device').type, 'autocomplete');
 			assert.deepStrictEqual(added.args.filter(arg => arg.name !== 'device'), original.args.filter(arg => arg.name !== 'device'));

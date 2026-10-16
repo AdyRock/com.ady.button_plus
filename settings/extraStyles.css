@@ -51,10 +51,17 @@
 	line-height: 1.35;
 	text-transform: none;
 	font-variant: normal;
+	white-space: normal;
+	overflow-wrap: anywhere;
 }
 
 /* Show the tooltip text when you mouse over the tooltip container */
 .tooltip:hover .tooltiptext {
+	display: inherit;
+}
+
+.tooltip:focus .tooltiptext,
+.tooltip:focus-within .tooltiptext {
 	display: inherit;
 }
 
@@ -1051,6 +1058,48 @@ summary::-webkit-details-marker {
 }
 
 .button-sim-mode-toggle:focus {
+	outline: 2px solid #7ab7ff;
+	outline-offset: 1px;
+}
+
+.button-sim-page-fallback-toggle {
+	position: absolute;
+	top: 8px;
+	z-index: 13;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 52px;
+	height: 18px;
+	min-width: 52px !important;
+	min-height: 18px !important;
+	padding: 0 4px !important;
+	border: 1px solid rgba(148, 163, 184, 0.65);
+	border-radius: 4px;
+	background: #202b35 !important;
+	color: #fff !important;
+	-webkit-text-fill-color: #fff;
+	box-shadow: none;
+	font-size: 8px;
+	font-weight: 700;
+	line-height: 1;
+	cursor: pointer;
+}
+
+.button-sim-page-fallback-left {
+	left: 2%;
+}
+
+.button-sim-page-fallback-right {
+	right: 2%;
+}
+
+.button-sim-page-fallback-toggle.active {
+	border-color: rgba(122, 183, 255, 0.9);
+	background: #243f5d !important;
+}
+
+.button-sim-page-fallback-toggle:focus-visible {
 	outline: 2px solid #7ab7ff;
 	outline-offset: 1px;
 }
