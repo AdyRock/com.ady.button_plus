@@ -229,7 +229,7 @@
         "groupHelpAddButtonBars": "<strong>Dodaj moduły przycisków:</strong> Wybierz <strong>Dodaj moduł przycisku</strong> u dołu symulatora. Grupa może zawierać maksymalnie 8 modułów przycisków (styki 0-7).",
         "groupHelpSaveAssign": "<strong>Zapisz i przypisz:</strong> Wybierz <strong>Zapisz wszystkie konfiguracje</strong>, aby zapisać grupę, a następnie przypisz ją do fizycznych urządzeń Button+ w ustawieniach urządzenia.",
         "buttonHelpClickTitle": "Kliknij żółty obszar tytułu, aby go edytować. Wpisz krótki tekst ułatwiający rozpoznanie przycisku.",
-        "buttonHelpClickValue": "Kliknij biały obszar wartości, aby wybrać wyświetlaną funkcję lub zmienną. Źródło wyświetlania może być inne niż funkcje sterowane kliknięciem, dwuklikiem i długim naciśnięciem.",
+        "buttonHelpClickValue": "Kliknij biały obszar wartości, aby wybrać wyświetlaną funkcję lub zmienną. Źródło wyświetlania może być inne niż funkcje sterowane kliknięciem, dwuklikiem i długim naciśnięciem. Jeśli <strong>Device</strong> ma wartość <strong>None</strong>, przycisk używa własnego stanu Wł./Wył., aby wybrać skonfigurowany tekst lub SVG dla danego stanu.",
         "buttonHelpClearButton": "Czyści tę stronę przycisku na bieżącej stronie. Nie zmienia drugiego przycisku ani innych stron.",
         "buttonHelpToggleMode": "STD to prosty tryb jednego urządzenia, wyświetlanej wartości i kolorów LED. ADV pozwala osobno przypisać akcje do kliknięcia, dwukliku, długiego naciśnięcia, wyświetlacza i LED.",
         "buttonHelpWizard": "Otwórz kreator i wybierz typ oraz urządzenie. Kreator proponuje tytuł, wyświetlanie, LED i akcje zdarzeń; później sprawdź i dostosuj ustawienia.",
@@ -401,7 +401,6 @@
     },
     "pair": {
         "manual_add": {
-            "connect": "Połącz",
             "intro": "Wprowadź dane połączenia",
             "title": "Dodaj panel przycisków ręcznie",
             "ip_address": "Adres IP",

@@ -346,7 +346,7 @@
         ,"groupHelpAddButtonBars": "<strong>Knopbalkmodules toevoegen:</strong> Kies <strong>Knopbalkmodule toevoegen</strong> onderaan de simulator. Een groep kan maximaal 8 knopbalken bevatten (Connectors 0-7)."
         ,"groupHelpSaveAssign": "<strong>Opslaan en toewijzen:</strong> Kies <strong>Alle configuraties opslaan</strong> om de groep op te slaan. Wijs de groep daarna in de apparaatinstellingen toe aan je fysieke Button+-apparaten."
         ,"buttonHelpClickTitle": "Klik op het gele titelgedeelte om de knopnaam te wijzigen. Gebruik een korte tekst waaraan je de knop herkent."
-        ,"buttonHelpClickValue": "Klik op het witte waardegedeelte om de weergegeven capability of variabele te kiezen. Deze weergavebron kan verschillen van de capabilities die met klik, dubbelklik en lang indrukken worden bediend."
+        ,"buttonHelpClickValue": "Klik op het witte waardegedeelte om de weergegeven capability of variabele te kiezen. Deze weergavebron kan verschillen van de capabilities die met klik, dubbelklik en lang indrukken worden bediend. Als <strong>Device</strong> is ingesteld op <strong>None</strong>, gebruikt de knop zijn interne Aan/Uit-status om de ingestelde Aan/Uit-tekst of SVG te kiezen."
         ,"buttonHelpClearButton": "Wist deze knopzijde op deze pagina. De andere zijde en andere pagina's blijven ongewijzigd."
         ,"buttonHelpToggleMode": "STD is de eenvoudige modus voor ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â©n apparaat, een weergegeven waarde en LED-kleuren. ADV biedt aparte acties voor klik, dubbelklik, lang indrukken, display en LED."
         ,"buttonHelpWizard": "Open de wizard en kies een apparaattype en apparaat. De wizard vult voorgestelde titel-, display-, LED- en gebeurtenisinstellingen in; controleer en pas ze daarna aan."
@@ -401,7 +401,6 @@
     },
     "pair": {
         "manual_add":{
-            "connect": "Verbinden",
             "intro": "Voer verbindings details in",
             "title": "Button Panel handmatig toevoegen",
             "ip_address": "IP adres",

@@ -213,7 +213,7 @@
         "buttonHelpReadOnlySensor": "Read-only sensor or status",
         "buttonHelpHowToTitle": "How to set up a button",
         "buttonHelpClickTitle": "<strong>Title:</strong> Click the yellow title area to edit it. Enter any short text you want, such as a room or device name.",
-        "buttonHelpClickValue": "<strong>Value:</strong> Click the white value area to choose the capability or variable shown on the display. This display source can be different from the capabilities controlled by button events.",
+        "buttonHelpClickValue": "<strong>Value:</strong> Click the white value area to choose the capability or variable shown on the display. This display source can be different from the capabilities controlled by button events. If <strong>Device</strong> is set to <strong>None</strong>, the button uses its internal On/Off state to choose the configured On/Off text or SVG.",
         "buttonHelpLED": "<strong>LEDs:</strong> In <strong>STD</strong>, click the front or wall LED in the preview to open its color settings, then choose the On and Off colors. In <strong>ADV</strong>, click the LED area to open the LED settings; choose a source device and capability. Boolean values select the On/Off colors, while numeric values blend between them. For a numeric source, an optional on/off capability can force the LEDs off when the device is off. The LED source is independent of the display and button-action sources.",
         "buttonHelpClearButton": "Clear this button side on the current page. The other side and other pages are not affected.",
         "buttonHelpPageFallback": "On a blank button on page 1 or higher, choose Page 0 to reuse that side's page-0 setup, or Blank to leave it empty. This control only appears when the side is blank in STD mode; page-specific settings are never overwritten.",
@@ -402,7 +402,6 @@
 	},
     "pair": {
         "manual_add":{
-            "connect": "Connect",
             "intro": "Enter Connection Details",
             "title": "Add Button Panel Manually",
             "ip_address": "IP Address",

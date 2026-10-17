@@ -228,8 +228,8 @@
         "groupHelpButtonBars": "<strong>버튼 모듈:</strong> 각 모듈은 디스플레이 아래에 표시됩니다. 번호가 있는 원에서 버튼 구성을 선택하세요. 편집 버튼으로 열고, 위/아래 화살표로 접점 순서를 바꾸며, 휴지통 버튼으로 그룹에서 제거할 수 있습니다. 구성 자체는 삭제되지 않습니다. 시뮬레이션 버튼을 클릭하면 미리보기 상태가 바뀝니다.",
         "groupHelpAddButtonBars": "<strong>버튼 모듈 추가:</strong> 시뮬레이터 하단에서 <strong>버튼 모듈 추가</strong>를 선택하세요. 그룹마다 버튼 모듈을 최대 8개(접점 0-7)까지 사용할 수 있습니다.",
         "groupHelpSaveAssign": "<strong>저장 및 할당:</strong> <strong>모든 구성 저장</strong>을 선택해 그룹을 저장한 다음 장치 설정에서 실제 Button+ 장치에 할당하세요.",
-        "buttonHelpClickTitle": "노란색 제목 영역을 클릭해 버튼 제목을 수정하세요. 버튼을 알아보기 쉬운 짧은 문구를 입력하면 됩니다.",
-        "buttonHelpClickValue": "흰색 값 영역을 클릭해 표시할 기능 또는 변수를 선택하세요. 표시 소스와 클릭, 더블 클릭, 길게 누르기로 제어할 기능은 서로 다를 수 있습니다.",
+        "buttonHelpClickTitle": "노란색 제목 영역을 클릭해 버튼 제목을 수정하세 요. 버튼을 알아보기 쉬운 짧은 문구를 입력하면 됩니다.",
+        "buttonHelpClickValue": "흰색 값 영역을 클릭해 표시할 기능 또는 변수를  선택하세요. 표시 소스와 클릭, 더블 클릭, 길게 누르기로 제어할 기능은 서로 다를  수 있습니다. <strong>Device</strong>를 <strong>None</strong>으로 설정하면 버튼 자체의 켜짐/꺼짐 상태에 따라 설정된 켜짐/꺼짐 텍스트 또는 SVG를 표시합니다.",
         "buttonHelpClearButton": "현재 페이지에서 이 버튼 쪽의 설정만 지웁니다. 반대쪽이나 다른 페이지는 지우지 않습니다.",
         "buttonHelpToggleMode": "STD는 장치 하나, 표시 값, LED 색상을 설정하는 간단한 모드입니다. ADV에서는 클릭, 더블 클릭, 길게 누르기, 표시, LED 동작을 각각 지정할 수 있습니다.",
         "buttonHelpWizard": "마법사를 열어 장치 유형과 장치를 선택하세요. 제목, 표시, LED, 이벤트 동작을 추천 설정으로 채운 뒤 검토하고 조정하세요.",
@@ -400,8 +400,7 @@
         "buttonFieldPopupSave": "저장"
     },
     "pair": {
-        "manual_add": {
-            "connect": "연결",
+        "manual_add":{
             "intro": "연결 정보 입력",
             "title": "버튼 패널 수동 추가",
             "ip_address": "IP 주소",

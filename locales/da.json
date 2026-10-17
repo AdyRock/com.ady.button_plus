@@ -235,7 +235,7 @@
         "groupHelpAddButtonBars": "<strong>Tilføj knapbjælkemoduler:</strong> Vælg <strong>Tilføj knapbjælkemodul</strong> nederst i simulatoren. En gruppe kan indeholde op til 8 knapbjælker (connectors 0-7).",
         "groupHelpSaveAssign": "<strong>Gem og tildel:</strong> Vælg <strong>Gem alle konfigurationer</strong> for at gemme gruppen. Tildel derefter gruppen til dine fysiske Button+-enheder i deres indstillinger.",
         "buttonHelpClickTitle": "Klik på det gule titelområde for at redigere knapteksten. Brug en kort tekst, der hjælper med at identificere knappen.",
-        "buttonHelpClickValue": "Klik på det hvide værdiområde for at vælge den funktion eller variabel, der vises. Displaykilden kan være forskellig fra funktionerne, som styres af klik, dobbeltklik og langt tryk.",
+        "buttonHelpClickValue": "Klik på det hvide værdiområde for at vælge den funktion eller variabel, der vises. Displaykilden kan være forskellig fra funktionerne, som styres af klik, dobbeltklik og langt tryk. Hvis <strong>Device</strong> er indstillet til <strong>None</strong>, bruger knappen sin interne Til/Fra-status til at vælge den konfigurerede Til/Fra-tekst eller SVG.",
         "buttonHelpClearButton": "Rydder denne side af knappen på denne side. Den anden side og andre sider påvirkes ikke.",
         "buttonHelpToggleMode": "STD er enkel tilstand for én enhed, en displayværdi og LED-farver. ADV giver separate tilknytninger for klik, dobbeltklik, langt tryk, display og LED.",
         "buttonHelpWizard": "Åbn guiden for at vælge enhedstype og enhed. Den udfylder forslag til titel, display, LED og hændelser; gennemgå og tilpas dem bagefter.",
@@ -407,7 +407,6 @@
     },
     "pair": {
         "manual_add": {
-            "connect": "Opret forbindelse",
             "intro": "Indtast forbindelsesoplysninger",
             "title": "Tilføj knappanel manuelt",
             "ip_address": "IP-adresse",

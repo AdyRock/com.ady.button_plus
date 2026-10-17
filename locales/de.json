@@ -235,7 +235,7 @@
         "groupHelpAddButtonBars": "<strong>Buttonleistenmodule hinzufügen:</strong> Wählen Sie unten im Simulator <strong>Buttonleistenmodul hinzufügen</strong>. Eine Gruppe kann bis zu 8 Buttonleisten (Anschlüsse 0-7) enthalten.",
         "groupHelpSaveAssign": "<strong>Speichern und zuweisen:</strong> Wählen Sie <strong>Alle Konfigurationen speichern</strong>. Weisen Sie die Gruppe anschließend in den Geräteeinstellungen Ihren physischen Button+-Geräten zu.",
         "buttonHelpClickTitle": "Klicke auf den gelben Titelbereich, um den Tastentitel zu bearbeiten. Verwende einen kurzen, passenden Text.",
-        "buttonHelpClickValue": "Klicke auf den weißen Wertebereich, um die angezeigte Fähigkeit oder Variable auszuwählen. Diese Anzeigequelle kann sich von den Fähigkeiten für Klick, Doppelklick und langes Drücken unterscheiden.",
+        "buttonHelpClickValue": "Klicke auf den weißen Wertebereich, um die angezeigte Fähigkeit oder Variable auszuwählen. Diese Anzeigequelle kann sich von den Fähigkeiten für Klick, Doppelklick und langes Drücken unterscheiden. Wenn <strong>Device</strong> auf <strong>None</strong> eingestellt ist, verwendet die Taste ihren internen Ein/Aus-Status, um den konfigurierten Ein/Aus-Text oder das SVG auszuwählen.",
         "buttonHelpClearButton": "Löscht diese Tastenseite auf der aktuellen Seite. Die andere Taste und andere Seiten bleiben unverändert.",
         "buttonHelpToggleMode": "STD ist der einfache Modus für ein Gerät, einen Anzeigewert und LED-Farben. ADV bietet getrennte Zuordnungen für Klick, Doppelklick, langes Drücken, Anzeige und LED.",
         "buttonHelpWizard": "Öffne den Assistenten und wähle Gerätetyp und Gerät. Er schlägt Titel, Anzeige, LED und Ereigniszuordnungen vor; überprüfe und ändere sie anschließend.",
@@ -407,7 +407,6 @@
     },
     "pair": {
         "manual_add": {
-            "connect": "Verbinden",
             "intro": "Verbindungsdetails eingeben",
             "title": "Button+-Panel manuell hinzufügen",
             "ip_address": "IP-Adresse",

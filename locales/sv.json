@@ -229,7 +229,7 @@
         "groupHelpAddButtonBars": "<strong>Lägg till knappfältsmoduler:</strong> Välj <strong>Lägg till knappfältsmodul</strong> längst ned i simulatorn. En grupp kan innehålla upp till 8 fält (kontakter 0-7).",
         "groupHelpSaveAssign": "<strong>Spara och tilldela:</strong> Välj <strong>Spara alla konfigurationer</strong> för att spara gruppen och tilldela den sedan till dina fysiska Button+-enheter i enhetsinställningarna.",
         "buttonHelpClickTitle": "Klicka på det gula titelfältet för att ändra titeln. Använd valfri kort text som hjälper dig att känna igen knappen.",
-        "buttonHelpClickValue": "Klicka på det vita värdefältet för att välja funktionen eller variabeln som visas. Visningskällan kan skilja sig från funktionerna som styrs av klick, dubbelklick och långtryck.",
+        "buttonHelpClickValue": "Klicka på det vita värdefältet för att välja funktionen eller variabeln som visas. Visningskällan kan skilja sig från funktionerna som styrs av klick, dubbelklick och långtryck. Om <strong>Device</strong> är inställt på <strong>None</strong> använder knappen sitt interna På/Av-läge för att välja den konfigurerade På/Av-texten eller SVG-bilden.",
         "buttonHelpClearButton": "Rensar den här knappsidan på den aktuella sidan. Den andra sidan och övriga sidor påverkas inte.",
         "buttonHelpToggleMode": "STD är det enkla läget för en enhet, ett visat värde och LED-färger. ADV låter dig konfigurera separata åtgärder för klick, dubbelklick, långtryck, display och LED.",
         "buttonHelpWizard": "Öppna guiden och välj enhetstyp och enhet. Den föreslår titel, display, LED och händelseåtgärder; granska och justera dem efteråt.",
@@ -401,7 +401,6 @@
 	},
     "pair": {
         "manual_add":{
-            "connect": "Anslut",
             "intro": "Ange anslutningsuppgifter",
             "title": "Lägg till knappanel manuellt",
             "ip_address": "IP-adress",

@@ -229,7 +229,7 @@
         "groupHelpAddButtonBars": "<strong>Añadir módulos de barras:</strong> Pulsa <strong>Añadir módulo de barra de botones</strong> al final del simulador. Un grupo admite hasta 8 barras (conectores 0-7).",
         "groupHelpSaveAssign": "<strong>Guardar y asignar:</strong> Pulsa <strong>Guardar todas las configuraciones</strong> y luego asigna el Grupo a tus dispositivos Button+ físicos desde sus ajustes.",
         "buttonHelpClickTitle": "Haz clic en la zona amarilla del título para editarlo. Escribe cualquier texto breve que te ayude a identificar el botón.",
-        "buttonHelpClickValue": "Haz clic en la zona blanca del valor para elegir la capacidad o variable que se muestra. La fuente mostrada puede ser distinta de las capacidades controladas por clic, doble clic y pulsación larga.",
+        "buttonHelpClickValue": "Haz clic en la zona blanca del valor para elegir la capacidad o variable que se muestra. La fuente mostrada puede ser distinta de las capacidades controladas por clic, doble clic y pulsación larga. Si <strong>Device</strong> está configurado como <strong>None</strong>, el botón usa su estado interno de encendido/apagado para elegir el texto o SVG configurado para cada estado.",
         "buttonHelpClearButton": "Borra este lado del botón en esta página. No borra el otro lado ni otras páginas.",
         "buttonHelpToggleMode": "STD es el modo sencillo para un dispositivo, un valor mostrado y colores LED. ADV permite asignar acciones distintas a clic, doble clic, pulsación larga, pantalla y LED.",
         "buttonHelpWizard": "Abre el asistente para elegir un tipo de dispositivo y un dispositivo. Propone título, pantalla, LED y acciones; revísalos y ajústalos después.",
@@ -401,7 +401,6 @@
     },
     "pair": {
         "manual_add": {
-            "connect": "Conectar",
             "intro": "Introduce los datos de conexión",
             "title": "Añadir panel de botones manualmente",
             "ip_address": "Dirección IP",

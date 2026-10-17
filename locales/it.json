@@ -229,7 +229,7 @@
         "groupHelpAddButtonBars": "<strong>Aggiungi moduli barre pulsanti:</strong> Seleziona <strong>Aggiungi modulo barra pulsanti</strong> in fondo al simulatore. Un gruppo può contenere fino a 8 barre (connettori 0-7).",
         "groupHelpSaveAssign": "<strong>Salva e assegna:</strong> Seleziona <strong>Salva tutte le configurazioni</strong> per salvare il gruppo, poi assegnalo ai dispositivi Button+ fisici nelle impostazioni dei dispositivi.",
         "buttonHelpClickTitle": "Fai clic sull'area gialla del titolo per modificarlo. Usa un testo breve per identificare il pulsante.",
-        "buttonHelpClickValue": "Fai clic sull'area bianca del valore per scegliere la funzionalità o variabile visualizzata. La sorgente mostrata può essere diversa dalle funzionalità controllate da clic, doppio clic e pressione prolungata.",
+        "buttonHelpClickValue": "Fai clic sull'area bianca del valore per scegliere la funzionalità o variabile visualizzata. La sorgente mostrata può essere diversa dalle funzionalità controllate da clic, doppio clic e pressione prolungata. Se <strong>Device</strong> è impostato su <strong>None</strong>, il pulsante usa il proprio stato interno acceso/spento per scegliere il testo o SVG configurato per ciascuno stato.",
         "buttonHelpClearButton": "Cancella questo lato del pulsante in questa pagina. L'altro lato e le altre pagine non vengono modificati.",
         "buttonHelpToggleMode": "STD è la modalità semplice per un dispositivo, un valore visualizzato e i colori LED. ADV consente azioni separate per clic, doppio clic, pressione prolungata, display e LED.",
         "buttonHelpWizard": "Apri la procedura guidata e scegli un tipo e un dispositivo. Propone titolo, display, LED e azioni; controllali e modificali dopo.",
@@ -401,7 +401,6 @@
     },
     "pair": {
         "manual_add": {
-            "connect": "Connetti",
             "intro": "Inserisci i dettagli della connessione",
             "title": "Aggiungi manualmente il pannello Button+",
             "ip_address": "Indirizzo IP",
