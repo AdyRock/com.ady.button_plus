@@ -5,6 +5,10 @@
 	margin-top: 10px;
 }
 
+#panelConfig .horizontalcontainer {
+	margin-top: 0;
+}
+
 .horizontalgroup {
 	flex: 1;
 	/* Each group takes equal space */
@@ -141,6 +145,221 @@ label[for="configType"] {
 	pointer-events: none;
 }
 
+.page-help-row {
+	display: flex;
+	justify-content: flex-end;
+	margin: -1px 0 2px;
+}
+
+.page-help-button {
+	width: 48px;
+	height: 42px;
+	min-width: 48px !important;
+	min-height: 42px !important;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 4px !important;
+	border: 1px solid transparent;
+	border-radius: 6px;
+	background: transparent !important;
+	color: #344252 !important;
+	box-shadow: none !important;
+	cursor: pointer;
+}
+
+.page-help-button svg {
+	width: 30px;
+	height: 30px;
+}
+
+.page-help-button:hover,
+.page-help-button:focus-visible {
+	background: rgba(47, 79, 239, 0.1) !important;
+	border-color: rgba(47, 79, 239, 0.35);
+	outline: none;
+}
+
+body.page-help-intro-open {
+	overflow: hidden;
+}
+
+.page-help-intro-overlay {
+	position: fixed;
+	inset: 0;
+	display: none;
+	background: rgba(15, 23, 34, 0.52);
+	z-index: 2500;
+}
+
+.page-help-intro-overlay.visible {
+	display: block;
+}
+
+.page-help-intro-bubble {
+	position: fixed;
+	width: min(360px, calc(100vw - 32px));
+	box-sizing: border-box;
+	padding: 18px 20px;
+	border: 1px solid #c7d2df;
+	border-radius: 10px;
+	background: #fff;
+	color: #1f2f45;
+	box-shadow: 0 12px 32px rgba(12, 21, 36, 0.3);
+}
+
+.page-help-intro-bubble::before {
+	content: '';
+	position: absolute;
+	top: -10px;
+	left: var(--page-help-intro-arrow-left, calc(100% - 28px));
+	width: 0;
+	height: 0;
+	border-left: 10px solid transparent;
+	border-right: 10px solid transparent;
+	border-bottom: 10px solid #fff;
+}
+
+.page-help-intro-bubble.above::before {
+	top: auto;
+	bottom: -10px;
+	border-top: 10px solid #fff;
+	border-bottom: 0;
+}
+
+.page-help-intro-close {
+	position: absolute;
+	top: 6px;
+	right: 6px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	min-width: 32px !important;
+	min-height: 32px !important;
+	padding: 0 !important;
+	font-size: 22px;
+	line-height: 1;
+}
+
+.page-help-intro-title {
+	margin: 0 34px 8px 0;
+	font-size: 16px;
+	font-weight: 700;
+	color: #1f2f45;
+}
+
+.page-help-intro-message {
+	margin: 0;
+	font-size: 14px;
+	line-height: 1.5;
+}
+
+.page-help-dialog {
+	width: min(92vw, 680px);
+	max-height: 88vh;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+#pageHelpOverlay {
+	top: var(--settings-fixed-top-offset, 64px);
+}
+
+#pageHelpOverlay .page-help-dialog {
+	max-height: calc(100vh - var(--settings-fixed-top-offset, 64px) - 20px);
+}
+
+.page-help-close {
+	flex: 0 0 32px;
+	width: 32px;
+	min-width: 32px !important;
+	height: 32px;
+	min-height: 32px !important;
+	padding: 0 !important;
+	font-size: 22px;
+	line-height: 1;
+}
+
+.page-help-body {
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow-y: auto;
+	line-height: 1.5;
+}
+
+#pageHelpOverview strong {
+	font-weight: 700;
+}
+
+.page-help-details {
+	margin-top: 12px;
+	padding: 12px;
+	border-left: 3px solid #2f4fef;
+	background: rgba(47, 79, 239, 0.06);
+	line-height: 1.5;
+}
+
+.page-help-details ol {
+	margin: 0;
+	padding-left: 24px;
+}
+
+.page-help-details li {
+	margin: 6px 0;
+}
+
+.page-help-details p {
+	margin: 12px 0 0;
+}
+
+.button-help-instructions {
+	margin: 8px 0 0;
+	padding-left: 24px;
+}
+
+.button-help-instructions li {
+	margin: 8px 0;
+}
+
+.button-help-instructions li > svg {
+	width: 16px;
+	height: 16px;
+	vertical-align: -3px;
+}
+
+.button-help-mode-example {
+	display: inline-block;
+	padding: 1px 5px;
+	border: 1px solid #8795a5;
+	border-radius: 4px;
+	background: #344252;
+	color: #fff;
+	font-size: 11px;
+	font-weight: 700;
+}
+
+.button-help-mode-example.advanced {
+	border-color: rgba(74, 154, 99, 0.8);
+	background: #284e35;
+}
+
+.button-help-mode-example.active {
+	border-color: rgba(122, 183, 255, 0.9);
+	background: #243f5d;
+}
+
+.button-help-button-example {
+	border-color: rgba(152, 232, 178, 0.75);
+	background: #284e35;
+}
+
+.button-help-mode-instructions>div+div {
+	margin-top: 8px;
+}
+
 .group-edit-back-button {
 	display: flex;
 	align-items: center;
@@ -187,11 +406,6 @@ label[for="configType"] {
 #brokerConfig>.homey-form-group,
 #importExport>.homey-form-group {
 	margin-top: 0 !important;
-	padding-top: 0 !important;
-}
-
-.settings-top-form-group {
-	margin-top: -20px !important;
 	padding-top: 0 !important;
 }
 
@@ -1534,6 +1748,7 @@ body.group-button-edit-active #panelConfig .button-card-editor-controls {
 
 .group-display-panel-frame .display-sim-surface {
 	margin: 0 auto;
+	margin-top: 35px;
 	outline: 0;
 }
 

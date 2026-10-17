@@ -6,6 +6,7 @@ const CONFIG_DRAFT_DISMISSED_SIGNATURE_KEY = 'unsavedConfigurationDraftDismissed
 const CONFIG_DRAFT_SAVE_DEBOUNCE_MS = 500;
 const BUTTON_VISIBLE_CONFIGURATION_COUNT_KEY = 'buttonVisibleConfigurationCount';
 const BUTTON_PANEL_CONTROLS_COLLAPSED_KEY = 'buttonPanelControlsCollapsed';
+const PAGE_HELP_INTRO_ACKNOWLEDGED_KEY = 'pageHelpIntroAcknowledged';
 let buttonDevicesArray = [];
 let buttonDevicesFetched = false;
 let variablesArray = [];
@@ -100,6 +101,21 @@ const configDraftRestoreOverlayElement = document.getElementById('configDraftRes
 const configDraftRestoreRetrieveElement = document.getElementById('configDraftRestoreRetrieve');
 const configDraftRestoreDiscardElement = document.getElementById('configDraftRestoreDiscard');
 let configDraftRestoreDialogResolver = null;
+const pageHelpOpenElement = document.getElementById('pageHelpOpen');
+const pageHelpIntroOverlayElement = document.getElementById('pageHelpIntroOverlay');
+const pageHelpIntroBubbleElement = document.getElementById('pageHelpIntroBubble');
+const pageHelpIntroTitleElement = document.getElementById('pageHelpIntroTitle');
+const pageHelpIntroMessageElement = document.getElementById('pageHelpIntroMessage');
+const pageHelpIntroCloseElement = document.getElementById('pageHelpIntroClose');
+const pageHelpOverlayElement = document.getElementById('pageHelpOverlay');
+const pageHelpTitleElement = document.getElementById('pageHelpTitle');
+const pageHelpOverviewElement = document.getElementById('pageHelpOverview');
+const pageHelpBodyElement = document.getElementById('pageHelpBody');
+const pageHelpButtonSetupSectionElement = document.getElementById('pageHelpButtonSetupSection');
+const pageHelpButtonSetupElement = document.getElementById('pageHelpButtonSetup');
+const pageHelpButtonSetupDetailsElement = document.getElementById('pageHelpButtonSetupDetails');
+const pageHelpCloseElement = document.getElementById('pageHelpClose');
+let pageHelpReturnFocusElement = null;
 let displayFieldPopupBindings = [];
 let displayFieldPopupContext = null;
 const displayPagePopupOpenElement = document.getElementById('displayPageSimOpen');
@@ -754,6 +770,354 @@ function showConfigDraftRestoreDialog()
 	{
 		configDraftRestoreDialogResolver = resolve;
 	});
+}
+
+function getPageHelpSetupOptions()
+{
+	return [
+		{ value: 'flowOnly', labelKey: 'flowTrigger', descriptionKey: 'buttonHelpSetupFlowOnly' },
+		{ value: 'onoff', labelKey: 'buttonWizardTypeOnOff', descriptionKey: 'buttonHelpSetupOnOff' },
+		{ value: 'dimmable', labelKey: 'buttonWizardTypeDim', descriptionKey: 'buttonHelpSetupDimmable' },
+		{ value: 'thermostat', labelKey: 'buttonWizardTypeThermostat', descriptionKey: 'buttonHelpSetupThermostat' },
+		{ value: 'thermostatCurrentTarget', labelKey: 'buttonHelpThermostatCurrentTarget', descriptionKey: 'buttonHelpSetupThermostatDisplay' },
+		{ value: 'windowCoverings', labelKey: 'buttonWizardTypeWindowCoverings', descriptionKey: 'buttonHelpSetupWindowCoverings' },
+		{ value: 'colour', labelKey: 'buttonWizardTypeColour', descriptionKey: 'buttonHelpSetupColour' },
+		{ value: 'fan', labelKey: 'buttonWizardTypeFan', descriptionKey: 'buttonHelpSetupFan' },
+		{ value: 'lock', labelKey: 'buttonWizardTypeLock', descriptionKey: 'buttonHelpSetupLock' },
+		{ value: 'lockButtons', labelKey: 'buttonWizardTypeLockButtons', descriptionKey: 'buttonHelpSetupLockButtons' },
+		{ value: 'readOnly', labelKey: 'buttonHelpReadOnlySensor', descriptionKey: 'buttonHelpSetupReadOnly' },
+		{ value: 'customMQTT', labelKey: 'customMQTT', descriptionKey: 'buttonHelpSetupCustomMQTT' },
+	];
+}
+
+function updatePageHelpButtonSetupDetails()
+{
+	if (!pageHelpButtonSetupElement || !pageHelpButtonSetupDetailsElement)
+	{
+		return;
+	}
+
+	const selectedSetup = getPageHelpSetupOptions().find(option => option.value === pageHelpButtonSetupElement.value);
+	pageHelpButtonSetupDetailsElement.innerHTML = selectedSetup
+		? normalizeTooltipHtml(Homey.__(`settings.${selectedSetup.descriptionKey}`))
+		: '';
+}
+
+function closePageHelpPopup()
+{
+	if (!pageHelpOverlayElement)
+	{
+		return;
+	}
+
+	pageHelpOverlayElement.classList.remove('visible');
+	pageHelpOverlayElement.setAttribute('aria-hidden', 'true');
+	if (pageHelpReturnFocusElement && typeof pageHelpReturnFocusElement.focus === 'function')
+	{
+		pageHelpReturnFocusElement.focus();
+	}
+	pageHelpReturnFocusElement = null;
+}
+
+let pageHelpIntroResizeHandler = null;
+let pageHelpIntroKeydownHandler = null;
+let pageHelpIntroCloseBound = false;
+
+function positionPageHelpIntroBubble()
+{
+	if (!pageHelpOpenElement || !pageHelpIntroBubbleElement || !pageHelpIntroOverlayElement || !pageHelpIntroOverlayElement.classList.contains('visible'))
+	{
+		return;
+	}
+
+	const anchorRect = pageHelpOpenElement.getBoundingClientRect();
+	const bubbleRect = pageHelpIntroBubbleElement.getBoundingClientRect();
+	const viewportMargin = 16;
+	const maxLeft = Math.max(viewportMargin, window.innerWidth - bubbleRect.width - viewportMargin);
+	const left = Math.max(viewportMargin, Math.min(anchorRect.right - bubbleRect.width, maxLeft));
+	const belowTop = anchorRect.bottom + 12;
+	const showBelow = belowTop + bubbleRect.height <= window.innerHeight - viewportMargin;
+	const top = showBelow ? belowTop : Math.max(viewportMargin, anchorRect.top - bubbleRect.height - 12);
+	const arrowLeft = Math.max(16, Math.min(bubbleRect.width - 32, anchorRect.left + (anchorRect.width / 2) - left - 8));
+
+	pageHelpIntroBubbleElement.style.left = `${left}px`;
+	pageHelpIntroBubbleElement.style.top = `${top}px`;
+	pageHelpIntroBubbleElement.style.setProperty('--page-help-intro-arrow-left', `${arrowLeft}px`);
+	pageHelpIntroBubbleElement.classList.toggle('above', !showBelow);
+}
+
+function dismissPageHelpIntro(Homey)
+{
+	if (!pageHelpIntroOverlayElement)
+	{
+		return;
+	}
+
+	pageHelpIntroOverlayElement.classList.remove('visible');
+	pageHelpIntroOverlayElement.setAttribute('aria-hidden', 'true');
+	document.body.classList.remove('page-help-intro-open');
+	if (pageHelpIntroResizeHandler)
+	{
+		window.removeEventListener('resize', pageHelpIntroResizeHandler);
+		pageHelpIntroResizeHandler = null;
+	}
+	if (pageHelpIntroKeydownHandler)
+	{
+		document.removeEventListener('keydown', pageHelpIntroKeydownHandler);
+		pageHelpIntroKeydownHandler = null;
+	}
+
+	Homey.set(PAGE_HELP_INTRO_ACKNOWLEDGED_KEY, true);
+	if (pageHelpOpenElement)
+	{
+		pageHelpOpenElement.focus();
+	}
+}
+
+function showPageHelpIntroIfNeeded(Homey)
+{
+	if (!pageHelpIntroOverlayElement || !pageHelpIntroCloseElement || !pageHelpOpenElement)
+	{
+		return;
+	}
+
+	if (!pageHelpIntroCloseBound)
+	{
+		pageHelpIntroCloseElement.addEventListener('click', () => dismissPageHelpIntro(Homey));
+		pageHelpIntroCloseBound = true;
+	}
+
+	Homey.get(PAGE_HELP_INTRO_ACKNOWLEDGED_KEY, (err, acknowledged) =>
+	{
+		if (!err && acknowledged === true)
+		{
+			return;
+		}
+
+		const titleKey = 'settings.pageHelpIntroTitle';
+		const messageKey = 'settings.pageHelpIntroMessage';
+		const title = Homey.__(titleKey);
+		const message = Homey.__(messageKey);
+		if (pageHelpIntroTitleElement)
+		{
+			pageHelpIntroTitleElement.textContent = (title === titleKey) ? 'New: Page Help' : title;
+		}
+		if (pageHelpIntroMessageElement)
+		{
+			pageHelpIntroMessageElement.textContent = (message === messageKey)
+				? 'Use this book button to open a guide to the controls and setup examples on each settings page.'
+				: message;
+		}
+
+		pageHelpIntroOverlayElement.classList.add('visible');
+		pageHelpIntroOverlayElement.setAttribute('aria-hidden', 'false');
+		document.body.classList.add('page-help-intro-open');
+		pageHelpIntroResizeHandler = positionPageHelpIntroBubble;
+		pageHelpIntroKeydownHandler = event =>
+		{
+			if (event.key === 'Escape')
+			{
+				dismissPageHelpIntro(Homey);
+			}
+		};
+		window.addEventListener('resize', pageHelpIntroResizeHandler);
+		document.addEventListener('keydown', pageHelpIntroKeydownHandler);
+		requestAnimationFrame(() =>
+		{
+			positionPageHelpIntroBubble();
+			pageHelpIntroCloseElement.focus();
+		});
+	});
+}
+
+function openPageHelpPopup()
+{
+	if (!pageHelpOverlayElement || !pageHelpTitleElement || !pageHelpOverviewElement)
+	{
+		return;
+	}
+
+	const view = configTypeElement ? configTypeElement.value : 'settings';
+	const viewHelp = {
+		settings: { title: 'Settings', keys: [] },
+		panelConfig: { title: 'buttonConfigs', keys: ['buttonExplanation', 'buttonHelpGlobalSettings'] },
+		displayConfig: { title: 'displayConfigs', keys: ['displayExplanation'] },
+		groupConfig: { title: 'groupConfigs', keys: ['groupExplanation'] },
+		brokerConfig: { title: 'brokerConfigs', keys: ['brokerExplanation'] },
+		diagnosticLog: { title: 'diagnosticsLog', keys: ['enableLLogExplanation'] },
+		lastSentLog: { title: 'sentLog', keys: ['sentLogPageHelp'] },
+		importExport: { title: 'importExport', keys: [] },
+	};
+	const help = viewHelp[view] || viewHelp.settings;
+	pageHelpTitleElement.textContent = `${Homey.__('settings.pageHelp')} - ${Homey.__(`settings.${help.title}`)}`;
+	pageHelpOverviewElement.innerHTML = help.keys
+		.map(key => `<p>${normalizeTooltipHtml(Homey.__(`settings.${key}`))}</p>`)
+		.join('');
+	if (view === 'panelConfig')
+	{
+		const stdModeHelpKey = 'settings.buttonHelpToggleModeStd';
+		const advModeHelpKey = 'settings.buttonHelpToggleModeAdv';
+		const stdModeHelp = Homey.__(stdModeHelpKey);
+		const advModeHelp = Homey.__(advModeHelpKey);
+		const modeHelpMarkup = (stdModeHelp !== stdModeHelpKey && advModeHelp !== advModeHelpKey)
+			? `<div><span class="button-help-mode-example">STD</span> ${stdModeHelp}</div><div><span class="button-help-mode-example advanced">ADV</span> ${advModeHelp}</div>`
+			: `<span class="button-help-mode-example">STD / ADV</span> ${Homey.__('settings.buttonHelpToggleMode')}`;
+		pageHelpOverviewElement.insertAdjacentHTML('beforeend', `<h3>${Homey.__('settings.buttonHelpHowToTitle')}</h3><ol class="button-help-instructions">
+			<li>${Homey.__('settings.buttonHelpClickTitle')}</li>
+			<li>${Homey.__('settings.buttonHelpClickValue')}</li>
+			<li>${Homey.__('settings.buttonHelpLED')}</li>
+			<li><i class="fi fi-rr-trash" aria-hidden="true"></i> ${Homey.__('settings.buttonHelpClearButton')}</li>
+			<li><span class="button-help-mode-example active">Page 0</span> / <span class="button-help-mode-example">Blank</span> ${Homey.__('settings.buttonHelpPageFallback')}</li>
+			<li class="button-help-mode-instructions">${modeHelpMarkup}</li>
+			<li><span class="button-help-mode-example button-help-button-example">${Homey.__('settings.advancedBadgeLabel')}</span> ${Homey.__('settings.buttonHelpAdvancedButton')}</li>
+			<li>${BUTTON_WIZARD_ICON_SVG} ${Homey.__('settings.buttonHelpWizard')}</li>
+			<li>${Homey.__('settings.buttonHelpSaveAssign')}</li>
+		</ol>`);
+	}
+	else if (view === 'displayConfig')
+	{
+		const displayHelpStepKeys = [
+			'displayHelpConfiguration',
+			'displayHelpPages',
+			'displayHelpPreviewControls',
+			'displayHelpAddItem',
+			'displayHelpConfigureItem',
+			'displayHelpMoveResizeItem',
+			'displayHelpDeleteItem',
+			'displayHelpCopyPaste',
+			'displayHelpSaveAssign',
+		];
+		const displayHelpSteps = displayHelpStepKeys
+			.map(key =>
+			{
+				const localizationKey = `settings.${key}`;
+				const localizedText = Homey.__(localizationKey);
+				return localizedText === localizationKey ? '' : `<li>${localizedText}</li>`;
+			})
+			.join('');
+		const displayHelpTitleKey = 'settings.displayHelpHowToTitle';
+		const displayHelpTitle = Homey.__(displayHelpTitleKey);
+		if (displayHelpTitle !== displayHelpTitleKey && displayHelpSteps)
+		{
+			pageHelpOverviewElement.insertAdjacentHTML('beforeend', `<h3>${displayHelpTitle}</h3><ol class="button-help-instructions">${displayHelpSteps}</ol>`);
+		}
+	}
+	else if (view === 'groupConfig')
+	{
+		const groupHelpStepKeys = [
+			'groupHelpManage',
+			'groupHelpActions',
+			'groupHelpPreview',
+			'groupHelpPages',
+			'groupHelpDisplayModule',
+			'groupHelpButtonBars',
+			'groupHelpAddButtonBars',
+			'groupHelpSaveAssign',
+		];
+		const groupHelpSteps = groupHelpStepKeys
+			.map(key =>
+			{
+				const localizationKey = `settings.${key}`;
+				const localizedText = Homey.__(localizationKey);
+				return localizedText === localizationKey ? '' : `<li>${localizedText}</li>`;
+			})
+			.join('');
+		const groupHelpTitleKey = 'settings.groupHelpHowToTitle';
+		const groupHelpTitle = Homey.__(groupHelpTitleKey);
+		if (groupHelpTitle !== groupHelpTitleKey && groupHelpSteps)
+		{
+			pageHelpOverviewElement.insertAdjacentHTML('beforeend', `<h3>${groupHelpTitle}</h3><ol class="button-help-instructions">${groupHelpSteps}</ol>`);
+		}
+	}
+	else if (view === 'brokerConfig')
+	{
+		const brokerHelpStepKeys = [
+			'brokerHelpDefault',
+			'brokerHelpAdd',
+			'brokerHelpFields',
+			'brokerHelpEnable',
+			'brokerHelpDelete',
+			'brokerHelpSave',
+		];
+		const brokerHelpSteps = brokerHelpStepKeys
+			.map(key =>
+			{
+				const localizationKey = `settings.${key}`;
+				const localizedText = Homey.__(localizationKey);
+				return localizedText === localizationKey ? '' : `<li>${localizedText}</li>`;
+			})
+			.join('');
+		const brokerHelpTitleKey = 'settings.brokerHelpHowToTitle';
+		const brokerHelpTitle = Homey.__(brokerHelpTitleKey);
+		if (brokerHelpTitle !== brokerHelpTitleKey && brokerHelpSteps)
+		{
+			pageHelpOverviewElement.insertAdjacentHTML('beforeend', `<h3>${brokerHelpTitle}</h3><ol class="button-help-instructions">${brokerHelpSteps}</ol>`);
+		}
+	}
+	else if (['settings', 'diagnosticLog', 'lastSentLog', 'importExport'].includes(view))
+	{
+		const remainingHelpGuides = {
+			settings: {
+				titleKey: 'settingsHelpHowToTitle',
+				stepKeys: ['settingsHelpWebView', 'settingsHelpSimulation'],
+			},
+			diagnosticLog: {
+				titleKey: 'diagnosticHelpHowToTitle',
+				stepKeys: ['diagnosticHelpEnable', 'diagnosticHelpListeners', 'diagnosticHelpClear', 'diagnosticHelpSend'],
+			},
+			lastSentLog: {
+				titleKey: 'sentLogHelpHowToTitle',
+				stepKeys: ['sentLogHelpSelectDevice', 'sentLogHelpGet', 'sentLogHelpOutput'],
+			},
+			importExport: {
+				titleKey: 'importExportHelpHowToTitle',
+				stepKeys: ['importExportHelpImport', 'importExportHelpExport', 'importExportHelpSend'],
+			},
+		};
+		const guide = remainingHelpGuides[view];
+		const guideTitleKey = `settings.${guide.titleKey}`;
+		const guideTitle = Homey.__(guideTitleKey);
+		const guideSteps = guide.stepKeys
+			.map(key =>
+			{
+				const localizationKey = `settings.${key}`;
+				const localizedText = Homey.__(localizationKey);
+				return localizedText === localizationKey ? '' : `<li>${localizedText}</li>`;
+			})
+			.join('');
+		if (guideTitle !== guideTitleKey && guideSteps)
+		{
+			pageHelpOverviewElement.insertAdjacentHTML('beforeend', `<h3>${guideTitle}</h3><ol class="button-help-instructions">${guideSteps}</ol>`);
+		}
+	}
+
+	const showButtonSetupOptions = view === 'panelConfig';
+	if (pageHelpButtonSetupSectionElement)
+	{
+		pageHelpButtonSetupSectionElement.style.display = showButtonSetupOptions ? '' : 'none';
+	}
+	if (showButtonSetupOptions && pageHelpButtonSetupElement)
+	{
+		pageHelpButtonSetupElement.innerHTML = '';
+		for (const setup of getPageHelpSetupOptions())
+		{
+			const option = document.createElement('option');
+			option.value = setup.value;
+			option.text = Homey.__(`settings.${setup.labelKey}`);
+			pageHelpButtonSetupElement.add(option);
+		}
+		pageHelpButtonSetupElement.value = 'flowOnly';
+		updatePageHelpButtonSetupDetails();
+	}
+
+	pageHelpReturnFocusElement = document.activeElement;
+	if (pageHelpBodyElement)
+	{
+		pageHelpBodyElement.scrollTop = 0;
+	}
+	pageHelpOverlayElement.classList.add('visible');
+	pageHelpOverlayElement.setAttribute('aria-hidden', 'false');
+	setTimeout(() => pageHelpCloseElement && pageHelpCloseElement.focus(), 0);
 }
 
 function buildExportConfigurationText()
@@ -1606,7 +1970,8 @@ function adjustMainTopOffset()
 	}
 
 	const offset = Math.ceil(fixedTopElement.getBoundingClientRect().bottom);
-	mainElement.style.marginTop = `${offset}px`;
+	const contentTopOverlap = 16;
+	mainElement.style.marginTop = `${Math.max(0, offset - contentTopOverlap)}px`;
 	document.documentElement.style.setProperty('--settings-fixed-top-offset', `${offset}px`);
 }
 
@@ -1798,6 +2163,10 @@ function applyDisplaySimulatorLocalization()
 	setAttributeById('displayPagePopupClose', 'aria-label', 'displaySimClose');
 	setAttributeById('displayPageSimOpen', 'title', 'displaySimOpen');
 	setAttributeById('displayPageSimOpen', 'aria-label', 'displaySimOpen');
+	setAttributeById('pageHelpOpen', 'title', 'pageHelp');
+	setAttributeById('pageHelpOpen', 'aria-label', 'pageHelp');
+	setAttributeById('pageHelpOpen', 'title', 'pageHelp');
+	setAttributeById('pageHelpOpen', 'aria-label', 'pageHelp');
 
 	setTextById('displayFieldPopupTitle', 'displayFieldPopupTitle');
 	setTextById('displayFieldPopupCancel', 'cancel');
@@ -1811,6 +2180,8 @@ function applyDisplaySimulatorLocalization()
 	setTextById('configDraftRestoreMessage', 'unsavedSettingsDetectedMessage');
 	setTextById('configDraftRestoreRetrieve', 'unsavedSettingsRetrieve');
 	setTextById('configDraftRestoreDiscard', 'unsavedSettingsDiscard');
+	setTextById('pageHelpButtonSetupType', 'buttonHelpSetupType');
+	setTextById('pageHelpButtonSetupType', 'buttonHelpSetupType');
 
 	setSelectOptions('displayInlineSimStatusBarPosition', ['displaySimOff', 'displaySimTop', 'displaySimBottom']);
 	setSelectOptions('displayPagePopupStatusBarPosition', ['displaySimOff', 'displaySimTop', 'displaySimBottom']);
@@ -1867,6 +2238,7 @@ function onHomeyReady(Homey)
 	finally
 	{
 		markReady();
+		showPageHelpIntroIfNeeded(Homey);
 	}
 }
 
@@ -2969,6 +3341,32 @@ function initialiseSettingsPage(Homey, markReady)
 		displayFieldPopupSaveElement.addEventListener('click', saveDisplayFieldPopup);
 	}
 
+	if (pageHelpOpenElement)
+	{
+		pageHelpOpenElement.addEventListener('click', openPageHelpPopup);
+	}
+
+	if (pageHelpCloseElement)
+	{
+		pageHelpCloseElement.addEventListener('click', closePageHelpPopup);
+	}
+
+	if (pageHelpButtonSetupElement)
+	{
+		pageHelpButtonSetupElement.addEventListener('change', updatePageHelpButtonSetupDetails);
+	}
+
+	if (pageHelpOverlayElement)
+	{
+		pageHelpOverlayElement.addEventListener('click', event =>
+		{
+			if (event.target === pageHelpOverlayElement)
+			{
+				closePageHelpPopup();
+			}
+		});
+	}
+
 	if (sendSupportPopupCancelElement)
 	{
 		sendSupportPopupCancelElement.addEventListener('click', () =>
@@ -3344,6 +3742,7 @@ function initialiseSettingsPage(Homey, markReady)
 	{
 		if (event.key === 'Escape')
 		{
+			closePageHelpPopup();
 			closeButtonFieldPopup();
 			closeDisplayFieldPopup();
 			closeButtonPagePopup();
@@ -11492,6 +11891,11 @@ function configTypeChanged(configSelected)
 			refreshDisplayPopupLiveValues();
 			startDisplayInlineLiveRefresh();
 		}
+	}
+
+	if (pageHelpOverlayElement && pageHelpOverlayElement.classList.contains('visible'))
+	{
+		openPageHelpPopup();
 	}
 }
 

@@ -7,7 +7,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<!-- The '/homey.js' script must be included in your settings view to work -->
 	<script type="text/javascript" src="/homey.js" data-origin="settings"></script>
-	<link rel="stylesheet" type="text/css" href="extraStyles.css?v=20261010d">
+	<link rel="stylesheet" type="text/css" href="extraStyles.css?v=20261017i">
 	<link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css'>
 </head>
 
@@ -49,6 +49,17 @@
 				<img class="view-tab-icon" src="icons/importExport.svg" alt="" />
 			</button>
 		</div>
+		<div class="page-help-row">
+			<button type="button" class="page-help-button" id="pageHelpOpen" title="Page help"
+				aria-label="Page help">
+				<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"
+					stroke-linecap="round" stroke-linejoin="round">
+					<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H6.5A2.5 2.5 0 0 0 4 22z" />
+					<path d="M4 5.5v14A2.5 2.5 0 0 1 6.5 17H20" />
+					<path d="M8 7h8M8 10h8M8 13h5" />
+				</svg>
+			</button>
+		</div>
 		<button type="button" class="homey-button-secondary-shadow group-edit-back-button" id="groupEditBackButton"
 			title="Back to Group Configuration" aria-label="Back to Group Configuration" hidden><i
 				class="fi fi-rr-arrow-left" aria-hidden="true"></i></button>
@@ -63,7 +74,6 @@
 			<option value="lastSentLog" data-i18n="settings.sentLog"></option>
 			<option value="importExport" data-i18n="settings.importExport"></option>
 		</select>
-		<hr class="hr-separator" />
 	</div>
 
 	<div class="main">
@@ -466,6 +476,35 @@
 		</div>
 	</div>
 
+	<div id="pageHelpOverlay" class="button-field-popup-overlay page-help-overlay" aria-hidden="true">
+		<div class="button-field-popup-dialog page-help-dialog" role="dialog" aria-modal="true"
+			aria-labelledby="pageHelpTitle">
+			<div class="button-field-popup-header">
+				<div class="button-field-popup-title" id="pageHelpTitle">Page help</div>
+				<button class="homey-button-secondary-shadow page-help-close" id="pageHelpClose" type="button" title="Close help" aria-label="Close help">&times;</button>
+			</div>
+			<div class="button-field-popup-body page-help-body" id="pageHelpBody">
+				<div id="pageHelpOverview"></div>
+				<div id="pageHelpButtonSetupSection" style="display:none;">
+					<div class="button-field-popup-field">
+						<label class="button-field-popup-label" id="pageHelpButtonSetupType" for="pageHelpButtonSetup" data-i18n="settings.buttonHelpSetupType"></label>
+						<select class="homey-form-select" id="pageHelpButtonSetup"></select>
+					</div>
+					<div id="pageHelpButtonSetupDetails" class="page-help-details"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div id="pageHelpIntroOverlay" class="page-help-intro-overlay" aria-hidden="true">
+		<div id="pageHelpIntroBubble" class="page-help-intro-bubble" role="dialog" aria-modal="true"
+			aria-labelledby="pageHelpIntroTitle" aria-describedby="pageHelpIntroMessage">
+			<button class="homey-button-secondary-shadow page-help-intro-close" id="pageHelpIntroClose" type="button"
+				title="Close introduction" aria-label="Close introduction">&times;</button>
+			<h2 class="page-help-intro-title" id="pageHelpIntroTitle">New: Page Help</h2>
+			<p class="page-help-intro-message" id="pageHelpIntroMessage">Use this book button to open a guide to the controls and setup examples on each settings page.</p>
+		</div>
+	</div>
+
 	<div id="displayPagePopupOverlay" class="display-sim-overlay" aria-hidden="true">
 		<div class="display-sim-dialog" role="dialog" aria-modal="true" aria-labelledby="displayPagePopupTitle">
 			<div class="display-sim-header">
@@ -614,7 +653,7 @@
 	<!-- Code to handle page life -->
 
 	<script type="text/javascript" src="simulation.js?v=20261002a"></script>
-	<script type="text/javascript" src="settings.js?v=20261010r"></script>
+	<script type="text/javascript" src="settings.js?v=20261017b"></script>
 </body>
 
 </html>

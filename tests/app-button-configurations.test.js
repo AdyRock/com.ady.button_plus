@@ -728,12 +728,99 @@ function checkAdvancedMappingHelpTooltips()
 		assert(locale.settings.advancedMappingTargetHelp, `${fileName} includes advanced target help`);
 		assert(locale.settings.advancedMappingPreviewHelp, `${fileName} includes advanced preview help`);
 		assert(locale.settings.buttonPageFallbackBlank, `${fileName} includes the blank-page fallback label`);
+		assert(locale.settings.pageHelp, `${fileName} includes the page-help label`);
+		assert(locale.settings.buttonHelpSetupType, `${fileName} includes the setup-type label`);
+		assert(locale.settings.buttonHelpThermostatCurrentTarget, `${fileName} includes the current/setpoint thermostat option`);
+		assert(locale.settings.buttonHelpReadOnlySensor, `${fileName} includes the read-only sensor option`);
+		assert(locale.settings.sentLogPageHelp, `${fileName} includes sent-log page help`);
+		for (const setupType of [
+			'FlowOnly', 'OnOff', 'Dimmable', 'Thermostat', 'ThermostatDisplay', 'WindowCoverings',
+			'Colour', 'Fan', 'Lock', 'LockButtons', 'ReadOnly', 'CustomMQTT',
+		])
+		{
+			assert(locale.settings[`buttonHelpSetup${setupType}`], `${fileName} includes ${setupType} setup guidance`);
+		}
+		for (const instruction of ['HowToTitle', 'ClickTitle', 'ClickValue', 'ClearButton', 'Wizard'])
+		{
+			assert(locale.settings[`buttonHelp${instruction}`], `${fileName} includes ${instruction} instructions`);
+		}
 	}
+	const englishLocale = JSON.parse(fs.readFileSync(path.join(localeDirectory, 'en.json'), 'utf8'));
+	assert.strictEqual(englishLocale.settings.buttonHelpSetupType, 'Select a setup type to show an example', 'Button help prompts users to select an example');
+	assert(englishLocale.settings.pageHelpIntroMessage.includes('book button'), 'English locale explains the new Page Help feature');
+	assert(englishLocale.settings.buttonHelpLED, 'English help explains the LED settings');
+	assert(englishLocale.settings.buttonHelpToggleModeStd, 'English help separates the STD description');
+	assert(englishLocale.settings.buttonHelpToggleModeAdv, 'English help separates the ADV description');
+	assert(englishLocale.settings.buttonHelpAdvancedButton, 'English help explains the Advanced mappings button');
+	assert(englishLocale.settings.buttonHelpPageFallback, 'English help explains the Page 0 and Blank pills');
+	assert(englishLocale.settings.displayHelpHowToTitle, 'English help includes a display item walkthrough');
+	assert(englishLocale.settings.displayHelpMoveResizeItem.includes('four-arrow handle'), 'Display help explains how to move and resize items');
+	assert(englishLocale.settings.displayHelpDeleteItem.includes('fi-rr-trash'), 'Display help uses the delete icon');
+	assert(englishLocale.settings.buttonHelpSaveAssign.includes('Save All Configurations'), 'Button help explains saving and assigning configurations');
+	assert(englishLocale.settings.displayHelpSaveAssign.includes('Save All Configurations'), 'Display help explains saving and assigning configurations');
+	assert(englishLocale.settings.settingsHelpSimulation.includes('hold Shift'), 'Settings help explains how to reveal simulation controls');
+	assert(englishLocale.settings.diagnosticHelpListeners.includes('capability listeners'), 'Diagnostics help explains Get Listeners');
+	assert(englishLocale.settings.sentLogHelpGet.includes('most recent configuration'), 'Sent-log help explains Get Log');
+	assert(englishLocale.settings.importExportHelpImport.includes('Save All Configurations'), 'Import help explains saving imported configurations');
+	assert(englishLocale.settings.brokerHelpHowToTitle, 'English help includes a Broker setup walkthrough');
+	assert(englishLocale.settings.brokerExplanation.includes('MQTT server'), 'English help explains what a Broker is used for');
+	assert(englishLocale.settings.brokerHelpDelete.includes('fi-rr-trash'), 'Broker help uses the delete icon');
+	assert(englishLocale.settings.groupHelpHowToTitle, 'English help includes a group setup walkthrough');
+	assert(englishLocale.settings.groupHelpActions.includes('fi-rr-copy'), 'Group help uses the duplicate-group icon');
+	assert(englishLocale.settings.groupHelpDisplayModule.includes('group-sim-config-number') && englishLocale.settings.groupHelpButtonBars.includes('group-sim-config-number'), 'Group help shows numbered module badges');
+	assert(englishLocale.settings.groupHelpDisplayModule.includes('fi-rr-edit') && englishLocale.settings.groupHelpDisplayModule.includes('fi-rr-trash'), 'Display module help uses its edit and remove icons');
+	assert(englishLocale.settings.groupHelpButtonBars.includes('fi-rr-edit') && englishLocale.settings.groupHelpButtonBars.includes('fi-rr-trash') && englishLocale.settings.groupHelpButtonBars.includes('&uarr;'), 'Button bar help uses its edit, remove, and move controls');
+	assert(englishLocale.settings.groupHelpButtonBars.includes('toggle its preview state'), 'Group help explains simulated button toggling');
+	assert(englishLocale.settings.groupHelpPreview.includes('hide the group setup controls'), 'Group help explains the Preview / Configure layout toggle');
+	assert(englishLocale.settings.groupHelpPages.includes('&lt;') && englishLocale.settings.groupHelpPages.includes('&gt;'), 'Group help shows the page navigation buttons');
+	assert(englishLocale.settings.groupHelpAddButtonBars.includes('up to 8 button bars'), 'Group help explains the button bar limit');
+	assert(englishLocale.settings.brokerHelpFields.includes('routes messages to the correct broker'), 'Broker help explains the purpose of a unique Broker ID');
+	assert(
+		englishLocale.settings.buttonHelpGlobalSettings.includes('Simulate:')
+			&& englishLocale.settings.buttonHelpGlobalSettings.includes('Top Extra Settings:')
+			&& englishLocale.settings.buttonHelpGlobalSettings.includes('fi-rr-plus')
+			&& englishLocale.settings.buttonHelpGlobalSettings.includes('fi-rr-trash'),
+		'English help explains global controls and uses page action icons',
+	);
 
 	const settingsSource = fs.readFileSync(path.join(__dirname, '..', 'settings', 'settings.js'), 'utf8');
+	const settingsHtml = fs.readFileSync(path.join(__dirname, '..', 'settings', 'index.html'), 'utf8');
+	const stylesSource = fs.readFileSync(path.join(__dirname, '..', 'settings', 'extraStyles.css'), 'utf8');
+	assert(settingsHtml.includes('id="pageHelpClose"') && settingsHtml.includes('aria-label="Close help">&times;</button>'), 'Buttons help closes from a header cross');
+	assert(settingsHtml.includes('id="pageHelpIntroOverlay"') && settingsHtml.includes('id="pageHelpIntroClose"'), 'First-run Page Help intro includes an overlay and close button');
+	assert(!settingsHtml.includes('id="pageHelpClose" type="button" data-i18n="settings.cancel"'), 'Buttons help has no Cancel footer button');
+	const fixedHeader = settingsHtml.slice(settingsHtml.indexOf('<div class="fixedTop">'), settingsHtml.indexOf('<div class="main">'));
+	assert(!fixedHeader.includes('<hr class="hr-separator" />'), 'Shared help header has no divider below the help button');
+	assert(settingsSource.includes('pageHelpBodyElement.scrollTop = 0'), 'Buttons help opens at the top of its content');
+	assert(settingsSource.includes('Homey.get(PAGE_HELP_INTRO_ACKNOWLEDGED_KEY'), 'First-run Page Help intro checks whether it was acknowledged');
+	assert(settingsSource.includes('Homey.set(PAGE_HELP_INTRO_ACKNOWLEDGED_KEY, true)'), 'Closing the first-run Page Help intro records acknowledgement');
+	assert(settingsSource.includes("pageHelpOverlayElement.classList.contains('visible')"), 'Buttons help refreshes when the active view changes');
+	assert(stylesSource.includes('#pageHelpOverlay {') && stylesSource.includes('top: var(--settings-fixed-top-offset, 64px);'), 'Help leaves the fixed view tabs accessible');
+	assert(stylesSource.includes('.page-help-intro-bubble::before'), 'First-run Page Help intro has a speech-bubble pointer');
 	assert.strictEqual((settingsSource.match(/settings\.advancedMappingTargetHelp/g) || []).length, 6, 'Each event has device and capability help');
 	assert.strictEqual((settingsSource.match(/settings\.advancedMappingPreviewHelp/g) || []).length, 3, 'Each numeric step has preview help');
 	assert(settingsSource.includes('class="tooltip" tabindex="0"'), 'Advanced mapping help icons can receive keyboard focus');
+	assert(settingsSource.includes("value: 'thermostatCurrentTarget'"), 'Button help includes the current/setpoint thermostat pattern');
+	assert(settingsSource.includes("value: 'readOnly'"), 'Button help includes read-only sensor setups');
+	assert(settingsSource.includes("stepKeys: ['settingsHelpWebView', 'settingsHelpSimulation']"), 'Settings help does not mention a missing Save button');
+	const helpMapStart = settingsSource.indexOf('const viewHelp = {');
+	const helpMapEnd = settingsSource.indexOf('\n\t};', helpMapStart);
+	const buttonHelpView = settingsSource.slice(helpMapStart, helpMapEnd);
+	assert(buttonHelpView.includes("panelConfig: { title: 'buttonConfigs', keys: ['buttonExplanation', 'buttonHelpGlobalSettings'] }"), 'Buttons help shows global controls before setup instructions');
+	assert(buttonHelpView.includes("settings: { title: 'Settings', keys: [] }"), 'Settings help avoids repeating its overview above the numbered guide');
+	assert(buttonHelpView.includes("importExport: { title: 'importExport', keys: [] }"), 'Import/Export help avoids repeating its overview above the numbered guide');
+	assert(!buttonHelpView.includes('advancedMappingTargetHelp') && !buttonHelpView.includes('advancedMappingPreviewHelp'), 'Buttons help does not repeat Advanced mappings popup guidance');
+	assert(settingsSource.includes("else if (view === 'displayConfig')"), 'Display help includes its own ordered walkthrough');
+	assert(settingsSource.includes("'displayHelpSaveAssign'"), 'Display save and assign is the final help topic');
+	assert(settingsSource.includes("else if (view === 'groupConfig')"), 'Group help includes its own ordered walkthrough');
+	assert(settingsSource.includes("else if (['settings', 'diagnosticLog', 'lastSentLog', 'importExport'].includes(view))"), 'Remaining help views render ordered control walkthroughs');
+	assert(settingsSource.includes("else if (view === 'brokerConfig')"), 'Broker help includes its own ordered walkthrough');
+	const groupHelpStart = settingsSource.indexOf('const groupHelpStepKeys = [');
+	const groupHelpEnd = settingsSource.indexOf('\n\t\t];', groupHelpStart);
+	const groupHelpOrder = settingsSource.slice(groupHelpStart, groupHelpEnd);
+	assert(groupHelpOrder.indexOf('groupHelpManage') < groupHelpOrder.indexOf('groupHelpActions'), 'Group actions have their own item after group selection');
+	assert(groupHelpOrder.indexOf('groupHelpPreview') < groupHelpOrder.indexOf('groupHelpPages'), 'Group layout and page navigation have separate ordered items');
+	assert(groupHelpOrder.indexOf('groupHelpPreview') < groupHelpOrder.indexOf('groupHelpDisplayModule'), 'Group help follows the page order');
 }
 
 async function run()
