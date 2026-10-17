@@ -1859,5 +1859,20 @@
         "ko": "앱 수준 Flow 카드를 추가하고 구성 드롭다운에 이름이 표시되도록 수정했습니다.",
         "ar": "تمت إضافة بطاقات Flow على مستوى التطبيق وإصلاح قائمة التكوين المنسدلة لعرض الأسماء."
 
-	}
+	},
+	"1.0.11": {
+        "en": "Added page-specific settings help with a first-run introduction and detailed setup guides. Expanded Flow cards with button event and page change triggers, plus a condition to check the active button configuration.",
+        "nl": "Paginahulp toegevoegd met een introductie bij het eerste gebruik en uitgebreide configuratiehandleidingen. Flow-kaarten uitgebreid met triggers voor knopgebeurtenissen en paginawijzigingen, plus een voorwaarde om de actieve knopconfiguratie te controleren.",
+        "de": "Seitenspezifische Einstellungshilfe mit Einführung beim ersten Start und ausführlichen Einrichtungsanleitungen hinzugefügt. Flow-Karten um Auslöser für Tastenereignisse und Seitenwechsel sowie eine Bedingung zur Prüfung der aktiven Tastenkonfiguration erweitert.",
+        "fr": "Ajout d'une aide contextuelle aux réglages, avec une introduction au premier lancement et des guides de configuration détaillés. Ajout aux cartes Flow de déclencheurs d'événements de bouton et de changement de page, ainsi que d'une condition pour vérifier la configuration de bouton active.",
+        "it": "Aggiunta la guida contestuale alle impostazioni, con un'introduzione al primo avvio e istruzioni dettagliate. Ampliate le schede Flow con trigger per gli eventi dei pulsanti e i cambi di pagina, oltre a una condizione per verificare la configurazione del pulsante attiva.",
+        "sv": "Lade till sidspecifik inställningshjälp med en introduktion första gången och detaljerade konfigurationsguider. Utökade Flow-korten med utlösare för knapphändelser och sidbyten samt ett villkor för att kontrollera den aktiva knappkonfigurationen.",
+        "no": "La til sidebasert innstillingshjelp med en introduksjon første gang og detaljerte oppsettsveiledninger. Utvidet Flow-kortene med utløsere for knapphendelser og sideskifter, samt en betingelse for å kontrollere den aktive knappkonfigurasjonen.",
+        "es": "Se añadió ayuda contextual para cada página de ajustes, con una introducción inicial y guías de configuración detalladas. Se ampliaron las tarjetas Flow con activadores de eventos de botones y cambios de página, además de una condición para comprobar la configuración de botones activa.",
+        "da": "Tilføjede sidebaseret hjælp til indstillinger med en introduktion første gang og detaljerede opsætningsvejledninger. Udvidede Flow-kortene med udløsere for knaphændelser og sideskift samt en betingelse til at kontrollere den aktive knapkonfiguration.",
+        "ru": "Добавлена справка для страниц настроек с вводным сообщением при первом запуске и подробными руководствами по настройке. В карточки Flow добавлены триггеры событий кнопок и смены страниц, а также условие для проверки активной конфигурации кнопок.",
+        "pl": "Dodano pomoc kontekstową dla stron ustawień, z wprowadzeniem przy pierwszym uruchomieniu i szczegółowymi instrukcjami konfiguracji. Rozszerzono karty Flow o wyzwalacze zdarzeń przycisków i zmian stron oraz warunek sprawdzający aktywną konfigurację przycisku.",
+        "ko": "페이지별 설정 도움말과 최초 실행 안내 및 자세한 설정 가이드를 추가했습니다. 버튼 이벤트와 페이지 변경 트리거, 활성 버튼 구성을 확인하는 조건을 Flow 카드에 추가했습니다.",
+        "ar": "تمت إضافة مساعدة خاصة بصفحات الإعدادات، مع مقدمة عند الاستخدام الأول وأدلة إعداد مفصلة. وتم توسيع بطاقات Flow لتشمل مشغلات أحداث الأزرار وتغيير الصفحات، بالإضافة إلى شرط للتحقق من تكوين الزر النشط."
+    }
 }
