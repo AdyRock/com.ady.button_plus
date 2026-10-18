@@ -1899,7 +1899,7 @@ class MyApp extends Homey.App
 							chosenSvg = isOn ? (onSvg || item.svg || '') : (offSvg || item.svg || '');
 						}
 
-						let textVal = val;
+						let textVal = scaleValue(val, getHomeyScale(item.device, item.capability, item.valueScale));
 						let isBool = typeof val === 'boolean';
 						if (!isBool && typeof val === 'string')
 						{
@@ -1921,14 +1921,14 @@ class MyApp extends Homey.App
 						svg = isSvgTextContent(chosenSvg) ? chosenSvg : (item.svg || routedValue.svg);
 						mqttQueue.push({
 							brokerId,
-							message: `buttonplus/${item.device}/${item.capability}`,
+							message: getDisplayTopic(buttonId, item.device, item.capability, itemNo, item.valueScale),
 							value: isSvgTextContent(chosenSvg) ? '' : routedValue.textValue,
 						});
 					}
 					else
 					{
 						// Overwrite the retained value, which may be a simulated one from before simulation was disabled
-						mqttQueue.push({ brokerId, message: `buttonplus/${item.device}/${item.capability}`, value: '' });
+						mqttQueue.push({ brokerId, message: getDisplayTopic(buttonId, item.device, item.capability, itemNo, item.valueScale), value: '' });
 					}
 				}
 				else if (item.device !== 'none')

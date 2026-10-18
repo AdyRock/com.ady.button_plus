@@ -5803,17 +5803,17 @@ function getButtonPanelDimPreviewText(pageConfig, side, pageIndex, configIndex =
 	return `${percent}% ${direction}`;
 }
 
-function getButtonPanelVariablePreviewText(deviceValue, capabilityValue)
+function getButtonPanelVariablePreviewText(deviceValue, capabilityValue, valueScale, unit)
 {
 	if (deviceValue !== '_variable_')
 	{
 		return null;
 	}
 
-	const selectedVariable = variablesArray.find(variable => variable.id === capabilityValue);
+	let selectedVariable = variablesArray.find(variable => variable.id === capabilityValue);
 	if (!selectedVariable && simulationEnabled && variablesFetched && capabilityValue)
 	{
-		return window.ButtonPlusSimulation.getSimulatedVariable(capabilityValue).value;
+		selectedVariable = window.ButtonPlusSimulation.getSimulatedVariable(capabilityValue);
 	}
 
 	if (!selectedVariable || (selectedVariable.type === 'boolean'))
@@ -5821,7 +5821,14 @@ function getButtonPanelVariablePreviewText(deviceValue, capabilityValue)
 		return null;
 	}
 
-	return (selectedVariable.value === undefined || selectedVariable.value === null) ? '' : String(selectedVariable.value);
+	if (selectedVariable.value === undefined || selectedVariable.value === null) return '';
+	if (typeof selectedVariable.value === 'number')
+	{
+		const value = selectedVariable.value * (Number(normalizeCapabilityScale(valueScale)) || 1);
+		const unitText = String(unit || '').trim();
+		return unitText ? `${value} ${unitText}` : String(value);
+	}
+	return String(selectedVariable.value);
 }
 
 function getButtonPanelCapabilityPreviewText(side, pageIndex, deviceValue, capabilityValue, configIndex = currentButtonConfigurationNo, preferStoredConfig = false)
@@ -5942,7 +5949,9 @@ function getButtonPanelPreviewMarkup(pageConfig, side, pageIndex = buttonPagePop
 	const hasTopText = !!topTextRaw;
 	const topText = hasTopText ? escapeHtml(topTextRaw) : (isReadonly ? '' : `<span class="button-sim-placeholder">${Homey.__('settings.clickToAddTitle')}</span>`);
 	const isDimCapability = (capabilityValue === 'dim');
-	const variablePreviewText = getButtonPanelVariablePreviewText(deviceValue, capabilityValue);
+	const variablePreviewText = getButtonPanelVariablePreviewText(deviceValue, capabilityValue,
+		getLiveButtonPanelFieldValue(pageConfig, side, 'DisplayValueScale', '', pageIndex, configIndex, preferStoredConfig),
+		getLiveButtonPanelFieldValue(pageConfig, side, 'Unit', '', pageIndex, configIndex, preferStoredConfig));
 	const capabilityPreviewText = (variablePreviewText === null) ? getButtonPanelCapabilityPreviewText(side, pageIndex, deviceValue, capabilityValue, configIndex, preferStoredConfig) : null;
 	const nonBooleanPreviewText = (variablePreviewText !== null) ? variablePreviewText : capabilityPreviewText;
 	const isNonBooleanVariable = (nonBooleanPreviewText !== null);
@@ -6644,7 +6653,7 @@ function isRelockCapabilityId(capabilityId)
 
 function canScaleHomeyCapability(deviceId, capabilityId, type)
 {
-	return type === 'number' && !!deviceId && !['none', '_variable_', 'customMQTT'].includes(deviceId) && !['dim', 'windowcoverings_set'].includes(capabilityId);
+	return type === 'number' && !!deviceId && !['none', 'customMQTT'].includes(deviceId) && (deviceId === '_variable_' || !['dim', 'windowcoverings_set'].includes(capabilityId));
 }
 
 function normalizeCapabilityScale(value)
@@ -7367,7 +7376,7 @@ function updateButtonFieldPopupCapabilityState(popupElementsBySuffix)
 	const isNonBooleanVariable = !!selectedVariable && (selectedVariable.type !== 'boolean');
 	const selectedCapabilityOption = capabilityElement.selectedOptions ? capabilityElement.selectedOptions[0] : null;
 	const selectedCapabilityType = selectedCapabilityOption ? selectedCapabilityOption.dataset.type : '';
-	const showScale = canScaleHomeyCapability(deviceValue, capabilityElement.value, selectedCapabilityType);
+	const showScale = canScaleHomeyCapability(deviceValue, capabilityElement.value, selectedVariable?.type || selectedCapabilityType);
 	if (popupElementsBySuffix.DisplayValueScale)
 	{
 		popupElementsBySuffix.DisplayValueScale.closest('.button-field-popup-field').style.display = showScale ? '' : 'none';
@@ -8159,7 +8168,8 @@ function updateDisplayFieldPopupCapabilityState(popupElementsBySuffix)
 
 	const onOffDisplay = isBoolean ? '' : 'none';
 	const selectedCapability = displayCapabilityItems.get(deviceValue)?.[capabilityId];
-	const selectedType = selectedCapability?.type || capabilityElement.selectedOptions?.[0]?.dataset.type || '';
+	const variableType = deviceValue === '_variable_' ? variablesArray.find(variable => variable.id === capabilityId)?.type : '';
+	const selectedType = variableType || selectedCapability?.type || capabilityElement.selectedOptions?.[0]?.dataset.type || '';
 	const showScale = canScaleHomeyCapability(deviceValue, capabilityId, selectedType);
 	if (popupElementsBySuffix.ValueScale)
 	{
@@ -12811,6 +12821,7 @@ function fillDisplayVariablesElement(item, capabilityElement, selectedVariable, 
 		var option = document.createElement('option');
 		option.text = variable.name;
 		option.value = variable.id;
+		option.dataset.type = variable.type || '';
 		capabilityElement.add(option);
 	}
 

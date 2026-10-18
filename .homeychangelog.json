@@ -1874,5 +1874,20 @@
         "pl": "Dodano pomoc kontekstową dla stron ustawień, z wprowadzeniem przy pierwszym uruchomieniu i szczegółowymi instrukcjami konfiguracji. Rozszerzono karty Flow o wyzwalacze zdarzeń przycisków i zmian stron oraz warunek sprawdzający aktywną konfigurację przycisku.",
         "ko": "페이지별 설정 도움말과 최초 실행 안내 및 자세한 설정 가이드를 추가했습니다. 버튼 이벤트와 페이지 변경 트리거, 활성 버튼 구성을 확인하는 조건을 Flow 카드에 추가했습니다.",
         "ar": "تمت إضافة مساعدة خاصة بصفحات الإعدادات، مع مقدمة عند الاستخدام الأول وأدلة إعداد مفصلة. وتم توسيع بطاقات Flow لتشمل مشغلات أحداث الأزرار وتغيير الصفحات، بالإضافة إلى شرط للتحقق من تكوين الزر النشط."
-    }
+    },
+	"1.0.12": {
+		"en": "Fixed possible issue with clearing an SVG that could cause the firmware web UI to break. Added a Value Multiplier option to the value for certain capabilities and variables.",
+        "nl": "Mogelijk probleem met het wissen van een SVG opgelost dat de firmware web-UI kon laten crashen. Optie voor waardevermenigvuldiger toegevoegd aan de waarde voor bepaalde mogelijkheden en variabelen.",
+        "de": "Mögliches Problem beim Löschen einer SVG behoben, das die Firmware-Web-UI zum Absturz bringen konnte. Option 'Wertmultiplikator' für den Wert bestimmter Fähigkeiten und Variablen hinzugefügt.",
+        "fr": "Correction d'un problème possible lors de la suppression d'un SVG pouvant provoquer le dysfonctionnement de l'interface web du firmware. Ajout d'une option de multiplicateur de valeur pour certaines capacités et variables.",
+        "it": "Risolto un possibile problema con la cancellazione di un SVG che poteva causare il malfunzionamento dell'interfaccia web del firmware. Aggiunta un'opzione Moltiplicatore di Valore al valore per alcune capacità e variabili.",
+        "sv": "Åtgärdade ett möjligt problem med att rensa en SVG som kunde få firmware-webbgränssnittet att sluta fungera. Lagt till ett alternativ för värdemultiplikator för värdet för vissa funktioner och variabler.",
+        "no": "Fikset mulig problem med å tømme en SVG som kunne få firmware-webgrensesnittet til å slutte å fungere. La til et alternativ for verdimultiplikator for verdien for visse funksjoner og variabler.",
+        "es": "Se solucionó un posible problema al borrar un SVG que podía hacer que la interfaz web del firmware dejara de funcionar. Se añadió una opción de Multiplicador de Valor al valor para ciertas capacidades y variables.",
+        "da": "Fikset muligt problem med at rydde en SVG, der kunne få firmware-web-UI'en til at gå i stykker. Tilføjet en Værdimultiplikator-mulighed til værdien for visse kapaciteter og variabler.",
+        "ru": "Исправлена возможная проблема с очисткой SVG, которая могла привести к сбою веб-интерфейса прошивки. Добавлена опция множителя значения для определённых возможностей и переменных.",
+        "pl": "Naprawiono możliwy problem z czyszczeniem SVG, który mógł spowodować awarię interfejsu webowego firmware. Dodano opcję Mnożnika Wartości do wartości dla niektórych możliwości i zmiennych.",
+        "ko": "펌웨어 웹 UI가 중단될 수 있는 SVG 지우기와 관련된 잠재적 문제를 수정했습니다. 특정 기능 및 변수의 값에 값 곱하기 옵션을 추가했습니다.",
+        "ar": "تم إصلاح مشكلة محتملة عند مسح ملف SVG والتي قد تتسبب في تعطل واجهة الويب للبرنامج الثابت. تمت إضافة خيار مضاعف القيمة للقيمة لبعض القدرات والمتغيرات."
+	}
 }

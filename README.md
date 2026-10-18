@@ -56,11 +56,11 @@ Each configuration area has a set of slots for building your panel layouts. The 
 
 ### Numeric value scaling
 
-Numeric Homey display items and button display bindings have an optional **Value multiplier**. Use `100` to display a fraction such as `0.10` as `10`, or `0.001` to display `1500 W` as `1.5 kW`. Set the unit text separately and choose enough decimal places in Rounding for display items.
+Numeric Homey capabilities and Logic variables have an optional **Value multiplier** in display items and button display bindings. Use `100` to display a fraction such as `0.10` as `10`, or `0.001` to display `1500 W` as `1.5 kW`. Set the unit text separately and choose enough decimal places in Rounding for display items. Variable scaling only changes the displayed value; it does not write back to the variable.
 
 Advanced numeric button actions have their own multiplier. Their absolute values and signed increments are divided by this factor before writing to Homey. For example, a multiplier of `100` and an increment of `+10` increase the native capability by `0.10`. Use matching display and action multipliers when controlling the same value.
 
-Leave the multiplier blank to keep existing behaviour. The field is hidden for dim and blind-position capabilities, which already convert percentages automatically, and for non-numeric values, Logic variables, and custom MQTT. Only positive, finite multipliers are supported.
+Leave the multiplier blank to keep existing behaviour. The field is hidden for dim and blind-position capabilities, which already convert percentages automatically, and for non-numeric values and custom MQTT. Only positive, finite multipliers are supported.
 
 ## Setting up groups
 

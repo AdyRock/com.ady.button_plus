@@ -894,7 +894,8 @@ async function checkCapabilityScaling()
 	assert.strictEqual(getHomeyScale('lamp', 'dim', 100), null);
 	assert.strictEqual(getHomeyScale('blinds', 'windowcoverings_set', 100), null);
 	assert.strictEqual(getHomeyScale('customMQTT', 'value', 100), null);
-	assert.strictEqual(getHomeyScale('_variable_', 'value', 100), null);
+	assert.strictEqual(getHomeyScale('_variable_', 'value', 100), 100);
+	assert.strictEqual(getHomeyScale('_variable_', 'dim', 100), 100, 'Variable IDs do not use capability-specific conversions');
 	assert.strictEqual(getDisplayTopic('panel', 'meter', 'measure_power', 0, 0.001), 'buttonplus/panel/displayitem/0/scaled');
 	assert.strictEqual(getDisplayTopic('panel', 'meter', 'measure_power', 1, ''), 'buttonplus/meter/measure_power');
 	assert.notStrictEqual(getDisplayTopic('panel', 'meter', 'measure_power', 0, 0.001), getDisplayTopic('panel', 'meter', 'measure_power', 1, 1));
@@ -904,7 +905,8 @@ async function checkCapabilityScaling()
 	const uiEnd = settingsSource.indexOf('\nfunction buildCapabilityScaleRow(', uiStart);
 	const ui = vm.runInNewContext(`${settingsSource.slice(uiStart, uiEnd)}; ({ canScaleHomeyCapability, normalizeCapabilityScale })`);
 	assert.strictEqual(ui.canScaleHomeyCapability('meter', 'measure_power', 'number'), true);
-	for (const [deviceId, capabilityId, type] of [['lamp', 'dim', 'number'], ['blind', 'windowcoverings_set', 'number'], ['customMQTT', 'power', 'number'], ['lamp', 'onoff', 'boolean'], ['_variable_', 'number', 'number']])
+	assert.strictEqual(ui.canScaleHomeyCapability('_variable_', 'value', 'number'), true);
+	for (const [deviceId, capabilityId, type] of [['lamp', 'dim', 'number'], ['blind', 'windowcoverings_set', 'number'], ['customMQTT', 'power', 'number'], ['lamp', 'onoff', 'boolean'], ['_variable_', 'flag', 'boolean'], ['_variable_', 'text', 'string']])
 	{
 		assert.strictEqual(ui.canScaleHomeyCapability(deviceId, capabilityId, type), false);
 	}
@@ -928,13 +930,38 @@ async function checkCapabilityScaling()
 	unitElement.value = 'kW';
 	fillCapabilities(0, capabilitySelector, { measure_power: { id: 'measure_power', type: 'number', units: 'W' } });
 	assert.strictEqual(unitElement.value, 'kW', 'Loading capabilities preserves an explicit override');
+	const testVariables = [
+		{ id: 'value', type: 'number', value: 1500 },
+		{ id: 'flag', type: 'boolean', value: true },
+		{ id: 'text', type: 'string', value: '1500' },
+	];
+	const previewStart = settingsSource.indexOf('\nfunction getButtonPanelVariablePreviewText(');
+	const previewEnd = settingsSource.indexOf('\nfunction getButtonPanelCapabilityPreviewText(', previewStart);
+	const variablePreview = vm.runInNewContext(`${settingsSource.slice(uiStart, uiEnd)}${settingsSource.slice(previewStart, previewEnd)}; getButtonPanelVariablePreviewText`, {
+		variablesArray: testVariables,
+		simulationEnabled: false,
+	});
+	assert.strictEqual(variablePreview('_variable_', 'value', 0.001, 'kW'), '1.5 kW');
+	assert.strictEqual(variablePreview('_variable_', 'value', '', ''), '1500');
+	assert.strictEqual(variablePreview('_variable_', 'flag', 100, ''), null);
+	assert.strictEqual(variablePreview('_variable_', 'text', 100, 'kW'), '1500');
 	const visibilityStart = settingsSource.indexOf('\nfunction updateDisplayFieldPopupCapabilityState(');
 	const visibilityEnd = settingsSource.indexOf('\nfunction restoreDisplayFieldPopupCustomMQTTSection(', visibilityStart);
 	const updateVisibility = vm.runInNewContext(`${settingsSource.slice(uiStart, uiEnd)}${settingsSource.slice(visibilityStart, visibilityEnd)}; updateDisplayFieldPopupCapabilityState`, {
-		variablesArray: [],
+		variablesArray: testVariables,
 		displayCapabilityItems: new Map(),
 	});
-	for (const [deviceId, capabilityId, type, visible] of [['meter', 'measure_power', 'number', true], ['lamp', 'dim', 'number', false], ['blind', 'windowcoverings_set', 'number', false], ['customMQTT', 'power', 'number', false], ['lamp', 'onoff', 'boolean', false]])
+	const visibilityCases = [
+		['meter', 'measure_power', 'number', true],
+		['lamp', 'dim', 'number', false],
+		['blind', 'windowcoverings_set', 'number', false],
+		['customMQTT', 'power', 'number', false],
+		['lamp', 'onoff', 'boolean', false],
+		['_variable_', 'value', '', true],
+		['_variable_', 'flag', '', false],
+		['_variable_', 'text', '', false],
+	];
+	for (const [deviceId, capabilityId, type, visible] of visibilityCases)
 	{
 		const scaleRow = { style: {} };
 		updateVisibility({
@@ -1031,6 +1058,41 @@ async function checkCapabilityScaling()
 	panel.getAdvancedDirection = () => '+';
 	assert.strictEqual((await panel.resolveAdvancedDisplayValue({ deviceID: 'meter', capabilityName: 'level', valueScale: 100, unit: '%' }, 0.1, {})).textValue, '10 %');
 	assert.strictEqual((await panel.resolveAdvancedDisplayValue({ deviceID: 'lamp', capabilityName: 'dim' }, 0.1, {})).textValue, '10% +');
+	const variableValues = new Map(testVariables.map(variable => [variable.id, variable]));
+	app.homey = { app };
+	app.getVariable = async id => variableValues.get(id);
+	panel.homey.app.getVariable = app.getVariable;
+	app.getHomeyDeviceById = async () => null;
+	app.displayConfigurations[0] = { items: [
+		{ device: '_variable_', capability: 'value', valueScale: 0.001, unit: 'kW' },
+		{ device: '_variable_', capability: 'value', valueScale: 100 },
+		{ device: '_variable_', capability: 'value' },
+		{ device: '_variable_', capability: 'flag', valueScale: 100 },
+		{ device: '_variable_', capability: 'text', valueScale: 100 },
+	] };
+	published.length = 0;
+	await app.applyDisplayConfiguration(section, 0, '2.0.0', panel);
+	await publishInitialValues();
+	assert.strictEqual(published[0].value, 1.5, 'Initial variable values are scaled');
+	assert.strictEqual(published[2].value, 150000, 'Each item has its own factor');
+	assert.strictEqual(published[4].value, 1500, 'Blank factors leave the source value unchanged');
+	assert.strictEqual(published[6].value, 'On', 'Boolean formatting is unchanged');
+	assert.strictEqual(published[8].value, '1500', 'Text variables are never scaled');
+	assert.strictEqual(section.displayitems[0].topics[0].topic, published[0].topic);
+	assert.strictEqual(section.displayitems[1].topics[0].topic, published[2].topic);
+	assert.notStrictEqual(published[0].topic, published[2].topic);
+	assert.strictEqual(published[4].topic, 'buttonplus/_variable_/value');
+	assert.strictEqual(section.displayitems[0].unit, 'kW');
+	published.length = 0;
+	await panel.checkStateChangeForDisplay(0, '_variable_', 'value', 2000);
+	assert.strictEqual(published[0].value, 2, 'Live updates use the configured variable factor');
+	assert.strictEqual(published[1].value, 200000);
+	assert.strictEqual(published[2].value, 2000);
+	assert.strictEqual(published[0].topic, section.displayitems[0].topics[0].topic);
+	assert.strictEqual(published[1].topic, section.displayitems[1].topics[0].topic);
+	assert.strictEqual((await panel.resolveAdvancedDisplayValue({ deviceID: '_variable_', capabilityName: 'value', valueScale: 0.001, unit: 'kW' })).textValue, '1.5 kW');
+	assert.strictEqual(panel.formatVariableDisplayValue(1500, 'kW', 0.001), '1.5 kW', 'Basic button variables use the same display conversion');
+	assert.strictEqual(testVariables[0].value, 1500, 'Scaling never mutates the source variable');
 
 	const binding = { deviceID: 'meter', capabilityName: 'level', valueScale: 100, rawValueStep: '+10', valueStep: 10, numericAction: 'change' };
 	panel.resolveAdvancedEventBinding = () => binding;

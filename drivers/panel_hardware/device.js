@@ -4375,7 +4375,7 @@ class PanelDevice extends Device
 				return { textValue: isOn ? binding.onText : binding.offText, svgValue: null };
 			}
 
-			return { textValue: this.formatVariableDisplayValue(variable.value, binding.unit), svgValue: null };
+			return { textValue: this.formatVariableDisplayValue(variable.value, binding.unit, binding.valueScale), svgValue: null };
 		}
 
 		const device = await this.homey.app.getHomeyDeviceById(binding.deviceID);
@@ -6778,7 +6778,7 @@ class PanelDevice extends Device
 
 					if (isNonBooleanVariable)
 					{
-						this.publishTextButtonLabel(sideConfig.brokerId, buttonIdx, page, this.formatVariableDisplayValue(value, sideConfig.unit));
+						this.publishTextButtonLabel(sideConfig.brokerId, buttonIdx, page, this.formatVariableDisplayValue(value, sideConfig.unit, sideConfig.valueScale));
 					}
 					else if (isNonBooleanDeviceCapability)
 					{
@@ -6927,11 +6927,6 @@ class PanelDevice extends Device
 				value = '';
 			}
 
-			let publishValue = value;
-			if (((capability === 'dim') || (capability === 'windowcoverings_set')) && (typeof value === 'number'))
-			{
-				publishValue = value <= 1 ? Math.round(value * 100) : Math.round(value);
-			}
 			let matchedCount = 0;
 
 			if (deviceId === '_variable_')
@@ -6942,6 +6937,8 @@ class PanelDevice extends Device
 					const displayItem = item.items[itemNo];
 					if ((displayItem.device === '_variable_') && (displayItem.capability === capability))
 					{
+						const valueTopic = getDisplayTopic(this.buttonId, deviceId, capability, itemNo, displayItem.valueScale);
+						const scaledValue = scaleValue(value, getHomeyScale(deviceId, capability, displayItem.valueScale));
 						// Publish to MQTT
 						const brokerId = displayItem.brokerId || displayItem.brokerid || 'Default';
 						matchedCount += 1;
@@ -6962,11 +6959,11 @@ class PanelDevice extends Device
 							chosenSvg = isOn ? (onSvg || displayItem.svg || '') : (offSvg || displayItem.svg || '');
 						}
 
-						let displayPublishValue = publishValue;
-						let isBool = typeof publishValue === 'boolean';
-						if (!isBool && typeof publishValue === 'string')
+						let displayPublishValue = scaledValue;
+						let isBool = typeof scaledValue === 'boolean';
+						if (!isBool && typeof scaledValue === 'string')
 						{
-							const lowerStr = String(publishValue).toLowerCase().trim();
+							const lowerStr = String(scaledValue).toLowerCase().trim();
 							if (lowerStr === 'true' || lowerStr === 'false')
 							{
 								isBool = true;
@@ -6983,12 +6980,12 @@ class PanelDevice extends Device
 						if (isSvgTextContent(chosenSvg))
 						{
 							this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/displayitem/${itemNo}/svg/set`, chosenSvg, false).catch(err => this.error(err));
-							this.homey.app.publishMQTTMessage(brokerId, `buttonplus/_variable_/${capability}`, '', false).catch(this.error);
+							this.homey.app.publishMQTTMessage(brokerId, valueTopic, '', false).catch(this.error);
 						}
 						else
 						{
 							// If the value starts with an SVG tag then publish to the svg topic instead of the variable topic
-							this.publishTextOrSvg(brokerId, `buttonplus/${this.buttonId}/displayitem/${itemNo}/svg/set`, `buttonplus/_variable_/${capability}`, displayPublishValue, false);
+							this.publishTextOrSvg(brokerId, `buttonplus/${this.buttonId}/displayitem/${itemNo}/svg/set`, valueTopic, displayPublishValue, false);
 						}
 					}
 				}
@@ -7360,7 +7357,7 @@ class PanelDevice extends Device
 			else if (variable)
 			{
 				// Text/number variables have no on/off state; show their content instead
-				rawTextValue = this.formatVariableDisplayValue(variable.value, sideConfig.unit);
+				rawTextValue = this.formatVariableDisplayValue(variable.value, sideConfig.unit, sideConfig.valueScale);
 			}
 
 			if (page === (this.page - 1))
@@ -7601,8 +7598,9 @@ class PanelDevice extends Device
 		};
 	}
 
-	formatVariableDisplayValue(value, unit)
+	formatVariableDisplayValue(value, unit, valueScale)
 	{
+		value = scaleValue(value, valueScale);
 		const text = value == null ? '' : String(value);
 		const unitText = this.getCapabilityUnitText({ units: unit });
 		return typeof value === 'number' && unitText ? `${text} ${unitText}` : text;
