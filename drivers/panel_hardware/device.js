@@ -7,6 +7,7 @@ const { Device } = require('homey');
 const _ = require('lodash');
 const { checkSEMVerGreaterOrEqual } = require('../../lib/HttpHelper');
 const { isSvgTextContent, normalizeSvgText } = require('../../lib/SvgHelper');
+const { scaleValue, getHomeyScale, getDisplayTopic } = require('../../lib/CapabilityScale');
 
 const DOUBLE_CLICK_WINDOW_MS = 350;
 const DEFAULT_LONG_PRESS_DELAY_MS = 750;
@@ -3547,7 +3548,7 @@ class PanelDevice extends Device
 
 	getAdvancedAbsoluteValue(rawValue, capabilityName, capability)
 	{
-		const numericValue = this.parseValueStep(rawValue, 10);
+		const numericValue = Number.isFinite(Number(rawValue)) ? Number(rawValue) : 10;
 		if (capabilityName === 'dim' || capabilityName === 'windowcoverings_set')
 		{
 			const min = Number.isFinite(Number(capability.min)) ? Number(capability.min) : 0;
@@ -3895,6 +3896,7 @@ class PanelDevice extends Device
 			flowTriggerOnly,
 			valueStep: this.parseValueStep(rawStep, 10),
 			rawValueStep: rawStep,
+			valueScale: getHomeyScale(deviceID, capabilityName, sideConfig[`${side}${eventName}ValueScale`]),
 			relockSeconds: (rawRelock === undefined || rawRelock === null || rawRelock === '' || !Number.isFinite(parsedRelock)) ? 5 : Math.max(0, parsedRelock),
 			brokerId,
 			eventName,
@@ -4242,6 +4244,7 @@ class PanelDevice extends Device
 		let deviceID = sideConfig[`${side}DisplayDevice`] || 'none';
 		let capabilityName = sideConfig[`${side}DisplayCapability`] || '';
 		let source = 'configured';
+		let valueScale = sideConfig[`${side}DisplayValueScale`];
 
 		// Older configurations stored one shared device/capability pair instead of
 		// a dedicated display binding. Preserve that value when upgrading configs.
@@ -4273,6 +4276,7 @@ class PanelDevice extends Device
 				deviceID = fallbackDeviceId;
 				capabilityName = fallbackCapabilityName;
 				source = 'action';
+				valueScale = valueScale || sideConfig[`${side}${eventName}ValueScale`];
 				this.homey.app.updateLog(`ADVDBG displayBinding fallback: ${parameters.connector}/${parameters.side}/${parameters.page} using ${eventName} ${deviceID}/${capabilityName}`, 1);
 				break;
 			}
@@ -4291,6 +4295,7 @@ class PanelDevice extends Device
 			onText: sideConfig[`${side}OnText`] || '',
 			offText: sideConfig[`${side}OffText`] || '',
 			unit: sideConfig[`${side}Unit`] || '',
+			valueScale: getHomeyScale(deviceID, capabilityName, valueScale),
 			onSVG: normalizeSvgText(sideConfig[`${side}OnSVG`] || ''),
 			offSVG: normalizeSvgText(sideConfig[`${side}OffSVG`] || ''),
 			brokerId: sideConfig[`${side}BrokerId`] || sideConfig[`${side}brokerid`] || 'Default',
@@ -4421,7 +4426,7 @@ class PanelDevice extends Device
 
 		if (capability.type === 'number')
 		{
-			let textValue = this.formatAdvancedNumberValue(effectiveValue, capability);
+			let textValue = this.formatAdvancedNumberValue(scaleValue(effectiveValue, binding.valueScale), { ...capability, units: binding.unit || capability.units });
 			if (this.shouldShowAdvancedDirectionIndicator(parameters, binding, capability))
 			{
 				textValue = `${textValue} ${this.getAdvancedDirection(parameters)}`;
@@ -4520,6 +4525,8 @@ class PanelDevice extends Device
 				...displayBinding,
 				deviceID: eventBinding.deviceID,
 				capabilityName: eventBinding.capabilityName,
+				valueScale: matchesDisplayCapability ? displayBinding.valueScale : eventBinding.valueScale,
+				unit: matchesDisplayCapability ? displayBinding.unit : '',
 				booleanRender: 'text',
 				onText: 'On',
 				offText: 'Off',
@@ -4640,7 +4647,7 @@ class PanelDevice extends Device
 			}
 			else if (capability.type === 'number')
 			{
-				textValue = this.formatAdvancedNumberValue(previewValue, capability);
+				textValue = this.formatAdvancedNumberValue(scaleValue(previewValue, displayBinding.valueScale), { ...capability, units: displayBinding.unit || capability.units });
 				textValue = `${textValue} ${this.getAdvancedDirection(parameters)}`;
 			}
 			else
@@ -4691,7 +4698,7 @@ class PanelDevice extends Device
 			}
 			else if (capability.type === 'number')
 			{
-				textValue = this.formatAdvancedNumberValue(previewValue, capability);
+				textValue = this.formatAdvancedNumberValue(scaleValue(previewValue, eventBinding.valueScale), capability);
 				textValue = `${textValue} ${this.getAdvancedDirection(parameters)}`;
 			}
 			else
@@ -5096,7 +5103,17 @@ class PanelDevice extends Device
 			}
 			else if (!this.isAdvancedStepRelative(binding.rawValueStep))
 			{
-				valueToWrite = this.getAdvancedAbsoluteValue(binding.rawValueStep, binding.capabilityName, capability);
+				const absoluteValue = binding.valueScale ? Number(binding.rawValueStep) / binding.valueScale : binding.rawValueStep;
+				valueToWrite = this.getAdvancedAbsoluteValue(absoluteValue, binding.capabilityName, capability);
+				hasLocalPreview = await this.applyAdvancedDisplayPreviewValue(parameters, binding, capability, valueToWrite);
+				if (shouldBufferUntilRelease)
+				{
+					this.queueAdvancedLongReleaseCommit(parameters, binding, valueToWrite);
+				}
+				else
+				{
+					await this.guardedSetCapabilityValueOnDevice(device, binding.capabilityName, valueToWrite, `advanced:${eventType}:number`);
+				}
 			}
 			else
 			{
@@ -5124,7 +5141,7 @@ class PanelDevice extends Device
 				else
 				{
 					const currentNumber = Number.isFinite(Number(currentNumericValue)) ? Number(currentNumericValue) : 0;
-					valueToWrite = currentNumber + stepDelta;
+					valueToWrite = currentNumber + (binding.valueScale ? stepDelta / binding.valueScale : stepDelta);
 					if (Number.isFinite(Number(capability.min)))
 					{
 						valueToWrite = Math.max(Number(capability.min), valueToWrite);
@@ -6839,6 +6856,13 @@ class PanelDevice extends Device
 	async resolveCapabilityDisplayText(config, rawValue)
 	{
 		const { capability } = await this.getDeviceAndCapability(config);
+		const factor = getHomeyScale(config.deviceID, config.capabilityName, config.valueScale);
+		if (capability && capability.type === 'number' && config.capabilityName !== 'windowcoverings_set')
+		{
+			if (rawValue == null) return '';
+			if (factor === null) return this.formatVariableDisplayValue(rawValue, config.unit || this.getCapabilityUnitText(capability));
+			return this.formatAdvancedNumberValue(scaleValue(rawValue, factor), { ...capability, units: config.unit || capability.units });
+		}
 		if ((config && config.capabilityName === 'windowcoverings_set') || (capability && capability.id === 'windowcoverings_set'))
 		{
 			return this.formatWindowCoveringsSetPercentage(rawValue);
@@ -6856,8 +6880,15 @@ class PanelDevice extends Device
 		return (rawValue === null || rawValue === undefined) ? '' : String(rawValue);
 	}
 
-	formatSimulatedCapabilityText(capability)
+	formatSimulatedCapabilityText(capability, config)
 	{
+		const factor = config ? getHomeyScale(config.deviceID, config.capabilityName, config.valueScale) : null;
+		if (capability.type === 'number' && capability.id !== 'windowcoverings_set')
+		{
+			if (capability.value == null) return '';
+			if (factor === null) return this.formatVariableDisplayValue(capability.value, (config && config.unit) || this.getCapabilityUnitText(capability));
+			return this.formatAdvancedNumberValue(scaleValue(capability.value, factor), { ...capability, units: (config && config.unit) || capability.units });
+		}
 		if (capability.id === 'windowcoverings_set')
 		{
 			return this.formatWindowCoveringsSetPercentage(capability.value);
@@ -6974,6 +7005,8 @@ class PanelDevice extends Device
 					const isTargetButtonPlusBinding = isThisButtonPlusDevice && displayItem.device === TARGET_BUTTON_PLUS_DEVICE_ID;
 					if ((isTargetButtonPlusBinding || (displayItem.device === sourceDeviceId)) && (displayItem.capability === capability))
 					{
+						const valueTopic = getDisplayTopic(this.buttonId, deviceId, capability, itemNo, displayItem.valueScale);
+						const scaledValue = scaleValue(value, getHomeyScale(displayItem.device, capability, displayItem.valueScale), capability);
 						// Publish to MQTT
 						const brokerId = displayItem.brokerId || displayItem.brokerid || 'Default';
 						matchedCount += 1;
@@ -6994,11 +7027,11 @@ class PanelDevice extends Device
 							chosenSvg = isOn ? (onSvg || displayItem.svg || '') : (offSvg || displayItem.svg || '');
 						}
 
-						let displayPublishValue = publishValue;
-						let isBool = typeof publishValue === 'boolean';
-						if (!isBool && typeof publishValue === 'string')
+						let displayPublishValue = scaledValue;
+						let isBool = typeof scaledValue === 'boolean';
+						if (!isBool && typeof scaledValue === 'string')
 						{
-							const lowerStr = String(publishValue).toLowerCase().trim();
+							const lowerStr = String(scaledValue).toLowerCase().trim();
 							if (lowerStr === 'true' || lowerStr === 'false')
 							{
 								isBool = true;
@@ -7022,7 +7055,7 @@ class PanelDevice extends Device
 								const capObj = homeyDeviceObject ? await this.homey.app.getHomeyCapabilityByName(homeyDeviceObject, capability) : null;
 								if (capObj && capObj.type === 'enum' && Array.isArray(capObj.values))
 								{
-									const match = capObj.values.find(entry => entry.id === String(publishValue));
+									const match = capObj.values.find(entry => entry.id === String(scaledValue));
 									if (match && (match.title || match.id))
 									{
 										displayPublishValue = match.title || match.id;
@@ -7039,11 +7072,11 @@ class PanelDevice extends Device
 						if (isSvgTextContent(chosenSvg))
 						{
 							this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${this.buttonId}/displayitem/${itemNo}/svg/set`, chosenSvg, false).catch(err => this.error(err));
-							this.homey.app.publishMQTTMessage(brokerId, `buttonplus/${deviceId}/${capability}`, '', false).catch(this.error);
+							this.homey.app.publishMQTTMessage(brokerId, valueTopic, '', false).catch(this.error);
 						}
 						else
 						{
-							this.publishTextOrSvg(brokerId, `buttonplus/${this.buttonId}/displayitem/${itemNo}/svg/set`, `buttonplus/${deviceId}/${capability}`, displayPublishValue, false);
+							this.publishTextOrSvg(brokerId, `buttonplus/${this.buttonId}/displayitem/${itemNo}/svg/set`, valueTopic, displayPublishValue, false);
 						}
 					}
 				}
@@ -7365,7 +7398,7 @@ class PanelDevice extends Device
 					else if (isNonBooleanCapability)
 					{
 						// Text/picker capabilities have no on/off state; normalize display content (enum title or text fallback).
-						rawTextValue = realCapability ? await this.resolveCapabilityDisplayText(sideConfig, value) : this.formatSimulatedCapabilityText(capability);
+						rawTextValue = realCapability ? await this.resolveCapabilityDisplayText(sideConfig, value) : this.formatSimulatedCapabilityText(capability, sideConfig);
 					}
 
 					if (realCapability && isNonBooleanCapability)
@@ -7554,6 +7587,7 @@ class PanelDevice extends Device
 			onMessage: config[`${side}OnText`],
 			offMessage: config[`${side}OffText`],
 			unit: config[`${side}Unit`] || '',
+			valueScale: config[`${side}DisplayValueScale`] || '',
 			brokerId,
 			dimChange: config[`${side}DimChange`],
 			frontLEDOnColor: config[`${side}FrontLEDOnColor`],

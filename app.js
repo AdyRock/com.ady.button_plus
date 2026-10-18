@@ -22,6 +22,7 @@ const aedes = require('./aedes')();
 const mqtt = require('./mqtt');
 const { checkSEMVerGreaterOrEqual, HttpHelper } = require('./lib/HttpHelper');
 const { isSvgTextContent } = require('./lib/SvgHelper');
+const { scaleValue, getHomeyScale, getDisplayTopic } = require('./lib/CapabilityScale');
 const DeviceManager = require('./lib/DeviceManager');
 const DeviceDispatcher = require('./lib/DeviceStateChangedDispatcher');
 const VariableDispatcher = require('./lib/variables');
@@ -1829,7 +1830,7 @@ class MyApp extends Homey.App
 				const homeyDeviceObject = item.device === TARGET_BUTTON_PLUS_DEVICE_ID && ButtonDevice && ButtonDevice.__id
 					? await this.getHomeyDeviceById(ButtonDevice.__id)
 					: await this.getHomeyDeviceById(item.device);
-				let itemUnit = item.device === 'none' ? '' : (item.unit || '');
+				let itemUnit = item.device === 'none' ? '' : (item.unit || '').trim();
 				if (!itemUnit && item.device && item.device !== 'none' && item.device !== '_variable_' && item.device !== 'customMQTT' && item.capability)
 				{
 					try
@@ -1868,7 +1869,7 @@ class MyApp extends Homey.App
 					topics: [
 						{
 							brokerid: brokerId,
-							topic: `buttonplus/${homeyDeviceObject ? homeyDeviceObject.id : item.device}/${item.capability}`,
+							topic: getDisplayTopic(ButtonDevice && ButtonDevice.buttonId, homeyDeviceObject ? homeyDeviceObject.id : item.device, item.capability, itemNo, item.valueScale),
 							eventtype: 15,
 							payload: '',
 						}],
@@ -1943,17 +1944,13 @@ class MyApp extends Homey.App
 						const capability = (homeyDeviceObject ? await this.getHomeyCapabilityByName(homeyDeviceObject, item.capability) : null) || this.getSimulatedCapability(item.capability);
 						if (capability)
 						{
-							let { value } = capability;
-							if ((item.capability === 'dim' || item.capability === 'windowcoverings_set') && typeof value === 'number')
-							{
-								value = value <= 1 ? Math.round(value * 100) : Math.round(value);
-							}
+							let value = scaleValue(capability.value, getHomeyScale(item.device, item.capability, item.valueScale), item.capability);
 							if (value === null || value === undefined)
 							{
 								value = '';
 							}
 
-							const valueTopic = `buttonplus/${homeyDeviceObject ? homeyDeviceObject.id : item.device}/${item.capability}`;
+							const valueTopic = getDisplayTopic(buttonId, homeyDeviceObject ? homeyDeviceObject.id : item.device, item.capability, itemNo, item.valueScale);
 							const onSvg = item.onSVG || item.onSvg || '';
 							const offSvg = item.offSVG || item.offSvg || '';
 							let chosenSvg = '';
@@ -2008,7 +2005,7 @@ class MyApp extends Homey.App
 						else
 						{
 							// Overwrite the retained value, which may be a simulated one from before simulation was disabled
-							mqttQueue.push({ brokerId, message: `buttonplus/${sourceDeviceId}/${item.capability}`, value: '' });
+							mqttQueue.push({ brokerId, message: getDisplayTopic(buttonId, sourceDeviceId, item.capability, itemNo, item.valueScale), value: '' });
 						}
 					}
 					catch (err)

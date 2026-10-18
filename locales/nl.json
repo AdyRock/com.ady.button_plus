@@ -35,7 +35,7 @@
         "displayItemlegend": "Item __itemNo__",
         "brokerItemlegend": "Broker __itemNo__",
         "unit": "Unit",
-        "unitExplanation": "Unit is optionele tekst om weer te geven op dezelfde lijn als de waarde. De tekst is rechts uitgelijnd.",
+        "unitExplanation": "Unit is optionele tekst om weer te geven op dezelfde lijn als de waarde. De tekst is rechts uitgelijnd. Laat dit leeg om de eenheid van de capability te gebruiken. Een ingevulde eenheid heeft voorrang. Als je met een vermenigvuldigingsfactor W naar kW omzet, vul dan hier ook kW in.",
         "xPos": "X Positie (%)",
         "xPosExplanation": "De X positie is de horizontale positie van de linkerzijde van het item als percentage van de displaybreedte. Kies 0 voor de linkerzijde en 100 voor de rechterzijde.",
         "yPos": "Y Positie (%)",

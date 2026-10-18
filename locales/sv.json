@@ -37,7 +37,7 @@
         "displayItemlegend": "Objekt __itemNo__",
         "brokerItemlegend": "Broker __itemNo__",
         "unit": "Enhet",
-        "unitExplanation": "Enheten är en valfri text som visas på samma rad som värdet. Texten högerjusteras.",
+        "unitExplanation": "Enheten är en valfri text som visas på samma rad som värdet. Texten högerjusteras. Lämna fältet tomt för att använda egenskapens enhet. En angiven enhet har företräde. Om du använder en värdemultiplikator för att omvandla W till kW, ange även kW här.",
         "xPos": "X-position (%)",
         "xPosExplanation": "X-positionen är den horisontella positionen för objektets vänstra sida som en procentandel av skärmens bredd. Använd 0 för vänster sida och 100 för höger sida.",
         "yPos": "Y-position (%)",

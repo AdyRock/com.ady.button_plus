@@ -37,7 +37,7 @@
         "displayItemlegend": "Elemento __itemNo__",
         "brokerItemlegend": "Broker __itemNo__",
         "unit": "Unità",
-        "unitExplanation": "L'unità è un testo facoltativo mostrato sulla stessa riga del valore. Il testo è allineato a destra.",
+        "unitExplanation": "L'unità è un testo facoltativo mostrato sulla stessa riga del valore. Il testo è allineato a destra. Lasciare vuoto per usare l'unità della capacità. L'unità inserita ha la precedenza. Se si usa un moltiplicatore per convertire W in kW, inserire anche kW qui.",
         "xPos": "Posizione X (%)",
         "xPosExplanation": "La posizione X è la posizione orizzontale del lato sinistro dell'elemento, espressa come percentuale della larghezza del display. Usa 0 per il lato sinistro e 100 per il lato destro.",
         "yPos": "Posizione Y (%)",

@@ -37,7 +37,7 @@
         "displayItemlegend": "Element __itemNo__",
         "brokerItemlegend": "Broker __itemNo__",
         "unit": "Jednostka",
-        "unitExplanation": "Jednostka to opcjonalny tekst wyświetlany w tym samym wierszu co wartość. Tekst jest wyrównany do prawej.",
+        "unitExplanation": "Jednostka to opcjonalny tekst wyświetlany w tym samym wierszu co wartość. Tekst jest wyrównany do prawej. Pozostaw puste, aby użyć jednostki właściwości. Wpisana jednostka ma pierwszeństwo. Jeśli używasz mnożnika do przeliczenia W na kW, wpisz tutaj również kW.",
         "xPos": "Położenie X (%)",
         "xPosExplanation": "Położenie X określa poziome położenie lewej krawędzi elementu jako procent szerokości wyświetlacza. Użyj 0 dla lewej krawędzi i 100 dla prawej.",
         "yPos": "Położenie Y (%)",

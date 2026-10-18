@@ -37,7 +37,7 @@
         "displayItemlegend": "Element __itemNo__",
         "brokerItemlegend": "Broker __itemNo__",
         "unit": "Einheit",
-        "unitExplanation": "Die Einheit ist ein optionaler Text, der in derselben Zeile wie der Wert angezeigt wird. Der Text wird rechtsbündig ausgerichtet.",
+        "unitExplanation": "Die Einheit ist ein optionaler Text, der in derselben Zeile wie der Wert angezeigt wird. Der Text wird rechtsbündig ausgerichtet. Leer lassen, um die Einheit der Eigenschaft zu verwenden. Eine eingegebene Einheit hat Vorrang. Bei einer Umrechnung von W in kW mit einem Wertmultiplikator hier ebenfalls kW eingeben.",
         "xPos": "X-Position (%)",
         "xPosExplanation": "Die X-Position ist die horizontale Position der linken Seite des Elements als Prozentsatz der Displaybreite. Verwenden Sie 0 für die linke und 100 für die rechte Seite.",
         "yPos": "Y-Position (%)",

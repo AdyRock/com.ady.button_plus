@@ -5,6 +5,18 @@ const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
 const { isSvgTextContent, normalizeSvgText } = require('../lib/SvgHelper');
+const { getScale, scaleValue, getHomeyScale, getDisplayTopic } = require('../lib/CapabilityScale');
+
+assert.strictEqual(scaleValue(0.1, '', 'dim'), 10);
+assert.strictEqual(scaleValue(0.1, 100, 'dim'), 10);
+assert.strictEqual(scaleValue(0.1, 1, 'dim'), 0.1);
+assert.strictEqual(scaleValue(1500, 0.001, 'measure_power'), 1.5);
+assert.strictEqual(scaleValue(true, 100, 'onoff'), true);
+assert.strictEqual(scaleValue('0.1', 100, 'enum'), '0.1');
+for (const invalidScale of ['', 0, -1, 'bad', Infinity, null, undefined])
+{
+	assert.strictEqual(getScale(invalidScale), null);
+}
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8');
 const methodStart = source.indexOf('\n\tasync sanitizeStoredButtonConfigurations(');
@@ -417,6 +429,8 @@ async function checkAdvancedDisplayFeedback()
 	const panel = vm.runInNewContext(`new (class { ${deviceSource.slice(resolveStart, resolveEnd)}${deviceSource.slice(idleStart, idleEnd)}${deviceSource.slice(applyStart, applyEnd)}${deviceSource.slice(feedbackStart, feedbackEnd)}${deviceSource.slice(eventMappingStart, eventMappingEnd)} })()`, {
 		ADVANCED_DISPLAY_FEEDBACK_MS: 3000,
 		normalizeSvgText: value => value,
+		getHomeyScale,
+		scaleValue,
 	});
 	const sideConfig = {
 		leftMode: 'advanced',
@@ -875,8 +889,185 @@ function checkAdvancedMappingHelpTooltips()
 	assert(groupHelpOrder.indexOf('groupHelpPreview') < groupHelpOrder.indexOf('groupHelpDisplayModule'), 'Group help follows the page order');
 }
 
+async function checkCapabilityScaling()
+{
+	assert.strictEqual(getHomeyScale('lamp', 'dim', 100), null);
+	assert.strictEqual(getHomeyScale('blinds', 'windowcoverings_set', 100), null);
+	assert.strictEqual(getHomeyScale('customMQTT', 'value', 100), null);
+	assert.strictEqual(getHomeyScale('_variable_', 'value', 100), null);
+	assert.strictEqual(getDisplayTopic('panel', 'meter', 'measure_power', 0, 0.001), 'buttonplus/panel/displayitem/0/scaled');
+	assert.strictEqual(getDisplayTopic('panel', 'meter', 'measure_power', 1, ''), 'buttonplus/meter/measure_power');
+	assert.notStrictEqual(getDisplayTopic('panel', 'meter', 'measure_power', 0, 0.001), getDisplayTopic('panel', 'meter', 'measure_power', 1, 1));
+
+	const settingsSource = fs.readFileSync(path.join(__dirname, '..', 'settings', 'settings.js'), 'utf8');
+	const uiStart = settingsSource.indexOf('\nfunction canScaleHomeyCapability(');
+	const uiEnd = settingsSource.indexOf('\nfunction buildCapabilityScaleRow(', uiStart);
+	const ui = vm.runInNewContext(`${settingsSource.slice(uiStart, uiEnd)}; ({ canScaleHomeyCapability, normalizeCapabilityScale })`);
+	assert.strictEqual(ui.canScaleHomeyCapability('meter', 'measure_power', 'number'), true);
+	for (const [deviceId, capabilityId, type] of [['lamp', 'dim', 'number'], ['blind', 'windowcoverings_set', 'number'], ['customMQTT', 'power', 'number'], ['lamp', 'onoff', 'boolean'], ['_variable_', 'number', 'number']])
+	{
+		assert.strictEqual(ui.canScaleHomeyCapability(deviceId, capabilityId, type), false);
+	}
+	assert.strictEqual(ui.normalizeCapabilityScale('0.001'), '0.001');
+	assert.strictEqual(ui.normalizeCapabilityScale('0'), '');
+	assert.strictEqual(ui.normalizeCapabilityScale('bad'), '');
+	const fillStart = settingsSource.indexOf('\nfunction fillDisplayCapabilitiesElement(');
+	const fillEnd = settingsSource.indexOf('\nfunction selectDisplayCapability(', fillStart);
+	const unitElement = { value: '' };
+	const fillCapabilities = vm.runInNewContext(`${settingsSource.slice(fillStart, fillEnd)}; fillDisplayCapabilitiesElement`, {
+		document: { createElement: () => ({ dataset: {} }), getElementById: id => (id.endsWith('Unit') ? unitElement : { style: {} }) },
+		getCapabilityIconUrl: () => '',
+		itemDisplyType: '',
+		localDisplayConfigurations: [{ items: [{ capability: 'measure_power' }] }],
+		displayConfigurationNoElement: { value: 0 },
+		updateDisplayItemControlsVisibility: () => {},
+	});
+	const capabilitySelector = { add: () => {} };
+	fillCapabilities(0, capabilitySelector, { measure_power: { id: 'measure_power', type: 'number', units: { en: 'W' } } });
+	assert.strictEqual(unitElement.value, '', 'Loading capabilities preserves a blank unit for inheritance');
+	unitElement.value = 'kW';
+	fillCapabilities(0, capabilitySelector, { measure_power: { id: 'measure_power', type: 'number', units: 'W' } });
+	assert.strictEqual(unitElement.value, 'kW', 'Loading capabilities preserves an explicit override');
+	const visibilityStart = settingsSource.indexOf('\nfunction updateDisplayFieldPopupCapabilityState(');
+	const visibilityEnd = settingsSource.indexOf('\nfunction restoreDisplayFieldPopupCustomMQTTSection(', visibilityStart);
+	const updateVisibility = vm.runInNewContext(`${settingsSource.slice(uiStart, uiEnd)}${settingsSource.slice(visibilityStart, visibilityEnd)}; updateDisplayFieldPopupCapabilityState`, {
+		variablesArray: [],
+		displayCapabilityItems: new Map(),
+	});
+	for (const [deviceId, capabilityId, type, visible] of [['meter', 'measure_power', 'number', true], ['lamp', 'dim', 'number', false], ['blind', 'windowcoverings_set', 'number', false], ['customMQTT', 'power', 'number', false], ['lamp', 'onoff', 'boolean', false]])
+	{
+		const scaleRow = { style: {} };
+		updateVisibility({
+			Device: { value: deviceId },
+			Capability: { value: capabilityId, selectedOptions: [{ dataset: { type } }], closest: () => ({ style: {}, querySelector: () => null }) },
+			ValueScale: { closest: () => scaleRow },
+		});
+		assert.strictEqual(scaleRow.style.display, visible ? '' : 'none', `Multiplier visibility for ${capabilityId}`);
+	}
+
+	const deviceSource = fs.readFileSync(path.join(__dirname, '..', 'drivers', 'panel_hardware', 'device.js'), 'utf8');
+	const liveStart = deviceSource.indexOf('\n\tasync checkStateChangeForDisplay(');
+	const liveEnd = deviceSource.indexOf('\n\tpublishTextOrSvg(', liveStart);
+	const actionStart = deviceSource.indexOf('\n\tasync runAdvancedEventMapping(');
+	const actionEnd = deviceSource.indexOf('\n\tqueueClickedTrigger(', actionStart);
+	const absoluteStart = deviceSource.indexOf('\n\tgetAdvancedAbsoluteValue(');
+	const absoluteEnd = deviceSource.indexOf('\n\t/**', absoluteStart);
+	const basicStart = deviceSource.indexOf('\n\tasync resolveCapabilityDisplayText(');
+	const formatStart = deviceSource.indexOf('\n\tformatDimPercentageValue(');
+	const formatEnd = deviceSource.indexOf('\n\tshouldShowAdvancedDirectionIndicator(', formatStart);
+	const advancedStart = deviceSource.indexOf('\n\tasync resolveAdvancedDisplayValue(');
+	const advancedEnd = deviceSource.indexOf('\n\tgetAdvancedDisplayIdleValue(', advancedStart);
+	const unitStart = deviceSource.indexOf('\n\tformatVariableDisplayValue(');
+	const unitEnd = deviceSource.indexOf('\n\tasync getDeviceAndCapability(', unitStart);
+	const panelMethods = [
+		deviceSource.slice(liveStart, liveEnd),
+		deviceSource.slice(actionStart, actionEnd),
+		deviceSource.slice(absoluteStart, absoluteEnd),
+		deviceSource.slice(basicStart, liveStart),
+		deviceSource.slice(formatStart, formatEnd),
+		deviceSource.slice(advancedStart, advancedEnd),
+		deviceSource.slice(unitStart, unitEnd),
+	].join('');
+	const panel = vm.runInNewContext(`new (class { ${panelMethods} })()`, {
+		scaleValue, getHomeyScale, getDisplayTopic, isSvgTextContent, TARGET_BUTTON_PLUS_DEVICE_ID: '_this_button_plus_',
+	});
+	const published = [];
+	panel.buttonId = 'panel';
+	panel.homey = { app: {
+		displayConfigurations: [{ items: [
+			{ device: 'meter', capability: 'measure_power', valueScale: 0.001 },
+			{ device: 'meter', capability: 'measure_power' },
+		] }],
+		updateLog: () => {},
+		getHomeyDeviceById: async () => ({}),
+		getHomeyCapabilityByName: async () => ({ type: 'number', value: 0.1, min: 0, max: 1 }),
+	} };
+	panel.publishTextOrSvg = (_broker, _svg, topic, value) => published.push({ topic, value });
+	await panel.checkStateChangeForDisplay(0, 'meter', 'measure_power', 1500);
+	assert.strictEqual(published[0].value, 1.5);
+	assert.strictEqual(published[0].topic, 'buttonplus/panel/displayitem/0/scaled');
+	assert.strictEqual(published[1].value, 1500);
+	assert.strictEqual(published[1].topic, 'buttonplus/meter/measure_power');
+	const appStart = source.indexOf('\n\tasync applyDisplayConfiguration(');
+	const appEnd = source.indexOf('\n\trouteSvgOrTextValue(', appStart);
+	let publishInitialValues;
+	const app = vm.runInNewContext(`new (class { ${source.slice(appStart, appEnd)} })()`, {
+		scaleValue,
+		getHomeyScale,
+		getDisplayTopic,
+		isSvgTextContent,
+		checkSEMVerGreaterOrEqual: () => true,
+		TARGET_BUTTON_PLUS_DEVICE_ID: '_this_button_plus_',
+		setTimeout: callback => { publishInitialValues = callback; },
+	});
+	app.displayConfigurations = panel.homey.app.displayConfigurations;
+	app.getHomeyDeviceById = async () => ({ id: 'meter' });
+	app.getHomeyCapabilityByName = async () => ({ type: 'number', value: 1500, units: { en: 'W' } });
+	app.registerDeviceCapabilityStateChange = async () => {};
+	app.routeSvgOrTextValue = value => ({ textValue: value, svg: '' });
+	app.publishMQTTMessage = async (_broker, topic, value) => { published.push({ topic, value }); };
+	const section = {};
+	await app.applyDisplayConfiguration(section, 0, '2.0.0', panel);
+	assert.strictEqual(section.displayitems.length, 2);
+	assert.strictEqual(section.displayitems[0].topics[0].topic, published[0].topic);
+	assert.strictEqual(section.displayitems[1].topics[0].topic, published[1].topic);
+	await publishInitialValues();
+	assert.strictEqual(published[2].value, 1.5, 'Initial values use the same scale as live updates');
+	assert.strictEqual(published[2].topic, published[0].topic);
+	assert.strictEqual(published[4].value, 1500);
+	assert.strictEqual(section.displayitems[0].unit, 'W', 'Localized units remain supported');
+	app.displayConfigurations[0].items[0].unit = 'kW';
+	await app.applyDisplayConfiguration(section, 0, '2.0.0', panel);
+	assert.strictEqual(section.displayitems[0].unit, 'kW', 'An explicit unit overrides the localized capability unit');
+	assert.strictEqual(section.displayitems[1].unit, 'W', 'A blank unit inherits the capability unit');
+	panel.getDeviceAndCapability = async () => ({ capability: { type: 'number', units: { en: 'W' } } });
+	assert.strictEqual(await panel.resolveCapabilityDisplayText({ deviceID: 'meter', capabilityName: 'measure_power', valueScale: 0.001, unit: 'kW' }, 1500), '1.5 kW');
+	assert.strictEqual(await panel.resolveCapabilityDisplayText({ deviceID: 'meter', capabilityName: 'measure_power' }, 1500), '1500 W', 'Blank units inherit the localized capability unit');
+	assert.strictEqual(await panel.resolveCapabilityDisplayText({ deviceID: 'meter', capabilityName: 'measure_power', unit: 'kW' }, 1500), '1500 kW', 'Unit overrides also apply without a multiplier');
+	assert.strictEqual(await panel.resolveCapabilityDisplayText({ deviceID: 'meter', capabilityName: 'measure_power' }, 1.2345), '1.2345 W', 'Adding inherited units preserves unscaled precision');
+	assert.strictEqual(await panel.resolveCapabilityDisplayText({ deviceID: 'meter', capabilityName: 'measure_power', valueScale: 0.001 }, null), '', 'Unavailable readings remain blank');
+	assert.strictEqual(panel.formatSimulatedCapabilityText({ type: 'number', value: 1500 }, { deviceID: 'meter', capabilityName: 'measure_power', valueScale: 0.001, unit: 'kW' }), '1.5 kW');
+	panel.shouldShowAdvancedDirectionIndicator = () => false;
+	panel.getAdvancedDirection = () => '+';
+	assert.strictEqual((await panel.resolveAdvancedDisplayValue({ deviceID: 'meter', capabilityName: 'level', valueScale: 100, unit: '%' }, 0.1, {})).textValue, '10 %');
+	assert.strictEqual((await panel.resolveAdvancedDisplayValue({ deviceID: 'lamp', capabilityName: 'dim' }, 0.1, {})).textValue, '10% +');
+
+	const binding = { deviceID: 'meter', capabilityName: 'level', valueScale: 100, rawValueStep: '+10', valueStep: 10, numericAction: 'change' };
+	panel.resolveAdvancedEventBinding = () => binding;
+	panel.prepareAdvancedDirectionForEvent = () => {};
+	panel.showInitialAdvancedDisplayValue = async () => false;
+	panel.getPendingAdvancedDebounceValue = () => undefined;
+	panel.getQueuedAdvancedLongReleaseValue = () => undefined;
+	panel.getNumericActionForValueType = () => 'change';
+	panel.isAdvancedStepRelative = value => /^[+-]/.test(value);
+	panel.getAdvancedStepDelta = (_parameters, step) => step;
+	panel.applyAdvancedDirectionAtBounds = () => {};
+	panel.applyAdvancedDisplayPreviewValue = async () => true;
+	panel.applyAdvancedEventDisplayFeedback = async () => {};
+	panel.applyAdvancedDisplayBinding = async () => {};
+	panel.applyAdvancedLedBinding = async () => {};
+	panel.isLockButtonCapability = () => false;
+	let writtenValue;
+	panel.guardedSetCapabilityValueOnDevice = async (_device, _capability, value) => { writtenValue = value; };
+	panel.queueAdvancedLongReleaseCommit = (_parameters, _binding, value) => { writtenValue = value; };
+	const parameters = { connector: 0, side: 'left', page: 0 };
+	await panel.runAdvancedEventMapping(parameters, 'click');
+	assert.strictEqual(writtenValue, 0.2, 'A displayed +10 step writes +0.1 in native units');
+	binding.rawValueStep = '25';
+	await panel.runAdvancedEventMapping(parameters, 'click');
+	assert.strictEqual(writtenValue, 0.25, 'Absolute targets are divided before writing');
+	binding.rawValueStep = '0';
+	await panel.runAdvancedEventMapping(parameters, 'long');
+	assert.strictEqual(writtenValue, 0, 'Zero absolute targets are buffered in native units');
+	binding.rawValueStep = '+200';
+	binding.valueStep = 200;
+	await panel.runAdvancedEventMapping(parameters, 'click');
+	assert.strictEqual(writtenValue, 1, 'Scaled steps respect native capability bounds');
+}
+
 async function run()
 {
+	await checkCapabilityScaling();
 	checkBlankButtonPageFallbackResolver();
 	checkButtonDisplayValuesPreferSvg();
 	await checkPublishClearsRetainedSvgTopics();

@@ -37,7 +37,7 @@
         "displayItemlegend": "Element __itemNo__",
         "brokerItemlegend": "Broker __itemNo__",
         "unit": "Enhet",
-        "unitExplanation": "Enheten er valgfri tekst som vises på samme linje som verdien. Teksten høyrejusteres.",
+        "unitExplanation": "Enheten er valgfri tekst som vises på samme linje som verdien. Teksten høyrejusteres. La feltet stå tomt for å bruke egenskapens enhet. En angitt enhet har forrang. Hvis du bruker en verdimultiplikator for å konvertere W til kW, må du også angi kW her.",
         "xPos": "X-posisjon (%)",
         "xPosExplanation": "X-posisjonen er den horisontale posisjonen til venstre side av elementet som en prosentandel av skjermbredden. Bruk 0 for venstre side og 100 for høyre side.",
         "yPos": "Y-posisjon (%)",

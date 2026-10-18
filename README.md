@@ -54,6 +54,14 @@ Each configuration area has a set of slots for building your panel layouts. The 
 12. Add more display items as required.
 13. Click on Save Configurations.
 
+### Numeric value scaling
+
+Numeric Homey display items and button display bindings have an optional **Value multiplier**. Use `100` to display a fraction such as `0.10` as `10`, or `0.001` to display `1500 W` as `1.5 kW`. Set the unit text separately and choose enough decimal places in Rounding for display items.
+
+Advanced numeric button actions have their own multiplier. Their absolute values and signed increments are divided by this factor before writing to Homey. For example, a multiplier of `100` and an increment of `+10` increase the native capability by `0.10`. Use matching display and action multipliers when controlling the same value.
+
+Leave the multiplier blank to keep existing behaviour. The field is hidden for dim and blind-position capabilities, which already convert percentages automatically, and for non-numeric values, Logic variables, and custom MQTT. Only positive, finite multipliers are supported.
+
 ## Setting up groups
 
 Groups are the easiest way to define a complete physical Button + panel. A group represents one finished panel layout and can combine:

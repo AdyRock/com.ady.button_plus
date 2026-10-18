@@ -360,6 +360,8 @@ function syncCurrentButtonSettingsForDraftSnapshot()
 			if (offTextElement) pageConfig[`${side}OffText`] = offTextElement.value;
 			const unitElement = document.getElementById(`${side}${page}Unit`);
 			if (unitElement) pageConfig[`${side}Unit`] = unitElement.value.trim();
+			const scaleElement = document.getElementById(`${side}${page}DisplayValueScale`);
+			if (scaleElement) pageConfig[`${side}DisplayValueScale`] = normalizeCapabilityScale(scaleElement.value);
 			if (deviceElement)
 			{
 				pageConfig[`${side}Device`] = deviceElement.value;
@@ -2739,6 +2741,7 @@ function initialiseSettingsPage(Homey, markReady)
 		ButtonPanelConfiguration[`${side}OnText`] = onTextElement.value;
 		ButtonPanelConfiguration[`${side}OffText`] = offTextElement.value;
 		ButtonPanelConfiguration[`${side}Unit`] = document.getElementById(`${side}${page}Unit`)?.value.trim() || '';
+		ButtonPanelConfiguration[`${side}DisplayValueScale`] = normalizeCapabilityScale(document.getElementById(`${side}${page}DisplayValueScale`)?.value);
 
 		// The device/capability selects start out with an empty placeholder option until
 		// fillButtonDevices()/getCapabilities() finish their async population. If this runs
@@ -3624,7 +3627,7 @@ function initialiseSettingsPage(Homey, markReady)
 			return;
 		}
 
-		const match = target.id.match(/^display(\d+)(Label|Text|X|Y|Width|FontSize|BoxType|SVG|OnSVG|OffSVG|page|Device|Capability|Unit|Rounding)$/);
+		const match = target.id.match(/^display(\d+)(Label|Text|X|Y|Width|FontSize|BoxType|SVG|OnSVG|OffSVG|page|Device|Capability|Unit|Rounding|ValueScale)$/);
 		if (!match)
 		{
 			return;
@@ -3642,7 +3645,7 @@ function initialiseSettingsPage(Homey, markReady)
 		renderDisplayPagePopup();
 		renderDisplayInlineSimulator();
 
-		if (match[2] === 'Device' || match[2] === 'Capability' || match[2] === 'Unit' || match[2] === 'Rounding' || match[2] === 'page')
+		if (match[2] === 'Device' || match[2] === 'Capability' || match[2] === 'Unit' || match[2] === 'Rounding' || match[2] === 'ValueScale' || match[2] === 'page')
 		{
 			refreshDisplayPopupLiveValues();
 		}
@@ -5823,6 +5826,15 @@ function getButtonPanelVariablePreviewText(deviceValue, capabilityValue)
 
 function getButtonPanelCapabilityPreviewText(side, pageIndex, deviceValue, capabilityValue, configIndex = currentButtonConfigurationNo, preferStoredConfig = false)
 {
+	const pageConfig = localButtonConfigurations[configIndex]?.[pageIndex] || {};
+	let rawScale = getLiveButtonPanelFieldValue(pageConfig, side, 'DisplayValueScale', '', pageIndex, configIndex, preferStoredConfig);
+	if (!rawScale && !pageConfig[`${side}DisplayCapability`])
+	{
+		const eventName = ['Click', 'Long', 'Double'].find(event => pageConfig[`${side}${event}Device`] === deviceValue && pageConfig[`${side}${event}Capability`] === capabilityValue);
+		if (eventName) rawScale = pageConfig[`${side}${eventName}ValueScale`];
+	}
+	const factor = canScaleHomeyCapability(deviceValue, capabilityValue, 'number') ? (Number(normalizeCapabilityScale(rawScale)) || 1) : 1;
+	const configuredUnit = getLiveButtonPanelFieldValue(pageConfig, side, 'Unit', '', pageIndex, configIndex, preferStoredConfig);
 	if ((deviceValue === '_variable_') || (capabilityValue === 'dim') || (capabilityValue === 'windowcoverings_state') || !capabilityValue)
 	{
 		return null;
@@ -5838,8 +5850,9 @@ function getButtonPanelCapabilityPreviewText(side, pageIndex, deviceValue, capab
 		}
 		if (cacheEntry && cacheEntry.value !== undefined && cacheEntry.value !== null)
 		{
-			const valueText = sanitizeDisplayString(formatDisplayPopupValue(normalizeSimulatorCapabilityValue(capabilityValue, cacheEntry.value), capabilityValue === 'windowcoverings_set' ? 0 : 1), '');
-			const unitText = capabilityValue === 'windowcoverings_set' ? '%' : sanitizeDisplayString(cacheEntry.unit || '', '');
+			const rawValue = typeof cacheEntry.value === 'number' ? cacheEntry.value * factor : cacheEntry.value;
+			const valueText = sanitizeDisplayString(formatDisplayPopupValue(normalizeSimulatorCapabilityValue(capabilityValue, rawValue), capabilityValue === 'windowcoverings_set' ? 0 : 1), '');
+			const unitText = capabilityValue === 'windowcoverings_set' ? '%' : sanitizeDisplayString(configuredUnit || cacheEntry.unit || '', '');
 			const withUnit = unitText ? `${valueText}${valueText ? ' ' : ''}${unitText}` : valueText;
 			if (withUnit)
 			{
@@ -5872,7 +5885,9 @@ function getButtonPanelCapabilityPreviewText(side, pageIndex, deviceValue, capab
 		{
 			return `${normalizeSimulatorCapabilityValue(capabilityValue, simulated.value)} %`;
 		}
-		return simulated.units ? `${simulated.value} ${simulated.units}` : String(simulated.value);
+		const simulatedValue = typeof simulated.value === 'number' ? simulated.value * factor : simulated.value;
+		const unit = configuredUnit || simulated.units;
+		return unit ? `${simulatedValue} ${unit}` : String(simulatedValue);
 	}
 
 	if (!selectedOption || !selectedOption.dataset.type || (selectedOption.dataset.type === 'boolean'))
@@ -5899,8 +5914,8 @@ function getButtonPanelCapabilityPreviewText(side, pageIndex, deviceValue, capab
 		const rawValue = selectedOption.dataset.value;
 		const valueText = capabilityValue === 'windowcoverings_set' && rawValue !== '' && Number.isFinite(Number(rawValue))
 			? String(normalizeSimulatorCapabilityValue(capabilityValue, Number(rawValue)))
-			: sanitizeDisplayString(rawValue || '', '');
-		const unitText = capabilityValue === 'windowcoverings_set' ? '%' : sanitizeDisplayString(selectedOption.dataset.unit || '', '');
+			: (rawValue !== '' && Number.isFinite(Number(rawValue)) ? String(Number(rawValue) * factor) : sanitizeDisplayString(rawValue || '', ''));
+		const unitText = capabilityValue === 'windowcoverings_set' ? '%' : sanitizeDisplayString(configuredUnit || selectedOption.dataset.unit || '', '');
 		const withUnit = unitText ? `${valueText}${valueText ? ' ' : ''}${unitText}` : valueText;
 		return withUnit ? `${withUnit} +/-` : '+/-';
 	}
@@ -6627,6 +6642,27 @@ function isRelockCapabilityId(capabilityId)
 		|| (typeof capabilityId === 'string' && capabilityId.startsWith('locked.'));
 }
 
+function canScaleHomeyCapability(deviceId, capabilityId, type)
+{
+	return type === 'number' && !!deviceId && !['none', '_variable_', 'customMQTT'].includes(deviceId) && !['dim', 'windowcoverings_set'].includes(capabilityId);
+}
+
+function normalizeCapabilityScale(value)
+{
+	const scale = Number(value);
+	return Number.isFinite(scale) && scale > 0 ? String(scale) : '';
+}
+
+function buildCapabilityScaleRow(id)
+{
+	return `<div class="button-field-popup-field" id="${id}Row" style="display:none;">
+		<label class="button-field-popup-label" for="${id}"><span>${Homey.__('settings.valueScale')}</span>
+			<div class="tooltip"><i class="fi fi-rr-info"></i><span class="tooltiptext">${normalizeTooltipHtml(Homey.__('settings.valueScaleExplanation'))}</span></div>
+		</label>
+		<input class="homey-form-input" id="${id}" type="number" min="0" step="any" placeholder="1">
+	</div>`;
+}
+
 function buildRelockRowHtml(side, page, eventName)
 {
 	const id = `popup${side}${page}${eventName}RelockSeconds`;
@@ -6676,8 +6712,11 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 	if (mode !== 'led')
 	{
 		buttonFieldPopupBodyElement.innerHTML = `
+					${buildCapabilityScaleRow(`popup${side}${page}DisplayValueScale`)}
 					<div class="button-field-popup-field" id="popup${side}${page}DisplayUnitRow" style="display:none;">
-						<label class="button-field-popup-label" for="popup${side}${page}DisplayUnit"><span>${Homey.__('settings.unit')}</span></label>
+						<label class="button-field-popup-label" for="popup${side}${page}DisplayUnit"><span>${Homey.__('settings.unit')}</span>
+							<div class="tooltip"><i class="fi fi-rr-info"></i><span class="tooltiptext">${normalizeTooltipHtml(Homey.__('settings.unitExplanation'))}</span></div>
+						</label>
 						<input class="homey-form-input" id="popup${side}${page}DisplayUnit" type="text">
 					</div>
 					<div class="button-field-popup-field button-popup-radio-row" id="popup${side}${page}DisplayRenderRow" style="display:none;">
@@ -6720,6 +6759,7 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 						<input class="homey-form-input" id="popup${side}${page}ClickValueStep" type="text">
 					</div>
 					${buildRelockRowHtml(side, page, 'Click')}
+					${buildCapabilityScaleRow(`popup${side}${page}ClickValueScale`)}
 					<hr>
 					<div class="button-field-popup-field">
 						<label class="button-field-popup-label" for="popup${side}${page}DoubleDevice"><span>${Homey.__('settings.doubleClickTargetDevice')}</span>
@@ -6740,6 +6780,7 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 						<input class="homey-form-input" id="popup${side}${page}DoubleValueStep" type="text">
 					</div>
 					${buildRelockRowHtml(side, page, 'Double')}
+					${buildCapabilityScaleRow(`popup${side}${page}DoubleValueScale`)}
 					<hr>
 					<div class="button-field-popup-field">
 						<label class="button-field-popup-label" for="popup${side}${page}LongDevice"><span>${Homey.__('settings.longRepeatTargetDevice')}</span>
@@ -6759,7 +6800,8 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 						</label>
 						<input class="homey-form-input" id="popup${side}${page}LongValueStep" type="text">
 					</div>
-					${buildRelockRowHtml(side, page, 'Long')}`;
+					${buildRelockRowHtml(side, page, 'Long')}
+					${buildCapabilityScaleRow(`popup${side}${page}LongValueScale`)}`;
 	}
 	else
 	{
@@ -6809,10 +6851,14 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 		const displayDeviceId = pageConfig[`${side}DisplayDevice`] || 'none';
 		const displayCapabilityId = pageConfig[`${side}DisplayCapability`] || '';
 		const displayCapabilityType = await resolvePopupCapabilityType(displayDeviceId, displayCapabilityId);
+		const displayScaleElement = document.getElementById(`popup${side}${page}DisplayValueScale`);
+		displayScaleElement.value = pageConfig[`${side}DisplayValueScale`] || '';
+		const showDisplayScale = canScaleHomeyCapability(displayDeviceId, displayCapabilityId, displayCapabilityType);
+		document.getElementById(`popup${side}${page}DisplayValueScaleRow`).style.display = showDisplayScale ? '' : 'none';
 		const displayUnitElement = document.getElementById(`popup${side}${page}DisplayUnit`);
 		if (displayUnitElement) displayUnitElement.value = pageConfig[`${side}Unit`] || '';
 		const displayUnitRow = document.getElementById(`popup${side}${page}DisplayUnitRow`);
-		if (displayUnitRow) displayUnitRow.style.display = displayDeviceId === '_variable_' && displayCapabilityType === 'number' ? '' : 'none';
+		if (displayUnitRow) displayUnitRow.style.display = (displayDeviceId === '_variable_' && displayCapabilityType === 'number') || showDisplayScale ? '' : 'none';
 		const updateDisplayRenderVisibility = function()
 		{
 			if (!displayRenderRowElement)
@@ -6862,6 +6908,9 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 			const capElement = document.getElementById(`popup${side}${page}${eventName}Capability`);
 			const stepElement = document.getElementById(`popup${side}${page}${eventName}ValueStep`);
 			const stepRowElement = document.getElementById(`popup${side}${page}${eventName}ValueStepRow`);
+			const scaleElement = document.getElementById(`popup${side}${page}${eventName}ValueScale`);
+			const scaleRow = document.getElementById(`popup${side}${page}${eventName}ValueScaleRow`);
+			scaleElement.value = pageConfig[`${side}${eventName}ValueScale`] || '';
 			const relockRowElement = document.getElementById(`popup${side}${page}${eventName}RelockRow`);
 			const relockElement = document.getElementById(`popup${side}${page}${eventName}RelockSeconds`);
 			if (relockElement)
@@ -6881,6 +6930,7 @@ async function openButtonAdvancedPopup(side, page, mode = 'event')
 				const selectedValue = capElement.value || '';
 				const showStep = selectedType === 'number' || selectedValue === 'dim';
 				stepRowElement.style.display = showStep ? '' : 'none';
+				scaleRow.style.display = canScaleHomeyCapability(devElement.value, selectedValue, selectedType) ? '' : 'none';
 				if (relockRowElement)
 				{
 					relockRowElement.style.display = (!capElement.disabled && isRelockCapabilityId(selectedValue)) ? '' : 'none';
@@ -7031,6 +7081,8 @@ function saveAdvancedButtonPopup()
 	if (popupMode !== 'led')
 	{
 		pageConfig[`${side}Mode`] = 'advanced';
+		pageConfig[`${side}DisplayValueScale`] = normalizeCapabilityScale(document.getElementById(`popup${side}${page}DisplayValueScale`)?.value);
+		syncMainControlValue('DisplayValueScale', pageConfig[`${side}DisplayValueScale`]);
 		pageConfig[`${side}Unit`] = document.getElementById(`popup${side}${page}DisplayUnit`)?.value.trim() || '';
 		syncMainControlValue('Unit', pageConfig[`${side}Unit`]);
 		const displayRenderInput = buttonFieldPopupBodyElement.querySelector(`input[name="popup${side}${page}DisplayBooleanRender"]:checked`);
@@ -7060,6 +7112,8 @@ function saveAdvancedButtonPopup()
 			pageConfig[`${side}${eventName}Capability`] = (selectedEventDevice === 'none' || isToggleDirection || isFlowTriggerOnly) ? '' : selectedEventValue;
 			pageConfig[`${side}${eventName}NumericAction`] = (selectedEventDevice === 'none' || isToggleDirection || isFlowTriggerOnly) ? (isToggleDirection ? 'toggleDirection' : 'none') : (isNumericCapability ? 'change' : 'none');
 			pageConfig[`${side}${eventName}ValueStep`] = document.getElementById(`popup${side}${page}${eventName}ValueStep`).value || '+10';
+			pageConfig[`${side}${eventName}ValueScale`] = canScaleHomeyCapability(selectedEventDevice, selectedEventValue, selectedEventType)
+				? normalizeCapabilityScale(document.getElementById(`popup${side}${page}${eventName}ValueScale`)?.value) : '';
 			const relockElement = document.getElementById(`popup${side}${page}${eventName}RelockSeconds`);
 			if (relockElement)
 			{
@@ -7123,6 +7177,7 @@ function getButtonFieldPopupSpec(side, page, fieldSuffix)
 		OnText: Homey.__('settings.labelOn'),
 		OffText: Homey.__('settings.labelOff'),
 		Unit: Homey.__('settings.unit'),
+		DisplayValueScale: Homey.__('settings.valueScale'),
 		OnSVG: 'On SVG Data',
 		OffSVG: 'Off SVG Data',
 		DimChange: 'Value increment / decrement',
@@ -7138,6 +7193,7 @@ function getButtonFieldPopupSpec(side, page, fieldSuffix)
 		OnText: 'settings.labelOnExplanation',
 		OffText: 'settings.labelOffExplanation',
 		Unit: 'settings.unitExplanation',
+		DisplayValueScale: 'settings.valueScaleExplanation',
 		OnSVG: 'settings.textExplanation',
 		OffSVG: 'settings.textExplanation',
 		DimChange: 'settings.dimChangeExplanation',
@@ -7147,8 +7203,8 @@ function getButtonFieldPopupSpec(side, page, fieldSuffix)
 		WallLEDOffColor: 'settings.wallLEDOffColorExplanation',
 	};
 	const textAndSvgFields = isAdvancedMode
-		? ['Device', 'Capability', 'Unit', 'OnText', 'OffText', 'OnSVG', 'OffSVG']
-		: ['Device', 'Capability', 'Unit', 'OnText', 'OffText', 'OnSVG', 'OffSVG', 'DimChange'];
+		? ['Device', 'Capability', 'Unit', 'DisplayValueScale', 'OnText', 'OffText', 'OnSVG', 'OffSVG']
+		: ['Device', 'Capability', 'Unit', 'DisplayValueScale', 'OnText', 'OffText', 'OnSVG', 'OffSVG', 'DimChange'];
 
 	if (fieldSuffix === 'TopText')
 	{
@@ -7311,12 +7367,20 @@ function updateButtonFieldPopupCapabilityState(popupElementsBySuffix)
 	const isNonBooleanVariable = !!selectedVariable && (selectedVariable.type !== 'boolean');
 	const selectedCapabilityOption = capabilityElement.selectedOptions ? capabilityElement.selectedOptions[0] : null;
 	const selectedCapabilityType = selectedCapabilityOption ? selectedCapabilityOption.dataset.type : '';
+	const showScale = canScaleHomeyCapability(deviceValue, capabilityElement.value, selectedCapabilityType);
+	if (popupElementsBySuffix.DisplayValueScale)
+	{
+		popupElementsBySuffix.DisplayValueScale.closest('.button-field-popup-field').style.display = showScale ? '' : 'none';
+		popupElementsBySuffix.DisplayValueScale.step = 'any';
+		popupElementsBySuffix.DisplayValueScale.min = '0';
+		popupElementsBySuffix.DisplayValueScale.placeholder = '1';
+	}
 	const isNonBooleanDeviceCapability = (deviceValue !== '_variable_') && !isDimCapability && (capabilityElement.value !== 'windowcoverings_state') && (selectedCapabilityType !== '') && (selectedCapabilityType !== 'boolean');
 	const hideOnOffFields = isDimCapability || isNonBooleanVariable || isNonBooleanDeviceCapability;
 	const unitRow = popupElementsBySuffix.Unit ? popupElementsBySuffix.Unit.closest('.button-field-popup-field') : null;
 	if (unitRow)
 	{
-		unitRow.style.display = selectedVariable && selectedVariable.type === 'number' ? '' : 'none';
+		unitRow.style.display = (selectedVariable && selectedVariable.type === 'number') || (showScale && popupElementsBySuffix.DisplayValueScale) ? '' : 'none';
 	}
 	const booleanRenderMode = popupElementsBySuffix.__booleanRenderMode || 'text';
 	const showSvgFields = booleanRenderMode === 'svg';
@@ -7927,6 +7991,7 @@ function getDisplayFieldPopupSpec(fieldSuffix)
 		Y: Homey.__('settings.yPos'),
 		Width: Homey.__('settings.width'),
 		Rounding: Homey.__('settings.rounding'),
+		ValueScale: Homey.__('settings.valueScale'),
 		FontSize: Homey.__('settings.fontSize'),
 		BoxType: Homey.__('settings.boxType'),
 		BrokerId: Homey.__('settings.brokerId'),
@@ -7950,6 +8015,7 @@ function getDisplayFieldPopupSpec(fieldSuffix)
 		Y: 'settings.yPosExplanation',
 		Width: 'settings.widthExplanation',
 		Rounding: 'settings.roundingExplanation',
+		ValueScale: 'settings.valueScaleExplanation',
 		FontSize: 'settings.fontSizeExplanation',
 		BoxType: 'settings.boxTypeExplanation',
 		BrokerId: 'settings.brokerIdExplanation',
@@ -7958,7 +8024,7 @@ function getDisplayFieldPopupSpec(fieldSuffix)
 	// Display item editing now uses one complete popup regardless of click target.
 	return {
 		title: 'Properties',
-		fields: ['page', 'Device', 'Capability', 'Label', 'Text', 'OnText', 'OffText', 'Unit', 'OnSVG', 'OffSVG', 'X', 'Y', 'Width', 'Rounding', 'FontSize', 'BoxType', 'BrokerId'],
+		fields: ['page', 'Device', 'Capability', 'Label', 'Text', 'OnText', 'OffText', 'Unit', 'ValueScale', 'OnSVG', 'OffSVG', 'X', 'Y', 'Width', 'Rounding', 'FontSize', 'BoxType', 'BrokerId'],
 		labels,
 		tooltipKeys,
 	};
@@ -8092,6 +8158,17 @@ function updateDisplayFieldPopupCapabilityState(popupElementsBySuffix)
 	}
 
 	const onOffDisplay = isBoolean ? '' : 'none';
+	const selectedCapability = displayCapabilityItems.get(deviceValue)?.[capabilityId];
+	const selectedType = selectedCapability?.type || capabilityElement.selectedOptions?.[0]?.dataset.type || '';
+	const showScale = canScaleHomeyCapability(deviceValue, capabilityId, selectedType);
+	if (popupElementsBySuffix.ValueScale)
+	{
+		popupElementsBySuffix.ValueScale.closest('.button-field-popup-field').style.display = showScale ? '' : 'none';
+	}
+	if (showScale && popupElementsBySuffix.Unit)
+	{
+		popupElementsBySuffix.Unit.closest('.button-field-popup-field').style.display = '';
+	}
 
 	if (popupElementsBySuffix.OnText)
 	{
@@ -8371,6 +8448,12 @@ function openDisplayFieldPopup(itemNo, fieldSuffix, retryCount = 0)
 		}
 
 		popupElement.id = `displayFieldPopup${itemNo}${suffix}`;
+		if (suffix === 'ValueScale')
+		{
+			popupElement.step = 'any';
+			popupElement.min = '0';
+			popupElement.placeholder = '1';
+		}
 		rowElement.appendChild(popupElement);
 		displayFieldPopupBodyElement.appendChild(rowElement);
 
@@ -9072,6 +9155,7 @@ function getDisplayPopupItemRuntime(item, itemNo)
 	const roundingRaw = parseInt(getDisplayPopupFieldValue(item, itemNo, 'Rounding', item.rounding || -1), 10);
 	const rounding = Number.isNaN(roundingRaw) ? -1 : roundingRaw;
 	const valueKey = `${deviceId}_${capabilityId}`;
+	const valueScale = Number(normalizeCapabilityScale(getDisplayPopupFieldValue(item, itemNo, 'ValueScale', item.valueScale || ''))) || 1;
 
 	return {
 		deviceId,
@@ -9079,6 +9163,7 @@ function getDisplayPopupItemRuntime(item, itemNo)
 		configuredUnit,
 		rounding,
 		valueKey,
+		valueScale,
 	};
 }
 
@@ -9095,6 +9180,11 @@ function getTargetButtonPlusSimulatorValue(capabilityId, pageIndex, maxPageIndex
 	}
 
 	return undefined;
+}
+
+function scaleDisplayPopupValue(value, runtime)
+{
+	return typeof value === 'number' && canScaleHomeyCapability(runtime.deviceId, runtime.capabilityId, 'number') ? value * runtime.valueScale : value;
 }
 
 function formatDisplayPopupValue(value, rounding, item = null)
@@ -9669,7 +9759,7 @@ function renderDisplaySimulatorSurface(surfaceElement, titleElement, prevElement
 				enumMeta = capabilities[runtime.capabilityId].values;
 			}
 		}
-		const text = escapeHtml(formatDisplayPopupValue(displayValueRaw, runtime.rounding, { onText: onTextRaw, offText: offTextRaw, enumMeta }));
+		const text = escapeHtml(formatDisplayPopupValue(scaleDisplayPopupValue(displayValueRaw, runtime), runtime.rounding, { onText: onTextRaw, offText: offTextRaw, enumMeta }));
 		const unitText = escapeHtml(sanitizeDisplayString(liveUnit, ''));
 		const configuredFontSize = getDisplayPopupFieldValue(item, itemNo, 'FontSize', item.fontSize || 1);
 		const fontPx = getDisplayPopupFontPx(configuredFontSize);
@@ -10845,6 +10935,7 @@ function updateButtonPanelControlsSection(side, page, ButtonPanelConfiguration)
 		document.getElementById(`${side}${page}OnText`).value = ButtonPanelConfiguration[`${side}OnText`];
 		document.getElementById(`${side}${page}OffText`).value = ButtonPanelConfiguration[`${side}OffText`];
 		document.getElementById(`${side}${page}Unit`).value = ButtonPanelConfiguration[`${side}Unit`] || '';
+		document.getElementById(`${side}${page}DisplayValueScale`).value = ButtonPanelConfiguration[`${side}DisplayValueScale`] || '';
 		document.getElementById(`${side}${page}Device`).value = ButtonPanelConfiguration[`${side}Device`];
 		// If the element is not in the list, add it
 		if (document.getElementById(`${side}${page}Device`).value !== ButtonPanelConfiguration[`${side}Device`])
@@ -11449,7 +11540,7 @@ function getGroupDisplayPreviewHtml(displayConfigNo, pageIndex = groupSimCurrent
 				enumMeta = capabilities[runtime.capabilityId].values;
 			}
 		}
-		const text = escapeHtml(formatDisplayPopupValue(displayValueRaw, runtime.rounding, { onText: onTextRaw, offText: offTextRaw, enumMeta }));
+		const text = escapeHtml(formatDisplayPopupValue(scaleDisplayPopupValue(displayValueRaw, runtime), runtime.rounding, { onText: onTextRaw, offText: offTextRaw, enumMeta }));
 		const unitText = escapeHtml(sanitizeDisplayString(liveUnit, ''));
 		const configuredFontSize = item.fontSize || 1;
 		const fontPx = getDisplayPopupFontPx(configuredFontSize);
@@ -12476,6 +12567,10 @@ function insertDisplayItemSection(item, itemNo, expanded = false)
 								</div>
 							</label>
 							<input class="homey-form-input" id="display${itemNo}Rounding" type="number" value="${item.rounding || 0}" />
+							<div style="display:none;">
+								<label class="homey-form-label" for="display${itemNo}ValueScale">${Homey.__('settings.valueScale')}</label>
+								<input class="homey-form-input" id="display${itemNo}ValueScale" type="number" step="any" value="${normalizeCapabilityScale(item.valueScale)}" />
+							</div>
 							<label class="homey-form-label" for="display${itemNo}FontSize">${ctrlLabels.fontSize}
 								<div class="tooltip"><i class="fi fi-rr-info"></i>
 									<span class="tooltiptext">${normalizeTooltipHtml(ctrlExplanations.fontSize)}</span>
@@ -12978,25 +13073,7 @@ function fillDisplayCapabilitiesElement(itemNo, capabilitiesElement, capabilitie
 	if (displayConfig)
 	{
 		const capabilityID = selectedCapability !== null ? selectedCapability : displayConfig.items[itemNo].capability;
-		if (capabilities[capabilityID])
-		{
-			if (document.getElementById(`display${itemNo}Unit`).value === '')
-			{
-				const capObj = capabilities[capabilityID];
-				const rawUnit = capObj.units || capObj.unit || '';
-				let resolvedUnit = '';
-				if (typeof rawUnit === 'string')
-				{
-					resolvedUnit = rawUnit.trim();
-				}
-				else if (rawUnit && typeof rawUnit === 'object')
-				{
-					resolvedUnit = String(rawUnit.en || Object.values(rawUnit)[0] || '').trim();
-				}
-				document.getElementById(`display${itemNo}Unit`).value = resolvedUnit;
-			}
-		}
-		else if (capabilityID)
+		if (capabilityID && !capabilities[capabilityID])
 		{
 			// The capability must be missing, so add it to the list
 			var option = document.createElement('option');
@@ -13112,6 +13189,7 @@ function storeDisplaySettings()
 			displayConfiguration.items[itemNo].yPos = document.getElementById(`display${itemNo}Y`).value;
 			displayConfiguration.items[itemNo].width = document.getElementById(`display${itemNo}Width`).value;
 			displayConfiguration.items[itemNo].rounding = document.getElementById(`display${itemNo}Rounding`).value;
+			displayConfiguration.items[itemNo].valueScale = normalizeCapabilityScale(document.getElementById(`display${itemNo}ValueScale`)?.value);
 			displayConfiguration.items[itemNo].fontSize = document.getElementById(`display${itemNo}FontSize`).value;
 			displayConfiguration.items[itemNo].brokerId = getBrokerSelectValue(document.getElementById(`display${itemNo}BrokerId`), displayConfiguration.items[itemNo].brokerId);
 			displayConfiguration.items[itemNo].page = document.getElementById(`display${itemNo}page`).value;
@@ -15001,6 +15079,7 @@ function getButtonHtml(side, page)
 													<div id="${side}${page}UnitDiv" style="display:none;">
 														<label class="homey-form-label" for="${side}${page}Unit"><span>${ctrlLabels.unit}</span></label>
 														<input class="homey-form-input" id="${side}${page}Unit" type="text" value="">
+														<input class="homey-form-input" id="${side}${page}DisplayValueScale" type="number" step="any" value="" hidden>
 													</div>
 
 													<label class="homey-form-label" for="${side}${page}TopText"><span>${ctrlLabels.topLabel}</span>
