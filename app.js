@@ -21,7 +21,7 @@ const nodemailer = require('./nodemailer');
 const aedes = require('./aedes')();
 const mqtt = require('./mqtt');
 const { checkSEMVerGreaterOrEqual, HttpHelper } = require('./lib/HttpHelper');
-const { isSvgTextContent, EMPTY_SVG } = require('./lib/SvgHelper');
+const { isSvgTextContent } = require('./lib/SvgHelper');
 const DeviceManager = require('./lib/DeviceManager');
 const DeviceDispatcher = require('./lib/DeviceStateChangedDispatcher');
 const VariableDispatcher = require('./lib/variables');
@@ -3257,8 +3257,8 @@ class MyApp extends Homey.App
 		let data = (typeof message === 'string' || message instanceof String) ? message : JSON.stringify(message);
 		if ((typeof topic === 'string') && topic.endsWith('/svg/set') && (data.trim() === ''))
 		{
-			// Clear SVG topics with a valid empty SVG instead of ' '
-			data = EMPTY_SVG;
+			// A zero-byte retained publish removes the SVG topic from the broker.
+			data = '';
 		}
 		else if (data === '')
 		{

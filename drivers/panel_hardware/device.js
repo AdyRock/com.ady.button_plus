@@ -3338,13 +3338,9 @@ class PanelDevice extends Device
 		const hasExplicitDisplay = ((sideConfig[`${parameters.side}DisplayDevice`] || 'none') !== 'none') && !!sideConfig[`${parameters.side}DisplayCapability`];
 		if (!hasExplicitDisplay)
 		{
-			const text = value ? config.onMessage : config.offMessage;
-			if (text)
-			{
-				this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/label/set`, text).catch(this.error);
-			}
-
-			this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/svg/set`, value ? config.onSVG : config.offSVG).catch(err => this.error(err));
+			const displayValue = this.getButtonDisplayValues(value ? config.onMessage : config.offMessage, value ? config.onSVG : config.offSVG);
+			this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/label/set`, displayValue.textValue).catch(this.error);
+			this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/svg/set`, displayValue.svgValue).catch(err => this.error(err));
 		}
 
 		return null;
@@ -6001,12 +5997,9 @@ class PanelDevice extends Device
 
 			this.setLEDOnOff(config, null, buttonIdx, parameters.page, value);
 			// this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/${parameters.idx}`, value).catch(this.error);
-			if ((value && config.onMessage !== '') || (!value && config.offMessage !== ''))
-			{
-				this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/label/set`, value ? config.onMessage : config.offMessage).catch(this.error);
-			}
-
-			this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/svg/set`, value ? config.onSVG : config.offSVG).catch(err => this.error(err));
+			const displayValue = this.getButtonDisplayValues(value ? config.onMessage : config.offMessage, value ? config.onSVG : config.offSVG);
+			this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/label/set`, displayValue.textValue).catch(this.error);
+			this.homey.app.publishMQTTMessage(config.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${parameters.page}/svg/set`, displayValue.svgValue).catch(err => this.error(err));
 
 			if (config.onMessage === '' && config.offMessage !== '')
 			{
@@ -6803,11 +6796,9 @@ class PanelDevice extends Device
 							value = value === 'up';
 						}
 
-						if (sideConfig.onMessage !== '' || sideConfig.offMessage !== '')
-						{
-							this.homey.app.publishMQTTMessage(sideConfig.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/label/set`, value ? sideConfig.onMessage : sideConfig.offMessage).catch(this.error);
-						}
-						this.homey.app.publishMQTTMessage(sideConfig.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/svg/set`, value ? sideConfig.onSVG : sideConfig.offSVG).catch(err => this.error(err));
+						const displayValue = this.getButtonDisplayValues(value ? sideConfig.onMessage : sideConfig.offMessage, value ? sideConfig.onSVG : sideConfig.offSVG);
+						this.homey.app.publishMQTTMessage(sideConfig.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/label/set`, displayValue.textValue).catch(this.error);
+						this.homey.app.publishMQTTMessage(sideConfig.brokerId, `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/svg/set`, displayValue.svgValue).catch(err => this.error(err));
 					}
 					else if (!isOnOffFollowOnly && (capability === 'dim'))
 					{
@@ -7485,11 +7476,12 @@ class PanelDevice extends Device
 		}
 
 		// Send the value to the device after a short delay to allow the device to connect to the broker
+		const displayValue = this.getButtonDisplayValues(value ? sideConfig.onMessage : sideConfig.offMessage, value ? sideConfig.onSVG : sideConfig.offSVG);
 		mqttQueue.push(
 			{
 				brokerId: sideConfig.brokerId,
 				message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/label/set`,
-				value: value ? sideConfig.onMessage : sideConfig.offMessage,
+				value: displayValue.textValue,
 			},
 		);
 
@@ -7497,11 +7489,22 @@ class PanelDevice extends Device
 			{
 				brokerId: sideConfig.brokerId,
 				message: `buttonplus/${this.buttonId}/button/${buttonIdx}-${page}/svg/set`,
-				value: value ? sideConfig.onSVG : sideConfig.offSVG,
+				value: displayValue.svgValue,
 			},
 		);
 
 		return mqttQueue;
+	}
+
+	getButtonDisplayValues(textValue, svgValue)
+	{
+		const normalizedSvg = normalizeSvgText(svgValue);
+		if (isSvgTextContent(normalizedSvg))
+		{
+			return { textValue: '', svgValue: normalizedSvg };
+		}
+
+		return { textValue: textValue == null ? '' : textValue, svgValue: '' };
 	}
 
 	getConfigPageSide(config, page, side, configNo)

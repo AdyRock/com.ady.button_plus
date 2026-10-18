@@ -4,6 +4,7 @@ const assert = require('assert');
 const fs = require('fs');
 const path = require('path');
 const vm = require('vm');
+const { isSvgTextContent, normalizeSvgText } = require('../lib/SvgHelper');
 
 const source = fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8');
 const methodStart = source.indexOf('\n\tasync sanitizeStoredButtonConfigurations(');
@@ -87,6 +88,57 @@ function checkBlankButtonPageFallbackResolver()
 	pages[1].leftTopText = 'Page-specific label';
 	assert.strictEqual(app.resolveEffectiveButtonPageConfiguration(pages, 1).leftDevice, 'none', 'Configured page-specific content prevents fallback');
 	assert.strictEqual(app.isButtonPageSideBlank({ leftMode: 'advanced', leftDevice: 'none' }, 'left'), false, 'Advanced mappings are not considered blank buttons');
+}
+
+function checkButtonDisplayValuesPreferSvg()
+{
+	const deviceSource = fs.readFileSync(path.join(__dirname, '..', 'drivers', 'panel_hardware', 'device.js'), 'utf8');
+	const methodStart = deviceSource.indexOf('\n\tgetButtonDisplayValues(textValue, svgValue)');
+	const methodEnd = deviceSource.indexOf('\n\tgetConfigPageSide(', methodStart);
+	assert(methodStart >= 0 && methodEnd > methodStart);
+	const panel = vm.runInNewContext(`new (class { ${deviceSource.slice(methodStart, methodEnd)} })()`, {
+		isSvgTextContent,
+		normalizeSvgText,
+	});
+
+	const svg = '<svg xmlns="http://www.w3.org/2000/svg"><circle /></svg>';
+	const svgValue = panel.getButtonDisplayValues('On', svg);
+	assert.strictEqual(svgValue.textValue, '', 'SVG rendering clears the On/Off label');
+	assert.strictEqual(svgValue.svgValue, svg, 'Valid SVG is retained');
+
+	const textValue = panel.getButtonDisplayValues('Off', '');
+	assert.strictEqual(textValue.textValue, 'Off', 'Text rendering retains the label');
+	assert.strictEqual(textValue.svgValue, '', 'Text rendering clears a stale SVG');
+
+	const invalidSvg = panel.getButtonDisplayValues('On', '<div>not svg</div>');
+	assert.strictEqual(invalidSvg.textValue, 'On', 'Invalid SVG falls back to text');
+	assert.strictEqual(invalidSvg.svgValue, '', 'Invalid SVG is not published');
+}
+
+async function checkPublishClearsRetainedSvgTopics()
+{
+	const appSource = fs.readFileSync(path.join(__dirname, '..', 'app.js'), 'utf8');
+	const methodStart = appSource.indexOf('\n\tasync publishMQTTMessage(');
+	const methodEnd = appSource.indexOf('\n\tqueueMQTTMessage(', methodStart);
+	assert(methodStart >= 0 && methodEnd > methodStart);
+	const app = vm.runInNewContext(`new (class { ${appSource.slice(methodStart, methodEnd)} })()`);
+	const published = [];
+	app.lastMQTTData = new Map();
+	app.MQTTClients = new Map([['test', {
+		connected: true,
+		publish: async (topic, data, options) => published.push({ topic, data, options }),
+	}]]);
+	app.updateLog = () => {};
+
+	await app.publishMQTTMessage('test', 'buttonplus/panel/displayitem/0/svg/set', '   ');
+	assert.strictEqual(published[0].data, '', 'Clearing SVG publishes a zero-byte retained tombstone');
+	assert.strictEqual(published[0].options.retain, true, 'The SVG tombstone removes the retained topic');
+
+	await app.publishMQTTMessage('test', 'buttonplus/panel/button/1-0/label/set', '');
+	assert.strictEqual(published[1].data, ' ', 'Clearing non-SVG topics preserves existing behavior');
+
+	await app.publishMQTTMessage('test', 'buttonplus/panel/displayitem/0/svg/set', '<svg/>');
+	assert.strictEqual(published[2].data, '<svg/>', 'Non-empty SVG payloads are unchanged');
 }
 
 function checkSettingsPageFallbackToggle()
@@ -826,6 +878,8 @@ function checkAdvancedMappingHelpTooltips()
 async function run()
 {
 	checkBlankButtonPageFallbackResolver();
+	checkButtonDisplayValuesPreferSvg();
+	await checkPublishClearsRetainedSvgTopics();
 	checkSettingsPageFallbackToggle();
 	checkDraftRestorePreservesVisibleButtonSlots();
 	const inactive = {
