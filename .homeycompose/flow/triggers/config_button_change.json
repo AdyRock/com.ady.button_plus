@@ -323,6 +323,10 @@
             },
             "values": [
                 {
+                    "id": "pressed",
+                    "title": {"en": "Pressed", "nl": "Neergedrukt", "de": "Gedrückt", "fr": "Enfoncé", "it": "Premuto", "sv": "Nedtryckt", "no": "Trykket ned", "es": "Presionado", "da": "Trykket ned", "ru": "Нажата", "pl": "Naciśnięty", "ko": "누름", "ar": "ضُغط"}
+                },
+                {
                     "id": "clicked",
                     "title": {"en": "Clicked","nl": "ingedrukt", "de": "Angeklickt", "fr": "Cliqué", "it": "Premuto", "sv": "Klickad", "no": "Klikket", "es": "Pulsado", "da": "Trykket", "ru": "Нажата", "pl": "Kliknięty", "ko": "클릭함", "ar": "نُقر"}
                 },

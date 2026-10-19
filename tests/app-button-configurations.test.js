@@ -1127,8 +1127,151 @@ async function checkCapabilityScaling()
 	assert.strictEqual(writtenValue, 1, 'Scaled steps respect native capability bounds');
 }
 
+async function checkAdvancedButtonClickResolution()
+{
+	const deviceSource = fs.readFileSync(path.join(__dirname, '..', 'drivers', 'panel_hardware', 'device.js'), 'utf8').replace(/\r\n/g, '\n');
+	const methodNames = [
+		'processMQTTMessage', 'triggerAdvancedMappedConfigClicked', 'executeSingleClickAction', 'handleButtonClick', 'processLongPressMessage', 'processReleaseMessage',
+		'armClickResolutionTimers', 'isWaitingForClickResolution', 'handleGenericDoubleClick', 'incrementSuppression', 'consumeSuppression', 'clearClickResolutionTimers',
+	];
+	const methods = methodNames.map(name =>
+	{
+		const match = new RegExp(`\\n\\t(?:async )?${name}\\(`).exec(deviceSource);
+		assert(match, `${name} exists`);
+		return deviceSource.slice(match.index, deviceSource.indexOf('\n\t}\n', match.index) + 4);
+	}).join('');
+	const queueStart = deviceSource.indexOf('\n\tqueueClickedTrigger(');
+	const queueEnd = deviceSource.indexOf('\n\tasync getCapabilityDisplayKind(', queueStart);
+	for (const side of ['left', 'right'])
+	{
+		for (const mode of ['advanced-flow-only', 'advanced-click', 'advanced-long', 'advanced-double', 'advanced-double-fast', 'advanced-double-same-tick', 'advanced-double-single'])
+		{
+			for (const hold of [false, true])
+			{
+				let clock = 1000;
+				const panel = vm.runInNewContext(`new (class { ${methods}${deviceSource.slice(queueStart, queueEnd)} })()`, {
+					_: { cloneDeep: value => ({ ...value }) },
+					checkSEMVerGreaterOrEqual: () => true,
+					DOUBLE_CLICK_WINDOW_MS: 350,
+					DUPLICATE_CLICK_DEBOUNCE_MS: Number(deviceSource.match(/const DUPLICATE_CLICK_DEBOUNCE_MS = (\d+);/)[1]),
+					Date: class extends Date
+					{
+
+						static now()
+						{
+							return clock;
+						}
+
+					},
+				});
+				const timers = new Map();
+				const events = [];
+				const genericEvents = [];
+				const config = { capabilityName: 'onoff', page: 0 };
+				const key = `0_${side}_0`;
+				for (const map of [
+					'buttonValues', 'pendingClickedTriggers', 'pendingReleasedTriggers', 'pendingAdvancedClickActions', 'pendingAdvancedClickFallbackTimers',
+					'clickEventTimers', 'clickEventStates', 'longPressOccurred', 'longPressLastProcessedAt', 'longPressHeartbeatAt', 'releaseSuppressions',
+					'lastPhysicalClickAt', 'clickedSuppressions', 'longPressEventCounts', 'lastLongPressTimes', 'pendingAdvancedLongReleaseCommits',
+				])
+				{
+					panel[map] = new Map();
+				}
+				panel.homey = {
+					setTimeout: (callback, delay) => { const timer = Symbol('timer'); timers.set(timer, { callback, due: clock + delay }); return timer; },
+					clearTimeout: timer => timers.delete(timer),
+					app: {
+						buttonConfigurations: [[{}]],
+						updateLog: () => {},
+						triggerConfigButton: (_panel, _side, _type, _config, event) => events.push(event),
+						triggerButtonLongPress: () => {},
+						triggerButtonRelease: () => {},
+						triggerButtonEvent: (_panel, _side, _connector, event) => genericEvents.push(event),
+					},
+				};
+				panel.getButtonStateKey = (connector, buttonSide, page) => `${connector}_${buttonSide}_${page}`;
+				panel.initFinished = true;
+				panel.buttonId = 'panel';
+				panel.getSetting = () => 1;
+				panel.getEffectiveConfigNo = () => 0;
+				panel.cancelAdvancedLongSyntheticTick = () => {};
+				panel.getEventTimingContext = () => ({ simpleMode: false, longPressDefined: mode === 'advanced-long', doubleClickDefined: mode.startsWith('advanced-double') });
+				panel.resolveAdvancedEventBinding = () => null;
+				panel.runAdvancedEventMapping = async () => mode !== 'advanced-flow-only';
+				panel.resolveConnectorConfig = () => config;
+				panel.getConfigPageSide = () => config;
+				panel.getConfigLedButtonState = async () => true;
+				panel.processClickMessage = parameters => panel.triggerAdvancedMappedConfigClicked(parameters);
+				panel.processAdvancedButtonStateClick = parameters => panel.triggerAdvancedMappedConfigClicked(parameters);
+				panel.isDimButtonConfig = () => false;
+				panel.flushAdvancedLongReleaseCommit = async () => {};
+				panel.flushAdvancedLongReleaseCommitFamily = async () => {};
+				panel.clearLongPressTrackingForRelease = async () => panel.longPressOccurred.delete(key);
+				panel.armAdvancedLongSyntheticTick = () => {};
+				panel.triggerAdvancedMappedConfigLong = async () => events.push('long');
+				panel.error = error => { throw error; };
+				const parameters = { event: 'click', connector: 0, side, page: 0, configNo: 0, connectorType: 1, value: true, idx: side === 'left' ? 0 : 1 };
+				const click = { id: 'panel', idx: parameters.idx, page: 0, event: 'click' };
+				await panel.processMQTTMessage(click);
+				assert.deepStrictEqual(events, ['pressed'], `${side}/${mode}: pressed fires immediately, clicked waits for release`);
+				assert.deepStrictEqual(genericEvents, ['pressed'], `${side}/${mode}: connector pressed fires immediately`);
+				await panel.processMQTTMessage(click);
+				assert.deepStrictEqual(events, ['pressed'], `${side}/${mode}: duplicate down messages do not repeat pressed`);
+				const tick = async (elapsed = 350) =>
+				{
+					clock += elapsed;
+					for (const [timer, scheduled] of [...timers])
+					{
+						if (timers.has(timer) && scheduled.due <= clock)
+						{
+							timers.delete(timer);
+							scheduled.callback();
+						}
+					}
+					await new Promise(resolve => setImmediate(resolve));
+				};
+				const fastDoubleClick = !hold && (mode === 'advanced-double-fast' || mode === 'advanced-double-same-tick');
+				await tick(fastDoubleClick ? 20 : 350);
+				assert.deepStrictEqual(events, ['pressed'], `${side}/${mode}: timer cannot click while held`);
+				if (hold)
+				{
+					await panel.processLongPressMessage({ ...parameters, event: 'longpress' });
+					await panel.triggerAdvancedMappedConfigClicked(parameters);
+					await panel.triggerAdvancedMappedConfigClicked({ ...parameters, event: 'deferred_click' });
+					assert.deepStrictEqual(events, ['pressed', 'long'], `${side}/${mode}: late click notifications are suppressed during a hold`);
+				}
+				await panel.processMQTTMessage({ ...click, event: 'release' });
+				const doubleClick = mode.startsWith('advanced-double') && mode !== 'advanced-double-single' && !hold;
+				if (doubleClick)
+				{
+					assert.strictEqual(panel.clickEventTimers.has(key), true, `${side}: double-click window starts at release, not initial press`);
+					const secondPressDelay = fastDoubleClick ? 20 : 349;
+					await tick(mode === 'advanced-double-same-tick' ? 0 : secondPressDelay);
+					assert.deepStrictEqual(events, ['pressed'], `${side}: single click stays deferred throughout the release-based window`);
+					await panel.processMQTTMessage(click);
+					await panel.processMQTTMessage({ ...click, event: 'release' });
+				}
+				await tick();
+				const clickCount = hold || doubleClick ? 0 : 1;
+				assert.strictEqual(events.filter(event => event === 'clicked').length, clickCount, `${side}/${mode}: only single short presses click`);
+				assert.strictEqual(events.filter(event => event === 'double').length, doubleClick ? 1 : 0, `${side}/${mode}: double click fires once`);
+				if (doubleClick)
+				{
+					assert.deepStrictEqual(events, ['pressed', 'double'], `${side}: double click has one pressed and suppresses clicked and released`);
+				}
+				assert.strictEqual(events.filter(event => event === 'pressed').length, 1, `${side}/${mode}: one configuration pressed per gesture`);
+				assert.strictEqual(genericEvents.filter(event => event === 'pressed').length, 1, `${side}/${mode}: one connector pressed per gesture`);
+				assert.strictEqual(events.filter(event => event === 'long').length, hold ? 1 : 0, `${side}/${mode}: holds still trigger long`);
+				await panel.handleButtonClick({ ...parameters, event: undefined, fromButton: true });
+				assert.strictEqual(events.filter(event => event === 'clicked').length, clickCount + 1, `${side}/${mode}: virtual clicks remain immediate`);
+			}
+		}
+	}
+}
+
 async function run()
 {
+	await checkAdvancedButtonClickResolution();
 	await checkCapabilityScaling();
 	checkBlankButtonPageFallbackResolver();
 	checkButtonDisplayValuesPreferSvg();

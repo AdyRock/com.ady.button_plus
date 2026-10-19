@@ -89,6 +89,14 @@ vm.runInNewContext(`(function() { ${source.slice(registrationStart, registration
 
 async function run()
 {
+	for (const id of ['button_event', 'connector_button_event', 'connector_button_event_app', 'config_button_change', 'config_name_button_change', 'config_name_button_change_app'])
+	{
+		const card = JSON.parse(fs.readFileSync(path.join(root, '.homeycompose', 'flow', 'triggers', `${id}.json`), 'utf8'));
+		const pressed = card.args.find(argument => argument.name === 'state').values.filter(value => value.id === 'pressed');
+		assert.strictEqual(pressed.length, 1, `${id} exposes one Pressed option`);
+		assert.deepStrictEqual(Object.keys(pressed[0].title).sort(), Object.keys(card.title).sort(), `${id} Pressed translations`);
+	}
+
 	let count = 0;
 	for (const type of ['triggers', 'conditions', 'actions'])
 	{
@@ -206,6 +214,19 @@ async function run()
 	assert.strictEqual(await connector.run({ device: { id: 'a' }, left_right: 'left', connector: { id: 1 }, state: 'clicked' }, connector.fired[1]), false);
 	const appConfigTrigger = getCard('triggers', 'config_name_button_change_app');
 	assert.strictEqual(await appConfigTrigger.run({ device: { id: '*' }, left_right: 'left', connector: { id: 0 }, config: { id: 0 }, display_button: 'button', page: { id: 1 }, state: 'clicked' }, appConfigTrigger.fired[1]), true);
+	app.triggerButtonEvent(panels[0], 'left', 0, 'pressed', true, 'true', 0);
+	app.triggerConfigButton(panels[0], 'left', 1, 0, 'pressed', true, 'true', 1);
+	await Promise.all(pending);
+	for (const id of ['connector_button_event', 'config_name_button_change'])
+	{
+		const card = getCard('triggers', `${id}_app`);
+		const original = getCard('deviceTriggers', id);
+		const args = { device: { id: 'a' }, left_right: 'left', connector: { id: 0 }, config: { id: 0 }, display_button: 'button', page: { id: 1 }, state: 'pressed' };
+		assert.strictEqual(await original.run(args, original.fired[2]), true, `${id} device Pressed matches`);
+		assert.strictEqual(await card.run(args, card.fired[1]), true, `${id} app Pressed matches`);
+		assert.strictEqual(await card.run({ ...args, state: 'clicked' }, card.fired[1]), false, `${id} Pressed is distinct from Clicked`);
+	}
+	assert.strictEqual(await getCard('deviceTriggers', 'button_event').run({ left_right: 'left', connector: 0, state: 'pressed' }, getCard('deviceTriggers', 'button_event').fired[2]), true);
 	console.log(`PASS: ${count} app cards, all action routes, condition results, trigger filtering/tokens, configuration names, autocomplete dependencies, translations, and deprecated exclusions`);
 }
 

@@ -3050,6 +3050,15 @@ class PanelDevice extends Device
 			this.cancelAdvancedLongSyntheticTick(longPressKey);
 			this.pendingAdvancedLongReleaseCommits.delete(longPressKey);
 
+			if (!this.clickEventTimers.has(longPressKey))
+			{
+				this.homey.app.triggerButtonEvent(this, parameters.side, parameters.connector, 'pressed', parameters.value, String(parameters.value), 0);
+				if (parameters.configNo != null)
+				{
+					this.homey.app.triggerConfigButton(this, parameters.side, parameters.connectorType, parameters.configNo, 'pressed', parameters.value, String(parameters.value), parameters.page);
+				}
+			}
+
 			// The button was pressed
 			const clickResult = await this.handleButtonClick(parameters);
 			if (!(clickResult && clickResult.suppressGenericClick))
@@ -3074,6 +3083,7 @@ class PanelDevice extends Device
 		{
 			this.homey.app.updateLog(`Panel processing MQTT message: ${MQTTMessage.event}`);
 			const releaseKey = `${parameters.connector}_${parameters.side}_${parameters.page}`;
+			this.lastPhysicalClickAt.delete(releaseKey);
 			this.homey.app.updateLog(`TIMING release ts=${new Date().toISOString()} ms=${Date.now()} key=${releaseKey} configNo=${parameters.configNo} page=${parameters.page}`, 0);
 
 			// The button has been released; button_event's 'released' trigger is queued from within
@@ -3179,7 +3189,9 @@ class PanelDevice extends Device
 
 	isWaitingForClickResolution(key)
 	{
-		return this.pendingAdvancedClickActions.has(key)
+		const state = this.clickEventStates.get(key);
+		return !!(state && state.waitingForRelease && !state.longPressActive)
+			|| this.pendingAdvancedClickActions.has(key)
 			|| this.pendingAdvancedClickFallbackTimers.has(key)
 			|| this.clickEventTimers.has(key);
 	}
@@ -3242,7 +3254,8 @@ class PanelDevice extends Device
 		const buttonState = await this.getConfigLedButtonState(config, fallbackState);
 		const displayValue = (rawValue === null || rawValue === undefined) ? String(flowBooleanValue) : String(rawValue);
 
-		this.homey.app.triggerConfigButton(this, flowParameters.side, flowParameters.connectorType, flowParameters.configNo, 'clicked', buttonState, displayValue, flowParameters.page);
+		const key = this.getButtonStateKey(flowParameters.connector, flowParameters.side, flowParameters.page);
+		this.fireOrQueueClickedTrigger(flowParameters, key, () => this.homey.app.triggerConfigButton(this, flowParameters.side, flowParameters.connectorType, flowParameters.configNo, 'clicked', buttonState, displayValue, flowParameters.page));
 	}
 
 	async triggerAdvancedMappedConfigLong(parameters, repeatCount = 0)
@@ -3365,11 +3378,17 @@ class PanelDevice extends Device
 
 	/**
 	 * Arm timers to detect single vs double click.
-	 * Single-click fires after 350ms if no second click arrives.
+	 * Single-click fires 350ms after release if no second click arrives.
 	 * Double-click timer cleared if second click arrives within window.
 	 */
 	armClickResolutionTimers(parameters, key, timingContext)
 	{
+		const state = this.clickEventStates.get(key);
+		if (state && state.waitingForRelease)
+		{
+			return;
+		}
+
 		this.clearPendingAdvancedClickFallbackTimer(key);
 
 		const clickTimeoutMs = DOUBLE_CLICK_WINDOW_MS;
@@ -5288,6 +5307,11 @@ class PanelDevice extends Device
 	// long press repeat) must fire immediately since nothing will ever resolve/discard them
 	fireOrQueueClickedTrigger(parameters, key, fireFn)
 	{
+		if ((parameters.event === 'click' || parameters.event === 'deferred_click') && (this.longPressOccurred.get(key) > 0))
+		{
+			return;
+		}
+
 		if ((parameters.event === 'click' || parameters.event === 'deferred_click') && this.isWaitingForClickResolution(key))
 		{
 			this.queueClickedTrigger(key, fireFn);
@@ -5414,6 +5438,12 @@ class PanelDevice extends Device
 
 			this.homey.app.updateLog(`Click: ignored second click for ${key} (double window closed)`, 0);
 			return null;
+		}
+
+		if (!timingContext.simpleMode && !parameters.fromButton && parameters.event === 'click')
+		{
+			this.clickEventStates.set(key, { clickCount: 1, longPressActive: false, waitingForRelease: true });
+			this.armClickResolutionTimers(parameters, key, timingContext);
 		}
 
 		return this.executeSingleClickAction(parameters);
@@ -6198,6 +6228,10 @@ class PanelDevice extends Device
 			{
 				clickStateOnRelease.waitingForRelease = false;
 				this.clickEventStates.set(releaseKey, clickStateOnRelease);
+				if ((clickStateOnRelease.clickCount === 1) && !clickStateOnRelease.longPressActive && !(this.longPressOccurred.get(releaseKey) > 0))
+				{
+					this.armClickResolutionTimers(parameters, releaseKey, this.getEventTimingContext(parameters));
+				}
 			}
 			await this.flushAdvancedLongReleaseCommit(parameters);
 			await this.flushAdvancedLongReleaseCommitFamily(parameters.connector, parameters.side, releaseKey);
