@@ -3728,6 +3728,15 @@ class PanelDevice extends Device
 		return `${parameters.connector}_${parameters.side}`;
 	}
 
+	hasAdvancedDirectionControl(parameters)
+	{
+		return ['click', 'double', 'long'].some(eventType =>
+		{
+			const binding = this.resolveAdvancedEventBinding(parameters, eventType);
+			return binding && !binding.flowTriggerOnly && ['setPlus', 'setMinus', 'toggleDirection'].includes(binding.numericAction);
+		});
+	}
+
 	// ========== DIRECTION STATE ==========
 	// Track direction for numeric adjustments (dim, window coverings, etc.)
 
@@ -3746,9 +3755,15 @@ class PanelDevice extends Device
 	{
 		const numericStep = this.parseValueStep(rawStep, 10);
 		const key = this.getAdvancedDirectionKey(parameters);
-		if (!this.advancedDirectionStates.has(key))
+		const usesDirection = this.hasAdvancedDirectionControl(parameters);
+		if (!usesDirection || !this.advancedDirectionStates.has(key))
 		{
 			this.setAdvancedDirection(parameters, numericStep < 0 ? '-' : '+');
+		}
+
+		if (!usesDirection)
+		{
+			return numericStep;
 		}
 
 		const magnitude = Math.abs(numericStep);
@@ -3804,6 +3819,11 @@ class PanelDevice extends Device
 	 */
 	applyAdvancedDirectionAtBounds(parameters, value, minValue, maxValue)
 	{
+		if (!this.hasAdvancedDirectionControl(parameters))
+		{
+			return;
+		}
+
 		const numericValue = Number(value);
 		const min = Number(minValue);
 		const max = Number(maxValue);
@@ -4853,7 +4873,8 @@ class PanelDevice extends Device
 
 			if (variable.type === 'boolean')
 			{
-				return !!variable.value;
+				const value = override && override.capabilityName === binding.capabilityName ? override.value : variable.value;
+				return !!value;
 			}
 
 			if (variable.type === 'number')
@@ -4907,6 +4928,11 @@ class PanelDevice extends Device
 		if (!binding)
 		{
 			return;
+		}
+
+		if (override && override.deviceID !== binding.deviceID)
+		{
+			override = undefined;
 		}
 
 		const isLightColorBinding = binding.capabilityName === 'light_hue' || binding.capabilityName === 'light_saturation';
@@ -6763,7 +6789,7 @@ class PanelDevice extends Device
 					if (shouldApplyAdvancedLedBinding)
 					{
 						// eslint-disable-next-line no-await-in-loop
-						await this.applyAdvancedLedBinding(advancedParameters);
+						await this.applyAdvancedLedBinding(advancedParameters, { deviceID: deviceId, capabilityName: capability, value: rawCapabilityValue });
 					}
 
 					const displayBinding = this.resolveAdvancedDisplayBinding(advancedParameters);
@@ -7343,6 +7369,10 @@ class PanelDevice extends Device
 					}
 				}
 				this.setLEDOnOff(ledBinding, mqttQueue, buttonIdx, page, ledValue);
+			}
+			else
+			{
+				this.setLEDOnOff(sideConfig, mqttQueue, buttonIdx, page, false);
 			}
 
 			mqttQueue.push(

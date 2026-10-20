@@ -38,6 +38,12 @@ Each configuration area has a set of slots for building your panel layouts. The 
 8. Repeat the steps for the Right button bar.
 9. Click on the Save Configurations button.
 
+### Advanced steps and LEDs
+
+Signed step values such as `+1` and `-1` keep their configured direction, including at capability limits. A button only uses stored direction and automatically reverses at a limit when it has an explicit direction action, such as **Toggle direction**. Direction controls affect that button, not other buttons controlling the same device.
+
+The wizard preserves your LED colours, including black (`#000000`) to keep LEDs dark. The thermostat preset follows the device's `onoff` capability when available, rather than using the temperature as LED brightness. You can select a different LED source in the LED settings. Set both On and Off colours to black for each LED you want disabled. Removing an LED source clears its previous state when the configuration is applied.
+
 ## Setting up display configurations
 
 1. Select Display Configurations from the first drop list.

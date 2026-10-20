@@ -5064,7 +5064,10 @@ const BUTTON_WIZARD_TYPES = [
 		id: 'thermostat',
 		labelKey: 'buttonWizardTypeThermostat',
 		match: device => !!getWizardCapability(device, 'target_temperature'),
-		build: device => buildWizardNumericFields(null, getWizardCapability(device, 'target_temperature'), { clickStep: '+1', longStep: '+2' }),
+		build: device => ({
+			...buildWizardNumericFields(null, getWizardCapability(device, 'target_temperature'), { clickStep: '+1', longStep: '+2' }),
+			LedCapability: getWizardCapability(device, 'onoff', false)?.id || '',
+		}),
 	},
 	{
 		id: 'fan',
@@ -5350,16 +5353,6 @@ function applyButtonWizard()
 	{
 		pageConfig[`${side}${field}`] = value;
 	});
-
-	// Make sure the LEDs are visible when the side had no on colour configured.
-	if (!pageConfig[`${side}FrontLEDOnColor`] || pageConfig[`${side}FrontLEDOnColor`] === '#000000')
-	{
-		pageConfig[`${side}FrontLEDOnColor`] = '#38c266';
-	}
-	if (!pageConfig[`${side}WallLEDOnColor`] || pageConfig[`${side}WallLEDOnColor`] === '#000000')
-	{
-		pageConfig[`${side}WallLEDOnColor`] = '#81ef8d';
-	}
 
 	closeButtonWizard();
 

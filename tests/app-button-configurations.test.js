@@ -372,17 +372,23 @@ async function checkPopupDefaults()
 	assert.strictEqual(missingToggleSelector.value, '__toggleDirection__', 'Changing to another missing device preserves Toggle direction');
 }
 
-function checkSignedAdvancedSteps()
+async function checkSignedAdvancedSteps()
 {
-	const deviceSource = fs.readFileSync(path.join(__dirname, '..', 'drivers', 'panel_hardware', 'device.js'), 'utf8');
+	const deviceSource = fs.readFileSync(path.join(__dirname, '..', 'drivers', 'panel_hardware', 'device.js'), 'utf8').replace(/\r\n/g, '\n');
 	const parseStart = deviceSource.indexOf('\n\tparseValueStep(');
 	const parseEnd = deviceSource.indexOf('\n\tformatDimPercentageValue(', parseStart);
 	const directionStart = deviceSource.indexOf('\n\tgetAdvancedDirectionKey(');
-	const directionEnd = deviceSource.indexOf('\n\tapplyAdvancedDirectionAtBounds(', directionStart);
+	const directionEnd = deviceSource.indexOf('\n\tresolveAdvancedSideConfig(', directionStart);
+	const actionStart = deviceSource.indexOf('\n\tasync runAdvancedEventMapping(');
+	const actionEnd = deviceSource.indexOf('\n\t}\n', actionStart) + 4;
 	assert(parseStart >= 0 && parseEnd > parseStart);
 	assert(directionStart >= 0 && directionEnd > directionStart);
-	const panel = vm.runInNewContext(`new (class { ${deviceSource.slice(parseStart, parseEnd)}${deviceSource.slice(directionStart, directionEnd)} })()`);
+	assert(actionStart >= 0 && actionEnd > actionStart);
+	const panel = vm.runInNewContext(`new (class { ${deviceSource.slice(parseStart, parseEnd)}${deviceSource.slice(directionStart, directionEnd)}${deviceSource.slice(actionStart, actionEnd)} })()`);
 	panel.advancedDirectionStates = new Map();
+	panel.getDeviceAndCapability = async () => ({ capability: { type: 'number', min: 16, max: 30 } });
+	let usesDirection = true;
+	panel.resolveAdvancedEventBinding = (_parameters, eventType) => (usesDirection && eventType === 'double' ? { numericAction: 'toggleDirection', directionOnly: true } : null);
 	const parameters = { connector: 1, side: 'right' };
 	assert.strictEqual(panel.getAdvancedStepDelta(parameters, '-1'), -1, 'A negative step decreases by default');
 	assert.strictEqual(panel.getAdvancedStepDelta(parameters, '+1'), -1, 'The default direction persists across repeat steps');
@@ -395,6 +401,70 @@ function checkSignedAdvancedSteps()
 	panel.prepareAdvancedDirectionForEvent(leftParameters, { numericAction: 'change', rawValueStep: '+1', valueStep: '+1' });
 	assert.strictEqual(panel.getAdvancedDirection(leftParameters), '+', 'A missing-device preview uses the configured positive step direction');
 	assert.strictEqual(panel.getAdvancedStepDelta({ connector: 2, side: 'left' }, '+2'), 2, 'Positive steps increase by default');
+	usesDirection = false;
+	const capability = { type: 'number', value: 29, min: 16, max: 30 };
+	panel.homey = { app: {
+		updateLog() {},
+		getHomeyDeviceById: async () => ({ id: 'ac' }),
+		getHomeyCapabilityByName: async () => capability,
+	} };
+	panel.resolveAdvancedEventBinding = (button, eventType) =>
+	{
+		if (eventType === 'click')
+		{
+			return {
+				deviceID: 'ac',
+				capabilityName: 'target_temperature',
+				numericAction: 'change',
+				valueStep: button.side === 'left' ? 1 : -1,
+				rawValueStep: button.side === 'left' ? '+1' : '-1',
+			};
+		}
+		return usesDirection && eventType === 'double' ? { numericAction: 'toggleDirection', directionOnly: true } : null;
+	};
+	panel.showInitialAdvancedDisplayValue = async () => false;
+	panel.getPendingAdvancedDebounceValue = () => undefined;
+	panel.getNumericActionForValueType = (_value, action) => action;
+	panel.applyAdvancedDisplayPreviewValue = async () => true;
+	panel.applyAdvancedEventDisplayFeedback = async () => {};
+	panel.applyAdvancedDisplayBinding = async () => {};
+	panel.applyAdvancedLedBinding = async () => {};
+	panel.isLockButtonCapability = () => false;
+	panel.guardedSetCapabilityValueOnDevice = async (_device, _name, value) =>
+	{
+		capability.value = value;
+		for (const button of [leftParameters, parameters])
+		{
+			await panel.updateAdvancedDirectionForExternalChange(button, { deviceID: 'ac', capabilityName: 'target_temperature' }, value);
+		}
+	};
+	for (const [button, expected] of [[leftParameters, 30], [leftParameters, 30], [parameters, 29], [leftParameters, 30], [parameters, 29]])
+	{
+		await panel.runAdvancedEventMapping(button, 'click');
+		assert.strictEqual(capability.value, expected, 'Opposite temperature buttons retain their signed writes at the upper bound');
+	}
+	capability.value = 17;
+	for (const [button, expected] of [[parameters, 16], [parameters, 16], [leftParameters, 17], [parameters, 16], [leftParameters, 17]])
+	{
+		await panel.runAdvancedEventMapping(button, 'click');
+		assert.strictEqual(capability.value, expected, 'Opposite temperature buttons retain their signed writes at the lower bound');
+	}
+	for (const value of [16, 30, 22])
+	{
+		for (const button of [leftParameters, parameters])
+		{
+			await panel.updateAdvancedDirectionForExternalChange(button, { deviceID: 'ac', capabilityName: 'target_temperature' }, value);
+		}
+		assert.strictEqual(panel.getAdvancedStepDelta(leftParameters, '+1'), 1, 'The increase button keeps its signed step after external changes');
+		assert.strictEqual(panel.getAdvancedStepDelta(parameters, '-1'), -1, 'The decrease button keeps its signed step after external changes');
+	}
+	assert.strictEqual(panel.getAdvancedStepDelta(parameters, '+2'), 2, 'Changing a signed step does not inherit the previous step direction');
+	usesDirection = true;
+	panel.applyAdvancedDirectionAtBounds(leftParameters, 30, 16, 30);
+	assert.strictEqual(panel.getAdvancedStepDelta(leftParameters, '+1'), -1, 'Explicit direction controls retain automatic reversal at the upper bound');
+	assert.strictEqual(panel.getAdvancedStepDelta(parameters, '-1'), 1, 'Reversing one button does not change the other button direction');
+	panel.applyAdvancedDirectionAtBounds(leftParameters, 16, 16, 30);
+	assert.strictEqual(panel.getAdvancedStepDelta(leftParameters, '+1'), 1, 'Explicit direction controls reverse at the lower bound');
 	assert.strictEqual(panel.isAdvancedStepRelative('10'), false, 'Unsigned advanced values are absolute targets');
 	assert.strictEqual(panel.isAdvancedStepRelative('+10'), true, 'An explicit plus marks a relative increment');
 	assert.strictEqual(panel.isAdvancedStepRelative('-10'), true, 'An explicit minus marks a relative decrement');
@@ -1269,8 +1339,150 @@ async function checkAdvancedButtonClickResolution()
 	}
 }
 
+async function checkAdvancedLedSources()
+{
+	const deviceSource = fs.readFileSync(path.join(__dirname, '..', 'drivers', 'panel_hardware', 'device.js'), 'utf8').replace(/\r\n/g, '\n');
+	const methods = [
+		'resolveAdvancedLedBinding', 'resolveLedBindingValue', 'applyAdvancedLedBinding', 'checkStateChangeForConnector',
+		'publishButtonMQTTmessages', 'parseHexColor', 'rgbToInteger', 'interpolateColor', 'queueOrPublishLedColor', 'setLEDOnOff',
+	].map(name =>
+	{
+		const start = deviceSource.search(new RegExp(`\\n\\t(?:async )?${name}\\(`));
+		const end = deviceSource.indexOf('\n\t}\n', start) + 4;
+		assert(start >= 0 && end > start, `Found ${name}`);
+		return deviceSource.slice(start, end);
+	}).join('\n');
+	const panel = vm.runInNewContext(`new (class { ${methods} })()`, { checkSEMVerGreaterOrEqual: () => true });
+	const page = {
+		leftMode: 'advanced',
+		rightMode: 'advanced',
+		leftLedDevice: 'ac',
+		leftLedCapability: 'onoff',
+		leftFrontLEDOnColor: '#00ff00',
+		leftWallLEDOnColor: '#0000ff',
+		leftFrontLEDOffColor: '#000000',
+		leftWallLEDOffColor: '#000000',
+	};
+	const capabilities = { onoff: { type: 'boolean', value: false }, target_temperature: { type: 'number', value: 22 } };
+	const published = [];
+	panel.homey = { app: {
+		buttonConfigurations: [[page]],
+		getHomeyDeviceById: async id => ({ id }),
+		getHomeyCapabilityByName: async (_device, name) => capabilities[name],
+		registerDeviceCapabilityStateChange: () => {},
+		publishMQTTMessage: async (_broker, topic, value) => { published.push({ topic, value }); },
+	} };
+	panel.buttonId = 'panel';
+	panel.firmwareVersion = '3.0.3';
+	panel.getSetting = () => 1;
+	panel.getEffectiveConfigNo = () => 0;
+	panel.resolveAdvancedSideConfig = () => page;
+	panel.resolveAdvancedDisplayBinding = () => null;
+	panel.getConfigPageSide = (_config, _page, side) => ({
+		raw: page,
+		deviceID: 'none',
+		topLabel: '',
+		brokerId: 'Default',
+		frontLEDOnColor: page[`${side}FrontLEDOnColor`],
+		wallLEDOnColor: page[`${side}WallLEDOnColor`],
+		frontLEDOffColor: page[`${side}FrontLEDOffColor`],
+		wallLEDOffColor: page[`${side}WallLEDOffColor`],
+	});
+	panel.error = error => { throw error; };
+	const parameters = { connector: 0, side: 'left', page: 0, configNo: 0 };
+
+	await panel.checkStateChangeForConnector(0, 'ac', 'onoff', true);
+	assert.strictEqual(published[0].value, 0x00ff00, 'LED follows the reported AC state even before the cached capability updates');
+	assert.strictEqual(published[2].value, 0x0000ff, 'Front and wall LEDs follow the selected source');
+	published.length = 0;
+	capabilities.onoff.value = true;
+	await panel.checkStateChangeForConnector(0, 'ac', 'onoff', false);
+	assert.strictEqual(published[0].value, 0, 'A reported off value overrides a stale on snapshot');
+	assert.strictEqual(published[2].value, 0);
+
+	published.length = 0;
+	await panel.applyAdvancedLedBinding(parameters, { deviceID: 'other-ac', capabilityName: 'onoff', value: false });
+	assert.strictEqual(published[0].value, 0x00ff00, 'An action on a different device cannot override the LED source');
+	published.length = 0;
+	await panel.applyAdvancedLedBinding(parameters, { deviceID: 'ac', capabilityName: 'target_temperature', value: 30 });
+	assert.strictEqual(published[0].value, 0x00ff00, 'Temperature actions do not replace the independent onoff LED source');
+
+	page.leftFrontLEDOnColor = '#000000';
+	page.leftWallLEDOnColor = '#000000';
+	published.length = 0;
+	await panel.applyAdvancedLedBinding(parameters);
+	assert.strictEqual(published[0].value, 0, 'Black front LEDs remain dark while the device is on');
+	assert.strictEqual(published[2].value, 0, 'Black wall LEDs remain dark while the device is on');
+	const queue = await panel.publishButtonMQTTmessages([page], 0, 0);
+	assert.strictEqual(queue.find(entry => entry.message.endsWith('/led/front/rgb/set')).value, 0, 'Configuration reload respects black LED colours');
+	page.leftLedDevice = 'none';
+	page.leftLedCapability = '';
+	page.leftFrontLEDOnColor = '#00ff00';
+	page.leftWallLEDOnColor = '#0000ff';
+	const clearedQueue = await panel.publishButtonMQTTmessages([page], 0, 0);
+	assert.strictEqual(clearedQueue.find(entry => entry.message.endsWith('/led/front/rgb/set')).value, 0, 'Removing the LED source clears stale front output');
+	assert.strictEqual(clearedQueue.find(entry => entry.message.endsWith('/led/wall/rgb/set')).value, 0, 'Removing the LED source clears stale wall output');
+}
+
+function checkWizardPreservesLedColours()
+{
+	const settingsSource = fs.readFileSync(path.join(__dirname, '..', 'settings', 'settings.js'), 'utf8');
+	const buildersStart = settingsSource.indexOf('\nfunction getWizardCapability(');
+	const buildersEnd = settingsSource.indexOf('\nfunction getButtonWizardDevices(', buildersStart);
+	const applyStart = settingsSource.indexOf('\nfunction applyButtonWizard(');
+	const applyEnd = settingsSource.indexOf('\nfunction findAdvancedDefaultDeviceForSide(', applyStart);
+	assert(buildersStart >= 0 && buildersEnd > buildersStart);
+	assert(applyStart >= 0 && applyEnd > applyStart);
+	const page = {
+		leftFrontLEDOnColor: '#000000',
+		leftWallLEDOnColor: '#000000',
+		leftFrontLEDOffColor: '#123456',
+		leftWallLEDOffColor: '#654321',
+	};
+	const device = {
+		id: 'ac',
+		name: 'AC',
+		capabilitiesObj: {
+			target_temperature: { id: 'target_temperature', type: 'number' },
+			onoff: { id: 'onoff.ac', type: 'boolean', setable: false },
+		},
+	};
+	const context = {
+		Homey: { __: key => key },
+		DEFAULT_RELOCK_SECONDS: 5,
+		buttonWizardContext: { configNo: 0, side: 'left', page: 0 },
+		buttonDevicesArray: [device],
+		localButtonConfigurations: [[page]],
+		document: { getElementById: id => ({ value: id === 'buttonWizardType' ? 'thermostat' : 'ac' }) },
+		activateDisplayedButtonConfiguration: () => true,
+		configDraftStoreButtonSettingsFn: null,
+		ensureButtonSideAdvancedDefaults: () => {},
+		sanitizeDisplayString: value => value,
+		closeButtonWizard: () => {},
+		writeButtonsections: () => {},
+		getDisplayedButtonPageCount: () => 1,
+		updateButtonPanelControls: () => {},
+		buttonPagePopupOverlayElement: null,
+		flushConfigurationDraftPersist: () => {},
+	};
+	const applyWizard = vm.runInNewContext(`${settingsSource.slice(buildersStart, buildersEnd)}\n${settingsSource.slice(applyStart, applyEnd)}\napplyButtonWizard`, context);
+	applyWizard();
+	assert.strictEqual(page.leftFrontLEDOnColor, '#000000', 'Wizard preserves disabled front LEDs');
+	assert.strictEqual(page.leftWallLEDOnColor, '#000000', 'Wizard preserves disabled wall LEDs');
+	assert.strictEqual(page.leftFrontLEDOffColor, '#123456', 'Wizard preserves existing off colours');
+	assert.strictEqual(page.leftWallLEDOffColor, '#654321');
+	assert.strictEqual(page.leftLedCapability, 'onoff.ac', 'Thermostat LEDs follow onoff, including read-only subcapabilities');
+	assert.strictEqual(page.leftClickCapability, 'target_temperature', 'Thermostat clicks still adjust temperature');
+	assert.strictEqual(page.leftClickValueStep, '+1');
+	delete device.capabilitiesObj.onoff;
+	applyWizard();
+	assert.strictEqual(page.leftLedCapability, '', 'A thermostat without onoff does not use its temperature as LED brightness');
+}
+
 async function run()
 {
+	await checkAdvancedLedSources();
+	checkWizardPreservesLedColours();
 	await checkAdvancedButtonClickResolution();
 	await checkCapabilityScaling();
 	checkBlankButtonPageFallbackResolver();
@@ -1346,7 +1558,7 @@ async function run()
 	assert.strictEqual(supported.rightCapability, 'target_temperature');
 
 	await checkPopupDefaults();
-	checkSignedAdvancedSteps();
+	await checkSignedAdvancedSteps();
 	await checkAdvancedDisplayFeedback();
 	checkDeviceChangeClearsStaleCapability();
 	checkPopupCancelRestoresSnapshots();
