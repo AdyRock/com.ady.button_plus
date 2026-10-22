@@ -2277,11 +2277,7 @@ function initialiseSettingsPage(Homey, markReady)
 
 		buttonVisibleConfigurationCount = Math.max(1, Math.min(4, parsedCount));
 		getDisplayedButtonConfigurationNos();
-		if (buttonConfigurationsFetched)
-		{
-			writeButtonsections(getDisplayedButtonPageCount());
-			updateButtonPanelControls();
-		}
+		renderLoadedButtonConfiguration();
 	});
 
 	Homey.get(BUTTON_PANEL_CONTROLS_COLLAPSED_KEY, (err, savedCollapsed) =>
@@ -2353,11 +2349,7 @@ function initialiseSettingsPage(Homey, markReady)
 			currentButtonConfigurationNo = 0;
 		}
 
-		// Get the current configuration
-		const buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-
-		writeButtonsections(Array.isArray(buttonPanelConfiguration) ? buttonPanelConfiguration.length : 1);
-		updateButtonPanelControls();
+		renderLoadedButtonConfiguration();
 		maybeHandleLoadedConfigurationDraft();
 	});
 
@@ -9969,6 +9961,25 @@ function filterButtonDevices(devices)
 	});
 }
 
+function renderLoadedButtonConfiguration()
+{
+	// Settings and device API responses can arrive in either order.
+	if (!buttonConfigurationsFetched || !buttonDevicesFetched)
+	{
+		return;
+	}
+
+	let buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
+	if (!Array.isArray(buttonPanelConfiguration))
+	{
+		buttonPanelConfiguration = buttonPanelConfiguration ? [buttonPanelConfiguration] : [{ PageNum: 0 }];
+		localButtonConfigurations[currentButtonConfigurationNo] = buttonPanelConfiguration;
+	}
+
+	writeButtonsections(buttonPanelConfiguration.length || 1);
+	updateButtonPanelControls();
+}
+
 // Fetch the devices and then update the displays
 function getDevices()
 {
@@ -9985,11 +9996,7 @@ function getDevices()
 		buttonDevicesArray = sortDevices(filterButtonDevices(devices));
 		buttonDevicesFetched = true;
 
-		// Get the current configuration
-		const buttonPanelConfiguration = localButtonConfigurations[currentButtonConfigurationNo];
-
-		writeButtonsections(buttonPanelConfiguration.length);
-		updateButtonPanelControls();
+		renderLoadedButtonConfiguration();
 	});
 }
 
@@ -14000,9 +14007,8 @@ function fillButtonListElement(Element, DevicesArray)
 
 function setupButtonBrokerItems()
 {
-	if (!brokerItemsFetched)
+	if (!brokerItemsFetched || !buttonConfigurationsFetched || !buttonDevicesFetched)
 	{
-		setTimeout(setupButtonBrokerItems, 1000);
 		return;
 	}
 

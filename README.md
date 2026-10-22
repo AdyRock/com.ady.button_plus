@@ -18,6 +18,8 @@ Button + makes it easy to build custom physical control panels that feel like a 
 1. Install the app on your Homey.
 2. Open the Button + App settings / Configuration page in Homey.
 
+The configuration page waits for both the saved button configurations and the Homey device list before building the button controls. Device and broker responses can arrive in either order without interrupting initialization. Request errors are shown in a Homey alert.
+
 There are three main configuration areas in the app:
 
 - Button bar configurations

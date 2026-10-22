@@ -1,6 +1,6 @@
 {
     "name": "com.ady.button_plus",
-    "version": "1.0.14",
+    "version": "1.0.15",
     "main": "app.js",
     "scripts": {
         "lint": "eslint --ext .js,.ts ."

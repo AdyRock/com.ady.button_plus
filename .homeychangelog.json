@@ -1919,5 +1919,20 @@
         "pl": "Naprawiono nieoczekiwane odwracanie kierunku kroków liczbowych ze znakiem przy granicach możliwości: +1 i -1 zachowują ustawiony kierunek, chyba że przycisk ma jawnie skonfigurowane sterowanie kierunkiem. Kreator zachowuje teraz kolory LED, w tym czarny, a szablony termostatu używają stanu włączenia urządzenia do sterowania LED, jeśli jest dostępny. LED korzystają teraz ze zgłoszonych zmian stanu, działania na innych urządzeniach nie nadpisują ich źródła, a po usunięciu źródła poprzedni stan LED jest resetowany.",
         "ko": "기능의 최솟값이나 최댓값에서 부호가 있는 숫자 단계의 방향이 예기치 않게 바뀌는 문제를 수정했습니다. 버튼에 명시적인 방향 제어가 설정되지 않으면 +1과 -1은 설정된 방향을 유지합니다. 마법사는 이제 검은색을 포함한 LED 색상을 유지하며, 온도 조절기 사전 설정은 가능한 경우 장치의 켜짐/꺼짐 상태로 LED를 제어합니다. LED가 보고된 상태 변경을 사용하도록 수정하고, 다른 장치의 동작이 LED 소스를 덮어쓰지 않도록 했으며, 소스 제거 시 이전 LED 출력을 초기화합니다.",
         "ar": "تم إصلاح انعكاس اتجاه الخطوات الرقمية ذات الإشارة بشكل غير متوقع عند حدود الإمكانية: تحافظ +1 و-1 على الاتجاه المحدد ما لم يتضمن الزر تحكماً صريحاً في الاتجاه. يحافظ المعالج الآن على ألوان LED، بما فيها الأسود، وتستخدم إعدادات منظم الحرارة حالة تشغيل الجهاز وإيقافه للتحكم في LED عند توفرها. تستخدم تحديثات LED الآن تغييرات الحالة المبلّغ عنها، ولا تتجاوز الإجراءات على الأجهزة الأخرى مصدر LED، ويتم مسح خرج LED السابق عند إزالة المصدر."
+    },
+    "1.0.15": {
+        "en": "Fixed intermittent configuration page loading failures in web browsers by handling settings, device, and broker responses in any order and avoiding redundant initialization.",
+        "nl": "Intermitterende laadproblemen van de configuratiepagina in webbrowsers opgelost door antwoorden voor instellingen, apparaten en brokers in elke volgorde te verwerken en overbodige initialisatie te voorkomen.",
+        "de": "Gelegentliche Ladefehler der Konfigurationsseite in Webbrowsern behoben, indem Antworten zu Einstellungen, Geräten und Brokern in beliebiger Reihenfolge verarbeitet und unnötige Initialisierungen vermieden werden.",
+        "fr": "Correction des échecs intermittents de chargement de la page de configuration dans les navigateurs en traitant les réponses des paramètres, appareils et courtiers dans n'importe quel ordre et en évitant les initialisations redondantes.",
+        "it": "Risolti gli errori intermittenti di caricamento della pagina di configurazione nei browser gestendo le risposte di impostazioni, dispositivi e broker in qualsiasi ordine ed evitando inizializzazioni ridondanti.",
+        "sv": "Åtgärdade tillfälliga laddningsfel på konfigurationssidan i webbläsare genom att hantera svar för inställningar, enheter och MQTT-mäklare i valfri ordning och undvika onödig initiering.",
+        "no": "Rettet sporadiske lastefeil på konfigurasjonssiden i nettlesere ved å håndtere svar for innstillinger, enheter og MQTT-meglere i vilkårlig rekkefølge og unngå overflødig initialisering.",
+        "es": "Se corrigieron fallos intermitentes de carga de la página de configuración en los navegadores al procesar las respuestas de ajustes, dispositivos y brokers en cualquier orden y evitar inicializaciones redundantes.",
+        "da": "Rettet periodiske indlæsningsfejl på konfigurationssiden i webbrowsere ved at håndtere svar for indstillinger, enheder og MQTT-brokere i vilkårlig rækkefølge og undgå overflødig initialisering.",
+        "ru": "Исправлены периодические сбои загрузки страницы конфигурации в браузерах благодаря обработке ответов настроек, устройств и брокеров в любом порядке и устранению повторной инициализации.",
+        "pl": "Naprawiono sporadyczne błędy ładowania strony konfiguracji w przeglądarkach dzięki obsłudze odpowiedzi ustawień, urządzeń i brokerów w dowolnej kolejności oraz unikaniu zbędnej inicjalizacji.",
+        "ko": "설정, 장치 및 브로커 응답을 도착 순서와 관계없이 처리하고 불필요한 초기화를 방지하여 웹 브라우저에서 구성 페이지가 간헐적으로 로드되지 않는 문제를 수정했습니다.",
+        "ar": "تم إصلاح حالات الفشل المتقطع في تحميل صفحة التكوين في متصفحات الويب من خلال معالجة استجابات الإعدادات والأجهزة والوسطاء بأي ترتيب وتجنب التهيئة الزائدة."
     }
 }
