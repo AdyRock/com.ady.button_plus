@@ -20,6 +20,10 @@ Button + makes it easy to build custom physical control panels that feel like a 
 
 The configuration page waits for both the saved button configurations and the Homey device list before building the button controls. Configuration tabs show a loading indicator while waiting for their saved settings, devices and brokers, which can take longer on slower Homeys. Device and broker responses can arrive in either order without interrupting initialization. Request errors are shown in a Homey alert and replace the loading indicator with an error message.
 
+Select **Show me how** beside the book-shaped help button on any settings tab to start a guided tour. An animated pointer highlights each control while a popup explains it. Steps advance automatically after reading time; use **Back**, **Next**, **Pause / Resume**, or **Close** to control the tour, or press **Escape** to exit. Tours only explain visible controls and never change, save, import, or send settings. Close the tour to use the controls. Switching pages ends the tour. Reduced-motion users start with automatic progression paused and a non-animated pointer; switching away from the app also pauses progression.
+
+The button tour starts with the page controls and configuration selector, then highlights the simulated button's title, value or icon, LEDs, STD / ADV mode switch, BUTTON action mappings, and setup wizard separately before explaining extra settings, copying, and saving. In STD mode, a demonstration BUTTON pill appears only during its tour step and is removed when leaving that step or closing the tour, without changing the button's mode or settings. The pill remains visible through simulator live refreshes, including while the tour is paused.
+
 There are three main configuration areas in the app:
 
 - Button bar configurations

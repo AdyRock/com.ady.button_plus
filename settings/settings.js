@@ -11935,6 +11935,7 @@ function renderGroupSimulator()
 
 function configTypeChanged(configSelected)
 {
+	if (window.SettingsTour) window.SettingsTour.stop();
 	if (groupPanelControlsExpanderElement)
 	{
 		groupPanelControlsExpanderElement.hidden = configSelected !== 'groupConfig';

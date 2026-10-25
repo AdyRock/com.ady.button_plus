@@ -7,7 +7,8 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<!-- The '/homey.js' script must be included in your settings view to work -->
 	<script type="text/javascript" src="/homey.js" data-origin="settings"></script>
-	<link rel="stylesheet" type="text/css" href="extraStyles.css?v=20261025b">
+	<link rel="stylesheet" type="text/css" href="extraStyles.css?v=20261025c">
+	<link rel="stylesheet" type="text/css" href="guidedTour.css?v=20261025a">
 	<link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css'>
 </head>
 
@@ -51,6 +52,7 @@
 		</div>
 		<div class="page-help-row">
 			<button type="button" class="homey-button-secondary-shadow button-panel-controls-expander is-open" id="groupPanelControlsExpander" aria-expanded="true" hidden><span id="groupPanelControlsLabel">Preview</span><span class="icon">&#8628;</span></button>
+			<button type="button" class="homey-button-secondary-shadow" id="pageTourOpen" data-i18n="settings.tour.start">Show me how</button>
 			<button type="button" class="page-help-button" id="pageHelpOpen" title="Page help"
 				aria-label="Page help">
 				<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -662,7 +664,8 @@
 	<!-- Code to handle page life -->
 
 	<script type="text/javascript" src="simulation.js?v=20261002a"></script>
-	<script type="text/javascript" src="settings.js?v=20261025b"></script>
+	<script type="text/javascript" src="guidedTour.js?v=20261025f"></script>
+	<script type="text/javascript" src="settings.js?v=20261025c"></script>
 </body>
 
 </html>
