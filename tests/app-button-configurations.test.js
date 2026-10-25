@@ -249,6 +249,77 @@ function checkDraftRestorePreservesVisibleButtonSlots()
 	assert.deepStrictEqual(visibleSlots, [0, 1, 2], 'Older drafts without slot metadata do not replace the first preview slot');
 }
 
+function checkBasicButtonPopupVisibility()
+{
+	const settingsSource = fs.readFileSync(path.join(__dirname, '..', 'settings', 'settings.js'), 'utf8');
+	const start = settingsSource.indexOf('\nfunction updateButtonFieldPopupCapabilityState(');
+	const end = settingsSource.indexOf('\nfunction restoreButtonFieldPopupCustomMQTTSection(', start);
+	const updateVisibility = vm.runInNewContext(`(${settingsSource.slice(start, end)})`, {
+		variablesArray: [{ id: 'boolean-variable', type: 'boolean' }, { id: 'number-variable', type: 'number' }],
+		canScaleHomeyCapability: (_device, _capability, type) => type === 'number',
+	});
+	for (const [device, capability, type, hide] of [
+		['missing-device', 'onoff', undefined, false],
+		['missing-device', 'alarm_contact', undefined, false],
+		['lamp', 'onoff', 'boolean', false],
+		['lamp', 'dim', 'number', true],
+		['thermostat', 'target_temperature', 'number', true],
+		['picker', 'mode', 'enum', true],
+		['_variable_', 'boolean-variable', 'boolean', false],
+		['_variable_', 'number-variable', 'number', true],
+		['none', '', undefined, false],
+	])
+	{
+		for (const mode of ['text', 'svg'])
+		{
+			const row = () => ({ style: {}, querySelector: () => null });
+			const capabilityRow = row();
+			const fields = {
+				Device: { value: device },
+				Capability: { value: capability, selectedOptions: [{ dataset: type ? { type } : {} }], closest: () => capabilityRow },
+				__booleanRenderMode: mode,
+				__booleanRenderRow: row(),
+			};
+			for (const suffix of ['OnText', 'OffText', 'OnSVG', 'OffSVG', 'Unit', 'DisplayValueScale', 'DimChange'])
+			{
+				const fieldRow = row();
+				fields[suffix] = { closest: () => fieldRow };
+			}
+			updateVisibility(fields);
+			assert.strictEqual(fields.__booleanRenderRow.style.display, hide ? 'none' : 'flex', `${device}/${capability}/${mode}: render selector`);
+			for (const suffix of ['OnText', 'OffText', 'OnSVG', 'OffSVG'])
+			{
+				const visible = !hide && (suffix.endsWith('SVG') ? mode === 'svg' : mode === 'text');
+				assert.strictEqual(fields[suffix].closest().style.display, visible ? '' : 'none', `${device}/${capability}/${mode}/${suffix}`);
+			}
+		}
+	}
+	const capabilityStart = settingsSource.indexOf('\nfunction capabilityChanged(');
+	const capabilityEnd = settingsSource.indexOf('\n// If the config and devices', capabilityStart);
+	for (const type of [undefined, 'boolean', 'number'])
+	{
+		const elements = {
+			left0Device: { value: 'missing-device' },
+			left0Capability: { selectedOptions: [{ dataset: type ? { type } : {} }] },
+		};
+		for (const suffix of ['UnitDiv', 'DimChangeDiv', 'OnTextDiv', 'OffText', 'OffTextLabel'])
+		{
+			elements[`left0${suffix}`] = { style: {} };
+		}
+		const capabilityChanged = vm.runInNewContext(`(${settingsSource.slice(capabilityStart, capabilityEnd)})`, {
+			document: { getElementById: id => elements[id] },
+			buttonFieldPopupContext: null,
+			variablesArray: [],
+			itemDisplyType: 'block',
+			hidePopupManagedFieldsForSection: () => {},
+			renderInlineButtonPagePreview: () => {},
+			buttonPagePopupOverlayElement: null,
+		});
+		capabilityChanged('left', 0, 'onoff');
+		assert.strictEqual(elements.left0OnTextDiv.style.display, type === 'number' ? 'none' : 'block', `Main controls preserve On/Off fields for type ${type}`);
+	}
+}
+
 async function checkPopupDefaults()
 {
 	const settingsSource = fs.readFileSync(path.join(__dirname, '..', 'settings', 'settings.js'), 'utf8');
@@ -1557,6 +1628,7 @@ async function run()
 	assert.deepStrictEqual(await sanitize(supported), { changed: false, writes: 0 });
 	assert.strictEqual(supported.rightCapability, 'target_temperature');
 
+	checkBasicButtonPopupVisibility();
 	await checkPopupDefaults();
 	await checkSignedAdvancedSteps();
 	await checkAdvancedDisplayFeedback();

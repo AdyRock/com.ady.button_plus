@@ -1,5 +1,7 @@
 {
     "settings": {
+        "loadingContent": "Loading configuration and devices...",
+        "loadingFailed": "Could not load the configuration. Close and reopen the settings page to try again.",
         "Settings": "Settings",
         "gatewayUpdateMode": "Gateway Update Mode",
         "assignmentNoteTitle": "Important:",

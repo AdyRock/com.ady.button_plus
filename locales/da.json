@@ -1,5 +1,7 @@
 {
     "settings": {
+        "loadingContent": "Indl\u00e6ser konfiguration og enheder...",
+        "loadingFailed": "Konfigurationen kunne ikke indl\u00e6ses. Luk og gen\u00e5bn indstillingssiden for at pr\u00f8ve igen.",
         "Settings": "Indstillinger",
         "gatewayUpdateMode": "Opdateringstilstand for gateway",
         "assignmentNoteTitle": "Vigtigt:",

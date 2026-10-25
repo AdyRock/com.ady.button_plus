@@ -1,5 +1,7 @@
 {
     "settings": {
+        "loadingContent": "Chargement de la configuration et des appareils...",
+        "loadingFailed": "Impossible de charger la configuration. Fermez et rouvrez la page des param\u00e8tres pour r\u00e9essayer.",
         "Settings": "Paramètres",
         "gatewayUpdateMode": "Mode de mise à jour de la passerelle",
         "assignmentNoteTitle": "Important :",

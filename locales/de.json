@@ -1,5 +1,7 @@
 {
     "settings": {
+        "loadingContent": "Konfiguration und Ger\u00e4te werden geladen...",
+        "loadingFailed": "Die Konfiguration konnte nicht geladen werden. Schlie\u00dfen Sie die Einstellungsseite und \u00f6ffnen Sie sie erneut, um es noch einmal zu versuchen.",
         "Settings": "Einstellungen",
         "gatewayUpdateMode": "Gateway-Aktualisierungsmodus",
         "assignmentNoteTitle": "Wichtig:",

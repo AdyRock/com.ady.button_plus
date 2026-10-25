@@ -7,6 +7,13 @@ const CONFIG_DRAFT_SAVE_DEBOUNCE_MS = 500;
 const BUTTON_VISIBLE_CONFIGURATION_COUNT_KEY = 'buttonVisibleConfigurationCount';
 const BUTTON_PANEL_CONTROLS_COLLAPSED_KEY = 'buttonPanelControlsCollapsed';
 const PAGE_HELP_INTRO_ACKNOWLEDGED_KEY = 'pageHelpIntroAcknowledged';
+const settingsLoadingDependencies = {
+	panelConfig: ['buttonConfigurations', 'devices', 'brokers'],
+	displayConfig: ['displayConfigurations', 'buttonConfigurations', 'devices', 'brokers'],
+	brokerConfig: ['buttonConfigurations', 'devices', 'brokers'],
+	groupConfig: ['groups', 'buttonConfigurations', 'displayConfigurations', 'devices', 'brokers'],
+};
+const settingsLoadingResults = {};
 let buttonDevicesArray = [];
 let buttonDevicesFetched = false;
 let variablesArray = [];
@@ -2244,6 +2251,22 @@ function onHomeyReady(Homey)
 	}
 }
 
+function completeSettingsLoading(request, error)
+{
+	settingsLoadingResults[request] = error ? 'error' : 'loaded';
+	Object.keys(settingsLoadingDependencies).forEach(view =>
+	{
+		const dependencies = settingsLoadingDependencies[view];
+		const failed = dependencies.some(key => settingsLoadingResults[key] === 'error');
+		const loading = !failed && dependencies.some(key => !settingsLoadingResults[key]);
+		const status = document.getElementById(`${view}Loading`);
+		document.getElementById(view).setAttribute('aria-busy', loading ? 'true' : 'false');
+		status.hidden = !loading && !failed;
+		status.classList.toggle('settings-loading-error', failed);
+		status.querySelector('.settings-loading-text').textContent = Homey.__(failed ? 'settings.loadingFailed' : 'settings.loadingContent');
+	});
+}
+
 function initialiseSettingsPage(Homey, markReady)
 {
 	itemDisplyType = document.getElementById('ButtonPanelConfigurationNo').style.display;
@@ -2336,7 +2359,11 @@ function initialiseSettingsPage(Homey, markReady)
 	// Read the button configuration from the settings and write the controls
 	Homey.get('buttonConfigurations', (err, buttonConfigurations) =>
 	{
-		if (err) return Homey.alert(err);
+		if (err)
+		{
+			completeSettingsLoading('buttonConfigurations', err);
+			return Homey.alert(err);
+		}
 		localButtonConfigurations = Array.isArray(buttonConfigurations) ? buttonConfigurations : [];
 		buttonConfigurationsFetched = true;
 		console.log(`buttonConfigurations: ${localButtonConfigurations.length} configurations loaded`);
@@ -2351,11 +2378,16 @@ function initialiseSettingsPage(Homey, markReady)
 
 		renderLoadedButtonConfiguration();
 		maybeHandleLoadedConfigurationDraft();
+		completeSettingsLoading('buttonConfigurations');
 	});
 
 	Homey.get('displayConfigurations', (err, displayConfigurations) =>
 	{
-		if (err) return Homey.alert(err);
+		if (err)
+		{
+			completeSettingsLoading('displayConfigurations', err);
+			return Homey.alert(err);
+		}
 		localDisplayConfigurations = Array.isArray(displayConfigurations) ? displayConfigurations : [];
 		displayConfigurationsFetched = (localDisplayConfigurations.length > 0);
 
@@ -2387,6 +2419,7 @@ function initialiseSettingsPage(Homey, markReady)
 
 		updateDisplayConfiguration();
 		maybeHandleLoadedConfigurationDraft();
+		completeSettingsLoading('displayConfigurations');
 	});
 
 	getButtonList();
@@ -2395,11 +2428,16 @@ function initialiseSettingsPage(Homey, markReady)
 
 	Homey.get('brokerConfigurationItems', (err, brokerItems) =>
 	{
-		if (err) return Homey.alert(err);
+		if (err)
+		{
+			completeSettingsLoading('brokers', err);
+			return Homey.alert(err);
+		}
 		brokerItemsFetched = true;
 		localBrokerItems = brokerItems;
 		setupButtonBrokerItems();
 		maybeHandleLoadedConfigurationDraft();
+		completeSettingsLoading('brokers');
 	});
 
 	setupGroupUI();
@@ -7360,7 +7398,7 @@ function updateButtonFieldPopupCapabilityState(popupElementsBySuffix)
 	const selectedVariable = (deviceValue === '_variable_') ? variablesArray.find(variable => variable.id === capabilityElement.value) : null;
 	const isNonBooleanVariable = !!selectedVariable && (selectedVariable.type !== 'boolean');
 	const selectedCapabilityOption = capabilityElement.selectedOptions ? capabilityElement.selectedOptions[0] : null;
-	const selectedCapabilityType = selectedCapabilityOption ? selectedCapabilityOption.dataset.type : '';
+	const selectedCapabilityType = selectedCapabilityOption ? (selectedCapabilityOption.dataset.type || '') : '';
 	const showScale = canScaleHomeyCapability(deviceValue, capabilityElement.value, selectedVariable?.type || selectedCapabilityType);
 	if (popupElementsBySuffix.DisplayValueScale)
 	{
@@ -9985,7 +10023,11 @@ function getDevices()
 {
 	Homey.api('POST', '/Devices/', {}, (err, devices) =>
 	{
-		if (err) return Homey.alert(err);
+		if (err)
+		{
+			completeSettingsLoading('devices', err);
+			return Homey.alert(err);
+		}
 
 		devices = Object.values(devices);
 
@@ -9997,6 +10039,7 @@ function getDevices()
 		buttonDevicesFetched = true;
 
 		renderLoadedButtonConfiguration();
+		completeSettingsLoading('devices');
 	});
 }
 
@@ -10816,7 +10859,7 @@ function capabilityChanged(side, page, value)
 	const isNonBooleanVariable = !!selectedVariable && (selectedVariable.type !== 'boolean');
 	const capabilityElement = document.getElementById(`${side}${page}Capability`);
 	const selectedOption = capabilityElement && capabilityElement.selectedOptions ? capabilityElement.selectedOptions[0] : null;
-	const selectedCapabilityType = selectedOption ? selectedOption.dataset.type : '';
+	const selectedCapabilityType = selectedOption ? (selectedOption.dataset.type || '') : '';
 	const isNonBooleanDeviceCapability = !isVariableDevice && (value !== 'dim') && (value !== 'windowcoverings_state') && (selectedCapabilityType !== '') && (selectedCapabilityType !== 'boolean');
 	const hideOnOffFields = (value === 'dim') || isNonBooleanVariable || isNonBooleanDeviceCapability;
 	const unitDiv = document.getElementById(`${side}${page}UnitDiv`);
@@ -11151,6 +11194,11 @@ function fetchAndInitGroupConfigurations()
 {
 	Homey.get('groupConfigurations', (err, groupConfigurations) =>
 	{
+		if (err)
+		{
+			completeSettingsLoading('groups', err);
+			return Homey.alert(err);
+		}
 		if (!err && Array.isArray(groupConfigurations) && groupConfigurations.length > 0)
 		{
 			localGroupConfigurations = groupConfigurations;
@@ -11165,6 +11213,7 @@ function fetchAndInitGroupConfigurations()
 		}
 		updateGroupListDropdown();
 		loadGroupIntoForm(currentGroupIndex);
+		completeSettingsLoading('groups');
 	});
 }
 
@@ -11886,6 +11935,10 @@ function renderGroupSimulator()
 
 function configTypeChanged(configSelected)
 {
+	if (groupPanelControlsExpanderElement)
+	{
+		groupPanelControlsExpanderElement.hidden = configSelected !== 'groupConfig';
+	}
 	if (configSelected !== 'panelConfig' && configSelected !== 'displayConfig')
 	{
 		groupEditReturnActive = false;

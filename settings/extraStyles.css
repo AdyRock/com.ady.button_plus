@@ -1,3 +1,38 @@
+.settings-loading {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 20px;
+	margin-bottom: 12px;
+	border: 1px solid lightblue;
+	border-radius: 10px;
+}
+
+.settings-loading[hidden],
+.settings-loading-error .settings-loading-spinner {
+	display: none;
+}
+
+.settings-loading-spinner {
+	width: 22px;
+	height: 22px;
+	flex-shrink: 0;
+	border: 3px solid lightblue;
+	border-top-color: #2f4fef;
+	border-radius: 50%;
+	animation: settings-loading-spin 1s linear infinite;
+}
+
+@keyframes settings-loading-spin {
+	to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.settings-loading-spinner {
+		animation: none;
+	}
+}
+
 .horizontalcontainer {
 	display: flex;
 	flex-direction: column;
@@ -147,8 +182,17 @@ label[for="configType"] {
 
 .page-help-row {
 	display: flex;
+	align-items: center;
 	justify-content: flex-end;
 	margin: -1px 0 2px;
+}
+
+#groupPanelControlsExpander {
+	margin-right: auto;
+}
+
+#groupPanelControlsExpander[hidden] {
+	display: none;
 }
 
 .page-help-button {
@@ -1448,9 +1492,9 @@ body.group-button-edit-active #panelConfig .button-card-editor-controls {
 	top: calc(var(--settings-fixed-top-offset, 64px) - 10px);
 	z-index: 120;
 	background-color: #ffffff;
-	padding-top: 2px;
+	padding-top: 0px;
 	padding-bottom: 6px;
-	margin-top: 4px;
+	margin-top: 0px;
 }
 
 #groupNameRow {
@@ -1468,6 +1512,7 @@ body.group-button-edit-active #panelConfig .button-card-editor-controls {
 
 .group-sim-persistent-controls {
 	display: flex;
+	flex-wrap: wrap;
 	align-items: center;
 	justify-content: space-between;
 	gap: 12px;
@@ -1478,7 +1523,7 @@ body.group-button-edit-active #panelConfig .button-card-editor-controls {
 #groupConfig.group-controls-hidden .group-selector-sticky>label,
 #groupConfig.group-controls-hidden .group-selector-sticky>.panel-config-selector-row,
 #groupConfig.group-controls-hidden #groupNameRow,
-#groupConfig.group-controls-hidden .group-action-buttons,
+#groupConfig.group-controls-hidden .group-action-left,
 #groupConfig.group-controls-hidden .hr-separator,
 #groupConfig.group-controls-hidden .group-simulator-fieldset>legend {
 	display: none !important;
@@ -1499,8 +1544,15 @@ body.group-button-edit-active #panelConfig .button-card-editor-controls {
 
 .group-action-left {
 	display: inline-flex;
+	flex-shrink: 0;
 	align-items: center;
 	gap: 12px;
+}
+
+@media (max-width: 480px) {
+	.group-sim-persistent-controls .group-sim-nav-group {
+		flex-basis: 100%;
+	}
 }
 
 .group-action-btn {

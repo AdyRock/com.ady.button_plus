@@ -1,5 +1,7 @@
 {
     "settings": {
+        "loadingContent": "\u0141adowanie konfiguracji i urz\u0105dze\u0144...",
+        "loadingFailed": "Nie uda\u0142o si\u0119 wczyta\u0107 konfiguracji. Zamknij i ponownie otw\u00f3rz stron\u0119 ustawie\u0144, aby spr\u00f3bowa\u0107 ponownie.",
         "Settings": "Ustawienia",
         "gatewayUpdateMode": "Tryb aktualizacji bramy",
         "assignmentNoteTitle": "Ważne:",

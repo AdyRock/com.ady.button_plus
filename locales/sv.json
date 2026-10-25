@@ -1,5 +1,7 @@
 {
     "settings": {
+        "loadingContent": "L\u00e4ser in konfiguration och enheter...",
+        "loadingFailed": "Det gick inte att l\u00e4sa in konfigurationen. St\u00e4ng och \u00f6ppna inst\u00e4llningssidan igen f\u00f6r att f\u00f6rs\u00f6ka p\u00e5 nytt.",
         "Settings": "Inställningar",
         "gatewayUpdateMode": "Uppdateringsläge för gateway",
         "assignmentNoteTitle": "Viktigt:",

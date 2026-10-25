@@ -1,5 +1,7 @@
 {
     "settings": {
+        "loadingContent": "Configuratie en apparaten laden...",
+        "loadingFailed": "De configuratie kon niet worden geladen. Sluit de instellingenpagina en open deze opnieuw om het nog eens te proberen.",
         "Settings": "Instellingen",
         "gatewayUpdateMode": "Gateway update-modus",
         "assignmentNoteTitle": "Belangrijk:",

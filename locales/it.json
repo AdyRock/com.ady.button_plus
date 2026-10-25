@@ -1,5 +1,7 @@
 {
     "settings": {
+        "loadingContent": "Caricamento della configurazione e dei dispositivi...",
+        "loadingFailed": "Impossibile caricare la configurazione. Chiudi e riapri la pagina delle impostazioni per riprovare.",
         "Settings": "Impostazioni",
         "gatewayUpdateMode": "Modalità di aggiornamento del gateway",
         "assignmentNoteTitle": "Importante:",

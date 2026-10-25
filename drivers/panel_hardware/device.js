@@ -8063,31 +8063,54 @@ class PanelDevice extends Device
 		// `page` is the zero-based page index shown in the app settings (0 = Default); -1 means every page.
 		const allPages = (page === -1);
 		const pageIndex = allPages ? -1 : Math.max(0, page);
+		const currentPage = Math.max(0, this.page - 1);
+		const configNo = this.getEffectiveConfigNo('button', connector);
+		const config = configNo != null ? this.homey.app.buttonConfigurations[configNo] : null;
+		const pages = Array.isArray(config) && config.length > 0 ? config.length : 1;
+		const firstPage = allPages ? 0 : pageIndex;
+		const lastPage = allPages ? pages - 1 : pageIndex;
+		const buttonIdx = connector * 2 + (left_right === 'left' ? 1 : 2);
+		const mqttQueue = [];
 
-		if (allPages || (pageIndex === (this.page - 1)))
+		// Flow state synchronization must not execute click actions or trigger another Flow.
+		if (allPages || (pageIndex === currentPage))
 		{
-			const buttonCapability = `${left_right}_button.connector${connector}`;
-			const buttonKey = `${left_right}_${connector}_${Math.max(0, this.page - 1)}`;
-			const currentState = this.buttonValues.has(buttonKey) ? this.buttonValues.get(buttonKey) : this.getCapabilityValue(buttonCapability);
-			if (currentState !== state)
+			await this.setCapabilityValue(`${left_right}_button.connector${connector}`, state);
+			this.buttonValues.set(`${left_right}_${connector}_${currentPage}`, state);
+		}
+
+		for (let p = firstPage; p <= lastPage; p++)
+		{
+			this.buttonValues.set(`${left_right}_${connector}_${p}`, state);
+			if (!config)
 			{
-				await this.triggerCapabilityListener(buttonCapability, state);
+				continue;
+			}
+
+			const sideConfig = this.getConfigPageSide(null, p, left_right, configNo);
+			const rawConfig = sideConfig.raw || {};
+			const advanced = String(rawConfig[`${left_right}Mode`] || 'basic').toLowerCase() === 'advanced';
+			const parameters = { connector, side: left_right, page: p, configNo };
+			if (!advanced || !this.resolveAdvancedLedBinding(parameters))
+			{
+				this.setLEDOnOff(sideConfig, mqttQueue, buttonIdx, p, state);
+			}
+
+			const hasExplicitDisplay = advanced && ((rawConfig[`${left_right}DisplayDevice`] || 'none') !== 'none') && !!rawConfig[`${left_right}DisplayCapability`];
+			if (!hasExplicitDisplay)
+			{
+				const displayValue = this.getButtonDisplayValues(state ? sideConfig.onMessage : sideConfig.offMessage, state ? sideConfig.onSVG : sideConfig.offSVG);
+				const prefix = `buttonplus/${this.buttonId}/button/${buttonIdx}-${p}`;
+				mqttQueue.push(
+					{ brokerId: sideConfig.brokerId, message: `${prefix}/label/set`, value: displayValue.textValue },
+					{ brokerId: sideConfig.brokerId, message: `${prefix}/svg/set`, value: displayValue.svgValue },
+				);
 			}
 		}
 
-		if (allPages)
+		for (const message of mqttQueue)
 		{
-			const configNo = this.getEffectiveConfigNo('button', connector);
-			const config = configNo != null ? this.homey.app.buttonConfigurations[configNo] : null;
-			const pages = Array.isArray(config) && config.length > 0 ? config.length : 1;
-			for (let p = 0; p < pages; p++)
-			{
-				this.buttonValues.set(`${left_right}_${connector}_${p}`, state);
-			}
-		}
-		else
-		{
-			this.buttonValues.set(`${left_right}_${connector}_${pageIndex}`, state);
+			await this.homey.app.publishMQTTMessage(message.brokerId, message.message, message.value, false, message.retain !== false);
 		}
 	}
 

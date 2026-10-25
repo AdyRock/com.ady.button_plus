@@ -18,7 +18,7 @@ Button + makes it easy to build custom physical control panels that feel like a 
 1. Install the app on your Homey.
 2. Open the Button + App settings / Configuration page in Homey.
 
-The configuration page waits for both the saved button configurations and the Homey device list before building the button controls. Device and broker responses can arrive in either order without interrupting initialization. Request errors are shown in a Homey alert.
+The configuration page waits for both the saved button configurations and the Homey device list before building the button controls. Configuration tabs show a loading indicator while waiting for their saved settings, devices and brokers, which can take longer on slower Homeys. Device and broker responses can arrive in either order without interrupting initialization. Request errors are shown in a Homey alert and replace the loading indicator with an error message.
 
 There are three main configuration areas in the app:
 
@@ -40,11 +40,21 @@ Each configuration area has a set of slots for building your panel layouts. The 
 8. Repeat the steps for the Right button bar.
 9. Click on the Save Configurations button.
 
+For boolean capabilities, click the button's value area to choose Text or SVG and edit the On/Off values. These controls also remain available for imported configurations whose devices are missing from the current Homey. Dim levels and other known non-boolean capabilities use their own value display instead.
+
 ### Advanced steps and LEDs
 
 Signed step values such as `+1` and `-1` keep their configured direction, including at capability limits. A button only uses stored direction and automatically reverses at a limit when it has an explicit direction action, such as **Toggle direction**. Direction controls affect that button, not other buttons controlling the same device.
 
 The wizard preserves your LED colours, including black (`#000000`) to keep LEDs dark. The thermostat preset follows the device's `onoff` capability when available, rather than using the temperature as LED brightness. You can select a different LED source in the LED settings. Set both On and Off colours to black for each LED you want disabled. Removing an LED source clears its previous state when the configuration is applied.
+
+### Synchronizing button state from Flows
+
+Use **Turn button on** and **Turn button off** to reflect an external state, such as the selected TV source. These actions update the button's stored state, On/Off text or SVG, and LED colours without simulating a press, controlling its assigned device, or firing button On/Off or Clicked Flow triggers. Physical presses and Homey device controls still run their normal actions and triggers.
+
+The page number matches the configuration settings: `0` is Default, `1` is page 1, and so on. Leave it blank or use `-1` to update every configured page. Updating an inactive page changes that page's feedback and stored state without changing the current page's Homey button state. In advanced mode, explicitly configured LED and display sources keep control of their respective outputs.
+
+For a Flow-managed TV source selector, leave the source buttons' basic device set to **None**, use button triggers to choose the source, and use these state actions to synchronize all source buttons when the selection changes. This avoids feeding status updates back into the source-selection Flow. Existing Flows that relied on these actions to simulate a click must invoke the desired device or scene actions explicitly instead.
 
 ## Setting up display configurations
 
@@ -87,6 +97,8 @@ To set up a group:
 5. Assign one or more connector/button configurations to the group.
 6. Use the preview area to review the full panel layout before saving.
 7. Duplicate or delete groups as needed if you want multiple panel layouts.
+
+The **Preview** / **Configure** toggle is at the left of the Help icon row. Page navigation shares a row with the add, delete and duplicate icons on wider screens, and wraps below them on narrow screens.
 
 This is useful when you want different physical panels in different rooms or for different purposes while reusing the same display and button presets.
 

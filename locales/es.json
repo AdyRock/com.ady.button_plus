@@ -1,5 +1,7 @@
 {
     "settings": {
+        "loadingContent": "Cargando la configuraci\u00f3n y los dispositivos...",
+        "loadingFailed": "No se pudo cargar la configuraci\u00f3n. Cierra y vuelve a abrir la p\u00e1gina de ajustes para intentarlo de nuevo.",
         "Settings": "Ajustes",
         "gatewayUpdateMode": "Modo de actualización de la pasarela",
         "assignmentNoteTitle": "Importante:",

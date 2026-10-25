@@ -7,7 +7,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<!-- The '/homey.js' script must be included in your settings view to work -->
 	<script type="text/javascript" src="/homey.js" data-origin="settings"></script>
-	<link rel="stylesheet" type="text/css" href="extraStyles.css?v=20261017i">
+	<link rel="stylesheet" type="text/css" href="extraStyles.css?v=20261025b">
 	<link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css'>
 </head>
 
@@ -50,6 +50,7 @@
 			</button>
 		</div>
 		<div class="page-help-row">
+			<button type="button" class="homey-button-secondary-shadow button-panel-controls-expander is-open" id="groupPanelControlsExpander" aria-expanded="true" hidden><span id="groupPanelControlsLabel">Preview</span><span class="icon">&#8628;</span></button>
 			<button type="button" class="page-help-button" id="pageHelpOpen" title="Page help"
 				aria-label="Page help">
 				<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"
@@ -165,7 +166,11 @@
 
 		<!-- Button Bar Configuration -->
 
-		<div id="panelConfig" class="tabcontent">
+		<div id="panelConfig" class="tabcontent" aria-busy="true">
+			<div id="panelConfigLoading" class="settings-loading" role="status" aria-live="polite">
+				<span class="settings-loading-spinner" aria-hidden="true"></span>
+				<span class="settings-loading-text" data-i18n="settings.loadingContent">Loading configuration and devices...</span>
+			</div>
 			<div class="homey-form-group settings-top-form-group">
 				<div class="bordered-box">
 					<div class="button-config-backing-editor" aria-hidden="true">
@@ -209,7 +214,11 @@
 
 		<!-- Display Configuration -->
 
-		<div id="displayConfig" class="tabcontent">
+		<div id="displayConfig" class="tabcontent" aria-busy="true">
+			<div id="displayConfigLoading" class="settings-loading" role="status" aria-live="polite">
+				<span class="settings-loading-spinner" aria-hidden="true"></span>
+				<span class="settings-loading-text" data-i18n="settings.loadingContent">Loading configuration and devices...</span>
+			</div>
 			<div class="homey-form-group settings-top-form-group">
 				<div>
 					<div class="bordered-box">
@@ -336,13 +345,12 @@
 		</div>
 
 		<!-- Group Configuration -->
-		<div id="groupConfig" class="tabcontent">
+		<div id="groupConfig" class="tabcontent" aria-busy="true">
+			<div id="groupConfigLoading" class="settings-loading" role="status" aria-live="polite">
+				<span class="settings-loading-spinner" aria-hidden="true"></span>
+				<span class="settings-loading-text" data-i18n="settings.loadingContent">Loading configuration and devices...</span>
+			</div>
 			<div class="homey-form-group settings-top-form-group">
-				<div class="settings-main-note">
-					<strong data-i18n="settings.groupExplanationTitle">Panel Groups:</strong>
-					<span data-i18n="settings.groupExplanation">A Panel Group represents a complete physical Button+
-						panel.</span>
-				</div>
 				<div class="group-selector-sticky">
 					<label class="homey-form-label no-margin-top" for="groupSelect"><span
 							data-i18n="settings.selectGroup">Select Group</span></label>
@@ -361,7 +369,7 @@
 							placeholder="Group Name (e.g. Living Room Panel)">
 					</div>
 
-					<div class="group-action-buttons">
+					<div class="group-action-buttons group-sim-persistent-controls">
 						<div class="group-action-left">
 							<button class="homey-button-secondary-shadow group-action-btn" id="addGroupBtn"
 								type="button" title="New Group" aria-label="New Group"><i class="fi fi-rr-plus"
@@ -373,9 +381,6 @@
 								type="button" title="Duplicate Group" aria-label="Duplicate Group"><i
 									class="fi fi-rr-copy" aria-hidden="true"></i></button>
 						</div>
-					</div>
-					<div class="group-sim-persistent-controls">
-						<button type="button" class="homey-button-secondary-shadow button-panel-controls-expander is-open" id="groupPanelControlsExpander" aria-expanded="true"><span id="groupPanelControlsLabel">Preview</span><span class="icon">&#8628;</span></button>
 						<div class="display-sim-title-group group-sim-nav-group">
 							<span id="groupSimPageTitle" class="display-sim-title button-shared-page-title">Page 1 of 1</span>
 							<button class="homey-button-secondary-shadow display-sim-page-nav" id="groupSimPrevPage" type="button" onclick="stepGroupSimPage(-1); return false;" title="Previous page" aria-label="Previous page">&lt;</button>
@@ -399,7 +404,11 @@
 
 		<!-- Broker Configuration -->
 
-		<div id="brokerConfig" class="tabcontent">
+		<div id="brokerConfig" class="tabcontent" aria-busy="true">
+			<div id="brokerConfigLoading" class="settings-loading" role="status" aria-live="polite">
+				<span class="settings-loading-spinner" aria-hidden="true"></span>
+				<span class="settings-loading-text" data-i18n="settings.loadingContent">Loading configuration and devices...</span>
+			</div>
 			<div class="homey-form-group settings-top-form-group">
 				<div class="bordered-box">
 					<div class="bordered-box">
@@ -653,7 +662,7 @@
 	<!-- Code to handle page life -->
 
 	<script type="text/javascript" src="simulation.js?v=20261002a"></script>
-	<script type="text/javascript" src="settings.js?v=20261022a"></script>
+	<script type="text/javascript" src="settings.js?v=20261025b"></script>
 </body>
 
 </html>
