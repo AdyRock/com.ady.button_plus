@@ -3917,7 +3917,8 @@ class PanelDevice extends Device
 		const numericAction = sideConfig[`${side}${eventName}NumericAction`] || 'change';
 		const rawStep = sideConfig[`${side}${eventName}ValueStep`] || '+10';
 		const directionOnly = (numericAction === 'toggleDirection') && !capabilityName;
-		const flowTriggerOnly = (eventType === 'double') && deviceID === 'none' && !capabilityName;
+		// Flow-only selections can retain a target device but have no action capability.
+		const flowTriggerOnly = (eventType === 'double') && !capabilityName && !directionOnly;
 
 		if (!directionOnly && !flowTriggerOnly && (!deviceID || deviceID === 'none' || !capabilityName))
 		{
@@ -4219,6 +4220,10 @@ class PanelDevice extends Device
 			const clickState = this.clickEventStates.get(key);
 			if (clickState)
 			{
+				if (clickState.longPressActive)
+				{
+					clickState.clickCount = 0;
+				}
 				clickState.longPressActive = false;
 				if (!this.isWaitingForClickResolution(key) && (clickState.clickCount === 0))
 				{
@@ -5015,6 +5020,11 @@ class PanelDevice extends Device
 		}
 
 		this.homey.app.updateLog(`ADVDBG map ${eventType}: ${parameters.connector}/${parameters.side}/${parameters.page} -> ${binding.deviceID}/${binding.capabilityName}, action=${binding.numericAction}, step=${binding.valueStep}`, 1);
+		if (binding.flowTriggerOnly)
+		{
+			return true;
+		}
+
 		if (binding.directionOnly)
 		{
 			this.toggleAdvancedDirection(parameters);
@@ -5032,11 +5042,6 @@ class PanelDevice extends Device
 
 		const shouldBufferUntilRelease = eventType === 'long';
 		let hasLocalPreview = false;
-
-		if (binding.flowTriggerOnly)
-		{
-			return true;
-		}
 
 		if (binding.deviceID === '_variable_' || binding.deviceID === 'customMQTT')
 		{
@@ -6178,7 +6183,7 @@ class PanelDevice extends Device
 			}
 		}
 		this.homey.app.triggerButtonLongPress(this, parameters.side === 'left', parameters.connector + 1, repeatCount, parameters.page);
-		this.homey.app.triggerButtonEvent(this, parameters.side, parameters.connector, 'long', parameters.value, parameters.value.toString(), 0);
+		this.homey.app.triggerButtonEvent(this, parameters.side, parameters.connector, 'long', parameters.value, parameters.value.toString(), repeatCount);
 
 		if (!hasAdvancedLongMapping)
 		{

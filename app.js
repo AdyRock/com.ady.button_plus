@@ -3770,7 +3770,7 @@ class MyApp extends Homey.App
 	}
 
 	/**
-	 * Fire 'button_on' trigger for Homey flows when button is pressed (down state).
+	 * Fire 'button_on' trigger for Homey flows when the logical button state turns on.
 	 * Provides connector, page, and left/right side tokens.
 	 * Also triggers button_change event for additional flow customization.
 	 */
@@ -3784,7 +3784,7 @@ class MyApp extends Homey.App
 	}
 
 	/**
-	 * Fire 'button_off' trigger for Homey flows when button is released (up state).
+	 * Fire 'button_off' trigger for Homey flows when the logical button state turns off.
 	 * Provides connector, page, and left/right side tokens.
 	 * Also triggers button_change event for additional flow customization.
 	 */
@@ -3832,9 +3832,9 @@ class MyApp extends Homey.App
 			state: trigger_state,
 		};
 		this.triggerFlow(this._triggerConfigButtonChanged, device, tokens, state);
-		state.config = parseInt(configID, 10);
-		this.triggerFlow(this._triggerConfigButtonNameChanged, device, tokens, state);
-		this._triggerAppConfigButtonNameChanged.trigger(tokens, { ...state, deviceId: device.getData().id }).catch(error =>
+		const namedState = { ...state, config: parseInt(configID, 10) };
+		this.triggerFlow(this._triggerConfigButtonNameChanged, device, tokens, namedState);
+		this._triggerAppConfigButtonNameChanged.trigger(tokens, { ...namedState, deviceId: device.getData().id }).catch(error =>
 		{
 			this.updateLog(`triggerFlow (config_name_button_change_app) Error: ${error.message}`, 0);
 		});

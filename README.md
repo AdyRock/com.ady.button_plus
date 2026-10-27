@@ -52,6 +52,18 @@ Signed step values such as `+1` and `-1` keep their configured direction, includ
 
 The wizard preserves your LED colours, including black (`#000000`) to keep LEDs dark. The thermostat preset follows the device's `onoff` capability when available, rather than using the temperature as LED brightness. You can select a different LED source in the LED settings. Set both On and Off colours to black for each LED you want disabled. Removing an LED source clears its previous state when the configuration is applied.
 
+### Button event Flow triggers
+
+Homey's **Advanced Flow** editor is separate from the button's **STD / ADV** setting. STD keeps single-click actions immediate and does not detect double-clicks. Use button ADV mode for separate Clicked, Double Clicked and Long Pressed handling, in either standard or Advanced Homey Flows. A double-click action can be **Flow trigger** only; a selected target device with no action capability must not prevent the Flow event.
+
+- **Pressed** fires immediately at the start of a physical gesture, before the app knows whether it will become a single click, double-click or long press. In ADV mode it fires once per gesture, not again for the second click within the double-click window. Use it for immediate feedback or starting an action; it is not an exclusive single-click trigger.
+- **Clicked** in ADV mode fires only for a short single press, after the 350 ms double-click window following release. A double-click or long press cancels the pending single-click action and Clicked trigger.
+- **Double Clicked** fires when a second press arrives within 350 ms of the first release. It suppresses the pending Clicked and Released events on the configuration/connector event cards.
+- **Long Pressed** fires when the panel reports a hold, with repeat events according to the repeat settings. The repeat-count token starts at `0`.
+- **Released** fires after letting go, subject to the release-event setting. On configuration/connector event cards it can wait for click resolution and is suppressed for a recognized double-click. The older dedicated release card reports physical releases independently.
+
+Pressed and Released can therefore both occur during a single click or long press, but at different times: button-down versus button-up. The On/Off button-state triggers describe the logical button state, not the physical press/release edges. Choose **Clicked**, rather than Pressed, when a Flow must run only for a single short click.
+
 ### Synchronizing button state from Flows
 
 Use **Turn button on** and **Turn button off** to reflect an external state, such as the selected TV source. These actions update the button's stored state, On/Off text or SVG, and LED colours without simulating a press, controlling its assigned device, or firing button On/Off or Clicked Flow triggers. Physical presses and Homey device controls still run their normal actions and triggers.

@@ -227,6 +227,75 @@ async function run()
 		assert.strictEqual(await card.run({ ...args, state: 'clicked' }, card.fired[1]), false, `${id} Pressed is distinct from Clicked`);
 	}
 	assert.strictEqual(await getCard('deviceTriggers', 'button_event').run({ left_right: 'left', connector: 0, state: 'pressed' }, getCard('deviceTriggers', 'button_event').fired[2]), true);
+	for (const side of ['left', 'right'])
+	{
+		for (const connectorNo of [0, 1, 7])
+		{
+			for (const page of [0, 1, 2])
+			{
+				for (const event of ['pressed', 'clicked', 'double', 'long', 'released'])
+				{
+					for (const connectorType of [1, 2, 3])
+					{
+						const configNo = connectorNo === 0 ? 0 : 1;
+						const displayButton = connectorType === 1 ? 'button' : 'display';
+						const context = `${side}/${connectorNo}/${page}/${event}/${displayButton}`;
+						app.triggerButtonEvent(panels[0], side, connectorNo, event, false, 'false', 2);
+						app.triggerConfigButton(panels[0], side, connectorType, configNo, event, false, 'false', page, 2);
+						await Promise.all(pending);
+						pending.length = 0;
+						for (const [type, id] of [
+							['deviceTriggers', 'button_event'],
+							['deviceTriggers', 'connector_button_event'],
+							['triggers', 'connector_button_event_app'],
+							['deviceTriggers', 'config_button_change'],
+							['deviceTriggers', 'config_name_button_change'],
+							['triggers', 'config_name_button_change_app'],
+						])
+						{
+							const card = getCard(type, id);
+							const configCard = id.startsWith('config_');
+							const legacyConfig = id === 'config_button_change';
+							const args = {
+								device: { id: 'a' },
+								left_right: side,
+								state: event,
+								connector: id === 'button_event' ? connectorNo : { id: connectorNo },
+								config: legacyConfig ? configNo + 1 : { id: configNo },
+								display_button: displayButton,
+								page: { id: page },
+							};
+							const state = card.fired[type === 'deviceTriggers' ? 2 : 1];
+							const tokens = card.fired[type === 'deviceTriggers' ? 1 : 0];
+							assert.strictEqual(await card.run(args, state), true, `${id}/${context}: matches`);
+							assert.strictEqual(tokens.value, 'false', `${id}/${context}: value`);
+							assert.strictEqual(tokens.repeatCount, 2, `${id}/${context}: repeatCount`);
+							assert.strictEqual(await card.run({ ...args, left_right: side === 'left' ? 'right' : 'left' }, state), false, `${id}/${context}: side filter`);
+							assert.strictEqual(await card.run({ ...args, state: 'other' }, state), false, `${id}/${context}: event filter`);
+							if (configCard)
+							{
+								assert.strictEqual(tokens.page, page, `${id}/${context}: page token`);
+								assert.strictEqual(await card.run({ ...args, config: legacyConfig ? configNo + 2 : { id: configNo + 1 } }, state), false, `${id}/${context}: configuration filter`);
+								assert.strictEqual(await card.run({ ...args, page: { id: page + 1 } }, state), false, `${id}/${context}: page filter`);
+								assert.strictEqual(await card.run({ ...args, page: { id: -1 } }, state), true, `${id}/${context}: all pages`);
+								assert.strictEqual(await card.run({ ...args, page }, state), true, `${id}/${context}: numeric page`);
+								assert.strictEqual(await card.run({ ...args, display_button: displayButton === 'button' ? 'display' : 'button' }, state), false, `${id}/${context}: connector type filter`);
+							}
+							else
+							{
+								assert.strictEqual(await card.run({ ...args, connector: id === 'button_event' ? connectorNo + 1 : { id: connectorNo + 1 } }, state), false, `${id}/${context}: connector filter`);
+							}
+							if (type === 'triggers')
+							{
+								assert.strictEqual(await card.run({ ...args, device: { id: 'b' } }, state), false, `${id}/${context}: device filter`);
+								assert.strictEqual(await card.run({ ...args, device: { id: '*' } }, state), true, `${id}/${context}: any device`);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
 	console.log(`PASS: ${count} app cards, all action routes, condition results, trigger filtering/tokens, configuration names, autocomplete dependencies, translations, and deprecated exclusions`);
 }
 
