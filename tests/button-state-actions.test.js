@@ -54,7 +54,7 @@ function createPanel(mode = 'basic', configured = true)
 	panel.buttonValues = new Map();
 	panel.homey = { app: {
 		buttonConfigurations: configured ? [pages] : [],
-		publishMQTTMessage: async (broker, topic, value) => messages.push({ broker, topic, value }),
+		publishMQTTMessage: async (broker, topic, value, ignoreSame = true, retain = true) => messages.push({ broker, topic, value, retain }),
 		updateLog: () => {},
 		triggerButtonOn: () => events.push('on'),
 		triggerButtonOff: () => events.push('off'),
@@ -90,6 +90,7 @@ function checkFeedback(messages, side, connector, page, state, svg = '')
 	assert(messages.some(message => message.topic === `${prefix}/label/set` && message.value === (svg ? '' : `${state ? 'On' : 'Off'} ${page}`)), `${side}/${page}: label`);
 	assert(messages.some(message => message.topic === `${prefix}/svg/set` && message.value === svg), `${side}/${page}: SVG`);
 	assert(messages.every(message => message.broker === 'homey'), 'Use the configured broker');
+	assert(messages.every(message => message.retain === true), 'All feedback, including LED colours, is retained so a reconnecting panel shows the current state');
 }
 
 async function run()

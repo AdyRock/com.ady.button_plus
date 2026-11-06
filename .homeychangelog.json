@@ -1964,5 +1964,20 @@
 		"pl": "Naprawiono problemy, przez które podwójne kliknięcia uruchamiające wyłącznie Flow mogły być ignorowane, gdy urządzenie docelowe pozostawało wybrane bez funkcji działania. Długie naciśnięcia mogły pozostawiać nieaktualny stan, blokując obsługę kolejnych pojedynczych i podwójnych kliknięć. Zdarzenia długiego naciśnięcia złączy zawsze zgłaszały liczbę powtórzeń równą 0. Przestarzały wyzwalacz konfiguracji współdzielił modyfikowalny obiekt stanu z nowszym wyzwalaczem, co mogło zakłócać dopasowywanie konfiguracji.",
 		"ko": "동작 기능 없이 대상 장치가 선택된 상태로 남아 있을 때 Flow만 실행하는 더블 클릭이 무시될 수 있는 문제를 수정했습니다. 길게 누른 후 오래된 상태가 남아 이후의 싱글 클릭 및 더블 클릭 처리를 차단할 수 있었습니다. 커넥터의 길게 누르기 이벤트는 항상 반복 횟수를 0으로 보고했습니다. 더 이상 사용되지 않는 구성 트리거가 새 트리거와 변경 가능한 상태 객체를 공유하여 구성 일치 여부 확인에 문제가 발생할 수 있었습니다.",
 		"ar": "تم إصلاح مشكلات كان من الممكن أن تتسبب في تجاهل النقرات المزدوجة التي تشغّل Flows فقط عندما يظل جهاز مستهدف محددًا دون إمكانية تنفيذ إجراء. كان الضغط المطوّل قد يترك حالة قديمة تمنع معالجة النقرات المفردة والمزدوجة اللاحقة. كانت أحداث الضغط المطوّل للموصلات تُبلغ دائمًا عن عدد تكرارات يساوي 0. كان مشغّل التكوين المتقادم يشارك كائن حالة قابلًا للتعديل مع المشغّل الأحدث، مما قد يؤدي إلى خلل في مطابقة التكوينات."
+	},
+	"1.0.18": {
+		"en": "Fixed button LEDs showing an outdated colour after the panel reconnects.",
+		"nl": "Zorgt ervoor dat berichten voor ledkleuren worden bewaard, zodat panelen na het opnieuw verbinden de juiste kleuren tonen",
+		"de": "Stellt sicher, dass Nachrichten für LED-Farben gespeichert bleiben, damit Panels nach dem erneuten Verbinden die richtigen Farben anzeigen",
+		"fr": "Garantit la conservation des messages de couleur des LED afin que les panneaux affichent les bonnes couleurs après une reconnexion",
+		"it": "Garantisce che i messaggi dei colori dei LED vengano conservati, così i pannelli mostrano i colori corretti dopo la riconnessione",
+		"sv": "Säkerställer att meddelanden för LED-färger sparas så att paneler visar rätt färger efter återanslutning",
+		"no": "Sikrer at meldinger for LED-farger lagres, slik at paneler viser riktige farger etter ny tilkobling",
+		"es": "Garantiza que los mensajes de color de los LED se conserven para que los paneles muestren los colores correctos al volver a conectarse",
+		"da": "Sikrer, at beskeder om LED-farver gemmes, så paneler viser de rigtige farver efter genforbindelse",
+		"ru": "Сообщения о цветах светодиодов теперь сохраняются, чтобы панели показывали правильные цвета после повторного подключения",
+		"pl": "Komunikaty z kolorami diod LED są teraz zachowywane, dzięki czemu panele po ponownym połączeniu wyświetlają prawidłowe kolory",
+		"ko": "LED 색상 메시지가 유지되도록 하여 패널이 다시 연결된 후에도 올바른 색상을 표시합니다",
+		"ar": "يضمن الاحتفاظ برسائل ألوان مصابيح LED بحيث تعرض اللوحات الألوان الصحيحة بعد إعادة الاتصال"
 	}
 }

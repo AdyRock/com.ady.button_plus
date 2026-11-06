@@ -8113,9 +8113,11 @@ class PanelDevice extends Device
 			}
 		}
 
+		// Retain every message (including LED colours) so a panel that reconnects to the broker
+		// gets this state rather than an older retained LED colour that no longer matches the label.
 		for (const message of mqttQueue)
 		{
-			await this.homey.app.publishMQTTMessage(message.brokerId, message.message, message.value, false, message.retain !== false);
+			await this.homey.app.publishMQTTMessage(message.brokerId, message.message, message.value, false);
 		}
 	}
 
