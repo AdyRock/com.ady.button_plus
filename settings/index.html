@@ -7,7 +7,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 	<!-- The '/homey.js' script must be included in your settings view to work -->
 	<script type="text/javascript" src="/homey.js" data-origin="settings"></script>
-	<link rel="stylesheet" type="text/css" href="extraStyles.css?v=20261025c">
+	<link rel="stylesheet" type="text/css" href="extraStyles.css?v=20261127h">
 	<link rel="stylesheet" type="text/css" href="guidedTour.css?v=20261025a">
 	<link rel='stylesheet' href='https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css'>
 </head>
@@ -50,22 +50,24 @@
 				<img class="view-tab-icon" src="icons/importExport.svg" alt="" />
 			</button>
 		</div>
-		<div class="page-help-row">
-			<button type="button" class="homey-button-secondary-shadow button-panel-controls-expander is-open" id="groupPanelControlsExpander" aria-expanded="true" hidden><span id="groupPanelControlsLabel">Preview</span><span class="icon">&#8628;</span></button>
-			<button type="button" class="homey-button-secondary-shadow" id="pageTourOpen" data-i18n="settings.tour.start">Show me how</button>
-			<button type="button" class="page-help-button" id="pageHelpOpen" title="Page help"
-				aria-label="Page help">
-				<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"
-					stroke-linecap="round" stroke-linejoin="round">
-					<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H6.5A2.5 2.5 0 0 0 4 22z" />
-					<path d="M4 5.5v14A2.5 2.5 0 0 1 6.5 17H20" />
-					<path d="M8 7h8M8 10h8M8 13h5" />
-				</svg>
-			</button>
+		<div class="view-frame-header">
+			<div class="page-help-row">
+				<button type="button" class="homey-button-secondary-shadow button-panel-controls-expander is-open" id="groupPanelControlsExpander" aria-expanded="true" hidden><span id="groupPanelControlsLabel">Preview</span><span class="icon">&#8628;</span></button>
+				<button type="button" class="homey-button-secondary-shadow" id="pageTourOpen" data-i18n="settings.tour.start">Show me how</button>
+				<button type="button" class="page-help-button" id="pageHelpOpen" title="Page help"
+					aria-label="Page help">
+					<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"
+						stroke-linecap="round" stroke-linejoin="round">
+						<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v17H6.5A2.5 2.5 0 0 0 4 22z" />
+						<path d="M4 5.5v14A2.5 2.5 0 0 1 6.5 17H20" />
+						<path d="M8 7h8M8 10h8M8 13h5" />
+					</svg>
+				</button>
+			</div>
+			<button type="button" class="homey-button-secondary-shadow group-edit-back-button" id="groupEditBackButton"
+				title="Back to Group Configuration" aria-label="Back to Group Configuration" hidden><i
+					class="fi fi-rr-arrow-left" aria-hidden="true"></i></button>
 		</div>
-		<button type="button" class="homey-button-secondary-shadow group-edit-back-button" id="groupEditBackButton"
-			title="Back to Group Configuration" aria-label="Back to Group Configuration" hidden><i
-				class="fi fi-rr-arrow-left" aria-hidden="true"></i></button>
 		<select class="homey-form-select" id="configType" title="Select the view to display" aria-hidden="true"
 			tabindex="-1">
 			<option value="settings" data-i18n="settings.Settings"></option>
@@ -189,6 +191,10 @@
 							<button class="homey-button-secondary-shadow panel-config-toggle-btn"
 								id="toggleConfigNameVisibility" type="button" title="Hide configuration name"
 								aria-label="Hide configuration name"><span class="icon">&#8628;</span></button>
+							<button class="homey-button-secondary-shadow panel-config-toggle-btn"
+								id="deleteButtonConfiguration" type="button" title="Delete button configuration"
+								aria-label="Delete button configuration"
+								onclick="deleteDisplayedButtonConfiguration(Number(document.getElementById('ButtonPanelConfigurationNo').value)); return false;"><i class="fi fi-rr-trash" aria-hidden="true"></i></button>
 						</div>
 
 						<div id="configNameRow">
@@ -429,34 +435,33 @@
 				</div>
 			</div>
 		</div>
-	</div>
+		<!-- Import / Export page -->
 
-	<!-- Import / Export page -->
-
-	<div id="importExport" class="tabcontent">
-		<div class="homey-form-group settings-top-form-group">
-			<div class="bordered-box">
-				<div class="field row">
-					<label class="homey-form-label" for="copyText" title="Import/Export data"><span
-							data-i18n="settings.importExport"></span>
-						<div class="tooltip"><i class="fi fi-rr-info"></i>
-							<span class="tooltiptext" data-i18n="settings.importExportExplanation"></span>
+			<div id="importExport" class="tabcontent">
+				<div class="homey-form-group settings-top-form-group">
+					<div class="bordered-box">
+						<div class="field row">
+							<label class="homey-form-label" for="copyText" title="Import/Export data"><span
+									data-i18n="settings.importExport"></span>
+								<div class="tooltip"><i class="fi fi-rr-info"></i>
+									<span class="tooltiptext" data-i18n="settings.importExportExplanation"></span>
+								</div>
+							</label>
+							<textarea id="copyText" class="homey-form-textarea" placeholder="Configuration data"
+								title="Paste or view configuration data"></textarea>
+							<p></p>
 						</div>
-					</label>
-					<textarea id="copyText" class="homey-form-textarea" placeholder="Configuration data"
-						title="Paste or view configuration data"></textarea>
-					<p></p>
-				</div>
-				<div class="field row">
-					<button class="homey-button-secondary-shadow" id="import" title="Import configuration"><span
-							data-i18n="settings.import"></span></button>
-					<button class="homey-button-secondary-shadow" id="export" title="Export configuration"><span
-							data-i18n="settings.export"></span></button>
-					<button class="homey-button-secondary-shadow" id="sendExport" title="Send export"><span
-							data-i18n="settings.sendExport"></span></button>
+						<div class="field row">
+							<button class="homey-button-secondary-shadow" id="import" title="Import configuration"><span
+									data-i18n="settings.import"></span></button>
+							<button class="homey-button-secondary-shadow" id="export" title="Export configuration"><span
+									data-i18n="settings.export"></span></button>
+							<button class="homey-button-secondary-shadow" id="sendExport" title="Send export"><span
+									data-i18n="settings.sendExport"></span></button>
+						</div>
 				</div>
 			</div>
-		</div>
+			</div>
 	</div>
 
 	<!-- Save Configuration button -->

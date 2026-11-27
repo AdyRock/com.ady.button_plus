@@ -1550,6 +1550,80 @@ function checkWizardPreservesLedColours()
 	assert.strictEqual(page.leftLedCapability, '', 'A thermostat without onoff does not use its temperature as LED brightness');
 }
 
+function checkDeleteButtonConfiguration()
+{
+	const settingsSource = fs.readFileSync(path.join(__dirname, '..', 'settings', 'settings.js'), 'utf8');
+	const start = settingsSource.indexOf('\nfunction deleteDisplayedButtonConfiguration(');
+	const end = settingsSource.indexOf('\nfunction addButtonPage()', start);
+	assert(start >= 0 && end > start, 'Delete button configuration function exists');
+	const resetStart = settingsSource.indexOf('\nfunction resetButtonPageSide(');
+	const resetEnd = settingsSource.indexOf('\nconst BUTTON_WIZARD_ICON_SVG', resetStart);
+	const defaultsStart = settingsSource.indexOf('\nfunction ensureButtonSideAdvancedDefaults(');
+	const defaultsEnd = settingsSource.indexOf('\nfunction isConcreteButtonSourceDevice(', defaultsStart);
+	const ensureButtonSideAdvancedDefaults = vm.runInNewContext(`(${settingsSource.slice(defaultsStart, defaultsEnd).trim()})`);
+	const resetButtonPageSide = vm.runInNewContext(`(${settingsSource.slice(resetStart, resetEnd).trim()})`, { ensureButtonSideAdvancedDefaults });
+
+	const configurations = [
+		[{ name: 'One', PageNum: 0, leftDevice: 'lamp', leftCapability: 'onoff', rightMode: 'advanced', rightClickDevice: 'switch', rightClickCapability: 'onoff', leftCustomMQTTTopics: [{ topic: 'old' }] }, { PageNum: 1, leftDevice: 'lamp' }],
+		[{ name: 'Two', PageNum: 0 }],
+		[{ name: 'Three', PageNum: 0 }],
+	];
+	const groups = [{ connectorConfigNos: [0, 1, 2] }];
+	const secondConfiguration = configurations[1];
+	const thirdConfiguration = configurations[2];
+	const selector = { value: '0' };
+	let editorName = 'One';
+	let flushed = 0;
+	let groupRenderCalls = 0;
+	const deleteConfiguration = vm.runInNewContext(`(${settingsSource.slice(start, end).trim()})`, {
+		MAX_BUTTON_CONFIGURATIONS: 40,
+		localButtonConfigurations: configurations,
+		localGroupConfigurations: groups,
+		resetButtonPageSide,
+		currentButtonConfigurationNo: 0,
+		buttonConfigurationNoElement: selector,
+		Homey: {
+			__: (key) => key === 'settings.buttonConfig' ? 'Button configuration' : key,
+			confirm: (_message, _title, callback) => callback(null, true),
+		},
+		fillConfigListElement: () => { selector.value = '0'; },
+		configDraftDirtySinceLoad: false,
+		flushConfigurationDraftPersist: () =>
+		{
+			configurations[Number(selector.value)][0].name = editorName;
+			flushed++;
+		},
+		writeButtonsections: () => {},
+		getDisplayedButtonPageCount: () => 1,
+		updateButtonPanelControls: () =>
+		{
+			editorName = configurations[Number(selector.value)][0].name;
+		},
+		updateGroupListDropdown: () => {},
+		renderGroupSimulator: () => { groupRenderCalls++; },
+		updateButtonMainDiagnostics: () => {},
+	});
+
+	deleteConfiguration(0);
+	assert.strictEqual(configurations.length, 3, 'A blank slot replaces the deleted configuration');
+	assert.strictEqual(configurations[0].length, 1, 'Deleting removes all configured pages and leaves one blank page');
+	assert.strictEqual(configurations[0][0].name, '', 'Saving the draft must not restore the deleted name from stale editor controls');
+	assert.strictEqual(configurations[0][0].leftDevice, 'none', 'The legacy action is cleared');
+	assert.strictEqual(configurations[0][0].rightClickDevice, 'none', 'The advanced action is cleared');
+	assert.strictEqual(configurations[0][0].leftCustomMQTTTopics, undefined, 'Old custom MQTT actions are removed');
+	assert.strictEqual(configurations[1], secondConfiguration, 'The second configuration keeps its original slot and content');
+	assert.strictEqual(configurations[2], thirdConfiguration, 'The third configuration keeps its original slot and content');
+	assert.deepStrictEqual(groups[0].connectorConfigNos, [0, 1, 2], 'Group assignments retain their configuration numbers');
+	assert.strictEqual(flushed, 1, 'Deleting a configuration marks and flushes the draft');
+	assert.strictEqual(groupRenderCalls, 1, 'Deleting a configuration refreshes group previews');
+
+	deleteConfiguration(1);
+	assert.strictEqual(selector.value, '1', 'Rebuilding the selector must retain the replacement configuration selection');
+	assert.strictEqual(configurations[0][0].name, '', 'Deleting another configuration preserves the first cleared slot');
+	assert.strictEqual(configurations[1][0].name, '', 'Deleting a later slot does not copy stale editor values into the blank replacement');
+	assert.strictEqual(configurations[2], thirdConfiguration, 'Deleting a later slot does not shift subsequent configurations');
+}
+
 async function run()
 {
 	await checkAdvancedLedSources();
@@ -1637,6 +1711,7 @@ async function run()
 	checkPopupSavesCommit();
 	checkPopupTooltipsStayReachable();
 	checkAdvancedMappingHelpTooltips();
+	checkDeleteButtonConfiguration();
 	process.stdout.write('Button configuration and popup transaction tests passed\n');
 }
 

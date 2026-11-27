@@ -1979,8 +1979,7 @@ function adjustMainTopOffset()
 	}
 
 	const offset = Math.ceil(fixedTopElement.getBoundingClientRect().bottom);
-	const contentTopOverlap = 16;
-	mainElement.style.marginTop = `${Math.max(0, offset - contentTopOverlap)}px`;
+	mainElement.style.marginTop = `${Math.max(0, offset)}px`;
 	document.documentElement.style.setProperty('--settings-fixed-top-offset', `${offset}px`);
 }
 
@@ -4986,6 +4985,21 @@ function clearDisplayedButton(event, configNo, side, page)
 	}
 
 	const pageConfig = config[page];
+	resetButtonPageSide(pageConfig, side);
+
+	writeButtonsections(getDisplayedButtonPageCount());
+	updateButtonPanelControls();
+	if (buttonPagePopupOverlayElement && buttonPagePopupOverlayElement.classList.contains('visible'))
+	{
+		renderButtonPagePopup();
+	}
+	configDraftDirtySinceLoad = true;
+	flushConfigurationDraftPersist();
+	return false;
+}
+
+function resetButtonPageSide(pageConfig, side)
+{
 	Object.keys(pageConfig).filter(key => key.startsWith(side)).forEach(key =>
 	{
 		delete pageConfig[key];
@@ -5015,16 +5029,6 @@ function clearDisplayedButton(event, configNo, side, page)
 		pageConfig[`${side}${field}`] = value;
 	});
 	ensureButtonSideAdvancedDefaults(pageConfig, side);
-
-	writeButtonsections(getDisplayedButtonPageCount());
-	updateButtonPanelControls();
-	if (buttonPagePopupOverlayElement && buttonPagePopupOverlayElement.classList.contains('visible'))
-	{
-		renderButtonPagePopup();
-	}
-	configDraftDirtySinceLoad = true;
-	flushConfigurationDraftPersist();
-	return false;
 }
 
 const BUTTON_WIZARD_ICON_SVG = '<svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21l11-11"/><path d="M11 10l3 3"/><path d="M18 2v4M16 4h4"/><path d="M21 8.5v3M19.5 10h3"/><path d="M19.5 15.5v2M18.5 16.5h2"/><path d="M22 20.25v1.5M21.25 21h1.5"/></svg>';
@@ -14378,6 +14382,54 @@ function deleteDisplayedButtonPage(configNo, page)
 	});
 }
 
+function deleteDisplayedButtonConfiguration(configNo)
+{
+	configNo = Number(configNo);
+	if (!Array.isArray(localButtonConfigurations) || configNo < 0 || configNo >= localButtonConfigurations.length)
+	{
+		return;
+	}
+
+	const configName = Array.isArray(localButtonConfigurations[configNo])
+		&& localButtonConfigurations[configNo][0]
+		&& localButtonConfigurations[configNo][0].name
+		? localButtonConfigurations[configNo][0].name
+		: `${Homey.__('settings.buttonConfig')} ${configNo + 1}`;
+
+	Homey.confirm(Homey.__('settings.deleteButtonConfigurationConfirm', { configName }), null, (err, ok) =>
+	{
+		if (err || !ok)
+		{
+			return;
+		}
+
+		const activeConfig = localButtonConfigurations[currentButtonConfigurationNo];
+		if (Number(currentButtonConfigurationNo) !== configNo && Array.isArray(activeConfig) && typeof configDraftStoreButtonSettingsFn === 'function')
+		{
+			configDraftStoreButtonSettingsFn(activeConfig);
+		}
+
+		const blankPage = { PageNum: 0, name: '', buttonConfigVersion: 2 };
+		resetButtonPageSide(blankPage, 'left');
+		resetButtonPageSide(blankPage, 'right');
+		localButtonConfigurations[configNo] = [blankPage];
+
+		currentButtonConfigurationNo = Math.min(configNo, localButtonConfigurations.length - 1);
+		fillConfigListElement(buttonConfigurationNoElement, Homey.__('settings.buttonConfig'), localButtonConfigurations, MAX_BUTTON_CONFIGURATIONS);
+		if (buttonConfigurationNoElement)
+		{
+			buttonConfigurationNoElement.value = `${currentButtonConfigurationNo}`;
+		}
+		writeButtonsections(getDisplayedButtonPageCount());
+		updateButtonPanelControls();
+		updateGroupListDropdown();
+		renderGroupSimulator();
+		configDraftDirtySinceLoad = true;
+		flushConfigurationDraftPersist();
+		updateButtonMainDiagnostics('deleteDisplayedButtonConfiguration', { configNo });
+	});
+}
+
 function addButtonPage()
 {
 	try
@@ -14483,6 +14535,7 @@ window.renameDisplayedButtonConfiguration = renameDisplayedButtonConfiguration;
 window.updateDisplayedButtonSetting = updateDisplayedButtonSetting;
 window.addDisplayedButtonPage = addDisplayedButtonPage;
 window.deleteDisplayedButtonPage = deleteDisplayedButtonPage;
+window.deleteDisplayedButtonConfiguration = deleteDisplayedButtonConfiguration;
 window.toggleButtonPanelControls = toggleButtonPanelControls;
 
 function bindButtonPageHeaderActions()
@@ -14911,6 +14964,7 @@ function getDisplayedButtonCardsHtml(page)
 								${getDisplayedButtonInlineMainControlHtml('right', page, configNo, slot)}
 							</div>
 						</details>
+						<button class="homey-button-secondary-shadow panel-config-toggle-btn button-card-delete-configuration" type="button" onclick="deleteDisplayedButtonConfiguration(${configNo}); return false;" title="${Homey.__('settings.deleteButtonConfiguration')}" aria-label="${Homey.__('settings.deleteButtonConfiguration')}"><i class="fi fi-rr-trash" aria-hidden="true"></i></button>
 						${page > 0 ? `<div class="button-card-page-action"><span>${Homey.__('settings.page')}</span><button class="homey-button-secondary-shadow button-card-delete-page" type="button" onclick="deleteDisplayedButtonPage(${configNo}, ${page}); return false;" title="${Homey.__('settings.deletePage')}" aria-label="${Homey.__('settings.deletePage')}"><i class="fi fi-rr-trash" aria-hidden="true"></i></button></div>` : ''}
 					</div>`
 			: `<div class="button-config-page-empty">

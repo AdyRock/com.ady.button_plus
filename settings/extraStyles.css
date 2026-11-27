@@ -104,16 +104,20 @@
 	display: inherit;
 }
 
+html body {
+	margin: 0 14px !important;
+	padding: 0 !important;
+}
+
 .fixedTop {
 	position: fixed;
 	top: 0;
-	left: 0px;
-	width: 94%;
+	left: 14px;
+	right: 14px;
 	z-index: 200;
 	/* set z-index to 200 to position on top */
 	background-color: white;
 	/* set background color to white */
-	margin-left: 14px;
 	padding-top: 5px;
 }
 
@@ -141,9 +145,15 @@ label[for="configType"] {
 	display: flex;
 	flex-direction: row;
 	flex-wrap: nowrap;
-	gap: 4px;
+	gap: 12px;
 	overflow-x: auto;
-	padding-bottom: 2px;
+	padding: 0 6px;
+	background: linear-gradient(to top, #2f4fef 1px, transparent 1px);
+	scrollbar-width: none;
+}
+
+.view-tabs::-webkit-scrollbar {
+	display: none;
 }
 
 .view-tabs[hidden] {
@@ -155,22 +165,79 @@ label[for="configType"] {
 	align-items: center;
 	justify-content: center;
 	flex: 1 1 0;
-	min-width: 40px;
-	padding: 11px 4px;
-	background-color: transparent;
-	border: 1px solid transparent;
-	border-radius: 8px;
+	min-width: 28px;
+	padding: 11px 2px;
+	background-color: #edf2f7;
+	border: 1px solid #c7d2df;
+	border-bottom: 0;
+	border-radius: 8px 8px 0 0;
 	cursor: pointer;
 }
 
-.view-tab:hover {
-	background-color: rgba(47, 79, 239, 0.08);
+.view-tab:hover:not(.view-tab-active) {
+	background-color: #e0e9f7;
 }
 
-.view-tab-active {
-	background-color: rgba(47, 79, 239, 0.16);
-	border-color: #2f4fef;
-	box-shadow: inset 0 -3px 0 #2f4fef;
+#configTypeTabs .view-tab.view-tab-active {
+	position: relative;
+	background: #2f4fef !important;
+	border-color: #2f4fef !important;
+	border-radius: 10px 10px 0 0 !important;
+}
+
+.view-tab-active::before,
+.view-tab-active::after {
+	content: '';
+	position: absolute;
+	bottom: 0;
+	width: 6px;
+	height: 6px;
+	pointer-events: none;
+}
+
+.view-tab-active::before {
+	left: -6px;
+	background: radial-gradient(circle at top left, transparent 6px, #2f4fef 6px);
+}
+
+.view-tab-active::after {
+	right: -6px;
+	background: radial-gradient(circle at top right, transparent 6px, #2f4fef 6px);
+}
+
+.view-tab-active .view-tab-icon {
+	filter: brightness(0) invert(1);
+}
+
+.view-tab:focus-visible {
+	outline: 2px solid #2f4fef;
+	outline-offset: -3px;
+}
+
+.view-frame-header {
+	box-sizing: border-box;
+	border-left: 1px solid #2f4fef;
+	border-right: 1px solid #2f4fef;
+	padding: 0 6px;
+	background: #fff;
+}
+
+.view-frame-header::after {
+	content: '';
+	position: fixed;
+	top: var(--settings-fixed-top-offset, 96px);
+	right: 14px;
+	bottom: 14px;
+	left: 14px;
+	border: 1px solid #2f4fef;
+	border-top: 0;
+	border-radius: 0 0 8px 8px;
+	pointer-events: none;
+}
+
+.view-tabs[hidden] + .view-frame-header {
+	border-top: 1px solid #2f4fef;
+	border-radius: 8px 8px 0 0;
 }
 
 .view-tab-icon {
@@ -180,11 +247,34 @@ label[for="configType"] {
 	pointer-events: none;
 }
 
+@media (max-width: 400px) {
+	.view-tabs {
+		gap: 8px;
+		padding: 0 4px;
+	}
+
+	.view-tab-active::before,
+	.view-tab-active::after {
+		width: 4px;
+		height: 4px;
+	}
+
+	.view-tab-active::before {
+		left: -4px;
+		background: radial-gradient(circle at top left, transparent 4px, #2f4fef 4px);
+	}
+
+	.view-tab-active::after {
+		right: -4px;
+		background: radial-gradient(circle at top right, transparent 4px, #2f4fef 4px);
+	}
+}
+
 .page-help-row {
 	display: flex;
 	align-items: center;
 	justify-content: flex-end;
-	margin: -1px 0 2px;
+	margin: 0;
 }
 
 #groupPanelControlsExpander {
@@ -419,9 +509,11 @@ body.page-help-intro-open {
 
 .bottomFixButtonComponent {
 	position: fixed;
-	bottom: 5px;
+	left: 22px;
+	right: 22px;
+	bottom: 22px;
 	padding-top: 0px;
-	width: 94%;
+	width: auto;
 	height: 50px;
 	display: flex;
 	justify-content: space-around;
@@ -429,9 +521,27 @@ body.page-help-intro-open {
 	/* set z-index to 2 to position on top */
 }
 
+#saveBlock > #save {
+	box-sizing: border-box;
+	width: 100%;
+	margin: 0;
+}
+
 .main {
-	margin-top: 64px;
-	/* Add a top margin to avoid content overlay */
+	box-sizing: border-box;
+	margin-top: 96px;
+	min-height: calc(100vh - var(--settings-fixed-top-offset, 96px) - 14px);
+	padding: 4px 4px 12px;
+	background: #fff;
+}
+
+.main > .tabcontent,
+.main > .tabcontent > .homey-form-group,
+.main > .tabcontent > .homey-form-fieldset {
+	margin-left: 0 !important;
+	margin-right: 0 !important;
+	padding-left: 0 !important;
+	padding-right: 0 !important;
 }
 
 #panelConfig,
@@ -558,6 +668,10 @@ summary::-webkit-details-marker {
 	padding: 10px;
 	border: 1px solid lightblue;
 	border-radius: 10px;
+}
+
+#panelConfig > .homey-form-group > .bordered-box {
+	padding: 6px;
 }
 
 .button-config-backing-editor {
@@ -1970,13 +2084,25 @@ body.homey-mobile-app .group-sim-module-body .button-sim-state-block {
 
 .button-card-footer {
 	position: relative;
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	gap: 8px;
 	margin-top: 8px;
 	padding-top: 8px;
 	border-top: 1px solid #d4deea;
 }
 
 .button-card-settings-details {
+	grid-column: 1 / -1;
+	grid-row: 1;
 	min-height: 28px;
+}
+
+.button-card-delete-configuration {
+	grid-column: 2;
+	grid-row: 1;
+	align-self: start;
+	margin: 0 !important;
 }
 
 .button-card-settings-summary {
@@ -1985,6 +2111,7 @@ body.homey-mobile-app .group-sim-module-body .button-sim-state-block {
 	justify-content: center;
 	gap: 6px;
 	width: max-content;
+	max-width: calc(100% - 44px);
 	margin-right: auto;
 	padding: 4px 8px !important;
 	list-style: none;
@@ -2011,9 +2138,8 @@ body.homey-mobile-app .group-sim-module-body .button-sim-state-block {
 }
 
 .button-card-page-action {
-	position: absolute;
-	top: 8px;
-	right: 0;
+	grid-column: 1 / -1;
+	justify-self: end;
 	display: inline-flex;
 	align-items: center;
 	gap: 6px;

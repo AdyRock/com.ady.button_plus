@@ -342,6 +342,8 @@
         "advancedMappingPreviewHelp": "If the event target differs from the displayed capability, the first event shows the target's current value and direction for 3 seconds without changing it. Later events change the value while the preview is visible. After the display returns to its SVG, the next event previews again. Matching display and event capabilities change immediately. A click may wait briefly for double-click detection; long press repeats.",
 		"deletePageConfirm": "Delete page __pageLabel__?",
 		"deletePage": "Delete page",
+		"deleteButtonConfigurationConfirm": "Clear all pages and settings in button configuration \"__configName__\"? Configuration numbers and device/group assignments will not change. Use Save All Configurations to apply.",
+		"deleteButtonConfiguration": "Delete button configuration",
         "clearButtonSettings": "Clear button settings",
 		"unableToAddPage": "Unable to add a new page.",
 		"unableToAddPageError": "Unable to add page: __error__",
