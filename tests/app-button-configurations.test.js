@@ -1550,6 +1550,74 @@ function checkWizardPreservesLedColours()
 	assert.strictEqual(page.leftLedCapability, '', 'A thermostat without onoff does not use its temperature as LED brightness');
 }
 
+async function checkMQTTClientReplacement()
+{
+	const setupStart = source.indexOf('\n\tsetupMQTTClient(');
+	const setupEnd = source.indexOf('\n\t// ========== MQTT COMMUNICATION', setupStart);
+	assert(setupStart >= 0 && setupEnd > setupStart);
+	const clients = [];
+	const connections = [];
+	const app = vm.runInNewContext(`new (class { ${source.slice(setupStart, setupEnd)} })()`, {
+		mqtt: {
+			connect: (url, options) =>
+			{
+				const handlers = new Map();
+				const client = {
+					connected: true,
+					on: (event, handler) => handlers.set(event, handler),
+					end: force => { client.ended = force; },
+					subscribe: (_topic, callback) => callback(null),
+					handlers,
+				};
+				clients.push(client);
+				connections.push({ url, options });
+				return client;
+			},
+		},
+	});
+	const deviceSource = fs.readFileSync(path.join(__dirname, '..', 'drivers', 'panel_hardware', 'device.js'), 'utf8');
+	const subscriptionStart = deviceSource.indexOf('\n\tasync setupMQTTSubscriptions(');
+	const subscriptionEnd = deviceSource.indexOf('\n\tasync onCapabilityDim(', subscriptionStart);
+	const panel = vm.runInNewContext(`new (class { ${deviceSource.slice(subscriptionStart, subscriptionEnd)} })()`, {
+		checkSEMVerGreaterOrEqual: () => true,
+	});
+	const published = [];
+	let processed = 0;
+	app.MQTTClients = new Map();
+	app.updateLog = () => {};
+	app.varToString = JSON.stringify;
+	app.flushPendingMQTTMessages = async () => {};
+	app.getMqttClient = id => app.MQTTClients.get(id);
+	app.publishMQTTMessage = async (brokerId, topic, value) => published.push({ brokerId, topic, value });
+	panel.homey = { app };
+	panel.firmwareVersion = '2.0.0';
+	panel.buttonId = 'test-panel';
+	panel.page = 1;
+	panel.getCapabilityValue = () => 0.5;
+	panel.checkCoreMQTTMessage = async () => { processed++; return true; };
+	app.homey = { drivers: { getDrivers: () => ({ panel: { getDevices: () => [panel] } }) } };
+	const broker = { brokerid: 'test', url: 'mqtt://localhost', port: 1883 };
+	assert.strictEqual(app.setupMQTTClient(broker, 'homey-id'), true);
+	await clients[0].handlers.get('connect')();
+	assert.strictEqual(published.length, 2, 'Connecting publishes brightness and page settings');
+	assert(published.every(message => message.brokerId === 'test'), 'Subscriptions publish with a broker ID, not a client object');
+
+	app.setupMQTTClient(broker, 'homey-id');
+	assert.strictEqual(clients[0].ended, true, 'Replacing a broker client stops its reconnect loop');
+	assert.strictEqual(app.MQTTClients.get('test'), clients[1]);
+	await clients[0].handlers.get('connect')();
+	await clients[0].handlers.get('message')('buttonplus/test-panel/page/state', Buffer.from('1'));
+	assert.strictEqual(published.length, 2, 'A replaced client cannot resubscribe and republish commands');
+	assert.strictEqual(processed, 0, 'A replaced client cannot process duplicate panel events');
+	await clients[1].handlers.get('connect')();
+	await clients[1].handlers.get('message')('buttonplus/test-panel/page/state', Buffer.from('1'));
+	assert.strictEqual(published.length, 4, 'The replacement client still initializes the panel');
+	assert.strictEqual(processed, 1, 'The active client still processes panel events');
+
+	app.setupMQTTClient({ ...broker, brokerid: 'second' }, 'homey-id');
+	assert.notStrictEqual(connections[1].options.clientId, connections[2].options.clientId, 'Broker entries on the same server have distinct MQTT client IDs');
+}
+
 function checkDeleteButtonConfiguration()
 {
 	const settingsSource = fs.readFileSync(path.join(__dirname, '..', 'settings', 'settings.js'), 'utf8');
@@ -1626,6 +1694,7 @@ function checkDeleteButtonConfiguration()
 
 async function run()
 {
+	await checkMQTTClientReplacement();
 	await checkAdvancedLedSources();
 	checkWizardPreservesLedColours();
 	await checkAdvancedButtonClickResolution();

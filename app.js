@@ -3045,11 +3045,21 @@ class MyApp extends Homey.App
 			// Connect to the MQTT server and subscribe to the required topics
 			// this.MQTTclient = mqtt.connect(MQTT_SERVER, { clientId: `HomeyButtonApp-${homeyID}`, username: Homey.env.MQTT_USER_NAME, password: Homey.env.MQTT_PASSWORD });
 			this.updateLog(`setupMQTTClient connect: ${brokerConfig.url}:${brokerConfig.port}`, 1);
-			const MQTTclient = mqtt.connect(`${brokerConfig.url}:${brokerConfig.port}`, { clientId: `HomeyButtonApp-${homeyID}`, username: brokerConfig.username, password: brokerConfig.password });
+			const previousClient = this.MQTTClients.get(brokerConfig.brokerid);
+			if (previousClient)
+			{
+				this.MQTTClients.delete(brokerConfig.brokerid);
+				previousClient.end(true);
+			}
+			const MQTTclient = mqtt.connect(`${brokerConfig.url}:${brokerConfig.port}`, { clientId: `HomeyButtonApp-${homeyID}-${brokerConfig.brokerid}`, username: brokerConfig.username, password: brokerConfig.password });
 			this.MQTTClients.set(brokerConfig.brokerid, MQTTclient);
 
-			MQTTclient.on('connect', () =>
+			MQTTclient.on('connect', async () =>
 			{
+				if (this.MQTTClients.get(brokerConfig.brokerid) !== MQTTclient)
+				{
+					return;
+				}
 				this.updateLog(`setupMQTTClient.onConnect: connected to ${brokerConfig.url}:${brokerConfig.port} as ${brokerConfig.brokerid}`);
 				this.flushPendingMQTTMessages(brokerConfig.brokerid).catch(err =>
 				{
@@ -3067,11 +3077,11 @@ class MyApp extends Homey.App
 							try
 							{
 								// Setup device MQTT subscriptions
-								device.setupMQTTSubscriptions(MQTTclient);
+								await device.setupMQTTSubscriptions(brokerConfig.brokerid);
 							}
 							catch (error)
 							{
-								this.updateLog(`SsetupMQTTClient: ${error.message}`, 0);
+								this.updateLog(`setupMQTTClient subscriptions error: ${error.message}`, 0);
 							}
 						}
 
@@ -3088,6 +3098,10 @@ class MyApp extends Homey.App
 
 			MQTTclient.on('message', async (topic, message) =>
 			{
+				if (this.MQTTClients.get(brokerConfig.brokerid) !== MQTTclient)
+				{
+					return;
+				}
 				// message is in Buffer
 				try
 				{
