@@ -2872,23 +2872,10 @@ function initialiseSettingsPage(Homey, markReady)
 		toggleDisplayConfigNameVisibilityElement.addEventListener('click', () =>
 		{
 			displayConfigNameCollapsed = !displayConfigNameCollapsed;
-			if (displayConfigNameRowElement)
-			{
-				displayConfigNameRowElement.style.display = displayConfigNameCollapsed ? 'none' : 'block';
-			}
-
-			toggleDisplayConfigNameVisibilityElement.classList.toggle('is-open', !displayConfigNameCollapsed);
-			toggleDisplayConfigNameVisibilityElement.title = displayConfigNameCollapsed ? 'Show configuration name' : 'Hide configuration name';
-			toggleDisplayConfigNameVisibilityElement.setAttribute('aria-label', toggleDisplayConfigNameVisibilityElement.title);
+			updateDisplayConfigNameVisibility();
 		});
 
-		toggleDisplayConfigNameVisibilityElement.classList.toggle('is-open', !displayConfigNameCollapsed);
-		toggleDisplayConfigNameVisibilityElement.title = displayConfigNameCollapsed ? 'Show configuration name' : 'Hide configuration name';
-		toggleDisplayConfigNameVisibilityElement.setAttribute('aria-label', toggleDisplayConfigNameVisibilityElement.title);
-		if (displayConfigNameRowElement)
-		{
-			displayConfigNameRowElement.style.display = displayConfigNameCollapsed ? 'none' : 'block';
-		}
+		updateDisplayConfigNameVisibility();
 	}
 
 	configNameElement.addEventListener('change', () =>
@@ -6066,7 +6053,7 @@ function getButtonPanelPreviewMarkup(pageConfig, side, pageIndex = buttonPagePop
 				</div>`;
 }
 
-function renderInlineButtonPagePreview(page)
+function renderInlineButtonPagePreview(page, preserveConfiguration = false)
 {
 	const previewElements = document.querySelectorAll(`[data-button-preview-page="${page}"]`);
 	previewElements.forEach(previewElement =>
@@ -6078,7 +6065,7 @@ function renderInlineButtonPagePreview(page)
 			return;
 		}
 
-		const pageConfig = config[page];
+		const pageConfig = preserveConfiguration ? JSON.parse(JSON.stringify(config[page])) : config[page];
 		const leftAdvanced = isButtonSideAdvanced(pageConfig, 'left');
 		const rightAdvanced = isButtonSideAdvanced(pageConfig, 'right');
 		const leftPageFallbackToggle = getButtonPageFallbackToggleMarkup(pageConfig, configIndex, 'left', page);
@@ -6112,11 +6099,11 @@ function renderInlineButtonPagePreview(page)
 	});
 }
 
-function renderInlineButtonPagePreviews()
+function renderInlineButtonPagePreviews(preserveConfiguration = false)
 {
 	for (let page = 0; page < getDisplayedButtonPageCount(); page++)
 	{
-		renderInlineButtonPagePreview(page);
+		renderInlineButtonPagePreview(page, preserveConfiguration);
 	}
 }
 
@@ -9618,6 +9605,88 @@ function focusDisplayControlFromPopup(itemNo, fieldSuffix)
 	});
 }
 
+function getDisplayItemSelectionHandlesMarkup(itemNo, xPercent, yPercent, widthPercent)
+{
+	const displayMoveHandleTitle = escapeHtml(Homey.__('settings.displaySimMoveHandleTitle'));
+	const displayMoveHandleAria = escapeHtml(Homey.__('settings.displaySimMoveHandleAria'));
+	const displayResizeHandleTitle = escapeHtml(Homey.__('settings.displaySimResizeHandleTitle'));
+	const displayResizeHandleAria = escapeHtml(Homey.__('settings.displaySimResizeHandleAria'));
+	const displayTooltipX = escapeHtml(Homey.__('settings.displaySimTooltipX'));
+	const displayTooltipY = escapeHtml(Homey.__('settings.displaySimTooltipY'));
+	const displayTooltipW = escapeHtml(Homey.__('settings.displaySimTooltipW'));
+	return `<button type="button" class="display-sim-move-handle" title="${displayMoveHandleTitle}" onpointerdown="startDisplayItemMoveDrag(event, ${itemNo})" onclick="event.stopPropagation();" aria-label="${displayMoveHandleAria}"><span aria-hidden="true">↑↓←→</span></button><button type="button" class="display-sim-resize-handle" title="${displayResizeHandleTitle}" onpointerdown="startDisplayItemWidthDrag(event, ${itemNo})" onclick="event.stopPropagation();" aria-label="${displayResizeHandleAria}"><span aria-hidden="true">↔</span></button><div class="display-sim-resize-tooltip display-sim-move-tooltip" aria-hidden="true">${displayTooltipX}: ${Math.round(xPercent)}% ${displayTooltipY}: ${Math.round(yPercent)}%</div><div class="display-sim-resize-tooltip display-sim-size-tooltip" aria-hidden="true">${displayTooltipW}: ${Math.round(widthPercent * 10) / 10}%</div>`;
+}
+
+function createDisplayItemSelectionPreview()
+{
+	const surface = document.getElementById('displayInlineSimSurface');
+	if (!surface) return null;
+	const originalSelection = displayInlineSelectedItemNo;
+	let example = null;
+	let emptyState = null;
+	function clearExample()
+	{
+		if (example) example.remove();
+		example = null;
+		if (emptyState) emptyState.element.style.display = emptyState.display;
+		emptyState = null;
+	}
+	displayInlineSelectedItemNo = -1;
+	if (originalSelection !== -1) renderDisplayInlineSimulator();
+	return {
+		show(selected)
+		{
+			const items = Array.from(surface.querySelectorAll('.display-sim-item:not(.display-sim-item-page-zero-overlay)'))
+				.filter(item => item !== example);
+			const item = items.find(candidate => Number(candidate.dataset.itemNo) === originalSelection) || items[0];
+			const selection = selected && item ? Number(item.dataset.itemNo) : -1;
+			if (displayInlineSelectedItemNo !== selection
+				|| (selected && item && !item.classList.contains('display-sim-item-selected')))
+			{
+				clearExample();
+				displayInlineSelectedItemNo = selection;
+				renderDisplayInlineSimulator();
+			}
+			if (!selected || item)
+			{
+				clearExample();
+				return;
+			}
+			if (example && example.isConnected) return;
+			clearExample();
+			const message = surface.querySelector('.display-sim-empty-message');
+			if (message)
+			{
+				emptyState = { element: message, display: message.style.display };
+				message.style.display = 'none';
+			}
+			example = document.createElement('div');
+			example.className = 'display-sim-item display-sim-item-selected settings-tour-display-item';
+			example.setAttribute('aria-hidden', 'true');
+			example.style.left = '20%';
+			example.style.top = '30%';
+			example.style.width = '60%';
+			const labelKey = 'settings.tour.displayExample';
+			const translated = Homey.__(labelKey);
+			const label = translated && translated !== labelKey ? translated : 'Example display item';
+			example.innerHTML = `<div class="display-sim-value-row display-sim-value-row-no-unit"><div class="display-sim-text">${escapeHtml(label)}</div></div>${getDisplayItemSelectionHandlesMarkup(-1, 20, 30, 60)}`;
+			for (const handle of example.querySelectorAll('button'))
+			{
+				handle.removeAttribute('onpointerdown');
+				handle.removeAttribute('onclick');
+				handle.tabIndex = -1;
+			}
+			surface.append(example);
+		},
+		restore()
+		{
+			clearExample();
+			displayInlineSelectedItemNo = originalSelection;
+			renderDisplayInlineSimulator();
+		},
+	};
+}
+
 function renderDisplaySimulatorSurface(surfaceElement, titleElement, prevElement, nextElement, statusPositionElement, clickHandlerName, updateScrollOffset = false)
 {
 	if (!surfaceElement)
@@ -9637,13 +9706,6 @@ function renderDisplaySimulatorSurface(surfaceElement, titleElement, prevElement
 	};
 
 	const displayConfiguration = localDisplayConfigurations[currentDisplayConfigurationNo];
-	const displayMoveHandleTitle = escapeHtml(Homey.__('settings.displaySimMoveHandleTitle'));
-	const displayMoveHandleAria = escapeHtml(Homey.__('settings.displaySimMoveHandleAria'));
-	const displayResizeHandleTitle = escapeHtml(Homey.__('settings.displaySimResizeHandleTitle'));
-	const displayResizeHandleAria = escapeHtml(Homey.__('settings.displaySimResizeHandleAria'));
-	const displayTooltipX = escapeHtml(Homey.__('settings.displaySimTooltipX'));
-	const displayTooltipY = escapeHtml(Homey.__('settings.displaySimTooltipY'));
-	const displayTooltipW = escapeHtml(Homey.__('settings.displaySimTooltipW'));
 	const displayLoadingPlaceholder = escapeHtml(Homey.__('settings.displaySimLoading'));
 	const displayEmptyMessage = escapeHtml(Homey.__('settings.displaySimEmptyMessage'));
 	const displayStatusLeftPlaceholder = escapeHtml(Homey.__('settings.displaySimStatusLeftPlaceholder'));
@@ -9838,7 +9900,7 @@ function renderDisplaySimulatorSurface(surfaceElement, titleElement, prevElement
 							<div class="${valueClass}" style="font-size:${fontPx}px;font-weight:${fontWeight};padding-top:${valueTextPaddingTop}px;">${renderedText}</div>
 								${hasUnitValue ? `<div class="display-sim-unit"${unitClick} style="font-size:${Math.max(15, Math.floor(fontPx * 0.52))}px;font-weight:${fontWeight};">${unitText}</div>` : ''}
 						</div>`}
-					${isSelected ? `<button type="button" class="display-sim-move-handle" title="${displayMoveHandleTitle}" onpointerdown="startDisplayItemMoveDrag(event, ${itemNo})" onclick="event.stopPropagation();" aria-label="${displayMoveHandleAria}"><span aria-hidden="true">↑↓←→</span></button><button type="button" class="display-sim-resize-handle" title="${displayResizeHandleTitle}" onpointerdown="startDisplayItemWidthDrag(event, ${itemNo})" onclick="event.stopPropagation();" aria-label="${displayResizeHandleAria}"><span aria-hidden="true">↔</span></button><div class="display-sim-resize-tooltip display-sim-move-tooltip" aria-hidden="true">${displayTooltipX}: ${Math.round(xPercent)}% ${displayTooltipY}: ${Math.round(yPercent)}%</div><div class="display-sim-resize-tooltip display-sim-size-tooltip" aria-hidden="true">${displayTooltipW}: ${Math.round(widthPercent * 10) / 10}%</div>` : ''}
+					${isSelected ? getDisplayItemSelectionHandlesMarkup(itemNo, xPercent, yPercent, widthPercent) : ''}
 				</div>`;
 	}).join('');
 
@@ -12094,6 +12156,21 @@ function updateDisplayConfiguration(expandItem = -1)
 }
 
 // Create all the display items for the specified display configuration
+function updateDisplayConfigNameVisibility(expanded = !displayConfigNameCollapsed)
+{
+	if (displayConfigNameRowElement)
+	{
+		displayConfigNameRowElement.style.display = expanded ? 'block' : 'none';
+	}
+	if (toggleDisplayConfigNameVisibilityElement)
+	{
+		toggleDisplayConfigNameVisibilityElement.classList.toggle('is-open', expanded);
+		toggleDisplayConfigNameVisibilityElement.title = expanded ? 'Hide configuration name' : 'Show configuration name';
+		toggleDisplayConfigNameVisibilityElement.setAttribute('aria-label', toggleDisplayConfigNameVisibilityElement.title);
+		toggleDisplayConfigNameVisibilityElement.setAttribute('aria-expanded', String(expanded));
+	}
+}
+
 function drawDisplayConfiguration(displayConfiguration, expandItemId = -1)
 {
 	if (!Array.isArray(displayConfiguration.items))
@@ -14745,7 +14822,45 @@ function setButtonVisibleConfigurationCount(value)
 	updateButtonPanelControls();
 }
 
-function updateButtonPanelControlsExpander()
+function createButtonConfigurationCountPreview()
+{
+	const section = document.getElementById('buttonItemsSection');
+	const originalCount = buttonVisibleConfigurationCount;
+	const originalNos = buttonVisibleConfigurationNos.slice();
+	const countSelect = section.querySelector('.button-visible-count-select');
+	// Retain the actual nodes so draft inputs and expanded sections survive preview rebuilds.
+	const previews = Array.from(section.querySelectorAll('.button-config-preview-stack'))
+		.map(stack => ({ stack, nodes: Array.from(stack.childNodes) }));
+	let previewCount = null;
+	return {
+		show(count)
+		{
+			if (previewCount === count) return;
+			previewCount = count;
+			buttonVisibleConfigurationCount = count;
+			previews.forEach(({ stack }, page) =>
+			{
+				stack.innerHTML = getDisplayedButtonCardsHtml(page);
+				if (!stack.querySelector('.button-config-preview-card.active'))
+				{
+					const card = stack.querySelector('.button-config-preview-card');
+					if (card) card.classList.add('active');
+				}
+			});
+			countSelect.value = String(count);
+			renderInlineButtonPagePreviews(true);
+		},
+		restore()
+		{
+			buttonVisibleConfigurationCount = originalCount;
+			buttonVisibleConfigurationNos.splice(0, buttonVisibleConfigurationNos.length, ...originalNos);
+			previews.forEach(({ stack, nodes }) => stack.replaceChildren(...nodes));
+			countSelect.value = String(originalCount);
+		},
+	};
+}
+
+function updateButtonPanelControlsExpander(expanded = buttonPanelControlsExpanded)
 {
 	const section = document.getElementById('buttonItemsSection');
 	const button = document.getElementById('buttonPanelControlsExpander');
@@ -14754,10 +14869,10 @@ function updateButtonPanelControlsExpander()
 		return;
 	}
 
-	section.classList.toggle('button-preview-controls-collapsed', !buttonPanelControlsExpanded);
-	button.classList.toggle('is-open', buttonPanelControlsExpanded);
-	button.setAttribute('aria-expanded', buttonPanelControlsExpanded ? 'true' : 'false');
-	button.title = buttonPanelControlsExpanded
+	section.classList.toggle('button-preview-controls-collapsed', !expanded);
+	button.classList.toggle('is-open', expanded);
+	button.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+	button.title = expanded
 		? Homey.__('settings.collapsePanelControls')
 		: Homey.__('settings.expandPanelControls');
 	button.setAttribute('aria-label', button.title);
@@ -14770,13 +14885,13 @@ function toggleButtonPanelControls()
 	updateButtonPanelControlsExpander();
 }
 
-function toggleDisplayedButtonConfigName(button)
+function toggleDisplayedButtonConfigName(button, expanded)
 {
 	const card = button && button.closest ? button.closest('.button-config-preview-card') : null;
 	const row = card ? card.querySelector('.button-displayed-config-name-row') : null;
 	if (row && button)
 	{
-		const isVisible = row.classList.toggle('visible');
+		const isVisible = expanded === undefined ? row.classList.toggle('visible') : row.classList.toggle('visible', expanded);
 		button.classList.toggle('is-open', isVisible);
 		button.setAttribute('aria-expanded', isVisible ? 'true' : 'false');
 	}
@@ -14882,22 +14997,22 @@ function getDisplayedButtonInlineMainControlHtml(side, page, configNo, slot)
 	return `<div class="button-inline-main-control-column">
 				<div class="button-inline-main-control-heading">${panelLabel}</div>
 				<div class="button-inline-main-controls">
-					<label class="homey-form-checkbox">
+					<label class="homey-form-checkbox" data-button-tour-control="release">
 						<input class="homey-form-checkbox-input" id="${idPrefix}ClickReleaseEvent" type="checkbox"${pageConfig[`${side}ClickReleaseEvent`] !== false ? ' checked' : ''} onchange="updateDisplayedButtonSetting(${configNo}, ${page}, '${side}', 'ClickReleaseEvent', this.checked)">
 						<span class="homey-form-checkbox-checkmark"></span>
 						<span class="homey-form-checkbox-text">${Homey.__('settings.clickReleaseEvent')}</span>
 					</label>
-					<label class="homey-form-checkbox">
+					<label class="homey-form-checkbox" data-button-tour-control="repeat">
 						<input class="homey-form-checkbox-input" id="${idPrefix}Repeat" type="checkbox"${repeatEnabled ? ' checked' : ''} onchange="updateDisplayedButtonSetting(${configNo}, ${page}, '${side}', 'DisableLongRepeat', this.checked)">
 						<span class="homey-form-checkbox-checkmark"></span>
 						<span class="homey-form-checkbox-text">${Homey.__('settings.longRepeat')}</span>
 					</label>
-					<label class="homey-form-label" for="${idPrefix}Delay">${Homey.__('settings.longDelayMs')}</label>
-					<input class="homey-form-input" id="${idPrefix}Delay" type="number" min="0" max="10000" step="10" value="${longDelayMs}" onchange="updateDisplayedButtonSetting(${configNo}, ${page}, '${side}', 'LongDelayMs', this.value)">
-					<label class="homey-form-label" for="${idPrefix}Interval">${Homey.__('settings.longRepeatMs')}</label>
-					<input class="homey-form-input" id="${idPrefix}Interval" type="number" min="50" max="10000" step="10" value="${longRepeatMs}" onchange="updateDisplayedButtonSetting(${configNo}, ${page}, '${side}', 'LongRepeatMs', this.value)">
-					<label class="homey-form-label" for="${idPrefix}Broker">${Homey.__('settings.brokerId')}</label>
-					<select class="homey-form-select" id="${idPrefix}Broker" onchange="updateDisplayedButtonSetting(${configNo}, ${page}, '${side}', 'BrokerId', this.value)">${getDisplayedButtonBrokerOptionsHtml(brokerId)}</select>
+					<label class="homey-form-label" data-button-tour-control="delay" for="${idPrefix}Delay">${Homey.__('settings.longDelayMs')}</label>
+					<input class="homey-form-input" data-button-tour-control="delay" id="${idPrefix}Delay" type="number" min="0" max="10000" step="10" value="${longDelayMs}" onchange="updateDisplayedButtonSetting(${configNo}, ${page}, '${side}', 'LongDelayMs', this.value)">
+					<label class="homey-form-label" data-button-tour-control="interval" for="${idPrefix}Interval">${Homey.__('settings.longRepeatMs')}</label>
+					<input class="homey-form-input" data-button-tour-control="interval" id="${idPrefix}Interval" type="number" min="50" max="10000" step="10" value="${longRepeatMs}" onchange="updateDisplayedButtonSetting(${configNo}, ${page}, '${side}', 'LongRepeatMs', this.value)">
+					<label class="homey-form-label" data-button-tour-control="broker" for="${idPrefix}Broker">${Homey.__('settings.brokerId')}</label>
+					<select class="homey-form-select" data-button-tour-control="broker" id="${idPrefix}Broker" onchange="updateDisplayedButtonSetting(${configNo}, ${page}, '${side}', 'BrokerId', this.value)">${getDisplayedButtonBrokerOptionsHtml(brokerId)}</select>
 				</div>
 			</div>`;
 }

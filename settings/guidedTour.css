@@ -47,6 +47,50 @@
 	margin: 8px 0;
 }
 
+.settings-tour-step-line {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin: 8px 0;
+}
+
+.settings-tour-step-line p {
+	flex-shrink: 0;
+	margin: 0;
+}
+
+.settings-tour-step-select {
+	flex: 1;
+	min-width: 0;
+	padding: 4px 2px;
+	border: 0;
+	border-bottom: 1px solid #2f4fef;
+	background: #fff;
+	color: #2f4fef;
+	font: inherit;
+	cursor: pointer;
+}
+
+.settings-tour-step-select:focus-visible {
+	outline: 2px solid #2f4fef;
+	outline-offset: 2px;
+}
+
+.settings-tour-extra .settings-tour-dialog {
+	display: flex;
+	flex-direction: column;
+}
+
+.settings-tour-extra .settings-tour-dialog > [aria-live] {
+	min-height: 0;
+	overflow-y: auto;
+}
+
+.settings-tour-extra .settings-tour-dialog h2,
+.settings-tour-extra .settings-tour-controls {
+	flex-shrink: 0;
+}
+
 .settings-tour-controls {
 	display: flex;
 	flex-wrap: wrap;
